@@ -7,7 +7,7 @@ rewrite doesn't silently lose behavior.
 
 **How to use:** fill the **K/C/D** column for each row —
 - **Keep** — reproduce the behavior as-is.
-- **Change** — keep the capability but rework it (e.g. behind a port, generalized for
+- **Change** — keep the capability but rework it (e.g. behind an interface, generalized for
   flexible workflows).
 - **Drop** — intentionally not carried over.
 
@@ -56,7 +56,7 @@ are suggestions, not decisions.
 
 | Capability                  | What it does                                                                                                            | K/C/D | Hint                                    |
 | --------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ----- | --------------------------------------- |
-| Task list by stage priority | Active, then staging, then recently finalized                                                                           | K     | Behind presentation port (ADR 0002)     |
+| Task list by stage priority | Active, then staging, then recently finalized                                                                           | K     | Behind presentation interface (ADR 0002)     |
 | State + tag badges          | `[ITERATING :user:]` etc.                                                                                               | K     |                                         |
 | Multi-repo labels           | Repo column for cross-repo visibility                                                                                   | K     |                                         |
 | Keybindings                 | nav (↑↓/hjkl), `p` open PR, `t` tmux switch, `c` copy slug, `P` promote, `f` finalize, `/` filter, `r` reload, `q` quit | K     |                                         |
@@ -88,7 +88,7 @@ are suggestions, not decisions.
 
 | Capability                | What it does                                                          | K/C/D                                                                                                                                 | Hint                               |
 | ------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| Per-task Docker container | Isolated container per task, UID/GID-matched                          | K                                                                                                                                     | Behind execution-backend port (M5) |
+| Per-task Docker container | Isolated container per task, UID/GID-matched                          | K                                                                                                                                     | Behind execution-backend interface (M5) |
 | Docker-in-Docker          | Per-task `dind` engine + volume                                       | C - configurable per repo                                                                                                             |                                    |
 | Per-task tmux session     | `cloude-<slug>`, 2-window (agent + read-only task view)               | K                                                                                                                                     |                                    |
 | Base image                | Node20/Bookworm + git/tmux/jq/gh/claude/uv/bun                        | C - start w/ minimal image to support claude and other general panopticon requirements, allow worksflows and repos to layer onto this |                                    |
@@ -172,6 +172,6 @@ are suggestions, not decisions.
   file artifacts) — the question per row is DB-state vs. file-artifact vs. drop.
 - **Container/integration rows (§7–8)** are largely "Keep" for Milestone 1, but §7 is the
   seam that Milestone 5 (remote execution) and Milestone 3 (other CLIs) will later push
-  behind ports.
+  behind interfaces.
 - **Secrets/repo rows (§9)** are "Keep + generalize" — already per-repo, which is exactly
   the Milestone 1 secrets model.

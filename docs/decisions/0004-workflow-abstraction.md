@@ -38,14 +38,14 @@ workflow owns its specific behavior.
 
 ## Decision
 
-A **workflow** is a first-class, pluggable unit behind a **workflow port**. The core
+A **workflow** is a first-class, pluggable unit behind a **workflow interface**. The core
 engine drives tasks generically; the active workflow supplies everything specific to a
 given way of working. The cloude-cade flow and the free-form flow are two
-implementations of this port.
+implementations of this interface.
 
 ### A workflow is a Python class implementing an abstract interface
 
-A workflow is a **concrete subclass of an abstract base class** — the workflow port
+A workflow is a **concrete subclass of an abstract base class** — the workflow interface
 *is* that ABC. Workflows are **code, not a data file or DB rows**: a pure-data
 definition can't capture everything a workflow owns (opening a PR, resolving a CI
 failure, workflow-specific teardown are imperative), and expressing the whole thing in
@@ -146,7 +146,7 @@ the active workflow contributes, on top of the core operations.
 ### Discovery, loading, and trust
 
 Workflow classes are loaded by a **task service** — a long-running service that wraps
-the task database (the repository port, ADR 0001) and is the core's home for
+the task database (the repository interface, ADR 0001) and is the core's home for
 orchestration state. On startup, the task service **loads all workflow classes via a
 path-based registration mechanism** (a configured set of paths/modules it imports and
 registers against the workflow ABC). The active set of workflows is whatever the task
@@ -208,4 +208,4 @@ future use case demands it (e.g. untrusted or multi-tenant operation).
   layers via its provisioning extension point.
 - ADR 0006 — the task service that loads workflows (path-based registration) and drives
   their lifecycle.
-- The workflow port's concrete interface and spec format belong in `docs/ARCHITECTURE.md`.
+- The workflow interface's concrete interface and spec format belong in `docs/ARCHITECTURE.md`.

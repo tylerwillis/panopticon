@@ -11,7 +11,7 @@ its own secrets, and a task inherits the secrets of the repo it operates on. PAR
 generalized cloude-cade's per-repo Claude-OAuth volume to "other secrets" and moved
 `GH_TOKEN` out of ad-hoc env vars.
 
-An earlier draft of this ADR introduced a full **secret-store port** (backend-agnostic,
+An earlier draft of this ADR introduced a full **secret-store interface** (backend-agnostic,
 references-vs-values, OS-keyring / Vault adapters). That was judged **over-engineered for
 what panopticon needs**. This ADR replaces it with a deliberately minimal model.
 
@@ -50,7 +50,7 @@ actually matter:
 
 ### What was dropped vs. the earlier draft
 
-- No backend-agnostic "secret-store port"; no keyring / Vault adapters.
+- No backend-agnostic "secret-store interface"; no keyring / Vault adapters.
 - No references-vs-values indirection beyond the repo entity simply pointing at its
   env-file / creds volume.
 - The `login` flow still generalizes to other agent CLIs / credential kinds (Milestone 3),
@@ -78,7 +78,7 @@ actually matter:
 - **Granularity.** Per-repo is the decided scope; finer scoping (per-workflow / per-agent-
   role) is deferred but not precluded — it would be additional env layered at injection.
 - **Injection details** (exact env-file format, mount path, volume naming) belong in
-  ARCHITECTURE.md / the execution-backend port.
+  ARCHITECTURE.md / the execution-backend interface.
 
 ## Related
 

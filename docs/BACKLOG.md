@@ -28,7 +28,7 @@ in the ADRs; this file is for the smaller stuff that doesn't have a home there y
 ## Deferred features (not yet scheduled, or scheduled but flagged here)
 
 - [ ] **Runnable task-service entrypoint** — there's no `uvicorn`-runnable server +
-  config (host/port, DB path, artifact root, workflow path). Tests drive `create_app`
+  config (host/interface, DB path, artifact root, workflow path). Tests drive `create_app`
   in-process. Needed before Slice 2/3 can run for real. _(Slice 1, P1)_
 - [ ] **Workflow path-based registration** — workflows are injected as a dict today; ADR
   0004/0006 specify loading from a registered path at startup (ROADMAP Slice 7). _(Slice 1, P2)_

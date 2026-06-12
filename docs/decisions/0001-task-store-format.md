@@ -35,8 +35,8 @@ move (e.g. to Postgres) without changing domain logic.
 
 Concretely:
 
-1. **Repository / port boundary.** All task-store access goes through a repository
-   interface (hexagonal style). Domain and command code depend on the interface,
+1. **Repository / interface boundary.** All task-store access goes through a repository
+   interface. Domain and command code depend on the interface,
    never on the database driver. SQL and driver imports live only in the adapter.
 2. **No backend-specific features in domain code.** Avoid SQLite-only SQL, pragmas,
    or type quirks leaking past the adapter. Anything backend-specific (e.g. SQLite

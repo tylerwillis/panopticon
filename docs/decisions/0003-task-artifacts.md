@@ -43,11 +43,11 @@ A task is **structured record (DB) + a set of file-backed artifacts**.
 
    None of these is a separate copy; they are access surfaces over the same file.
 
-3. **Access goes through an artifact-store port.** Consistent with the hexagonal spine
-   (ADR 0001 repository port, ADR 0002 presentation port), artifact access is behind an
-   **artifact-store port**. The initial adapter is the local filesystem; the port keeps
+3. **Access goes through an artifact-store interface.** Consistent with the interface-and-adapters spine
+   (ADR 0001 repository interface, ADR 0002 presentation interface), artifact access is behind an
+   **artifact-store interface**. The initial adapter is the local filesystem; the interface keeps
    the door open to other backends later (e.g. object storage) without changing core or
-   MCP logic. The MCP server and the dashboard are *consumers* of this port, not
+   MCP logic. The MCP server and the dashboard are *consumers* of this interface, not
    bypasses around it.
 
 ## Consequences
@@ -68,7 +68,7 @@ A task is **structured record (DB) + a set of file-backed artifacts**.
   dashboard/MCP re-reads from disk; a stored hash detects drift).
 - **Concurrent writers.** The plan can be edited by an in-container agent (via MCP), a
   user in an editor, and the dashboard at once. Decide a concurrency policy at the
-  artifact-store port (e.g. last-write-wins with hash-based conflict detection, or
+  artifact-store interface (e.g. last-write-wins with hash-based conflict detection, or
   advisory locking) rather than per-call-site.
 - **Path/URI mapping must be one function.** Task id → directory → MCP URI must be a
   single shared resolver used by the filesystem layout, the MCP server, and the
@@ -80,5 +80,5 @@ A task is **structured record (DB) + a set of file-backed artifacts**.
   file-artifact counterpart; 0001's Context was scoped to point here).
 - ADR 0002 — substitutable dashboard; the dashboard is one *consumer* of the artifact
   store, alongside MCP and direct filesystem access.
-- The artifact-store port, the id→path→URI resolver, and the consistency/concurrency
+- The artifact-store interface, the id→path→URI resolver, and the consistency/concurrency
   policy belong in `docs/ARCHITECTURE.md`.

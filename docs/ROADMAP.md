@@ -23,7 +23,7 @@ Two principles guide the ordering:
 
 Milestone 1 (parity + a free-form workflow + per-repo secrets) is decomposed into slices
 1–7. Milestones 2–5 are coarser entries, since each is largely "fill in an already-designed
-port."
+interface."
 
 ---
 
@@ -39,7 +39,7 @@ later work can proceed in parallel against stable seams.
    classification, transition policy, `definition_of_done`, `skills()` catalogue) and the
    deterministic-method signatures. Plus a trivial **"free-form seed" workflow** (1–2 states,
    no gates) implementing it.
-2. **DB schema + repository port** — `repo`, `task` (internal id, optional slug), `history`
+2. **DB schema + repository interface** — `repo`, `task` (internal id, optional slug), `history`
    tables; SQLite adapter; migrations. Transition enforcement lives at this boundary.
 3. **Task service API contract** — the REST endpoints + MCP tools/resources, defined as a
    schema with minimal implementations (create/query task, request transition, set slug,
@@ -160,7 +160,7 @@ change.
 
 ## Milestone 2 — split planning and implementing agents
 
-Largely new use of designed seams: an **agent-runner port** selecting model/role per stage,
+Largely new use of designed seams: an **agent-runner interface** selecting model/role per stage,
 and **multiple containers per task** (planner + implementer) under one tmux session — the
 exact case tmux-outside-the-agent-container was designed for (ADR 0008). Touches the workflow
 `skills()` split and container invocation.

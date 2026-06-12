@@ -16,7 +16,7 @@ panopticon is a ground-up rewrite of the
 
 ## Non-goals
 
-- Not a faithful port. We re-derive the design; we do not preserve cloude-cade's
+- Not a faithful interface. We re-derive the design; we do not preserve cloude-cade's
   internal structure (heavy shell, hardcoded flow).
 - Not locked to Claude. The system must accommodate other agent CLIs (see Milestone 3),
   so nothing assumes `claude` specifically.
@@ -29,7 +29,7 @@ panopticon is a ground-up rewrite of the
 - Reach parity with the existing cloude-cade workflow.
 - **Plus** a second, "free-form" workflow — proving the workflow is configurable, not
   hardcoded. *(Implies: the lifecycle/state machine is data/config behind a workflow
-  port, not control flow in code.)*
+  interface, not control flow in code.)*
 - Support **separate API keys / secrets per repo** — each repository has its own
   secrets, and a task inherits the secrets of the repo it operates on. *(Implies: a
   repo/project entity owns secret references; tasks resolve secrets via their repo.)*
@@ -40,25 +40,25 @@ panopticon is a ground-up rewrite of the
   level. *(Implies: agent/model selection is configurable per workflow stage.)*
 
 ### Milestone 3 — Other agent CLIs
-- Support agent CLI tools **other than `claude`**. *(Implies: an agent-runner port that
+- Support agent CLI tools **other than `claude`**. *(Implies: an agent-runner interface that
   abstracts over CLI tools.)*
 
 ### Milestone 4 — Web-hosted dashboard
 - Support a **web-hosted view** of the dashboard. *(Directly exercises the substitutable
-  presentation port from ADR 0002.)*
+  presentation interface from ADR 0002.)*
 
 ### Milestone 5 — Remote execution
 - Allow tasks to **spawn on external machines**. *(Implies: the execution/compute
-  backend is a port — local Docker now, remote machines later.)*
+  backend is an interface — local Docker now, remote machines later.)*
 
 ## What this implies for the design
 
 The motivation (flexibility + modularity) and the milestones converge on the same
-hexagonal spine already started in the ADRs: a UI-agnostic, backend-agnostic core that
-depends on **ports**, with replaceable adapters. The milestones add ports beyond the
+interface-and-adapters spine already started in the ADRs: a UI-agnostic, backend-agnostic core that
+depends on **interfaces**, with replaceable adapters. The milestones add interfaces beyond the
 three already decided:
 
-| Concern | Port | Adapter (now) | Driven by |
+| Concern | Interface | Adapter (now) | Driven by |
 |---|---|---|---|
 | Structured state | repository | SQLite | ADR 0001 |
 | Dashboard | presentation | Textual TUI | ADR 0002, Milestone 4 |

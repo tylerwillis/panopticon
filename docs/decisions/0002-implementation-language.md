@@ -29,8 +29,8 @@ Rationale:
 - The cost of choosing Python now is bounded by the modularity constraint below.
 
 **The dashboard is a substitutable module.** The design separates a UI-agnostic core
-from the presentation layer, behind an explicit interface (a "presentation port"),
-exactly as ADR 0001 puts the database behind a repository port. The dashboard consumes
+from the presentation layer, behind an explicit interface (a "presentation interface"),
+exactly as ADR 0001 puts the database behind a repository interface. The dashboard consumes
 the core through that interface and never the reverse.
 
 Consequences of that boundary:
@@ -56,14 +56,14 @@ To keep this real (not aspirational):
 
 **Negative — and mitigations**
 - Python loses Go/Rust's single-binary distribution and lower TUI resource use. Adequate
-  for current scale; if distribution/perf becomes a problem, the presentation port lets a
+  for current scale; if distribution/perf becomes a problem, the presentation interface lets a
   Go/Rust dashboard be swapped in without touching the core.
 - Modularity requires discipline: it is easy to let Textual concepts leak into core logic.
   Enforce by keeping the core importable and testable with no UI dependency installed.
 
 ## Related
 
-- ADR 0001 (task store) — same hexagonal pattern: core depends on **ports**
+- ADR 0001 (task store) — same interface-and-adapters pattern: core depends on **interfaces**
   (repository for storage, presentation for UI); concrete adapters (SQLite, Textual) are
   replaceable.
-- The core/presentation split and the port contracts belong in `docs/ARCHITECTURE.md`.
+- The core/presentation split and the interface contracts belong in `docs/ARCHITECTURE.md`.

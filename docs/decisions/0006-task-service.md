@@ -6,14 +6,14 @@
 
 ## Context
 
-Across the ADRs, a hexagonal "core" has been described abstractly: it owns structured
+Across the ADRs, a "core" has been described abstractly: it owns structured
 task state (ADR 0001), drives per-workflow state machines and the `agent`/`user`
 **turn** (ADR 0004), and is what the dashboard (ADR 0002), in-container agents, and MCP
 artifact serving (ADR 0003) all talk to. ADR 0004 named the concrete form of this core:
 a **task service** that wraps the task database and loads workflow classes on startup via
 path-based registration.
 
-This ADR defines that task service as a first-class component, because every port we've
+This ADR defines that task service as a first-class component, because every interface we've
 decided hangs off it and two milestones (M4 web dashboard, M5 remote execution) depend on
 its shape.
 
@@ -24,7 +24,7 @@ the **sole authority over task state** and the host for orchestration logic.
 
 ### Responsibilities
 
-- **Owns the repository port (ADR 0001).** It is the only component that reads/writes the
+- **Owns the repository interface (ADR 0001).** It is the only component that reads/writes the
   task database directly. All task-state mutations go through it — clients never touch the
   DB. This makes the service the serialization point that gives ADR 0001's required
   concurrency/integrity guarantees (multiple host commands and in-container agents mutate
@@ -36,15 +36,15 @@ the **sole authority over task state** and the host for orchestration logic.
   invokes workflow imperative methods (provisioning, remote VCS integration, hooks,
   cleanup), and maintains the turn-tracking mechanism (workflows only supply the fg/bg
   classification).
-- **Coordinates the other ports.** Artifact store (ADR 0003), execution backend
+- **Coordinates the other interfaces.** Artifact store (ADR 0003), execution backend
   (containers / remote, M5 + ADR 0005 composed images), and per-repo secret injection
   (env vars + creds mounts, ADR 0007). The presentation layer (ADR 0002) is a *consumer*,
-  not a coordinated port.
+  not a coordinated interface.
 
 ### Client/server seam
 
 The task service exposes a **well-defined API**; everything else is a client of it:
-- the **dashboard** (ADR 0002 presentation port) renders from and issues commands to the
+- the **dashboard** (ADR 0002 presentation interface) renders from and issues commands to the
   service — including idea input now that the dashboard is an input surface (PARITY §5);
 - **in-container agents** reach it over the network (and reach artifacts via the MCP
   surface of ADR 0003, which the service fronts);
@@ -63,7 +63,7 @@ guidance to keep the core's boundaries transport-friendly.
 - One coherent home for the workflow registry, lifecycle driving, and turn-tracking.
 - A clean client/server boundary that Milestones 4 (web UI) and 5 (remote tasks) extend
   rather than retrofit.
-- Keeps the presentation port honest: the dashboard can only do what the service API
+- Keeps the presentation interface honest: the dashboard can only do what the service API
   allows, which is what makes the dashboard genuinely substitutable (ADR 0002).
 
 **Negative / open questions**
@@ -80,13 +80,13 @@ guidance to keep the core's boundaries transport-friendly.
 
 ## Related
 
-- ADR 0001 — repository port; the task service is its sole owner and the serialization
+- ADR 0001 — repository interface; the task service is its sole owner and the serialization
   point for the integrity guarantees it requires.
-- ADR 0002 — presentation port; the dashboard is a client of the task service API.
+- ADR 0002 — presentation interface; the dashboard is a client of the task service API.
 - ADR 0003 — artifact store + MCP; fronted by the task service.
 - ADR 0004 — workflow ABC + path-based registration loaded by the task service.
 - ADR 0005 — composed images the service selects/runs via the execution backend.
 - GOALS.md — Milestone 4 (web dashboard) and Milestone 5 (remote execution) build on the
   service's client/server seam.
 - The concrete API surface, transport, and the service's relationship to the
-  execution-backend port belong in `docs/ARCHITECTURE.md`.
+  execution-backend interface belong in `docs/ARCHITECTURE.md`.

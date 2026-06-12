@@ -1,7 +1,7 @@
 # Architecture
 
 This document turns the decisions in `docs/decisions/` (ADRs 0001–0008) into a concrete
-component design: the three-role topology, the ports and their interfaces, the workflow
+component design: the three-role topology, the interfaces and their adapters, the workflow
 model, the data model, and the end-to-end task lifecycle. The cloude-cade prototype is the
 spec-by-example (`docs/PARITY.md`); the milestones (`docs/GOALS.md`) are the trajectory.
 
@@ -9,9 +9,11 @@ Read the ADRs for *why*; read this for *what* and *how it fits together*.
 
 ## 1. Principles
 
-1. **Hexagonal core.** A UI-agnostic, backend-agnostic core depends on **ports** (abstract
-   Python base classes); concrete **adapters** implement them. Storage, dashboard,
-   artifacts, workflows, execution, and secrets are all replaceable behind ports.
+1. **Core-and-adapters.** A UI-agnostic, backend-agnostic core depends only on
+   **interfaces** (abstract Python base classes); concrete **adapters** implement them, and
+   dependencies point inward. Storage, dashboard, artifacts, workflows, and execution are
+   all replaceable behind interfaces. (This is the pattern often called *hexagonal* or
+   *ports-and-adapters*; we say interface/adapter/boundary rather than "port".)
 2. **Determinism invariant.** The control plane and all operator-facing surfaces — task
    service, session service, terminal controller/dashboard — make **zero LLM calls**. Every
    LLM call happens **inside a task container**. (§3.)
@@ -28,7 +30,7 @@ Read the ADRs for *why*; read this for *what* and *how it fits together*.
   │ Terminal       │────────▶│  ┌───────────┐  ┌────────────┐  ┌──────────────────────┐  │
   │ controller     │◀────────│  │Repository │  │  Workflow  │  │ Lifecycle engine:    │  │
   │  └─ dashboard  │  REST/   │  │ (SQLite)  │  │  registry  │  │ state machine, turn, │  │
-  │     (Textual)  │  MCP     │  └───────────┘  └────────────┘  │ responsibility enforcement      │  │
+  │     (Textual)  │  MCP     │  └───────────┘  └────────────┘  │ responsibility gating│  │
   └───────┬────────┘         │     REST API  ·  MCP surface (artifacts + task tools)   │  │
           │                   └───────▲─────────────────────────────▲──────────────────┘
           │ tmux attach (local)       │ REST (register, pull work)   │ MCP (+ some REST)
@@ -143,11 +145,11 @@ the task service. It:
 The MCP surface is *fronted by the task service* (ADR 0003/0006) — agents reach artifacts and
 task tools through it rather than touching the DB or filesystem directly.
 
-## 6. Ports & adapters
+## 6. Interfaces & adapters
 
-Every port is a Python ABC in the core; adapters live in the owning component.
+Every interface is a Python ABC in the core; adapters live in the owning component.
 
-| Port | ABC responsibility | Adapter now | Future adapters | ADR |
+| Interface | ABC responsibility | Adapter now | Future adapters | ADR |
 |---|---|---|---|---|
 | **Repository** | persist tasks, repos, history; enforce transitions | SQLite | Postgres | 0001/0006 |
 | **Workflow** | define a lifecycle (states, responsibilities, skills, deterministic methods) | parity, free-form | user/agent-authored | 0004 |
@@ -156,7 +158,7 @@ Every port is a Python ABC in the core; adapters live in the owning component.
 | **Presentation** | render + drive the system | Textual TUI | web UI, other-lang dashboard | 0002 |
 | **Agent runner** *(emerges at M2/M3)* | invoke an agent CLI with a model/role | `claude` | other CLIs, per-stage models | GOALS M2–M3 |
 
-Secrets are *not* a backend-agnostic port (ADR 0007 deliberately dropped that): they are
+Secrets are *not* a backend-agnostic interface (ADR 0007 deliberately dropped that): they are
 per-repo env vars + a creds mount injected by the session service.
 
 ## 7. The workflow model (concrete shape)
@@ -263,7 +265,7 @@ mounted creds. Values never enter the DB, artifacts, or image layers.
 
 ```
 panopticon/
-  core/          # ports (ABCs), domain models, state-machine + turn + responsibility engine — no LLM/UI/DB
+  core/          # interfaces (ABCs), domain models, state-machine + turn + responsibility engine — no LLM/UI/DB
   taskservice/   # control plane: REST + MCP servers, repository adapter (SQLite), workflow loader
   sessionservice/# runner: execution-backend adapter (Docker+tmux), image build/compose, secret injection
   terminal/      # `panopticon` CLI + dashboard (Textual) — presentation adapter
@@ -279,7 +281,7 @@ may invoke an LLM; `core/`, `taskservice/`, `sessionservice/`, `terminal/` may n
 | Milestone | Primarily touches |
 |---|---|
 | **M1** parity + free-form | core, taskservice, sessionservice (local), terminal, two workflow classes, per-repo secrets |
-| **M2** planner vs implementer | agent-runner port (per-stage model/role); workflow `skills()`; container agent invocation |
+| **M2** planner vs implementer | agent-runner interface (per-stage model/role); workflow `skills()`; container agent invocation |
 | **M3** other CLIs | agent-runner adapters; base-image variants (ADR 0005); container entrypoint |
 | **M4** web dashboard | second presentation adapter consuming the existing REST API |
 | **M5** remote execution | session-service deployed per machine; runner registration/auth; artifact access via MCP |
