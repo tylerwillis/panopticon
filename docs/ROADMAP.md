@@ -17,7 +17,9 @@ Two principles guide the ordering:
   commands, conventions, and module pointers that slice introduces — so the operating manual
   grows with the code instead of being written up front and drifting;
 - extends the **golden state-machine harness** / tests to cover what it added;
-- keeps the ADRs and `docs/ARCHITECTURE.md` current if the slice changes a decision.
+- keeps the ADRs and `docs/ARCHITECTURE.md` current if the slice changes a decision;
+- **logs incidental findings to [`docs/BACKLOG.md`](BACKLOG.md)** rather than expanding the
+  slice's scope to handle them.
 
 Milestone 1 (parity + a free-form workflow + per-repo secrets) is decomposed into slices
 1–7. Milestones 2–5 are coarser entries, since each is largely "fill in an already-designed
