@@ -169,7 +169,7 @@ registration. Sketch of the ABC's two faces:
 
 - **Declarative members** (data the control plane reads):
   - `states` (nested `State` classes) and their `transitions` (class refs or label strings);
-  - per-state `turn_on_enter` (who holds the turn on entry) and `advance` (who transitions
+  - per-state `turn_on_enter` (who holds the turn on entry) and `advanced_by` (who transitions
     out: `USER` — the default — / `AGENT` once satisfied);
   - `responsibilities(state)` → the agent's obligations for that state (each resolves to a
     `status`: `PENDING` → `MET`/`FAILED`, a `FAILED` one needs a comment);
@@ -199,7 +199,7 @@ active workflow*, not a fixed global list.
   creds volume (references, **never secret values**).
 - **Task** — stable internal **id** (generated at creation), `repo_id`, `workflow`, current
   `state`, **`turn`** (`agent`/`user`), git refs (branch/worktree), optional
-  forge refs (PR), and an **optional `slug`** (see §8.3). (Per-state `turn_on_enter`/`advance`
+  forge refs (PR), and an **optional `slug`** (see §8.3). (Per-state `turn_on_enter`/`advanced_by`
   live on the `State` classes, not the task.)
 - **History** — append-only transition log per task. Each entry: timestamp, from/to state,
   via, and the **responsibilities resolved that turn** (each with its `status` and, if
