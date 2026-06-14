@@ -7,10 +7,10 @@
 ## Context
 
 panopticon needs a store for task state: the lifecycle state machine
-(PLANNING → ITERATING → REVIEW → MERGING → COMPLETE), foreground/background mode,
-git/PR/CI metadata, container/session info, and an append-only history log. The
-store is read by the dashboard and written concurrently by host commands and
-in-container agents.
+(PLANNING → ITERATING → REVIEW → MERGING → COMPLETE), the turn (whose move it is),
+git/PR/CI metadata, container/session info, and a history log (append-only but for the
+current entry's in-flight responsibilities). The store is read by the dashboard and written
+concurrently by host commands and in-container agents.
 
 > **Scope:** this ADR covers the **structured** task state. Freeform per-task
 > artifacts (plan files, notes) are *not* stored in the database; they are
