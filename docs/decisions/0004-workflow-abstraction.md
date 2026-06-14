@@ -60,9 +60,10 @@ Within the class, the two kinds of responsibility are expressed differently:
 - **Declarative members** (attributes / properties returning data) — the parts that are
   data:
   - the **state set and legal transitions** (the state machine);
-  - per-state **classification** as foreground (user-driven) or background
-    (agent-driven), which feeds the agnostic turn-tracking;
-  - the **transition policy** (which transitions are user-approved vs. auto-advance);
+  - per-state **`turn_on_enter`** (who holds the turn on entry) — the agnostic turn-tracking
+    starts from it;
+  - per-state **`advance`** — `MANUAL` (the user transitions out, e.g. approving a plan) or
+    `AUTOMATIC` (the agent does so once satisfied);
   - the **responsibilities** per state — the agent's obligations to fulfil before handing
     the turn back. Each resolves to a **status** (`PENDING` → `MET`/`FAILED`; a `FAILED`
     responsibility requires a comment), and the resolved set is recorded per turn in history.

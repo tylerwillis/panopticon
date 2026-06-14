@@ -168,8 +168,9 @@ A workflow is a concrete subclass of the workflow ABC (ADR 0004), loaded by path
 registration. Sketch of the ABC's two faces:
 
 - **Declarative members** (data the control plane reads):
-  - `states`, `transitions`, and per-state `foreground`/`background` classification;
-  - `transition_policy` (user-approved vs. auto-advance);
+  - `states` (nested `State` classes) and their `transitions` (class refs or label strings);
+  - per-state `turn_on_enter` (who holds the turn on entry) and `advance` (`MANUAL` = the
+    user transitions out / `AUTOMATIC` = the agent does when satisfied);
   - `responsibilities(state)` → the agent's obligations for that state (each resolves to a
     `status`: `PENDING` → `MET`/`FAILED`, a `FAILED` one needs a comment);
   - `skills()` → the catalogue of workflow-specific skills exposed in the container (e.g.
@@ -197,8 +198,9 @@ active workflow*, not a fixed global list.
 - **Repo** — first-class (ADR 0007): identity, default base, association to its env config +
   creds volume (references, **never secret values**).
 - **Task** — stable internal **id** (generated at creation), `repo_id`, `workflow`, current
-  `state`, **`turn`** (`agent`/`user`), `mode` (fg/bg), git refs (branch/worktree), optional
-  forge refs (PR), and an **optional `slug`** (see §8.3).
+  `state`, **`turn`** (`agent`/`user`), git refs (branch/worktree), optional
+  forge refs (PR), and an **optional `slug`** (see §8.3). (Per-state `turn_on_enter`/`advance`
+  live on the `State` classes, not the task.)
 - **History** — append-only transition log per task. Each entry: timestamp, from/to state,
   via, and the **responsibilities resolved that turn** (each with its `status` and, if
   `FAILED`, the agent's comment). This is cloude-cade's `** Log` as structured rows — but
