@@ -9,6 +9,12 @@
   Definition-of-Done is now the agent's **responsibilities** (agent-only, unlike cloude-cade);
   each resolves to a **status** (`PENDING`/`MET`/`FAILED`, a `FAILED` one needs a comment) and
   the resolved set is recorded per turn in history.
+- Amended: 2026-06-14 — responsibilities are a **promise made on entry**: entering a state
+  records a history entry seeded with that state's responsibilities, all `PENDING`; the agent
+  fulfils them **one at a time** (mutating that entry) and a later advance is gated on all
+  being resolved. Fulfilling a promise is **`Task` behavior** (it touches only the task's own
+  record); the **`Workflow`** owns the state-machine rules and the advance gate. Workflow
+  resolution/validation is **lazy and cached** (on first query, à la an ORM mapper config).
 - Deciders: Charlie Scherer
 
 ## Context
@@ -65,8 +71,9 @@ Within the class, the two kinds of responsibility are expressed differently:
   - per-state **`advanced_by`** — who transitions out: `USER` (the default — e.g. approving a
     plan) or `AGENT` (the agent does so once satisfied);
   - the **responsibilities** per state — the agent's obligations to fulfil before handing
-    the turn back. Each resolves to a **status** (`PENDING` → `MET`/`FAILED`; a `FAILED`
-    responsibility requires a comment), and the resolved set is recorded per turn in history.
+    the turn back. Entering a state seeds them onto that state's history entry, all `PENDING`
+    (a promise); the agent then resolves each to a **status** (`MET`, or `FAILED` with a
+    comment) one at a time, and a later advance is gated on all being resolved.
 - **Imperative behavior** — what the workflow *does* at defined moments. This is delivered
   in two forms depending on where it must run (see "Where imperative behavior runs" below):
   - **provisioning** — forge-side setup a task needs on entry (PR creation, ADOPT-style
@@ -188,10 +195,12 @@ future use case demands it (e.g. untrusted or multi-tenant operation).
 - **Residual trust risk.** Reviewing workflow code is the user's responsibility (decided
   above, not engine-enforced). This is acceptable for single-user operation but should be
   revisited for Milestone 5 (remote execution) and any future multi-tenant use.
-- **Responsibility resolution** is now decided (2026-06-12 amendment): the agent resolves
-  each of a state's responsibilities `MET`/`FAILED` (FAILED needs a comment) before handing
-  the turn back; the workflow gates the transition on all being resolved, without knowing
-  workflow specifics, and records the resolved set in history.
+- **Responsibility resolution** is now decided (2026-06-12, refined 2026-06-14): entering a
+  state seeds its responsibilities onto the new history entry, all `PENDING` (a promise); the
+  agent fulfils them one at a time (`MET`, or `FAILED` with a comment), mutating that entry;
+  the workflow gates a later advance on all being resolved, without knowing workflow specifics.
+  Fulfilling a promise is `Task` behavior (the workflow isn't consulted); advancing is the
+  workflow's.
 - **Cleanup composition** — workflow-specific teardown must compose predictably with the
   core's agnostic teardown and its confirmation/exit-code gating (PARITY §12).
 - **Multiple concurrent workflows** — the dashboard, history, and turn-tracking must

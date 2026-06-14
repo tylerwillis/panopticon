@@ -171,11 +171,16 @@ registration. Sketch of the ABC's two faces:
   - `states` (nested `State` classes) and their `transitions` (class refs or label strings);
   - per-state `turn_on_enter` (who holds the turn on entry) and `advanced_by` (who transitions
     out: `USER` — the default — / `AGENT` once satisfied);
-  - `responsibilities(state)` → the agent's obligations for that state (each resolves to a
-    `status`: `PENDING` → `MET`/`FAILED`, a `FAILED` one needs a comment);
+  - `responsibilities(state)` → the agent's obligations for that state. Entering a state seeds
+    them onto the new history entry, all `PENDING` (a promise); the agent fulfils each one at a
+    time (`MET`, or `FAILED` with a comment) and the next advance is gated on all being
+    resolved;
   - `skills()` → the catalogue of workflow-specific skills exposed in the container (e.g.
-    `babysit-ci`), on top of the core operations (`advance`, `drop`). A free-form workflow
-    contributes few or none.
+    `babysit-ci`), on top of the core operations (`advance`, `drop`, and `report` a
+    responsibility's status). A free-form workflow contributes few or none.
+
+The resolved state graph is built and validated **lazily on first query, then cached** (à la
+an ORM's mapper configuration), not at construction.
 - **Deterministic methods** (called by the control plane; no LLM):
   - provisioning steps, cleanup steps (composed on top of the core's agnostic teardown),
     image-layer contributions (ADR 0005), forge requests that need no reasoning.
@@ -200,12 +205,16 @@ active workflow*, not a fixed global list.
 - **Task** — stable internal **id** (generated at creation), `repo_id`, `workflow`, current
   `state`, **`turn`** (`agent`/`user`), git refs (branch/worktree), optional
   forge refs (PR), and an **optional `slug`** (see §8.3). (Per-state `turn_on_enter`/`advanced_by`
-  live on the `State` classes, not the task.)
-- **History** — append-only transition log per task. Each entry: timestamp, from/to state,
-  via, and the **responsibilities resolved that turn** (each with its `status` and, if
-  `FAILED`, the agent's comment). This is cloude-cade's `** Log` as structured rows — but
-  responsibilities are **agent-only** obligations (a deliberate divergence: cloude-cade's DoD
-  could include user items; here user actions just drive transitions directly).
+  live on the `State` classes, not the task.) The task carries behavior over **its own
+  record** — fulfilling the responsibilities it promised on entry and reporting which remain
+  outstanding; the *rules of the state machine* live on the workflow.
+- **History** — per-task log, one entry recorded when the task **enters** a state. Each entry:
+  timestamp, from/to state, `trigger`, and that state's **responsibilities, seeded `PENDING`
+  on entry and fulfilled one at a time** (each with its `status` and, if `FAILED`, the agent's
+  comment). Entries are otherwise immutable; only their responsibility list mutates as promises
+  are kept. This is cloude-cade's `** Log` as structured rows — but responsibilities are
+  **agent-only** obligations (a deliberate divergence: cloude-cade's DoD could include user
+  items; here user actions just drive transitions directly).
 
 ### 8.2 Artifacts (ADR 0003)
 
