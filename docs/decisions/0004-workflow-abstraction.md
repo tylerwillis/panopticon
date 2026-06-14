@@ -62,8 +62,8 @@ Within the class, the two kinds of responsibility are expressed differently:
   - the **state set and legal transitions** (the state machine);
   - per-state **`turn_on_enter`** (who holds the turn on entry) — the agnostic turn-tracking
     starts from it;
-  - per-state **`advance`** — `MANUAL` (the user transitions out, e.g. approving a plan) or
-    `AUTOMATIC` (the agent does so once satisfied);
+  - per-state **`advance`** — who transitions out: `USER` (the default — e.g. approving a
+    plan) or `AGENT` (the agent does so once satisfied);
   - the **responsibilities** per state — the agent's obligations to fulfil before handing
     the turn back. Each resolves to a **status** (`PENDING` → `MET`/`FAILED`; a `FAILED`
     responsibility requires a comment), and the resolved set is recorded per turn in history.

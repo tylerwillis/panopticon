@@ -169,8 +169,8 @@ registration. Sketch of the ABC's two faces:
 
 - **Declarative members** (data the control plane reads):
   - `states` (nested `State` classes) and their `transitions` (class refs or label strings);
-  - per-state `turn_on_enter` (who holds the turn on entry) and `advance` (`MANUAL` = the
-    user transitions out / `AUTOMATIC` = the agent does when satisfied);
+  - per-state `turn_on_enter` (who holds the turn on entry) and `advance` (who transitions
+    out: `USER` — the default — / `AGENT` once satisfied);
   - `responsibilities(state)` → the agent's obligations for that state (each resolves to a
     `status`: `PENDING` → `MET`/`FAILED`, a `FAILED` one needs a comment);
   - `skills()` → the catalogue of workflow-specific skills exposed in the container (e.g.

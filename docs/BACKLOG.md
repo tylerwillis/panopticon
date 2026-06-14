@@ -20,7 +20,7 @@ in the ADRs; this file is for the smaller stuff that doesn't have a home there y
 - [ ] **CI doesn't type-check `tests/`** — `mypy -p panopticon` covers the package only.
   Consider adding `mypy tests` (needs path/namespace config). _(Slice 1, P3)_
 - [ ] **`advance` is declared but not engine-enforced** — a state's `advance`
-  (`MANUAL`/`AUTOMATIC`) is queryable metadata; the engine doesn't yet use it to decide who
+  (`USER`/`AGENT`) is queryable metadata; the engine doesn't yet use it to decide who
   may trigger a transition, nor is there a per-*transition* auto-advance flag. Wire it when
   the agent runtime needs it (around the parity workflow, Slice 4). _(Slice 1, P2)_
 
