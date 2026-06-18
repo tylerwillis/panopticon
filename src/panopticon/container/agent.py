@@ -68,13 +68,16 @@ def link_credentials(config_dir: Path, *, creds_dir: Path = Path(CREDS_DIR)) -> 
 def _claude_argv(config_dir: Path, cwd: Path) -> list[str]:
     """`claude` argv, resuming the project's most recent conversation if one exists.
 
-    claude keeps per-project transcripts under ``<config>/projects/<cwd with '/' → '-'>``; when
-    one is there (e.g. the pane or operator re-attached) we ``--continue`` it instead of starting
-    fresh. The config dir is container-local, so this resumes within a container's life — not
-    across re-creation (cross-restart persistence is the per-task worktree, ADR 0010 §5). If our
-    path encoding ever misses claude's, we simply start fresh — a safe degradation.
+    The agent runs unattended in a throwaway container on a per-task clone, so it launches with
+    ``--dangerously-skip-permissions`` — there's no operator to answer permission prompts, and the
+    blast radius is the task's own checkout. claude keeps per-project transcripts under
+    ``<config>/projects/<cwd with '/' → '-'>``; when one is there (e.g. the pane or operator
+    re-attached) we ``--continue`` it instead of starting fresh. The config dir is container-local,
+    so this resumes within a container's life — not across re-creation (cross-restart persistence is
+    the per-task worktree, ADR 0010 §5). If our path encoding ever misses claude's, we simply start
+    fresh — a safe degradation.
     """
-    argv = ["claude"]
+    argv = ["claude", "--dangerously-skip-permissions"]
     project = config_dir / "projects" / str(cwd).replace("/", "-")
     if any(project.glob("*.jsonl")):
         argv.append("--continue")

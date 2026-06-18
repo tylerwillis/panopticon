@@ -40,14 +40,19 @@ def test_render_operations_writes_a_command_per_operation(tmp_path: Path) -> Non
 
 
 def test_claude_argv_starts_fresh_without_a_session(tmp_path: Path) -> None:
-    assert agent._claude_argv(tmp_path, Path("/work/repo")) == ["claude"]
+    # Unattended container, per-task clone → skip permission prompts (no operator to answer them).
+    assert agent._claude_argv(tmp_path, Path("/work/repo")) == ["claude", "--dangerously-skip-permissions"]
 
 
 def test_claude_argv_continues_an_existing_session(tmp_path: Path) -> None:
     project = tmp_path / "projects" / "-work-repo"  # claude's <config>/projects/<cwd, / → ->
     project.mkdir(parents=True)
     (project / "session.jsonl").write_text("{}")
-    assert agent._claude_argv(tmp_path, Path("/work/repo")) == ["claude", "--continue"]
+    assert agent._claude_argv(tmp_path, Path("/work/repo")) == [
+        "claude",
+        "--dangerously-skip-permissions",
+        "--continue",
+    ]
 
 
 def test_link_credentials_symlinks_only_the_credential_file(tmp_path: Path) -> None:
