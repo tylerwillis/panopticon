@@ -37,6 +37,7 @@ def test_render_operations_writes_a_command_per_operation(tmp_path: Path) -> Non
     assert {p.name for p in commands.glob("*.md")} == {"advance.md", "drop.md"}
     body = (commands / "advance.md").read_text()
     assert "apply_operation" in body and "COMPLETE" in body  # tells the agent how + the target
+    assert 'task_id="t1"' in body  # the container's task id, injected for the MCP tool call
 
 
 def test_claude_argv_starts_fresh_without_a_session(tmp_path: Path) -> None:
@@ -52,6 +53,28 @@ def test_claude_argv_continues_an_existing_session(tmp_path: Path) -> None:
         "claude",
         "--dangerously-skip-permissions",
         "--continue",
+    ]
+
+
+def test_write_mcp_config_points_claude_at_the_task_service_mcp(tmp_path: Path) -> None:
+    import json
+
+    path = agent.write_mcp_config(tmp_path, "http://host.docker.internal:8000")
+    assert path == tmp_path / agent.MCP_CONFIG_FILE
+    cfg = json.loads(path.read_text())
+    server = cfg["mcpServers"]["panopticon"]
+    assert server == {"type": "http", "url": "http://host.docker.internal:8000/mcp"}
+
+
+def test_claude_argv_adds_strict_mcp_config_when_present(tmp_path: Path) -> None:
+    agent.write_mcp_config(tmp_path, "http://svc:8000")
+    argv = agent._claude_argv(tmp_path, Path("/work/repo"))
+    assert argv == [
+        "claude",
+        "--dangerously-skip-permissions",
+        "--mcp-config",
+        str(tmp_path / agent.MCP_CONFIG_FILE),
+        "--strict-mcp-config",
     ]
 
 
@@ -103,6 +126,31 @@ def test_trust_workspace_merges_and_is_idempotent(tmp_path: Path) -> None:
     assert data["projects"]["/workspace"]["hasTrustDialogAccepted"] is True
 
 
+def test_seed_account_copies_only_identity_fields(tmp_path: Path) -> None:
+    import json
+
+    creds_dir = tmp_path / "creds"
+    creds_dir.mkdir()
+    (creds_dir / ".claude.json").write_text(json.dumps({
+        "oauthAccount": {"uuid": "acc-1"}, "userID": "u-1", "hasCompletedOnboarding": True,
+        "projects": {"/creds": {}}, "mcpServers": {"x": {}},  # container-local cruft, must NOT leak
+    }))
+    config_dir = tmp_path / ".claude"
+
+    agent.seed_account(config_dir, creds_dir=creds_dir)
+
+    seeded = json.loads((config_dir / ".claude.json").read_text())
+    assert seeded["oauthAccount"] == {"uuid": "acc-1"} and seeded["userID"] == "u-1"
+    assert seeded["hasCompletedOnboarding"] is True
+    assert "projects" not in seeded and "mcpServers" not in seeded  # only identity is shared
+
+
+def test_seed_account_is_a_noop_without_a_logged_in_volume(tmp_path: Path) -> None:
+    config_dir = tmp_path / ".claude"
+    agent.seed_account(config_dir, creds_dir=tmp_path / "empty")  # no creds config
+    assert not (config_dir / ".claude.json").exists()  # nothing seeded → claude handles login
+
+
 def test_main_bootstraps_into_a_container_local_config_dir_then_launches(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -120,6 +168,7 @@ def test_main_bootstraps_into_a_container_local_config_dir_then_launches(
     assert (commands / "s.md").exists()  # skills rendered...
     assert (commands / "advance.md").exists()  # ...operations rendered...
     assert (tmp_path / ".claude" / "settings.json").exists()  # ...turn-flip hooks written...
+    assert (tmp_path / ".claude" / agent.MCP_CONFIG_FILE).exists()  # ...MCP server wired...
     import json
 
     trust = json.loads((tmp_path / ".claude" / ".claude.json").read_text())

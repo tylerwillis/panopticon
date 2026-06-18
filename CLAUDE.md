@@ -26,7 +26,7 @@ src/panopticon/
                    # (the registry build_app runs on; drop a module in → registered, ADR 0004)
   taskservice/     # control plane: TaskService, FastAPI REST API, the SQLAlchemy store
                    # adapter (in-memory or on-disk SQLite), filesystem artifact store, MCP
-                   # server (mcp.py: operations=tools, artifacts=resources; FastMCP)
+                   # server (mcp.py: operations=tools, artifacts=resources; FastMCP) mounted at /mcp
   sessionservice/  # the runner: Runner ABC + StubRunner (in-process) + LocalRunner
                    # (real Docker+tmux via the CLIs); images.py = ADR-0005 composed images
                    # (base→workflow→repo); provisioner.py = host-side provisioning
@@ -39,8 +39,12 @@ src/panopticon/
                    # spawns one task
   container/       # entrypoint (`python -m panopticon.container` = connect/register/slug/
                    # heartbeat liveness) + agent.py (`-m panopticon.container.agent` = the tmux
-                   # pane's launcher: render skills + operations → exec `claude`) — the ONLY LLM pkg
-docker/Dockerfile  # minimal base task-container image (ADR 0005 base layer)
+                   # pane's launcher: render skills + operations, point claude at the /mcp server
+                   # → exec `claude`) — the ONLY LLM pkg
+docker/Dockerfile  # base task-container image (ADR 0005 base layer): python + git + bash +
+                   # the panopticon package + the `claude` CLI the agent execs; runs as the
+                   # unprivileged `panopticon` user. docker/entrypoint.sh = remap that user to the
+                   # invoking host uid/gid (PANOPTICON_PUID/PGID) then drop via gosu
 ```
 
 ## Conventions
@@ -103,7 +107,7 @@ the terminal to that task's session, then re-attaches the same live dashboard on
 Crucially the runner spawns task sessions on the **same** `-L panopticon` socket, so `t` reaches
 them. Switching is always detach→attach (never `switch-client`), so the same loop reaches a remote
 task over ssh at M5; `s` jumps to the `service` session. The background sessions persist after `q`
-(stop them with `tmux -L panopticon kill-server`). Spawning needs the base image — `make build`
+(stop them with `make panopticon-down`, which kills the `-L panopticon` server). Spawning needs the base image — `make build`
 first. `make dashboard` runs the dashboard once without the attach loop (talks to
 `PANOPTICON_SERVICE_URL`).
 

@@ -3,6 +3,7 @@ exercises a real container + tmux session (skipped when docker/tmux are unavaila
 
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 import time
@@ -20,9 +21,11 @@ class _Recorder:
 
     def __init__(self) -> None:
         self.calls: list[tuple[list[str], bool]] = []
+        self.interactive: list[bool] = []
 
-    def __call__(self, args: Sequence[str], *, check: bool = True) -> str:
+    def __call__(self, args: Sequence[str], *, check: bool = True, interactive: bool = False) -> str:
         self.calls.append((list(args), check))
+        self.interactive.append(interactive)
         return ""
 
 
@@ -51,10 +54,28 @@ def test_spawn_runs_detached_container_then_tmux_pane_execing_in() -> None:
     # pane execs the in-container agent launcher (so `tmux attach` reaches the live agent)
     assert tmux_new[:4] == ["tmux", "-L", "panopticon", "new-session"]
     assert tmux_new[tmux_new.index("-s") + 1] == "panopticon-t1"
-    assert tmux_new[-8:] == [
-        "docker", "exec", "--interactive", "--tty", "panopticon-t1",
+    # the pane execs in as the unprivileged `panopticon` user (so the agent's whoami isn't root)
+    assert tmux_new[-10:] == [
+        "docker", "exec", "--interactive", "--tty", "--user", "panopticon", "panopticon-t1",
         "python", "-m", "panopticon.container.agent",
     ]
+
+
+def test_spawn_runs_container_unprivileged_as_the_invoking_user() -> None:
+    rec = _Recorder()
+    LocalRunner("http://svc", run=rec).spawn("t1")
+    docker_run = rec.calls[0][0]
+    # the entrypoint adopts these and drops to the `panopticon` user (no root, no bare numeric uid)
+    assert f"PANOPTICON_PUID={os.getuid()}" in docker_run
+    assert f"PANOPTICON_PGID={os.getgid()}" in docker_run
+    assert "--user" not in docker_run  # adoption happens in the entrypoint, not via docker --user
+
+
+def test_spawn_user_can_be_overridden() -> None:
+    rec = _Recorder()
+    LocalRunner("http://svc", user="1234:5678", run=rec).spawn("t1")
+    docker_run = rec.calls[0][0]
+    assert "PANOPTICON_PUID=1234" in docker_run and "PANOPTICON_PGID=5678" in docker_run
 
 
 def test_extra_env_is_forwarded() -> None:
@@ -87,6 +108,15 @@ def test_spawn_mounts_the_per_task_clone_as_the_workspace() -> None:
     assert docker_run[docker_run.index("--workdir") + 1] == "/workspace"  # the agent's working dir
 
 
+def test_spawn_uses_the_composed_image_when_given_else_the_base() -> None:
+    rec = _Recorder()
+    runner = LocalRunner("http://svc", image="panopticon-base", run=rec)
+    runner.spawn("t1")  # no override → base
+    assert rec.calls[0][0][-1] == "panopticon-base"
+    runner.spawn("t2", image="panopticon-parity-r1")  # composed image (ADR 0005)
+    assert rec.calls[2][0][-1] == "panopticon-parity-r1"  # calls[2] = t2's docker run (calls[1]=t1 tmux)
+
+
 def test_stop_kills_session_and_force_removes_container_idempotently() -> None:
     rec = _Recorder()
     LocalRunner("http://svc", run=rec).stop("panopticon-t1")
@@ -96,14 +126,21 @@ def test_stop_kills_session_and_force_removes_container_idempotently() -> None:
 
 def test_login_runs_interactive_container_with_creds_volume() -> None:
     rec = _Recorder()
-    LocalRunner("http://svc", image="img:1", run=rec).login("creds-r1", ["claude", "login"])
+    LocalRunner("http://svc", image="img:1", user="1234:5678", run=rec).login(
+        "creds-r1", ["claude", "login"]
+    )
     cmd, check = rec.calls[0]
     assert cmd == [
         "docker", "run", "--interactive", "--tty", "--rm",
+        # the entrypoint adopts this user, chowns /creds to it, then drops to it before running the
+        # command — so the OAuth creds claude writes are owned by the uid the task reads them as
+        "--env", "PANOPTICON_PUID=1234", "--env", "PANOPTICON_PGID=5678",
         "--volume", "creds-r1:/creds",
-        "--env", "CLAUDE_CONFIG_DIR=/creds", "img:1", "claude", "login",
+        "--env", "CLAUDE_CONFIG_DIR=/creds",
+        "img:1", "claude", "login",  # passed through the entrypoint (no --entrypoint override)
     ]
     assert check is False  # interactive; tolerate non-zero exit
+    assert rec.interactive[0] is True  # attaches the operator's terminal (no output capture)
 
 
 def test_tmux_socket_can_be_overridden() -> None:
@@ -129,7 +166,8 @@ def test_spawn_and_stop_real_container_and_session() -> None:
     socket = "panopticon-itest"
     subprocess.run(
         ["docker", "build", "--tag", image, "-"],
-        input='FROM alpine\nENTRYPOINT ["sleep", "3600"]\n',
+        # a `panopticon` user so the agent pane's `docker exec --user panopticon` resolves
+        input='FROM alpine\nRUN adduser -D -u 1000 panopticon\nENTRYPOINT ["sleep", "3600"]\n',
         text=True, check=True, capture_output=True,
     )
     runner = LocalRunner(
