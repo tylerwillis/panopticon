@@ -41,14 +41,19 @@ def test_render_operations_writes_a_command_per_operation(tmp_path: Path) -> Non
 
 
 def test_claude_argv_starts_fresh_without_a_session(tmp_path: Path) -> None:
-    assert agent._claude_argv(tmp_path, Path("/work/repo")) == ["claude"]
+    # Unattended container, per-task clone → skip permission prompts (no operator to answer them).
+    assert agent._claude_argv(tmp_path, Path("/work/repo")) == ["claude", "--dangerously-skip-permissions"]
 
 
 def test_claude_argv_continues_an_existing_session(tmp_path: Path) -> None:
     project = tmp_path / "projects" / "-work-repo"  # claude's <config>/projects/<cwd, / → ->
     project.mkdir(parents=True)
     (project / "session.jsonl").write_text("{}")
-    assert agent._claude_argv(tmp_path, Path("/work/repo")) == ["claude", "--continue"]
+    assert agent._claude_argv(tmp_path, Path("/work/repo")) == [
+        "claude",
+        "--dangerously-skip-permissions",
+        "--continue",
+    ]
 
 
 def test_write_mcp_config_points_claude_at_the_task_service_mcp(tmp_path: Path) -> None:
@@ -64,7 +69,13 @@ def test_write_mcp_config_points_claude_at_the_task_service_mcp(tmp_path: Path) 
 def test_claude_argv_adds_strict_mcp_config_when_present(tmp_path: Path) -> None:
     agent.write_mcp_config(tmp_path, "http://svc:8000")
     argv = agent._claude_argv(tmp_path, Path("/work/repo"))
-    assert argv == ["claude", "--mcp-config", str(tmp_path / agent.MCP_CONFIG_FILE), "--strict-mcp-config"]
+    assert argv == [
+        "claude",
+        "--dangerously-skip-permissions",
+        "--mcp-config",
+        str(tmp_path / agent.MCP_CONFIG_FILE),
+        "--strict-mcp-config",
+    ]
 
 
 def test_link_credentials_symlinks_only_the_credential_file(tmp_path: Path) -> None:
@@ -86,6 +97,33 @@ def test_link_credentials_is_a_noop_without_a_logged_in_volume(tmp_path: Path) -
     config_dir = tmp_path / ".claude"
     agent.link_credentials(config_dir, creds_dir=tmp_path / "empty")  # no creds yet
     assert config_dir.is_dir() and not (config_dir / ".credentials.json").exists()
+
+
+def test_trust_workspace_seeds_acceptance_for_a_fresh_config(tmp_path: Path) -> None:
+    import json
+
+    config_dir = tmp_path / ".claude"
+    agent.trust_workspace(config_dir, Path("/workspace"))
+    data = json.loads((config_dir / ".claude.json").read_text())
+    assert data["projects"]["/workspace"]["hasTrustDialogAccepted"] is True
+    assert data["hasCompletedOnboarding"] is True  # the other first-run blocker
+
+
+def test_trust_workspace_merges_and_is_idempotent(tmp_path: Path) -> None:
+    import json
+
+    config_dir = tmp_path / ".claude"
+    config_dir.mkdir()
+    # claude already wrote config (incl. an existing project) — we must not clobber it.
+    (config_dir / ".claude.json").write_text(
+        json.dumps({"userID": "u", "projects": {"/other": {"history": []}}})
+    )
+    agent.trust_workspace(config_dir, Path("/workspace"))
+    agent.trust_workspace(config_dir, Path("/workspace"))  # idempotent
+    data = json.loads((config_dir / ".claude.json").read_text())
+    assert data["userID"] == "u"  # preserved
+    assert data["projects"]["/other"] == {"history": []}  # preserved
+    assert data["projects"]["/workspace"]["hasTrustDialogAccepted"] is True
 
 
 def test_seed_account_copies_only_identity_fields(tmp_path: Path) -> None:
@@ -131,4 +169,8 @@ def test_main_bootstraps_into_a_container_local_config_dir_then_launches(
     assert (commands / "advance.md").exists()  # ...operations rendered...
     assert (tmp_path / ".claude" / "settings.json").exists()  # ...turn-flip hooks written...
     assert (tmp_path / ".claude" / agent.MCP_CONFIG_FILE).exists()  # ...MCP server wired...
+    import json
+
+    trust = json.loads((tmp_path / ".claude" / ".claude.json").read_text())
+    assert trust["projects"][str(Path.cwd())]["hasTrustDialogAccepted"] is True  # ...trust seeded...
     assert launched == [tmp_path / ".claude"]  # ...then launched with the container-local config dir

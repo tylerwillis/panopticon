@@ -22,6 +22,7 @@ import json
 import os
 from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
 import httpx
 
@@ -35,8 +36,9 @@ from panopticon.core.models import Skill
 CREDS_DIR = "/creds"
 #: claude's credential file, relative to a config dir; linked in from the creds volume.
 CREDS_FILE = ".credentials.json"
-#: claude's main config file. Holds (besides per-container state) the logged-in *account*, which
-#: claude keys "logged in" on — separately from the token in ``.credentials.json``.
+#: claude's main config file. Holds (besides per-container state) the logged-in *account* (which
+#: claude keys "logged in" on, separately from the token in ``.credentials.json``) and per-project
+#: trust acceptance.
 CONFIG_FILE = ".claude.json"
 #: The account/identity fields seeded from the creds volume's config into the container-local one,
 #: so a task is authenticated (the token alone isn't enough — claude also wants the account).
@@ -90,6 +92,28 @@ def link_credentials(config_dir: Path, *, creds_dir: Path = Path(CREDS_DIR)) -> 
         link.symlink_to(src)
 
 
+def trust_workspace(config_dir: Path, cwd: Path) -> Path:
+    """Pre-accept claude's "Do you trust the files in this folder?" dialog for ``cwd``.
+
+    The trust dialog is **separate** from the permission prompts ``--dangerously-skip-permissions``
+    skips (cf. claude issue #45298): it blocks on startup until accepted, and there's no operator in
+    the container to accept it. claude records acceptance per-project in ``<config>/.claude.json``
+    under ``projects[<cwd>].hasTrustDialogAccepted``; we seed exactly that (and mark onboarding done,
+    the other first-run blocker). Merge-in-place so we don't clobber config claude writes itself (nor
+    the account :func:`seed_account` seeds into the same file), and idempotent. The path encoding is
+    undocumented internals — a safe degradation if it ever drifts is that the dialog reappears, which
+    only matters in an (already attended) interactive re-attach.
+    """
+    config = config_dir / CONFIG_FILE
+    config.parent.mkdir(parents=True, exist_ok=True)
+    data: dict[str, Any] = json.loads(config.read_text()) if config.exists() else {}
+    data["hasCompletedOnboarding"] = True
+    projects = data.setdefault("projects", {})
+    projects.setdefault(str(cwd), {})["hasTrustDialogAccepted"] = True
+    config.write_text(json.dumps(data, indent=2))
+    return config
+
+
 def seed_account(config_dir: Path, *, creds_dir: Path = Path(CREDS_DIR)) -> None:
     """Seed the logged-in account into the container-local config so the task is authenticated.
 
@@ -119,13 +143,16 @@ def seed_account(config_dir: Path, *, creds_dir: Path = Path(CREDS_DIR)) -> None
 def _claude_argv(config_dir: Path, cwd: Path) -> list[str]:
     """`claude` argv, resuming the project's most recent conversation if one exists.
 
-    claude keeps per-project transcripts under ``<config>/projects/<cwd with '/' → '-'>``; when
-    one is there (e.g. the pane or operator re-attached) we ``--continue`` it instead of starting
-    fresh. The config dir is container-local, so this resumes within a container's life — not
-    across re-creation (cross-restart persistence is the per-task worktree, ADR 0010 §5). If our
-    path encoding ever misses claude's, we simply start fresh — a safe degradation.
+    The agent runs unattended in a throwaway container on a per-task clone, so it launches with
+    ``--dangerously-skip-permissions`` — there's no operator to answer permission prompts, and the
+    blast radius is the task's own checkout. claude keeps per-project transcripts under
+    ``<config>/projects/<cwd with '/' → '-'>``; when one is there (e.g. the pane or operator
+    re-attached) we ``--continue`` it instead of starting fresh. The config dir is container-local,
+    so this resumes within a container's life — not across re-creation (cross-restart persistence is
+    the per-task worktree, ADR 0010 §5). If our path encoding ever misses claude's, we simply start
+    fresh — a safe degradation.
     """
-    argv = ["claude"]
+    argv = ["claude", "--dangerously-skip-permissions"]
     mcp_config = config_dir / MCP_CONFIG_FILE
     if mcp_config.exists():  # connect to the task service's MCP server, and *only* it
         argv += ["--mcp-config", str(mcp_config), "--strict-mcp-config"]
@@ -163,6 +190,7 @@ def main(
     render_operations(client, task_id, config_dir.parent)  # advance/drop/… as slash-commands
     write_settings(config_dir.parent)  # turn-flip hooks → <home>/.claude/settings.json
     write_mcp_config(config_dir, service_url)  # point claude at the task service's MCP server
+    trust_workspace(config_dir, Path.cwd())  # pre-accept the trust dialog (no operator to)
     link_credentials(config_dir)
     seed_account(config_dir)  # + the logged-in account, so the token alone isn't a login prompt
     launch(config_dir)
