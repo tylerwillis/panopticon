@@ -8,7 +8,8 @@ drives: every other transition starts a new agentic turn, so it's triggered by a
 agent skill (advance/iterate over REST/MCP), not the operator (ADR 0004).
 
 The `run` column shows each task's container status: `live` (an active registration), `down`
-(claimed by a runner but no container — respawn with `R`), or `–` (unclaimed/not spawned yet).
+(provisioned but no container — respawn with `R`), `starting` (claimed but not yet provisioned —
+its container is still coming up), or `–` (unclaimed/not spawned yet).
 
 The dashboard does not attach to tmux itself: on `t` it calls ``on_switch`` (the terminal
 supervisor, ADR 0009 §6, records the chosen session and detaches this client) and **keeps
@@ -130,9 +131,12 @@ class Dashboard(App[None]):
         self.action_refresh()
 
     def _run_status(self, task: JsonObj) -> str:
-        """A task's container status: `live` (registered), `down` (claimed but no container), or `–`."""
+        """A task's container status: `live` (registered), `down` (provisioned but no container),
+        `starting` (claimed, not yet provisioned), or `–` (unclaimed)."""
         if not task.get("claimed_by"):
             return "–"
+        if not task.get("provisioned"):
+            return "starting"
         return "live" if self._client.list_registrations(task["id"]) else "down"
 
     def action_refresh(self) -> None:

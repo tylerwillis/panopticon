@@ -17,6 +17,7 @@ _TASK: dict[str, Any] = {
     "state": "WORKING",
     "turn": "agent",
     "workflow": "spike",
+    "provisioned": True,
     "history": [
         {"from_state": None, "to_state": "PLAN", "trigger": "start", "responsibilities": []},
         {
@@ -190,12 +191,16 @@ def test_render_detail_shows_the_claim() -> None:
     assert "claimed: host-1" in render_detail({**_TASK, "claimed_by": "host-1"})
 
 
-def test_run_status_reflects_claim_and_liveness() -> None:
+def test_run_status_reflects_claim_liveness_and_provisioning() -> None:
     fake = _FakeClient([], {"t-live": [{"container_id": "c"}]})
     app = Dashboard(fake)  # type: ignore[arg-type]
+    live = {"id": "t-live", "claimed_by": "h", "provisioned": True}
+    down = {"id": "t-down", "claimed_by": "h", "provisioned": True}
+    starting = {"id": "t-start", "claimed_by": "h", "provisioned": False}
     assert app._run_status({"id": "t-x"}) == "–"  # unclaimed → not spawned
-    assert app._run_status({"id": "t-live", "claimed_by": "h"}) == "live"  # claimed + registered
-    assert app._run_status({"id": "t-down", "claimed_by": "h"}) == "down"  # claimed, no container
+    assert app._run_status(live) == "live"  # claimed + provisioned + registered
+    assert app._run_status(down) == "down"  # claimed + provisioned, no container
+    assert app._run_status(starting) == "starting"  # claimed, not yet provisioned
 
 
 async def test_respawn_releases_a_down_tasks_claim() -> None:
