@@ -142,7 +142,7 @@ class Dashboard(App[None]):
     def on_mount(self) -> None:
         table = self.query_one("#tasks", DataTable)
         table.cursor_type = "row"
-        table.add_columns("id", "slug", "state", "turn", "run")
+        table.add_columns("id", "state", "turn", "run", "slug")
         self.action_refresh()
         if self._refresh_interval:
             self.set_interval(self._refresh_interval, self.action_refresh)
@@ -162,7 +162,7 @@ class Dashboard(App[None]):
         for task in ordered:
             turn = f"{task['turn']} ⚠" if task.get("blocked") else task["turn"]
             table.add_row(
-                _short(task["id"]), task["slug"] or "-", task["state"], turn, self._run_status(task),
+                _short(task["id"]), task["state"], turn, self._run_status(task), task["slug"] or "-",
                 key=task["id"],
             )
         target = selected if selected in self._tasks else next(iter(self._tasks), None)
