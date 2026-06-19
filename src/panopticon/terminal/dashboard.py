@@ -1,6 +1,8 @@
 """The Textual dashboard (ADR 0002 presentation adapter): the operator's view of tasks.
 
-A task table on the left, the highlighted task's state/turn/history on the right. Keys: `r`
+A task table on the left, the highlighted task's state/turn/history on the right. It
+auto-refreshes from the task service every ``REFRESH_INTERVAL`` seconds (preserving the
+highlighted row across the rebuild); `r` forces a refresh now. Keys: `r`
 refreshes from the task service over REST, `t` hands off to the task's container tmux, `n`
 creates a task (pick repo → workflow), `x` **drops** it, and `R` **respawns** a down task (releases
 its claim so the host runner re-spawns it). Drop is the only state *transition* the dashboard
@@ -8,7 +10,8 @@ drives: every other transition starts a new agentic turn, so it's triggered by a
 agent skill (advance/iterate over REST/MCP), not the operator (ADR 0004).
 
 The `run` column shows each task's container status: `live` (an active registration), `down`
-(claimed by a runner but no container — respawn with `R`), or `–` (unclaimed/not spawned yet).
+(claimed by a runner but no container — respawn with `R`), `–` (unclaimed/not spawned yet), or
+`respawning` (just released by `R`, awaiting the runner's re-claim).
 
 The dashboard does not attach to tmux itself: on `t` it calls ``on_switch`` (the terminal
 supervisor, ADR 0009 §6, records the chosen session and detaches this client) and **keeps
@@ -30,6 +33,17 @@ from textual.screen import ModalScreen
 from textual.widgets import DataTable, Footer, Header, Label, OptionList, Static
 
 from panopticon.client import JsonObj, TaskServiceClient
+from panopticon.core.state import TERMINAL_LABELS
+
+
+def _sort_key(task: JsonObj) -> tuple[bool, str, str]:
+    """Order rows by state, sinking terminal states (COMPLETE/DROPPED) to the bottom.
+
+    Active work sorts to the top (alphabetically by state); finished tasks settle below it.
+    Ties break on slug (then id) for a stable, readable order.
+    """
+    state = task["state"]
+    return (state in TERMINAL_LABELS, state, task["slug"] or task["id"])
 
 
 def _short(task_id: str) -> str:
@@ -102,6 +116,7 @@ class Dashboard(App[None]):
     attach/detach (ADR 0009)."""
 
     CSS = "#tasks { width: 3fr; } #detail { width: 2fr; padding: 0 1; }"
+    REFRESH_INTERVAL = 2.0  # seconds between automatic refreshes (0/None disables the timer)
     BINDINGS = [
         ("r", "refresh", "Refresh"),
         ("n", "new_task", "New task"),
@@ -119,13 +134,16 @@ class Dashboard(App[None]):
         *,
         on_switch: Callable[[str], None] | None = None,
         on_service: Callable[[], bool] | None = None,
+        refresh_interval: float | None = REFRESH_INTERVAL,
     ) -> None:
         super().__init__()
         self._client = client
         self._on_switch = on_switch  # supervisor hook: record the pick + detach (None standalone)
         self._on_service = on_service  # `s` hook: switch to the service session; True if one exists
+        self._refresh_interval = refresh_interval  # auto-refresh cadence (0/None → manual only)
         self._tasks: dict[str, JsonObj] = {}
         self._current: str | None = None
+        self._respawning: set[str] = set()  # tasks awaiting re-claim after `R` (shown "respawning")
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -137,26 +155,37 @@ class Dashboard(App[None]):
     def on_mount(self) -> None:
         table = self.query_one("#tasks", DataTable)
         table.cursor_type = "row"
-        table.add_columns("id", "slug", "state", "turn", "run")
+        table.add_columns("id", "state", "turn", "run", "slug")
         self.action_refresh()
+        if self._refresh_interval:
+            self.set_interval(self._refresh_interval, self.action_refresh)
 
     def _run_status(self, task: JsonObj) -> str:
-        """A task's container status: `live` (registered), `down` (claimed but no container), or `–`."""
+        """A task's container status: `live` (registered), `down` (claimed, no container), `–`
+        (unclaimed), or `respawning` (just released by `R`, awaiting the runner's re-claim — shown
+        instead of the bare `–` so a respawn doesn't read as the task losing its runner)."""
+        tid = task["id"]
         if not task.get("claimed_by"):
-            return "–"
-        return "live" if self._client.list_registrations(task["id"]) else "down"
+            return "respawning" if tid in self._respawning else "–"
+        self._respawning.discard(tid)  # re-claimed → the normal down→live boot takes over
+        return "live" if self._client.list_registrations(tid) else "down"
 
     def action_refresh(self) -> None:
         table = self.query_one("#tasks", DataTable)
+        selected = self._current  # keep the operator's highlight across the rebuild (auto-refresh)
         table.clear()
-        self._tasks = {t["id"]: t for t in self._client.list_tasks()}
-        for task in self._tasks.values():
+        ordered = sorted(self._client.list_tasks(), key=_sort_key)  # state asc, terminal last
+        self._tasks = {t["id"]: t for t in ordered}
+        for task in ordered:
             table.add_row(
-                _short(task["id"]), task["slug"] or "-", task["state"], _turn_cell(task),
-                self._run_status(task),
+                _short(task["id"]), task["state"], _turn_cell(task), self._run_status(task),
+                task["slug"] or "-",
                 key=task["id"],
             )
-        self._update_detail(next(iter(self._tasks), None))
+        target = selected if selected in self._tasks else next(iter(self._tasks), None)
+        if target is not None:
+            table.move_cursor(row=table.get_row_index(target))
+        self._update_detail(target)
 
     def on_data_table_row_highlighted(self, event: DataTable.RowHighlighted) -> None:
         key = event.row_key.value
@@ -219,6 +248,7 @@ class Dashboard(App[None]):
         if self._client.list_registrations(task_id):
             self.notify("Container is live; drop it or let it finish.", severity="warning")
             return
+        self._respawning.add(task_id)  # show "respawning" until the runner re-claims it
         self._client.release(task_id)  # back to unclaimed → the host runner re-claims + re-spawns
         self.notify("Released the claim; the runner will respawn it.")
         self.action_refresh()
