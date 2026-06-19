@@ -26,6 +26,7 @@ from collections.abc import Callable
 from typing import Any
 
 import httpx
+from rich.text import Text
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal, Vertical
 from textual.screen import ModalScreen
@@ -47,6 +48,16 @@ def _sort_key(task: JsonObj) -> tuple[bool, str, str]:
 
 def _short(task_id: str) -> str:
     return task_id[:8]
+
+
+# Turn-column colors, matching cloude-cade's dashboard ball tags: agent=green,
+# user=yellow, blocked=red. Blocked takes precedence (cloude-cade draws it as its own
+# red tag); here it keeps the turn value but appends ⚠ and colors the whole cell red.
+def _turn_cell(task: JsonObj) -> Text:
+    if task.get("blocked"):
+        return Text(f"{task['turn']} ⚠", style="red")
+    color = "green" if task["turn"] == "agent" else "yellow"
+    return Text(task["turn"], style=color)
 
 
 def render_detail(task: JsonObj) -> str:
@@ -166,9 +177,9 @@ class Dashboard(App[None]):
         ordered = sorted(self._client.list_tasks(), key=_sort_key)  # state asc, terminal last
         self._tasks = {t["id"]: t for t in ordered}
         for task in ordered:
-            turn = f"{task['turn']} ⚠" if task.get("blocked") else task["turn"]
             table.add_row(
-                _short(task["id"]), task["state"], turn, self._run_status(task), task["slug"] or "-",
+                _short(task["id"]), task["state"], _turn_cell(task), self._run_status(task),
+                task["slug"] or "-",
                 key=task["id"],
             )
         target = selected if selected in self._tasks else next(iter(self._tasks), None)
