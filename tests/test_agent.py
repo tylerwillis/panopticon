@@ -84,8 +84,8 @@ def test_claude_argv_adds_strict_mcp_config_when_present(tmp_path: Path) -> None
 
 
 def test_write_workflow_overview_writes_the_map_else_skips(tmp_path: Path) -> None:
-    path = agent.write_workflow_overview(tmp_path, "# parity\nphases…")
-    assert path == tmp_path / agent.WORKFLOW_OVERVIEW_FILE and path.read_text() == "# parity\nphases…"
+    path = agent.write_workflow_overview(tmp_path, "# github-peer-reviewed\nphases…")
+    assert path == tmp_path / agent.WORKFLOW_OVERVIEW_FILE and path.read_text() == "# github-peer-reviewed\nphases…"
     assert agent.write_workflow_overview(tmp_path / "empty", "  ") is None  # no overview → skipped
 
 

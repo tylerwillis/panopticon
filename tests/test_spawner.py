@@ -113,9 +113,9 @@ def test_spawn_one_composes_the_workflow_image_when_it_has_a_layer() -> None:
         client, runner, runner_id="host-1", cache=cache, tasks_root="/tasks",  # type: ignore[arg-type]
         git=GitClones(run=_no_op_run), images=images,  # type: ignore[arg-type]
     )
-    spawner.spawn_one({"id": "t1", "repo_id": "r1", "workflow": "parity", "state": "PLANNING", "claimed_by": None})
-    assert images.built == [("parity", "r1", ["RUN apt-get install --yes gh"])]  # composed base → layer
-    assert runner.spawned[0]["image"] == "panopticon-parity-r1"  # spawned on the composed image
+    spawner.spawn_one({"id": "t1", "repo_id": "r1", "workflow": "github-peer-reviewed", "state": "PLANNING", "claimed_by": None})
+    assert images.built == [("github-peer-reviewed", "r1", ["RUN apt-get install --yes gh"])]  # composed base → layer
+    assert runner.spawned[0]["image"] == "panopticon-github-peer-reviewed-r1"  # spawned on the composed image
 
 
 def test_spawn_one_composes_workflow_then_repo_layers() -> None:
@@ -128,9 +128,9 @@ def test_spawn_one_composes_workflow_then_repo_layers() -> None:
         client, runner, runner_id="host-1", cache=cache, tasks_root="/tasks",  # type: ignore[arg-type]
         git=GitClones(run=_no_op_run), images=images,  # type: ignore[arg-type]
     )
-    spawner.spawn_one({"id": "t1", "repo_id": "r1", "workflow": "parity", "state": "PLANNING", "claimed_by": None})
-    assert images.built == [("parity", "r1", ["RUN apt-get install --yes gh", "RUN pip install uv"])]
-    assert runner.spawned[0]["image"] == "panopticon-parity-r1"
+    spawner.spawn_one({"id": "t1", "repo_id": "r1", "workflow": "github-peer-reviewed", "state": "PLANNING", "claimed_by": None})
+    assert images.built == [("github-peer-reviewed", "r1", ["RUN apt-get install --yes gh", "RUN pip install uv"])]
+    assert runner.spawned[0]["image"] == "panopticon-github-peer-reviewed-r1"
 
 
 def test_spawn_one_skips_terminal_and_already_claimed_tasks() -> None:

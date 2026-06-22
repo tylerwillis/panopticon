@@ -1,4 +1,4 @@
-# The `parity` workflow
+# The `github-peer-reviewed` workflow
 
 This task moves through a fixed sequence of phases. You are always in exactly one phase: do that phase's work, then it advances. Each turn you'll be reminded which phase you're in and what it needs — **don't do a later phase's work early.** The phases, in order:
 

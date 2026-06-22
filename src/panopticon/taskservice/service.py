@@ -96,7 +96,7 @@ class TaskService:
 
     def workflow_image_layer(self, name: str) -> str:
         """The workflow's Docker image layer (ADR 0005) — the Dockerfile fragment the runner
-        composes onto the base image (e.g. parity's `gh`). Empty when the workflow needs none."""
+        composes onto the base image (e.g. github-peer-reviewed's `gh`). Empty when the workflow needs none."""
         return self._workflow(name).image_layer()
 
     def _workflow(self, name: str) -> Workflow:

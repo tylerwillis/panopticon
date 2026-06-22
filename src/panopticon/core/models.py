@@ -76,8 +76,9 @@ class Skill:
 class Tool:
     """A command-line tool a workflow expects in its task container, named so the agent knows to use
     it. Declared as data (``name`` + one-line ``description`` of what it's for) and listed in the
-    agent's system prompt; the *install* is the workflow's image layer (ADR 0005, e.g. parity's
-    ``gh``). Beyond the base image's shell/git, present only if the active workflow declares them.
+    agent's system prompt; the *install* is the workflow's image layer (ADR 0005, e.g.
+    github-peer-reviewed's ``gh``). Beyond the base image's shell/git, present only if the active
+    workflow declares them.
     """
 
     name: str

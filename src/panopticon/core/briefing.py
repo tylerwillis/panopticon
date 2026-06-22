@@ -2,7 +2,7 @@
 
 A workflow is a state machine, but the agent only sees a flat set of skills + the `advance`/`drop`
 operations; nothing tells it which phase it's in or what that phase is *for*. So it can charge ahead
-— e.g. start implementing during a parity task's PLANNING phase. This renders a short, workflow-**a
+— e.g. start implementing during a github-peer-reviewed task's PLANNING phase. This renders a short, workflow-**a
 gnostic** briefing from the current state's metadata: the phase, its responsibilities (the work to
 do here), and whether to hand back to the user or advance once they're met. The container's
 user-prompt hook prints it each turn (like the provisioning nudge), so it's in the agent's context

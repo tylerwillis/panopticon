@@ -141,9 +141,9 @@ def test_spawn_uses_the_composed_image_when_given_else_the_base() -> None:
     runner = LocalRunner("http://svc", image="panopticon-base", run=rec)
     runner.spawn("t1")  # no override → base
     assert rec.calls[1][0][-1] == "panopticon-base"
-    runner.spawn("t2", image="panopticon-parity-r1")  # composed image (ADR 0005)
+    runner.spawn("t2", image="panopticon-github-peer-reviewed-r1")  # composed image (ADR 0005)
     # each spawn emits 3 calls (rm, run, tmux); t2's docker run is calls[4]
-    assert rec.calls[4][0][-1] == "panopticon-parity-r1"
+    assert rec.calls[4][0][-1] == "panopticon-github-peer-reviewed-r1"
 
 
 def test_stop_kills_session_and_force_removes_container_idempotently() -> None:

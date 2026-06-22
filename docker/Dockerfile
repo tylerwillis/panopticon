@@ -1,7 +1,7 @@
 # Base task-container image (ADR 0005 base layer). Workflow- and repo-specific layers stack on top
 # later. Holds enough to run the entrypoint and the agent: Python, git, bash (the tmux pane's
 # shell), the panopticon package, and the `claude` CLI the agent launcher execs. `gh` arrives via
-# the parity workflow layer.
+# the github-peer-reviewed workflow layer.
 #
 # The task runs **unprivileged**: a baked `panopticon` user that the entrypoint remaps to the
 # invoking host user's uid/gid at start (so /workspace files are host-owned), then drops to via

@@ -59,12 +59,12 @@ def test_workflow_image_layer_endpoint(client: TestClient) -> None:
     assert client.get("/workflows/spike/image-layer").json() == {"layer": ""}
 
 
-def test_workflow_image_layer_surfaces_paritys_gh_layer(tmp_path: Path) -> None:
-    from panopticon.workflows import Parity
+def test_workflow_image_layer_surfaces_github_peer_revieweds_gh_layer(tmp_path: Path) -> None:
+    from panopticon.workflows import GithubPeerReviewed
 
-    svc = TaskService(SqlAlchemyStore(), {"parity": Parity()}, FilesystemArtifactStore(tmp_path))
+    svc = TaskService(SqlAlchemyStore(), {"github-peer-reviewed": GithubPeerReviewed()}, FilesystemArtifactStore(tmp_path))
     with TestClient(create_app(svc)) as c:
-        assert "gh" in c.get("/workflows/parity/image-layer").json()["layer"]  # forge skills need gh
+        assert "gh" in c.get("/workflows/github-peer-reviewed/image-layer").json()["layer"]  # forge skills need gh
 
 
 def test_mcp_is_mounted(client: TestClient) -> None:
