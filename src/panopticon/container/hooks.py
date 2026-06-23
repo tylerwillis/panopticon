@@ -1,6 +1,9 @@
 """Render the claude hook settings that wire the **turn-flip contract** (Slice 4):
 
-- the agent's **Stop** hook flips the live turn to the *user* (the agent handed the ball back);
+- the agent's **Stop** hook flips the live turn to the *user* (the agent handed the ball back) —
+  *unless* a background task is still running, in which case the callback leaves the turn on the
+  agent (see :mod:`panopticon.container.hook`), since the task's completion re-invokes the agent
+  without a UserPromptSubmit;
 - **UserPromptSubmit** flips it back to the *agent* (the user replied);
 - **PreToolUse**/**PostToolUse** matched to the ``AskUserQuestion`` tool flip to the *user* while
   the agent is asking the user something (so the dashboard shows input is required) and back to the

@@ -79,7 +79,7 @@ def test_hook_flips_the_turn(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("PANOPTICON_SERVICE_URL", "http://svc")
     monkeypatch.setenv("PANOPTICON_TASK_ID", "t1")
     client = _FakeClient(slug="fix-widget")  # slugged → no nudge, just the turn flip
-    assert hook.main(["user"], client=client) == 0  # type: ignore[arg-type]
+    assert hook.main(["user"], client=client, stdin=io.StringIO("")) == 0  # type: ignore[arg-type]
     assert hook.main(["agent"], client=client) == 0  # type: ignore[arg-type]
     assert client.calls == [("t1", "user"), ("t1", "agent")]
 
@@ -131,7 +131,7 @@ def test_stop_hook_is_silent(
     monkeypatch.setenv("PANOPTICON_SERVICE_URL", "http://svc")
     monkeypatch.setenv("PANOPTICON_TASK_ID", "t1")
     # Stop hook: flips the turn and reports tokens, but emits nothing to the agent's context.
-    hook.main(["user", "stop"], client=_FakeClient(slug=None), stdin=io.StringIO(""))
+    hook.main(["user", "stop"], client=_FakeClient(slug=None), stdin=io.StringIO(""))  # type: ignore[arg-type]
     assert capsys.readouterr().out == ""
 
 
@@ -179,10 +179,90 @@ def test_stop_hook_reports_session_tokens_from_the_transcript(
 
 
 def test_stop_hook_tolerates_stdin_without_a_transcript(
-    monkeypatch: pytest.MonkeyPatch
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setenv("PANOPTICON_SERVICE_URL", "http://svc")
     monkeypatch.setenv("PANOPTICON_TASK_ID", "t1")
     client = _FakeClient(slug="fix-widget")
     assert hook.main(["user", "stop"], client=client, stdin=io.StringIO("{}")) == 0  # type: ignore[arg-type]
     assert client.calls == [("t1", "user")] and client.tokens == []  # no transcript → no report
+
+
+# -- background-task gate: don't hand the turn back while background work is still running -------
+
+
+def _stop(client: _FakeClient, payload: str) -> int:
+    """Run the Stop hook feeding `payload` as the hook's stdin JSON."""
+    return hook.main(["user", "stop"], client=client, stdin=io.StringIO(payload))  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        '{"background_tasks": [{"id": "t", "type": "shell", "status": "running"}]}',
+        '{"background_tasks": [{"id": "m", "type": "monitor", "status": "running"}]}',  # Monitor tool
+        '{"background_tasks": [{"id": "a", "type": "subagent", "status": "running"}]}',  # background agent
+        '{"background_tasks": [{"id": "w", "type": "workflow", "status": "running"}]}',  # background workflow
+        '{"background_tasks": [{"id": "t", "status": "completed"}, {"id": "u", "status": "running"}]}',
+        '{"background_tasks": [{"id": "t"}]}',  # no status → treated as live (conservative)
+    ],
+)
+def test_stop_does_not_flip_while_a_background_task_is_live(
+    monkeypatch: pytest.MonkeyPatch, payload: str
+) -> None:
+    monkeypatch.setenv("PANOPTICON_SERVICE_URL", "http://svc")
+    monkeypatch.setenv("PANOPTICON_TASK_ID", "t1")
+    client = _FakeClient(slug="fix-widget")
+    assert _stop(client, payload) == 0
+    assert client.calls == []  # turn left on the agent — set_turn not called
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        "",  # empty stdin
+        "   ",  # blank stdin
+        "not json",  # unparseable
+        "[]",  # JSON, but not an object
+        "{}",  # object without the field
+        '{"background_tasks": []}',  # field present, nothing running
+        '{"background_tasks": [{"id": "t", "status": "completed"}]}',  # only terminal entries
+        '{"background_tasks": [{"id": "t", "status": "FAILED"}]}',  # terminal, case-insensitive
+        '{"background_tasks": "oops"}',  # field present but wrong type → degrade, flip
+    ],
+)
+def test_stop_flips_to_user_when_no_live_background_task(
+    monkeypatch: pytest.MonkeyPatch, payload: str
+) -> None:
+    monkeypatch.setenv("PANOPTICON_SERVICE_URL", "http://svc")
+    monkeypatch.setenv("PANOPTICON_TASK_ID", "t1")
+    client = _FakeClient(slug="fix-widget")
+    assert _stop(client, payload) == 0
+    assert client.calls == [("t1", "user")]  # degrades to the original turn flip
+
+
+def test_background_task_does_not_suppress_the_askuserquestion_flip(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # The gate is the *Stop* event only. AskUserQuestion's bare `hook user` flip means the agent is
+    # genuinely waiting on the user, so it must flip to user even while a background task runs.
+    monkeypatch.setenv("PANOPTICON_SERVICE_URL", "http://svc")
+    monkeypatch.setenv("PANOPTICON_TASK_ID", "t1")
+    client = _FakeClient(slug="fix-widget")
+    payload = '{"background_tasks": [{"id": "t", "status": "running"}]}'
+    assert hook.main(["user"], client=client, stdin=io.StringIO(payload)) == 0  # type: ignore[arg-type]
+    assert client.calls == [("t1", "user")]
+
+
+def test_user_prompt_submit_unaffected_by_background_tasks(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    # The gate is Stop-only: UserPromptSubmit (agent) always flips and still briefs, even if the
+    # payload carries running background tasks.
+    monkeypatch.setenv("PANOPTICON_SERVICE_URL", "http://svc")
+    monkeypatch.setenv("PANOPTICON_TASK_ID", "t1")
+    client = _FakeClient(slug="fix-widget")
+    payload = '{"background_tasks": [{"id": "t", "status": "running"}]}'
+    assert hook.main(["agent", "prompt"], client=client, stdin=io.StringIO(payload)) == 0  # type: ignore[arg-type]
+    assert client.calls == [("t1", "agent")]
+    assert "PHASE BRIEFING" in capsys.readouterr().out

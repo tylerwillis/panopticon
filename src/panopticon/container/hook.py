@@ -16,7 +16,14 @@ distinct from the actor so the bare question hooks (`hook user` / `hook agent`) 
   task is still unslugged it additionally prints the provisioning nudge (ADR 0011 §3), reminding the
   agent to run the `provision` skill once it can name the task.
 - ``stop`` (Stop → ``user``): record the session's cumulative token usage from the transcript the
-  hook payload names. Best-effort and silent (no stdout).
+  hook payload names (best-effort, silent), **and** gate the turn flip on background work. A
+  background task (a Bash command launched with ``run_in_background``, the ``Monitor`` tool, or a
+  background **agent**) keeps running after the agent's visible turn ends; its completion re-invokes
+  the agent with a synthetic message — *not* a ``UserPromptSubmit`` — so a turn flipped to ``user``
+  would never flip back even though the agent is about to be woken and keep working. So if the Stop
+  payload reports any **live** background task (``background_tasks`` array, claude ≥ v2.1.145) we
+  leave the turn on the agent; it flips to ``user`` on the eventual real stop with nothing in flight.
+  If the payload lacks the field (older claude / empty stdin) we degrade to the plain flip.
 """
 
 from __future__ import annotations
@@ -26,7 +33,7 @@ import os
 import sys
 from collections.abc import Sequence
 from pathlib import Path
-from typing import TextIO
+from typing import Any, TextIO
 
 import httpx
 
@@ -36,6 +43,50 @@ from panopticon.core.provisioning import PROVISION_NUDGE
 #: Per-message usage keys we sum into the session total — every token the model processed
 #: (prompt + completion + both cache tiers).
 _USAGE_KEYS = ("input_tokens", "output_tokens", "cache_creation_input_tokens", "cache_read_input_tokens")
+
+#: A background task's ``status`` value counts as *finished* (no longer in flight) only if it's one
+#: of these. Anything else — including a missing/unknown status — is treated as live, so we err
+#: toward keeping the turn on the agent rather than prematurely handing it back.
+_TERMINAL_STATUSES = frozenset({"completed", "failed", "cancelled", "canceled", "error"})
+
+
+def _read_payload(stdin: TextIO) -> dict[str, Any]:
+    """Tolerantly parse the hook's stdin JSON; empty/invalid input yields an empty payload."""
+    try:
+        raw = stdin.read()
+    except (OSError, ValueError):
+        return {}
+    if not raw or not raw.strip():
+        return {}
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError:
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def _has_live_background_task(payload: dict[str, Any]) -> bool:
+    """Whether the Stop payload reports a still-running background task.
+
+    Reads claude's ``background_tasks`` array (claude ≥ v2.1.145; absent on older builds, where this
+    is simply ``False`` and the turn flips as before). An entry is live unless its ``status`` is a
+    known terminal one (see :data:`_TERMINAL_STATUSES`).
+
+    Deliberately **type-agnostic**: it ignores each entry's ``type`` so it covers every kind of
+    background work that re-wakes the agent — ``shell`` (Bash ``run_in_background``), ``monitor``,
+    and background **agents** (``subagent``/``workflow``/``teammate``/``cloud_session``/``mcp_task``)
+    alike. They all re-invoke the agent on completion without a UserPromptSubmit, so the turn must
+    stay on the agent for all of them."""
+    tasks = payload.get("background_tasks")
+    if not isinstance(tasks, list):
+        return False
+    for task in tasks:
+        if not isinstance(task, dict):
+            return True  # unrecognised shape → assume live (don't hand the turn back prematurely)
+        status = task.get("status")
+        if not isinstance(status, str) or status.strip().lower() not in _TERMINAL_STATUSES:
+            return True
+    return False
 
 
 def session_tokens(transcript_path: str) -> int:
@@ -68,16 +119,17 @@ def _line_tokens(line: str) -> int:
     return sum(usage[key] for key in _USAGE_KEYS if isinstance(usage.get(key), int))
 
 
-def _report_tokens(client: TaskServiceClient, task_id: str, stdin: TextIO) -> None:
-    """Best-effort: read the Stop hook's stdin JSON, total the named transcript, record it.
+def _report_tokens(client: TaskServiceClient, task_id: str, payload: dict[str, Any]) -> None:
+    """Best-effort: total the transcript the Stop payload names and record it.
 
-    Any failure — no/!JSON stdin, no ``transcript_path``, a REST error — is swallowed: token
-    accounting must never break the turn-flip the hook exists for."""
+    Any failure — no ``transcript_path``, a REST error — is swallowed: token accounting must never
+    break the turn-flip the hook exists for."""
+    transcript = payload.get("transcript_path")
+    if not isinstance(transcript, str):
+        return
     try:
-        transcript = json.load(stdin).get("transcript_path")
-        if transcript:
-            client.set_tokens_used(task_id, session_tokens(transcript))
-    except (ValueError, OSError, AttributeError, httpx.HTTPError):
+        client.set_tokens_used(task_id, session_tokens(transcript))
+    except httpx.HTTPError:
         pass
 
 
@@ -95,6 +147,17 @@ def main(
     actor, event = args[0], (args[1] if len(args) == 2 else None)
     task_id = env["PANOPTICON_TASK_ID"]
     client = client or TaskServiceClient(httpx.Client(base_url=env["PANOPTICON_SERVICE_URL"]))
+    # `stop` (Stop): the agent's turn just ended. Read the payload once — it carries the transcript
+    # path and the background_tasks list. Record cumulative token usage, then decide the turn: don't
+    # hand it back while a background task is still running, since the task's completion re-invokes
+    # the agent without a UserPromptSubmit and a flip to `user` would never flip back. Leave it on
+    # the agent; the next real stop with nothing in flight flips. (This gate is the Stop event only,
+    # not the bare AskUserQuestion `hook user` flip — there the agent is genuinely awaiting the user.)
+    if event == "stop":
+        payload = _read_payload(stdin or sys.stdin)
+        _report_tokens(client, task_id, payload)
+        if _has_live_background_task(payload):
+            return 0
     client.set_turn(task_id, actor)
     # `prompt` (UserPromptSubmit): ground the agent in its current phase, and (while the task is
     # unslugged) nudge toward provisioning. claude adds this hook's stdout to its context.
@@ -102,10 +165,6 @@ def main(
         print(client.get_briefing(task_id))
         if client.get_task(task_id).get("slug") is None:
             print(PROVISION_NUDGE)
-    # `stop` (Stop): the agent's turn just ended — record the session's cumulative token usage from
-    # the transcript the hook payload points at. Best-effort, and silent (no stdout).
-    elif event == "stop":
-        _report_tokens(client, task_id, stdin or sys.stdin)
     # No event (the AskUserQuestion PreToolUse/PostToolUse hooks): a pure turn flip, no side-effects.
     return 0
 
