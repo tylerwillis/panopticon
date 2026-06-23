@@ -97,8 +97,8 @@ def test_spawn_with_docker_in_docker_runs_privileged_and_flags_the_entrypoint() 
 
 def test_extra_env_is_forwarded() -> None:
     rec = _Recorder()
-    LocalRunner("http://svc", extra_env={"PANOPTICON_HEARTBEAT_INTERVAL": "0.5"}, run=rec).spawn("t1")
-    assert "PANOPTICON_HEARTBEAT_INTERVAL=0.5" in rec.calls[1][0]
+    LocalRunner("http://svc", extra_env={"PANOPTICON_RECONNECT_BACKOFF": "0.5"}, run=rec).spawn("t1")
+    assert "PANOPTICON_RECONNECT_BACKOFF=0.5" in rec.calls[1][0]
 
 
 def test_spawn_injects_repo_env_file_and_creds_mount() -> None:

@@ -15,8 +15,14 @@ from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query, Request, Response
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
+
+#: How often the held ``/live`` stream emits a keepalive byte. This does **not** govern how fast
+#: death is noticed — disconnect is event-driven (Starlette cancels the stream the instant the
+#: client drops, so the registration is removed immediately). The keepalive only keeps idle
+#: proxies from closing the connection and gives the container a tick to notice a clean stop.
+LIVENESS_KEEPALIVE_SECONDS = 5.0
 
 from panopticon.core.artifacts import ArtifactError
 from panopticon.core.models import Actor, Repo, Status
@@ -183,7 +189,6 @@ class RegistrationOut(BaseModel):
     container_id: str
     runner_id: str | None
     registered_at: str
-    last_seen: str
 
 
 # -- block-until-change feed --------------------------------------------------------
@@ -487,6 +492,33 @@ def create_app(service: TaskService) -> FastAPI:
 
     # -- liveness -----------------------------------------------------------------
 
+    @app.get("/tasks/{task_id}/live")
+    async def live(
+        task_id: str, request: Request, container_id: str, runner_id: str | None = None
+    ) -> StreamingResponse:
+        """The liveness connection: a container holds this stream open for its whole lifetime.
+
+        Registering happens on connect and is removed on disconnect — the open connection *is* the
+        signal that the container is alive. When the container dies (clean exit, ``docker stop``,
+        ``SIGKILL``/``docker rm --force``, crash) the stream drops and Starlette cancels the body
+        generator, so the ``finally`` deregisters **immediately** — no heartbeat, no TTL. A flaky
+        network drop reaps the registration too, but the container re-opens this connection (its
+        reconnect loop), so a transient blip self-heals into a brief ``down`` flicker.
+        """
+        service.get_task(task_id)  # 404 if the task is unknown
+        reg = service.register(task_id, container_id, runner_id)
+
+        async def hold() -> AsyncIterator[bytes]:
+            try:
+                yield b":ok\n"  # flush headers + confirm liveness is established
+                while True:
+                    await asyncio.sleep(LIVENESS_KEEPALIVE_SECONDS)
+                    yield b":keepalive\n"
+            finally:  # client disconnected (Starlette cancels us) or the loop ended — reap now
+                service.deregister(reg.id)
+
+        return StreamingResponse(hold(), media_type="text/event-stream")
+
     @app.post("/tasks/{task_id}/registrations", status_code=201)
     async def register(task_id: str, body: RegisterIn) -> RegistrationOut:
         return RegistrationOut.model_validate(
@@ -497,10 +529,6 @@ def create_app(service: TaskService) -> FastAPI:
     async def list_registrations(task_id: str) -> list[RegistrationOut]:
         service.get_task(task_id)  # 404 if the task is unknown
         return [RegistrationOut.model_validate(r) for r in service.registrations(task_id)]
-
-    @app.post("/registrations/{registration_id}/heartbeat")
-    async def heartbeat(registration_id: str) -> RegistrationOut:
-        return RegistrationOut.model_validate(service.heartbeat(registration_id))
 
     @app.delete("/registrations/{registration_id}", status_code=204)
     async def deregister(registration_id: str) -> Response:

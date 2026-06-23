@@ -23,12 +23,6 @@ from panopticon.core.store import NotFound, Store
 from panopticon.core.workflow import Workflow
 
 
-#: A registration is considered live only if heartbeated within this window (the container
-#: heartbeats every ~5s; a few missed beats means it's gone). Past it, the registration is reaped
-#: so a container that died without deregistering doesn't show as "live" forever.
-LIVENESS_TTL_SECONDS = 20.0
-
-
 def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -52,14 +46,18 @@ class NotAuthorized(Exception):
 
 @dataclass
 class Registration:
-    """An active container's claim that it is working on a task (liveness)."""
+    """An active container's claim that it is working on a task (liveness).
+
+    A registration exists for exactly as long as the container holds its liveness connection open
+    (the ``/live`` stream): the connection *is* the signal. There is no heartbeat and no
+    ``last_seen`` — death is detected by the connection dropping (see :meth:`TaskService.register`
+    / :meth:`deregister` and the ``/live`` endpoint), not by aging out a timestamp."""
 
     id: str
     task_id: str
     container_id: str
     runner_id: str | None
     registered_at: str
-    last_seen: str
 
 
 class TaskService:
@@ -380,48 +378,31 @@ class TaskService:
         return self._artifacts.list(task_id)
 
     # -- liveness -----------------------------------------------------------------
+    #
+    # Liveness is connection-scoped: a container holds the ``/live`` stream open for its whole
+    # lifetime, the service registers on connect and removes on disconnect. Death (clean exit,
+    # ``docker stop``, ``SIGKILL`` / ``docker rm --force``, crash) drops the connection and is
+    # noticed immediately — no heartbeat to miss, no wall-clock TTL to age out (so a container
+    # that dies can't linger as "live", and ``registrations`` reads no clock at all).
 
     def register(
         self, task_id: str, container_id: str, runner_id: str | None = None
     ) -> Registration:
         self.get_task(task_id)  # ensure the task exists
-        now = self._clock()
         reg = Registration(
             id=self._id(),
             task_id=task_id,
             container_id=container_id,
             runner_id=runner_id,
-            registered_at=now,
-            last_seen=now,
+            registered_at=self._clock(),
         )
         self._registrations[reg.id] = reg
-        return reg
-
-    def heartbeat(self, registration_id: str) -> Registration:
-        reg = self._registrations.get(registration_id)
-        if reg is None:
-            raise NotFound(f"registration {registration_id!r} does not exist")
-        reg.last_seen = self._clock()
         return reg
 
     def deregister(self, registration_id: str) -> None:
         self._registrations.pop(registration_id, None)
 
-    def _stale(self, reg: Registration) -> bool:
-        """Whether a registration has gone too long without a heartbeat — its container died without
-        deregistering (SIGKILL / ``docker rm --force`` / crash). Defensive: a non-timestamp clock
-        (tests) never expires, so liveness behaviour is unchanged there."""
-        try:
-            age = (datetime.fromisoformat(self._clock()) - datetime.fromisoformat(reg.last_seen))
-        except ValueError:
-            return False
-        return age.total_seconds() > LIVENESS_TTL_SECONDS
-
     def registrations(self, task_id: str | None = None) -> list[Registration]:
-        # Reap stale registrations first, so liveness reflects reality — a container that died
-        # without deregistering otherwise lingers as "live" forever (no heartbeat to age it out).
-        for rid in [r.id for r in self._registrations.values() if self._stale(r)]:
-            del self._registrations[rid]
         return [
             r for r in self._registrations.values() if task_id is None or r.task_id == task_id
         ]

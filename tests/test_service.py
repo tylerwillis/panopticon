@@ -312,16 +312,14 @@ def test_briefing_surfaces_the_plan_uri_once_the_plan_exists(tmp_path: Path) -> 
 # -- liveness -----------------------------------------------------------------------
 
 
-def test_register_heartbeat_deregister(tmp_path: Path) -> None:
+def test_register_deregister(tmp_path: Path) -> None:
+    # Liveness is connection-scoped: a registration lives exactly as long as the container holds
+    # its `/live` connection. register == connect; deregister == disconnect. No heartbeat, no TTL.
     svc = make_service(tmp_path)
     task = svc.create_task("r1", "spike")
     reg = svc.register(task.id, container_id="c-abc", runner_id="runner-1")
     assert reg.task_id == task.id
     assert [r.id for r in svc.registrations(task.id)] == [reg.id]
-
-    before = reg.last_seen
-    updated = svc.heartbeat(reg.id)
-    assert updated.last_seen != before  # clock advanced
 
     svc.deregister(reg.id)
     assert svc.registrations(task.id) == []
@@ -333,9 +331,10 @@ def test_register_requires_task(tmp_path: Path) -> None:
         svc.register("ghost", container_id="c-abc")
 
 
-def test_stale_registration_is_reaped_after_the_ttl(tmp_path: Path) -> None:
-    # A container that dies without deregistering (SIGKILL / rm -f / crash) leaves a registration
-    # behind; with no heartbeat it must age out, else the dashboard shows it "live" forever.
+def test_registrations_do_not_age_out_on_the_clock(tmp_path: Path) -> None:
+    # The old model reaped registrations on a wall-clock TTL; the connection model never does — a
+    # registration is removed only by an explicit deregister (the dropped connection), so reading
+    # `registrations` touches no clock no matter how much time passes.
     now = {"t": "2026-01-01T00:00:00+00:00"}
     svc = TaskService(
         SqlAlchemyStore(), {"spike": Spike()}, FilesystemArtifactStore(tmp_path),
@@ -343,19 +342,10 @@ def test_stale_registration_is_reaped_after_the_ttl(tmp_path: Path) -> None:
     )
     svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
     task = svc.create_task("r1", "spike")
-    reg = svc.register(task.id, container_id="c-abc")  # last_seen = 00:00:00
+    reg = svc.register(task.id, container_id="c-abc")
 
-    now["t"] = "2026-01-01T00:00:05+00:00"  # +5s, within the TTL
-    assert [r.id for r in svc.registrations(task.id)] == [reg.id]  # still live
-
-    now["t"] = "2026-01-01T00:01:00+00:00"  # +60s, past the 20s TTL
-    assert svc.registrations(task.id) == []  # reaped — no longer "live"
-
-
-def test_heartbeat_unknown_registration(tmp_path: Path) -> None:
-    svc = make_service(tmp_path)
-    with pytest.raises(NotFound):
-        svc.heartbeat("nope")
+    now["t"] = "2026-01-01T01:00:00+00:00"  # +1h — would be long past any old TTL
+    assert [r.id for r in svc.registrations(task.id)] == [reg.id]  # still live: only disconnect reaps
 
 
 # -- responsibilities ---------------------------------------------------------------
