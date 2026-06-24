@@ -9,6 +9,7 @@ return the updated resource. LLM-free — agents reach the LLM only inside the c
 
 from __future__ import annotations
 
+from collections.abc import Generator
 from typing import Any, cast
 
 import httpx
@@ -207,8 +208,26 @@ class TaskServiceClient:
             ),
         )
 
-    def heartbeat(self, registration_id: str) -> JsonObj:
-        return cast(JsonObj, self._json(self._http.post(f"/registrations/{registration_id}/heartbeat")))
+    def live(
+        self, task_id: str, *, container_id: str, runner_id: str | None = None
+    ) -> Generator[None, None, None]:
+        """Hold the long-lived liveness connection open, yielding once per server keepalive.
+
+        The open connection is the liveness signal: the service registers the container on connect
+        and removes it the instant this stream drops (clean ``close()``, or the process dying). The
+        caller iterates and may stop at any tick (closing the generator closes the connection — a
+        clean deregister); if the connection drops underneath, ``httpx`` raises, which the caller
+        treats as a cue to reconnect. Replaces the old register + heartbeat-loop + deregister.
+        """
+        with self._http.stream(
+            "GET",
+            f"/tasks/{task_id}/live",
+            params={"container_id": container_id, "runner_id": runner_id},
+            timeout=None,  # the connection is meant to stay open for the container's lifetime
+        ) as resp:
+            resp.raise_for_status()
+            for _ in resp.iter_lines():
+                yield None
 
     def deregister(self, registration_id: str) -> None:
         self._http.delete(f"/registrations/{registration_id}").raise_for_status()

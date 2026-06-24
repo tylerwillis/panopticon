@@ -12,7 +12,7 @@ per-repo creds volume would share/clobber that state across every task on the re
 *credentials* are per-repo: we symlink just `.credentials.json` in from the creds volume (so the
 repo's OAuth token is used and token refreshes write back to the shared, persistent volume).
 
-The container's entrypoint (`python -m panopticon.container`) stays the liveness/heartbeat loop;
+The container's entrypoint (`python -m panopticon.container`) holds the liveness connection;
 this runs alongside it in the tmux pane, so `tmux attach` reaches the live agent.
 """
 
@@ -197,7 +197,7 @@ def _run_claude(config_dir: Path) -> None:  # pragma: no cover - real LLM; skipi
 
 
 def _stop_container() -> None:  # pragma: no cover - signals the real container's PID 1
-    """Stop the container by signalling the entrypoint (PID 1, the heartbeat). Both it and this
+    """Stop the container by signalling the entrypoint (PID 1, the liveness connection). Both it and this
     launcher run as the same unprivileged user, so the signal is permitted; PID 1 deregisters and
     exits on SIGTERM, so the container stops → the task shows **down** → the operator respawns (`R`),
     resuming from the per-task config volume."""

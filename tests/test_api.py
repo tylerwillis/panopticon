@@ -226,15 +226,15 @@ def test_artifact_missing_404(client: TestClient) -> None:
 # -- liveness -----------------------------------------------------------------------
 
 
-def test_register_heartbeat_list_deregister(client: TestClient) -> None:
+def test_register_list_deregister(client: TestClient) -> None:
+    # The explicit register/deregister routes back the in-process path (the stub runner); a real
+    # container instead holds the `/live` connection (see test_liveness_connection.py).
     task_id = _new_task(client)
     reg = client.post(
         f"/tasks/{task_id}/registrations", json={"container_id": "c-abc", "runner_id": "r-1"}
     )
     assert reg.status_code == 201
     reg_id = reg.json()["id"]
-
-    assert client.post(f"/registrations/{reg_id}/heartbeat").status_code == 200
 
     listed = client.get(f"/tasks/{task_id}/registrations").json()
     assert [r["id"] for r in listed] == [reg_id]

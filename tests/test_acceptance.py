@@ -1,9 +1,10 @@
 """Slice 2 acceptance: the LocalRunner spawns a real task container from the base image; the
-container connects back to a real (in-process) task service, registers, sets its slug, and
-heartbeats; killing it freezes liveness. Skipped without a working docker daemon + tmux.
+container connects back to a real (in-process) task service, registers (by holding the liveness
+connection), and sets its slug; killing it drops the connection so liveness is reaped immediately.
+Skipped without a working docker daemon + tmux.
 
 Builds the base image and runs a real container — no LLM (the entrypoint's agent step is a
-stay-alive heartbeat loop)."""
+stay-alive liveness connection)."""
 
 from __future__ import annotations
 
@@ -87,7 +88,7 @@ def test_runner_spawns_real_container_that_registers_and_loses_liveness(
         # This acceptance test only proves liveness + a live tmux pane to attach to, so a
         # stay-alive shell stands in for the agent.
         agent_command=["bash"],
-        extra_env={"PANOPTICON_HEARTBEAT_INTERVAL": "0.5", "PANOPTICON_PROPOSED_SLUG": "acc-slug"},
+        extra_env={"PANOPTICON_PROPOSED_SLUG": "acc-slug"},
     )
     container = runner.spawn(task_id)
     try:
@@ -115,17 +116,16 @@ def test_runner_spawns_real_container_that_registers_and_loses_liveness(
             ["tmux", "-L", _TMUX_SOCKET, "has-session", "-t", container], capture_output=True
         ).returncode == 0
 
-        # 4. it is heartbeating: last_seen advances
-        before = service.registrations(task_id)[0].last_seen
-        time.sleep(1.5)
-        assert service.registrations(task_id)[0].last_seen != before, "no heartbeats"
-
-        # 5. killing the container freezes liveness (no deregister, last_seen stops advancing)
+        # 4. killing the container (SIGKILL) drops the liveness connection, so the service reaps
+        #    the registration immediately — push, not a TTL age-out (the old model waited ~20s).
         subprocess.run(["docker", "rm", "--force", container], check=True, capture_output=True)
-        time.sleep(0.5)
-        frozen = service.registrations(task_id)[0].last_seen
-        time.sleep(1.5)
-        assert service.registrations(task_id)[0].last_seen == frozen, "heartbeats continued after kill"
+        reaped = False
+        for _ in range(40):  # ~10s ceiling; in practice near-immediate on disconnect
+            if not service.registrations(task_id):
+                reaped = True
+                break
+            time.sleep(0.25)
+        assert reaped, "liveness was not reaped after the container died (connection should drop)"
     finally:
         subprocess.run(["docker", "rm", "--force", container], capture_output=True)
         subprocess.run(["tmux", "-L", _TMUX_SOCKET, "kill-server"], capture_output=True)
