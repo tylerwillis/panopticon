@@ -611,6 +611,67 @@ async def test_pressing_p_with_no_url_does_nothing(monkeypatch: Any) -> None:
         assert app.is_running
 
 
+def test_clipboard_command_is_platform_appropriate(monkeypatch: Any) -> None:
+    # The result is cached (the installed tool can't change at runtime); clear it before each
+    # probe so the monkeypatched platform/PATH takes effect, and once more at the end so the
+    # cache doesn't leak the fakes into other tests.
+    dashboard._clipboard_command.cache_clear()
+    # macOS → pbcopy unconditionally (always present, no `which` probe).
+    monkeypatch.setattr(dashboard.sys, "platform", "darwin")
+    assert dashboard._clipboard_command() == ["pbcopy"]
+    # Linux → the first installed of wl-copy / xclip / xsel.
+    dashboard._clipboard_command.cache_clear()
+    monkeypatch.setattr(dashboard.sys, "platform", "linux")
+    monkeypatch.setattr(dashboard.shutil, "which", lambda name: name == "xclip")
+    assert dashboard._clipboard_command() == ["xclip", "-selection", "clipboard"]
+    # Wayland wins when both are present (preference order).
+    dashboard._clipboard_command.cache_clear()
+    monkeypatch.setattr(dashboard.shutil, "which", lambda name: name in {"wl-copy", "xclip"})
+    assert dashboard._clipboard_command() == ["wl-copy"]
+    # nothing installed → None (no host tool; the OSC 52 emit still applies separately).
+    dashboard._clipboard_command.cache_clear()
+    monkeypatch.setattr(dashboard.shutil, "which", lambda name: None)
+    assert dashboard._clipboard_command() is None
+    dashboard._clipboard_command.cache_clear()
+
+
+async def test_pressing_y_copies_the_slug(monkeypatch: Any) -> None:
+    # `y` copies the highlighted task's slug to the host clipboard tool.
+    copied: list[str] = []
+    monkeypatch.setattr(dashboard, "_clipboard_copy", lambda text: bool(copied.append(text)))
+    app = Dashboard(_FakeClient([_TASK]))  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("y")
+        await pilot.pause()
+        assert copied == ["fix-widget"]
+
+
+async def test_pressing_y_with_no_slug_warns(monkeypatch: Any) -> None:
+    # An unprovisioned task (no slug) → nothing copied; warn and stay up.
+    copied: list[str] = []
+    monkeypatch.setattr(dashboard, "_clipboard_copy", lambda text: bool(copied.append(text)))
+    app = Dashboard(_FakeClient([{**_TASK, "slug": None}]))  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("y")
+        await pilot.pause()
+        assert copied == []
+        assert app.is_running
+
+
+async def test_pressing_shift_y_copies_the_id(monkeypatch: Any) -> None:
+    # `Y` copies the highlighted task's internal id.
+    copied: list[str] = []
+    monkeypatch.setattr(dashboard, "_clipboard_copy", lambda text: bool(copied.append(text)))
+    app = Dashboard(_FakeClient([_TASK]))  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("Y")
+        await pilot.pause()
+        assert copied == ["task-abcdef0123"]
+
+
 def test_render_detail_shows_the_claim() -> None:
     assert "claimed:" not in render_detail(_TASK)
     assert "claimed: host-1" in render_detail({**_TASK, "claimed_by": "host-1"})
@@ -1190,7 +1251,7 @@ def test_footer_shows_only_the_essential_keys() -> None:
     shown = {b.key for b in Dashboard.BINDINGS if b.show}
     hidden = {b.key for b in Dashboard.BINDINGS if not b.show}
     assert shown == {"t", "n", "x", "/", "d", "question_mark", "q"}
-    assert hidden == {"r", "R", "p", "g", "a", "s", "u", "escape"}
+    assert hidden == {"r", "R", "p", "g", "a", "s", "u", "y", "Y", "escape"}
 
 
 def test_bindings_and_help_derive_from_the_single_hotkey_table() -> None:
