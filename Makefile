@@ -42,7 +42,7 @@ start: host  ## Run panopticon: task service + session-service runner (backgroun
 	uv run panopticon console
 
 stop:  ## Stop everything `make start` started: the task containers + the -L panopticon tmux server
-	-docker ps --all --quiet --filter name=^panopticon- | { ids=$$(cat); [ -z "$$ids" ] || docker rm --force $$ids; }
+	-docker ps --all --quiet --filter label=panopticon.task | { ids=$$(cat); [ -z "$$ids" ] || docker rm --force $$ids; }
 	-tmux -L panopticon kill-server 2>/dev/null
 
 build:  ## Build the base task-container image (override with IMAGE=)
