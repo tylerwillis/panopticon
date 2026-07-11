@@ -92,29 +92,44 @@ from panopticon.core.dirs import ARTIFACTS_DIR
 from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
 
 
-def _sort_key(task: JsonObj) -> tuple[bool, bool, float, str]:
-    """Order rows for the operator: live work first, then by whose turn it is, then recency.
+def _make_sort_key(
+    by_updated: bool = False,
+) -> Callable[[JsonObj], tuple[bool, bool, float, str]]:
+    """Return a sort key function for the task table.
 
-    1. non-terminal before terminal — COMPLETE/DROPPED sink to the bottom;
-    2. turn priority differs by group: for active tasks the user's turn comes first (tasks waiting
-       on the operator surface early); for terminal tasks the agent's turn comes first (tasks the
-       agent just finished surface at the top of the completed section);
-    3. most recently updated first (negative timestamp);
-    4. slug (then id) for a stable, readable order within each tier.
+    1. non-terminal before terminal — COMPLETE/DROPPED sink to the bottom.
+    2. turn priority: for active tasks the user's turn comes first (operator action needed);
+       for terminal tasks the agent's turn comes first (task just finished).
+    3. timestamp:
+       - Active, ``by_updated=False`` (default): ``created_at`` ascending — stable creation order.
+       - Active, ``by_updated=True``: ``updated_at`` descending — most recently updated rises first.
+       - Terminal (always): ``updated_at`` descending — most recently completed rises first.
+    4. id as a stable tiebreaker.
     """
-    is_terminal = task["state"] in TERMINAL_LABELS
-    raw = task.get("updated_at") or ""
-    try:
-        ts = -datetime.fromisoformat(raw).timestamp()
-    except ValueError:
-        ts = 0.0
-    turn_first = "agent" if is_terminal else "user"
-    return (
-        is_terminal,  # False (live) before True (terminal)
-        task["turn"] != turn_first,  # False (priority turn) before True (other turn)
-        ts,  # negative so newest sorts first
-        task["slug"] or task["id"],
-    )
+    def key(task: JsonObj) -> tuple[bool, bool, float, str]:
+        is_terminal = task["state"] in TERMINAL_LABELS
+        turn_first = "agent" if is_terminal else "user"
+        turn_after_priority = task["turn"] != turn_first  # False (priority) sorts before True
+        if is_terminal or by_updated:
+            # Terminal tasks always use updated_at descending; by_updated mode does too.
+            raw = task.get("updated_at") or ""
+            try:
+                ts = - datetime.fromisoformat(raw).timestamp()   # negative → newest first
+            except ValueError:
+                ts = 0.0
+        else:
+            raw = task.get("created_at") or task.get("updated_at") or ""
+            try:
+                ts = - datetime.fromisoformat(raw).timestamp()   # negative → newest first
+            except ValueError:
+                ts = 0.0
+        return (
+            is_terminal,         # False (active) before True (terminal)
+            turn_after_priority, # priority turn sorts first within each section
+            ts,
+            task["id"],          # stable tiebreaker
+        )
+    return key
 
 
 def _short_tokens(n: int | None) -> str:
@@ -1123,6 +1138,7 @@ HOTKEYS: tuple[Hotkey, ...] = (
     Hotkey("x", "drop", "Drop", "Drop the highlighted task"),
     Hotkey("/", "search", "Search", "Search tasks as you type"),
     Hotkey("d", "toggle_detail", "Detail", "Show/hide the detail pane"),
+    Hotkey("o", "toggle_sort", "Sort order", "Toggle sort: created ↔ updated", show=False),
     Hotkey("r", "refresh", "Refresh", "Refresh from the task service now", show=False),
     Hotkey("R", "respawn", "Respawn", "Respawn a down task (release its claim)", show=False),
     Hotkey("p", "open_url", "Open URL", "Open the task's URL in the browser", show=False),
@@ -1251,6 +1267,7 @@ class Dashboard(App[None]):
         self._collapsed: set[str] = set()  # governor IDs whose ensembles are currently collapsed
         self._governors: set[str] = set()  # governor IDs visible in the current table build
         self._multi_runner: bool = False  # True when tasks span >1 distinct runner_host
+        self._sort_by_updated: bool = False  # False = creation order (stable); True = updated_at (newest first)
         # one reused scratch dir for `a`'s REST-open (lazily made, cleaned on exit) — so opening
         # many artifacts doesn't leak a temp dir each.
         self._artifact_tmp: tempfile.TemporaryDirectory[str] | None = None
@@ -1341,7 +1358,7 @@ class Dashboard(App[None]):
         table = self.query_one("#tasks", DataTable)
         selected = self._current  # keep the operator's highlight across the rebuild (feed refresh)
         table.clear()
-        ordered = sorted(self._client.list_tasks(), key=_sort_key)  # terminal last, then slug
+        ordered = sorted(self._client.list_tasks(), key=_make_sort_key(self._sort_by_updated))
         new_multi_runner = len({r.get("host") for r in self._client.live_runners() if r.get("host")}) > 1
         if new_multi_runner != self._multi_runner:
             table.clear(columns=True)  # rows already gone; also clears columns for rebuild
@@ -1349,7 +1366,8 @@ class Dashboard(App[None]):
             _setup_task_columns(table, multi_runner=self._multi_runner)
         active = [t for t in ordered if t.get("state") not in TERMINAL_LABELS]
         agent_on = sum(1 for t in active if t.get("turn") == "agent")
-        self.query_one(_StatusFooter).set_counter(f"active agents {agent_on}/{len(active)}")
+        sort_label = "sort: updated" if self._sort_by_updated else "sort: created"
+        self.query_one(_StatusFooter).set_counter(f"active agents {agent_on}/{len(active)}  ·  {sort_label}")
         # Inject repo_name so _matches can search on it without a separate lookup per task.
         for task in ordered:
             task["repo_name"] = self._repo_names.get(str(task.get("repo_id") or ""), "")
@@ -1623,6 +1641,11 @@ class Dashboard(App[None]):
             return
         self._copy_to_clipboard(self._current)
         self.notify(f"copied id: {self._current}")
+
+    def action_toggle_sort(self) -> None:
+        """`o`: toggle between sorting by creation time or update time."""
+        self._sort_by_updated = not self._sort_by_updated
+        self.action_refresh()
 
     def action_toggle_detail(self) -> None:
         """`d`: show/hide the right-hand detail pane. It starts hidden (``display: none``) so the
