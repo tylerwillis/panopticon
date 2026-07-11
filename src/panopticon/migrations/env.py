@@ -3,7 +3,7 @@
 Wired to the SQLAlchemy adapter's :data:`~panopticon.taskservice.store_sqlalchemy.metadata` so
 ``alembic revision --autogenerate`` diffs migrations against the live ORM schema (the single
 source of truth). The database URL is resolved the same way the task service resolves it — from
-``$PANOPTICON_DB`` (default ``$XDG_DATA_HOME/panopticon/panopticon.db``,
+``$PANOPTICON_DB`` (default ``$PANOPTICON_DATA/panopticon.db``,
 i.e. ``~/.local/share/panopticon/panopticon.db``) — or overridden per-invocation with
 ``alembic -x db=<url>``, so the migration tooling and the running service never disagree on the
 target database.
@@ -20,7 +20,7 @@ from pathlib import Path
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-from panopticon.taskservice.__main__ import DEFAULT_DB, migrate_db_to_home
+from panopticon.taskservice.__main__ import DB_URL, migrate_db_to_home
 from panopticon.taskservice.store_sqlalchemy import metadata
 
 config = context.config
@@ -32,7 +32,7 @@ if config.config_file_name is not None:
 
 # Resolve the target database: `-x db=<url>` wins, then $PANOPTICON_DB, then the service default.
 _db_url = context.get_x_argument(as_dictionary=True).get("db") or os.environ.get(
-    "PANOPTICON_DB", DEFAULT_DB
+    "PANOPTICON_DB", DB_URL
 )
 config.set_main_option("sqlalchemy.url", _db_url)
 

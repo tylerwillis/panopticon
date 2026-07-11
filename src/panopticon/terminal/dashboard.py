@@ -88,7 +88,8 @@ from textual.worker import get_current_worker
 
 from panopticon.client import JsonObj, TaskServiceClient
 from panopticon.core.state import TERMINAL_LABELS
-from panopticon.taskservice.artifacts_fs import DEFAULT_ARTIFACTS, FilesystemArtifactStore
+from panopticon.core.dirs import ARTIFACTS_DIR
+from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
 
 
 def _sort_key(task: JsonObj) -> tuple[bool, bool, float, str]:
@@ -1230,7 +1231,7 @@ class Dashboard(App[None]):
         on_switch: Callable[[str, str | None], None] | None = None,
         on_service: Callable[[], bool] | None = None,
         on_runner: Callable[[], bool] | None = None,
-        artifacts_root: str | Path = DEFAULT_ARTIFACTS,
+        artifacts_root: str | Path = ARTIFACTS_DIR,
         refresh_interval: float | None = REFRESH_INTERVAL,
     ) -> None:
         super().__init__()
@@ -1757,7 +1758,7 @@ def run(
     on_switch: Callable[[str, str | None], None] | None = None,
     on_service: Callable[[], bool] | None = None,
     on_runner: Callable[[], bool] | None = None,
-    artifacts_root: str | Path = DEFAULT_ARTIFACTS,
+    artifacts_root: str | Path = ARTIFACTS_DIR,
 ) -> None:
     """Run the dashboard. ``on_switch``/``on_service``/``on_runner`` are the supervisor's `t`/`s`/`u`
     hooks (ADR 0009); all ``None`` standalone. ``artifacts_root`` is the local artifact-store root
