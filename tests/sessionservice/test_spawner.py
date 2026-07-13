@@ -85,10 +85,26 @@ class _FakeClient:
     """Captures claims + reported lifecycle phases; serves one repo. `claim` 409s when already held
     by another runner."""
 
-    def __init__(self, *, repo: JsonObj, image_layer: str = "", repo_layer: str = "") -> None:
+    def __init__(
+        self,
+        *,
+        repo: JsonObj,
+        image_layer: str = "",
+        repo_layer: str = "",
+        runner_type: str = "docker",
+        shell_script: str = "",
+        clone_repo: bool = False,
+        shell_workdir: str | None = None,
+    ) -> None:
         self._repo = repo
         self._image_layer = image_layer
         self._repo_layer = repo_layer
+        self._runner_type = runner_type
+        self._shell_spec = {
+            "script": shell_script,
+            "clone_repo": clone_repo,
+            "workdir": shell_workdir,
+        }
         self.claims: list[tuple[str, str]] = []
         self._held_by: dict[str, str] = {}
         self.phases: list[tuple[str, str, str | None]] = []  # (task_id, phase, detail)
@@ -100,6 +116,9 @@ class _FakeClient:
 
     def repo_image_layer(self, repo_id: str) -> str:
         return self._repo_layer
+
+    def workflow_execution(self, name: str) -> JsonObj:
+        return {"runner_type": self._runner_type, **self._shell_spec}
 
     def claim(self, task_id: str, runner_id: str) -> JsonObj:
         holder = self._held_by.get(task_id)
@@ -216,6 +235,176 @@ def test_spawn_one_passes_the_docker_in_docker_capability() -> None:
         {"id": "t1", "repo_id": "r1", "workflow": "spike", "state": "ITERATING", "claimed_by": None}
     )
     assert runner.spawned[0]["docker_in_docker"] is True  # repo opted in → privileged DinD
+
+
+class _FakeShellRunner:
+    """Records shell-session spawns; stands in for ShellRunner. Mimics its ``progress`` callbacks
+    (STARTING then AWAITING) and ``is_running``/``has_session`` (the session == liveness)."""
+
+    def __init__(self, *, session: bool = True) -> None:
+        self.spawned: list[dict[str, object]] = []
+        self._session = session
+
+    def spawn(
+        self,
+        task_id: str,
+        *,
+        env_file: str | None = None,
+        script: str = "",
+        workdir: str | None = None,
+        progress: Callable[[LifecyclePhase], None] | None = None,
+    ) -> str:
+        self.spawned.append(
+            {"task_id": task_id, "env_file": env_file, "script": script, "workdir": workdir}
+        )
+        if progress is not None:
+            progress(LifecyclePhase.STARTING)
+            progress(LifecyclePhase.AWAITING)
+        return f"panopticon-{task_id}"
+
+    def is_running(self, task_id: str) -> bool:
+        return self._session
+
+    def has_session(self, task_id: str) -> bool:
+        return self._session
+
+    def stop(self, session_id: str) -> None:
+        pass
+
+
+def _shell_spawner(
+    client: object, runner: object, shell_runner: object, made: list[str] | None = None
+) -> Spawner:
+    cache = CloneCache("/cache", run=_no_op_run, exists=lambda _p: True, makedirs=lambda _p: None)  # type: ignore[arg-type]
+    return Spawner(
+        client,
+        runner,
+        runner_id="host-1",
+        cache=cache,
+        tasks_root="/tasks",  # type: ignore[arg-type]
+        shell_runner=shell_runner,
+        git=GitClones(run=_no_op_run),
+        images=_FakeImageBuilder(),  # type: ignore[arg-type]
+        makedirs=(made.append if made is not None else (lambda _p: None)),
+    )
+
+
+_SHELL_TASK: JsonObj = {
+    "id": "t1",
+    "repo_id": "r1",
+    "workflow": "setup-token",
+    "state": "RUNNING",
+    "claimed_by": None,
+}
+
+
+def test_spawn_one_shell_workflow_runs_the_script_and_skips_docker() -> None:
+    client = _FakeClient(repo=_REPO, runner_type="shell", shell_script="claude setup-token")
+    runner, shell = _FakeRunner(), _FakeShellRunner()
+    made: list[str] = []
+    cid = _shell_spawner(client, runner, shell, made).spawn_one(dict(_SHELL_TASK))
+    assert cid == "panopticon-t1"
+    assert runner.spawned == []  # the Docker runner is never touched for a shell workflow
+    assert shell.spawned[0]["task_id"] == "t1"
+    assert shell.spawned[0]["script"] == "claude setup-token"  # fetched from the workflow over REST
+    assert shell.spawned[0]["env_file"] == "r1.env"  # the repo's secrets name is passed through
+    # by default the script runs in the task's own directory, created empty (no clone)
+    assert shell.spawned[0]["workdir"] == "/tasks/t1"
+    assert made == ["/tasks/t1"]
+
+
+def test_spawn_one_shell_reports_phases_without_building() -> None:
+    # No image build → BUILDING falls away; PREPARING stays (the task dir is still readied).
+    client = _FakeClient(repo=_REPO, runner_type="shell", shell_script="echo hi")
+    _shell_spawner(client, _FakeRunner(), _FakeShellRunner()).spawn_one(dict(_SHELL_TASK))
+    assert [p for _, p, _ in client.phases] == ["claiming", "preparing", "starting", "awaiting"]
+
+
+def test_spawn_one_shell_workflow_clones_the_repo_when_opted_in() -> None:
+    # clone_repo=True → the task dir is a real per-task clone (prepare_workspace), like a container.
+    client = _FakeClient(
+        repo=_REPO, runner_type="shell", shell_script="make build", clone_repo=True
+    )
+    runner, shell = _FakeRunner(), _FakeShellRunner()
+    made: list[str] = []
+    _shell_spawner(client, runner, shell, made).spawn_one(dict(_SHELL_TASK))
+    assert shell.spawned[0]["workdir"] == "/tasks/t1"  # the clone dir is still the task dir
+    # prepare_workspace (the clone path) makes the *parent* dir; the bare no-clone path would
+    # instead makedirs the task dir itself ("/tasks/t1") — so this proves the repo was cloned.
+    assert made == ["/tasks"]
+
+
+def test_spawn_one_shell_workflow_honours_a_workdir_override() -> None:
+    # A workflow can start its script somewhere other than the task dir (e.g. the operator's home).
+    client = _FakeClient(
+        repo=_REPO, runner_type="shell", shell_script="echo hi", shell_workdir="/home/op"
+    )
+    runner, shell = _FakeRunner(), _FakeShellRunner()
+    _shell_spawner(client, runner, shell).spawn_one(dict(_SHELL_TASK))
+    assert shell.spawned[0]["workdir"] == "/home/op"  # the override wins over the task dir
+
+
+def test_spawn_shell_workflow_without_a_shell_runner_fails() -> None:
+    # A shell workflow on a host with no shell runner is a misconfiguration, surfaced as FAILED.
+    client = _FakeClient(repo=_REPO, runner_type="shell", shell_script="echo hi")
+    with pytest.raises(RuntimeError, match="no shell runner"):
+        _spawner(client, _FakeRunner()).spawn_one(dict(_SHELL_TASK))
+    assert any(p == "failed" for _, p, _ in client.phases)
+
+
+def test_heal_never_respawns_a_shell_task() -> None:
+    # A shell script exiting is natural completion (or an operator cancelling), not a crash — so an
+    # orphaned shell task (claimed by us, session gone) is left alone, never respawned.
+    client = _FakeClient(repo=_REPO, runner_type="shell", shell_script="echo hi")
+    runner, shell = _FakeRunner(session=False), _FakeShellRunner(session=False)
+    assert (
+        _shell_spawner(client, runner, shell).heal(
+            {
+                "id": "t1",
+                "repo_id": "r1",
+                "workflow": "setup-token",
+                "state": "RUNNING",
+                "claimed_by": "host-1",
+            }
+        )
+        is None
+    )
+    assert shell.spawned == [] and runner.spawned == []
+
+
+def test_startup_reclaim_keeps_a_shell_task_claimed_so_it_is_not_re_run() -> None:
+    # Releasing a shell task's claim would let spawn_one re-run its script (the unclaimed-spawn path);
+    # a shell script runs once, so a session-gone shell task stays claimed (reconciles to `down`).
+    client = _FakeClient(repo=_REPO, runner_type="shell", shell_script="echo hi")
+    runner, shell = _FakeRunner(running=False, session=False), _FakeShellRunner(session=False)
+    tasks = [
+        {
+            "id": "t1",
+            "repo_id": "r1",
+            "workflow": "setup-token",
+            "state": "RUNNING",
+            "claimed_by": "host-1",
+        }
+    ]
+    _shell_spawner(client, runner, shell).startup_reclaim(tasks)
+    assert client.releases == []  # not released → spawn_one won't re-run it
+
+
+def test_reconcile_probes_the_shell_session_not_docker() -> None:
+    # A running shell task (session alive) must not be reconciled to `down` just because there's no
+    # Docker container — reconcile checks the shell runner's session for a shell workflow.
+    client = _FakeClient(repo=_REPO, runner_type="shell")
+    runner, shell = _FakeRunner(running=False), _FakeShellRunner(session=True)
+    _shell_spawner(client, runner, shell).reconcile(
+        {
+            "id": "t1",
+            "workflow": "setup-token",
+            "claimed_by": "host-1",
+            "container_status": "awaiting",
+            "state": "RUNNING",
+        }
+    )
+    assert client.cleared == []  # session up → left alone (would be cleared if it probed Docker)
 
 
 class _FakeImageBuilder:

@@ -44,6 +44,12 @@ class TaskServiceClient:
         body = cast(JsonObj, self._json(self._http.get(f"/workflows/{name}/image-layer")))
         return cast(str, body["layer"])
 
+    def workflow_execution(self, name: str) -> JsonObj:
+        """How the runner executes this workflow's tasks — ``runner_type`` (``"docker"``/``"shell"``),
+        the shell ``script``, ``clone_repo``, and a shell ``workdir`` override (``None`` = the task
+        dir) — bundled so the runner fetches (and caches) the routing + launch config in one call."""
+        return cast(JsonObj, self._json(self._http.get(f"/workflows/{name}/execution")))
+
     def get_repo(self, repo_id: str) -> JsonObj:
         return cast(JsonObj, self._json(self._http.get(f"/repos/{repo_id}")))
 

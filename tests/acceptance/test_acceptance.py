@@ -22,7 +22,8 @@ import pytest
 
 import panopticon.docker as _docker_pkg
 from panopticon.core.models import Repo
-from panopticon.sessionservice.local_runner import LocalRunner
+from panopticon.sessionservice.local_runner import LocalRunner, session_name
+from panopticon.sessionservice.shell_runner import ShellRunner
 from panopticon.taskservice.api import create_app
 from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
 from panopticon.taskservice.service import TaskService
@@ -173,3 +174,74 @@ def test_runner_spawns_real_container_that_registers_and_loses_liveness(
         subprocess.run(["docker", "rm", "--force", container], capture_output=True)
         subprocess.run(["tmux", "-L", _TMUX_SOCKET, "kill-server"], capture_output=True)
         subprocess.run(["docker", "rmi", "--force", _IMAGE], capture_output=True)
+
+
+_HAVE_TMUX_CURL = bool(shutil.which("tmux") and shutil.which("curl"))
+_SHELL_SOCKET = "panopticon-shell-acceptance"
+
+
+@pytest.mark.skipif(not _HAVE_TMUX_CURL, reason="needs tmux + curl")
+def test_shell_task_registers_live_with_the_service(
+    served: tuple[TaskService, int], tmp_path: Path
+) -> None:
+    # A shell task runs no container/agent, so ShellRunner holds a /live registration open for the
+    # session's lifetime — proving the dashboard shows it *live* (not `awaiting`) while it runs, and
+    # that the registration is reaped the instant the session ends.
+    service, port = served
+    asyncio.run(service.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git")))
+    task_id = asyncio.run(service.create_task("r1", "spike")).id
+
+    runner = ShellRunner(
+        f"http://127.0.0.1:{port}", runner_id="shell-acc", tmux_socket=_SHELL_SOCKET
+    )
+    session = session_name(task_id)
+    try:
+        runner.spawn(task_id, script="sleep 30", workdir=str(tmp_path))
+        registered = False
+        for _ in range(100):  # the backgrounded curl connects → the service registers the task
+            if service.registrations(task_id):
+                registered = True
+                break
+            time.sleep(0.1)
+        assert registered, "shell task never opened its /live registration"
+    finally:
+        runner.stop(session)  # kill the session → SIGHUP the pane group → the curl drops the stream
+        subprocess.run(["tmux", "-L", _SHELL_SOCKET, "kill-server"], capture_output=True)
+
+    reaped = False
+    for _ in range(100):  # the dropped connection deregisters immediately (no TTL)
+        if not service.registrations(task_id):
+            reaped = True
+            break
+        time.sleep(0.1)
+    assert reaped, "liveness was not reaped after the session ended"
+
+
+@pytest.mark.skipif(not _HAVE_TMUX_CURL, reason="needs tmux + curl")
+def test_shell_lib_drives_the_task_service(served: tuple[TaskService, int], tmp_path: Path) -> None:
+    # The panopticon shell lib injected into every shell task lets its script drive the task over
+    # REST. Here the script calls `panopticon_set_url` and the service reflects it — proving a shell
+    # workflow can drive its own task without hand-rolling curl.
+    service, port = served
+    asyncio.run(service.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git")))
+    task_id = asyncio.run(service.create_task("r1", "spike")).id
+
+    runner = ShellRunner(
+        f"http://127.0.0.1:{port}", runner_id="shell-acc", tmux_socket=_SHELL_SOCKET
+    )
+    try:
+        runner.spawn(
+            task_id,
+            script="panopticon_set_url https://example.test/pr/1; sleep 30",
+            workdir=str(tmp_path),
+        )
+        recorded = None
+        for _ in range(100):  # the lib's PUT /url lands on the service
+            recorded = asyncio.run(service.get_task(task_id)).url
+            if recorded:
+                break
+            time.sleep(0.1)
+        assert recorded == "https://example.test/pr/1", "shell lib did not drive the task service"
+    finally:
+        runner.stop(session_name(task_id))
+        subprocess.run(["tmux", "-L", _SHELL_SOCKET, "kill-server"], capture_output=True)
