@@ -11,6 +11,12 @@ from panopticon.container import agent
 from panopticon.harnesses import Harness, LaunchContext
 from panopticon.harnesses.claude import MCP_CONFIG_FILE, WORKFLOW_OVERVIEW_FILE
 
+# Plausible-length stand-ins for real credentials — the harnesses' shape checks reject anything
+# shorter (see tests/harnesses/test_claude.py, test_codex.py for the length-bound tests).
+VALID_OAUTH_TOKEN = "sk-ant-oat01-" + "x" * 40
+VALID_ANTHROPIC_API_KEY = "sk-ant-" + "x" * 40
+VALID_CODEX_API_KEY = "sk-" + "x" * 30
+
 
 class _FakeClient:
     def __init__(
@@ -61,7 +67,7 @@ def test_main_bootstraps_the_default_claude_harness_then_launches(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     _base_env(monkeypatch)
-    monkeypatch.setenv("CLAUDE_CODE_OAUTH_TOKEN", "sk-ant-oat01-test")
+    monkeypatch.setenv("CLAUDE_CODE_OAUTH_TOKEN", VALID_OAUTH_TOKEN)
     events: list[str] = []
     agent.main(
         client_factory=lambda url: _FakeClient(  # type: ignore[arg-type,return-value]
@@ -86,7 +92,7 @@ def test_main_dispatches_to_the_recorded_harness(
 ) -> None:
     _base_env(monkeypatch)
     monkeypatch.setenv("PANOPTICON_HARNESS", "codex")
-    monkeypatch.setenv("CODEX_API_KEY", "sk-test")
+    monkeypatch.setenv("CODEX_API_KEY", VALID_CODEX_API_KEY)
     launched: list[str] = []
     agent.main(
         client_factory=lambda url: _FakeClient(),  # type: ignore[arg-type,return-value]
@@ -121,7 +127,7 @@ def test_main_passes_the_launch_context_through(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     _base_env(monkeypatch)
-    monkeypatch.setenv("CLAUDE_CODE_OAUTH_TOKEN", "sk-ant-oat01-test")
+    monkeypatch.setenv("CLAUDE_CODE_OAUTH_TOKEN", VALID_OAUTH_TOKEN)
     monkeypatch.setenv("PANOPTICON_INITIAL_PROMPT", "review your plan")
     monkeypatch.setenv("PANOPTICON_TASK_TURN", "agent")
     monkeypatch.setenv("PANOPTICON_STARTING_MODEL", "opus")
@@ -190,7 +196,7 @@ def test_main_proceeds_when_anthropic_api_key_is_set(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     _base_env(monkeypatch)
-    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", VALID_ANTHROPIC_API_KEY)
     launched: list[str] = []
     agent.main(
         client_factory=lambda url: _FakeClient(),  # type: ignore[arg-type,return-value]

@@ -51,6 +51,12 @@ AUTH_FILE = "auth.json"
 #: shape, so only the API-key vars get a preflight check — mirroring the claude harness's shape
 #: check where it's clean to, not everywhere.
 API_KEY_PREFIX = "sk-"
+#: Real OpenAI keys are well over this even in their shortest documented form (classic ``sk-``
+#: keys are ~51 characters total; project keys longer) — a conservative lower bound that catches
+#: a prefix-only or trivially truncated placeholder without risking false positives if OpenAI's
+#: exact key length drifts (there's no single documented length to pin exactly, unlike the
+#: prefix).
+MIN_API_KEY_LENGTH = 20
 
 
 def _toml_str(value: str) -> str:
@@ -158,16 +164,17 @@ class CodexHarness(Harness):
 
     def missing_auth(self, environ: Mapping[str, str], *, home: Path) -> str | None:
         """Same shape-only preflight idea as the claude harness (see its ``missing_auth``): a
-        cheap prefix check on the API-key vars, no live probe. ``CODEX_ACCESS_TOKEN`` and the
+        cheap prefix-plus-minimum-length check on the API-key vars (not full grammar validation —
+        OpenAI's exact key format isn't ours to pin), no live probe. ``CODEX_ACCESS_TOKEN`` and the
         credential-dir ``auth.json`` have no comparably documented shape (see docs/auth.md), so
         those two stay presence/existence checks only — a shape check would just be a guess."""
         for var in ("CODEX_API_KEY", "OPENAI_API_KEY"):
             if key := environ.get(var):
-                if key.startswith(API_KEY_PREFIX):
+                if key.startswith(API_KEY_PREFIX) and len(key) >= MIN_API_KEY_LENGTH:
                     return None
                 return (
                     f"{var} doesn't look like an OpenAI key (expected a `{API_KEY_PREFIX}…` "
-                    "value) — check the repo's env_file (see docs/auth.md)"
+                    "value of plausible length) — check the repo's env_file (see docs/auth.md)"
                 )
         if environ.get("CODEX_ACCESS_TOKEN"):
             return None
