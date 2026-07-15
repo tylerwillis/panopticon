@@ -261,8 +261,11 @@ on every PR (the same commands the Makefile wraps).
   composed base → **harness** → workflow → repo), an auth check (`missing_auth`, naming the fix
   for *its* credentials), a `bootstrap` (pure file writes rendering
   skills/operations/hooks/MCP/system-prompt), and the launch `argv` (first-run vs resume).
-  `Task.harness` records the choice by name (validated at creation, `None` = claude); the
-  control plane never interprets it.
+  Selection: an explicit `harness` at task creation wins, else the repo's
+  `default_harness` (the on-the-rails path — teams standardize per repo), else claude. The
+  *resolved* name is recorded on `Task.harness` at creation (validated; `None` = claude), so a
+  later change to the repo default never re-routes existing tasks; the control plane never
+  interprets the name.
 - **Workflow** — a `Workflow` subclass whose **states are nested `State` classes**
   (declarative). It declares `initial`; states are discovered and their transitions
   (class refs or label strings) resolved + validated when the workflow is instantiated.

@@ -85,6 +85,7 @@ class _RepoRow(_Base):
     hook_file: Mapped[str | None] = mapped_column(default=None)
     enabled_workflows: Mapped[list[str]] = mapped_column(JSON, default=list)
     disabled_workflows: Mapped[list[str]] = mapped_column(JSON, default=list)
+    default_harness: Mapped[str | None] = mapped_column(default=None)
 
     def to_domain(self) -> Repo:
         return Repo(
@@ -98,6 +99,7 @@ class _RepoRow(_Base):
             hook_file=self.hook_file,
             enabled_workflows=list(self.enabled_workflows or []),
             disabled_workflows=list(self.disabled_workflows or []),
+            default_harness=self.default_harness,
         )
 
     @classmethod
@@ -113,6 +115,7 @@ class _RepoRow(_Base):
             hook_file=repo.hook_file,
             enabled_workflows=list(repo.enabled_workflows),
             disabled_workflows=list(repo.disabled_workflows),
+            default_harness=repo.default_harness,
         )
 
 
@@ -351,6 +354,7 @@ class SqlAlchemyStore(Store):
             row.hook_file = repo.hook_file
             row.enabled_workflows = list(repo.enabled_workflows)
             row.disabled_workflows = list(repo.disabled_workflows)
+            row.default_harness = repo.default_harness
 
     # -- tasks: reads + persistence primitives (the base's template methods drive these) --
 

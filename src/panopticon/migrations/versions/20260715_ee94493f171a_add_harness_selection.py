@@ -1,4 +1,4 @@
-"""add harness to task
+"""add harness selection: task.harness + repo.default_harness
 
 Revision ID: ee94493f171a
 Revises: 8a9ab3fe49b5
@@ -22,8 +22,12 @@ depends_on: str | Sequence[str] | None = None
 def upgrade() -> None:
     with op.batch_alter_table("task", schema=None) as batch_op:
         batch_op.add_column(sa.Column("harness", sa.String(), nullable=True))
+    with op.batch_alter_table("repo", schema=None) as batch_op:
+        batch_op.add_column(sa.Column("default_harness", sa.String(), nullable=True))
 
 
 def downgrade() -> None:
+    with op.batch_alter_table("repo", schema=None) as batch_op:
+        batch_op.drop_column("default_harness")
     with op.batch_alter_table("task", schema=None) as batch_op:
         batch_op.drop_column("harness")

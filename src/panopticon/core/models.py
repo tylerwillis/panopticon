@@ -198,6 +198,13 @@ class Repo:
     hook_file: str | None = None
     enabled_workflows: list[str] = field(default_factory=list)
     disabled_workflows: list[str] = field(default_factory=list)
+    #: The agent-CLI harness this repo's tasks run by **default** (``None`` = the system default,
+    #: claude). The on-the-rails path: teams usually standardize per repo, so task creation never
+    #: needs to name a harness — but an explicit :attr:`Task.harness` at creation always wins
+    #: (people do jump between harnesses in one repo). Validated against the registry on
+    #: create/update; the resolved choice is recorded on the task, so a later change to this
+    #: default never re-routes existing tasks.
+    default_harness: str | None = None
 
 
 @dataclass(frozen=True)

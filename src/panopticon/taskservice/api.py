@@ -165,6 +165,7 @@ class RepoIn(BaseModel):
     hook_file: str | None = None
     enabled_workflows: list[str] = Field(default_factory=list)
     disabled_workflows: list[str] = Field(default_factory=list)
+    default_harness: str | None = None  # the harness this repo's tasks run by default
 
 
 class RepoOut(BaseModel):
@@ -180,6 +181,7 @@ class RepoOut(BaseModel):
     hook_file: str | None = None
     enabled_workflows: list[str] = Field(default_factory=list)
     disabled_workflows: list[str] = Field(default_factory=list)
+    default_harness: str | None = None
 
 
 class RepoPatchIn(BaseModel):
@@ -197,6 +199,7 @@ class RepoPatchIn(BaseModel):
     hook_file: str | None = None
     enabled_workflows: list[str] | None = None
     disabled_workflows: list[str] | None = None
+    default_harness: str | None = None
 
 
 class WorkflowInfo(BaseModel):

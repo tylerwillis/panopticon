@@ -250,6 +250,51 @@ def test_create_task_defaults_to_no_harness(client: TestClient) -> None:
     assert client.get(f"/tasks/{task_id}").json()["harness"] is None
 
 
+def test_repo_default_harness_flows_to_new_tasks(client: TestClient, tmp_path: Path) -> None:
+    # The on-the-rails path: the repo names the harness once; task creation never touches it.
+    resp = client.post(
+        "/repos",
+        json={
+            "id": "r2",
+            "name": "acme/other",
+            "git_url": "https://x/r2.git",
+            "default_harness": "claude",
+        },
+    )
+    assert resp.status_code == 201, resp.text
+    task = client.post("/tasks", json={"repo_id": "r2", "workflow": "spike"}).json()
+    assert task["harness"] == "claude"  # resolved at creation and recorded on the task
+
+
+def test_repo_without_a_default_harness_leaves_tasks_on_the_system_default(
+    client: TestClient,
+) -> None:
+    task_id = _new_task(client)
+    assert client.get(f"/tasks/{task_id}").json()["harness"] is None  # None = claude
+
+
+def test_create_repo_with_an_unknown_default_harness_is_400(client: TestClient) -> None:
+    resp = client.post(
+        "/repos",
+        json={
+            "id": "r2",
+            "name": "acme/other",
+            "git_url": "https://x/r2.git",
+            "default_harness": "codex",  # not registered until the codex slice
+        },
+    )
+    assert resp.status_code == 400, resp.text
+    assert "codex" in resp.json()["detail"]
+
+
+def test_patch_repo_validates_the_default_harness(client: TestClient) -> None:
+    assert (
+        client.patch("/repos/r1", json={"default_harness": "cursor"}).status_code == 400
+    )  # unknown name rejected on update too
+    resp = client.patch("/repos/r1", json={"default_harness": "claude"})
+    assert resp.status_code == 200 and resp.json()["default_harness"] == "claude"
+
+
 def test_create_task_unknown_harness_400(client: TestClient) -> None:
     resp = client.post("/tasks", json={"repo_id": "r1", "workflow": "spike", "harness": "codex"})
     assert resp.status_code == 400  # codex is not registered until the codex slice
