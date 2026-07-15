@@ -13,6 +13,7 @@ from typing import Any
 import httpx
 import pytest
 from textual.app import App
+from textual.containers import VerticalScroll
 from textual.widgets import Checkbox, DataTable, Input, Select, Static
 
 from panopticon.terminal import dashboard
@@ -2908,12 +2909,32 @@ async def test_pressing_j_then_enter_picks_the_second_option_in_a_picker() -> No
         assert fake.created == [("r2", "spike", None, None)]
 
 
+def _rendered_static_text(static: Static) -> str:
+    """Every wrapped line of a mounted :class:`Static`, joined back into one normalized string —
+    reconstructs the pre-wrap text (Rich word-wraps on spaces, no hyphenation) so it can be
+    compared against the source, rather than probing for one word that could coincidentally
+    also appear earlier in the text."""
+    import ast as _ast
+    import re as _re
+
+    lines = [str(static.render_line(y)) for y in range(static.size.height)]
+    # each Strip repr embeds its plain text as the first Segment(...) string literal; repr()
+    # picks single- or double-quotes depending on the text's own apostrophes, so match either
+    # and decode with ast.literal_eval rather than assuming one quote style.
+    literals = _re.findall(r"Segment\((\"(?:[^\"\\]|\\.)*\"|'(?:[^'\\]|\\.)*')", "\n".join(lines))
+    words = " ".join(_ast.literal_eval(lit) for lit in literals)
+    return " ".join(words.split())
+
+
 async def test_workflow_descriptions_are_not_clipped_for_every_registered_workflow() -> None:
     """Regression: ``#workflow-desc`` used to be a fixed 2 visible rows (a ``height: 4`` box
     with a 2-row border/padding overhead), so anything past two wrapped lines — e.g. the
     orchestrator's when_to_use — got cut off mid-sentence. It now auto-sizes to the wrapped
     text (capped, with scrolling as a fallback), so the full sentence renders for every
-    workflow in the real registry, not just the short ones."""
+    workflow in the real registry, not just the short ones. Reconstructs each rendered
+    description in full (not just checking a trailing word, which could false-pass if that
+    word happens to also appear earlier in the text) and diffs it word-for-word against the
+    source ``when_to_use``."""
     from panopticon.workflows.discovery import discover_workflows
 
     registry = discover_workflows()
@@ -2940,12 +2961,55 @@ async def test_workflow_descriptions_are_not_clipped_for_every_registered_workfl
                 await pilot.press("j")
             await pilot.pause()
             await pilot.pause()  # auto-height re-layout settles a frame after the content update
-            rendered = "\n".join(str(desc.render_line(y)) for y in range(desc.size.height))
-            last_word = entry["when_to_use"].split()[-1]  # a wrap point is always a space,
-            # so a single trailing word can never itself be split across two rendered lines
-            assert last_word in rendered, (
+            assert _rendered_static_text(desc) == " ".join(entry["when_to_use"].split()), (
                 f"{entry['name']!r}'s description got clipped: {entry['when_to_use']!r}"
             )
+
+
+async def test_workflow_description_overflowing_the_cap_scrolls_via_keyboard() -> None:
+    """The description pane auto-sizes up to ``max-height: 8`` (previous test), but a
+    description longer than that must still be fully readable from the keyboard — the option
+    list keeps focus (`j`/`k`/arrows must keep navigating workflows), so the pane can't rely on
+    its own focus to scroll; ``ctrl+d``/``ctrl+u`` drive it at the screen level instead."""
+    head, tail = "HEADMARKER", "TAILMARKER"
+    filler = " ".join(f"word{i}" for i in range(200))  # long enough to overflow max-height: 8
+    long_desc = f"{head} {filler} {tail}"
+    fake = _FakeClient(
+        [], repos=["r1"], workflows=[{"name": "synthetic", "when_to_use": long_desc}]
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n")
+        await pilot.pause()
+        await pilot.press("enter")  # only repo -> opens the workflow picker
+        await pilot.pause()
+        await pilot.pause()
+
+        scroll = app.screen.query_one("#workflow-desc-scroll", VerticalScroll)
+        static = app.screen.query_one("#workflow-desc", Static)
+
+        def visible_text() -> str:
+            base = int(scroll.scroll_y)
+            lines = [str(static.render_line(base + y)) for y in range(scroll.size.height)]
+            return "\n".join(lines)
+
+        # sanity: this description genuinely exceeds the cap and needs scrolling to read in full
+        assert scroll.max_scroll_y > 0
+        assert head in visible_text()
+        assert tail not in visible_text()  # the tail is below the fold, unreachable without scroll
+
+        for _ in range(20):  # comfortably more presses than needed to hit the bottom
+            await pilot.press("ctrl+d")
+            await pilot.pause()
+        assert int(scroll.scroll_y) == int(scroll.max_scroll_y)
+        assert tail in visible_text()  # now reachable via the keyboard scrolling path
+
+        for _ in range(20):
+            await pilot.press("ctrl+u")
+            await pilot.pause()
+        assert int(scroll.scroll_y) == 0
+        assert head in visible_text()  # scrolls back up just as reliably
 
 
 async def test_workflow_picker_still_fits_a_short_terminal() -> None:
