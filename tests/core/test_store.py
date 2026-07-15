@@ -78,6 +78,7 @@ async def test_repo_secret_references_round_trip(store: Store) -> None:
             env_file="r1.env",
             image_layer_file="r1.layer",
             capabilities={"docker_in_docker": True},
+            default_harness="claude",
         )
     )
     got = await store.get_repo("r1")
@@ -85,6 +86,7 @@ async def test_repo_secret_references_round_trip(store: Store) -> None:
     assert got.env_file == "r1.env"
     assert got.capabilities == {"docker_in_docker": True}  # JSON capabilities round-trip
     assert got.image_layer_file == "r1.layer"  # ADR 0005 repo tier round-trips
+    assert got.default_harness == "claude"  # the repo-level harness default round-trips
 
 
 async def test_get_missing_repo_returns_none(store: Store) -> None:
@@ -122,6 +124,7 @@ async def test_update_repo_round_trips(store: Store) -> None:
             env_file="r1.env",
             image_layer_file="r1.layer",
             capabilities={"docker_in_docker": True},
+            default_harness="claude",
         )
     )
     got = await store.get_repo("r1")
@@ -488,6 +491,7 @@ def _fully_populated_task() -> Task:
         tokens_used=87500,
         token_estimate=500_000,
         starting_model="opus",
+        harness="codex",
         governor_task_id="t-governor",
         created_at="t1",
         updated_at="t2",

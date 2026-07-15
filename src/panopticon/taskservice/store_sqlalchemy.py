@@ -85,6 +85,7 @@ class _RepoRow(_Base):
     hook_file: Mapped[str | None] = mapped_column(default=None)
     enabled_workflows: Mapped[list[str]] = mapped_column(JSON, default=list)
     disabled_workflows: Mapped[list[str]] = mapped_column(JSON, default=list)
+    default_harness: Mapped[str | None] = mapped_column(default=None)
 
     def to_domain(self) -> Repo:
         return Repo(
@@ -98,6 +99,7 @@ class _RepoRow(_Base):
             hook_file=self.hook_file,
             enabled_workflows=list(self.enabled_workflows or []),
             disabled_workflows=list(self.disabled_workflows or []),
+            default_harness=self.default_harness,
         )
 
     @classmethod
@@ -113,6 +115,7 @@ class _RepoRow(_Base):
             hook_file=repo.hook_file,
             enabled_workflows=list(repo.enabled_workflows),
             disabled_workflows=list(repo.disabled_workflows),
+            default_harness=repo.default_harness,
         )
 
 
@@ -135,6 +138,7 @@ class _TaskRow(_Base):
     tokens_used: Mapped[int | None] = mapped_column(default=None)
     token_estimate: Mapped[int | None] = mapped_column(default=None)
     starting_model: Mapped[str | None] = mapped_column(default=None)
+    harness: Mapped[str | None] = mapped_column(default=None)
     governor_task_id: Mapped[str | None] = mapped_column(ForeignKey("task.id"), default=None)
     created_at: Mapped[str | None] = mapped_column(default=None)
     updated_at: Mapped[str | None] = mapped_column(default=None)
@@ -164,6 +168,7 @@ class _TaskRow(_Base):
             tokens_used=self.tokens_used,
             token_estimate=self.token_estimate,
             starting_model=self.starting_model,
+            harness=self.harness,
             governor_task_id=self.governor_task_id,
             created_at=self.created_at,
             updated_at=self.updated_at,
@@ -190,6 +195,7 @@ class _TaskRow(_Base):
             tokens_used=task.tokens_used,
             token_estimate=task.token_estimate,
             starting_model=task.starting_model,
+            harness=task.harness,
             governor_task_id=task.governor_task_id,
             created_at=task.created_at,
             updated_at=task.updated_at,
@@ -348,6 +354,7 @@ class SqlAlchemyStore(Store):
             row.hook_file = repo.hook_file
             row.enabled_workflows = list(repo.enabled_workflows)
             row.disabled_workflows = list(repo.disabled_workflows)
+            row.default_harness = repo.default_harness
 
     # -- tasks: reads + persistence primitives (the base's template methods drive these) --
 

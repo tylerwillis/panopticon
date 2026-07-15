@@ -49,6 +49,8 @@ class _FakeRunner:
         initial_prompt: str | None = None,
         turn: str | None = None,
         starting_model: str | None = None,
+        harness: str | None = None,
+        config_mount: str = "/home/panopticon/.claude",
         progress: object = None,
     ) -> str:
         self.spawned.append(task_id)

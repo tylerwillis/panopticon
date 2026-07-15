@@ -52,10 +52,14 @@ WORKSPACE_MOUNT = "/workspace"
 #: names it so the pane runs as that same user (ADR 0008 / the unprivileged-user work).
 CONTAINER_USER = "panopticon"
 
-#: The agent CLI's config dir inside the container (matches the image's HOME + `agent.py`'s
-#: ``Path.home()/.claude``). A **per-task** named volume is mounted here so claude's history
-#: (its session transcripts) survives respawn/recreate — the container layer is thrown away each
-#: spawn, but the volume persists. Per-task (not per-repo) so concurrent tasks don't share state.
+#: The container home the harness config dirs hang off (matches the image's HOME).
+CONTAINER_HOME = "/home/panopticon"
+
+#: The default agent CLI's config dir inside the container (the claude harness's
+#: ``config_dirname`` under :data:`CONTAINER_HOME`). A **per-task** named volume is mounted at
+#: the task's harness's config dir so the CLI's session state survives respawn/recreate — the
+#: container layer is thrown away each spawn, but the volume persists. Per-task (not per-repo)
+#: so concurrent tasks don't share state.
 CONFIG_MOUNT = "/home/panopticon/.claude"
 
 
@@ -145,6 +149,8 @@ class LocalRunner(Runner):
         initial_prompt: str | None = None,
         turn: str | None = None,
         starting_model: str | None = None,
+        harness: str | None = None,
+        config_mount: str = CONFIG_MOUNT,
         progress: Callable[[LifecyclePhase], None] | None = None,
     ) -> str:
         """Spawn the task container. ``env_file`` is the task's repo's secret reference (ADR
@@ -163,9 +169,12 @@ class LocalRunner(Runner):
         agent launcher can send :data:`~panopticon.container.agent.INTERRUPT_PROMPT` on respawn when
         the agent holds the turn. ``starting_model`` is the model the agent should start with
         (e.g. ``"opus"``); passed as ``PANOPTICON_STARTING_MODEL`` so the agent launcher can pass
-        ``--model`` to ``claude`` on first launch. ``progress`` (optional) is called with each spawn
-        phase the runner passes through (``STARTING`` before ``docker run``, ``AWAITING`` once the
-        tmux session is up) so the caller can surface it — see
+        ``--model`` to ``claude`` on first launch. ``harness`` is the task's recorded
+        agent-CLI harness name, exported as ``PANOPTICON_HARNESS`` for the in-container launcher;
+        ``config_mount`` is that harness's config dir inside the container — where the per-task
+        config volume lands (default: the claude harness's). ``progress`` (optional) is called with
+        each spawn phase the runner passes through (``STARTING`` before ``docker run``,
+        ``AWAITING`` once the tmux session is up) so the caller can surface it — see
         :class:`~panopticon.core.models.LifecyclePhase`."""
 
         def _report(phase: LifecyclePhase) -> None:
@@ -194,6 +203,8 @@ class LocalRunner(Runner):
             env["PANOPTICON_TASK_TURN"] = turn
         if starting_model:
             env["PANOPTICON_STARTING_MODEL"] = starting_model
+        if harness:
+            env["PANOPTICON_HARNESS"] = harness
         docker_run = [
             "docker",
             "run",
@@ -220,9 +231,9 @@ class LocalRunner(Runner):
                 "--workdir",
                 WORKSPACE_MOUNT,
             ]
-        # Per-task config volume: persists claude's session history across respawn/recreate (the
-        # transcripts live in the config dir, which is otherwise thrown away with the container).
-        docker_run += ["--volume", f"panopticon-config-{task_id}:{CONFIG_MOUNT}"]
+        # Per-task config volume: persists the agent CLI's session history across respawn/recreate
+        # (the transcripts live in the config dir, otherwise thrown away with the container).
+        docker_run += ["--volume", f"panopticon-config-{task_id}:{config_mount}"]
         for key, value in env.items():
             docker_run += ["--env", f"{key}={value}"]
         docker_run.append(

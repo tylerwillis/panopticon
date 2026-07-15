@@ -198,6 +198,13 @@ class Repo:
     hook_file: str | None = None
     enabled_workflows: list[str] = field(default_factory=list)
     disabled_workflows: list[str] = field(default_factory=list)
+    #: The agent-CLI harness this repo's tasks run by **default** (``None`` = the system default,
+    #: claude). The on-the-rails path: teams usually standardize per repo, so task creation never
+    #: needs to name a harness — but an explicit :attr:`Task.harness` at creation always wins
+    #: (people do jump between harnesses in one repo). Validated against the registry on
+    #: create/update; the resolved choice is recorded on the task, so a later change to this
+    #: default never re-routes existing tasks.
+    default_harness: str | None = None
 
 
 @dataclass(frozen=True)
@@ -280,6 +287,11 @@ class Task:
     #: injected as ``PANOPTICON_STARTING_MODEL`` at spawn so the agent can pass ``--model``
     #: to ``claude`` on first launch. ``None`` means no model preference (claude picks its default).
     starting_model: str | None = None
+    #: Which agent-CLI **harness** runs this task's container (``"claude"``, ``"codex"``, …) —
+    #: an opaque name the control plane records and the container/runner resolve against the
+    #: harness registry (:mod:`panopticon.harnesses`). Validated at creation; ``None`` means the
+    #: default (claude). Like ``starting_model``, recorded — never interpreted — here.
+    harness: str | None = None
     #: The task that *governs* (oversees) this one — its ``id``. Set by the orchestrator on the
     #: tasks it creates so the relationship is recorded; also settable manually via
     #: :meth:`TaskService.set_governor`. ``None`` for ungoverned tasks.

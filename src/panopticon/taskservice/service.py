@@ -36,6 +36,7 @@ from panopticon.core.provisioning import PROVISION_SKILL
 from panopticon.core.state import TERMINAL_LABELS, Dropped
 from panopticon.core.store import NotFound, Store
 from panopticon.core.workflow import Workflow
+from panopticon.harnesses import get_harness
 
 _log = logging.getLogger(__name__)
 
@@ -147,8 +148,24 @@ class TaskService:
 
     async def create_repo(self, repo: Repo) -> Repo:
         await self._validate_env_file(repo.env_file)
+        self._validate_harness_name(repo.default_harness)
         await self._store.create_repo(repo)
         return repo
+
+    @staticmethod
+    def _validate_harness_name(harness: str | None) -> None:
+        """Reject a harness name the registry doesn't know (``None`` = the default is valid).
+
+        Applied wherever a harness is chosen — a repo's ``default_harness`` and a task's explicit
+        ``harness`` — so a spawn never discovers an unknown harness. Raises :class:`ValueError`
+        (the API maps it to HTTP 400) naming the offender and the known set.
+        """
+        if harness is None:
+            return
+        try:
+            get_harness(harness)
+        except KeyError as exc:
+            raise ValueError(str(exc.args[0])) from exc
 
     async def _validate_env_file(self, env_file: str | None) -> None:
         """Reject a repo whose secrets-file reference points at a missing file.
@@ -196,6 +213,8 @@ class TaskService:
             await self._validate_env_file(
                 updated.env_file
             )  # so an unrelated patch never fails on it
+        if "default_harness" in changes:
+            self._validate_harness_name(updated.default_harness)
         await self._store.update_repo(updated)
         return updated
 
@@ -313,17 +332,23 @@ class TaskService:
         memo: str | None = None,
         governor_task_id: str | None = None,
         initial_prompt: str | None = None,
+        harness: str | None = None,
         artifacts: dict[str, str] | None = None,
         depends_on_task_ids: list[str] | None = None,
     ) -> Task:
         repo = await self.get_repo(repo_id)  # ensure exists (raises NotFound)
         if governor_task_id is not None:
             await self.get_task(governor_task_id)  # ensure governor exists (raises NotFound)
+        self._validate_harness_name(harness)  # so a spawn never meets an unknown harness
         wf = self._workflow(workflow_name)
         if not self._workflow_visible(wf, repo):
             raise NotAuthorized(f"workflow {workflow_name!r} is not enabled for repo {repo_id!r}")
         now = self._clock()
         task = wf.start_task(self._id(), repo_id, at=now, memo=memo, initial_prompt=initial_prompt)
+        # An explicit harness wins; else the repo's default (the on-the-rails path — teams
+        # standardize per repo). The *resolved* choice is recorded, so changing the repo default
+        # later never re-routes an existing task.
+        task.harness = harness if harness is not None else repo.default_harness
         task.governor_task_id = governor_task_id
         task.created_at = now
         task.updated_at = now  # creation time = first mutation
