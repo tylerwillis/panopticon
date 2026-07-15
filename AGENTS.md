@@ -31,11 +31,14 @@ src/panopticon/
                    # discovery.py = scan the package + an optional path for Workflow subclasses
                    # (the registry build_app runs on; drop a module in → registered, ADR 0004)
   harnesses/       # agent-CLI harnesses (M3): the Harness interface + the registry (a literal
-                   # mapping — path discovery waits for a real third-party need) + claude.py
-                   # (the default: argv, .claude/commands rendering, turn-flip settings.json,
-                   # MCP config, trust seeds). LLM-free: harnesses DESCRIBE and RENDER a CLI;
-                   # only the container's launcher EXECUTES one. A task records its harness by
-                   # name (Task.harness, default claude); other CLIs land as further adapters
+                   # claude/codex mapping — path discovery waits for a real third-party need) +
+                   # claude.py (the default: argv, .claude/commands rendering, turn-flip
+                   # settings.json, MCP config, trust seeds) + codex.py (config.toml with MCP +
+                   # Claude-Code-compatible Stop/UserPromptSubmit hooks wired to the SAME
+                   # container/hook.py callback, ~/.agents/skills SKILL.md rendering, api-key
+                   # auth.json materialization, pinned-release image layer). LLM-free: harnesses
+                   # DESCRIBE and RENDER a CLI; only the container's launcher EXECUTES one. A
+                   # task records its harness by name (Task.harness, default claude)
   taskservice/     # control plane: TaskService, FastAPI REST API, the SQLAlchemy store
                    # adapter (in-memory or on-disk SQLite), filesystem artifact store, MCP
                    # server (mcp.py: operations=tools, artifacts=resources; FastMCP) mounted at /mcp
@@ -157,9 +160,11 @@ on every PR (the same commands the Makefile wraps).
 ## Tests worth knowing
 
 - `tests/harnesses/` — the **agent-CLI harness suite** (M3): the registry (names, claude
-  default, unknown rejection) and `test_claude.py` (the Slice-6 argv/rendering expectations
-  carried over verbatim — the seam extraction must not change what claude is launched with).
-  Extend when you touch a harness or add one.
+  default, unknown rejection), `test_claude.py` (the Slice-6 argv/rendering expectations carried
+  over verbatim — the seam extraction must not change what claude is launched with), and
+  `test_codex.py` (config.toml validated as real TOML incl. the hook wiring, SKILL.md rendering,
+  the auth paths, first-run vs `resume --last` argv, the pinned-release image layer). Extend
+  when you touch a harness or add one.
 - `tests/test_workflow.py` — the **golden harness**: every legal/illegal transition, turn
   derivation, responsibility gating, and workflow validation. Extend it when you touch the
   state machine.
@@ -256,7 +261,7 @@ on every PR (the same commands the Makefile wraps).
   runner spawns `--privileged` and the entrypoint starts a nested Docker daemon; a trust escalation,
   off by default).
 - **Harness** — the agent CLI a task container runs (M3), as a pluggable adapter
-  (`harnesses/`): claude today; other CLIs land as further adapters. A `Harness` declares its
+  (`harnesses/`): claude (default) or codex. A `Harness` declares its
   config dirname (where the per-task config volume mounts), image layer (the CLI's install,
   composed base → **harness** → workflow → repo), an auth check (`missing_auth`, naming the fix
   for *its* credentials), a `bootstrap` (pure file writes rendering
@@ -265,7 +270,10 @@ on every PR (the same commands the Makefile wraps).
   `default_harness` (the on-the-rails path — teams standardize per repo), else claude. The
   *resolved* name is recorded on `Task.harness` at creation (validated; `None` = claude), so a
   later change to the repo default never re-routes existing tasks; the control plane never
-  interprets the name.
+  interprets the name. Model names are likewise harness-scoped: the workflow's `default_model`
+  ("opus") survives only onto claude tasks; other harnesses get an explicit `starting_model`
+  or their CLI's own default. Codex auth: `CODEX_API_KEY`/`CODEX_ACCESS_TOKEN` in the env-file
+  (no new mechanics) — see `docs/auth.md`.
 - **Workflow** — a `Workflow` subclass whose **states are nested `State` classes**
   (declarative). It declares `initial`; states are discovered and their transitions
   (class refs or label strings) resolved + validated when the workflow is instantiated.

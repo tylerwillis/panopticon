@@ -81,6 +81,42 @@ def test_main_bootstraps_the_default_claude_harness_then_launches(
     assert events == ["launch:claude", "on_exit"]
 
 
+def test_main_dispatches_to_the_recorded_harness(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _base_env(monkeypatch)
+    monkeypatch.setenv("PANOPTICON_HARNESS", "codex")
+    monkeypatch.setenv("CODEX_API_KEY", "sk-test")
+    launched: list[str] = []
+    agent.main(
+        client_factory=lambda url: _FakeClient(),  # type: ignore[arg-type,return-value]
+        home=tmp_path,
+        launch=lambda harness, ctx: launched.append(harness.name),
+        on_exit=lambda: None,
+    )
+    assert launched == ["codex"]
+    assert (tmp_path / ".codex" / "config.toml").exists()  # the codex surface, not claude's
+    assert not (tmp_path / ".claude").exists()
+
+
+def test_main_fail_fast_message_names_the_active_harnesss_fix(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # A codex task missing credentials must point at codex's variables, not claude's.
+    _base_env(monkeypatch)
+    monkeypatch.setenv("PANOPTICON_HARNESS", "codex")
+    monkeypatch.setenv("PANOPTICON_RUNNER_ID", "runner-1")
+    fake = _FakeClient()
+    agent.main(
+        client_factory=lambda url: fake,  # type: ignore[arg-type,return-value]
+        home=tmp_path,
+        launch=lambda harness, ctx: pytest.fail("must not launch"),
+        on_exit=lambda: None,
+    )
+    detail = fake.lifecycle_calls[0]["detail"] or ""
+    assert "CODEX_API_KEY" in detail and "CLAUDE_CODE_OAUTH_TOKEN" not in detail
+
+
 def test_main_passes_the_launch_context_through(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

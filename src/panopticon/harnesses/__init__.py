@@ -3,8 +3,7 @@
 A task records which harness runs it (:attr:`~panopticon.core.models.Task.harness`, an opaque
 string); the container's agent launcher and the session service look the mechanics up here.
 The registry is a literal mapping — path discovery (the ``workflows`` treatment) waits until
-operator-authored harnesses are a real use, not a hypothetical. claude is the only entry
-today; the codex harness lands in the next slice."""
+operator-authored harnesses are a real use, not a hypothetical."""
 
 from __future__ import annotations
 
@@ -17,11 +16,12 @@ from panopticon.harnesses.base import (
     LaunchContext,
 )
 from panopticon.harnesses.claude import ClaudeHarness
+from panopticon.harnesses.codex import CodexHarness
 
 #: The default when a task records no harness — the surface panopticon launched with.
 DEFAULT_HARNESS = "claude"
 
-HARNESSES: Mapping[str, Harness] = {h.name: h for h in (ClaudeHarness(),)}
+HARNESSES: Mapping[str, Harness] = {h.name: h for h in (ClaudeHarness(), CodexHarness())}
 
 
 def get_harness(name: str | None) -> Harness:

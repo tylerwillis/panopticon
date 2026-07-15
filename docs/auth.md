@@ -1,4 +1,8 @@
-# Container authentication — giving tasks a `claude` token
+# Container authentication — giving tasks their agent credentials
+
+Each **harness** (the agent CLI a task runs — claude by default, codex for OpenAI models)
+authenticates its own way. The claude setup is below; codex follows in
+[Codex / OpenAI](#codex--openai-gpt-56).
 
 Every task runs `claude` inside its container. The agent authenticates from a
 **`CLAUDE_CODE_OAUTH_TOKEN`** environment variable, which the runner injects from the **repo's
@@ -75,3 +79,30 @@ instructions above.
   Per-token revocation isn't available upstream (account-level "revoke all" can take time to
   propagate), so treat a leak as "mint a replacement + monitor usage in the Console," and keep the
   env-file tightly held.
+
+## Codex / OpenAI (GPT-5.6)
+
+A task created with `harness: "codex"` (or in a repo whose `default_harness` is codex) runs
+OpenAI's Codex CLI in its container. Two credential tiers today:
+
+1. **API key** (pay-per-token): add one line to the repo's env-file —
+
+   ```sh
+   CODEX_API_KEY=sk-...
+   ```
+
+   The harness renders it into codex's `auth.json` at container start (the same shape
+   `codex login --with-api-key` writes). `OPENAI_API_KEY` works too.
+
+2. **ChatGPT Business/Enterprise access token** (non-rotating — the exact analog of
+   `claude setup-token`): mint at `chatgpt.com/admin/access-tokens`, then
+
+   ```sh
+   CODEX_ACCESS_TOKEN=...
+   ```
+
+   in the env-file. Codex reads it straight from the environment.
+
+ChatGPT Plus/Pro **subscription** auth (a rotating, shared `auth.json`) lands in the
+credential-dir slice. Pick the model per task via `starting_model` (e.g. `gpt-5.6-sol`,
+`gpt-5.6-terra`, `gpt-5.6-luna`); unset, codex picks its own default.
