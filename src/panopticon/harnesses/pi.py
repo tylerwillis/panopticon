@@ -2,96 +2,71 @@
 (https://github.com/earendil-works/pi, npm ``@earendil-works/pi-coding-agent``) as a third
 harness adapter, alongside claude and codex.
 
-Facts below are pinned against **pi-coding-agent 0.80.7** — its README, ``docs/`` tree (cloned
-from the upstream repo), and the published npm manifest (version/``engines``/``bin``) as of
-2026-07-15. Unlike codex (verified against a real running binary), nothing here has been
-exercised against a live ``pi`` process — there is no Node/pi runtime available while writing
-this module, only its documented and published surface. Treat anything below as "per the
-docs", not "observed".
+Verified against a real pi 0.80.3 install: its ``--help`` surface matches this module
+(``--append-system-prompt``, ``--continue``, ``--skill``, sessions under the agent dir),
+``PI_CODING_AGENT_DIR`` really relocates the whole config root (confirmed via its auth lookup),
+and ``~/.pi/agent/mcp.json`` on that install is an empty ``{}`` — pi ships no MCP client.
 
-- **Install.** No static-binary release (unlike codex): pi ships only as the npm package
-  ``@earendil-works/pi-coding-agent``, requiring Node.js ``>=22.19.0`` (its ``package.json``
-  ``engines``). :meth:`PiHarness.image_layer` installs a pinned Node.js release (the official
-  linux-x64/linux-arm64 tarballs from nodejs.org) and then the pinned npm package globally —
-  two steps where codex needed one, since codex's binary carries its own runtime.
+- **Install.** No static binary (unlike codex): pi is only an npm package, requiring Node
+  ``>=22.19.0``. :meth:`PiHarness.image_layer` installs a pinned Node.js release (the linux-x64/
+  arm64 tarballs from nodejs.org) and then the pinned ``pi-coding-agent`` version globally.
 
-- **Config dir.** pi's default root is ``~/.pi/agent``, relocatable wholesale via the
-  ``PI_CODING_AGENT_DIR`` env var. The harness registry requires ``config_dirname`` to be a
-  flat dotdir with no ``/`` (:func:`test_config_dirnames_are_distinct_dotdirs`,
-  one per-task Docker volume mountpoint) — so this harness points ``PI_CODING_AGENT_DIR`` at
-  ``<home>/.pi`` directly (skipping the nested ``.../agent``) rather than encoding a nested path
-  in ``config_dirname``. Functionally identical: the env var is a full override of pi's config
-  root, not a suffix on top of one, so nothing under it needs to be named ``agent``.
+- **Config dir.** pi's default root, ``~/.pi/agent``, is fully relocated by
+  ``PI_CODING_AGENT_DIR``. The registry requires a flat, ``/``-free ``config_dirname`` (one
+  Docker volume mountpoint per harness), so this points the env var at ``<home>/.pi`` directly
+  rather than encoding a nested path — a full override needs no ``agent`` subdir underneath it.
 
-- **Session / resume.** Sessions are JSONL files under ``<config_dir>/sessions/**``. Per the
-  pi-mono source (``SessionManager.continueRecent``), ``pi --continue`` resumes the most recent
-  one for the cwd and **silently starts a fresh session** when none exists — no error, no
-  prompt — so (mirroring codex's ``resume --last`` gate) this harness always passes
-  ``--continue`` once *any* ``*.jsonl`` is recorded anywhere under ``sessions/`` and never
-  otherwise, rather than needing pi's own cwd-hashing scheme.
+- **Session / resume.** Sessions are JSONL under ``<config_dir>/sessions/**``. ``pi --continue``
+  resumes the most recent one for the cwd and silently starts fresh when none exists (no error),
+  so this harness passes it whenever any ``*.jsonl`` is recorded anywhere under ``sessions/``.
 
-- **MCP: none.** pi's stated philosophy (its README) is "No MCP. Build CLI tools with READMEs
-  (see Skills), or build an extension that adds MCP support." There is no MCP client config to
-  render, unlike claude/codex. The two core **operations** (advance/drop) this harness itself
-  renders are therefore instructions to call the task service's plain REST API directly
-  (``POST /tasks/{id}/operations/{name}``) rather than an MCP tool — pi's own documented
-  pattern for exactly this situation. **This does not extend to workflow-authored skills**:
-  several already name an MCP tool directly in their instructions text (e.g. core's
-  ``provision`` skill says "set it with the ``set_slug`` tool"; ``github_forge``'s open-pr skill
-  names ``set_url``; ``planned_workflow`` names ``put_artifact``/``set_token_estimate``;
-  ``orchestrator`` names ``create_task``/``set_slug``/``resolve_responsibility``). Those assume
-  an MCP-capable harness and will not work unmodified under pi — making every workflow skill
-  MCP-agnostic is a cross-cutting change to ``core``/``workflows``, out of scope for a harness
-  adapter. Documented here as a known gap rather than silently patched over.
+- **MCP: none** (confirmed above). The two core operations (advance/drop) this harness renders
+  are REST calls against the task service's plain API instead of an MCP tool call — pi's own
+  documented pattern ("build CLI tools with READMEs") for exactly this. This does not extend to
+  workflow-authored skills that name an MCP tool directly (``provision``'s ``set_slug``,
+  ``github_forge``'s ``set_url``, ``planned_workflow``'s ``put_artifact``/``set_token_estimate``,
+  ``orchestrator``'s ``create_task``/``set_slug``/``resolve_responsibility``) — those assume an
+  MCP-capable harness and won't work unmodified under pi; making every workflow skill
+  MCP-agnostic is out of scope for a harness adapter.
 
-- **Skills.** pi implements the Agent Skills standard (agentskills.io) and reads
-  ``~/.agents/skills/`` at the user scope — unaffected by the ``PI_CODING_AGENT_DIR`` redirect
-  (it's a separate, fixed path), the same directory codex writes to, in the same shape
-  (frontmatter + instructions). Written there rather than under the config volume so a pi and a
-  codex task in the same container home would see the same rendered skills.
+- **Skills.** pi implements the Agent Skills standard and reads ``~/.agents/skills/`` at the
+  user scope, unaffected by the ``PI_CODING_AGENT_DIR`` redirect — the same directory and shape
+  codex renders to, reused directly (:func:`panopticon.harnesses.codex.write_skills`).
 
-- **Hooks / turn signals: none wired.** pi ships no Stop/UserPromptSubmit equivalent — no
-  declarative, zero-code hook config a harness can render into a file (unlike codex's
-  Claude-Code-compatible ``hooks.toml``). Its only lifecycle mechanism is a TypeScript
-  *extension* API running inside pi's own Node process (``agent_settled``,
-  ``before_agent_start``, per its ``docs/extensions.md``) — real, documented events, but a
-  fundamentally different, code-executing integration surface this module does not attempt to
-  wire, since it can't be exercised or verified without a live pi+Node runtime. Per the turn
-  contract's degradation rule: state **transitions** (advance/drop, applied via the REST
-  operation instructions above) still flip ``Task.turn`` correctly regardless of harness — that
-  happens in the workflow's ``turn_on_enter`` when the operation is applied, not in a hook. What
-  is lost is *mid-state* ball-tracking (the back-and-forth within one state, e.g. this task's own
-  ITERATING phase): a pi task's turn will not auto-flip to ``user`` when the agent falls silent,
-  nor back to ``agent`` when the operator replies. Left undone rather than faked; an operator
-  driving a pi task should expect to check in on it directly rather than trust the dashboard's
-  turn indicator.
+- **Turn signals.** pi has no Stop/UserPromptSubmit hook config, but its extension API has real
+  equivalents, confirmed against the pi-mono TypeScript source (not just its docs): the
+  ``AgentSettledEvent``/``InputEvent`` types and the ``ExtensionHandler``/``ExtensionFactory``
+  signatures in ``core/extensions/types.ts``. :data:`TURN_EXTENSION` is a minimal extension
+  rendered at bootstrap and loaded via ``--extension <path>`` on every launch; it mirrors
+  :mod:`panopticon.container.hook`'s contract exactly — ``PUT .../tasks/{id}/turn`` with
+  ``{"turn": "user"}`` on ``agent_settled`` (pi "will not continue running automatically", the
+  closest analog to Stop), ``{"turn": "agent"}`` on ``input`` (fired when user input arrives).
+  It reads ``PANOPTICON_SERVICE_URL``/``PANOPTICON_TASK_ID`` from the environment the launcher
+  already sets, so its content needs no per-task templating. Not run against a live pi process —
+  no Node/pi runtime was available while writing this, so the source-level type-checking above
+  is the strongest evidence short of that.
 
-- **Auth.** Subscription OAuth (``/login``) and API keys share one file,
-  ``<config_dir>/auth.json`` (pi's ``~/.pi/agent/auth.json`` analog, resolved relative to
-  ``PI_CODING_AGENT_DIR``). Per pi's own documented resolution order, plain **process env
-  vars rank above ``auth.json``'s absence** — so unlike codex, this harness never renders an
-  api-key ``auth.json`` itself; it only checks for one of the common provider keys
-  (``ANTHROPIC_API_KEY``, ``OPENAI_API_KEY``, ``GEMINI_API_KEY`` — the ones panopticon already
-  names elsewhere) being present, a mounted credential dir (a subscription ``auth.json``,
-  symlinked in exactly like codex's), or one already materialized on the config volume from a
-  prior ``/login``. pi supports many more providers via their own env vars (see its
-  ``docs/providers.md`` upstream); those work too, just aren't named in ``missing_auth``'s
-  message.
+- **Auth.** Subscription OAuth and API keys share ``<config_dir>/auth.json``. Per pi's documented
+  resolution order, a plain env var ranks above ``auth.json``'s absence — so unlike codex, this
+  harness never renders an api-key file, only checks for one of ``ANTHROPIC_API_KEY``/
+  ``OPENAI_API_KEY``/``GEMINI_API_KEY`` (the ones panopticon names elsewhere; pi supports many
+  more via its own env vars), a mounted credential dir (symlinked in, same shape as codex's), or
+  one already materialized on the config volume from a prior ``/login``.
 """
 
 from __future__ import annotations
 
 from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import ClassVar
 
 from panopticon.harnesses.base import INTERRUPT_PROMPT, BootstrapContext, Harness, LaunchContext
-from panopticon.harnesses.claude import _task_id_note
+from panopticon.harnesses.codex import write_skills
 from panopticon.harnesses.config import update_json_config
 
 #: The pi-coding-agent release the harness image layer installs (published npm manifest:
-#: ``engines.node >= 22.19.0``, ``bin.pi = dist/cli.js``).
-PI_VERSION = "0.80.7"
+#: ``engines.node >= 22.19.0``, ``bin.pi = dist/cli.js``) — the version verified locally.
+PI_VERSION = "0.80.3"
 
 #: The Node.js release installed alongside it — the minimum pi's own ``engines`` requires;
 #: pi ships no static binary, so a Node runtime is a real prerequisite in the image (unlike codex).
@@ -107,30 +82,29 @@ SETTINGS_FILE = "settings.json"
 #: same seam as claude's `WORKFLOW_OVERVIEW_FILE`.
 WORKFLOW_OVERVIEW_FILE = "workflow-overview.md"
 
+#: Rendered so `argv()` can load it via `--extension` — see the module docstring's turn-signals
+#: section. Static: it reads the task id/service URL from the environment the launcher already
+#: sets, not from any per-task templating.
+EXTENSION_FILE = "turn.ts"
+TURN_EXTENSION = """\
+export default function (pi) {
+  const url = `${process.env.PANOPTICON_SERVICE_URL}/tasks/${process.env.PANOPTICON_TASK_ID}/turn`;
+  const setTurn = (turn) =>
+    fetch(url, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ turn }),
+    }).catch(() => {});
+
+  pi.on("agent_settled", () => setTurn("user"));
+  pi.on("input", () => setTurn("agent"));
+}
+"""
+
 #: The common provider API-key env vars this harness checks for in `missing_auth` — the ones
 #: panopticon already names elsewhere (claude/codex). pi reads these (and many more third-party
 #: provider vars — see its own docs/providers.md) directly at runtime; no file rendering needed.
 API_KEY_ENV_VARS = ("ANTHROPIC_API_KEY", "OPENAI_API_KEY", "GEMINI_API_KEY")
-
-
-def render_skill(name: str, description: str, instructions: str, task_id: str) -> str:
-    """The ``SKILL.md`` body for one skill/operation: Agent-Skills frontmatter + the procedure."""
-    return f"---\nname: {name}\ndescription: {description}\n---\n{instructions}\n{_task_id_note(task_id)}"
-
-
-def write_skills(skills: Mapping[str, tuple[str, str]], root: Path, task_id: str) -> list[Path]:
-    """Write ``name → (description, instructions)`` to ``<root>/.agents/skills/<name>/SKILL.md``.
-
-    User-scope, not the config volume: pi reads ``~/.agents/skills/`` unconditionally (it isn't
-    redirected by ``PI_CODING_AGENT_DIR``), the same location codex renders to."""
-    written = []
-    for name, (description, instructions) in skills.items():
-        skill_dir = root / ".agents" / "skills" / name
-        skill_dir.mkdir(parents=True, exist_ok=True)
-        path = skill_dir / "SKILL.md"
-        path.write_text(render_skill(name, description, instructions, task_id))
-        written.append(path)
-    return written
 
 
 def operation_instructions(name: str, target_state: str, task_id: str, service_url: str) -> str:
@@ -146,22 +120,16 @@ def operation_instructions(name: str, target_state: str, task_id: str, service_u
     )
 
 
-def settings() -> dict[str, Any]:
-    """The ``settings.json`` we seed: pre-accept project trust.
+def write_settings(config_dir: Path) -> Path:
+    """Merge ``defaultProjectTrust: "always"`` into ``<config_dir>/settings.json``.
 
     pi asks an interactive "trust this project folder?" question on startup whenever the
     workspace holds project-local settings/resources — there's no operator in the container to
-    answer it. ``defaultProjectTrust: "always"`` (pi's own documented escape hatch, its analog of
-    claude's trust-dialog seeding) makes non-interactive and interactive startup alike skip it.
-    """
-    return {"defaultProjectTrust": "always"}
-
-
-def write_settings(config_dir: Path) -> Path:
-    """Merge :func:`settings` into ``<config_dir>/settings.json``; return the path."""
+    answer it. ``defaultProjectTrust`` is pi's own documented escape hatch for this, its analog
+    of claude's trust-dialog seeding."""
     path = config_dir / SETTINGS_FILE
     with update_json_config(path) as data:
-        data.update(settings())
+        data["defaultProjectTrust"] = "always"
     return path
 
 
@@ -220,6 +188,7 @@ class PiHarness(Harness):
         config_dir.mkdir(parents=True, exist_ok=True)
         write_settings(config_dir)
         write_workflow_overview(config_dir, ctx.overview)
+        (config_dir / EXTENSION_FILE).write_text(TURN_EXTENSION)
         entries: dict[str, tuple[str, str]] = {
             s.name: (s.description, s.instructions) for s in ctx.skills
         }
@@ -248,11 +217,15 @@ class PiHarness(Harness):
         volume's most recent session when one is recorded (``--continue``, which silently starts
         fresh otherwise — see the module docstring); like claude/codex, a resume on the agent's
         turn gets :data:`INTERRUPT_PROMPT` appended so it picks back up."""
+        config_dir = self.config_dir(ctx.home)
         argv = ["pi"]
-        overview = self.config_dir(ctx.home) / WORKFLOW_OVERVIEW_FILE
+        overview = config_dir / WORKFLOW_OVERVIEW_FILE
         if overview.exists():
             argv += ["--append-system-prompt", overview.read_text()]
-        sessions = self.config_dir(ctx.home) / "sessions"
+        extension = config_dir / EXTENSION_FILE
+        if extension.exists():
+            argv += ["--extension", str(extension)]
+        sessions = config_dir / "sessions"
         if sessions.exists() and any(sessions.rglob("*.jsonl")):
             argv.append("--continue")
             if ctx.turn == "agent":

@@ -1,8 +1,8 @@
-"""The pi harness: settings.json, workflow-overview file, REST-curl operation instructions
-(no MCP), SKILL.md rendering, auth, argv.
+"""The pi harness: settings.json, workflow-overview file, the turn-flip extension, REST-curl
+operation instructions (no MCP), SKILL.md rendering, auth, argv.
 
-Facts pinned against pi-coding-agent 0.80.7 (its README/docs and published npm manifest) — not
-observed behavior; there is no live pi process behind these assertions, see the module docstring.
+Facts pinned against pi-coding-agent 0.80.3 (a real local install) and the pi-mono TypeScript
+source (event/handler types) — see the module docstring for exactly what's verified vs. not.
 """
 
 from __future__ import annotations
@@ -12,7 +12,13 @@ from pathlib import Path
 
 from panopticon.core.models import Skill
 from panopticon.harnesses import INTERRUPT_PROMPT, BootstrapContext, LaunchContext
-from panopticon.harnesses.pi import NODE_VERSION, PI_VERSION, PiHarness, settings
+from panopticon.harnesses.pi import (
+    EXTENSION_FILE,
+    NODE_VERSION,
+    PI_VERSION,
+    TURN_EXTENSION,
+    PiHarness,
+)
 
 HARNESS = PiHarness()
 
@@ -36,31 +42,19 @@ def _bootstrap_ctx(home: Path, **kwargs: object) -> BootstrapContext:
     return BootstrapContext(**defaults)  # type: ignore[arg-type]
 
 
-# -- settings.json --------------------------------------------------------------------
+# -- settings.json + workflow overview --------------------------------------------------
 
 
-def test_settings_pre_accepts_project_trust() -> None:
-    # No operator in the container to answer pi's interactive trust prompt.
-    assert settings() == {"defaultProjectTrust": "always"}
-
-
-def test_bootstrap_writes_settings_json(tmp_path: Path) -> None:
-    HARNESS.bootstrap(_bootstrap_ctx(tmp_path))
-    data = json.loads((tmp_path / ".pi" / "settings.json").read_text())
-    assert data["defaultProjectTrust"] == "always"
-
-
-def test_bootstrap_merges_settings_without_clobbering_existing_keys(tmp_path: Path) -> None:
+def test_bootstrap_writes_settings_and_merges_and_is_idempotent(tmp_path: Path) -> None:
     settings_path = tmp_path / ".pi" / "settings.json"
     settings_path.parent.mkdir(parents=True)
     settings_path.write_text(json.dumps({"theme": "light"}))
     HARNESS.bootstrap(_bootstrap_ctx(tmp_path))
+    HARNESS.bootstrap(_bootstrap_ctx(tmp_path))  # a respawn re-runs bootstrap; must be idempotent
     data = json.loads(settings_path.read_text())
-    assert data["theme"] == "light"
+    assert data["theme"] == "light"  # preserved
+    # No operator in the container to answer pi's interactive project-trust prompt.
     assert data["defaultProjectTrust"] == "always"
-
-
-# -- workflow overview ------------------------------------------------------------------
 
 
 def test_bootstrap_writes_the_workflow_overview_file(tmp_path: Path) -> None:
@@ -71,6 +65,33 @@ def test_bootstrap_writes_the_workflow_overview_file(tmp_path: Path) -> None:
 def test_bootstrap_omits_the_overview_file_when_blank(tmp_path: Path) -> None:
     HARNESS.bootstrap(_bootstrap_ctx(tmp_path, overview="   "))
     assert not (tmp_path / ".pi" / "workflow-overview.md").exists()
+
+
+# -- the turn-flip extension -------------------------------------------------------------
+
+
+def test_extension_puts_the_turn_via_the_task_service_rest_api() -> None:
+    # Mirrors container/hook.py's contract exactly: PUT .../turn with {"turn": ...}.
+    assert "process.env.PANOPTICON_SERVICE_URL" in TURN_EXTENSION
+    assert "process.env.PANOPTICON_TASK_ID" in TURN_EXTENSION
+    assert "/tasks/${process.env.PANOPTICON_TASK_ID}/turn" in TURN_EXTENSION
+    assert 'method: "PUT"' in TURN_EXTENSION
+
+
+def test_extension_flips_to_user_on_settle_and_agent_on_input() -> None:
+    assert 'pi.on("agent_settled", () => setTurn("user"));' in TURN_EXTENSION
+    assert 'pi.on("input", () => setTurn("agent"));' in TURN_EXTENSION
+
+
+def test_bootstrap_writes_the_extension_file(tmp_path: Path) -> None:
+    HARNESS.bootstrap(_bootstrap_ctx(tmp_path))
+    assert (tmp_path / ".pi" / EXTENSION_FILE).read_text() == TURN_EXTENSION
+
+
+def test_argv_loads_the_extension_when_rendered(tmp_path: Path) -> None:
+    HARNESS.bootstrap(_bootstrap_ctx(tmp_path, overview=""))
+    argv = HARNESS.argv(_ctx(tmp_path))
+    assert argv == ["pi", "--extension", str(tmp_path / ".pi" / EXTENSION_FILE)]
 
 
 # -- bootstrap: skills + operations (no MCP) ---------------------------------------------
@@ -104,13 +125,6 @@ def test_bootstrap_renders_skills_user_scope_not_into_the_workspace(tmp_path: Pa
     HARNESS.bootstrap(_bootstrap_ctx(tmp_path, cwd=workspace))
     assert not (workspace / ".agents").exists()
     assert (tmp_path / ".agents" / "skills").is_dir()
-
-
-def test_bootstrap_is_idempotent_across_respawns(tmp_path: Path) -> None:
-    ctx = _bootstrap_ctx(tmp_path)
-    HARNESS.bootstrap(ctx)
-    HARNESS.bootstrap(ctx)  # a respawn re-runs the bootstrap on the same config volume
-    assert (tmp_path / ".pi" / "settings.json").exists()
 
 
 # -- auth ----------------------------------------------------------------------------
@@ -218,7 +232,8 @@ def test_argv_appends_system_prompt_on_resume_too(tmp_path: Path) -> None:
     HARNESS.bootstrap(_bootstrap_ctx(tmp_path, overview="# the map"))
     _seed_session(tmp_path)
     argv = HARNESS.argv(_ctx(tmp_path))
-    assert argv == ["pi", "--append-system-prompt", "# the map", "--continue"]
+    assert argv[:3] == ["pi", "--append-system-prompt", "# the map"]
+    assert argv[-1] == "--continue"
 
 
 # -- image layer + env ----------------------------------------------------------------
@@ -229,6 +244,7 @@ def test_image_layer_installs_pinned_node_and_pi_for_both_architectures() -> Non
     assert f"v{NODE_VERSION}/node-v{NODE_VERSION}-linux-$node_arch.tar.xz" in layer
     assert 'x86_64) node_arch="x64"' in layer and 'aarch64) node_arch="arm64"' in layer
     assert f"@earendil-works/pi-coding-agent@{PI_VERSION}" in layer  # pinned, not `latest`
+    assert PI_VERSION == "0.80.3"  # the version verified against a real local install
     assert "--extract --xz --directory" in layer  # long options (repo convention)
     assert "npm install --global --ignore-scripts" in layer
 

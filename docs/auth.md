@@ -174,6 +174,6 @@ environment variable itself — so the harness usually renders nothing at all:
 Pick the model per task via `starting_model` (pi's own `--model` syntax, e.g. `sonnet`,
 `sonnet:high`, `openai/gpt-4o`); unset, pi picks its own default.
 
-**Known gap:** pi has no MCP client and no Stop/UserPromptSubmit-equivalent hook — see the
-`panopticon.harnesses.pi` module docstring for exactly what that means for workflow skills and
-`Task.turn` tracking on a pi task.
+**Known gap:** pi has no MCP client, so workflow skills that name an MCP tool directly (outside
+the two operations this harness itself renders) won't work unmodified under pi — see the
+`panopticon.harnesses.pi` module docstring for exactly which ones.
