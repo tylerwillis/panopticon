@@ -212,6 +212,19 @@ def test_argv_first_run_passes_model_then_prompt(tmp_path: Path) -> None:
     assert argv == ["codex", *_BYPASS, "--model", "gpt-5.6-sol", "start now"]
 
 
+def test_argv_splits_an_effort_suffix_into_a_config_override(tmp_path: Path) -> None:
+    # "gpt-5.6-sol:high" = Sol at high reasoning effort — the pi-style suffix convention.
+    argv = HARNESS.argv(_ctx(tmp_path, starting_model="gpt-5.6-sol:high"))
+    assert argv == [
+        "codex",
+        *_BYPASS,
+        "--model",
+        "gpt-5.6-sol",
+        "--config",
+        "model_reasoning_effort=high",
+    ]
+
+
 def test_argv_resumes_the_last_session_when_one_is_recorded(tmp_path: Path) -> None:
     _seed_session(tmp_path)
     assert HARNESS.argv(_ctx(tmp_path)) == ["codex", "resume", "--last", *_BYPASS]
