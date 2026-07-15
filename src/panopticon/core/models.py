@@ -280,6 +280,11 @@ class Task:
     #: injected as ``PANOPTICON_STARTING_MODEL`` at spawn so the agent can pass ``--model``
     #: to ``claude`` on first launch. ``None`` means no model preference (claude picks its default).
     starting_model: str | None = None
+    #: Which agent-CLI **harness** runs this task's container (``"claude"``, ``"codex"``, …) —
+    #: an opaque name the control plane records and the container/runner resolve against the
+    #: harness registry (:mod:`panopticon.harnesses`). Validated at creation; ``None`` means the
+    #: default (claude). Like ``starting_model``, recorded — never interpreted — here.
+    harness: str | None = None
     #: The task that *governs* (oversees) this one — its ``id``. Set by the orchestrator on the
     #: tasks it creates so the relationship is recorded; also settable manually via
     #: :meth:`TaskService.set_governor`. ``None`` for ungoverned tasks.

@@ -36,6 +36,7 @@ from panopticon.core.provisioning import PROVISION_SKILL
 from panopticon.core.state import TERMINAL_LABELS, Dropped
 from panopticon.core.store import NotFound, Store
 from panopticon.core.workflow import Workflow
+from panopticon.harnesses import get_harness
 
 _log = logging.getLogger(__name__)
 
@@ -313,17 +314,24 @@ class TaskService:
         memo: str | None = None,
         governor_task_id: str | None = None,
         initial_prompt: str | None = None,
+        harness: str | None = None,
         artifacts: dict[str, str] | None = None,
         depends_on_task_ids: list[str] | None = None,
     ) -> Task:
         repo = await self.get_repo(repo_id)  # ensure exists (raises NotFound)
         if governor_task_id is not None:
             await self.get_task(governor_task_id)  # ensure governor exists (raises NotFound)
+        if harness is not None:
+            try:  # validate at creation so a spawn never meets an unknown harness
+                get_harness(harness)
+            except KeyError as exc:
+                raise ValueError(str(exc.args[0])) from exc
         wf = self._workflow(workflow_name)
         if not self._workflow_visible(wf, repo):
             raise NotAuthorized(f"workflow {workflow_name!r} is not enabled for repo {repo_id!r}")
         now = self._clock()
         task = wf.start_task(self._id(), repo_id, at=now, memo=memo, initial_prompt=initial_prompt)
+        task.harness = harness
         task.governor_task_id = governor_task_id
         task.created_at = now
         task.updated_at = now  # creation time = first mutation

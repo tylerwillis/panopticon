@@ -488,6 +488,7 @@ def _fully_populated_task() -> Task:
         tokens_used=87500,
         token_estimate=500_000,
         starting_model="opus",
+        harness="codex",
         governor_task_id="t-governor",
         created_at="t1",
         updated_at="t2",

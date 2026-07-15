@@ -30,6 +30,12 @@ src/panopticon/
                    # its shell_script in a host tmux session (here: `claude setup-token`)) +
                    # discovery.py = scan the package + an optional path for Workflow subclasses
                    # (the registry build_app runs on; drop a module in → registered, ADR 0004)
+  harnesses/       # agent-CLI harnesses (M3): the Harness interface + the registry (a literal
+                   # mapping — path discovery waits for a real third-party need) + claude.py
+                   # (the default: argv, .claude/commands rendering, turn-flip settings.json,
+                   # MCP config, trust seeds). LLM-free: harnesses DESCRIBE and RENDER a CLI;
+                   # only the container's launcher EXECUTES one. A task records its harness by
+                   # name (Task.harness, default claude); other CLIs land as further adapters
   taskservice/     # control plane: TaskService, FastAPI REST API, the SQLAlchemy store
                    # adapter (in-memory or on-disk SQLite), filesystem artifact store, MCP
                    # server (mcp.py: operations=tools, artifacts=resources; FastMCP) mounted at /mcp
@@ -38,7 +44,7 @@ src/panopticon/
                    # shell_script in a host tmux session, no container — for `runner_type="shell"`
                    # workflows; the spawner routes on it, skipping the image + the clone unless the
                    # workflow opts in via clone_repo); images.py = ADR-0005 composed images
-                   # (base→workflow→repo); provisioner.py = host-side provisioning
+                   # (base→harness→workflow→repo); provisioner.py = host-side provisioning
                    # (ADR 0011: branch the per-task clone on slug, record it back); clones.py =
                    # per-repo clone cache; spawn.py = spawn-prep (clone --local the per-task
                    # checkout, mounted rw at /workspace); spawner.py = the spawn loop (claim an
@@ -51,8 +57,9 @@ src/panopticon/
                    # spawns one task
   container/       # entrypoint (`python -m panopticon.container` = connect/register/slug/
                    # heartbeat liveness) + agent.py (`-m panopticon.container.agent` = the tmux
-                   # pane's launcher: render skills + operations, point claude at the /mcp server,
-                   # put the workflow overview in its system prompt → exec `claude`) — the ONLY LLM pkg
+                   # pane's launcher: fetch the workflow surface, dispatch to the task's harness
+                   # (bootstrap = pure file writes), then run its argv) + hook.py (the turn-flip
+                   # callback BOTH harnesses' hooks invoke) — the ONLY LLM pkg (the launch)
 docker/Dockerfile  # base task-container image (ADR 0005 base layer): python + git + bash +
                    # the panopticon package + the `claude` CLI the agent execs; runs as the
                    # unprivileged `panopticon` user. docker/entrypoint.sh = remap that user to the
@@ -149,6 +156,10 @@ on every PR (the same commands the Makefile wraps).
 
 ## Tests worth knowing
 
+- `tests/harnesses/` — the **agent-CLI harness suite** (M3): the registry (names, claude
+  default, unknown rejection) and `test_claude.py` (the Slice-6 argv/rendering expectations
+  carried over verbatim — the seam extraction must not change what claude is launched with).
+  Extend when you touch a harness or add one.
 - `tests/test_workflow.py` — the **golden harness**: every legal/illegal transition, turn
   derivation, responsibility gating, and workflow validation. Extend it when you touch the
   state machine.
@@ -244,6 +255,14 @@ on every PR (the same commands the Makefile wraps).
   `capabilities`, a JSON opt-in map for elevated container privileges (`docker_in_docker` → the
   runner spawns `--privileged` and the entrypoint starts a nested Docker daemon; a trust escalation,
   off by default).
+- **Harness** — the agent CLI a task container runs (M3), as a pluggable adapter
+  (`harnesses/`): claude today; other CLIs land as further adapters. A `Harness` declares its
+  config dirname (where the per-task config volume mounts), image layer (the CLI's install,
+  composed base → **harness** → workflow → repo), an auth check (`missing_auth`, naming the fix
+  for *its* credentials), a `bootstrap` (pure file writes rendering
+  skills/operations/hooks/MCP/system-prompt), and the launch `argv` (first-run vs resume).
+  `Task.harness` records the choice by name (validated at creation, `None` = claude); the
+  control plane never interprets it.
 - **Workflow** — a `Workflow` subclass whose **states are nested `State` classes**
   (declarative). It declares `initial`; states are discovered and their transitions
   (class refs or label strings) resolved + validated when the workflow is instantiated.

@@ -236,6 +236,26 @@ def test_create_task_unknown_workflow_400(client: TestClient) -> None:
     assert resp.status_code == 400
 
 
+def test_create_task_records_the_harness(client: TestClient) -> None:
+    resp = client.post("/tasks", json={"repo_id": "r1", "workflow": "spike", "harness": "claude"})
+    assert resp.status_code == 201, resp.text
+    assert resp.json()["harness"] == "claude"
+    got = client.get(f"/tasks/{resp.json()['id']}")  # and it survives a reload
+    assert got.json()["harness"] == "claude"
+
+
+def test_create_task_defaults_to_no_harness(client: TestClient) -> None:
+    # None = the claude default; recorded as null so old rows and new defaults read the same.
+    task_id = _new_task(client)
+    assert client.get(f"/tasks/{task_id}").json()["harness"] is None
+
+
+def test_create_task_unknown_harness_400(client: TestClient) -> None:
+    resp = client.post("/tasks", json={"repo_id": "r1", "workflow": "spike", "harness": "codex"})
+    assert resp.status_code == 400  # codex is not registered until the codex slice
+    assert "codex" in resp.json()["detail"]  # the error names the offender (and the known set)
+
+
 def test_create_task_missing_repo_404(client: TestClient) -> None:
     resp = client.post("/tasks", json={"repo_id": "ghost", "workflow": "spike"})
     assert resp.status_code == 404
