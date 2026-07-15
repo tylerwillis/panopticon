@@ -119,6 +119,33 @@ def test_bootstrap_writes_an_api_key_auth_file_from_the_env(tmp_path: Path) -> N
     assert (auth.stat().st_mode & 0o777) == 0o600
 
 
+def test_bootstrap_symlinks_auth_from_the_credential_mount(tmp_path: Path) -> None:
+    # The repo's shared credential dir (ChatGPT subscription): every container of the repo links
+    # the same auth.json, so a token refresh by any session is visible to all (codex re-reads the
+    # file before refreshing and writes through the symlink — verified against 0.144.4).
+    credentials = tmp_path / "credentials"
+    credentials.mkdir()
+    (credentials / "auth.json").write_text('{"auth_mode": "chatgpt"}')
+    HARNESS.bootstrap(
+        _bootstrap_ctx(tmp_path, environ={"PANOPTICON_CREDENTIALS": str(credentials)})
+    )
+    auth = tmp_path / ".codex" / "auth.json"
+    assert auth.is_symlink() and auth.resolve() == (credentials / "auth.json").resolve()
+
+
+def test_bootstrap_prefers_the_credential_mount_over_an_env_key(tmp_path: Path) -> None:
+    credentials = tmp_path / "credentials"
+    credentials.mkdir()
+    (credentials / "auth.json").write_text('{"auth_mode": "chatgpt"}')
+    HARNESS.bootstrap(
+        _bootstrap_ctx(
+            tmp_path,
+            environ={"PANOPTICON_CREDENTIALS": str(credentials), "CODEX_API_KEY": "sk-x"},
+        )
+    )
+    assert (tmp_path / ".codex" / "auth.json").is_symlink()  # subscription wins
+
+
 def test_bootstrap_never_clobbers_an_existing_auth_file(tmp_path: Path) -> None:
     config_dir = tmp_path / ".codex"
     config_dir.mkdir(parents=True)
@@ -143,6 +170,14 @@ def test_missing_auth_accepts_each_credential_source(tmp_path: Path) -> None:
     assert HARNESS.missing_auth({"CODEX_ACCESS_TOKEN": "t"}, home=tmp_path) is None
 
 
+def test_missing_auth_accepts_a_mounted_credential_dir(tmp_path: Path) -> None:
+    credentials = tmp_path / "credentials"
+    credentials.mkdir()
+    (credentials / "auth.json").write_text("{}")
+    env = {"PANOPTICON_CREDENTIALS": str(credentials)}
+    assert HARNESS.missing_auth(env, home=tmp_path) is None
+
+
 def test_missing_auth_accepts_an_auth_file_on_the_config_volume(tmp_path: Path) -> None:
     (tmp_path / ".codex").mkdir()
     (tmp_path / ".codex" / "auth.json").write_text("{}")
@@ -152,7 +187,7 @@ def test_missing_auth_accepts_an_auth_file_on_the_config_volume(tmp_path: Path) 
 def test_missing_auth_names_the_fix_when_nothing_is_configured(tmp_path: Path) -> None:
     detail = HARNESS.missing_auth({}, home=tmp_path)
     assert detail is not None
-    assert "CODEX_API_KEY" in detail
+    assert "CODEX_API_KEY" in detail and "credential_dir" in detail
 
 
 # -- argv ----------------------------------------------------------------------------

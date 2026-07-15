@@ -13,11 +13,12 @@ Everything is rendered into ``$CODEX_HOME`` (``<home>/.codex``, the per-task con
 - Skills and operations — codex reads skills from ``~/.agents/skills/<name>/SKILL.md``
   (its custom-prompts mechanism is deprecated). Rendered user-scope, not into the workspace,
   so the task's clone stays clean.
-- ``auth.json`` — codex's credential file, materialized from a **``CODEX_API_KEY``/
-  ``OPENAI_API_KEY``** env-file var (rendered in the shape ``codex login --with-api-key``
-  writes) — or skipped entirely for a **``CODEX_ACCESS_TOKEN``** (ChatGPT Business/Enterprise
-  workspace token, read by codex straight from the env). ChatGPT Plus/Pro subscription auth
-  (a shared, rotating ``auth.json``) lands in the credential-dir slice.
+- ``auth.json`` — codex's credential file. Three ways in, checked in order: a **mounted
+  credential dir** (the repo's ``credential_dir`` — a ChatGPT-subscription ``auth.json`` shared
+  across the repo's containers; codex re-reads the file before refreshing and writes through
+  the symlink, so concurrent sessions converge on it), a **``CODEX_API_KEY``/``OPENAI_API_KEY``**
+  env-file var (rendered into an api-key ``auth.json``), or a **``CODEX_ACCESS_TOKEN``**
+  (ChatGPT Business/Enterprise workspace token, read by codex straight from the env).
 
 Facts pinned against codex-cli 0.144.4 (config schema + observed behavior); see docs/auth.md.
 """
@@ -158,9 +159,13 @@ class CodexHarness(Harness):
             return None
         if (self.config_dir(home) / AUTH_FILE).exists():  # e.g. persisted on the config volume
             return None
+        credentials = environ.get("PANOPTICON_CREDENTIALS")
+        if credentials and (Path(credentials) / AUTH_FILE).exists():
+            return None
         return (
             "No codex credentials — set CODEX_API_KEY (or CODEX_ACCESS_TOKEN) in the repo's "
-            "env_file (see docs/auth.md)"
+            "env_file, or give the repo a credential_dir holding a ChatGPT auth.json "
+            "(see docs/auth.md)"
         )
 
     def bootstrap(self, ctx: BootstrapContext) -> None:
@@ -181,11 +186,16 @@ class CodexHarness(Harness):
         self._ensure_auth(config_dir, ctx.environ)
 
     def _ensure_auth(self, config_dir: Path, environ: Mapping[str, str]) -> None:
-        """Materialize ``auth.json`` when absent from an env-file API key (rendered in the shape
-        ``codex login --with-api-key`` writes). ``CODEX_ACCESS_TOKEN`` needs no file — codex
-        reads it from the environment. Idempotent; never clobbers an existing auth.json."""
+        """Materialize ``auth.json`` when absent — from the credential-dir mount (subscription;
+        a symlink, so refreshes converge on the shared file) or an env-file API key (rendered in
+        the shape ``codex login --with-api-key`` writes). ``CODEX_ACCESS_TOKEN`` needs no file —
+        codex reads it from the environment. Idempotent; never clobbers an existing auth.json."""
         auth = config_dir / AUTH_FILE
         if auth.exists() or auth.is_symlink():
+            return
+        credentials = environ.get("PANOPTICON_CREDENTIALS")
+        if credentials and (Path(credentials) / AUTH_FILE).exists():
+            auth.symlink_to(Path(credentials) / AUTH_FILE)
             return
         if key := (environ.get("CODEX_API_KEY") or environ.get("OPENAI_API_KEY")):
             auth.write_text(json.dumps({"auth_mode": "apikey", "OPENAI_API_KEY": key}, indent=2))

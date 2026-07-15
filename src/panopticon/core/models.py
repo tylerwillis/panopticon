@@ -198,6 +198,14 @@ class Repo:
     hook_file: str | None = None
     enabled_workflows: list[str] = field(default_factory=list)
     disabled_workflows: list[str] = field(default_factory=list)
+    #: A *reference* to the repo's shared credential **directory** (ADR 0007's directory-shaped
+    #: sibling of ``env_file``): a name relative to the secrets dir, resolved host-locally by the
+    #: runner and mounted **read-write** into the repo's task containers at
+    #: :data:`~panopticon.harnesses.CREDENTIALS_MOUNT`. Holds credential *files* whose nature is
+    #: shared across sessions (e.g. a ChatGPT-subscription ``auth.json``, one rotating token
+    #: chain per account) — unlike env-file values, these rotate in place and every container
+    #: converges on the same copy. ``None`` = no credential dir.
+    credential_dir: str | None = None
     #: The agent-CLI harness this repo's tasks run by **default** (``None`` = the system default,
     #: claude). The on-the-rails path: teams usually standardize per repo, so task creation never
     #: needs to name a harness — but an explicit :attr:`Task.harness` at creation always wins

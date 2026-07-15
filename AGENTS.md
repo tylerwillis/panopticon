@@ -35,8 +35,9 @@ src/panopticon/
                    # claude.py (the default: argv, .claude/commands rendering, turn-flip
                    # settings.json, MCP config, trust seeds) + codex.py (config.toml with MCP +
                    # Claude-Code-compatible Stop/UserPromptSubmit hooks wired to the SAME
-                   # container/hook.py callback, ~/.agents/skills SKILL.md rendering, api-key
-                   # auth.json materialization, pinned-release image layer). LLM-free: harnesses
+                   # container/hook.py callback, ~/.agents/skills SKILL.md rendering, auth.json
+                   # materialization: credential-dir symlink or api-key render, pinned-release
+                   # image layer). LLM-free: harnesses
                    # DESCRIBE and RENDER a CLI; only the container's launcher EXECUTES one. A
                    # task records its harness by name (Task.harness, default claude)
   taskservice/     # control plane: TaskService, FastAPI REST API, the SQLAlchemy store
@@ -163,7 +164,8 @@ on every PR (the same commands the Makefile wraps).
   default, unknown rejection), `test_claude.py` (the Slice-6 argv/rendering expectations carried
   over verbatim — the seam extraction must not change what claude is launched with), and
   `test_codex.py` (config.toml validated as real TOML incl. the hook wiring, SKILL.md rendering,
-  the auth paths, first-run vs `resume --last` argv, the pinned-release image layer). Extend
+  the three auth paths incl. the credential-dir symlink, first-run vs `resume --last` argv,
+  the pinned-release image layer). Extend
   when you touch a harness or add one.
 - `tests/test_workflow.py` — the **golden harness**: every legal/illegal transition, turn
   derivation, responsibility gating, and workflow validation. Extend it when you touch the
@@ -259,7 +261,12 @@ on every PR (the same commands the Makefile wraps).
   `uv`/`make` toolchain) — and
   `capabilities`, a JSON opt-in map for elevated container privileges (`docker_in_docker` → the
   runner spawns `--privileged` and the entrypoint starts a nested Docker daemon; a trust escalation,
-  off by default).
+  off by default). `credential_dir` (M3) is the directory-shaped sibling of `env_file`: a name under
+  the secrets dir for a dir of credential *files* that rotate in place (a ChatGPT-subscription
+  `auth.json`), mounted **read-write and shared** across the repo's task containers at
+  `/panopticon/credentials` — deliberate cross-task sharing, because one account is one rotating
+  token chain and every session must converge on the same copy (codex reloads the file before
+  refreshing and writes through the harness's symlink).
 - **Harness** — the agent CLI a task container runs (M3), as a pluggable adapter
   (`harnesses/`): claude (default) or codex. A `Harness` declares its
   config dirname (where the per-task config volume mounts), image layer (the CLI's install,
@@ -273,7 +280,8 @@ on every PR (the same commands the Makefile wraps).
   interprets the name. Model names are likewise harness-scoped: the workflow's `default_model`
   ("opus") survives only onto claude tasks; other harnesses get an explicit `starting_model`
   or their CLI's own default. Codex auth: `CODEX_API_KEY`/`CODEX_ACCESS_TOKEN` in the env-file
-  (no new mechanics) — see `docs/auth.md`.
+  (no new mechanics), or a ChatGPT subscription `auth.json` in the repo's `credential_dir`
+  (see **Repo**) — see `docs/auth.md`.
 - **Workflow** — a `Workflow` subclass whose **states are nested `State` classes**
   (declarative). It declares `initial`; states are discovered and their transitions
   (class refs or label strings) resolved + validated when the workflow is instantiated.

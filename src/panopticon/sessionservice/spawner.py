@@ -22,7 +22,6 @@ from pathlib import Path
 import httpx
 
 from panopticon.client import JsonObj, TaskServiceClient
-from panopticon.core.dirs import hook_file_path
 from panopticon.core.models import ContainerStatus, LifecyclePhase
 from panopticon.core.state import TERMINAL_LABELS
 from panopticon.harnesses import Harness, get_harness
@@ -98,7 +97,6 @@ class Spawner:
         git: object | None = None,
         images: ImageBuilder | None = None,
         run_hook: Callable[[str, str, str, str], None] | None = None,
-        hooks_dir: str | Path | None = None,
         makedirs: Callable[[str], None] = lambda p: Path(p).mkdir(parents=True, exist_ok=True),
         exists: Callable[[str], bool] = os.path.isdir,
         rmtree: Callable[[str], None] = shutil.rmtree,
@@ -120,10 +118,6 @@ class Spawner:
         self._git = git
         self._images = images or ImageBuilder()
         self._run_hook = run_hook or _run_repo_hook
-        #: Root a repo's ``hook_file`` name resolves against — this host's local hooks dir. ``None``
-        #: means resolve it dynamically at spawn (honoring ``$PANOPTICON_CONFIG``/XDG), mirroring how
-        #: ``LocalRunner`` treats the secrets dir.
-        self._hooks_dir = hooks_dir
         self._makedirs = makedirs
         self._exists = exists
         self._rmtree = rmtree
@@ -213,8 +207,8 @@ class Spawner:
         workspace = self._prepare_task_dir(
             task, repo, clone=True
         )  # a container always mounts a checkout
-        if hook_path := hook_file_path(repo.get("hook_file"), hooks_dir=self._hooks_dir):
-            self._run_hook(hook_path, task_id, repo["name"], workspace)
+        if hook_file := repo.get("hook_file"):
+            self._run_hook(hook_file, task_id, repo["name"], workspace)
         _log.info(
             "task %s: building image (workflow=%s, repo=%s)",
             task_id,
@@ -240,6 +234,7 @@ class Spawner:
             ),  # model selection passed to the agent CLI on first launch
             harness=task.get("harness"),  # which agent CLI the launcher runs (None = claude)
             config_mount=f"{CONTAINER_HOME}/{harness.config_dirname}",
+            credential_dir=repo.get("credential_dir"),  # shared credential mount (ADR 0007)
             progress=lambda phase: self._report(task_id, phase),  # STARTING then AWAITING
         )
 
