@@ -48,9 +48,9 @@ and ``~/.pi/agent/mcp.json`` on that install is an empty ``{}`` — pi ships no 
 
 - **Auth.** Subscription OAuth and API keys share ``<config_dir>/auth.json``. Per pi's documented
   resolution order, a plain env var ranks above ``auth.json``'s absence — so unlike codex, this
-  harness never renders an api-key file, only checks for one of ``ANTHROPIC_API_KEY``/
-  ``OPENAI_API_KEY``/``GEMINI_API_KEY`` (the ones panopticon names elsewhere; pi supports many
-  more via its own env vars), a mounted credential dir (symlinked in, same shape as codex's), or
+  harness never renders an api-key file, only checks for one of :data:`API_KEY_ENV_VARS` (every
+  single-var provider credential pi resolves, pulled from its ``env-api-keys.ts`` source — see
+  that constant's docstring), a mounted credential dir (symlinked in, same shape as codex's), or
   one already materialized on the config volume from a prior ``/login``.
 """
 
@@ -101,10 +101,48 @@ export default function (pi) {
 }
 """
 
-#: The common provider API-key env vars this harness checks for in `missing_auth` — the ones
-#: panopticon already names elsewhere (claude/codex). pi reads these (and many more third-party
-#: provider vars — see its own docs/providers.md) directly at runtime; no file rendering needed.
-API_KEY_ENV_VARS = ("ANTHROPIC_API_KEY", "OPENAI_API_KEY", "GEMINI_API_KEY")
+#: Every single-var provider credential pi resolves directly against the process environment —
+#: pulled from ``getApiKeyEnvVars`` in ``packages/ai/src/env-api-keys.ts`` (the pi-mono source
+#: docs/providers.md itself points at), so `missing_auth` doesn't reject a provider it simply
+#: didn't enumerate (e.g. Groq/Cerebras/xAI/OpenRouter, or ``ANTHROPIC_OAUTH_TOKEN`` — which
+#: takes precedence over ``ANTHROPIC_API_KEY`` there). Excludes the AWS/Google ambient-credential
+#: paths (``AWS_PROFILE``, ``GOOGLE_APPLICATION_CREDENTIALS``, …), which are multi-variable
+#: conditions a flat presence check can't represent correctly; those operators have the
+#: credential_dir/persisted-``auth.json`` fallback below instead.
+API_KEY_ENV_VARS = (
+    "ANTHROPIC_OAUTH_TOKEN",
+    "ANTHROPIC_API_KEY",
+    "COPILOT_GITHUB_TOKEN",
+    "ANT_LING_API_KEY",
+    "OPENAI_API_KEY",
+    "AZURE_OPENAI_API_KEY",
+    "NVIDIA_API_KEY",
+    "DEEPSEEK_API_KEY",
+    "GEMINI_API_KEY",
+    "GOOGLE_CLOUD_API_KEY",
+    "GROQ_API_KEY",
+    "CEREBRAS_API_KEY",
+    "XAI_API_KEY",
+    "RADIUS_API_KEY",
+    "OPENROUTER_API_KEY",
+    "AI_GATEWAY_API_KEY",
+    "ZAI_API_KEY",
+    "ZAI_CODING_CN_API_KEY",
+    "MISTRAL_API_KEY",
+    "MINIMAX_API_KEY",
+    "MINIMAX_CN_API_KEY",
+    "MOONSHOT_API_KEY",
+    "HF_TOKEN",
+    "FIREWORKS_API_KEY",
+    "TOGETHER_API_KEY",
+    "OPENCODE_API_KEY",
+    "KIMI_API_KEY",
+    "CLOUDFLARE_API_KEY",
+    "XIAOMI_API_KEY",
+    "XIAOMI_TOKEN_PLAN_CN_API_KEY",
+    "XIAOMI_TOKEN_PLAN_AMS_API_KEY",
+    "XIAOMI_TOKEN_PLAN_SGP_API_KEY",
+)
 
 
 def operation_instructions(name: str, target_state: str, task_id: str, service_url: str) -> str:
@@ -135,11 +173,13 @@ def write_settings(config_dir: Path) -> Path:
 
 def write_workflow_overview(config_dir: Path, overview: str) -> Path | None:
     """Write the whole-workflow map so `argv()` can pass it via ``--append-system-prompt``.
-    Returns ``None`` (writes nothing) when there's no overview."""
+    Returns ``None`` when there's no overview — removing a stale file from an earlier bootstrap
+    (the config volume persists across respawns), so `argv()` doesn't keep injecting it."""
+    path = config_dir / WORKFLOW_OVERVIEW_FILE
     if not overview.strip():
+        path.unlink(missing_ok=True)
         return None
     config_dir.mkdir(parents=True, exist_ok=True)
-    path = config_dir / WORKFLOW_OVERVIEW_FILE
     path.write_text(overview)
     return path
 
@@ -177,10 +217,10 @@ class PiHarness(Harness):
         if credentials and (Path(credentials) / AUTH_FILE).exists():
             return None
         return (
-            "No pi credentials — set ANTHROPIC_API_KEY (or OPENAI_API_KEY/GEMINI_API_KEY) in "
-            "the repo's env_file, or give the repo a credential_dir holding a pi auth.json from "
-            "`/login` (see docs/auth.md); pi supports other providers via env vars too "
-            "(see its own docs/providers.md)"
+            "No pi credentials — set one of pi's provider API-key env vars (ANTHROPIC_API_KEY, "
+            "OPENAI_API_KEY, GEMINI_API_KEY, GROQ_API_KEY, … — see its own docs/providers.md for "
+            "the full list) in the repo's env_file, or give the repo a credential_dir holding a "
+            "pi auth.json from `/login` (see docs/auth.md)"
         )
 
     def bootstrap(self, ctx: BootstrapContext) -> None:

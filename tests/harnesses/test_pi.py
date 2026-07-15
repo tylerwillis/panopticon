@@ -13,6 +13,7 @@ from pathlib import Path
 from panopticon.core.models import Skill
 from panopticon.harnesses import INTERRUPT_PROMPT, BootstrapContext, LaunchContext
 from panopticon.harnesses.pi import (
+    API_KEY_ENV_VARS,
     EXTENSION_FILE,
     NODE_VERSION,
     PI_VERSION,
@@ -65,6 +66,15 @@ def test_bootstrap_writes_the_workflow_overview_file(tmp_path: Path) -> None:
 def test_bootstrap_omits_the_overview_file_when_blank(tmp_path: Path) -> None:
     HARNESS.bootstrap(_bootstrap_ctx(tmp_path, overview="   "))
     assert not (tmp_path / ".pi" / "workflow-overview.md").exists()
+
+
+def test_bootstrap_removes_a_stale_overview_left_by_an_earlier_bootstrap(tmp_path: Path) -> None:
+    # The config volume persists across respawns — a later bootstrap with no overview must not
+    # leave an earlier one's file behind for argv() to keep injecting via --append-system-prompt.
+    HARNESS.bootstrap(_bootstrap_ctx(tmp_path, overview="# the map"))
+    HARNESS.bootstrap(_bootstrap_ctx(tmp_path, overview=""))
+    assert not (tmp_path / ".pi" / "workflow-overview.md").exists()
+    assert HARNESS.argv(_ctx(tmp_path))[:2] != ["pi", "--append-system-prompt"]
 
 
 # -- the turn-flip extension -------------------------------------------------------------
@@ -160,10 +170,18 @@ def test_bootstrap_never_clobbers_an_existing_auth_file(tmp_path: Path) -> None:
     assert not (config_dir / "auth.json").is_symlink()
 
 
-def test_missing_auth_accepts_each_api_key_env_var(tmp_path: Path) -> None:
-    assert HARNESS.missing_auth({"ANTHROPIC_API_KEY": "k"}, home=tmp_path) is None
-    assert HARNESS.missing_auth({"OPENAI_API_KEY": "k"}, home=tmp_path) is None
-    assert HARNESS.missing_auth({"GEMINI_API_KEY": "k"}, home=tmp_path) is None
+def test_missing_auth_accepts_every_known_provider_env_var(tmp_path: Path) -> None:
+    for var in API_KEY_ENV_VARS:
+        assert HARNESS.missing_auth({var: "k"}, home=tmp_path) is None, var
+
+
+def test_missing_auth_accepts_a_provider_this_harness_does_not_special_case(
+    tmp_path: Path,
+) -> None:
+    # Regression: a fixed 3-var allowlist (ANTHROPIC/OPENAI/GEMINI only) rejected valid pi
+    # credentials for every other supported provider and blocked the container from launching.
+    assert HARNESS.missing_auth({"GROQ_API_KEY": "k"}, home=tmp_path) is None
+    assert HARNESS.missing_auth({"ANTHROPIC_OAUTH_TOKEN": "t"}, home=tmp_path) is None
 
 
 def test_missing_auth_accepts_a_mounted_credential_dir(tmp_path: Path) -> None:
