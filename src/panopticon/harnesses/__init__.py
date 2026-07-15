@@ -10,6 +10,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 
 from panopticon.harnesses.base import (
+    CREDENTIALS_MOUNT,
     INTERRUPT_PROMPT,
     BootstrapContext,
     Harness,
@@ -36,6 +37,7 @@ def get_harness(name: str | None) -> Harness:
 
 
 __all__ = [
+    "CREDENTIALS_MOUNT",
     "DEFAULT_HARNESS",
     "HARNESSES",
     "INTERRUPT_PROMPT",

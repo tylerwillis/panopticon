@@ -166,6 +166,7 @@ class RepoIn(BaseModel):
     enabled_workflows: list[str] = Field(default_factory=list)
     disabled_workflows: list[str] = Field(default_factory=list)
     default_harness: str | None = None  # the harness this repo's tasks run by default
+    credential_dir: str | None = None  # name of a shared credential dir under the secrets dir
 
 
 class RepoOut(BaseModel):
@@ -182,6 +183,7 @@ class RepoOut(BaseModel):
     enabled_workflows: list[str] = Field(default_factory=list)
     disabled_workflows: list[str] = Field(default_factory=list)
     default_harness: str | None = None
+    credential_dir: str | None = None
 
 
 class RepoPatchIn(BaseModel):
@@ -200,6 +202,7 @@ class RepoPatchIn(BaseModel):
     enabled_workflows: list[str] | None = None
     disabled_workflows: list[str] | None = None
     default_harness: str | None = None
+    credential_dir: str | None = None
 
 
 class WorkflowInfo(BaseModel):

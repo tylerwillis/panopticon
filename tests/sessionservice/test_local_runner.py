@@ -241,6 +241,24 @@ def test_spawn_omits_the_harness_env_var_by_default() -> None:
     assert not any(a.startswith("PANOPTICON_HARNESS=") for a in docker_run)  # None = default
 
 
+def test_spawn_mounts_the_repo_credential_dir_read_write(tmp_path: Path) -> None:
+    (tmp_path / "openai.d").mkdir()
+    rec = _Recorder()
+    LocalRunner("http://svc", secrets_dir=tmp_path, run=rec).spawn("t1", credential_dir="openai.d")
+    docker_run = rec.calls[2][0]
+    # the shared credential dir (ADR 0007's directory-shaped sibling of env_file): resolved
+    # against this runner's own secrets dir, mounted rw, and announced to the harness bootstrap
+    assert f"{tmp_path / 'openai.d'}:/panopticon/credentials" in docker_run
+    assert "PANOPTICON_CREDENTIALS=/panopticon/credentials" in docker_run
+
+
+def test_spawn_omits_the_credential_mount_when_the_repo_has_none() -> None:
+    rec = _Recorder()
+    LocalRunner("http://svc", run=rec).spawn("t1")
+    docker_run = rec.calls[2][0]
+    assert not any("/panopticon/credentials" in a for a in docker_run)
+
+
 def test_spawn_passes_initial_prompt_as_env_var() -> None:
     rec = _Recorder()
     runner = LocalRunner("http://svc", run=rec)

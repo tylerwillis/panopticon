@@ -19,6 +19,7 @@ from typing import Protocol
 
 from panopticon.core.dirs import secrets_file_path
 from panopticon.core.models import LifecyclePhase
+from panopticon.harnesses import CREDENTIALS_MOUNT
 from panopticon.sessionservice.runner import Runner
 
 #: Default composed image (base layer, ADR 0005); built in a later PR of this slice.
@@ -151,6 +152,7 @@ class LocalRunner(Runner):
         starting_model: str | None = None,
         harness: str | None = None,
         config_mount: str = CONFIG_MOUNT,
+        credential_dir: str | None = None,
         progress: Callable[[LifecyclePhase], None] | None = None,
     ) -> str:
         """Spawn the task container. ``env_file`` is the task's repo's secret reference (ADR
@@ -172,7 +174,12 @@ class LocalRunner(Runner):
         ``--model`` to ``claude`` on first launch. ``harness`` is the task's recorded
         agent-CLI harness name, exported as ``PANOPTICON_HARNESS`` for the in-container launcher;
         ``config_mount`` is that harness's config dir inside the container — where the per-task
-        config volume lands (default: the claude harness's). ``progress`` (optional) is called with
+        config volume lands (default: the claude harness's). ``credential_dir`` is the repo's
+        shared-credential reference (a **directory** name under this runner's secrets dir, the
+        sibling of ``env_file``), bind-mounted read-write at
+        :data:`~panopticon.harnesses.CREDENTIALS_MOUNT` and exported as
+        ``PANOPTICON_CREDENTIALS`` — shared across the repo's containers on purpose (one rotating
+        credential chain, every session converges on it). ``progress`` (optional) is called with
         each spawn phase the runner passes through (``STARTING`` before ``docker run``,
         ``AWAITING`` once the tmux session is up) so the caller can surface it — see
         :class:`~panopticon.core.models.LifecyclePhase`."""
@@ -231,6 +238,10 @@ class LocalRunner(Runner):
                 "--workdir",
                 WORKSPACE_MOUNT,
             ]
+        if credential_path := secrets_file_path(credential_dir, secrets_dir=self._secrets_dir):
+            # The repo's shared credential dir (read-write: the CLI refreshes tokens in place).
+            docker_run += ["--volume", f"{credential_path}:{CREDENTIALS_MOUNT}"]
+            env["PANOPTICON_CREDENTIALS"] = CREDENTIALS_MOUNT
         # Per-task config volume: persists the agent CLI's session history across respawn/recreate
         # (the transcripts live in the config dir, otherwise thrown away with the container).
         docker_run += ["--volume", f"panopticon-config-{task_id}:{config_mount}"]

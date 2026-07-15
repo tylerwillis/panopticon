@@ -149,8 +149,24 @@ class TaskService:
     async def create_repo(self, repo: Repo) -> Repo:
         await self._validate_env_file(repo.env_file)
         self._validate_harness_name(repo.default_harness)
+        await self._validate_credential_dir(repo.credential_dir)
         await self._store.create_repo(repo)
         return repo
+
+    async def _validate_credential_dir(self, credential_dir: str | None) -> None:
+        """Reject a repo whose credential-dir reference points at a missing directory.
+
+        The directory-shaped sibling of :meth:`_validate_env_file`: ``credential_dir`` is a name
+        relative to the secrets dir, mounted read-write into the repo's task containers at spawn.
+        Same M1 caveat — resolved against *this host's* secrets dir.
+        """
+        path = secrets_file_path(credential_dir)  # None for no reference; raises on escape
+        if path is None:
+            return
+        if not await asyncio.to_thread(os.path.isdir, path):
+            raise ValueError(
+                f"credential_dir {credential_dir!r} does not exist under the secrets dir"
+            )
 
     @staticmethod
     def _validate_harness_name(harness: str | None) -> None:
@@ -215,6 +231,8 @@ class TaskService:
             )  # so an unrelated patch never fails on it
         if "default_harness" in changes:
             self._validate_harness_name(updated.default_harness)
+        if "credential_dir" in changes:
+            await self._validate_credential_dir(updated.credential_dir)
         await self._store.update_repo(updated)
         return updated
 

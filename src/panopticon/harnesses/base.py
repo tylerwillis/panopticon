@@ -27,6 +27,13 @@ from panopticon.core.models import Skill
 #: turn, so it picks up where it left off rather than waiting for user input.
 INTERRUPT_PROMPT = "You were interrupted. Continue."
 
+#: The in-container path of the mounted per-repo credential dir (the repo's ``credential_dir``
+#: secrets reference, ADR 0007's directory-shaped sibling of ``env_file``). Shared read-write
+#: across the repo's task containers — it holds credentials whose nature is shared (e.g. one
+#: ChatGPT account = one rotating token chain, converged on by every session). The runner
+#: exports the path as ``PANOPTICON_CREDENTIALS`` when the mount is present.
+CREDENTIALS_MOUNT = "/panopticon/credentials"
+
 
 @dataclass(frozen=True)
 class BootstrapContext:
