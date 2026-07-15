@@ -31,15 +31,22 @@ src/panopticon/
                    # discovery.py = scan the package + an optional path for Workflow subclasses
                    # (the registry build_app runs on; drop a module in → registered, ADR 0004)
   harnesses/       # agent-CLI harnesses (M3): the Harness interface + the registry (a literal
-                   # claude/codex mapping — path discovery waits for a real third-party need) +
+                   # claude/codex/pi mapping — path discovery waits for a real third-party need) +
                    # claude.py (the default: argv, .claude/commands rendering, turn-flip
                    # settings.json, MCP config, trust seeds) + codex.py (config.toml with MCP +
                    # Claude-Code-compatible Stop/UserPromptSubmit hooks wired to the SAME
                    # container/hook.py callback, ~/.agents/skills SKILL.md rendering, auth.json
                    # materialization: credential-dir symlink or api-key render, pinned-release
-                   # image layer). LLM-free: harnesses
-                   # DESCRIBE and RENDER a CLI; only the container's launcher EXECUTES one. A
-                   # task records its harness by name (Task.harness, default claude)
+                   # image layer) + pi.py (earendil-works/pi: no MCP client — operations render as
+                   # REST-curl skill instructions instead; ~/.agents/skills SKILL.md rendering
+                   # (same convention as codex); no Stop/UserPromptSubmit equivalent — pi's only
+                   # lifecycle hooks are TypeScript extensions inside its own process, left
+                   # unwired (undone, not faked) since state-transition turn flips already happen
+                   # harness-agnostically via turn_on_enter; auth.json symlink for a mounted
+                   # credential dir, else pi reads a provider API key straight from the env;
+                   # pinned Node.js + npm-installed image layer, no static binary). LLM-free:
+                   # harnesses DESCRIBE and RENDER a CLI; only the container's launcher EXECUTES
+                   # one. A task records its harness by name (Task.harness, default claude)
   taskservice/     # control plane: TaskService, FastAPI REST API, the SQLAlchemy store
                    # adapter (in-memory or on-disk SQLite), filesystem artifact store, MCP
                    # server (mcp.py: operations=tools, artifacts=resources; FastMCP) mounted at /mcp
@@ -162,10 +169,14 @@ on every PR (the same commands the Makefile wraps).
 
 - `tests/harnesses/` — the **agent-CLI harness suite** (M3): the registry (names, claude
   default, unknown rejection), `test_claude.py` (the Slice-6 argv/rendering expectations carried
-  over verbatim — the seam extraction must not change what claude is launched with), and
+  over verbatim — the seam extraction must not change what claude is launched with),
   `test_codex.py` (config.toml validated as real TOML incl. the hook wiring, SKILL.md rendering,
   the three auth paths incl. the credential-dir symlink, first-run vs `resume --last` argv,
-  the pinned-release image layer). Extend
+  the pinned-release image layer), and `test_pi.py` (settings.json's `defaultProjectTrust`,
+  the workflow-overview file argv reads back via `--append-system-prompt`, REST-curl operation
+  instructions in place of an MCP tool call, SKILL.md rendering to the shared `~/.agents/skills`,
+  the credential-dir symlink auth path (and that no api-key auth.json is ever rendered — pi reads
+  the env directly), first-run vs `--continue` argv, the pinned Node+pi image layer). Extend
   when you touch a harness or add one.
 - `tests/test_workflow.py` — the **golden harness**: every legal/illegal transition, turn
   derivation, responsibility gating, and workflow validation. Extend it when you touch the
@@ -268,7 +279,7 @@ on every PR (the same commands the Makefile wraps).
   token chain and every session must converge on the same copy (codex reloads the file before
   refreshing and writes through the harness's symlink).
 - **Harness** — the agent CLI a task container runs (M3), as a pluggable adapter
-  (`harnesses/`): claude (default) or codex. A `Harness` declares its
+  (`harnesses/`): claude (default), codex, or pi. A `Harness` declares its
   config dirname (where the per-task config volume mounts), image layer (the CLI's install,
   composed base → **harness** → workflow → repo), an auth check (`missing_auth`, naming the fix
   for *its* credentials), a `bootstrap` (pure file writes rendering
@@ -281,7 +292,10 @@ on every PR (the same commands the Makefile wraps).
   ("opus") survives only onto claude tasks; other harnesses get an explicit `starting_model`
   or their CLI's own default. Codex auth: `CODEX_API_KEY`/`CODEX_ACCESS_TOKEN` in the env-file
   (no new mechanics), or a ChatGPT subscription `auth.json` in the repo's `credential_dir`
-  (see **Repo**) — see `docs/auth.md`.
+  (see **Repo**) — see `docs/auth.md`. pi has no MCP client at all (its own stated design), so
+  its rendered advance/drop operations are REST-curl instructions rather than an MCP tool call,
+  and it has no Stop/UserPromptSubmit hook equivalent — left unwired (documented degradation, not
+  faked); its shared `auth.json` covers subscription + API-key auth the same credential-dir way.
 - **Workflow** — a `Workflow` subclass whose **states are nested `State` classes**
   (declarative). It declares `initial`; states are discovered and their transitions
   (class refs or label strings) resolved + validated when the workflow is instantiated.

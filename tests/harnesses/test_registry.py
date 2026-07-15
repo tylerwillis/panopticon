@@ -7,12 +7,14 @@ import pytest
 from panopticon.harnesses import DEFAULT_HARNESS, HARNESSES, get_harness
 from panopticon.harnesses.claude import ClaudeHarness
 from panopticon.harnesses.codex import CodexHarness
+from panopticon.harnesses.pi import PiHarness
 
 
-def test_registry_holds_claude_and_codex() -> None:
-    assert set(HARNESSES) == {"claude", "codex"}
+def test_registry_holds_claude_codex_and_pi() -> None:
+    assert set(HARNESSES) == {"claude", "codex", "pi"}
     assert isinstance(HARNESSES["claude"], ClaudeHarness)
     assert isinstance(HARNESSES["codex"], CodexHarness)
+    assert isinstance(HARNESSES["pi"], PiHarness)
 
 
 def test_get_harness_defaults_to_claude() -> None:
@@ -24,6 +26,7 @@ def test_get_harness_defaults_to_claude() -> None:
 
 def test_get_harness_by_name() -> None:
     assert get_harness("codex").name == "codex"
+    assert get_harness("pi").name == "pi"
 
 
 def test_get_harness_rejects_an_unknown_name_listing_the_known_ones() -> None:
