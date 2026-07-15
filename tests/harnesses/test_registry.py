@@ -6,11 +6,13 @@ import pytest
 
 from panopticon.harnesses import DEFAULT_HARNESS, HARNESSES, get_harness
 from panopticon.harnesses.claude import ClaudeHarness
+from panopticon.harnesses.codex import CodexHarness
 
 
-def test_registry_holds_claude() -> None:
-    assert set(HARNESSES) == {"claude"}
+def test_registry_holds_claude_and_codex() -> None:
+    assert set(HARNESSES) == {"claude", "codex"}
     assert isinstance(HARNESSES["claude"], ClaudeHarness)
+    assert isinstance(HARNESSES["codex"], CodexHarness)
 
 
 def test_get_harness_defaults_to_claude() -> None:
@@ -21,13 +23,13 @@ def test_get_harness_defaults_to_claude() -> None:
 
 
 def test_get_harness_by_name() -> None:
-    assert get_harness("claude").name == "claude"
+    assert get_harness("codex").name == "codex"
 
 
 def test_get_harness_rejects_an_unknown_name_listing_the_known_ones() -> None:
     with pytest.raises(KeyError) as excinfo:
-        get_harness("codex")  # not registered until the codex slice
-    assert "codex" in str(excinfo.value) and "claude" in str(excinfo.value)
+        get_harness("cursor")
+    assert "cursor" in str(excinfo.value) and "claude" in str(excinfo.value)
 
 
 def test_config_dirnames_are_distinct_dotdirs() -> None:
