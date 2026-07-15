@@ -107,16 +107,22 @@ def test_shell_script_shows_the_dashboard_hint_first() -> None:
 
 def test_shell_script_captures_and_writes_the_minted_token() -> None:
     script = WF.shell_script()
-    # captures the interactive `claude setup-token` in a pty so its output can be read back
+    # captures the interactive `claude setup-token` in a pty so its output can be read back — the
+    # util-linux (`-c '<command>' <file>`) and BSD (`<file> <command>...`, no `-c`) forms both
+    # appear, gated on script_is_util_linux (Slice M3.3 fix: BSD `script` on macOS has no `-c`)
     assert "script -q -e -c 'claude setup-token'" in script
+    assert 'script -q -e "$_ct_log" claude setup-token' in script
+    assert "if script_is_util_linux; then" in script
     # extracts the minted token and stores it via the shared, var-parameterized helper (the DRY
     # primitive both the Claude token and GH_TOKEN write through)
     assert "extract_oauth_token" in script
     assert "store_env_token CLAUDE_CODE_OAUTH_TOKEN" in script and "PANOPTICON_ENV_FILE" in script
     # the helper comments out an existing active line and drops a placeholder comment stub
     assert "grep -vE" in script  # the filter that removes the placeholder stub
-    # still falls back to on-screen copy guidance when it can't capture/write
+    # still falls back to on-screen copy guidance when it can't capture/write, and the summary
+    # names it a capture failure (not a silent success with a corrupted value)
     assert "Copy the token shown above into" in script
+    assert "capture failed" in script
 
 
 def test_shell_script_converges_on_a_summary_and_completes_on_a_final_enter() -> None:
@@ -139,6 +145,59 @@ def test_extract_oauth_token_pulls_the_token_out_of_a_noisy_capture() -> None:
         'extract_oauth_token "$cap"; rm -f "$cap"'
     )
     assert out.strip() == "sk-ant-oat01-Fresh_Tok-123"
+
+
+def test_extract_oauth_token_rejects_a_capture_with_no_real_token() -> None:
+    # Regression for the M3.3 macOS bug: a botched `script` invocation (e.g. BSD `script` rejecting
+    # a Linux-only `-c` flag) can leave a capture file full of usage/error chatter with nothing
+    # sk-ant-oat01-shaped in it. The helper must print nothing — never a corrupted stand-in value.
+    out = _sh(
+        "cap=$(mktemp); "
+        "printf 'usage: script [-aeFkpqr] [-t time] [file [command ...]]\\n' > \"$cap\"; "
+        'extract_oauth_token "$cap"; rm -f "$cap"'
+    )
+    assert out == ""
+
+
+def test_is_oauth_token_shaped_requires_the_full_prefix_and_charset() -> None:
+    assert (
+        _sh("is_oauth_token_shaped sk-ant-oat01-abcXYZ_-9 && echo yes || echo no").strip() == "yes"
+    )
+    assert _sh("is_oauth_token_shaped 'not a token' && echo yes || echo no").strip() == "no"
+    assert (
+        _sh("is_oauth_token_shaped sk-ant-oat01- && echo yes || echo no").strip() == "no"
+    )  # bare prefix
+    assert _sh("is_oauth_token_shaped '' && echo yes || echo no").strip() == "no"
+
+
+def test_script_is_util_linux_detects_the_gnu_flavor() -> None:
+    # The dev/CI/container environment runs util-linux `script` (this is what real Linux hosts run
+    # setup-repo on); the detection this repo relies on to pick the right invocation form must agree.
+    assert _sh("script_is_util_linux && echo yes || echo no").strip() == "yes"
+
+
+def test_store_env_token_refuses_a_malformed_claude_token(tmp_path: Path) -> None:
+    # Regression for the M3.3 bug: a corrupted capture (or a bad paste) must never be written to the
+    # env-file under CLAUDE_CODE_OAUTH_TOKEN — store_env_token refuses and reports failure, rather
+    # than silently persisting a value the container will later reject as an invalid bearer token.
+    env_file = tmp_path / "repo.env"
+    q = shlex.quote(str(env_file))
+    result = _sh(
+        f"store_env_token CLAUDE_CODE_OAUTH_TOKEN 'usage: script [-aeFkpqr]' {q} "
+        "&& echo wrote || echo refused"
+    )
+    assert result.strip() == "refused"
+    assert not env_file.exists()  # nothing was written — not even an empty file
+
+
+def test_store_env_token_does_not_shape_check_other_vars(tmp_path: Path) -> None:
+    # The shape check is specific to CLAUDE_CODE_OAUTH_TOKEN — GH_TOKEN and other vars have no
+    # known fixed prefix here, so store_env_token must keep accepting them unconditionally.
+    env_file = tmp_path / "repo.env"
+    q = shlex.quote(str(env_file))
+    result = _sh(f"store_env_token GH_TOKEN ghp_anything {q} && echo wrote || echo refused")
+    assert result.strip() == "wrote"
+    assert env_file.read_text() == "GH_TOKEN=ghp_anything\n"
 
 
 def test_store_oauth_token_creates_a_private_env_file(tmp_path: Path) -> None:

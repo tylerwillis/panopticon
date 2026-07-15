@@ -117,8 +117,18 @@ mint_claude_token() {
         # Wrap the OAuth flow in a pty (`script`) so its interactive prompts still work, while teeing
         # the session to a private log we read the minted token back from. `-e` returns claude's exit
         # status; the log holds the token in plaintext, so remove it as soon as we've read it.
+        # util-linux `script` (most Linux hosts) takes the command via `-c '<command>' <file>`; BSD
+        # `script` (macOS and other *BSD hosts) has no `-c` — the command instead trails the file
+        # positionally. Picking the wrong form either errors outright or (worse) silently captures
+        # something other than the session, so script_is_util_linux picks the right one up front.
         _ct_log=$(mktemp "${TMPDIR:-/tmp}/panopticon-setup-token.XXXXXX")
-        if script -q -e -c 'claude setup-token' "$_ct_log"; then
+        _ct_ran_ok=1
+        if script_is_util_linux; then
+            script -q -e -c 'claude setup-token' "$_ct_log" || _ct_ran_ok=0
+        else
+            script -q -e "$_ct_log" claude setup-token || _ct_ran_ok=0
+        fi
+        if [ "$_ct_ran_ok" -eq 1 ]; then
             _ct_token=$(extract_oauth_token "$_ct_log")
         else
             _ct_ok=0
@@ -137,11 +147,12 @@ mint_claude_token() {
         echo "Wrote the new token to $env_file as CLAUDE_CODE_OAUTH_TOKEN (any previous one was commented out)."
         add_summary "Claude credential: minted a new token and wrote it to $env_file (any previous one was commented out)."
     else
-        # Minted, but we couldn't capture/extract it or there's no env-file — guide the copy.
+        # Minted, but capture failed — we couldn't recover a validly-shaped token (or there's no
+        # env-file) — guide the copy instead of ever reporting success with a bad value.
         echo
-        echo "Token minted. Copy the token shown above into $env_file as:"
+        echo "Couldn't reliably capture the minted token. Copy the token shown above into $env_file as:"
         echo "    CLAUDE_CODE_OAUTH_TOKEN=<token>"
-        add_summary "Claude credential: minted a new token — copy it into $env_file as CLAUDE_CODE_OAUTH_TOKEN."
+        add_summary "Claude credential: minted a new token but capture failed — copy it into $env_file as CLAUDE_CODE_OAUTH_TOKEN."
     fi
 }
 

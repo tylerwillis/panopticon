@@ -3,11 +3,34 @@
 # setup_repo.sh concatenated, so these functions are defined before the interactive flow calls
 # them. POSIX sh; needs `grep`, `sed`, `mktemp`.
 
-# Print the last Claude OAuth token (sk-ant-oat01-…) found in capture file $1, or nothing. Robust to
-# surrounding ANSI colour codes: the token's character class never overlaps an escape sequence, so a
-# plain grep of the contiguous run works without stripping the escapes first.
+# True when the host's `script` is util-linux's (most Linux hosts): it accepts `-c '<command>'` to
+# run a command non-interactively, and names itself on `--version`. BSD `script` (macOS and other
+# *BSD hosts) has neither `-c` nor `--version` — an unrecognized option prints usage to stderr and
+# exits nonzero — which is what lets mint_claude_token tell the two apart and pick the right
+# invocation form without sniffing `uname`.
+script_is_util_linux() {
+    script --version 2>/dev/null | grep -qi '^script from util-linux'
+}
+
+# True when $1 is shaped like a genuine Claude OAuth token: the fixed `sk-ant-oat01-` prefix
+# followed by one or more token characters, and nothing else (anchored full-string match, not a
+# substring search). Used to reject a captured or pasted value that isn't the token itself.
+is_oauth_token_shaped() {
+    printf '%s' "$1" | grep -qE '^sk-ant-oat01-[A-Za-z0-9_-]+$'
+}
+
+# Print the last Claude OAuth token (sk-ant-oat01-…) found in capture file $1, or nothing if no
+# validly-shaped one is present. Robust to surrounding ANSI colour codes: the token's character
+# class never overlaps an escape sequence, so a plain grep of the contiguous run works without
+# stripping the escapes first. The candidate is re-validated with is_oauth_token_shaped before
+# being printed — a defense-in-depth backstop so a botched capture (e.g. a misapplied
+# host-specific `script` invocation writing usage text or other chatter instead of a real session)
+# can never be mistaken for a real token upstream.
 extract_oauth_token() {
-    grep -oaE 'sk-ant-oat01-[A-Za-z0-9_-]+' "$1" 2>/dev/null | tail -n 1
+    _eot_candidate=$(grep -oaE 'sk-ant-oat01-[A-Za-z0-9_-]+' "$1" 2>/dev/null | tail -n 1)
+    if is_oauth_token_shaped "$_eot_candidate"; then
+        printf '%s\n' "$_eot_candidate"
+    fi
 }
 
 # Store a freshly minted value $2 for env var $1 into env-file $3, preserving history:
@@ -24,6 +47,11 @@ store_env_token() {
     _set_token=$2
     _set_file=$3
     [ -n "$_set_file" ] || return 1
+    # A Claude OAuth token has a known, checkable shape — refuse to ever persist one that doesn't
+    # match it (rather than silently writing corrupted capture output as if it were a real token).
+    if [ "$_set_var" = "CLAUDE_CODE_OAUTH_TOKEN" ] && ! is_oauth_token_shaped "$_set_token"; then
+        return 1
+    fi
     umask 077
     mkdir -p "$(dirname "$_set_file")" || return 1
     _set_tmp=$(mktemp "$_set_file.XXXXXX") || return 1
