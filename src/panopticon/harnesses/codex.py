@@ -27,17 +27,19 @@ from __future__ import annotations
 
 import json
 import os
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from pathlib import Path
 from typing import ClassVar
 
+from panopticon.core.models import Skill
 from panopticon.harnesses.base import (
+    HOOK_COMMAND,
     INTERRUPT_PROMPT,
     BootstrapContext,
     Harness,
     LaunchContext,
+    task_id_note,
 )
-from panopticon.harnesses.claude import HOOK_COMMAND, _task_id_note
 
 #: The codex release the harness image layer installs — the version the config rendering and
 #: auth behavior (symlink write-through, reload-before-refresh) were verified against.
@@ -109,32 +111,22 @@ def render_config(service_url: str, overview: str, cwd: Path) -> str:
 
 def render_skill(name: str, description: str, instructions: str, task_id: str) -> str:
     """The ``SKILL.md`` body for one skill/operation: codex's frontmatter + the procedure."""
-    return f"---\nname: {name}\ndescription: {description}\n---\n{instructions}\n{_task_id_note(task_id)}"
+    return f"---\nname: {name}\ndescription: {description}\n---\n{instructions}\n{task_id_note(task_id)}"
 
 
-def write_skills(skills: Mapping[str, tuple[str, str]], root: Path, task_id: str) -> list[Path]:
-    """Write ``name → (description, instructions)`` to ``<root>/.agents/skills/<name>/SKILL.md``.
+def write_skills(skills: Iterable[Skill], root: Path, task_id: str) -> list[Path]:
+    """Write skills to ``<root>/.agents/skills/<name>/SKILL.md``.
 
     User-scope (codex also reads repo-scope ``.agents/skills`` — deliberately unused so the
     task's clone stays clean; nothing panopticon renders should end up in a commit)."""
     written = []
-    for name, (description, instructions) in skills.items():
-        skill_dir = root / ".agents" / "skills" / name
+    for skill in skills:
+        skill_dir = root / ".agents" / "skills" / skill.name
         skill_dir.mkdir(parents=True, exist_ok=True)
         path = skill_dir / "SKILL.md"
-        path.write_text(render_skill(name, description, instructions, task_id))
+        path.write_text(render_skill(skill.name, skill.description, skill.instructions, task_id))
         written.append(path)
     return written
-
-
-def operation_instructions(name: str, target_state: str, task_id: str) -> str:
-    """The procedure body for a core operation (advance/drop/…) — same contract as claude's."""
-    return (
-        f"Apply this workflow's `{name}` operation — it moves the task to **{target_state}**. "
-        f'Invoke it with the `apply_operation` tool (`operation="{name}"`, `task_id="{task_id}"`); '
-        f"don't edit the state directly. It's gated on the current state's responsibilities and "
-        f"starts a new turn."
-    )
 
 
 class CodexHarness(Harness):
@@ -195,15 +187,7 @@ class CodexHarness(Harness):
         (config_dir / "config.toml").write_text(
             render_config(ctx.service_url, ctx.overview, ctx.cwd)
         )
-        entries: dict[str, tuple[str, str]] = {
-            s.name: (s.description, s.instructions) for s in ctx.skills
-        }
-        for name, target_state in ctx.operations.items():
-            entries[name] = (
-                f"Apply the workflow's '{name}' operation.",
-                operation_instructions(name, target_state, ctx.task_id),
-            )
-        write_skills(entries, ctx.home, ctx.task_id)
+        write_skills(ctx.workflow_skills(), ctx.home, ctx.task_id)
         self._ensure_auth(config_dir, ctx.environ)
 
     def _ensure_auth(self, config_dir: Path, environ: Mapping[str, str]) -> None:
