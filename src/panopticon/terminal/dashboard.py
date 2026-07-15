@@ -555,12 +555,15 @@ class WorkflowScreen(_OptionListModal[str]):
     """Workflow picker with a description area below the list.
 
     Shows each workflow's ``when_to_use`` text in a Static pane as the user moves through the list,
-    so the operator can see what situation each workflow is designed for before committing."""
+    so the operator can see what situation each workflow is designed for before committing. The
+    pane wraps and auto-sizes to the text (up to ``max-height``, still bounded so a long
+    description can't push the option list off a short terminal) and falls back to scrolling
+    within that cap for anything longer still."""
 
     CSS = """
     WorkflowScreen { align: center middle; }
     #workflow-choice-box { width: 64; height: auto; max-height: 80%; padding: 1 2; border: round $accent; background: $surface; }
-    #workflow-desc { height: 4; border: tall $panel; padding: 0 1; color: $text-muted; }
+    #workflow-desc { height: auto; max-height: 8; border: tall $panel; padding: 0 1; color: $text-muted; overflow-y: auto; }
     """
     BOX_ID = "workflow-choice-box"
 
@@ -570,7 +573,12 @@ class WorkflowScreen(_OptionListModal[str]):
         self._workflow_map = {w["name"]: w.get("when_to_use", "") for w in workflows}
 
     def _extra_widgets(self) -> Iterable[Widget]:
-        yield Static("", id="workflow-desc")
+        # Seed with the first (auto-highlighted) option's text rather than "" — an empty-string
+        # initial render, then an early update() while the widget is still mounting, leaves the
+        # auto-height layout invalidation a no-op (Widget.refresh short-circuits pre-mount), so
+        # the pane would get stuck at its pre-mount size until the user navigates off it.
+        initial = self._workflow_map.get(self._options[0], "") if self._options else ""
+        yield Static(initial, id="workflow-desc")
 
     def on_option_list_option_highlighted(self, event: OptionList.OptionHighlighted) -> None:
         name = str(event.option.prompt)

@@ -2906,3 +2906,65 @@ async def test_pressing_j_then_enter_picks_the_second_option_in_a_picker() -> No
         await pilot.press("enter")  # submit an empty memo
         await pilot.pause()
         assert fake.created == [("r2", "spike", None, None)]
+
+
+async def test_workflow_descriptions_are_not_clipped_for_every_registered_workflow() -> None:
+    """Regression: ``#workflow-desc`` used to be a fixed 2 visible rows (a ``height: 4`` box
+    with a 2-row border/padding overhead), so anything past two wrapped lines — e.g. the
+    orchestrator's when_to_use — got cut off mid-sentence. It now auto-sizes to the wrapped
+    text (capped, with scrolling as a fallback), so the full sentence renders for every
+    workflow in the real registry, not just the short ones."""
+    from panopticon.workflows.discovery import discover_workflows
+
+    registry = discover_workflows()
+    entries = sorted(
+        ({"name": name, "when_to_use": wf.when_to_use} for name, wf in registry.items()),
+        key=lambda w: w["name"],
+    )
+    assert len(entries) >= 2  # sanity: exercising more than one workflow's description
+    longest = max(entries, key=lambda w: len(w["when_to_use"]))
+    assert len(longest["when_to_use"]) > 150  # sanity: the fixture still has a long one to clip
+
+    fake = _FakeClient([], repos=["r1"], workflows=entries)
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n")  # opens the repo picker
+        await pilot.pause()
+        await pilot.press("enter")  # only repo -> opens the workflow picker
+        await pilot.pause()
+
+        desc = app.screen.query_one("#workflow-desc", Static)
+        for i, entry in enumerate(entries):
+            if i:
+                await pilot.press("j")
+            await pilot.pause()
+            await pilot.pause()  # auto-height re-layout settles a frame after the content update
+            rendered = "\n".join(str(desc.render_line(y)) for y in range(desc.size.height))
+            last_word = entry["when_to_use"].split()[-1]  # a wrap point is always a space,
+            # so a single trailing word can never itself be split across two rendered lines
+            assert last_word in rendered, (
+                f"{entry['name']!r}'s description got clipped: {entry['when_to_use']!r}"
+            )
+
+
+async def test_workflow_picker_still_fits_a_short_terminal() -> None:
+    """The auto-sizing description pane (previous test) must stay bounded by its
+    ``max-height``, or a long description could push the picker box off a short terminal."""
+    from panopticon.workflows.discovery import discover_workflows
+
+    registry = discover_workflows()
+    entries = [{"name": name, "when_to_use": wf.when_to_use} for name, wf in registry.items()]
+
+    fake = _FakeClient([], repos=["r1"], workflows=entries)
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test(size=(80, 16)) as pilot:  # a short terminal
+        await pilot.pause()
+        await pilot.press("n")
+        await pilot.pause()
+        await pilot.press("enter")  # only repo -> opens the workflow picker
+        await pilot.pause()
+
+        box = app.screen.query_one("#workflow-choice-box")
+        assert box.region.y >= 0
+        assert box.region.y + box.region.height <= app.screen.size.height
