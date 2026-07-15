@@ -61,7 +61,7 @@ def test_main_bootstraps_the_default_claude_harness_then_launches(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     _base_env(monkeypatch)
-    monkeypatch.setenv("CLAUDE_CODE_OAUTH_TOKEN", "sk-test")
+    monkeypatch.setenv("CLAUDE_CODE_OAUTH_TOKEN", "sk-ant-oat01-test")
     events: list[str] = []
     agent.main(
         client_factory=lambda url: _FakeClient(  # type: ignore[arg-type,return-value]
@@ -121,7 +121,7 @@ def test_main_passes_the_launch_context_through(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     _base_env(monkeypatch)
-    monkeypatch.setenv("CLAUDE_CODE_OAUTH_TOKEN", "sk-test")
+    monkeypatch.setenv("CLAUDE_CODE_OAUTH_TOKEN", "sk-ant-oat01-test")
     monkeypatch.setenv("PANOPTICON_INITIAL_PROMPT", "review your plan")
     monkeypatch.setenv("PANOPTICON_TASK_TURN", "agent")
     monkeypatch.setenv("PANOPTICON_STARTING_MODEL", "opus")
@@ -160,11 +160,37 @@ def test_main_fails_fast_when_no_auth_token_is_set(
     assert "CLAUDE_CODE_OAUTH_TOKEN" in (call["detail"] or "")
 
 
+def test_main_fails_fast_on_a_malformed_auth_token_naming_the_env_file_fix(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # An invalid credential must surface the same way a missing one does — a failed lifecycle
+    # detail naming the repo's env-file — instead of dropping into claude's in-container /login
+    # (a dead end: no browser in the container, and a fix that would only ever land in this
+    # session's per-task config volume).
+    _base_env(monkeypatch)
+    monkeypatch.setenv("PANOPTICON_RUNNER_ID", "runner-1")
+    monkeypatch.setenv("CLAUDE_CODE_OAUTH_TOKEN", "sk-this-is-not-a-real-token")
+    launched: list[str] = []
+    fake = _FakeClient()
+    agent.main(
+        client_factory=lambda url: fake,  # type: ignore[arg-type,return-value]
+        home=tmp_path,
+        launch=lambda harness, ctx: launched.append("launched"),
+        on_exit=lambda: launched.append("on_exit"),
+    )
+    assert launched == []  # launch must not be called
+    assert len(fake.lifecycle_calls) == 1
+    detail = fake.lifecycle_calls[0]["detail"] or ""
+    assert fake.lifecycle_calls[0]["phase"] == "failed"
+    assert "CLAUDE_CODE_OAUTH_TOKEN" in detail
+    assert "env_file" in detail
+
+
 def test_main_proceeds_when_anthropic_api_key_is_set(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     _base_env(monkeypatch)
-    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
     launched: list[str] = []
     agent.main(
         client_factory=lambda url: _FakeClient(),  # type: ignore[arg-type,return-value]

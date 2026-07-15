@@ -34,6 +34,13 @@ WORKFLOW_OVERVIEW_FILE = "workflow-overview.md"
 #: module stays in ``container/`` — it runs inside the container and talks REST at hook time.
 HOOK_COMMAND = "python -m panopticon.container.hook"
 
+#: OAuth tokens minted via ``claude setup-token`` (docs/auth.md's one-time setup).
+OAUTH_TOKEN_PREFIX = "sk-ant-oat01-"
+#: Anthropic API keys (Console-issued). Shares ``CLAUDE_CODE_OAUTH_TOKEN``'s ``sk-ant-`` family,
+#: but is checked against its own variable so a malformed value names *that* variable, not the
+#: other one's.
+API_KEY_PREFIX = "sk-ant-"
+
 
 # The panopticon MCP tools all take a ``task_id`` (the server is shared across tasks). The agent
 # can't read its container's env, so we inject the concrete id into each rendered command — the
@@ -196,8 +203,35 @@ class ClaudeHarness(Harness):
     config_dirname: ClassVar[str] = ".claude"
 
     def missing_auth(self, environ: Mapping[str, str], *, home: Path) -> str | None:
-        if environ.get("CLAUDE_CODE_OAUTH_TOKEN") or environ.get("ANTHROPIC_API_KEY"):
-            return None
+        """A shape-only credential preflight: catches the stale/truncated/wrong-value token that
+        would otherwise drop the operator into claude's in-container ``/login`` — a dead end (no
+        browser in the container, a tmux-hard-wrapped URL to hand-copy, and a fix that only ever
+        lands in *this* task's per-task config volume). The real fix is always the repo's
+        env_file, so an invalid credential must surface the same way a missing one does: a
+        failed lifecycle detail naming it.
+
+        Deliberately a shape check, not a live API probe: a probe adds a network round trip (and
+        its own failure modes — rate limits, transient outages) to *every* spawn, to catch a
+        mistake a prefix check already catches for free. The failure mode this guards against
+        (a copy-pasted-wrong or truncated value) is a shape problem, not a validity-right-now
+        problem, so the cheap check covers it without adding spawn latency or flakiness.
+
+        ``ANTHROPIC_API_KEY`` wins when both are set (docs/auth.md), so it's checked first.
+        """
+        if api_key := environ.get("ANTHROPIC_API_KEY"):
+            if api_key.startswith(API_KEY_PREFIX):
+                return None
+            return (
+                f"ANTHROPIC_API_KEY doesn't look like an Anthropic key (expected a "
+                f"`{API_KEY_PREFIX}…` value) — check the repo's env_file (see docs/auth.md)"
+            )
+        if token := environ.get("CLAUDE_CODE_OAUTH_TOKEN"):
+            if token.startswith(OAUTH_TOKEN_PREFIX):
+                return None
+            return (
+                f"CLAUDE_CODE_OAUTH_TOKEN doesn't look like a claude token (expected a "
+                f"`{OAUTH_TOKEN_PREFIX}…` value) — check the repo's env_file (see docs/auth.md)"
+            )
         return (
             "No auth token — set CLAUDE_CODE_OAUTH_TOKEN in the repo's env_file (see docs/auth.md)"
         )

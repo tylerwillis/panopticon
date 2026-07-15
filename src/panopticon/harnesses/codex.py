@@ -46,6 +46,12 @@ CODEX_VERSION = "0.144.4"
 #: The credential file codex expects under ``$CODEX_HOME``.
 AUTH_FILE = "auth.json"
 
+#: OpenAI API keys (docs/auth.md documents ``CODEX_API_KEY=sk-...``); ``CODEX_ACCESS_TOKEN`` (a
+#: ChatGPT workspace token) and the credential-dir ``auth.json`` have no comparably documented
+#: shape, so only the API-key vars get a preflight check — mirroring the claude harness's shape
+#: check where it's clean to, not everywhere.
+API_KEY_PREFIX = "sk-"
+
 
 def _toml_str(value: str) -> str:
     """``value`` as a TOML basic string. JSON string escaping is valid TOML basic-string
@@ -151,11 +157,19 @@ class CodexHarness(Harness):
         )
 
     def missing_auth(self, environ: Mapping[str, str], *, home: Path) -> str | None:
-        if (
-            environ.get("CODEX_API_KEY")
-            or environ.get("OPENAI_API_KEY")
-            or environ.get("CODEX_ACCESS_TOKEN")
-        ):
+        """Same shape-only preflight idea as the claude harness (see its ``missing_auth``): a
+        cheap prefix check on the API-key vars, no live probe. ``CODEX_ACCESS_TOKEN`` and the
+        credential-dir ``auth.json`` have no comparably documented shape (see docs/auth.md), so
+        those two stay presence/existence checks only — a shape check would just be a guess."""
+        for var in ("CODEX_API_KEY", "OPENAI_API_KEY"):
+            if key := environ.get(var):
+                if key.startswith(API_KEY_PREFIX):
+                    return None
+                return (
+                    f"{var} doesn't look like an OpenAI key (expected a `{API_KEY_PREFIX}…` "
+                    "value) — check the repo's env_file (see docs/auth.md)"
+                )
+        if environ.get("CODEX_ACCESS_TOKEN"):
             return None
         if (self.config_dir(home) / AUTH_FILE).exists():  # e.g. persisted on the config volume
             return None
