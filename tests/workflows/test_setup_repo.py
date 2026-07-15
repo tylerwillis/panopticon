@@ -29,6 +29,20 @@ def _sh(body: str) -> str:
     return result.stdout
 
 
+def _fake_script_bin(tmp_path: Path, script_body: str) -> Path:
+    """Write a fake `script` executable (POSIX sh, ``script_body`` as its content) into an
+    otherwise-empty directory and return that directory, for prepending onto PATH. Lets tests pin
+    down exactly how a given `script` implementation (BSD, util-linux, BusyBox, ...) behaves —
+    accept/reject `-c`, exit status, what it leaves in the capture file — without depending on
+    which flavor the test host itself happens to run."""
+    bin_dir = tmp_path / "fakebin"
+    bin_dir.mkdir()
+    fake = bin_dir / "script"
+    fake.write_text(script_body)
+    fake.chmod(0o755)
+    return bin_dir
+
+
 def test_default_workflow_runner_type_is_docker() -> None:
     # The base default keeps every existing workflow on the container backend.
     assert Workflow.runner_type == "docker"
@@ -107,12 +121,15 @@ def test_shell_script_shows_the_dashboard_hint_first() -> None:
 
 def test_shell_script_captures_and_writes_the_minted_token() -> None:
     script = WF.shell_script()
-    # captures the interactive `claude setup-token` in a pty so its output can be read back — the
-    # util-linux (`-c '<command>' <file>`) and BSD (`<file> <command>...`, no `-c`) forms both
-    # appear, gated on script_is_util_linux (Slice M3.3 fix: BSD `script` on macOS has no `-c`)
+    # captures the interactive `claude setup-token` in a pty (capture_claude_setup_token, in the
+    # sourced lib) so its output can be read back — the `-c '<command>' <file>` (util-linux/BusyBox)
+    # and `<file> <command>...` (BSD, no `-c`) forms both appear, gated on script_supports_dash_c
+    # (Slice M3.3 fix: BSD `script` on macOS has no `-c`; naming the flavor by `--version` alone
+    # misfiles BusyBox's `-c`-capable script as BSD-shaped, so the gate is a capability probe)
     assert "script -q -e -c 'claude setup-token'" in script
-    assert 'script -q -e "$_ct_log" claude setup-token' in script
-    assert "if script_is_util_linux; then" in script
+    assert 'script -q -e "$_cst_log" claude setup-token' in script
+    assert "if script_supports_dash_c; then" in script
+    assert "mint_claude_token" in script and "capture_claude_setup_token" in script
     # extracts the minted token and stores it via the shared, var-parameterized helper (the DRY
     # primitive both the Claude token and GH_TOKEN write through)
     assert "extract_oauth_token" in script
@@ -170,10 +187,133 @@ def test_is_oauth_token_shaped_requires_the_full_prefix_and_charset() -> None:
     assert _sh("is_oauth_token_shaped '' && echo yes || echo no").strip() == "no"
 
 
-def test_script_is_util_linux_detects_the_gnu_flavor() -> None:
-    # The dev/CI/container environment runs util-linux `script` (this is what real Linux hosts run
-    # setup-repo on); the detection this repo relies on to pick the right invocation form must agree.
-    assert _sh("script_is_util_linux && echo yes || echo no").strip() == "yes"
+def test_script_supports_dash_c_accepts_a_gnu_or_busybox_flavored_script(tmp_path: Path) -> None:
+    # Stubbed, not host-dependent: a fake `script` that accepts any flags/args (as util-linux's and
+    # BusyBox's both do for `-c`) must be detected as `-c`-capable regardless of what `script` the
+    # machine running this test actually has installed.
+    bin_dir = _fake_script_bin(tmp_path, "#!/bin/sh\nexit 0\n")
+    out = _sh(
+        f'export PATH={shlex.quote(str(bin_dir))}:"$PATH"\n'
+        "script_supports_dash_c && echo yes || echo no"
+    )
+    assert out.strip() == "yes"
+
+
+def test_script_supports_dash_c_rejects_a_bsd_flavored_script(tmp_path: Path) -> None:
+    # A fake `script` that rejects `-c` the way real BSD `script` (macOS) does — usage to stderr,
+    # nonzero exit, only when `-c` is actually passed — must be detected as not `-c`-capable.
+    bin_dir = _fake_script_bin(
+        tmp_path,
+        "#!/bin/sh\n"
+        'case " $* " in\n'
+        '    *" -c "*) echo "usage: script [-aeFkpqr] [-t time] [file [command ...]]" >&2; exit 1 ;;\n'
+        "esac\n"
+        "exit 0\n",
+    )
+    out = _sh(
+        f'export PATH={shlex.quote(str(bin_dir))}:"$PATH"\n'
+        "script_supports_dash_c && echo yes || echo no"
+    )
+    assert out.strip() == "no"
+
+
+def test_capture_claude_setup_token_dispatches_the_dash_c_form_when_supported(
+    tmp_path: Path,
+) -> None:
+    # With script_supports_dash_c forced true (independent of the test host), the recorder fake
+    # proves the *_c_-form_ argv actually gets sent: `-q -e -c 'claude setup-token' <logfile>`.
+    argv_log = tmp_path / "argv.txt"
+    bin_dir = _fake_script_bin(tmp_path, '#!/bin/sh\nprintf \'%s\\n\' "$@" > "$ARGV_LOG"\nexit 0\n')
+    _sh(
+        f'export PATH={shlex.quote(str(bin_dir))}:"$PATH"\n'
+        f"export ARGV_LOG={shlex.quote(str(argv_log))}\n"
+        "script_supports_dash_c() { return 0; }\n"
+        "capture_claude_setup_token >/dev/null"
+    )
+    argv = argv_log.read_text().splitlines()
+    assert argv[:4] == ["-q", "-e", "-c", "claude setup-token"]
+    assert len(argv) == 5  # + the log file, last
+
+
+def test_capture_claude_setup_token_dispatches_the_bsd_form_when_unsupported(
+    tmp_path: Path,
+) -> None:
+    # With script_supports_dash_c forced false, the same recorder proves the *BSD* form is used
+    # instead: `-q -e <logfile> claude setup-token` — no `-c` anywhere in the argv.
+    argv_log = tmp_path / "argv.txt"
+    bin_dir = _fake_script_bin(tmp_path, '#!/bin/sh\nprintf \'%s\\n\' "$@" > "$ARGV_LOG"\nexit 0\n')
+    _sh(
+        f'export PATH={shlex.quote(str(bin_dir))}:"$PATH"\n'
+        f"export ARGV_LOG={shlex.quote(str(argv_log))}\n"
+        "script_supports_dash_c() { return 1; }\n"
+        "capture_claude_setup_token >/dev/null"
+    )
+    argv = argv_log.read_text().splitlines()
+    assert argv[0:2] == ["-q", "-e"]
+    assert argv[-2:] == ["claude", "setup-token"]
+    assert "-c" not in argv
+
+
+def test_capture_claude_setup_token_returns_the_token_on_a_successful_capture(
+    tmp_path: Path,
+) -> None:
+    bin_dir = _fake_script_bin(
+        tmp_path,
+        "#!/bin/sh\n"
+        'log=""\n'
+        'for a in "$@"; do log=$a; done\n'
+        "printf 'noise\\nyour token: sk-ant-oat01-FAKE_TOKEN_123\\n' > \"$log\"\n"
+        "exit 0\n",
+    )
+    out = _sh(
+        f'export PATH={shlex.quote(str(bin_dir))}:"$PATH"\n'
+        "script_supports_dash_c() { return 0; }\n"
+        'out=$(capture_claude_setup_token); echo "exit=$? token=[$out]"'
+    )
+    assert out.strip() == "exit=0 token=[sk-ant-oat01-FAKE_TOKEN_123]"
+
+
+def test_capture_claude_setup_token_fails_when_the_command_itself_fails(tmp_path: Path) -> None:
+    # Regression for the reviewed bug: when `script` reports the wrapped command failed (nonzero,
+    # `-e`), nothing was minted or shown — capture_claude_setup_token must return nonzero with no
+    # output, distinct from "ran fine but nothing to extract" below. Callers rely on this split to
+    # avoid ever claiming a token was minted when the command never actually succeeded.
+    bin_dir = _fake_script_bin(
+        tmp_path,
+        "#!/bin/sh\n"
+        'log=""\n'
+        'for a in "$@"; do log=$a; done\n'
+        "printf 'partial output before failure\\n' > \"$log\"\n"
+        "exit 1\n",
+    )
+    out = _sh(
+        f'export PATH={shlex.quote(str(bin_dir))}:"$PATH"\n'
+        "script_supports_dash_c() { return 0; }\n"
+        'out=$(capture_claude_setup_token); echo "exit=$? token=[$out]"'
+    )
+    assert out.strip() == "exit=1 token=[]"
+
+
+def test_capture_claude_setup_token_succeeds_with_no_token_when_extraction_finds_nothing(
+    tmp_path: Path,
+) -> None:
+    # The command ran to completion (the operator saw its output) but the capture holds nothing
+    # sk-ant-oat01-shaped — a *successful* run with an empty result, not a failure. mint_claude_token
+    # tells this apart from the failure case above via the (0, empty) vs (nonzero, empty) split.
+    bin_dir = _fake_script_bin(
+        tmp_path,
+        "#!/bin/sh\n"
+        'log=""\n'
+        'for a in "$@"; do log=$a; done\n'
+        "printf 'no token here, only chatter\\n' > \"$log\"\n"
+        "exit 0\n",
+    )
+    out = _sh(
+        f'export PATH={shlex.quote(str(bin_dir))}:"$PATH"\n'
+        "script_supports_dash_c() { return 0; }\n"
+        'out=$(capture_claude_setup_token); echo "exit=$? token=[$out]"'
+    )
+    assert out.strip() == "exit=0 token=[]"
 
 
 def test_store_env_token_refuses_a_malformed_claude_token(tmp_path: Path) -> None:

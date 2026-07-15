@@ -115,25 +115,12 @@ mint_claude_token() {
     _ct_token=""
     if command -v script >/dev/null 2>&1; then
         # Wrap the OAuth flow in a pty (`script`) so its interactive prompts still work, while teeing
-        # the session to a private log we read the minted token back from. `-e` returns claude's exit
-        # status; the log holds the token in plaintext, so remove it as soon as we've read it.
-        # util-linux `script` (most Linux hosts) takes the command via `-c '<command>' <file>`; BSD
-        # `script` (macOS and other *BSD hosts) has no `-c` — the command instead trails the file
-        # positionally. Picking the wrong form either errors outright or (worse) silently captures
-        # something other than the session, so script_is_util_linux picks the right one up front.
-        _ct_log=$(mktemp "${TMPDIR:-/tmp}/panopticon-setup-token.XXXXXX")
-        _ct_ran_ok=1
-        if script_is_util_linux; then
-            script -q -e -c 'claude setup-token' "$_ct_log" || _ct_ran_ok=0
-        else
-            script -q -e "$_ct_log" claude setup-token || _ct_ran_ok=0
-        fi
-        if [ "$_ct_ran_ok" -eq 1 ]; then
-            _ct_token=$(extract_oauth_token "$_ct_log")
-        else
-            _ct_ok=0
-        fi
-        rm -f "$_ct_log"
+        # the session to a private log capture_claude_setup_token reads the minted token back from.
+        # See setup_repo_lib.sh for the util-linux/BusyBox vs BSD invocation split and its
+        # ran-vs-extracted return contract: nonzero means the command itself failed or was
+        # cancelled (nothing minted); zero with empty output means it ran fine but nothing
+        # sk-ant-oat01-shaped could be pulled out of the capture.
+        _ct_token=$(capture_claude_setup_token) || _ct_ok=0
     else
         # No `script` to capture with: run it directly (the operator still sees the token on screen).
         claude setup-token || _ct_ok=0
@@ -147,8 +134,9 @@ mint_claude_token() {
         echo "Wrote the new token to $env_file as CLAUDE_CODE_OAUTH_TOKEN (any previous one was commented out)."
         add_summary "Claude credential: minted a new token and wrote it to $env_file (any previous one was commented out)."
     else
-        # Minted, but capture failed — we couldn't recover a validly-shaped token (or there's no
-        # env-file) — guide the copy instead of ever reporting success with a bad value.
+        # The command ran to completion — the operator saw its output — but we couldn't recover a
+        # validly-shaped token from the capture, or there's no env-file. Guide the copy instead of
+        # ever reporting success with a bad value.
         echo
         echo "Couldn't reliably capture the minted token. Copy the token shown above into $env_file as:"
         echo "    CLAUDE_CODE_OAUTH_TOKEN=<token>"
