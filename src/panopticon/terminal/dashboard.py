@@ -646,13 +646,20 @@ class HarnessSelector(Static, can_focus=True):
 
     def __init__(self, effective: str, names: Sequence[str]) -> None:
         super().__init__()
-        self._effective = effective
         self._names = list(names)
         self._index = self._names.index(effective) if effective in self._names else 0
+        # The resolved starting value — may differ from `effective` when it names a harness not
+        # in `names` (e.g. a stale repo default). Comparing overrides against this (not the raw
+        # `effective` argument) is what keeps an untouched selector from reporting an override.
+        self._initial = self._names[self._index]
 
     @property
     def value(self) -> str:
         return self._names[self._index]
+
+    @property
+    def initial(self) -> str:
+        return self._initial
 
     def on_mount(self) -> None:
         self._render_label()
@@ -701,7 +708,7 @@ class MemoScreen(ModalScreen["tuple[str, bool, str | None] | None"]):
     def compose(self) -> ComposeResult:
         with Vertical(id="memo-box"):
             yield MemoTextArea(compact=True)
-            yield Label("enter: submit", classes="memo-hint")
+            yield Label("enter: submit", id="enter-hint", classes="memo-hint")
             yield Label("ctrl+s: set without submitting", classes="memo-hint")
             yield Label("ctrl+g: edit in $EDITOR", classes="memo-hint")
             yield HarnessSelector(self._effective_harness, self._harness_names)
@@ -709,9 +716,19 @@ class MemoScreen(ModalScreen["tuple[str, bool, str | None] | None"]):
     def on_mount(self) -> None:
         self.query_one(MemoTextArea).focus()
 
+    def on_descendant_focus(self, event: events.DescendantFocus) -> None:
+        # The harness selector shadows enter→submit with enter→cycle while it's focused; keep
+        # the hint truthful rather than always reading "enter: submit".
+        if isinstance(event.widget, HarnessSelector):
+            self.query_one("#enter-hint", Label).update("enter: cycle harness")
+
+    def on_descendant_blur(self, event: events.DescendantBlur) -> None:
+        if isinstance(event.widget, HarnessSelector):
+            self.query_one("#enter-hint", Label).update("enter: submit")
+
     def _harness_override(self) -> str | None:
-        selected = self.query_one(HarnessSelector).value
-        return selected if selected != self._effective_harness else None
+        selector = self.query_one(HarnessSelector)
+        return selector.value if selector.value != selector.initial else None
 
     def action_submit(self) -> None:
         self.dismiss((self.query_one(MemoTextArea).text, True, self._harness_override()))

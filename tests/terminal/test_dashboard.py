@@ -14,7 +14,7 @@ import httpx
 import pytest
 from textual.app import App
 from textual.containers import VerticalScroll
-from textual.widgets import Checkbox, DataTable, Input, Select, Static
+from textual.widgets import Checkbox, DataTable, Input, Label, Select, Static
 
 from panopticon.terminal import dashboard
 from panopticon.terminal.dashboard import (
@@ -789,6 +789,65 @@ async def test_pressing_n_shows_the_repos_configured_default_harness() -> None:
         assert fake.created == [("r1", "spike", None, None, None)]
 
 
+async def test_pressing_n_with_an_unknown_repo_default_harness_sends_no_spurious_override() -> None:
+    # Regression: an unknown default_harness makes the selector fall back to display the first
+    # registered harness, but submitting untouched must still send no override — the selector's
+    # displayed value differing from the raw (unknown) effective harness isn't a real change.
+    fake = _FakeClient(
+        [],
+        repos=[
+            {
+                "id": "r1",
+                "name": "r1",
+                "git_url": "",
+                "default_base": "main",
+                "default_harness": "nonexistent-harness",
+            }
+        ],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n")
+        await pilot.pause()
+        await pilot.press("enter")  # repo r1
+        await pilot.pause()
+        await pilot.press("enter")  # workflow spike
+        await pilot.pause()
+        await pilot.press("enter")  # submit untouched
+        await pilot.pause()
+        assert fake.created == [("r1", "spike", None, None, None)]
+
+
+async def test_the_enter_hint_reflects_cycle_while_the_harness_selector_is_focused() -> None:
+    # The bottom-area hint must stay truthful: "enter: submit" is wrong while the harness
+    # selector is focused, since Enter there cycles the harness instead (it shadows submit).
+    fake = _FakeClient(
+        [],
+        repos=["r1"],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n")
+        await pilot.pause()
+        await pilot.press("enter")  # repo
+        await pilot.pause()
+        await pilot.press("enter")  # workflow
+        await pilot.pause()
+        hint = app.screen.query_one("#enter-hint", Label)
+        assert hint.content == "enter: submit"
+        await pilot.press("tab")  # focus the harness selector
+        await pilot.pause()
+        assert isinstance(app.screen.focused, dashboard.HarnessSelector)
+        assert hint.content == "enter: cycle harness"
+        await pilot.press("tab")  # focus wraps back to the memo text area
+        await pilot.pause()
+        assert hint.content == "enter: submit"
+
+
 async def test_tabbing_to_the_harness_selector_and_cycling_overrides_it_for_this_task() -> None:
     fake = _FakeClient(
         [],
@@ -1121,6 +1180,16 @@ def test_harness_selector_falls_back_to_first_when_effective_is_unknown() -> Non
 
     sel = HarnessSelector("nonexistent-harness", ["claude", "codex"])
     assert sel.value == "claude"
+
+
+def test_harness_selector_initial_tracks_the_resolved_fallback_not_the_raw_effective() -> None:
+    # Regression: `initial` must reflect what `value` actually starts at (the resolved fallback),
+    # not the raw `effective` argument — otherwise a caller comparing `value` against `effective`
+    # for an unknown default would see a spurious "override" on an untouched selector.
+    from panopticon.terminal.dashboard import HarnessSelector
+
+    sel = HarnessSelector("nonexistent-harness", ["claude", "codex"])
+    assert sel.initial == sel.value == "claude"
 
 
 def test_harness_selector_cycles_forward_and_wraps() -> None:
