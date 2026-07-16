@@ -66,7 +66,7 @@ import sys
 import tempfile
 import time
 import webbrowser
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -101,6 +101,7 @@ from textual.worker import get_current_worker
 from panopticon.client import JsonObj, TaskServiceClient
 from panopticon.core.dirs import ARTIFACTS_DIR
 from panopticon.core.state import TERMINAL_LABELS
+from panopticon.harnesses import DEFAULT_HARNESS, HARNESSES
 from panopticon.sessionservice.local_runner import session_name
 from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
 from panopticon.terminal.setup_repo_task import create_setup_repo_task
@@ -629,12 +630,56 @@ class MemoTextArea(TextArea):
         self.styles.height = min(lines, self.MAX_LINES)
 
 
-class MemoScreen(ModalScreen["tuple[str, bool] | None"]):
+class HarnessSelector(Static, can_focus=True):
+    """A focusable ``harness: <name>`` indicator in the memo modal's footer.
+
+    Reachable via Tab (Textual's default ``Screen`` tab→``app.focus_next`` chain, which skips
+    the non-focusable hint ``Label``s); while focused, **Enter cycles** through the registered
+    harnesses (:data:`panopticon.harnesses.HARNESSES`, wrapping around) to override the task's
+    harness for this creation only — the widget-level binding shadows the screen's Enter→submit
+    while focused, so Enter here never accidentally creates the task. Tab away (back to the memo
+    text area) and press Enter there to submit. The label always renders the value that will be
+    sent, starting from the effective harness (the selected repo's ``default_harness``, falling
+    back to ``claude``)."""
+
+    BINDINGS = [Binding("enter", "cycle", "Next harness", show=False)]
+
+    def __init__(self, effective: str, names: Sequence[str]) -> None:
+        super().__init__()
+        self._names = list(names)
+        self._index = self._names.index(effective) if effective in self._names else 0
+        # The resolved starting value — may differ from `effective` when it names a harness not
+        # in `names` (e.g. a stale repo default). Comparing overrides against this (not the raw
+        # `effective` argument) is what keeps an untouched selector from reporting an override.
+        self._initial = self._names[self._index]
+
+    @property
+    def value(self) -> str:
+        return self._names[self._index]
+
+    @property
+    def initial(self) -> str:
+        return self._initial
+
+    def on_mount(self) -> None:
+        self._render_label()
+
+    def action_cycle(self) -> None:
+        self._index = (self._index + 1) % len(self._names)
+        self._render_label()
+
+    def _render_label(self) -> None:
+        self.update(f"harness: {self.value}")
+
+
+class MemoScreen(ModalScreen["tuple[str, bool, str | None] | None"]):
     """Memo prompt for task creation.
 
-    Dismisses ``(text, submit)`` where ``submit`` says whether to deliver the memo as the
-    agent's initial prompt, or ``None`` on cancel (Escape). **Enter always submits** the memo
-    as an initial prompt; **ctrl+s sets the memo without submitting** it (an unsent paste).
+    Dismisses ``(text, submit, harness_override)`` where ``submit`` says whether to deliver the
+    memo as the agent's initial prompt and ``harness_override`` is the operator's cycled-to
+    harness name (``None`` when left at the effective default — the repo's harness governs, as
+    if the field were untouched), or ``None`` on cancel (Escape). **Enter always submits** the
+    memo as an initial prompt; **ctrl+s sets the memo without submitting** it (an unsent paste).
 
     Uses :class:`MemoTextArea` so Enter submits rather than inserting a newline — same UX
     as the original single-line ``Input``, but the field can display multi-line content
@@ -645,6 +690,8 @@ class MemoScreen(ModalScreen["tuple[str, bool] | None"]):
     #memo-box { width: 64; height: auto; padding: 1 2; border: round $accent; background: $surface; }
     #memo-box MemoTextArea { height: 1; margin-bottom: 1; }
     #memo-box .memo-hint { color: $text-muted; }
+    #memo-box HarnessSelector { color: $text-muted; }
+    #memo-box HarnessSelector:focus { color: $text; text-style: bold; }
     """
     BINDINGS = [
         ("escape", "cancel", "Cancel"),
@@ -653,21 +700,41 @@ class MemoScreen(ModalScreen["tuple[str, bool] | None"]):
         ("enter", "submit", "Create"),
     ]
 
+    def __init__(self, effective_harness: str, harness_names: Sequence[str]) -> None:
+        super().__init__()
+        self._effective_harness = effective_harness
+        self._harness_names = list(harness_names)
+
     def compose(self) -> ComposeResult:
         with Vertical(id="memo-box"):
             yield MemoTextArea(compact=True)
-            yield Label("enter: submit", classes="memo-hint")
+            yield Label("enter: submit", id="enter-hint", classes="memo-hint")
             yield Label("ctrl+s: set without submitting", classes="memo-hint")
             yield Label("ctrl+g: edit in $EDITOR", classes="memo-hint")
+            yield HarnessSelector(self._effective_harness, self._harness_names)
 
     def on_mount(self) -> None:
         self.query_one(MemoTextArea).focus()
 
+    def on_descendant_focus(self, event: events.DescendantFocus) -> None:
+        # The harness selector shadows enter→submit with enter→cycle while it's focused; keep
+        # the hint truthful rather than always reading "enter: submit".
+        if isinstance(event.widget, HarnessSelector):
+            self.query_one("#enter-hint", Label).update("enter: cycle harness")
+
+    def on_descendant_blur(self, event: events.DescendantBlur) -> None:
+        if isinstance(event.widget, HarnessSelector):
+            self.query_one("#enter-hint", Label).update("enter: submit")
+
+    def _harness_override(self) -> str | None:
+        selector = self.query_one(HarnessSelector)
+        return selector.value if selector.value != selector.initial else None
+
     def action_submit(self) -> None:
-        self.dismiss((self.query_one(MemoTextArea).text, True))
+        self.dismiss((self.query_one(MemoTextArea).text, True, self._harness_override()))
 
     def action_set_only(self) -> None:
-        self.dismiss((self.query_one(MemoTextArea).text, False))
+        self.dismiss((self.query_one(MemoTextArea).text, False, self._harness_override()))
 
     def action_cancel(self) -> None:
         self.dismiss(None)
@@ -1843,8 +1910,8 @@ class Dashboard(App[None]):
 
     def action_new_task(self) -> None:
         """`n`: create a task — pick a repo, a workflow, describe the work, then POST it."""
-        repos = [str(r["id"]) for r in self._client.list_repos()]
-        if not repos:
+        repos_by_id = {str(r["id"]): r for r in self._client.list_repos()}
+        if not repos_by_id:
             self.notify("Need at least one repo to create a task.", severity="warning")
             return
 
@@ -1855,29 +1922,32 @@ class Dashboard(App[None]):
             if not workflows:
                 self.notify(f"No workflows enabled for repo {repo!r}.", severity="warning")
                 return
+            effective_harness = repos_by_id[repo].get("default_harness") or DEFAULT_HARNESS
 
             def describe(workflow: str | None) -> None:
                 if workflow is None:
                     return
 
-                def create(result: tuple[str, bool] | None) -> None:
+                def create(result: tuple[str, bool, str | None] | None) -> None:
                     if result is None:  # backed out
                         return
-                    memo_text, submit = result
+                    memo_text, submit, harness = result
                     stripped = memo_text.strip()
                     if _apply_memo_filter(stripped):
                         return
                     if submit and stripped:
-                        self._client.create_task(repo, workflow, stripped, initial_prompt=stripped)
+                        self._client.create_task(
+                            repo, workflow, stripped, initial_prompt=stripped, harness=harness
+                        )
                     else:
-                        self._client.create_task(repo, workflow, stripped or None)
+                        self._client.create_task(repo, workflow, stripped or None, harness=harness)
                     self.action_refresh()
 
-                self.push_screen(MemoScreen(), create)
+                self.push_screen(MemoScreen(effective_harness, sorted(HARNESSES)), create)
 
             self.push_screen(WorkflowScreen(workflows), describe)
 
-        self.push_screen(ChoiceScreen("repo", repos), pick_workflow)
+        self.push_screen(ChoiceScreen("repo", list(repos_by_id)), pick_workflow)
 
     def action_drop(self) -> None:
         """`x`: abandon the highlighted task. Drop is the **only** transition the dashboard
