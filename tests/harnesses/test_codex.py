@@ -18,6 +18,21 @@ from panopticon.harnesses.codex import CODEX_VERSION, CodexHarness, render_confi
 HARNESS = CodexHarness()
 
 
+def test_picker_metadata() -> None:
+    assert HARNESS.field_label == "model"
+    assert HARNESS.suggested_models() == (
+        ("gpt-5.6-sol", "GPT-5.6 Sol"),
+        ("terra", "Terra"),
+        ("luna", "Luna"),
+    )
+    assert HARNESS.suggested_efforts("terra") == (
+        ("low", "Low"),
+        ("medium", "Medium"),
+        ("high", "High"),
+        ("xhigh", "X-high"),
+    )
+
+
 def _ctx(home: Path, **kwargs: str | None) -> LaunchContext:
     return LaunchContext(home=home, cwd=Path("/workspace"), **kwargs)  # type: ignore[arg-type]
 

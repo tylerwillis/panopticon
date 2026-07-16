@@ -26,6 +26,16 @@ from panopticon.harnesses.claude import (
 HARNESS = ClaudeHarness()
 
 
+def test_picker_metadata() -> None:
+    assert HARNESS.field_label == "model"
+    assert HARNESS.suggested_models() == (
+        ("fable", "Fable 5"),
+        ("opus", "Opus 4.8"),
+        ("sonnet", "Sonnet 5"),
+    )
+    assert HARNESS.suggested_efforts("opus") == ()
+
+
 def _ctx(home: Path, **kwargs: str | None) -> LaunchContext:
     return LaunchContext(home=home, cwd=Path("/work/repo"), **kwargs)  # type: ignore[arg-type]
 
