@@ -79,6 +79,17 @@ instructions above.
   Per-token revocation isn't available upstream (account-level "revoke all" can take time to
   propagate), so treat a leak as "mint a replacement + monitor usage in the Console," and keep the
   env-file tightly held.
+- **A malformed credential fails the spawn, not the container.** Before launching `claude`, the
+  harness checks the *shape* of whichever var is set — the right prefix (`CLAUDE_CODE_OAUTH_TOKEN`
+  must start `sk-ant-oat01-`, `ANTHROPIC_API_KEY` must start `sk-ant-`) plus a plausible minimum
+  length — and, on a mismatch, fails the spawn with a lifecycle detail naming the bad variable and
+  pointing at the env-file — the same UX as a missing credential. This is deliberately a cheap
+  check, not full validation of Anthropic's token grammar and not a live API probe (either would
+  add a network round trip, and its own flakiness, to every spawn); it catches a wrong prefix or an
+  obviously truncated/placeholder value, and rules out **in-container `/login`** as a recovery path
+  (no browser in the container, the pasted URL gets tmux linebreaks, and a per-task config volume
+  means a login there fixes exactly one session) — always fix the
+  env-file and respawn instead.
 
 ## Codex / OpenAI (GPT-5.6)
 

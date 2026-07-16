@@ -163,11 +163,38 @@ def test_bootstrap_is_idempotent_across_respawns(tmp_path: Path) -> None:
 
 # -- auth check ----------------------------------------------------------------------
 
+# Real OpenAI keys are well over this length (classic `sk-` keys are ~51 chars total); stands in
+# for one at a plausible length so the "valid" tests exercise the length bound too.
+VALID_API_KEY = "sk-" + "x" * 30
+
 
 def test_missing_auth_accepts_each_credential_source(tmp_path: Path) -> None:
-    assert HARNESS.missing_auth({"CODEX_API_KEY": "k"}, home=tmp_path) is None
-    assert HARNESS.missing_auth({"OPENAI_API_KEY": "k"}, home=tmp_path) is None
+    assert HARNESS.missing_auth({"CODEX_API_KEY": VALID_API_KEY}, home=tmp_path) is None
+    assert HARNESS.missing_auth({"OPENAI_API_KEY": VALID_API_KEY}, home=tmp_path) is None
     assert HARNESS.missing_auth({"CODEX_ACCESS_TOKEN": "t"}, home=tmp_path) is None
+
+
+def test_missing_auth_rejects_a_malformed_api_key(tmp_path: Path) -> None:
+    detail = HARNESS.missing_auth({"CODEX_API_KEY": "not-a-key"}, home=tmp_path)
+    assert detail is not None
+    assert "CODEX_API_KEY" in detail
+
+    detail = HARNESS.missing_auth({"OPENAI_API_KEY": "not-a-key"}, home=tmp_path)
+    assert detail is not None
+    assert "OPENAI_API_KEY" in detail
+
+
+def test_missing_auth_rejects_a_truncated_api_key(tmp_path: Path) -> None:
+    # Right prefix, implausibly short suffix — `startswith()` alone would wrongly accept this.
+    for key in ("sk-", "sk-x", "sk-abc"):
+        detail = HARNESS.missing_auth({"CODEX_API_KEY": key}, home=tmp_path)
+        assert detail is not None, key
+        assert "CODEX_API_KEY" in detail
+
+
+def test_missing_auth_does_not_shape_check_the_access_token(tmp_path: Path) -> None:
+    # CODEX_ACCESS_TOKEN has no documented shape (docs/auth.md) — presence is enough.
+    assert HARNESS.missing_auth({"CODEX_ACCESS_TOKEN": "anything"}, home=tmp_path) is None
 
 
 def test_missing_auth_accepts_a_mounted_credential_dir(tmp_path: Path) -> None:

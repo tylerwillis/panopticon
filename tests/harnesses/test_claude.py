@@ -156,11 +156,58 @@ def test_trust_workspace_merges_and_is_idempotent(tmp_path: Path) -> None:
     assert data["projects"]["/workspace"]["hasTrustDialogAccepted"] is True
 
 
+# Real credentials are long random strings (docs/auth.md); these stand in for one at a plausible
+# length so the "valid" tests exercise the length bound too, not just the prefix.
+VALID_OAUTH_TOKEN = "sk-ant-oat01-" + "x" * 40
+VALID_API_KEY = "sk-ant-" + "x" * 40
+
+
 def test_missing_auth_names_the_token_and_accepts_either_var(tmp_path: Path) -> None:
     assert HARNESS.missing_auth({}, home=tmp_path) is not None
     assert "CLAUDE_CODE_OAUTH_TOKEN" in (HARNESS.missing_auth({}, home=tmp_path) or "")
-    assert HARNESS.missing_auth({"CLAUDE_CODE_OAUTH_TOKEN": "t"}, home=tmp_path) is None
-    assert HARNESS.missing_auth({"ANTHROPIC_API_KEY": "k"}, home=tmp_path) is None
+    assert (
+        HARNESS.missing_auth({"CLAUDE_CODE_OAUTH_TOKEN": VALID_OAUTH_TOKEN}, home=tmp_path) is None
+    )
+    assert HARNESS.missing_auth({"ANTHROPIC_API_KEY": VALID_API_KEY}, home=tmp_path) is None
+
+
+def test_missing_auth_rejects_a_malformed_oauth_token(tmp_path: Path) -> None:
+    detail = HARNESS.missing_auth({"CLAUDE_CODE_OAUTH_TOKEN": "sk-wrong-shape"}, home=tmp_path)
+    assert detail is not None
+    assert "CLAUDE_CODE_OAUTH_TOKEN" in detail
+    assert "env_file" in detail
+
+
+def test_missing_auth_rejects_a_truncated_oauth_token(tmp_path: Path) -> None:
+    # Right prefix, implausibly short suffix — a truncated paste or a placeholder, not a real
+    # token. `startswith()` alone would wrongly accept this.
+    for token in ("sk-ant-oat01-", "sk-ant-oat01-x", "sk-ant-oat01-abc"):
+        detail = HARNESS.missing_auth({"CLAUDE_CODE_OAUTH_TOKEN": token}, home=tmp_path)
+        assert detail is not None, token
+        assert "CLAUDE_CODE_OAUTH_TOKEN" in detail
+
+
+def test_missing_auth_rejects_a_malformed_api_key(tmp_path: Path) -> None:
+    detail = HARNESS.missing_auth({"ANTHROPIC_API_KEY": "not-a-key"}, home=tmp_path)
+    assert detail is not None
+    assert "ANTHROPIC_API_KEY" in detail
+    assert "env_file" in detail
+
+
+def test_missing_auth_rejects_a_truncated_api_key(tmp_path: Path) -> None:
+    for key in ("sk-ant-", "sk-ant-x", "sk-ant-abc"):
+        detail = HARNESS.missing_auth({"ANTHROPIC_API_KEY": key}, home=tmp_path)
+        assert detail is not None, key
+        assert "ANTHROPIC_API_KEY" in detail
+
+
+def test_missing_auth_prefers_the_api_key_when_both_are_set(tmp_path: Path) -> None:
+    # ANTHROPIC_API_KEY overrides CLAUDE_CODE_OAUTH_TOKEN at runtime (docs/auth.md) — a malformed
+    # key must be reported even when a validly-shaped oauth token is also present.
+    env = {"ANTHROPIC_API_KEY": "not-a-key", "CLAUDE_CODE_OAUTH_TOKEN": VALID_OAUTH_TOKEN}
+    detail = HARNESS.missing_auth(env, home=tmp_path)
+    assert detail is not None
+    assert "ANTHROPIC_API_KEY" in detail
 
 
 def test_bootstrap_renders_the_full_claude_surface(tmp_path: Path) -> None:
