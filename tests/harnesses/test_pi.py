@@ -8,6 +8,8 @@ source (event/handler types) — see the module docstring for exactly what's ver
 from __future__ import annotations
 
 import json
+import subprocess
+from collections.abc import Sequence
 from pathlib import Path
 
 from panopticon.core.models import Skill
@@ -21,13 +23,53 @@ from panopticon.harnesses.pi import (
     PiHarness,
 )
 
-HARNESS = PiHarness()
+
+class _Recorder:
+    def __init__(self, stdout: str = "", error: Exception | None = None) -> None:
+        self.calls: list[list[str]] = []
+        self._stdout = stdout
+        self._error = error
+
+    def __call__(self, args: Sequence[str], *, check: bool = True) -> str:
+        self.calls.append(list(args))
+        if self._error:
+            raise self._error
+        return self._stdout
 
 
-def test_picker_metadata_is_an_empty_static_seam() -> None:
+HARNESS = PiHarness(run=_Recorder())
+
+
+def test_picker_metadata_uses_pi_native_model_syntax() -> None:
+    output = """provider  model                    context max-out thinking images
+anthropic claude-sonnet-4-5       200K    64K     yes      yes
+openai    gpt-5.2-codex           400K    128K    yes      yes
+openrouter anthropic/claude-opus-4 200K   32K     yes      yes
+"""
+    run = _Recorder(output)
+    harness = PiHarness(run=run)
+
     assert HARNESS.field_label == "model"
-    assert HARNESS.suggested_models() == ()
+    assert harness.suggested_models() == (
+        ("anthropic/claude-sonnet-4-5", "anthropic/claude-sonnet-4-5"),
+        ("openai/gpt-5.2-codex", "openai/gpt-5.2-codex"),
+        ("openrouter/anthropic/claude-opus-4", "openrouter/anthropic/claude-opus-4"),
+    )
+    assert run.calls == [["pi", "--list-models"]]
     assert HARNESS.suggested_efforts("provider/model") == ()
+
+
+def test_picker_metadata_fails_soft_when_pi_is_absent() -> None:
+    harness = PiHarness(run=_Recorder(error=FileNotFoundError("pi")))
+
+    assert harness.suggested_models() == ()
+
+
+def test_picker_metadata_fails_soft_when_pi_errors() -> None:
+    error = subprocess.CalledProcessError(1, ["pi", "--list-models"])
+    harness = PiHarness(run=_Recorder(error=error))
+
+    assert harness.suggested_models() == ()
 
 
 def _ctx(home: Path, **kwargs: str | None) -> LaunchContext:
