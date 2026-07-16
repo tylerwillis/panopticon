@@ -3,11 +3,55 @@
 # setup_repo.sh concatenated, so these functions are defined before the interactive flow calls
 # them. POSIX sh; needs `grep`, `sed`, `mktemp`.
 
+# True when the host's `script` accepts `-c '<command>' <file>` to run a command
+# non-interactively (util-linux's does; so does BusyBox's, common on Alpine — neither of which is
+# BSD script). BSD `script` (macOS and other *BSD hosts) has no `-c`: an unrecognized option prints
+# usage to stderr and exits nonzero. Probed by capability, not by name/`--version` (util-linux is
+# only one of the `-c`-capable implementations, so a name check misfiles BusyBox as BSD-shaped and
+# sends it through the wrong, incompatible invocation form). `true` is a harmless, always-present
+# command for the probe; the session goes to /dev/null since we only care about the exit status.
+script_supports_dash_c() {
+    script -q -c true /dev/null >/dev/null 2>&1
+}
+
+# True when $1 is shaped like a genuine Claude OAuth token: the fixed `sk-ant-oat01-` prefix
+# followed by one or more token characters, and nothing else (anchored full-string match, not a
+# substring search). Used to reject a captured or pasted value that isn't the token itself.
+is_oauth_token_shaped() {
+    printf '%s' "$1" | grep -qE '^sk-ant-oat01-[A-Za-z0-9_-]+$'
+}
+
 # Print the last Claude OAuth token (sk-ant-oat01-…) found in capture file $1, or nothing. Robust to
 # surrounding ANSI colour codes: the token's character class never overlaps an escape sequence, so a
-# plain grep of the contiguous run works without stripping the escapes first.
+# plain grep of the contiguous run works without stripping the escapes first. (Persistence is
+# independently guarded by store_env_token's own shape check, so this doesn't re-validate its own
+# match against the same pattern.)
 extract_oauth_token() {
     grep -oaE 'sk-ant-oat01-[A-Za-z0-9_-]+' "$1" 2>/dev/null | tail -n 1
+}
+
+# Run `claude setup-token` captured through a pty via `script`, picking the invocation form that
+# matches the host's `script` (script_supports_dash_c): the command via `-c '<command>' <file>`
+# when supported, else the file followed by the command as trailing positional words (BSD). `-e`
+# returns the wrapped command's own exit status rather than `script`'s.
+#
+# Prints the extracted token (if any) and returns 0 when the command itself ran to completion —
+# whether or not a token could be extracted from what it captured. Returns nonzero only when the
+# command itself failed or was cancelled (nothing was minted or shown to the operator). Callers
+# must read those as two distinct outcomes: a nonzero return means nothing happened; a zero return
+# with empty stdout means the command ran (the operator saw its output) but no token could be
+# recovered from the capture.
+capture_claude_setup_token() {
+    _cst_log=$(mktemp "${TMPDIR:-/tmp}/panopticon-setup-token.XXXXXX") || return 1
+    if script_supports_dash_c; then
+        script -q -e -c 'claude setup-token' "$_cst_log"
+    else
+        script -q -e "$_cst_log" claude setup-token
+    fi
+    _cst_ran_ok=$?
+    [ "$_cst_ran_ok" -eq 0 ] && extract_oauth_token "$_cst_log"
+    rm -f "$_cst_log"
+    return "$_cst_ran_ok"
 }
 
 # Store a freshly minted value $2 for env var $1 into env-file $3, preserving history:
@@ -24,6 +68,11 @@ store_env_token() {
     _set_token=$2
     _set_file=$3
     [ -n "$_set_file" ] || return 1
+    # A Claude OAuth token has a known, checkable shape — refuse to ever persist one that doesn't
+    # match it (rather than silently writing corrupted capture output as if it were a real token).
+    if [ "$_set_var" = "CLAUDE_CODE_OAUTH_TOKEN" ] && ! is_oauth_token_shaped "$_set_token"; then
+        return 1
+    fi
     umask 077
     mkdir -p "$(dirname "$_set_file")" || return 1
     _set_tmp=$(mktemp "$_set_file.XXXXXX") || return 1
