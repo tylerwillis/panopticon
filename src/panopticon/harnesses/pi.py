@@ -61,9 +61,10 @@ and ``~/.pi/agent/mcp.json`` on that install is an empty ``{}`` — pi ships no 
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+import subprocess
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import ClassVar
+from typing import ClassVar, Protocol
 
 from panopticon.core.models import Skill
 from panopticon.harnesses.base import INTERRUPT_PROMPT, BootstrapContext, Harness, LaunchContext
@@ -155,6 +156,16 @@ API_KEY_ENV_VARS = (
 )
 
 
+class CommandRunner(Protocol):
+    """Runs an external command and returns its stdout; ``check`` raises on failure."""
+
+    def __call__(self, args: Sequence[str], *, check: bool = True) -> str: ...
+
+
+def _subprocess_run(args: Sequence[str], *, check: bool = True) -> str:
+    return subprocess.run(list(args), check=check, capture_output=True, text=True).stdout
+
+
 def operation_instructions(name: str, target_state: str, task_id: str, service_url: str) -> str:
     """The procedure body for a core operation (advance/drop/…) — a direct REST call, since pi
     has no MCP client to invoke ``apply_operation`` through (claude/codex's approach)."""
@@ -199,6 +210,25 @@ class PiHarness(Harness):
 
     name: ClassVar[str] = "pi"
     config_dirname: ClassVar[str] = ".pi"
+
+    def __init__(self, *, run: CommandRunner = _subprocess_run) -> None:
+        self._run = run
+
+    def suggested_models(self) -> Sequence[tuple[str, str]]:
+        """Ask pi for its available models; a missing/broken CLI leaves free text available."""
+        try:
+            output = self._run(["pi", "--list-models"])
+        except (OSError, subprocess.SubprocessError):
+            return ()
+
+        suggestions = []
+        for line in output.splitlines()[1:]:  # provider/model table header
+            columns = line.split()
+            if len(columns) < 2:
+                continue
+            value = f"{columns[0]}/{columns[1]}"
+            suggestions.append((value, value))
+        return tuple(suggestions)
 
     def image_layer(self) -> str:
         """Install a pinned Node.js release, then the pinned pi npm package globally. pi has no
