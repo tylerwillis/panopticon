@@ -11,6 +11,7 @@ deterministic. No LLM (the determinism invariant).
 from __future__ import annotations
 
 import asyncio
+import inspect
 import logging
 import os
 import uuid
@@ -275,6 +276,18 @@ class TaskService:
             }
             for name in sorted(self._workflows)
             if not self._workflows[name].hidden
+        ]
+
+    async def list_workflow_editor_infos(self) -> list[dict[str, str | bool]]:
+        """Every registered workflow and its defining Python file, for the operator UI."""
+        return [
+            {
+                "name": name,
+                "when_to_use": workflow.when_to_use,
+                "path": inspect.getsourcefile(type(workflow)) or "",
+                "built_in": type(workflow).__module__.startswith("panopticon.workflows."),
+            }
+            for name, workflow in sorted(self._workflows.items())
         ]
 
     async def list_workflow_infos_for_repo(self, repo_id: str) -> list[dict[str, str | bool]]:

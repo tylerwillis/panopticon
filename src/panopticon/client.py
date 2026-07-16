@@ -33,6 +33,9 @@ class TaskServiceClient:
     def list_workflows(self) -> list[JsonObj]:
         return cast("list[JsonObj]", self._json(self._http.get("/workflows")))
 
+    def list_workflow_files(self) -> list[JsonObj]:
+        return cast("list[JsonObj]", self._json(self._http.get("/workflow-files")))
+
     def list_workflows_for_repo(self, repo_id: str) -> list[dict[str, str]]:
         """Workflows visible for a repo, filtered by its preferences and each workflow's opt_in."""
         return cast(

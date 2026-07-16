@@ -214,6 +214,13 @@ class WorkflowInfo(BaseModel):
     opt_in: bool
 
 
+class WorkflowEditorInfo(BaseModel):
+    name: str
+    when_to_use: str
+    path: str
+    built_in: bool
+
+
 class CreateTaskIn(BaseModel):
     repo_id: str
     workflow: str
@@ -453,6 +460,11 @@ def create_app(service: TaskService) -> FastAPI:
     @app.get("/workflows")
     async def list_workflows() -> list[WorkflowInfo]:
         return await service.list_workflow_infos()  # type: ignore[return-value]
+
+    @app.get("/workflow-files")
+    async def list_workflow_files() -> list[WorkflowEditorInfo]:
+        """Registered workflow sources for the dashboard's editor-first workflow UI."""
+        return await service.list_workflow_editor_infos()  # type: ignore[return-value]
 
     @app.get("/workflows/{name}/image-layer")
     async def workflow_image_layer(name: str) -> dict[str, str]:
