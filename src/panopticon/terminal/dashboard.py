@@ -57,6 +57,7 @@ from __future__ import annotations
 
 import contextlib
 import functools
+import json
 import os
 import re
 import shlex
@@ -644,7 +645,9 @@ class HarnessSelector(Static, can_focus=True):
 
     BINDINGS = [Binding("enter", "cycle", "Next harness", show=False)]
 
-    def __init__(self, effective: str, names: Sequence[str]) -> None:
+    def __init__(
+        self, effective: str, names: Sequence[str], *, selected: str | None = None
+    ) -> None:
         super().__init__()
         self._names = list(names)
         self._index = self._names.index(effective) if effective in self._names else 0
@@ -652,6 +655,8 @@ class HarnessSelector(Static, can_focus=True):
         # in `names` (e.g. a stale repo default). Comparing overrides against this (not the raw
         # `effective` argument) is what keeps an untouched selector from reporting an override.
         self._initial = self._names[self._index]
+        if selected in self._names:
+            self._index = self._names.index(selected)
 
     @property
     def value(self) -> str:
@@ -672,7 +677,7 @@ class HarnessSelector(Static, can_focus=True):
         self.update(f"harness: {self.value}")
 
 
-class MemoScreen(ModalScreen["tuple[str, bool, str | None] | None"]):
+class MemoScreen(ModalScreen["tuple[str, bool | None, str | None]"]):
     """Memo prompt for task creation.
 
     Dismisses ``(text, submit, harness_override)`` where ``submit`` says whether to deliver the
@@ -700,18 +705,31 @@ class MemoScreen(ModalScreen["tuple[str, bool, str | None] | None"]):
         ("enter", "submit", "Create"),
     ]
 
-    def __init__(self, effective_harness: str, harness_names: Sequence[str]) -> None:
+    def __init__(
+        self,
+        effective_harness: str,
+        harness_names: Sequence[str],
+        *,
+        initial_memo: str = "",
+        initial_harness: str | None = None,
+    ) -> None:
         super().__init__()
         self._effective_harness = effective_harness
         self._harness_names = list(harness_names)
+        self._initial_memo = initial_memo
+        self._initial_harness = initial_harness
 
     def compose(self) -> ComposeResult:
         with Vertical(id="memo-box"):
-            yield MemoTextArea(compact=True)
+            yield MemoTextArea(self._initial_memo, compact=True)
             yield Label("enter: submit", id="enter-hint", classes="memo-hint")
             yield Label("ctrl+s: set without submitting", classes="memo-hint")
             yield Label("ctrl+g: edit in $EDITOR", classes="memo-hint")
-            yield HarnessSelector(self._effective_harness, self._harness_names)
+            yield HarnessSelector(
+                self._effective_harness,
+                self._harness_names,
+                selected=self._initial_harness,
+            )
 
     def on_mount(self) -> None:
         self.query_one(MemoTextArea).focus()
@@ -737,7 +755,7 @@ class MemoScreen(ModalScreen["tuple[str, bool, str | None] | None"]):
         self.dismiss((self.query_one(MemoTextArea).text, False, self._harness_override()))
 
     def action_cancel(self) -> None:
-        self.dismiss(None)
+        self.dismiss((self.query_one(MemoTextArea).text, None, self._harness_override()))
 
     def action_edit_in_editor(self) -> None:
         ta = self.query_one(MemoTextArea)
@@ -1635,6 +1653,7 @@ class Dashboard(App[None]):
         on_service: Callable[[], bool] | None = None,
         on_runner: Callable[[], bool] | None = None,
         artifacts_root: str | Path = ARTIFACTS_DIR,
+        draft_file: str | Path | None = None,
         refresh_interval: float | None = REFRESH_INTERVAL,
     ) -> None:
         super().__init__()
@@ -1643,6 +1662,8 @@ class Dashboard(App[None]):
         self._on_service = on_service  # `s` hook: switch to the service session; True if one exists
         self._on_runner = on_runner  # `u` hook: switch to the runner session; True if one exists
         self._artifacts_root = artifacts_root  # for `a`'s `e` local-open (co-located store)
+        self._draft_file = Path(draft_file) if draft_file is not None else None
+        self._new_task_drafts = self._load_new_task_drafts()
         self._refresh_interval = (
             refresh_interval  # change-feed long-poll wait (0/None → manual only)
         )
@@ -1664,6 +1685,27 @@ class Dashboard(App[None]):
         # one reused scratch dir for `a`'s REST-open (lazily made, cleaned on exit) — so opening
         # many artifacts doesn't leak a temp dir each.
         self._artifact_tmp: tempfile.TemporaryDirectory[str] | None = None
+
+    def _load_new_task_drafts(self) -> dict[str, dict[str, Any]]:
+        if self._draft_file is None:
+            return {}
+        try:
+            data = json.loads(self._draft_file.read_text())
+        except (FileNotFoundError, json.JSONDecodeError, OSError):
+            return {}
+        if not isinstance(data, dict):
+            return {}
+        return {key: value for key, value in data.items() if isinstance(value, dict)}
+
+    def _write_new_task_drafts(self) -> None:
+        if self._draft_file is None:
+            return
+        self._draft_file.parent.mkdir(parents=True, exist_ok=True)
+        self._draft_file.write_text(json.dumps(self._new_task_drafts, sort_keys=True))
+
+    @staticmethod
+    def _draft_key(repo: str, workflow: str) -> str:
+        return json.dumps([repo, workflow], separators=(",", ":"))
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -1928,10 +1970,18 @@ class Dashboard(App[None]):
                 if workflow is None:
                     return
 
-                def create(result: tuple[str, bool, str | None] | None) -> None:
-                    if result is None:  # backed out
+                key = self._draft_key(repo, workflow)
+
+                def create(result: tuple[str, bool | None, str | None] | None) -> None:
+                    if result is None:
                         return
                     memo_text, submit, harness = result
+                    if submit is None:  # backed out: retain the unsent draft
+                        self._new_task_drafts[key] = {"memo": memo_text, "harness": harness}
+                        self._write_new_task_drafts()
+                        return
+                    self._new_task_drafts.pop(key, None)
+                    self._write_new_task_drafts()
                     stripped = memo_text.strip()
                     if _apply_memo_filter(stripped):
                         return
@@ -1943,7 +1993,16 @@ class Dashboard(App[None]):
                         self._client.create_task(repo, workflow, stripped or None, harness=harness)
                     self.action_refresh()
 
-                self.push_screen(MemoScreen(effective_harness, sorted(HARNESSES)), create)
+                draft = self._new_task_drafts.get(key, {})
+                self.push_screen(
+                    MemoScreen(
+                        effective_harness,
+                        sorted(HARNESSES),
+                        initial_memo=str(draft.get("memo", "")),
+                        initial_harness=draft.get("harness"),
+                    ),
+                    create,
+                )
 
             self.push_screen(WorkflowScreen(workflows), describe)
 
@@ -2202,6 +2261,7 @@ def run(
     on_service: Callable[[], bool] | None = None,
     on_runner: Callable[[], bool] | None = None,
     artifacts_root: str | Path = ARTIFACTS_DIR,
+    draft_file: str | Path | None = None,
 ) -> None:
     """Run the dashboard. ``on_switch``/``on_service``/``on_runner`` are the supervisor's `t`/`s`/`u`
     hooks (ADR 0009); all ``None`` standalone. ``artifacts_root`` is the local artifact-store root
@@ -2212,4 +2272,5 @@ def run(
         on_service=on_service,
         on_runner=on_runner,
         artifacts_root=artifacts_root,
+        draft_file=draft_file,
     ).run()

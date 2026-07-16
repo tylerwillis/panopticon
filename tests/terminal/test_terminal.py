@@ -3,6 +3,7 @@ test_client.py; the dashboard in test_dashboard.py. Quickstart helpers are in te
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -31,8 +32,13 @@ def test_dashboard_under_supervisor_wires_the_switch_hooks(monkeypatch: pytest.M
     monkeypatch.setattr(
         dashboard,
         "run",
-        lambda _c, *, on_switch=None, on_service=None, on_runner=None, artifacts_root=None: (
-            seen.update(on_switch=on_switch, on_service=on_service, on_runner=on_runner)
+        lambda _c, *, on_switch=None, on_service=None, on_runner=None, artifacts_root=None, draft_file=None: (
+            seen.update(
+                on_switch=on_switch,
+                on_service=on_service,
+                on_runner=on_runner,
+                draft_file=draft_file,
+            )
         ),
     )
     cli.main(["dashboard", "--switch-file", "/tmp/x"], client=_FakeClient())  # type: ignore[arg-type]
@@ -41,6 +47,7 @@ def test_dashboard_under_supervisor_wires_the_switch_hooks(monkeypatch: pytest.M
         and seen["on_service"] is not None
         and seen["on_runner"] is not None
     )
+    assert seen["draft_file"] == Path("/tmp/new-task-drafts.json")
 
 
 def test_standalone_dashboard_has_no_switch_hooks(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -50,12 +57,18 @@ def test_standalone_dashboard_has_no_switch_hooks(monkeypatch: pytest.MonkeyPatc
     monkeypatch.setattr(
         dashboard,
         "run",
-        lambda _c, *, on_switch=None, on_service=None, on_runner=None, artifacts_root=None: (
-            seen.update(on_switch=on_switch, on_service=on_service, on_runner=on_runner)
+        lambda _c, *, on_switch=None, on_service=None, on_runner=None, artifacts_root=None, draft_file=None: (
+            seen.update(
+                on_switch=on_switch,
+                on_service=on_service,
+                on_runner=on_runner,
+                draft_file=draft_file,
+            )
         ),
     )
     cli.main(["dashboard"], client=_FakeClient())  # type: ignore[arg-type]
     assert seen["on_switch"] is None and seen["on_service"] is None and seen["on_runner"] is None
+    assert seen["draft_file"] is None
 
 
 def test_quickstart_invokes_all_steps(monkeypatch: pytest.MonkeyPatch) -> None:

@@ -188,6 +188,7 @@ def main(
         on_switch = None
         on_service = None
         on_runner = None
+        draft_file = None
         if (
             args.switch_file
         ):  # run under the supervisor: report `t`/`s`/`u` picks via the switch-file
@@ -197,6 +198,7 @@ def main(
             )
             on_service = make_service_switch(switch_file)
             on_runner = make_runner_switch(switch_file)
+            draft_file = switch_file.with_name("new-task-drafts.json")
         # Same default as the task service (shared ARTIFACTS_DIR): when the dashboard shares
         # the store's filesystem, `a`'s `e` opens the on-disk artifact in place.
         from panopticon.core.dirs import ARTIFACTS_DIR
@@ -208,6 +210,7 @@ def main(
             on_service=on_service,
             on_runner=on_runner,
             artifacts_root=artifacts_root,
+            draft_file=draft_file,
         )
     else:  # "start", "console", or no subcommand (no subcommand → alias for "start")
         if args.command in (None, "start"):  # "console" assumes services are already running
