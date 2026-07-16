@@ -111,8 +111,13 @@ class OutfitterHarness(Harness):
         self.profile_sources_root = profile_sources_root
 
     def suggested_models(self) -> tuple[tuple[str, str], ...]:
-        """Discover launchable profiles from the adapter's local profile source."""
-        root = self.profile_sources_root or self.config_dir(Path.home()) / PROFILE_SOURCES_DIR
+        """Discover profiles to suggest, from the operator's native Outfitter install.
+
+        The dashboard calls this host-side, so the default root is where a real
+        Outfitter setup keeps profiles (``~/.outfitter/profiles``) — not the
+        container's ``profile_sources`` mount, which the operator's host doesn't have.
+        """
+        root = self.profile_sources_root or self.config_dir(Path.home()) / "profiles"
         try:
             paths = sorted(root.glob("*.yml")) + sorted(root.glob("*.yaml"))
             paths += sorted(path / "profile.yml" for path in root.iterdir() if path.is_dir())
