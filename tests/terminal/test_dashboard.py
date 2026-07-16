@@ -221,8 +221,9 @@ class _FakeClient:
         *,
         initial_prompt: str | None = None,
         harness: str | None = None,
+        starting_model: str | None = None,
     ) -> dict[str, Any]:
-        self.created.append((repo_id, workflow, memo, initial_prompt, harness))
+        self.created.append((repo_id, workflow, memo, initial_prompt, harness, starting_model))
         return {"id": "new"}
 
     def apply_operation(self, task_id: str, operation: str) -> dict[str, Any]:
@@ -712,7 +713,7 @@ async def test_pressing_n_creates_a_task_via_repo_workflow_then_memo() -> None:
         await pilot.press("enter")  # submit
         await pilot.pause()
         # Enter always submits the memo as the agent's initial prompt
-        assert fake.created == [("r1", "spike", "fix", "fix", None)]
+        assert fake.created == [("r1", "spike", "fix", "fix", None, None)]
 
 
 async def test_new_task_memo_draft_survives_close_and_reopen(tmp_path: Path) -> None:
@@ -769,7 +770,7 @@ async def test_pressing_n_with_a_blank_memo_creates_with_none() -> None:
         await pilot.pause()
         await pilot.press("enter")  # submit an empty memo
         await pilot.pause()
-        assert fake.created == [("r1", "spike", None, None, None)]
+        assert fake.created == [("r1", "spike", None, None, None, None)]
 
 
 async def test_pressing_n_shows_the_repos_default_harness_and_creates_with_no_override() -> None:
@@ -793,7 +794,7 @@ async def test_pressing_n_shows_the_repos_default_harness_and_creates_with_no_ov
         assert selector.value == "claude"  # no default_harness on the repo → falls back to claude
         await pilot.press("enter")  # submit
         await pilot.pause()
-        assert fake.created == [("r1", "spike", None, None, None)]
+        assert fake.created == [("r1", "spike", None, None, None, None)]
 
 
 async def test_pressing_n_shows_the_repos_configured_default_harness() -> None:
@@ -823,7 +824,7 @@ async def test_pressing_n_shows_the_repos_configured_default_harness() -> None:
         assert selector.value == "codex"
         await pilot.press("enter")  # submit, unchanged → no override sent
         await pilot.pause()
-        assert fake.created == [("r1", "spike", None, None, None)]
+        assert fake.created == [("r1", "spike", None, None, None, None)]
 
 
 async def test_pressing_n_with_an_unknown_repo_default_harness_sends_no_spurious_override() -> None:
@@ -854,7 +855,7 @@ async def test_pressing_n_with_an_unknown_repo_default_harness_sends_no_spurious
         await pilot.pause()
         await pilot.press("enter")  # submit untouched
         await pilot.pause()
-        assert fake.created == [("r1", "spike", None, None, None)]
+        assert fake.created == [("r1", "spike", None, None, None, None)]
 
 
 async def test_the_enter_hint_reflects_cycle_while_the_harness_selector_is_focused() -> None:
@@ -880,6 +881,8 @@ async def test_the_enter_hint_reflects_cycle_while_the_harness_selector_is_focus
         await pilot.pause()
         assert isinstance(app.screen.focused, dashboard.HarnessSelector)
         assert hint.content == "enter: cycle harness"
+        await pilot.press("tab")  # model
+        await pilot.press("tab")  # effort
         await pilot.press("tab")  # focus wraps back to the memo text area
         await pilot.pause()
         assert hint.content == "enter: submit"
@@ -907,10 +910,68 @@ async def test_tabbing_to_the_harness_selector_and_cycling_overrides_it_for_this
         selector = app.screen.query_one(dashboard.HarnessSelector)
         assert selector.value == "codex"
         assert fake.created == []  # cycling never submits
+        await pilot.press("tab")  # model
+        await pilot.press("tab")  # effort
         await pilot.press("tab")  # focus wraps back to the memo text area
         await pilot.press("enter")  # submit
         await pilot.pause()
-        assert fake.created == [("r1", "spike", None, None, "codex")]
+        assert fake.created == [("r1", "spike", None, None, "codex", None)]
+
+
+def test_launch_resolution_and_provenance_for_every_source() -> None:
+    resolve = dashboard.resolve_launch_selection
+    repo = {"default_harness": "codex", "default_model": "repo-model:medium"}
+    workflow = {"default_harness": "claude", "default_model": "opus:high"}
+
+    assert resolve({}, {}).source == "app default"
+    assert resolve(repo, {}).source == "repo default"
+    assert resolve(repo, workflow) == dashboard.LaunchSelection(
+        "claude", "opus", "high", "workflow default"
+    )
+    assert resolve(
+        repo,
+        workflow,
+        overrides={"model": "free/form", "effort": "maximum"},
+        touched={"model", "effort"},
+    ) == dashboard.LaunchSelection("claude", "free/form", "maximum", "this task")
+
+
+def test_touched_launch_fields_survive_workflow_reselection() -> None:
+    repo = {"default_harness": "claude", "default_model": "sonnet"}
+    touched = {"model"}
+    overrides = {"model": "operator/model"}
+    first = dashboard.resolve_launch_selection(
+        repo,
+        {"default_harness": "codex", "default_model": "terra:low"},
+        overrides=overrides,
+        touched=touched,
+    )
+    second = dashboard.resolve_launch_selection(
+        repo,
+        {"default_harness": "claude", "default_model": "opus:high"},
+        overrides=overrides,
+        touched=touched,
+    )
+    assert (first.harness, first.model, first.effort) == ("codex", "operator/model", "low")
+    assert (second.harness, second.model, second.effort) == (
+        "claude",
+        "operator/model",
+        "high",
+    )
+
+
+async def test_free_text_model_and_effort_are_composed_for_create() -> None:
+    fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter", "tab", "tab")
+        await pilot.press(*"custom/model")
+        await pilot.press("tab")
+        await pilot.press(*"maximum")
+        await pilot.press("tab", "enter")
+        await pilot.pause()
+    assert fake.created == [("r1", "spike", None, None, None, "custom/model:maximum")]
 
 
 async def test_memo_ctrl_s_sets_the_memo_without_submitting() -> None:
@@ -933,7 +994,7 @@ async def test_memo_ctrl_s_sets_the_memo_without_submitting() -> None:
         await pilot.press("ctrl+s")  # set without submitting
         await pilot.pause()
         # memo stored, no initial_prompt
-        assert fake.created == [("r1", "spike", "fix", None, None)]
+        assert fake.created == [("r1", "spike", "fix", None, None, None)]
 
 
 async def test_memo_ctrl_g_opens_editor_and_updates_textarea(monkeypatch: Any) -> None:
@@ -961,7 +1022,7 @@ async def test_memo_ctrl_g_opens_editor_and_updates_textarea(monkeypatch: Any) -
         await pilot.pause()
         await pilot.press("enter")  # submit
         await pilot.pause()
-        assert fake.created == [("r1", "spike", "edited:hi", "edited:hi", None)]
+        assert fake.created == [("r1", "spike", "edited:hi", "edited:hi", None, None)]
 
 
 async def test_memo_textarea_expands_for_multiline_content(monkeypatch: Any) -> None:
@@ -987,7 +1048,7 @@ async def test_memo_textarea_expands_for_multiline_content(monkeypatch: Any) -> 
         await pilot.pause()
         await pilot.press("enter")  # submit
         await pilot.pause()
-        assert fake.created == [("r1", "spike", three_lines, three_lines, None)]
+        assert fake.created == [("r1", "spike", three_lines, three_lines, None, None)]
 
 
 async def test_dashboard_drives_drop() -> None:
@@ -1457,7 +1518,7 @@ async def test_pressing_s_in_the_repos_screen_creates_a_setup_repo_task() -> Non
         # creating the task dismisses the repos modal, dropping back to the task view
         assert not isinstance(app.screen, dashboard.ReposScreen)
     assert len(fake.created) == 1
-    repo_id, workflow, memo, _, _ = fake.created[0]
+    repo_id, workflow, memo, _, _, _ = fake.created[0]
     assert (repo_id, workflow) == ("r1", "setup-repo")
     assert memo is not None and "acme/widgets" in memo
 
@@ -3119,7 +3180,7 @@ async def test_pressing_j_then_enter_picks_the_second_option_in_a_picker() -> No
         await pilot.pause()
         await pilot.press("enter")  # submit an empty memo
         await pilot.pause()
-        assert fake.created == [("r2", "spike", None, None, None)]
+        assert fake.created == [("r2", "spike", None, None, None, None)]
 
 
 def _rendered_static_text(static: Static) -> str:
