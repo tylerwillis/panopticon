@@ -310,12 +310,19 @@ class Spawner:
 
     def _is_orphan(self, task: JsonObj) -> bool:
         """Whether ``task`` is an orphan **this** runner should self-heal: claimed by us,
-        non-terminal, and with no tmux session (the make-stop case — see :meth:`heal`). The
-        session probe is last so the cheap claim/terminal checks short-circuit it.
+        non-terminal, not explicitly failed, and with no tmux session (the make-stop case — see
+        :meth:`heal`). The session probe is last so the cheap status checks short-circuit it.
+
+        A failed lifecycle report may come from the agent launcher after the tmux session starts
+        (for example, missing credentials). Leave that task failed with its actionable detail until
+        the operator releases its claim to respawn it; auto-healing would overwrite the report and
+        create a crash loop.
 
         Shell tasks are never orphans: their script exiting is natural completion (or an
         operator cancelling), not a crash to respawn — so re-running it would be wrong."""
         if task.get("claimed_by") != self._runner_id or task["state"] in TERMINAL_LABELS:
+            return False
+        if task.get("container_status") == ContainerStatus.FAILED.value:
             return False
         if self._executions.is_shell(task.get("workflow")):
             return False
