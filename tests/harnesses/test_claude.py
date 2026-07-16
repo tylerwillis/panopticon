@@ -10,8 +10,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from panopticon.core.models import Skill
-from panopticon.harnesses import INTERRUPT_PROMPT, BootstrapContext, LaunchContext
+from panopticon.harnesses import INTERRUPT_PROMPT, BootstrapContext, LaunchContext, claude
 from panopticon.harnesses.claude import (
     MCP_CONFIG_FILE,
     WORKFLOW_OVERVIEW_FILE,
@@ -156,58 +158,101 @@ def test_trust_workspace_merges_and_is_idempotent(tmp_path: Path) -> None:
     assert data["projects"]["/workspace"]["hasTrustDialogAccepted"] is True
 
 
-# Real credentials are long random strings (docs/auth.md); these stand in for one at a plausible
-# length so the "valid" tests exercise the length bound too, not just the prefix.
-VALID_OAUTH_TOKEN = "sk-ant-oat01-" + "x" * 40
-VALID_API_KEY = "sk-ant-" + "x" * 40
+def _probing(monkeypatch, status):
+    """Route the harness's one network seam to a canned probe result (no network in CI)."""
+    monkeypatch.setattr(claude, "_probe_status", lambda headers: status)
 
 
-def test_missing_auth_names_the_token_and_accepts_either_var(tmp_path: Path) -> None:
-    assert HARNESS.missing_auth({}, home=tmp_path) is not None
-    assert "CLAUDE_CODE_OAUTH_TOKEN" in (HARNESS.missing_auth({}, home=tmp_path) or "")
-    assert (
-        HARNESS.missing_auth({"CLAUDE_CODE_OAUTH_TOKEN": VALID_OAUTH_TOKEN}, home=tmp_path) is None
+def test_missing_auth_names_the_token_when_nothing_is_set(tmp_path: Path) -> None:
+    detail = HARNESS.missing_auth({}, home=tmp_path)
+    assert detail is not None and "CLAUDE_CODE_OAUTH_TOKEN" in detail
+
+
+def test_missing_auth_accepts_a_credential_the_api_accepts(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _probing(monkeypatch, 200)
+    assert HARNESS.missing_auth({"CLAUDE_CODE_OAUTH_TOKEN": "t"}, home=tmp_path) is None
+    assert HARNESS.missing_auth({"ANTHROPIC_API_KEY": "k"}, home=tmp_path) is None
+
+
+def test_missing_auth_rejects_a_credential_the_api_rejects(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # One mechanism catches revoked, malformed, and truncated alike: the API's own 401.
+    _probing(monkeypatch, 401)
+    detail = HARNESS.missing_auth({"CLAUDE_CODE_OAUTH_TOKEN": "revoked"}, home=tmp_path)
+    assert detail is not None and "CLAUDE_CODE_OAUTH_TOKEN" in detail and "rejected" in detail
+
+
+def test_missing_auth_fails_open_when_the_probe_cannot_complete(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Offline/timeout/5xx must never block a spawn — the agent makes the same call anyway.
+    _probing(monkeypatch, None)
+    assert HARNESS.missing_auth({"CLAUDE_CODE_OAUTH_TOKEN": "t"}, home=tmp_path) is None
+
+
+def test_missing_auth_skips_the_probe_when_a_gateway_is_configured(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # ANTHROPIC_BASE_URL means a gateway with its own auth semantics — a gateway-issued
+    # credential can 401 against Anthropic while being valid, so the preflight stands down.
+    _probing(monkeypatch, 401)
+    env = {"ANTHROPIC_API_KEY": "gw-key", "ANTHROPIC_BASE_URL": "https://llm-gw.example"}
+    assert HARNESS.missing_auth(env, home=tmp_path) is None
+
+
+def test_probe_seam_sends_the_right_request_and_fails_open(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    seen: dict[str, object] = {}
+
+    class _Resp:
+        status_code = 403
+
+    def fake_get(url: str, *, headers: dict[str, str], timeout: float) -> _Resp:
+        seen.update(url=url, headers=headers, timeout=timeout)
+        return _Resp()
+
+    monkeypatch.setattr(claude.httpx, "get", fake_get)
+    assert claude._probe_status({"x-api-key": "k"}) == 403  # non-401 statuses pass through...
+    assert seen["url"] == "https://api.anthropic.com/v1/models"
+    assert seen["headers"] == {"x-api-key": "k"}
+    assert seen["timeout"] == 10
+
+    def raising_get(url: str, *, headers: dict[str, str], timeout: float) -> _Resp:
+        raise OSError("offline")
+
+    monkeypatch.setattr(claude.httpx, "get", raising_get)
+    assert claude._probe_status({"x-api-key": "k"}) is None  # ...and errors fail open
+
+
+def test_missing_auth_builds_the_right_headers_per_credential(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    captured: list[dict[str, str]] = []
+    monkeypatch.setattr(claude, "_probe_status", lambda headers: captured.append(headers) or 200)
+    HARNESS.missing_auth({"ANTHROPIC_API_KEY": "k"}, home=tmp_path)
+    HARNESS.missing_auth({"CLAUDE_CODE_OAUTH_TOKEN": "t"}, home=tmp_path)
+    assert captured[0] == {"x-api-key": "k", "anthropic-version": "2023-06-01"}
+    assert captured[1] == {
+        "authorization": "Bearer t",
+        "anthropic-version": "2023-06-01",
+        "anthropic-beta": "oauth-2025-04-20",
+    }
+
+
+def test_missing_auth_names_the_api_key_when_it_wins_and_is_rejected(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # ANTHROPIC_API_KEY overrides the token (docs/auth.md) — the message must blame the
+    # credential claude will actually use.
+    _probing(monkeypatch, 401)
+    detail = HARNESS.missing_auth(
+        {"CLAUDE_CODE_OAUTH_TOKEN": "t", "ANTHROPIC_API_KEY": "k"}, home=tmp_path
     )
-    assert HARNESS.missing_auth({"ANTHROPIC_API_KEY": VALID_API_KEY}, home=tmp_path) is None
-
-
-def test_missing_auth_rejects_a_malformed_oauth_token(tmp_path: Path) -> None:
-    detail = HARNESS.missing_auth({"CLAUDE_CODE_OAUTH_TOKEN": "sk-wrong-shape"}, home=tmp_path)
-    assert detail is not None
-    assert "CLAUDE_CODE_OAUTH_TOKEN" in detail
-    assert "env_file" in detail
-
-
-def test_missing_auth_rejects_a_truncated_oauth_token(tmp_path: Path) -> None:
-    # Right prefix, implausibly short suffix — a truncated paste or a placeholder, not a real
-    # token. `startswith()` alone would wrongly accept this.
-    for token in ("sk-ant-oat01-", "sk-ant-oat01-x", "sk-ant-oat01-abc"):
-        detail = HARNESS.missing_auth({"CLAUDE_CODE_OAUTH_TOKEN": token}, home=tmp_path)
-        assert detail is not None, token
-        assert "CLAUDE_CODE_OAUTH_TOKEN" in detail
-
-
-def test_missing_auth_rejects_a_malformed_api_key(tmp_path: Path) -> None:
-    detail = HARNESS.missing_auth({"ANTHROPIC_API_KEY": "not-a-key"}, home=tmp_path)
-    assert detail is not None
-    assert "ANTHROPIC_API_KEY" in detail
-    assert "env_file" in detail
-
-
-def test_missing_auth_rejects_a_truncated_api_key(tmp_path: Path) -> None:
-    for key in ("sk-ant-", "sk-ant-x", "sk-ant-abc"):
-        detail = HARNESS.missing_auth({"ANTHROPIC_API_KEY": key}, home=tmp_path)
-        assert detail is not None, key
-        assert "ANTHROPIC_API_KEY" in detail
-
-
-def test_missing_auth_prefers_the_api_key_when_both_are_set(tmp_path: Path) -> None:
-    # ANTHROPIC_API_KEY overrides CLAUDE_CODE_OAUTH_TOKEN at runtime (docs/auth.md) — a malformed
-    # key must be reported even when a validly-shaped oauth token is also present.
-    env = {"ANTHROPIC_API_KEY": "not-a-key", "CLAUDE_CODE_OAUTH_TOKEN": VALID_OAUTH_TOKEN}
-    detail = HARNESS.missing_auth(env, home=tmp_path)
-    assert detail is not None
-    assert "ANTHROPIC_API_KEY" in detail
+    assert detail is not None and "ANTHROPIC_API_KEY" in detail
 
 
 def test_bootstrap_renders_the_full_claude_surface(tmp_path: Path) -> None:
