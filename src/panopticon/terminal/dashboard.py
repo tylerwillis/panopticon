@@ -1888,7 +1888,7 @@ HOTKEYS: tuple[Hotkey, ...] = (
     Hotkey("y", "copy_slug", "Copy slug", "Copy the task's slug to the clipboard", show=False),
     Hotkey("Y", "copy_id", "Copy id", "Copy the task's id to the clipboard", show=False),
     Hotkey(
-        "ctrl+c",
+        "c",
         "copy_detail",
         "Copy details",
         "Copy the task detail pane to the clipboard",
@@ -2495,7 +2495,7 @@ class Dashboard(App[None]):
         self.notify(f"copied id: {self._current}")
 
     def action_copy_detail(self) -> None:
-        """`Ctrl+C`: copy the highlighted task's rendered detail text via OSC 52."""
+        """`c`: copy the highlighted task's rendered detail text via OSC 52."""
         if self._current is None:
             return
         task = self._tasks.get(self._current)
