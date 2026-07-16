@@ -77,13 +77,38 @@ def test_start_task_records_initial_prompt() -> None:
     assert task.initial_prompt == "review your plan"
 
 
-def test_start_task_seeds_starting_model_from_default_model() -> None:
+def test_start_task_leaves_launch_fields_for_service_resolution() -> None:
     task = WF.start_task("t1", "r1", at="t0")
-    assert task.starting_model == WF.default_model
+    assert task.harness is None
+    assert task.starting_model is None
 
 
-def test_workflow_default_model_is_opus() -> None:
-    assert WF.default_model == "opus"
+def test_workflow_launch_defaults_are_an_optional_pair() -> None:
+    assert WF.default_harness is None
+    assert WF.default_model is None
+
+
+def test_workflow_launch_defaults_must_be_a_pair() -> None:
+    class HalfConfigured(GatedWorkflow):
+        name = "half-configured"
+        default_model = "model:high"
+        Plan = GatedWorkflow.Plan
+        Working = GatedWorkflow.Working
+
+    with pytest.raises(InvalidWorkflow, match="must be declared together"):
+        HalfConfigured().validate_registration({"claude"})
+
+
+def test_workflow_launch_pair_must_name_a_registered_harness() -> None:
+    class UnknownHarness(GatedWorkflow):
+        name = "unknown-harness"
+        default_harness = "cursor"
+        default_model = "model:high"
+        Plan = GatedWorkflow.Plan
+        Working = GatedWorkflow.Working
+
+    with pytest.raises(InvalidWorkflow, match="unknown default_harness 'cursor'"):
+        UnknownHarness().validate_registration({"claude", "codex"})
 
 
 # -- resolution: string + class refs, inherited DROPPED -----------------------------

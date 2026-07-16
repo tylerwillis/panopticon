@@ -11,7 +11,7 @@ queries against it.
 from __future__ import annotations
 
 from abc import ABC
-from collections.abc import Iterator, Sequence
+from collections.abc import Collection, Iterator, Sequence
 from dataclasses import dataclass
 from functools import cached_property
 from typing import ClassVar
@@ -99,11 +99,10 @@ class Workflow(ABC):
     #: gate. Use it for operator utilities that shouldn't clutter the pickers but are launched
     #: some other way. Default ``False`` (shown in the menus).
     hidden: ClassVar[bool] = False
-    #: The model the agent starts with when working on tasks created by this workflow. Seeded onto
-    #: :attr:`~panopticon.core.models.Task.starting_model` at task creation; the runner injects it
-    #: so ``claude --model`` is set on first launch. Defaults to ``"opus"`` for all built-in
-    #: workflows; override per-workflow to change the default.
-    default_model: ClassVar[str] = "opus"
+    #: Optional tuned launch pair. Workflows must declare both values or neither; discovery also
+    #: checks that the harness exists. Built-ins deliberately leave the pair unset.
+    default_harness: ClassVar[str | None] = None
+    default_model: ClassVar[str | None] = None
     #: How this workflow's tasks are executed by the session service. ``"docker"`` (default)
     #: spawns the base → workflow → repo container image and runs the in-container agent (the
     #: determinism invariant — LLM calls happen there). ``"shell"`` runs :meth:`shell_script`
@@ -123,6 +122,18 @@ class Workflow(ABC):
     shell_workdir: ClassVar[str | None] = None
 
     # -- build / validate (the resolution pass; answers "why not a free function?") -----
+
+    def validate_registration(self, harnesses: Collection[str]) -> None:
+        """Validate the graph and optional harness-scoped launch pair for registration."""
+        _ = self._graph
+        if (self.default_harness is None) != (self.default_model is None):
+            raise InvalidWorkflow(
+                f"{self.name!r}: default_harness and default_model must be declared together"
+            )
+        if self.default_harness is not None and self.default_harness not in harnesses:
+            raise InvalidWorkflow(
+                f"{self.name!r}: unknown default_harness {self.default_harness!r}"
+            )
 
     @cached_property
     def _graph(self) -> _Graph:
@@ -515,7 +526,6 @@ class Workflow(ABC):
             turn=self.turn_on_enter(state),
             memo=memo,
             initial_prompt=initial_prompt,
-            starting_model=self.default_model,
             history=[
                 HistoryEntry(
                     at=at,

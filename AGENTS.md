@@ -285,13 +285,12 @@ on every PR (the same commands the Makefile wraps).
   composed base → **harness** → workflow → repo), an auth check (`missing_auth`, naming the fix
   for *its* credentials), a `bootstrap` (pure file writes rendering
   skills/operations/hooks/MCP/system-prompt), and the launch `argv` (first-run vs resume).
-  Selection: an explicit `harness` at task creation wins, else the repo's
-  `default_harness` (the on-the-rails path — teams standardize per repo), else claude. The
-  *resolved* name is recorded on `Task.harness` at creation (validated; `None` = claude), so a
-  later change to the repo default never re-routes existing tasks; the control plane never
-  interprets the name. Model names are likewise harness-scoped: the workflow's `default_model`
-  ("opus") survives only onto claude tasks; other harnesses get an explicit `starting_model`
-  or their CLI's own default. Codex auth: `CODEX_API_KEY`/`CODEX_ACCESS_TOKEN` in the env-file
+  Selection resolves atomic harness/model pairs: task-explicit → an optional workflow pair →
+  the repo's `default_harness` + opaque `default_model` (`model[:effort]`) → the app default.
+  A workflow declares both halves or neither, and all built-ins declare neither. An explicit
+  task harness that differs from the winning pair drops that pair's model. The resolved opaque
+  strings are recorded on the task, so later default changes never re-route it; model vocabulary
+  belongs to the harness. Codex auth: `CODEX_API_KEY`/`CODEX_ACCESS_TOKEN` in the env-file
   (no new mechanics), or a ChatGPT subscription `auth.json` in the repo's `credential_dir`
   (see **Repo**) — see `docs/auth.md`. pi has no MCP client at all (its own stated design), so
   its rendered advance/drop operations are REST-curl instructions rather than an MCP tool call.
