@@ -76,10 +76,13 @@ def test_config_wires_the_turn_flip_hooks_to_the_shared_callback() -> None:
     }
 
 
-def test_config_disables_the_builtin_codex_apps_connector() -> None:
+def test_config_disables_the_builtin_apps_connector_via_the_feature_flag() -> None:
     # It can't start in the container and would stall every spawn on its 30s startup timeout.
+    # Must be the feature flag: an mcp_servers entry without a transport is invalid codex
+    # config and kills the CLI at startup (live incident, 2026-07-15).
     cfg = tomllib.loads(render_config("http://svc:8000", "", Path("/w")))
-    assert cfg["mcp_servers"]["codex_apps"] == {"enabled": False}
+    assert cfg["features"]["apps"] is False
+    assert "codex_apps" not in cfg["mcp_servers"]
 
 
 def test_config_forces_file_backed_credentials() -> None:
