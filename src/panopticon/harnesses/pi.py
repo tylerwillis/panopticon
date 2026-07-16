@@ -60,6 +60,7 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import ClassVar
 
+from panopticon.core.models import Skill
 from panopticon.harnesses.base import INTERRUPT_PROMPT, BootstrapContext, Harness, LaunchContext
 from panopticon.harnesses.codex import write_skills
 from panopticon.harnesses.config import update_json_config
@@ -229,14 +230,18 @@ class PiHarness(Harness):
         write_settings(config_dir)
         write_workflow_overview(config_dir, ctx.overview)
         (config_dir / EXTENSION_FILE).write_text(TURN_EXTENSION)
-        entries: dict[str, tuple[str, str]] = {
-            s.name: (s.description, s.instructions) for s in ctx.skills
-        }
-        for name, target_state in ctx.operations.items():
-            entries[name] = (
-                f"Apply the workflow's '{name}' operation.",
-                operation_instructions(name, target_state, ctx.task_id, ctx.service_url),
+        # pi's operations keep their REST-flavored instructions (no MCP client to call), so the
+        # shared operation_skill() — which speaks MCP — is deliberately not used here.
+        entries = list(ctx.skills) + [
+            Skill(
+                name=name,
+                description=f"Apply the workflow's '{name}' operation.",
+                instructions=operation_instructions(
+                    name, target_state, ctx.task_id, ctx.service_url
+                ),
             )
+            for name, target_state in ctx.operations.items()
+        ]
         write_skills(entries, ctx.home, ctx.task_id)
         self._ensure_auth(config_dir, ctx.environ)
 
