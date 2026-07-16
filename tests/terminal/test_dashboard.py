@@ -1755,6 +1755,8 @@ async def test_repos_screen_edits_a_repo_via_patch() -> None:
                     "name": "new",
                     "git_url": "https://x/r1.git",
                     "default_base": "main",
+                    "default_harness": None,
+                    "default_model": None,
                     "env_file": None,
                     "image_layer_file": None,
                     "hook_file": None,
@@ -1764,6 +1766,61 @@ async def test_repos_screen_edits_a_repo_via_patch() -> None:
                 },
             )
         ]
+
+
+async def test_repo_form_shows_effective_launch_defaults_for_unset_and_set_values() -> None:
+    fake = _FakeClient(
+        [],
+        repos=[
+            {"id": "r1", "name": "one", "git_url": "https://x/r1.git", "default_base": "main"},
+            {
+                "id": "r2",
+                "name": "two",
+                "git_url": "https://x/r2.git",
+                "default_base": "main",
+                "default_harness": "codex",
+                "default_model": "gpt-5.6-sol:high",
+            },
+        ],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("g", "e")
+        await pilot.pause()
+        harness = app.screen.query_one(dashboard.RepoHarnessSelector)
+        model = app.screen.query_one("#default-model-effective", Static)
+        assert "harness: claude (app default)" in str(harness.render())
+        assert "model: harness default (app default)" in str(model.render())
+        await pilot.press("escape")
+        repos = app.screen.query_one("#repos", DataTable)
+        repos.move_cursor(row=1)
+        await pilot.press("e")
+        await pilot.pause()
+        harness = app.screen.query_one(dashboard.RepoHarnessSelector)
+        model = app.screen.query_one("#default-model-effective", Static)
+        assert "harness: codex (repo default)" in str(harness.render())
+        assert "model: gpt-5.6-sol:high (repo default)" in str(model.render())
+
+
+async def test_repo_form_edits_launch_defaults_via_patch() -> None:
+    fake = _FakeClient(
+        [],
+        repos=[{"id": "r1", "name": "one", "git_url": "https://x/r1.git", "default_base": "main"}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("g", "e")
+        await pilot.pause()
+        selector = app.screen.query_one(dashboard.RepoHarnessSelector)
+        selector.focus()
+        await pilot.press("enter")  # claude → codex
+        app.screen.query_one("#field-default_model", Input).value = "gpt-5.6-sol:high"
+        await pilot.press("ctrl+s")
+        await pilot.pause()
+        assert fake.updated_repos[0][1]["default_harness"] == "codex"
+        assert fake.updated_repos[0][1]["default_model"] == "gpt-5.6-sol:high"
 
 
 async def test_repo_form_workflows_tab_pre_populates_from_repo() -> None:

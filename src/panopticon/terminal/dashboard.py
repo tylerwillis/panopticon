@@ -686,6 +686,16 @@ def resolve_launch_selection(
     return LaunchSelection(**values, source="this task" if touched_set else source)
 
 
+def _starting_model_suggestions(harness_name: str) -> list[str]:
+    """Repo field suggestions in the stored ``model[:effort]`` shape."""
+    harness = HARNESSES[harness_name]
+    suggestions: list[str] = []
+    for model, _ in harness.suggested_models():
+        suggestions.append(model)
+        suggestions.extend(f"{model}:{effort}" for effort, _ in harness.suggested_efforts(model))
+    return suggestions
+
+
 class HarnessSelector(Static, can_focus=True):
     """A focusable ``harness: <name>`` indicator in the memo modal's footer.
 
@@ -732,6 +742,24 @@ class HarnessSelector(Static, can_focus=True):
 
     def _render_label(self) -> None:
         self.update(self.value)
+
+
+class RepoHarnessSelector(HarnessSelector):
+    """Repo-default harness picker: effective value plus where it came from."""
+
+    def __init__(self, selection: LaunchSelection, names: Sequence[str]) -> None:
+        self._source = selection.source
+        super().__init__(selection.harness, names)
+
+    def action_cycle(self) -> None:
+        self._index = (self._index + 1) % len(self._names)
+        self._source = "repo default"
+        self._render_label()
+        if self.is_attached and isinstance(self.screen, RepoFormScreen):
+            self.screen.default_harness_changed(self.value)
+
+    def _render_label(self) -> None:
+        self.update(f"harness: {self.value} ({self._source})")
 
 
 class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]"]):
@@ -1047,6 +1075,7 @@ class EnvFileField(Widget):
         if event.value == self._CUSTOM:
             inp.display = True
             inp.focus()
+            self.call_after_refresh(inp.scroll_visible)
         else:
             inp.display = False
 
@@ -1240,7 +1269,8 @@ class RepoFormScreen(ModalScreen["dict[str, Any] | None"]):
     #repo-form Input { margin-bottom: 1; }
     #repo-form Checkbox { margin-bottom: 1; }
     #form-tabs { height: 1fr; }
-    #pane-workflows { height: 1fr; }
+    #pane-general, #pane-workflows { height: 1fr; }
+    #general-scroll { height: 1fr; }
     #wf-scroll { height: 1fr; }
     #wf-scroll SpaceCheckbox { margin-bottom: 0; }
     #wf-desc { height: 4; border: tall $panel; padding: 0 1; color: $text-muted; margin-top: 1; }
@@ -1283,6 +1313,7 @@ class RepoFormScreen(ModalScreen["dict[str, Any] | None"]):
         self._workflows = workflows or []
         self._wf_enabled: set[str] = set(self._repo.get("enabled_workflows") or [])
         self._wf_disabled: set[str] = set(self._repo.get("disabled_workflows") or [])
+        self._launch = resolve_launch_selection(self._repo, {})
         # The parent supplies this: it attempts the submission (validation + REST) and returns an
         # error message to show inline (form stays open) or None on success (form dismisses). This
         # is what keeps an invalid form open instead of closing it and toasting the error after.
@@ -1306,9 +1337,14 @@ class RepoFormScreen(ModalScreen["dict[str, Any] | None"]):
         with Vertical(id="repo-form"):
             yield Label(self._title)
             with TabbedContent(id="form-tabs"):
-                with TabPane("general", id="pane-general"):
+                with (
+                    TabPane("general", id="pane-general"),
+                    VerticalScroll(id="general-scroll"),
+                ):
                     yield Input(
-                        value=self._initial("git_url"), placeholder="git_url", id="field-git_url"
+                        value=self._initial("git_url"),
+                        placeholder="git_url",
+                        id="field-git_url",
                     )
                     if self._editing:
                         yield Label(f"id: {self._repo['id']}")
@@ -1316,6 +1352,22 @@ class RepoFormScreen(ModalScreen["dict[str, Any] | None"]):
                         yield Input(placeholder="id", id="field-id")
                     for name in self.FIELDS[1:]:  # git_url already rendered above
                         yield Input(value=self._initial(name), placeholder=name, id=f"field-{name}")
+                    if self._editing:
+                        yield RepoHarnessSelector(self._launch, list(HARNESSES))
+                        harness = HARNESSES[self._launch.harness]
+                        yield Input(
+                            value=self._launch.starting_model or "",
+                            placeholder=f"{harness.field_label} (harness default)",
+                            id="field-default_model",
+                            suggester=SuggestFromList(
+                                _starting_model_suggestions(self._launch.harness)
+                            ),
+                        )
+                        yield Static(
+                            f"model: {self._launch.starting_model or 'harness default'} "
+                            f"({self._launch.source})",
+                            id="default-model-effective",
+                        )
                     yield EnvFileField(initial=self._initial("env_file"), id="field-env_file")
                     yield ImageLayerField(
                         initial=self._initial("image_layer_file"), id="field-image_layer_file"
@@ -1372,6 +1424,20 @@ class RepoFormScreen(ModalScreen["dict[str, Any] | None"]):
     def on_input_submitted(self, event: Input.Submitted) -> None:
         self.action_submit()
 
+    def on_input_changed(self, event: Input.Changed) -> None:
+        if event.input.id == "field-default_model":
+            value = event.value.strip() or "harness default"
+            self.query_one("#default-model-effective", Static).update(
+                f"model: {value} (repo default)"
+            )
+
+    def default_harness_changed(self, value: str) -> None:
+        """Refresh model vocabulary when the operator cycles the registered harnesses."""
+        model = self.query_one("#field-default_model", Input)
+        harness = HARNESSES[value]
+        model.placeholder = f"{harness.field_label} (harness default)"
+        model.suggester = SuggestFromList(_starting_model_suggestions(value))
+
     def action_submit(self) -> None:
         self._autofill_from_git_url()  # backstop: fill blanks even if git_url never blurred
         values: dict[str, Any] = {}
@@ -1379,6 +1445,16 @@ class RepoFormScreen(ModalScreen["dict[str, Any] | None"]):
             values["id"] = self.query_one("#field-id", Input).value.strip()
         for name in self.FIELDS:
             values[name] = self.query_one(f"#field-{name}", Input).value.strip()
+        if self._editing:
+            harness = self.query_one(RepoHarnessSelector)
+            values["default_harness"] = (
+                harness.value
+                if harness.value != harness.initial or self._repo.get("default_harness")
+                else None
+            )
+            values["default_model"] = (
+                self.query_one("#field-default_model", Input).value.strip() or None
+            )
         values["env_file"] = self.query_one("#field-env_file", EnvFileField).env_file_value or None
         values["image_layer_file"] = (
             self.query_one("#field-image_layer_file", ImageLayerField).image_layer_value or None
@@ -1519,6 +1595,8 @@ class ReposScreen(ModalScreen[None]):
                     name=values["name"],
                     git_url=values["git_url"],
                     default_base=values["default_base"] or "main",
+                    default_harness=values["default_harness"],
+                    default_model=values["default_model"],
                     env_file=values["env_file"] or None,
                     image_layer_file=values["image_layer_file"] or None,
                     hook_file=values["hook_file"] or None,
