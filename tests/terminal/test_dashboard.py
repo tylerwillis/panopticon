@@ -715,6 +715,43 @@ async def test_pressing_n_creates_a_task_via_repo_workflow_then_memo() -> None:
         assert fake.created == [("r1", "spike", "fix", "fix", None)]
 
 
+async def test_new_task_memo_draft_survives_close_and_reopen(tmp_path: Path) -> None:
+    fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
+    app = Dashboard(fake, draft_file=tmp_path / "new-task-drafts.json")  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter")
+        await pilot.pause()
+        await pilot.press("d", "r", "a", "f", "t", "escape")
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter")
+        await pilot.pause()
+        assert app.screen.query_one(dashboard.MemoTextArea).text == "draft"
+
+
+async def test_submitting_new_task_clears_its_saved_draft(tmp_path: Path) -> None:
+    draft_file = tmp_path / "new-task-drafts.json"
+    fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
+    app = Dashboard(fake, draft_file=draft_file)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter")
+        await pilot.pause()
+        await pilot.press("d", "r", "a", "f", "t", "escape")
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter")
+        await pilot.pause()
+        await pilot.press("enter")
+        await pilot.pause()
+
+    restarted = Dashboard(fake, draft_file=draft_file)  # type: ignore[arg-type]
+    async with restarted.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter")
+        await pilot.pause()
+        assert restarted.screen.query_one(dashboard.MemoTextArea).text == ""
+
+
 async def test_pressing_n_with_a_blank_memo_creates_with_none() -> None:
     fake = _FakeClient(
         [],
