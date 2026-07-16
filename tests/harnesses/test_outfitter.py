@@ -75,6 +75,21 @@ def test_bootstrap_pins_every_outfitter_artifact(tmp_path: Path) -> None:
     )
 
 
+def test_bootstrap_adds_existing_credential_profile_source(tmp_path: Path) -> None:
+    credentials = tmp_path / "credentials"
+    env = {"PANOPTICON_CREDENTIALS": str(credentials)}
+
+    HARNESS.bootstrap(_bootstrap_ctx(tmp_path, environ=env))
+    assert (tmp_path / ".outfitter" / SETTINGS_FILE).read_text() == SETTINGS
+
+    profiles = credentials / "outfitter" / "profiles"
+    profiles.mkdir(parents=True)
+    HARNESS.bootstrap(_bootstrap_ctx(tmp_path, environ=env))
+    assert (tmp_path / ".outfitter" / SETTINGS_FILE).read_text() == (
+        SETTINGS + f"  - path: {profiles}\n"
+    )
+
+
 def test_suggested_models_discovers_flat_and_directory_profiles(tmp_path: Path) -> None:
     (tmp_path / "founder.yml").write_text(
         "label: Founder\ndescription: Founder-operator defaults for product and engineering.\n"
