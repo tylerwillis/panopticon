@@ -31,7 +31,8 @@ src/panopticon/
                    # discovery.py = scan the package + an optional path for Workflow subclasses
                    # (the registry build_app runs on; drop a module in → registered, ADR 0004)
   harnesses/       # agent-CLI harnesses (M3): the Harness interface + the registry (a literal
-                   # claude/codex/pi mapping — path discovery waits for a real third-party need) +
+                   # claude/codex/pi mapping; outfitter.py is experimental and deliberately
+                   # unregistered pending its upstream width-safe TUI header fix) +
                    # claude.py (the default: argv, .claude/commands rendering, turn-flip
                    # settings.json, MCP config, trust seeds) + codex.py (config.toml with MCP +
                    # Claude-Code-compatible Stop/UserPromptSubmit hooks wired to the SAME
