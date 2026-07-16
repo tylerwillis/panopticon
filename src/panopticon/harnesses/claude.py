@@ -253,8 +253,9 @@ class ClaudeHarness(Harness):
         the resumed session is the agent's turn, :data:`INTERRUPT_PROMPT` is appended instead so
         the agent automatically picks up where it left off rather than waiting for user input.
 
-        ``starting_model`` (e.g. ``"opus"``) is passed as ``--model`` on the **first run only** —
-        on resume claude uses whichever model the conversation was already using.
+        ``starting_model`` (e.g. ``"opus:high"``) is split into ``--model`` and an optional
+        ``--effort`` on the **first run only** — on resume claude uses the conversation's existing
+        model and effort.
         """
         config_dir = self.config_dir(ctx.home)
         argv = ["claude", "--dangerously-skip-permissions"]
@@ -273,7 +274,10 @@ class ClaudeHarness(Harness):
             if (
                 ctx.starting_model
             ):  # first run only — on resume claude uses the conversation's existing model
-                argv += ["--model", ctx.starting_model]
+                model, _, effort = ctx.starting_model.partition(":")
+                argv += ["--model", model]
+                if effort:
+                    argv += ["--effort", effort]
             if ctx.initial_prompt:
                 argv.append(
                     ctx.initial_prompt
