@@ -221,8 +221,9 @@ class _FakeClient:
         *,
         initial_prompt: str | None = None,
         harness: str | None = None,
+        starting_model: str | None = None,
     ) -> dict[str, Any]:
-        self.created.append((repo_id, workflow, memo, initial_prompt, harness))
+        self.created.append((repo_id, workflow, memo, initial_prompt, harness, starting_model))
         return {"id": "new"}
 
     def apply_operation(self, task_id: str, operation: str) -> dict[str, Any]:
@@ -712,7 +713,7 @@ async def test_pressing_n_creates_a_task_via_repo_workflow_then_memo() -> None:
         await pilot.press("enter")  # submit
         await pilot.pause()
         # Enter always submits the memo as the agent's initial prompt
-        assert fake.created == [("r1", "spike", "fix", "fix", None)]
+        assert fake.created == [("r1", "spike", "fix", "fix", None, None)]
 
 
 async def test_pressing_n_with_a_blank_memo_creates_with_none() -> None:
@@ -732,7 +733,7 @@ async def test_pressing_n_with_a_blank_memo_creates_with_none() -> None:
         await pilot.pause()
         await pilot.press("enter")  # submit an empty memo
         await pilot.pause()
-        assert fake.created == [("r1", "spike", None, None, None)]
+        assert fake.created == [("r1", "spike", None, None, None, None)]
 
 
 async def test_pressing_n_shows_the_repos_default_harness_and_creates_with_no_override() -> None:
@@ -756,7 +757,7 @@ async def test_pressing_n_shows_the_repos_default_harness_and_creates_with_no_ov
         assert selector.value == "claude"  # no default_harness on the repo → falls back to claude
         await pilot.press("enter")  # submit
         await pilot.pause()
-        assert fake.created == [("r1", "spike", None, None, None)]
+        assert fake.created == [("r1", "spike", None, None, None, None)]
 
 
 async def test_pressing_n_shows_the_repos_configured_default_harness() -> None:
@@ -786,7 +787,7 @@ async def test_pressing_n_shows_the_repos_configured_default_harness() -> None:
         assert selector.value == "codex"
         await pilot.press("enter")  # submit, unchanged → no override sent
         await pilot.pause()
-        assert fake.created == [("r1", "spike", None, None, None)]
+        assert fake.created == [("r1", "spike", None, None, None, None)]
 
 
 async def test_pressing_n_with_an_unknown_repo_default_harness_sends_no_spurious_override() -> None:
@@ -817,7 +818,7 @@ async def test_pressing_n_with_an_unknown_repo_default_harness_sends_no_spurious
         await pilot.pause()
         await pilot.press("enter")  # submit untouched
         await pilot.pause()
-        assert fake.created == [("r1", "spike", None, None, None)]
+        assert fake.created == [("r1", "spike", None, None, None, None)]
 
 
 async def test_the_enter_hint_reflects_cycle_while_the_harness_selector_is_focused() -> None:
@@ -843,6 +844,9 @@ async def test_the_enter_hint_reflects_cycle_while_the_harness_selector_is_focus
         await pilot.pause()
         assert isinstance(app.screen.focused, dashboard.HarnessSelector)
         assert hint.content == "enter: cycle harness"
+        await pilot.press("tab")  # focus moves on to the model input
+        await pilot.pause()
+        assert hint.content == "enter: submit"
         await pilot.press("tab")  # focus wraps back to the memo text area
         await pilot.pause()
         assert hint.content == "enter: submit"
@@ -870,10 +874,109 @@ async def test_tabbing_to_the_harness_selector_and_cycling_overrides_it_for_this
         selector = app.screen.query_one(dashboard.HarnessSelector)
         assert selector.value == "codex"
         assert fake.created == []  # cycling never submits
+        await pilot.press("tab")  # focus moves on to the model input
         await pilot.press("tab")  # focus wraps back to the memo text area
         await pilot.press("enter")  # submit
         await pilot.pause()
-        assert fake.created == [("r1", "spike", None, None, "codex")]
+        assert fake.created == [("r1", "spike", None, None, "codex", None)]
+
+
+async def test_model_input_placeholder_names_the_effective_harnesss_default() -> None:
+    # No model catalog is known here, so an untouched field just names *which* harness's
+    # own default applies.
+    fake = _FakeClient(
+        [],
+        repos=["r1"],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n")
+        await pilot.pause()
+        await pilot.press("enter")  # repo
+        await pilot.pause()
+        await pilot.press("enter")  # workflow
+        await pilot.pause()
+        model_input = app.screen.query_one("#model-input", Input)
+        assert model_input.placeholder == "model: (claude default)"
+
+
+async def test_model_input_placeholder_tracks_a_cycled_harness() -> None:
+    fake = _FakeClient(
+        [],
+        repos=["r1"],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n")
+        await pilot.pause()
+        await pilot.press("enter")  # repo
+        await pilot.pause()
+        await pilot.press("enter")  # workflow
+        await pilot.pause()
+        await pilot.press("tab")  # focus the harness selector
+        await pilot.press("enter")  # cycle claude -> codex
+        await pilot.press("tab")  # focus the model input
+        await pilot.pause()
+        model_input = app.screen.query_one("#model-input", Input)
+        assert model_input.placeholder == "model: (codex default)"
+
+
+async def test_typing_a_model_and_submitting_passes_it_through() -> None:
+    fake = _FakeClient(
+        [],
+        repos=["r1"],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n")
+        await pilot.pause()
+        await pilot.press("enter")  # repo
+        await pilot.pause()
+        await pilot.press("enter")  # workflow
+        await pilot.pause()
+        await pilot.press("tab")  # harness selector
+        await pilot.press("tab")  # model input
+        await pilot.press("o", "p", "u", "s")
+        await pilot.press("enter")  # submit — Input forwards Enter to the screen's submit
+        await pilot.pause()
+        assert fake.created == [("r1", "spike", None, None, None, "opus")]
+
+
+async def test_blank_model_input_stays_none_even_with_a_harness_override() -> None:
+    # The seeding rule (an unset model on a non-claude harness must stay None) is enforced
+    # server-side; the dashboard just needs to send no override when the field is untouched.
+    fake = _FakeClient(
+        [],
+        repos=["r1"],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n")
+        await pilot.pause()
+        await pilot.press("enter")  # repo
+        await pilot.pause()
+        await pilot.press("enter")  # workflow
+        await pilot.pause()
+        await pilot.press("tab")  # harness selector
+        await pilot.press("enter")  # cycle claude -> codex
+        await pilot.press("tab")  # model input, left blank
+        await pilot.press("enter")  # submit
+        await pilot.pause()
+        assert fake.created == [("r1", "spike", None, None, "codex", None)]
+
+
+def test_model_placeholder_names_the_harness() -> None:
+    from panopticon.terminal.dashboard import _model_placeholder
+
+    assert _model_placeholder("codex") == "model: (codex default)"
 
 
 async def test_memo_ctrl_s_sets_the_memo_without_submitting() -> None:
@@ -896,7 +999,7 @@ async def test_memo_ctrl_s_sets_the_memo_without_submitting() -> None:
         await pilot.press("ctrl+s")  # set without submitting
         await pilot.pause()
         # memo stored, no initial_prompt
-        assert fake.created == [("r1", "spike", "fix", None, None)]
+        assert fake.created == [("r1", "spike", "fix", None, None, None)]
 
 
 async def test_memo_ctrl_g_opens_editor_and_updates_textarea(monkeypatch: Any) -> None:
@@ -924,7 +1027,7 @@ async def test_memo_ctrl_g_opens_editor_and_updates_textarea(monkeypatch: Any) -
         await pilot.pause()
         await pilot.press("enter")  # submit
         await pilot.pause()
-        assert fake.created == [("r1", "spike", "edited:hi", "edited:hi", None)]
+        assert fake.created == [("r1", "spike", "edited:hi", "edited:hi", None, None)]
 
 
 async def test_memo_textarea_expands_for_multiline_content(monkeypatch: Any) -> None:
@@ -950,7 +1053,7 @@ async def test_memo_textarea_expands_for_multiline_content(monkeypatch: Any) -> 
         await pilot.pause()
         await pilot.press("enter")  # submit
         await pilot.pause()
-        assert fake.created == [("r1", "spike", three_lines, three_lines, None)]
+        assert fake.created == [("r1", "spike", three_lines, three_lines, None, None)]
 
 
 async def test_dashboard_drives_drop() -> None:
@@ -1420,7 +1523,7 @@ async def test_pressing_s_in_the_repos_screen_creates_a_setup_repo_task() -> Non
         # creating the task dismisses the repos modal, dropping back to the task view
         assert not isinstance(app.screen, dashboard.ReposScreen)
     assert len(fake.created) == 1
-    repo_id, workflow, memo, _, _ = fake.created[0]
+    repo_id, workflow, memo, _, _, _ = fake.created[0]
     assert (repo_id, workflow) == ("r1", "setup-repo")
     assert memo is not None and "acme/widgets" in memo
 
@@ -3082,7 +3185,7 @@ async def test_pressing_j_then_enter_picks_the_second_option_in_a_picker() -> No
         await pilot.pause()
         await pilot.press("enter")  # submit an empty memo
         await pilot.pause()
-        assert fake.created == [("r2", "spike", None, None, None)]
+        assert fake.created == [("r2", "spike", None, None, None, None)]
 
 
 def _rendered_static_text(static: Static) -> str:

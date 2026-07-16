@@ -672,14 +672,23 @@ class HarnessSelector(Static, can_focus=True):
         self.update(f"harness: {self.value}")
 
 
-class MemoScreen(ModalScreen["tuple[str, bool, str | None] | None"]):
+def _model_placeholder(harness: str) -> str:
+    """The model field's placeholder when left unset — model catalogs are harness-scoped and
+    unknown here, so this only names *which* harness's own default will apply, e.g.
+    ``"model: (codex default)"``."""
+    return f"model: ({harness} default)"
+
+
+class MemoScreen(ModalScreen["tuple[str, bool, str | None, str | None] | None"]):
     """Memo prompt for task creation.
 
-    Dismisses ``(text, submit, harness_override)`` where ``submit`` says whether to deliver the
-    memo as the agent's initial prompt and ``harness_override`` is the operator's cycled-to
-    harness name (``None`` when left at the effective default — the repo's harness governs, as
-    if the field were untouched), or ``None`` on cancel (Escape). **Enter always submits** the
-    memo as an initial prompt; **ctrl+s sets the memo without submitting** it (an unsent paste).
+    Dismisses ``(text, submit, harness_override, model_override)`` where ``submit`` says whether
+    to deliver the memo as the agent's initial prompt, ``harness_override`` is the operator's
+    cycled-to harness name (``None`` when left at the effective default — the repo's harness
+    governs, as if the field were untouched), and ``model_override`` is the operator's typed
+    model name (``None`` when left blank — the resolved harness's own default governs), or
+    ``None`` on cancel (Escape). **Enter always submits** the memo as an initial prompt;
+    **ctrl+s sets the memo without submitting** it (an unsent paste).
 
     Uses :class:`MemoTextArea` so Enter submits rather than inserting a newline — same UX
     as the original single-line ``Input``, but the field can display multi-line content
@@ -692,6 +701,7 @@ class MemoScreen(ModalScreen["tuple[str, bool, str | None] | None"]):
     #memo-box .memo-hint { color: $text-muted; }
     #memo-box HarnessSelector { color: $text-muted; }
     #memo-box HarnessSelector:focus { color: $text; text-style: bold; }
+    #memo-box #model-input { margin-top: 1; }
     """
     BINDINGS = [
         ("escape", "cancel", "Cancel"),
@@ -712,6 +722,7 @@ class MemoScreen(ModalScreen["tuple[str, bool, str | None] | None"]):
             yield Label("ctrl+s: set without submitting", classes="memo-hint")
             yield Label("ctrl+g: edit in $EDITOR", classes="memo-hint")
             yield HarnessSelector(self._effective_harness, self._harness_names)
+            yield Input(placeholder=_model_placeholder(self._effective_harness), id="model-input")
 
     def on_mount(self) -> None:
         self.query_one(MemoTextArea).focus()
@@ -721,20 +732,48 @@ class MemoScreen(ModalScreen["tuple[str, bool, str | None] | None"]):
         # the hint truthful rather than always reading "enter: submit".
         if isinstance(event.widget, HarnessSelector):
             self.query_one("#enter-hint", Label).update("enter: cycle harness")
+        elif event.widget.id == "model-input":
+            # The placeholder names the harness whose default applies — refresh it in case the
+            # operator cycled harnesses before tabbing here.
+            harness = self.query_one(HarnessSelector).value
+            self.query_one("#model-input", Input).placeholder = _model_placeholder(harness)
 
     def on_descendant_blur(self, event: events.DescendantBlur) -> None:
         if isinstance(event.widget, HarnessSelector):
             self.query_one("#enter-hint", Label).update("enter: submit")
 
+    def on_input_submitted(self, event: Input.Submitted) -> None:
+        # Input consumes Enter via its own submit binding rather than bubbling to the screen's
+        # enter→submit (same contract as RepoFormScreen) — forward it so Enter still creates.
+        if event.input.id == "model-input":
+            self.action_submit()
+
     def _harness_override(self) -> str | None:
         selector = self.query_one(HarnessSelector)
         return selector.value if selector.value != selector.initial else None
 
+    def _model_override(self) -> str | None:
+        return self.query_one("#model-input", Input).value.strip() or None
+
     def action_submit(self) -> None:
-        self.dismiss((self.query_one(MemoTextArea).text, True, self._harness_override()))
+        self.dismiss(
+            (
+                self.query_one(MemoTextArea).text,
+                True,
+                self._harness_override(),
+                self._model_override(),
+            )
+        )
 
     def action_set_only(self) -> None:
-        self.dismiss((self.query_one(MemoTextArea).text, False, self._harness_override()))
+        self.dismiss(
+            (
+                self.query_one(MemoTextArea).text,
+                False,
+                self._harness_override(),
+                self._model_override(),
+            )
+        )
 
     def action_cancel(self) -> None:
         self.dismiss(None)
@@ -1928,19 +1967,26 @@ class Dashboard(App[None]):
                 if workflow is None:
                     return
 
-                def create(result: tuple[str, bool, str | None] | None) -> None:
+                def create(result: tuple[str, bool, str | None, str | None] | None) -> None:
                     if result is None:  # backed out
                         return
-                    memo_text, submit, harness = result
+                    memo_text, submit, harness, model = result
                     stripped = memo_text.strip()
                     if _apply_memo_filter(stripped):
                         return
                     if submit and stripped:
                         self._client.create_task(
-                            repo, workflow, stripped, initial_prompt=stripped, harness=harness
+                            repo,
+                            workflow,
+                            stripped,
+                            initial_prompt=stripped,
+                            harness=harness,
+                            starting_model=model,
                         )
                     else:
-                        self._client.create_task(repo, workflow, stripped or None, harness=harness)
+                        self._client.create_task(
+                            repo, workflow, stripped or None, harness=harness, starting_model=model
+                        )
                     self.action_refresh()
 
                 self.push_screen(MemoScreen(effective_harness, sorted(HARNESSES)), create)
