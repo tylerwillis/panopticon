@@ -377,6 +377,7 @@ def render_detail(task: JsonObj) -> str:
     lines = [
         task.get("slug") or task["id"],
         f"id: {task['id']}",
+        f"created: {datetime.fromisoformat(task['created_at']).astimezone():%Y-%m-%d %H:%M:%S %Z}",
         f"state: {task['state']}    turn: {turn}    workflow: {task['workflow']}{claim}",
     ]
     status = task.get("container_status")
@@ -1881,6 +1882,13 @@ HOTKEYS: tuple[Hotkey, ...] = (
     Hotkey("y", "copy_slug", "Copy slug", "Copy the task's slug to the clipboard", show=False),
     Hotkey("Y", "copy_id", "Copy id", "Copy the task's id to the clipboard", show=False),
     Hotkey(
+        "ctrl+c",
+        "copy_detail",
+        "Copy details",
+        "Copy the task detail pane to the clipboard",
+        show=False,
+    ),
+    Hotkey(
         "escape",
         "clear_search",
         "Clear search",
@@ -2475,6 +2483,16 @@ class Dashboard(App[None]):
             return
         self._copy_to_clipboard(self._current)
         self.notify(f"copied id: {self._current}")
+
+    def action_copy_detail(self) -> None:
+        """`Ctrl+C`: copy the highlighted task's rendered detail text via OSC 52."""
+        if self._current is None:
+            return
+        task = self._tasks.get(self._current)
+        if task is None:
+            return
+        self.copy_to_clipboard(render_detail(task))
+        self.notify("copied task details", timeout=1.5)
 
     def action_toggle_sort(self) -> None:
         """`o`: toggle between sorting by creation time or update time."""

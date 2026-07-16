@@ -42,6 +42,7 @@ _TASK: dict[str, Any] = {
     "turn": "agent",
     "workflow": "spike",
     "provisioned": True,
+    "created_at": "2026-06-22T10:00:00+00:00",
     "history": [
         {
             "at": "2026-06-22T10:00:00+00:00",
@@ -347,6 +348,8 @@ async def test_dashboard_mounts_lists_tasks_and_shows_detail() -> None:
         await pilot.pause()
         detail = app.query_one("#detail", Static)
         assert "WORKING" in str(detail.render())
+        assert "created:" in str(detail.render())
+        assert "2026-06-22T10:00:00+00:00" not in str(detail.render())
 
 
 async def test_detail_pane_is_hidden_by_default() -> None:
@@ -1150,6 +1153,17 @@ async def test_pressing_shift_y_copies_the_id(monkeypatch: Any) -> None:
         await pilot.press("Y")
         await pilot.pause()
         assert copied == ["task-abcdef0123"]
+
+
+async def test_pressing_ctrl_c_copies_the_rendered_detail(monkeypatch: Any) -> None:
+    copied: list[str] = []
+    app = Dashboard(_FakeClient([_TASK]))  # type: ignore[arg-type]
+    monkeypatch.setattr(app, "copy_to_clipboard", copied.append)
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("ctrl+c")
+        await pilot.pause()
+        assert copied == [render_detail(_TASK)]
 
 
 def test_render_detail_shows_the_claim() -> None:
@@ -2574,7 +2588,7 @@ def test_footer_shows_only_the_essential_keys() -> None:
     shown = {b.key for b in Dashboard.BINDINGS if b.show}
     hidden = {b.key for b in Dashboard.BINDINGS if not b.show}
     assert shown == {"t", "n", "x", "/", "d", "question_mark", "q"}
-    assert hidden == {"o", "r", "R", "p", "g", "w", "a", "s", "u", "y", "Y", "escape"}
+    assert hidden == {"o", "r", "R", "p", "g", "w", "a", "s", "u", "y", "Y", "ctrl+c", "escape"}
 
 
 def test_bindings_and_help_derive_from_the_single_hotkey_table() -> None:
