@@ -630,6 +630,26 @@ def test_heal_skips_a_task_whose_session_is_alive() -> None:
     assert runner.spawned == []  # reachable session (e.g. a runner-only restart) — left untouched
 
 
+def test_heal_skips_agent_failure_until_claim_release_then_respawns() -> None:
+    client, runner = _FakeClient(repo=_REPO), _FakeRunner(session=False)
+    spawner = _spawner(client, runner)
+    failed = {
+        **_orphan(),
+        "container_status": "failed",
+        "lifecycle_detail": "No codex credentials",
+    }
+
+    spawner.mark_healing(failed)
+    assert spawner.heal(failed) is None
+    assert runner.spawned == []  # preserve the actionable failure; do not crash-loop
+    assert client.phases == []  # in particular, do not overwrite it with a healing phase
+
+    client.release("t1")  # operator presses R after fixing credentials
+    retry = {**failed, "claimed_by": None, "container_status": "queued"}
+    assert spawner.spawn_one(retry) == "panopticon-t1"
+    assert [spawn["task_id"] for spawn in runner.spawned] == ["t1"]
+
+
 def test_heal_skips_tasks_not_claimed_by_this_runner() -> None:
     client, runner = _FakeClient(repo=_REPO), _FakeRunner(session=False)
     spawner = _spawner(client, runner)
