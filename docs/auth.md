@@ -183,6 +183,19 @@ environment variable itself — so the harness usually renders nothing at all:
    the same `auth.json` to a second host — log in per host, or use a non-rotating access token
    where the provider offers one.
 
+3. **Personal pi config** (custom providers, local models, and other host-managed config): put
+   the pi files in a `pi/` subdirectory of the repo's existing credential directory. For example,
+   if the repo uses `credential_dir: "openai.d"`:
+
+   ```sh
+   mkdir -p ~/.config/panopticon/secrets/openai.d/pi
+   cp ~/.pi/agent/models.json ~/.config/panopticon/secrets/openai.d/pi/
+   ```
+
+   The pi harness links each entry under `openai.d/pi/` into its `PI_CODING_AGENT_DIR` at
+   bootstrap. Existing files in the persistent pi config volume are never overwritten. This uses
+   the existing credential-directory mount; no additional repo setting is needed.
+
 Pick the model per task via `starting_model` (pi's own `--model` syntax, e.g. `sonnet`,
 `sonnet:high`, `openai/gpt-4o`); unset, pi picks its own default.
 

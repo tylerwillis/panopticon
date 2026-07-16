@@ -52,6 +52,11 @@ and ``~/.pi/agent/mcp.json`` on that install is an empty ``{}`` — pi ships no 
   single-var provider credential pi resolves, pulled from its ``env-api-keys.ts`` source — see
   that constant's docstring), a mounted credential dir (symlinked in, same shape as codex's), or
   one already materialized on the config volume from a prior ``/login``.
+
+- **Personal config.** Entries under ``<credential_dir>/pi/`` are symlinked into the config dir
+  without clobbering anything already there. This carries host-managed files such as
+  ``models.json`` (including custom providers and local models) through the existing per-repo
+  credential mount instead of introducing another repo field and Docker mount.
 """
 
 from __future__ import annotations
@@ -75,6 +80,10 @@ NODE_VERSION = "22.19.0"
 
 #: pi's shared credentials file (subscriptions *and* API keys), under ``PI_CODING_AGENT_DIR``.
 AUTH_FILE = "auth.json"
+
+#: Pi-only personal config lives below the shared per-repo credential mount. Keeping this in a
+#: subdirectory avoids exposing pi-specific layout as another Repo field or runner mount.
+PERSONAL_CONFIG_DIR = "pi"
 
 #: pi's JSON settings file, global scope once ``PI_CODING_AGENT_DIR`` points here.
 SETTINGS_FILE = "settings.json"
@@ -244,6 +253,7 @@ class PiHarness(Harness):
         ]
         write_skills(entries, ctx.home, ctx.task_id)
         self._ensure_auth(config_dir, ctx.environ)
+        self._ensure_personal_config(config_dir, ctx.environ)
 
     def _ensure_auth(self, config_dir: Path, environ: Mapping[str, str]) -> None:
         """Symlink a mounted subscription ``auth.json`` in when present. Idempotent; never
@@ -255,6 +265,23 @@ class PiHarness(Harness):
         credentials = environ.get("PANOPTICON_CREDENTIALS")
         if credentials and (Path(credentials) / AUTH_FILE).exists():
             auth.symlink_to(Path(credentials) / AUTH_FILE)
+
+    def _ensure_personal_config(self, config_dir: Path, environ: Mapping[str, str]) -> None:
+        """Link entries from the mounted ``pi/`` directory into pi's config directory.
+
+        The config volume persists across respawns, so existing files and symlinks always win.
+        Linking each top-level entry also supports directory-shaped pi config without copying it.
+        """
+        credentials = environ.get("PANOPTICON_CREDENTIALS")
+        if not credentials:
+            return
+        personal_config = Path(credentials) / PERSONAL_CONFIG_DIR
+        if not personal_config.is_dir():
+            return
+        for source in personal_config.iterdir():
+            destination = config_dir / source.name
+            if not destination.exists() and not destination.is_symlink():
+                destination.symlink_to(source)
 
     def argv(self, ctx: LaunchContext) -> list[str]:
         """``pi`` argv. pi "runs with all permissions by default" (its own containerization
