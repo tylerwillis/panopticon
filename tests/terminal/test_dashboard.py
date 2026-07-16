@@ -207,6 +207,9 @@ class _FakeClient:
     def list_workflows(self) -> list[dict[str, Any]]:
         return self._workflows
 
+    def list_workflow_files(self) -> list[dict[str, Any]]:
+        return self._workflows
+
     def list_workflows_for_repo(self, repo_id: str) -> list[dict[str, str]]:
         return self._workflows
 
@@ -1494,6 +1497,75 @@ async def test_pressing_g_opens_the_repos_screen_listing_repos() -> None:
         assert table.row_count == 1
 
 
+async def test_pressing_w_lists_registered_workflows_and_marks_built_ins() -> None:
+    fake = _FakeClient(
+        [],
+        workflows=[
+            {
+                "name": "spike",
+                "when_to_use": "Open-ended work.",
+                "path": "/site-packages/panopticon/workflows/spike.py",
+                "built_in": True,
+            },
+            {
+                "name": "release",
+                "when_to_use": "Ship a release.",
+                "path": "/config/workflows/release.py",
+                "built_in": False,
+            },
+        ],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("w")
+        await pilot.pause()
+        assert isinstance(app.screen, dashboard.WorkflowsScreen)
+        table = app.screen.query_one("#workflows", DataTable)
+        assert table.row_count == 2
+        assert "built-in (edit with care)" in str(table.get_row_at(0))
+        assert "Ship a release." in str(table.get_row_at(1))
+
+
+def test_create_workflow_file_writes_discoverable_minimal_template(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    monkeypatch.setenv("PANOPTICON_CONFIG", str(tmp_path))
+
+    path = dashboard._create_workflow_file("release-check")
+
+    assert path == tmp_path / "workflows" / "release-check.py"
+    content = path.read_text()
+    assert "class ReleaseCheck(Workflow):" in content
+    assert 'name: ClassVar[str] = "release-check"' in content
+    assert "class Working(InitialState):" in content
+    assert "transitions = (Complete,)" in content
+
+
+async def test_workflows_screen_new_creates_template_and_opens_it(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    monkeypatch.setenv("PANOPTICON_CONFIG", str(tmp_path))
+    monkeypatch.setattr(App, "suspend", lambda self: contextlib.nullcontext())
+    opened: list[Path] = []
+    monkeypatch.setattr(dashboard, "_open_file_in_editor", opened.append)
+    app = Dashboard(_FakeClient([], workflows=[]))  # type: ignore[arg-type]
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("w")
+        await pilot.pause()
+        await pilot.press("n")
+        await pilot.pause()
+        app.screen.query_one("#workflow-name", Input).value = "release-check"
+        await pilot.press("enter")
+        await pilot.pause()
+
+    path = tmp_path / "workflows" / "release-check.py"
+    assert opened == [path]
+    assert "class ReleaseCheck(Workflow):" in path.read_text()
+
+
 async def test_pressing_s_in_the_repos_screen_creates_a_setup_repo_task() -> None:
     # The setup-repo workflow is hidden from the pickers; the repos modal's `s` hotkey is how it's
     # launched — one setup-repo task for the highlighted repo, seeded with a memo.
@@ -2502,7 +2574,7 @@ def test_footer_shows_only_the_essential_keys() -> None:
     shown = {b.key for b in Dashboard.BINDINGS if b.show}
     hidden = {b.key for b in Dashboard.BINDINGS if not b.show}
     assert shown == {"t", "n", "x", "/", "d", "question_mark", "q"}
-    assert hidden == {"o", "r", "R", "p", "g", "a", "s", "u", "y", "Y", "escape"}
+    assert hidden == {"o", "r", "R", "p", "g", "w", "a", "s", "u", "y", "Y", "escape"}
 
 
 def test_bindings_and_help_derive_from_the_single_hotkey_table() -> None:

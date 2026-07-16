@@ -101,7 +101,7 @@ from textual.widgets._select import NoSelection as _SelectNoSelection
 from textual.worker import get_current_worker
 
 from panopticon.client import JsonObj, TaskServiceClient
-from panopticon.core.dirs import ARTIFACTS_DIR
+from panopticon.core.dirs import ARTIFACTS_DIR, user_config_dir
 from panopticon.core.state import TERMINAL_LABELS
 from panopticon.harnesses import DEFAULT_HARNESS, HARNESSES
 from panopticon.sessionservice.local_runner import session_name
@@ -440,6 +440,49 @@ def _edit_with_editor(text: str) -> str:
         return Path(path).read_text(encoding="utf-8")
     finally:
         os.unlink(path)
+
+
+def _open_file_in_editor(path: Path) -> None:
+    """Open an existing file in ``$EDITOR``, using the Ctrl+G editor argv convention."""
+    subprocess.run([*shlex.split(os.environ.get("EDITOR", "vi")), str(path)])
+
+
+def _workflow_template(name: str) -> str:
+    """A small, valid workflow module intended to be expanded in the operator's editor."""
+    class_name = "".join(part.capitalize() for part in re.split(r"[-_]", name))
+    return f'''"""Operator-defined {name} workflow."""
+
+from typing import ClassVar
+
+from panopticon.core.state import Complete, InitialState
+from panopticon.core.workflow import Workflow
+
+
+class {class_name}(Workflow):
+    name: ClassVar[str] = "{name}"
+    # Explain the situation in which an operator should choose this workflow.
+    when_to_use: ClassVar[str] = "Describe when to use this workflow."
+
+    class Working(InitialState):
+        label = "WORKING"
+        description = "Do the work."
+        # Add State subclasses, responsibilities, and transitions as the process requires.
+        transitions = (Complete,)
+
+    initial = Working
+'''
+
+
+def _create_workflow_file(name: str) -> Path:
+    """Create a new path-discovered workflow module without overwriting an existing one."""
+    if not re.fullmatch(r"[a-z][a-z0-9]*(?:-[a-z0-9]+)*", name):
+        raise ValueError("name must be lower-case kebab-case")
+    directory = user_config_dir() / "workflows"
+    directory.mkdir(parents=True, exist_ok=True)
+    path = directory / f"{name}.py"
+    with path.open("x", encoding="utf-8") as file:
+        file.write(_workflow_template(name))
+    return path
 
 
 # Linux clipboard writers, in preference order: Wayland first, then the X11 tools. Each is the
@@ -1491,6 +1534,108 @@ class RepoFormScreen(ModalScreen["dict[str, Any] | None"]):
         self.dismiss(None)
 
 
+class NewWorkflowScreen(ModalScreen[str | None]):
+    """Prompt for the kebab-case name of an operator-authored workflow."""
+
+    CSS = """
+    NewWorkflowScreen { align: center middle; }
+    #new-workflow-box { width: 56; height: auto; padding: 1 2; border: round $accent; background: $surface; }
+    """
+    BINDINGS = [("enter", "create", "Create"), ("escape", "cancel", "Cancel")]
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="new-workflow-box"):
+            yield Label("new workflow — lower-case kebab-case name")
+            yield Input(placeholder="my-workflow", id="workflow-name")
+
+    def on_mount(self) -> None:
+        self.query_one(Input).focus()
+
+    def action_create(self) -> None:
+        self.dismiss(self.query_one(Input).value.strip())
+
+    def on_input_submitted(self, _: Input.Submitted) -> None:
+        self.action_create()
+
+    def action_cancel(self) -> None:
+        self.dismiss(None)
+
+
+class WorkflowsScreen(ModalScreen[None]):
+    """List registered workflow source files; Enter edits one and `n` creates one."""
+
+    CSS = """
+    WorkflowsScreen { align: center middle; }
+    #workflows-box { width: 90%; height: 80%; padding: 1 2; border: round $accent; background: $surface; }
+    """
+    BINDINGS = [
+        ("enter", "open_workflow", "Open"),
+        ("n", "new_workflow", "New workflow"),
+        ("escape", "close", "Close"),
+    ]
+
+    def __init__(self, client: TaskServiceClient) -> None:
+        super().__init__()
+        self._client = client
+        self._workflows: dict[str, JsonObj] = {}
+        self._current: str | None = None
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="workflows-box"):
+            yield Label("workflows — enter: open in $EDITOR   n: new   esc: close")
+            yield _VimDataTable(id="workflows")
+
+    def on_mount(self) -> None:
+        table = self.query_one("#workflows", DataTable)
+        table.cursor_type = "row"
+        table.add_columns("name", "kind", "when to use")
+        table.focus()
+        self._refresh()
+
+    def _refresh(self) -> None:
+        table = self.query_one("#workflows", DataTable)
+        table.clear()
+        self._workflows = {str(w["name"]): w for w in self._client.list_workflow_files()}
+        for workflow in self._workflows.values():
+            table.add_row(
+                workflow["name"],
+                "built-in (edit with care)" if workflow["built_in"] else "operator",
+                workflow["when_to_use"],
+                key=str(workflow["name"]),
+            )
+        self._current = next(iter(self._workflows), None)
+
+    def on_data_table_row_highlighted(self, event: DataTable.RowHighlighted) -> None:
+        self._current = str(event.row_key.value) if event.row_key.value is not None else None
+
+    def _open(self, path: Path) -> None:
+        try:
+            with self.app.suspend():
+                _open_file_in_editor(path)
+        except SuspendNotSupported:
+            self.notify("Editor not supported in this environment", severity="warning")
+
+    def action_open_workflow(self) -> None:
+        if self._current is not None:
+            self._open(Path(str(self._workflows[self._current]["path"])))
+
+    def action_new_workflow(self) -> None:
+        def create(name: str | None) -> None:
+            if name is None:
+                return
+            try:
+                path = _create_workflow_file(name)
+            except (ValueError, FileExistsError) as exc:
+                self.notify(f"Can't create workflow: {exc}", severity="error")
+                return
+            self._open(path)
+
+        self.app.push_screen(NewWorkflowScreen(), create)
+
+    def action_close(self) -> None:
+        self.dismiss(None)
+
+
 class ReposScreen(ModalScreen[None]):
     """Repo management: list repos, create (`n`) / edit (`e`) them; Escape returns to the task
     view. Mutations go through the task service over REST, then the table refreshes."""
@@ -1729,6 +1874,7 @@ HOTKEYS: tuple[Hotkey, ...] = (
     Hotkey("R", "respawn", "Respawn", "Respawn a down task (release its claim)", show=False),
     Hotkey("p", "open_url", "Open URL", "Open the task's URL in the browser", show=False),
     Hotkey("g", "repos", "Repos", "Repo config (list / create / edit repos)", show=False),
+    Hotkey("w", "workflows", "Workflows", "List / create workflows in $EDITOR", show=False),
     Hotkey("a", "artifacts", "Artifacts", "List the task's artifacts", show=False),
     Hotkey("s", "service", "Service", "Switch to the task-service session", show=False),
     Hotkey("u", "runner", "Runner", "Switch to the session-service (runner) session", show=False),
@@ -2358,6 +2504,10 @@ class Dashboard(App[None]):
             self.action_refresh()
 
         self.push_screen(ReposScreen(self._client), _on_repos_dismissed)
+
+    def action_workflows(self) -> None:
+        """`w`: list registered workflow code and open it in the operator's editor."""
+        self.push_screen(WorkflowsScreen(self._client))
 
     def action_artifacts(self) -> None:
         """`a`: open a modal listing the highlighted task's artifacts. Enter opens the selection
