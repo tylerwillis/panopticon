@@ -16,7 +16,7 @@ session service look the name up here when they need the CLI's mechanics.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import ClassVar
@@ -33,6 +33,31 @@ INTERRUPT_PROMPT = "You were interrupted. Continue."
 #: ChatGPT account = one rotating token chain, converged on by every session). The runner
 #: exports the path as ``PANOPTICON_CREDENTIALS`` when the mount is present.
 CREDENTIALS_MOUNT = "/panopticon/credentials"
+
+#: Command both CLI hook formats invoke to update the task's turn through the control plane.
+HOOK_COMMAND = "python -m panopticon.container.hook"
+
+
+def task_id_note(task_id: str) -> str:
+    """Guidance shared by every rendered skill for calling the task-scoped MCP tools."""
+    return (
+        f'\nThis is task `{task_id}` — pass `task_id="{task_id}"` to every panopticon MCP tool '
+        f"you call here.\n"
+    )
+
+
+def operation_skill(name: str, target_state: str, task_id: str) -> Skill:
+    """Represent a declared workflow operation on the same CLI-agnostic surface as a skill."""
+    return Skill(
+        name=name,
+        description=f"Apply the workflow's '{name}' operation.",
+        instructions=(
+            f"Apply this workflow's `{name}` operation — it moves the task to **{target_state}**. "
+            f'Invoke it with the `apply_operation` tool (`operation="{name}"`, '
+            f"`task_id=\"{task_id}\"`); don't edit the state directly. It's gated on the current "
+            "state's responsibilities and starts a new turn."
+        ),
+    )
 
 
 @dataclass(frozen=True)
@@ -52,6 +77,12 @@ class BootstrapContext:
     operations: Mapping[str, str] = field(default_factory=dict)  # verb → target state
     overview: str = ""  # the whole-workflow map (→ the agent's system prompt)
     environ: Mapping[str, str] = field(default_factory=dict)  # the container's env (auth vars)
+
+    def workflow_skills(self) -> Iterator[Skill]:
+        """Skills followed by operations, ready for a harness's native skill renderer."""
+        yield from self.skills
+        for name, target_state in self.operations.items():
+            yield operation_skill(name, target_state, self.task_id)
 
 
 @dataclass(frozen=True)

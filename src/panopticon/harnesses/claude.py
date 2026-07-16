@@ -17,7 +17,15 @@ from pathlib import Path
 from typing import Any, ClassVar
 
 from panopticon.core.models import Skill
-from panopticon.harnesses.base import INTERRUPT_PROMPT, BootstrapContext, Harness, LaunchContext
+from panopticon.harnesses.base import (
+    HOOK_COMMAND,
+    INTERRUPT_PROMPT,
+    BootstrapContext,
+    Harness,
+    LaunchContext,
+    operation_skill,
+    task_id_note,
+)
 from panopticon.harnesses.config import update_json_config
 
 #: claude's main config file. Holds (besides per-container state) per-project trust acceptance.
@@ -29,10 +37,6 @@ MCP_CONFIG_FILE = "panopticon-mcp.json"
 #: Filename of the rendered workflow overview (the whole-lifecycle map); claude gets its contents in
 #: the system prompt via ``--append-system-prompt`` so the agent always knows the workflow's shape.
 WORKFLOW_OVERVIEW_FILE = "workflow-overview.md"
-
-#: The command claude runs for each hook event (sets the turn via the task service). The callback
-#: module stays in ``container/`` — it runs inside the container and talks REST at hook time.
-HOOK_COMMAND = "python -m panopticon.container.hook"
 
 #: OAuth tokens minted via ``claude setup-token`` (docs/auth.md's one-time setup).
 OAUTH_TOKEN_PREFIX = "sk-ant-oat01-"
@@ -55,19 +59,11 @@ def _looks_like(value: str, prefix: str) -> bool:
     return value.startswith(prefix) and len(value) >= MIN_CREDENTIAL_LENGTH
 
 
-# The panopticon MCP tools all take a ``task_id`` (the server is shared across tasks). The agent
-# can't read its container's env, so we inject the concrete id into each rendered command — the
-# agent passes this verbatim. (Identity is a container-side fact; ARCHITECTURE §8.3.)
-def _task_id_note(task_id: str) -> str:
-    return (
-        f'\nThis is task `{task_id}` — pass `task_id="{task_id}"` to every panopticon MCP tool '
-        f"you call here.\n"
-    )
-
-
 def render_command(skill: Skill, task_id: str) -> str:
     """The `.claude/commands/<name>.md` body for a skill: frontmatter + the agent procedure."""
-    return f"---\ndescription: {skill.description}\n---\n{skill.instructions}\n{_task_id_note(task_id)}"
+    return (
+        f"---\ndescription: {skill.description}\n---\n{skill.instructions}\n{task_id_note(task_id)}"
+    )
 
 
 def render_operation(name: str, target_state: str, task_id: str) -> str:
@@ -76,13 +72,7 @@ def render_operation(name: str, target_state: str, task_id: str) -> str:
     Operations are the workflow's **declared, gated** moves; the agent applies one by name via the
     `apply_operation` tool (not by editing state directly), which starts a new agentic turn.
     """
-    return (
-        f"---\ndescription: Apply the workflow's '{name}' operation.\n---\n"
-        f"Apply this workflow's `{name}` operation — it moves the task to **{target_state}**. "
-        f'Invoke it with the `apply_operation` tool (`operation="{name}"`, `task_id="{task_id}"`); '
-        f"don't edit the state directly. It's gated on the current state's responsibilities and "
-        f"starts a new turn.\n"
-    )
+    return render_command(operation_skill(name, target_state, task_id), task_id)
 
 
 def write_commands(skills: Iterable[Skill], root: Path, task_id: str) -> list[Path]:
@@ -93,18 +83,6 @@ def write_commands(skills: Iterable[Skill], root: Path, task_id: str) -> list[Pa
     for skill in skills:
         path = commands_dir / f"{skill.name}.md"
         path.write_text(render_command(skill, task_id))
-        written.append(path)
-    return written
-
-
-def write_operation_commands(operations: Mapping[str, str], root: Path, task_id: str) -> list[Path]:
-    """Write each core operation (verb → target state) to ``<root>/.claude/commands/<verb>.md``."""
-    commands_dir = root / ".claude" / "commands"
-    commands_dir.mkdir(parents=True, exist_ok=True)
-    written = []
-    for name, target_state in operations.items():
-        path = commands_dir / f"{name}.md"
-        path.write_text(render_operation(name, target_state, task_id))
         written.append(path)
     return written
 
@@ -254,8 +232,7 @@ class ClaudeHarness(Harness):
 
     def bootstrap(self, ctx: BootstrapContext) -> None:
         config_dir = self.config_dir(ctx.home)
-        write_commands(ctx.skills, ctx.home, ctx.task_id)
-        write_operation_commands(ctx.operations, ctx.home, ctx.task_id)  # advance/drop/…
+        write_commands(ctx.workflow_skills(), ctx.home, ctx.task_id)
         write_settings(ctx.home)  # turn-flip hooks → <home>/.claude/settings.json
         write_mcp_config(config_dir, ctx.service_url)  # point claude at the task service's MCP
         write_workflow_overview(config_dir, ctx.overview)  # → system prompt (the map)
