@@ -161,6 +161,9 @@ class _FakeClient:
     def list_repos(self) -> list[dict[str, Any]]:
         return self._repos
 
+    def get_repo(self, repo_id: str) -> dict[str, Any]:
+        return next(repo for repo in self._repos if repo["id"] == repo_id)
+
     def create_repo(
         self,
         repo_id: str,
@@ -826,6 +829,84 @@ async def test_pressing_n_shows_the_repos_configured_default_harness() -> None:
         selector = app.screen.query_one(dashboard.HarnessSelector)
         assert selector.value == "codex"
         await pilot.press("enter")  # submit, unchanged → no override sent
+        await pilot.pause()
+        assert fake.created == [("r1", "spike", None, None, None, None)]
+
+
+async def test_memo_launch_summary_re_resolves_after_repo_data_loads(tmp_path: Path) -> None:
+    """Exercise the real modal path when repo detail arrives after the picker snapshot."""
+    fake = _FakeClient(
+        [],
+        repos=[{"id": "r1", "name": "r1", "git_url": "", "default_base": "main"}],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    loaded_repo = {
+        "id": "r1",
+        "name": "r1",
+        "git_url": "",
+        "default_base": "main",
+        "default_harness": "codex",
+        "default_model": None,
+    }
+
+    def load_workflows(repo_id: str) -> list[dict[str, str]]:
+        assert repo_id == "r1"
+        fake._repos = [loaded_repo]
+        return fake._workflows
+
+    fake.list_workflows_for_repo = load_workflows  # type: ignore[method-assign]
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter")
+        await pilot.pause()
+
+        screenshot = app.save_screenshot("memo-repo-default.svg", str(tmp_path))
+        summary = app.screen.query_one("#launch-summary", Static)
+        assert Path(screenshot).exists()
+        assert str(summary.render()) == "codex · (codex default) — set by repo default"
+
+
+async def test_enter_submits_while_harness_selector_is_unfocused(tmp_path: Path) -> None:
+    fake = _FakeClient(
+        [],
+        repos=[
+            {
+                "id": "r1",
+                "name": "r1",
+                "git_url": "",
+                "default_base": "main",
+                "default_harness": "codex",
+            }
+        ],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter")
+        await pilot.pause()
+
+        screenshot = app.save_screenshot("memo-enter-submit.svg", str(tmp_path))
+        assert Path(screenshot).exists()
+        assert isinstance(app.screen.focused, dashboard.MemoTextArea)
+        assert app.screen.query_one("#enter-hint", Label).content == "enter: submit"
+
+        await pilot.press("tab")
+        await pilot.pause()
+        focused_screenshot = app.save_screenshot("memo-selector-focused.svg", str(tmp_path))
+        assert Path(focused_screenshot).exists()
+        assert isinstance(app.screen.focused, dashboard.HarnessSelector)
+        assert app.screen.query_one("#enter-hint", Label).content == "enter: cycle harness"
+
+        await pilot.press("shift+tab")
+        await pilot.pause()
+        submit_screenshot = app.save_screenshot("memo-selector-unfocused.svg", str(tmp_path))
+        assert Path(submit_screenshot).exists()
+        assert isinstance(app.screen.focused, dashboard.MemoTextArea)
+        assert app.screen.query_one("#enter-hint", Label).content == "enter: submit"
+
+        await pilot.press("enter")
         await pilot.pause()
         assert fake.created == [("r1", "spike", None, None, None, None)]
 
