@@ -75,6 +75,54 @@ def test_bootstrap_pins_every_outfitter_artifact(tmp_path: Path) -> None:
     )
 
 
+def test_suggested_models_discovers_flat_and_directory_profiles(tmp_path: Path) -> None:
+    (tmp_path / "founder.yml").write_text(
+        "label: Founder\ndescription: Founder-operator defaults for product and engineering.\n"
+    )
+    (tmp_path / "data.yaml").write_text(
+        "id: data-analyst\nlabel: Data Analyst\ndescription: >-\n"
+        "  Analyze product data with\n  concise evidence.\n"
+    )
+    directory = tmp_path / "engineering"
+    directory.mkdir()
+    (directory / "profile.yml").write_text(
+        "id: engineering-default\nlabel: Engineering Default\n"
+        "description: 'Review, build, and ship.'\n"
+    )
+
+    harness = OutfitterHarness(profile_sources_root=tmp_path)
+
+    assert harness.field_label == "profile"
+    assert harness.suggested_models() == (
+        ("data-analyst", "data-analyst — Analyze product data with concise evidence."),
+        ("engineering-default", "engineering-default — Review, build, and ship."),
+        ("founder", "founder — Founder-operator defaults for product and engineering."),
+    )
+
+
+def test_suggested_models_skips_bad_and_template_profiles_and_truncates(tmp_path: Path) -> None:
+    (tmp_path / "template.yml").write_text(
+        "id: base\ntemplate: true\ndescription: Not directly launchable.\n"
+    )
+    missing_id = tmp_path / "missing-id"
+    missing_id.mkdir()
+    (missing_id / "profile.yml").write_text("description: Cannot infer a directory id.\n")
+    (tmp_path / "long.yml").write_text("description: " + "word " * 30)
+    (tmp_path / "unreadable.yml").write_bytes(b"\xff")
+
+    suggestions = OutfitterHarness(profile_sources_root=tmp_path).suggested_models()
+
+    assert len(suggestions) == 1
+    assert suggestions[0][0] == "long"
+    assert suggestions[0][1].startswith("long — word")
+    assert suggestions[0][1].endswith("…")
+    assert len(suggestions[0][1]) <= 80
+
+
+def test_suggested_models_fails_soft_when_source_is_absent(tmp_path: Path) -> None:
+    assert OutfitterHarness(profile_sources_root=tmp_path / "missing").suggested_models() == ()
+
+
 def test_argv_passes_profile_and_panopticon_controls_through_to_pi(tmp_path: Path) -> None:
     HARNESS.bootstrap(_bootstrap_ctx(tmp_path))
     assert HARNESS.argv(
