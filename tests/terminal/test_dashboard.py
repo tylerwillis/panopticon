@@ -1236,13 +1236,38 @@ async def test_pressing_shift_y_copies_the_id(monkeypatch: Any) -> None:
         assert copied == ["task-abcdef0123"]
 
 
-async def test_pressing_ctrl_c_copies_the_rendered_detail(monkeypatch: Any) -> None:
+async def test_pressing_ctrl_c_with_detail_open_shows_quit_notice_and_does_not_copy(
+    monkeypatch: Any,
+) -> None:
+    copied: list[str] = []
+    notices: list[tuple[str, str]] = []
+    app = Dashboard(_FakeClient([_TASK]))  # type: ignore[arg-type]
+    monkeypatch.setattr(app, "copy_to_clipboard", copied.append)
+    monkeypatch.setattr(
+        app,
+        "notify",
+        lambda message, *, title="", **kwargs: notices.append((message, title)),
+    )
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("d")
+        await pilot.press("ctrl+c")
+        await pilot.pause()
+        assert copied == []
+        assert len(notices) == 1
+        message, title = notices[0]
+        assert "quit the app" in message
+        assert title == "Do you want to quit?"
+
+
+async def test_pressing_c_with_detail_open_copies_the_rendered_detail(monkeypatch: Any) -> None:
     copied: list[str] = []
     app = Dashboard(_FakeClient([_TASK]))  # type: ignore[arg-type]
     monkeypatch.setattr(app, "copy_to_clipboard", copied.append)
     async with app.run_test() as pilot:
         await pilot.pause()
-        await pilot.press("ctrl+c")
+        await pilot.press("d")
+        await pilot.press("c")
         await pilot.pause()
         assert copied == [render_detail(_TASK)]
 
@@ -2669,7 +2694,7 @@ def test_footer_shows_only_the_essential_keys() -> None:
     shown = {b.key for b in Dashboard.BINDINGS if b.show}
     hidden = {b.key for b in Dashboard.BINDINGS if not b.show}
     assert shown == {"t", "n", "x", "/", "d", "question_mark", "q"}
-    assert hidden == {"o", "r", "R", "p", "g", "w", "a", "s", "u", "y", "Y", "ctrl+c", "escape"}
+    assert hidden == {"o", "r", "R", "p", "g", "w", "a", "s", "u", "y", "Y", "c", "escape"}
 
 
 def test_bindings_and_help_derive_from_the_single_hotkey_table() -> None:
