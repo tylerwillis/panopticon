@@ -89,7 +89,7 @@ def test_extension_puts_the_turn_via_the_task_service_rest_api() -> None:
 
 
 def test_extension_flips_to_user_on_settle_and_agent_on_input() -> None:
-    assert 'pi.on("agent_settled", () => setTurn("user"));' in TURN_EXTENSION
+    assert 'pi.on("agent_end", () => setTurn("user"));' in TURN_EXTENSION
     assert 'pi.on("input", () => setTurn("agent"));' in TURN_EXTENSION
 
 

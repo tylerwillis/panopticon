@@ -39,7 +39,7 @@ and ``~/.pi/agent/mcp.json`` on that install is an empty ``{}`` — pi ships no 
   signatures in ``core/extensions/types.ts``. :data:`TURN_EXTENSION` is a minimal extension
   rendered at bootstrap and loaded via ``--extension <path>`` on every launch; it mirrors
   :mod:`panopticon.container.hook`'s contract exactly — ``PUT .../tasks/{id}/turn`` with
-  ``{"turn": "user"}`` on ``agent_settled`` (pi "will not continue running automatically", the
+  ``{"turn": "user"}`` on ``agent_end`` (pi "will not continue running automatically", the
   closest analog to Stop), ``{"turn": "agent"}`` on ``input`` (fired when user input arrives).
   It reads ``PANOPTICON_SERVICE_URL``/``PANOPTICON_TASK_ID`` from the environment the launcher
   already sets, so its content needs no per-task templating. Not run against a live pi process —
@@ -96,7 +96,7 @@ export default function (pi) {
       body: JSON.stringify({ turn }),
     }).catch(() => {});
 
-  pi.on("agent_settled", () => setTurn("user"));
+  pi.on("agent_end", () => setTurn("user"));
   pi.on("input", () => setTurn("agent"));
 }
 """
