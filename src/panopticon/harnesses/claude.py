@@ -16,6 +16,8 @@ from collections.abc import Iterable, Mapping
 from pathlib import Path
 from typing import Any, ClassVar
 
+import httpx
+
 from panopticon.core.models import Skill
 from panopticon.harnesses.base import (
     HOOK_COMMAND,
@@ -37,26 +39,6 @@ MCP_CONFIG_FILE = "panopticon-mcp.json"
 #: Filename of the rendered workflow overview (the whole-lifecycle map); claude gets its contents in
 #: the system prompt via ``--append-system-prompt`` so the agent always knows the workflow's shape.
 WORKFLOW_OVERVIEW_FILE = "workflow-overview.md"
-
-#: OAuth tokens minted via ``claude setup-token`` (docs/auth.md's one-time setup).
-OAUTH_TOKEN_PREFIX = "sk-ant-oat01-"
-#: Anthropic API keys (Console-issued). Shares ``CLAUDE_CODE_OAUTH_TOKEN``'s ``sk-ant-`` family,
-#: but is checked against its own variable so a malformed value names *that* variable, not the
-#: other one's.
-API_KEY_PREFIX = "sk-ant-"
-#: Real tokens/keys are long random strings (Anthropic's are on the order of 100+ characters) —
-#: anything shorter than this after the prefix is a placeholder, a typo, or an obviously
-#: truncated paste, not a real credential. This is a conservative lower bound, not the exact
-#: documented length (Anthropic doesn't publish one and it isn't ours to pin), so it flags junk
-#: without needing to track upstream format changes precisely.
-MIN_CREDENTIAL_LENGTH = 40
-
-
-def _looks_like(value: str, prefix: str) -> bool:
-    """Shape check: the right prefix *and* a plausible minimum length — not full grammar
-    validation (we don't know the exact charset/length Anthropic issues), just enough to catch
-    a wrong prefix or a trivially short placeholder/truncated value."""
-    return value.startswith(prefix) and len(value) >= MIN_CREDENTIAL_LENGTH
 
 
 def render_command(skill: Skill, task_id: str) -> str:
@@ -194,41 +176,52 @@ class ClaudeHarness(Harness):
     config_dirname: ClassVar[str] = ".claude"
 
     def missing_auth(self, environ: Mapping[str, str], *, home: Path) -> str | None:
-        """A shape-only credential preflight: catches the wrong-prefix or obviously-truncated/
-        placeholder token that would otherwise drop the operator into claude's in-container
-        ``/login`` — a dead end (no browser in the container, a tmux-hard-wrapped URL to
-        hand-copy, and a fix that only ever lands in *this* task's per-task config volume). The
-        real fix is always the repo's env_file, so an invalid credential must surface the same way
-        a missing one does: a failed lifecycle detail naming it.
+        """Presence, then one **fail-open live probe** — the API is the only authority on
+        validity, and its 401 catches revoked, malformed, and truncated credentials alike with
+        no prefix/length lore to maintain. Anything else surfaces claude's in-container
+        ``/login``, a dead end (no browser, a tmux-hard-wrapped URL, a fix that lands only in
+        this task's config volume) — the real fix is the repo's env_file, so a bad credential
+        must fail the spawn the same way a missing one does.
 
-        Deliberately a shape check (prefix + a minimum plausible length, :func:`_looks_like`),
-        not a live API probe and not full grammar validation of the token/key — we don't know
-        Anthropic's exact charset or length, and a live probe adds a network round trip (and its
-        own failure modes — rate limits, transient outages) to *every* spawn. This catches the
-        failure mode actually reported (a wrong, stale, or truncated paste), not every possible
-        malformed value.
-
-        ``ANTHROPIC_API_KEY`` wins when both are set (docs/auth.md), so it's checked first.
+        Fail-open on purpose: only a definitive 401 blocks the spawn. A probe that can't
+        complete (offline, timeout, 5xx, rate limit) proceeds — the agent is about to make the
+        same API call anyway, so nothing is lost by trying. ``ANTHROPIC_API_KEY`` wins when
+        both are set (docs/auth.md), so the probe exercises the credential claude will use.
         """
-        if api_key := environ.get("ANTHROPIC_API_KEY"):
-            if _looks_like(api_key, API_KEY_PREFIX):
-                return None
+        api_key = environ.get("ANTHROPIC_API_KEY")
+        token = environ.get("CLAUDE_CODE_OAUTH_TOKEN")
+        if not (api_key or token):
             return (
-                f"ANTHROPIC_API_KEY doesn't look like an Anthropic key (expected a "
-                f"`{API_KEY_PREFIX}…` value of plausible length) — check the repo's env_file "
+                "No auth token — set CLAUDE_CODE_OAUTH_TOKEN in the repo's env_file "
                 "(see docs/auth.md)"
             )
-        if token := environ.get("CLAUDE_CODE_OAUTH_TOKEN"):
-            if _looks_like(token, OAUTH_TOKEN_PREFIX):
-                return None
+        if api_key:
+            var = "ANTHROPIC_API_KEY"
+            headers = {"x-api-key": api_key, "anthropic-version": "2023-06-01"}
+        else:
+            var = "CLAUDE_CODE_OAUTH_TOKEN"
+            headers = {
+                "authorization": f"Bearer {token}",
+                "anthropic-version": "2023-06-01",
+                "anthropic-beta": "oauth-2025-04-20",
+            }
+        if self._probe_status(headers) == 401:
             return (
-                f"CLAUDE_CODE_OAUTH_TOKEN doesn't look like a claude token (expected a "
-                f"`{OAUTH_TOKEN_PREFIX}…` value of plausible length) — check the repo's env_file "
-                "(see docs/auth.md)"
+                f"{var} was rejected by the API (revoked or invalid) — re-mint it and update "
+                "the repo's env_file (see docs/auth.md)"
             )
-        return (
-            "No auth token — set CLAUDE_CODE_OAUTH_TOKEN in the repo's env_file (see docs/auth.md)"
-        )
+        return None
+
+    def _probe_status(self, headers: dict[str, str]) -> int | None:
+        """Status of an authenticated, token-free GET against the API (the models listing), or
+        ``None`` when the probe itself couldn't complete — the caller fails open on ``None``.
+        The one network seam of the preflight, injectable in tests (no network in CI)."""
+        try:
+            return httpx.get(
+                "https://api.anthropic.com/v1/models", headers=headers, timeout=10
+            ).status_code
+        except Exception:
+            return None
 
     def bootstrap(self, ctx: BootstrapContext) -> None:
         config_dir = self.config_dir(ctx.home)
