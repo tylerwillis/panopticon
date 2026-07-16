@@ -12,7 +12,7 @@ image, so this harness contributes no image layer.
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 from typing import Any, ClassVar
 
@@ -186,6 +186,9 @@ class ClaudeHarness(Harness):
 
     name: ClassVar[str] = "claude"
     config_dirname: ClassVar[str] = ".claude"
+
+    def suggested_models(self) -> Sequence[tuple[str, str]]:
+        return (("fable", "Fable 5"), ("opus", "Opus 4.8"), ("sonnet", "Sonnet 5"))
 
     def missing_auth(self, environ: Mapping[str, str], *, home: Path) -> str | None:
         """Presence, then one **fail-open live probe** — the API is the only authority on

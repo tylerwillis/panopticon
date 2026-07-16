@@ -24,6 +24,12 @@ from panopticon.harnesses.pi import (
 HARNESS = PiHarness()
 
 
+def test_picker_metadata_is_an_empty_static_seam() -> None:
+    assert HARNESS.field_label == "model"
+    assert HARNESS.suggested_models() == ()
+    assert HARNESS.suggested_efforts("provider/model") == ()
+
+
 def _ctx(home: Path, **kwargs: str | None) -> LaunchContext:
     return LaunchContext(home=home, cwd=Path("/workspace"), **kwargs)  # type: ignore[arg-type]
 

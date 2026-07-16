@@ -107,6 +107,15 @@ class Harness(ABC):
 
     name: ClassVar[str]
     config_dirname: ClassVar[str]
+    field_label: ClassVar[str] = "model"
+
+    def suggested_models(self) -> Sequence[tuple[str, str]]:
+        """Static ``(value, label)`` suggestions for an advisory dashboard picker."""
+        return ()
+
+    def suggested_efforts(self, model: str | None = None) -> Sequence[tuple[str, str]]:
+        """Static effort suggestions for ``model``; unknown and free-text values stay valid."""
+        return ()
 
     def config_dir(self, home: Path) -> Path:
         """The CLI's config dir under ``home`` — the per-task volume's in-container path."""

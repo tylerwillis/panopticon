@@ -27,7 +27,7 @@ from __future__ import annotations
 
 import json
 import os
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 from typing import ClassVar
 
@@ -123,6 +123,16 @@ class CodexHarness(Harness):
 
     name: ClassVar[str] = "codex"
     config_dirname: ClassVar[str] = ".codex"
+
+    def suggested_models(self) -> Sequence[tuple[str, str]]:
+        return (
+            ("gpt-5.6-sol", "GPT-5.6 Sol"),
+            ("terra", "Terra"),
+            ("luna", "Luna"),
+        )
+
+    def suggested_efforts(self, model: str | None = None) -> Sequence[tuple[str, str]]:
+        return (("low", "Low"), ("medium", "Medium"), ("high", "High"), ("xhigh", "X-high"))
 
     def image_layer(self) -> str:
         """Install the pinned codex release: the statically-linked musl binary from GitHub
