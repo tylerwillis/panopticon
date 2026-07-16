@@ -689,6 +689,11 @@ class LaunchSelection:
             return None
         return f"{self.model}:{self.effort}" if self.effort else self.model
 
+    @property
+    def summary(self) -> str:
+        model = self.starting_model or f"({self.harness} default)"
+        return f"{self.harness} · {model} — set by {self.source}"
+
 
 def _split_model(value: str | None) -> tuple[str, str]:
     if not value:
@@ -827,9 +832,12 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
     #memo-box HarnessSelector { color: $text-muted; }
     #memo-box HarnessSelector:focus { color: $text; text-style: bold; }
     #launch-line { height: 1; }
-    #launch-line HarnessSelector { width: auto; }
-    #launch-line Input { width: 1fr; height: 1; border: none; padding: 0; }
-    #launch-source { width: auto; color: $text-muted; }
+    #launch-summary { width: 1fr; color: $text-muted; }
+    #launch-line HarnessSelector, #launch-line Input {
+        width: 0; height: 1; border: none; padding: 0;
+    }
+    #launch-line HarnessSelector:focus { width: auto; }
+    #launch-line Input:focus { width: 1fr; }
     """
     BINDINGS = [
         ("escape", "cancel", "Cancel"),
@@ -867,15 +875,14 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
             yield Label("ctrl+g: edit in $EDITOR", classes="memo-hint")
             harness = HARNESSES[self._selection.harness]
             with Horizontal(id="launch-line"):
+                yield Static(self._selection.summary, id="launch-summary")
                 yield HarnessSelector(self._selection.harness, self._harness_names)
-                yield Static(" · ")
                 yield Input(
                     self._selection.model,
                     placeholder=harness.field_label,
                     id="launch-model",
                     suggester=SuggestFromList([value for value, _ in harness.suggested_models()]),
                 )
-                yield Static(" · ")
                 yield Input(
                     self._selection.effort,
                     placeholder="effort",
@@ -884,7 +891,6 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
                         [value for value, _ in harness.suggested_efforts(self._selection.model)]
                     ),
                 )
-                yield Static(f" (set by {self._selection.source})", id="launch-source")
 
     def on_mount(self) -> None:
         self.query_one(MemoTextArea).focus()
@@ -905,7 +911,7 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
         self._selection = resolve_launch_selection(
             self._repo, self._workflow, overrides=self._overrides, touched=self._touched
         )
-        self.query_one("#launch-source", Static).update(" (set by this task)")
+        self.query_one("#launch-summary", Static).update(self._selection.summary)
         if field == "harness":
             harness = HARNESSES[value]
             model = self.query_one("#launch-model", Input)
@@ -2311,6 +2317,10 @@ class Dashboard(App[None]):
             def describe(workflow: str | None) -> None:
                 if workflow is None:
                     return
+                # The picker may have been populated from an earlier/lightweight repo snapshot.
+                # Re-read the selected record after workflow loading so launch defaults that
+                # arrived with that data are reflected when the memo modal is composed.
+                selected_repo = self._client.get_repo(repo)
                 workflow_data = next(item for item in workflows if item["name"] == workflow)
 
                 key = self._draft_key(repo, workflow)
@@ -2335,7 +2345,7 @@ class Dashboard(App[None]):
                     if _apply_memo_filter(stripped):
                         return
                     selection = resolve_launch_selection(
-                        repos_by_id[repo], workflow_data, overrides=launch, touched=touched
+                        selected_repo, workflow_data, overrides=launch, touched=touched
                     )
                     harness = selection.harness if "harness" in touched else None
                     starting_model = (
@@ -2365,7 +2375,7 @@ class Dashboard(App[None]):
                 draft = self._new_task_drafts.get(key, {})
                 self.push_screen(
                     MemoScreen(
-                        repos_by_id[repo],
+                        selected_repo,
                         workflow_data,
                         sorted(HARNESSES),
                         initial_memo=str(draft.get("memo", "")),
