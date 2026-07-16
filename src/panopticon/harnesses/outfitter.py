@@ -11,10 +11,10 @@ via pi's ``--append-system-prompt``, :data:`panopticon.harnesses.pi.TURN_EXTENSI
 ``--extension``, and rendered workflow skills via repeated ``--skill``. Core operations retain
 pi's REST instructions because neither pi nor Outfitter provides an MCP client.
 
-Profiles are an explicit v1 provisioning gap. Bootstrap writes ``~/.outfitter/settings.yml``
-with a single local source, ``~/.outfitter/profile_sources``. An operator or future provisioning
-slice must populate that directory with flat profile YAML files or directory profiles before
-launch; this adapter does not invent a host mount or catalog-sync policy.
+Bootstrap keeps ``~/.outfitter/profile_sources`` as the first local source. An operator can also
+point the repo's ``credential_dir/outfitter/profiles`` at their profiles; the shared read-write
+credential mount makes them available to every task container, propagates edits between tasks,
+and persists profiles created in-container.
 
 Auth is pi auth, not Outfitter auth. Presence checking uses pi's provider environment variables,
 while credential-dir linking targets Outfitter's native pi-state fallback; provider validity
@@ -193,7 +193,14 @@ class OutfitterHarness(Harness):
         config_dir = self.config_dir(ctx.home)
         config_dir.mkdir(parents=True, exist_ok=True)
         (config_dir / PROFILE_SOURCES_DIR).mkdir(exist_ok=True)
-        (config_dir / SETTINGS_FILE).write_text(SETTINGS)
+        settings = SETTINGS
+        credentials = ctx.environ.get("PANOPTICON_CREDENTIALS")
+        credential_profiles = (
+            Path(credentials).resolve() / "outfitter" / "profiles" if credentials else None
+        )
+        if credential_profiles is not None and credential_profiles.is_dir():
+            settings += f"  - path: {credential_profiles}\n"
+        (config_dir / SETTINGS_FILE).write_text(settings)
         (config_dir / WORKFLOW_OVERVIEW_FILE).write_text(ctx.overview)
         (config_dir / EXTENSION_FILE).write_text(TURN_EXTENSION)
 
