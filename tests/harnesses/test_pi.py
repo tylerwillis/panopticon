@@ -176,6 +176,43 @@ def test_bootstrap_never_clobbers_an_existing_auth_file(tmp_path: Path) -> None:
     assert not (config_dir / "auth.json").is_symlink()
 
 
+def test_bootstrap_symlinks_personal_config_from_pi_credential_subdirectory(
+    tmp_path: Path,
+) -> None:
+    credentials = tmp_path / "credentials"
+    personal_config = credentials / "pi"
+    personal_config.mkdir(parents=True)
+    (personal_config / "models.json").write_text('{"providers": {"local": {}}}')
+    (personal_config / "prompts").mkdir()
+
+    HARNESS.bootstrap(
+        _bootstrap_ctx(tmp_path, environ={"PANOPTICON_CREDENTIALS": str(credentials)})
+    )
+
+    models = tmp_path / ".pi" / "models.json"
+    prompts = tmp_path / ".pi" / "prompts"
+    assert models.is_symlink() and models.resolve() == (personal_config / "models.json").resolve()
+    assert prompts.is_symlink() and prompts.resolve() == (personal_config / "prompts").resolve()
+
+
+def test_bootstrap_never_clobbers_existing_personal_config(tmp_path: Path) -> None:
+    config_dir = tmp_path / ".pi"
+    config_dir.mkdir()
+    (config_dir / "models.json").write_text('{"providers": {"persisted": {}}}')
+    credentials = tmp_path / "credentials"
+    personal_config = credentials / "pi"
+    personal_config.mkdir(parents=True)
+    (personal_config / "models.json").write_text('{"providers": {"mounted": {}}}')
+
+    HARNESS.bootstrap(
+        _bootstrap_ctx(tmp_path, environ={"PANOPTICON_CREDENTIALS": str(credentials)})
+    )
+
+    models = config_dir / "models.json"
+    assert not models.is_symlink()
+    assert models.read_text() == '{"providers": {"persisted": {}}}'
+
+
 def test_missing_auth_accepts_every_known_provider_env_var(tmp_path: Path) -> None:
     for var in API_KEY_ENV_VARS:
         assert HARNESS.missing_auth({var: "k"}, home=tmp_path) is None, var
