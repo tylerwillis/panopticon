@@ -141,3 +141,51 @@ Pick the model per task via `starting_model` (e.g. `gpt-5.6-sol`, `gpt-5.6-terra
 `gpt-5.6-luna`), with an optional reasoning-effort suffix (`gpt-5.6-sol:high`); unset, codex
 picks its own default. Note the fleet-level constraint: plan
 rate limits (not auth) cap concurrent Codex throughput on Plus/Pro.
+
+## Pi (earendil-works/pi)
+
+A task created with `harness: "pi"` (or in a repo whose `default_harness` is pi) runs the `pi`
+coding-agent CLI (https://github.com/earendil-works/pi) in its container. Unlike claude/codex, pi
+keeps subscription and API-key credentials in **one shared file**, and resolves a plain
+environment variable itself — so the harness usually renders nothing at all:
+
+1. **API key** (any of pi's many providers): add one line to the repo's env-file —
+
+   ```sh
+   ANTHROPIC_API_KEY=sk-ant-...
+   ```
+
+   `OPENAI_API_KEY` and `GEMINI_API_KEY` work too (these are the ones panopticon names in its
+   `missing_auth` check); pi supports several dozen more providers straight from their own env
+   vars (see pi's own `docs/providers.md` upstream) — any of those work equally well, just aren't
+   named in the operator-facing error if nothing is configured. Pi reads the variable directly at
+   launch; the harness writes no file for this path.
+
+2. **Subscription** (Claude Pro/Max, ChatGPT Plus/Pro, GitHub Copilot, or Radius — rotating
+   tokens, needs the shared credential dir):
+
+   ```sh
+   # on the host, once per account:
+   pi
+   /login   # then select a provider
+   # /login writes ~/.pi/agent/auth.json — share it with task containers:
+   mkdir -p ~/.config/panopticon/secrets/pi.d
+   cp ~/.pi/agent/auth.json ~/.config/panopticon/secrets/pi.d/
+   chmod 0600 ~/.config/panopticon/secrets/pi.d/auth.json
+   # then point the repo at it:
+   curl -X PATCH "$PANOPTICON_SERVICE_URL/repos/<repo-id>" \
+     -H 'content-type: application/json' \
+     -d '{"credential_dir": "pi.d"}'
+   ```
+
+   The runner mounts the dir **read-write and shared** into that repo's task containers; the
+   harness symlinks `auth.json` into each task's `PI_CODING_AGENT_DIR`. As with codex, don't copy
+   the same `auth.json` to a second host — log in per host, or use a non-rotating access token
+   where the provider offers one.
+
+Pick the model per task via `starting_model` (pi's own `--model` syntax, e.g. `sonnet`,
+`sonnet:high`, `openai/gpt-4o`); unset, pi picks its own default.
+
+**Known gap:** pi has no MCP client, so workflow skills that name an MCP tool directly (outside
+the two operations this harness itself renders) won't work unmodified under pi — see the
+`panopticon.harnesses.pi` module docstring for exactly which ones.
