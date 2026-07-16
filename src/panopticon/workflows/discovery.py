@@ -21,6 +21,7 @@ from types import ModuleType
 
 from panopticon.core.dirs import user_config_dir
 from panopticon.core.workflow import Workflow
+from panopticon.harnesses import HARNESSES
 
 #: Module namespace for directory-discovered workflows (kept distinct from the package's).
 _EXT_PREFIX = "panopticon_workflows_ext"
@@ -75,6 +76,7 @@ def discover_workflows(
     for module in modules:
         for cls in _concrete_workflows(module):
             workflow = cls()  # instantiation validates the workflow (raises InvalidWorkflow)
+            workflow.validate_registration(HARNESSES)
             if workflow.name in registry:
                 raise ValueError(
                     f"duplicate workflow name {workflow.name!r} (from {cls.__module__}.{cls.__name__})"

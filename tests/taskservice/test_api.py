@@ -32,6 +32,18 @@ class _GatedWorkflow(Workflow):
     initial = Working
 
 
+class _TunedWorkflow(Workflow):
+    name = "tuned"
+    default_harness = "codex"
+    default_model = "gpt-5.6-sol:high"
+
+    class Working(InitialState):
+        label = "WORKING"
+        transitions = (Complete,)
+
+    initial = Working
+
+
 @pytest.fixture
 def client(tmp_path: Path) -> Iterator[TestClient]:
     service = TaskService(
@@ -295,26 +307,26 @@ def test_patch_repo_validates_the_default_harness(client: TestClient) -> None:
     assert resp.status_code == 200 and resp.json()["default_harness"] == "claude"
 
 
-def test_create_task_claude_default_keeps_the_workflow_default_model(client: TestClient) -> None:
+def test_repo_default_model_is_opaque_and_patchable(client: TestClient) -> None:
+    value = "operator-owned vocabulary:maximum"
+    resp = client.patch("/repos/r1", json={"default_model": value})
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["default_model"] == value
+    assert client.get("/repos/r1").json()["default_model"] == value
+
+
+def test_app_defaults_leave_both_launch_fields_unset(client: TestClient) -> None:
     task_id = _new_task(client)
-    assert client.get(f"/tasks/{task_id}").json()["starting_model"] == "opus"
+    task = client.get(f"/tasks/{task_id}").json()
+    assert (task["harness"], task["starting_model"]) == (None, None)
 
 
-def test_create_task_non_default_harness_drops_the_claude_flavored_default_model(
-    client: TestClient,
-) -> None:
-    # Model names are harness-scoped: the workflow's default ("opus") means nothing to codex, so
-    # an unstated model must reach the container as None (codex picks its own default), never as
-    # a foreign name it warns about and mishandles.
+def test_explicit_task_harness_beats_app_defaults(client: TestClient) -> None:
     resp = client.post("/tasks", json={"repo_id": "r1", "workflow": "spike", "harness": "codex"})
-    assert resp.json()["starting_model"] is None
+    assert (resp.json()["harness"], resp.json()["starting_model"]) == ("codex", None)
 
 
-def test_repo_default_harness_also_drops_the_claude_flavored_default_model(
-    client: TestClient,
-) -> None:
-    # The seeding rule keys on the *resolved* harness — a codex default inherited from the repo
-    # must behave exactly like an explicit codex choice.
+def test_repo_launch_pair_beats_app_defaults(client: TestClient) -> None:
     client.post(
         "/repos",
         json={
@@ -322,11 +334,61 @@ def test_repo_default_harness_also_drops_the_claude_flavored_default_model(
             "name": "acme/three",
             "git_url": "https://x/r3.git",
             "default_harness": "codex",
+            "default_model": "gpt-5.6-sol:medium",
         },
     )
     resp = client.post("/tasks", json={"repo_id": "r3", "workflow": "spike"})
-    assert resp.json()["harness"] == "codex"
-    assert resp.json()["starting_model"] is None
+    assert (resp.json()["harness"], resp.json()["starting_model"]) == (
+        "codex",
+        "gpt-5.6-sol:medium",
+    )
+
+
+def test_workflow_launch_pair_beats_repo_pair(tmp_path: Path) -> None:
+    service = TaskService(
+        SqlAlchemyStore(), {"tuned": _TunedWorkflow()}, FilesystemArtifactStore(tmp_path)
+    )
+    asyncio.run(service.init())
+    asyncio.run(
+        service.create_repo(
+            Repo(
+                id="r1",
+                name="acme/widgets",
+                git_url="https://x/r1.git",
+                default_harness="claude",
+                default_model="opus:low",
+            )
+        )
+    )
+    with TestClient(create_app(service)) as tuned_client:
+        task = tuned_client.post("/tasks", json={"repo_id": "r1", "workflow": "tuned"}).json()
+    assert (task["harness"], task["starting_model"]) == ("codex", "gpt-5.6-sol:high")
+
+
+def test_explicit_task_harness_drops_losing_pair_model(tmp_path: Path) -> None:
+    service = TaskService(
+        SqlAlchemyStore(), {"tuned": _TunedWorkflow()}, FilesystemArtifactStore(tmp_path)
+    )
+    asyncio.run(service.init())
+    asyncio.run(service.create_repo(Repo(id="r1", name="acme", git_url="https://x/r1.git")))
+    with TestClient(create_app(service)) as tuned_client:
+        task = tuned_client.post(
+            "/tasks", json={"repo_id": "r1", "workflow": "tuned", "harness": "claude"}
+        ).json()
+    assert (task["harness"], task["starting_model"]) == ("claude", None)
+
+
+def test_explicit_task_model_keeps_winning_pair_harness(tmp_path: Path) -> None:
+    service = TaskService(
+        SqlAlchemyStore(), {"tuned": _TunedWorkflow()}, FilesystemArtifactStore(tmp_path)
+    )
+    asyncio.run(service.init())
+    asyncio.run(service.create_repo(Repo(id="r1", name="acme", git_url="https://x/r1.git")))
+    with TestClient(create_app(service)) as tuned_client:
+        task = tuned_client.post(
+            "/tasks", json={"repo_id": "r1", "workflow": "tuned", "starting_model": "custom"}
+        ).json()
+    assert (task["harness"], task["starting_model"]) == ("codex", "custom")
 
 
 def test_create_task_records_an_explicit_starting_model(client: TestClient) -> None:

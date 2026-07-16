@@ -213,6 +213,9 @@ class Repo:
     #: create/update; the resolved choice is recorded on the task, so a later change to this
     #: default never re-routes existing tasks.
     default_harness: str | None = None
+    #: Harness-scoped model/effort string (for example ``"gpt-5.6-sol:high"``). Opaque to the
+    #: control plane; harness adapters own their vocabulary.
+    default_model: str | None = None
 
 
 @dataclass(frozen=True)

@@ -36,7 +36,7 @@ from panopticon.core.provisioning import PROVISION_SKILL
 from panopticon.core.state import TERMINAL_LABELS, Dropped
 from panopticon.core.store import NotFound, Store
 from panopticon.core.workflow import Workflow
-from panopticon.harnesses import DEFAULT_HARNESS, get_harness
+from panopticon.harnesses import HARNESSES, get_harness
 
 _log = logging.getLogger(__name__)
 
@@ -125,6 +125,8 @@ class TaskService:
     ) -> None:
         self._store = store
         self._workflows = dict(workflows)
+        for workflow in self._workflows.values():
+            workflow.validate_registration(HARNESSES)
         self._artifacts = artifacts
         self._layers = layers
         self._clock = clock
@@ -364,18 +366,18 @@ class TaskService:
             raise NotAuthorized(f"workflow {workflow_name!r} is not enabled for repo {repo_id!r}")
         now = self._clock()
         task = wf.start_task(self._id(), repo_id, at=now, memo=memo, initial_prompt=initial_prompt)
-        # An explicit harness wins; else the repo's default (the on-the-rails path — teams
-        # standardize per repo). The *resolved* choice is recorded, so changing the repo default
-        # later never re-routes an existing task.
-        task.harness = harness if harness is not None else repo.default_harness
-        # Model names are harness-scoped vocabulary. The workflow's default_model (seeded by
-        # start_task) speaks the default harness's (claude's "opus"); for any other *resolved*
-        # harness that default is meaningless, so only an explicit starting_model survives —
-        # None lets the harness's CLI pick its own default.
-        if starting_model is not None:
-            task.starting_model = starting_model
-        elif task.harness is not None and task.harness != DEFAULT_HARNESS:
-            task.starting_model = None
+        # Defaults travel as an atomic harness/model pair: workflow beats repo beats the app's
+        # empty pair. A task may override either half, but changing the harness discards a model
+        # scoped to the losing harness.
+        pair_harness, pair_model = (
+            (wf.default_harness, wf.default_model)
+            if wf.default_harness is not None
+            else (repo.default_harness, repo.default_model)
+        )
+        task.harness = harness if harness is not None else pair_harness
+        task.starting_model = starting_model
+        if starting_model is None and (harness is None or harness == pair_harness):
+            task.starting_model = pair_model
         task.governor_task_id = governor_task_id
         task.created_at = now
         task.updated_at = now  # creation time = first mutation
