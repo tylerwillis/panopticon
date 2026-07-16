@@ -11,7 +11,7 @@ from panopticon.harnesses.pi import PiHarness
 
 
 def test_registry_holds_the_three_runnable_harnesses() -> None:
-    assert set(HARNESSES) == {"claude", "codex", "pi"}
+    assert set(HARNESSES) == {"claude", "codex", "pi", "outfitter"}
     assert isinstance(HARNESSES["claude"], ClaudeHarness)
     assert isinstance(HARNESSES["codex"], CodexHarness)
     assert isinstance(HARNESSES["pi"], PiHarness)
@@ -29,9 +29,9 @@ def test_get_harness_by_name() -> None:
     assert get_harness("pi").name == "pi"
 
 
-def test_experimental_outfitter_harness_is_not_registered() -> None:
-    with pytest.raises(KeyError, match="unknown harness 'outfitter'"):
-        get_harness("outfitter")
+def test_outfitter_harness_is_registered() -> None:
+    # Registered once upstream shipped the width-aware header (0.11.0, issue #162).
+    assert get_harness("outfitter").name == "outfitter"
 
 
 def test_get_harness_rejects_an_unknown_name_listing_the_known_ones() -> None:

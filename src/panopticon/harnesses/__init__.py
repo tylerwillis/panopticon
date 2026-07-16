@@ -18,13 +18,14 @@ from panopticon.harnesses.base import (
 )
 from panopticon.harnesses.claude import ClaudeHarness
 from panopticon.harnesses.codex import CodexHarness
+from panopticon.harnesses.outfitter import OutfitterHarness
 from panopticon.harnesses.pi import PiHarness
 
 #: The default when a task records no harness — the surface panopticon launched with.
 DEFAULT_HARNESS = "claude"
 
 HARNESSES: Mapping[str, Harness] = {
-    h.name: h for h in (ClaudeHarness(), CodexHarness(), PiHarness())
+    h.name: h for h in (ClaudeHarness(), CodexHarness(), PiHarness(), OutfitterHarness())
 }
 
 

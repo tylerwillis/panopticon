@@ -1,4 +1,4 @@
-"""Experimental, **unregistered** Outfitter harness — ``@ai-outfitter/outfitter`` wrapping pi.
+"""The Outfitter harness — ``@ai-outfitter/outfitter`` wrapping pi.
 
 Verified from Outfitter 0.10.0's published docs and TypeScript source: it requires Node
 ``>=22.19.0``, agent CLIs are installed separately, and ``outfitter run --profile <id>
@@ -60,7 +60,7 @@ from panopticon.harnesses.pi import (
     operation_instructions,
 )
 
-OUTFITTER_VERSION = "0.10.0"
+OUTFITTER_VERSION = "0.11.0"
 SETTINGS_FILE = "settings.yml"
 PROFILE_SOURCES_DIR = "profile_sources"
 WORKFLOW_OVERVIEW_FILE = "workflow-overview.md"
