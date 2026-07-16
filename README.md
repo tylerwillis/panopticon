@@ -2,8 +2,6 @@
 
 **Agents write the code, you own what ships.**
 
-Status: research preview. Interfaces still move between releases.
-
 That's easy with one agent. Run a fleet of them and it breaks down: the fleet stalls
 waiting on you, and you lose track of which agent is doing what. Panopticon drives
 a coding agent — Claude Code, Codex, or pi — for each task and gives you one place to
