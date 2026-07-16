@@ -81,6 +81,7 @@ from textual.binding import Binding
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.css.query import NoMatches
 from textual.screen import ModalScreen
+from textual.suggester import SuggestFromList
 from textual.widget import Widget
 from textual.widgets import (
     Checkbox,
@@ -631,6 +632,60 @@ class MemoTextArea(TextArea):
         self.styles.height = min(lines, self.MAX_LINES)
 
 
+@dataclass(frozen=True)
+class LaunchSelection:
+    harness: str
+    model: str
+    effort: str
+    source: str
+
+    @property
+    def starting_model(self) -> str | None:
+        if not self.model:
+            return None
+        return f"{self.model}:{self.effort}" if self.effort else self.model
+
+
+def _split_model(value: str | None) -> tuple[str, str]:
+    if not value:
+        return "", ""
+    model, separator, effort = value.rpartition(":")
+    return (model, effort) if separator else (value, "")
+
+
+def resolve_launch_selection(
+    repo: JsonObj,
+    workflow: JsonObj,
+    *,
+    overrides: dict[str, str] | None = None,
+    touched: Iterable[str] = (),
+) -> LaunchSelection:
+    """Resolve the modal's live launch summary; task touches win field-by-field."""
+    workflow_pair = workflow.get("default_harness"), workflow.get("default_model")
+    repo_pair = repo.get("default_harness"), repo.get("default_model")
+    if all(workflow_pair):
+        harness, raw_model = workflow_pair
+        source = "workflow default"
+    elif any(repo_pair):
+        harness, raw_model = repo_pair
+        harness = harness or DEFAULT_HARNESS
+        source = "repo default"
+    else:
+        harness, raw_model = DEFAULT_HARNESS, None
+        source = "app default"
+    if harness not in HARNESSES:
+        harness = DEFAULT_HARNESS
+    model, effort = _split_model(str(raw_model) if raw_model else None)
+    values = {"harness": str(harness), "model": model, "effort": effort}
+    touched_set = set(touched)
+    for field in touched_set:
+        values[field] = (overrides or {}).get(field, "")
+    if "harness" in touched_set and "model" not in touched_set:
+        values["model"] = ""
+        values["effort"] = ""
+    return LaunchSelection(**values, source="this task" if touched_set else source)
+
+
 class HarnessSelector(Static, can_focus=True):
     """A focusable ``harness: <name>`` indicator in the memo modal's footer.
 
@@ -672,12 +727,14 @@ class HarnessSelector(Static, can_focus=True):
     def action_cycle(self) -> None:
         self._index = (self._index + 1) % len(self._names)
         self._render_label()
+        if self.is_attached and isinstance(self.screen, MemoScreen):
+            self.screen.launch_field_changed("harness", self.value)
 
     def _render_label(self) -> None:
-        self.update(f"harness: {self.value}")
+        self.update(self.value)
 
 
-class MemoScreen(ModalScreen["tuple[str, bool | None, str | None]"]):
+class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]"]):
     """Memo prompt for task creation.
 
     Dismisses ``(text, submit, harness_override)`` where ``submit`` says whether to deliver the
@@ -697,6 +754,10 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, str | None]"]):
     #memo-box .memo-hint { color: $text-muted; }
     #memo-box HarnessSelector { color: $text-muted; }
     #memo-box HarnessSelector:focus { color: $text; text-style: bold; }
+    #launch-line { height: 1; }
+    #launch-line HarnessSelector { width: auto; }
+    #launch-line Input { width: 1fr; height: 1; border: none; padding: 0; }
+    #launch-source { width: auto; color: $text-muted; }
     """
     BINDINGS = [
         ("escape", "cancel", "Cancel"),
@@ -707,17 +768,24 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, str | None]"]):
 
     def __init__(
         self,
-        effective_harness: str,
+        repo: JsonObj,
+        workflow: JsonObj,
         harness_names: Sequence[str],
         *,
         initial_memo: str = "",
-        initial_harness: str | None = None,
+        initial_launch: dict[str, str] | None = None,
+        touched: Sequence[str] = (),
     ) -> None:
         super().__init__()
-        self._effective_harness = effective_harness
+        self._repo = repo
+        self._workflow = workflow
         self._harness_names = list(harness_names)
         self._initial_memo = initial_memo
-        self._initial_harness = initial_harness
+        self._overrides = dict(initial_launch or {})
+        self._touched = set(touched)
+        self._selection = resolve_launch_selection(
+            repo, workflow, overrides=self._overrides, touched=self._touched
+        )
 
     def compose(self) -> ComposeResult:
         with Vertical(id="memo-box"):
@@ -725,11 +793,26 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, str | None]"]):
             yield Label("enter: submit", id="enter-hint", classes="memo-hint")
             yield Label("ctrl+s: set without submitting", classes="memo-hint")
             yield Label("ctrl+g: edit in $EDITOR", classes="memo-hint")
-            yield HarnessSelector(
-                self._effective_harness,
-                self._harness_names,
-                selected=self._initial_harness,
-            )
+            harness = HARNESSES[self._selection.harness]
+            with Horizontal(id="launch-line"):
+                yield HarnessSelector(self._selection.harness, self._harness_names)
+                yield Static(" · ")
+                yield Input(
+                    self._selection.model,
+                    placeholder=harness.field_label,
+                    id="launch-model",
+                    suggester=SuggestFromList([value for value, _ in harness.suggested_models()]),
+                )
+                yield Static(" · ")
+                yield Input(
+                    self._selection.effort,
+                    placeholder="effort",
+                    id="launch-effort",
+                    suggester=SuggestFromList(
+                        [value for value, _ in harness.suggested_efforts(self._selection.model)]
+                    ),
+                )
+                yield Static(f" (set by {self._selection.source})", id="launch-source")
 
     def on_mount(self) -> None:
         self.query_one(MemoTextArea).focus()
@@ -744,18 +827,44 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, str | None]"]):
         if isinstance(event.widget, HarnessSelector):
             self.query_one("#enter-hint", Label).update("enter: submit")
 
-    def _harness_override(self) -> str | None:
-        selector = self.query_one(HarnessSelector)
-        return selector.value if selector.value != selector.initial else None
+    def launch_field_changed(self, field: str, value: str) -> None:
+        self._touched.add(field)
+        self._overrides[field] = value
+        self._selection = resolve_launch_selection(
+            self._repo, self._workflow, overrides=self._overrides, touched=self._touched
+        )
+        self.query_one("#launch-source", Static).update(" (set by this task)")
+        if field == "harness":
+            harness = HARNESSES[value]
+            model = self.query_one("#launch-model", Input)
+            effort = self.query_one("#launch-effort", Input)
+            if "model" not in self._touched:
+                model.value = self._selection.model
+            if "effort" not in self._touched:
+                effort.value = self._selection.effort
+            model.placeholder = harness.field_label
+            model.suggester = SuggestFromList([item for item, _ in harness.suggested_models()])
+            effort.suggester = SuggestFromList(
+                [item for item, _ in harness.suggested_efforts(model.value)]
+            )
+
+    def on_input_changed(self, event: Input.Changed) -> None:
+        if event.input.id == "launch-model":
+            self.launch_field_changed("model", event.value)
+        elif event.input.id == "launch-effort":
+            self.launch_field_changed("effort", event.value)
+
+    def _result(self, submit: bool | None) -> tuple[str, bool | None, dict[str, str], list[str]]:
+        return self.query_one(MemoTextArea).text, submit, self._overrides, sorted(self._touched)
 
     def action_submit(self) -> None:
-        self.dismiss((self.query_one(MemoTextArea).text, True, self._harness_override()))
+        self.dismiss(self._result(True))
 
     def action_set_only(self) -> None:
-        self.dismiss((self.query_one(MemoTextArea).text, False, self._harness_override()))
+        self.dismiss(self._result(False))
 
     def action_cancel(self) -> None:
-        self.dismiss((self.query_one(MemoTextArea).text, None, self._harness_override()))
+        self.dismiss(self._result(None))
 
     def action_edit_in_editor(self) -> None:
         ta = self.query_one(MemoTextArea)
@@ -1705,7 +1814,9 @@ class Dashboard(App[None]):
 
     @staticmethod
     def _draft_key(repo: str, workflow: str) -> str:
-        return json.dumps([repo, workflow], separators=(",", ":"))
+        # One unsent new-task draft per repo: changing the workflow re-resolves untouched launch
+        # fields while carrying the operator-touched fields with the same draft.
+        return repo
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -1964,20 +2075,26 @@ class Dashboard(App[None]):
             if not workflows:
                 self.notify(f"No workflows enabled for repo {repo!r}.", severity="warning")
                 return
-            effective_harness = repos_by_id[repo].get("default_harness") or DEFAULT_HARNESS
 
             def describe(workflow: str | None) -> None:
                 if workflow is None:
                     return
+                workflow_data = next(item for item in workflows if item["name"] == workflow)
 
                 key = self._draft_key(repo, workflow)
 
-                def create(result: tuple[str, bool | None, str | None] | None) -> None:
+                def create(
+                    result: tuple[str, bool | None, dict[str, str], list[str]] | None,
+                ) -> None:
                     if result is None:
                         return
-                    memo_text, submit, harness = result
+                    memo_text, submit, launch, touched = result
                     if submit is None:  # backed out: retain the unsent draft
-                        self._new_task_drafts[key] = {"memo": memo_text, "harness": harness}
+                        self._new_task_drafts[key] = {
+                            "memo": memo_text,
+                            "launch": launch,
+                            "touched": touched,
+                        }
                         self._write_new_task_drafts()
                         return
                     self._new_task_drafts.pop(key, None)
@@ -1985,21 +2102,43 @@ class Dashboard(App[None]):
                     stripped = memo_text.strip()
                     if _apply_memo_filter(stripped):
                         return
+                    selection = resolve_launch_selection(
+                        repos_by_id[repo], workflow_data, overrides=launch, touched=touched
+                    )
+                    harness = selection.harness if "harness" in touched else None
+                    starting_model = (
+                        selection.starting_model
+                        if "model" in touched or "effort" in touched
+                        else None
+                    )
                     if submit and stripped:
                         self._client.create_task(
-                            repo, workflow, stripped, initial_prompt=stripped, harness=harness
+                            repo,
+                            workflow,
+                            stripped,
+                            initial_prompt=stripped,
+                            harness=harness,
+                            starting_model=starting_model,
                         )
                     else:
-                        self._client.create_task(repo, workflow, stripped or None, harness=harness)
+                        self._client.create_task(
+                            repo,
+                            workflow,
+                            stripped or None,
+                            harness=harness,
+                            starting_model=starting_model,
+                        )
                     self.action_refresh()
 
                 draft = self._new_task_drafts.get(key, {})
                 self.push_screen(
                     MemoScreen(
-                        effective_harness,
+                        repos_by_id[repo],
+                        workflow_data,
                         sorted(HARNESSES),
                         initial_memo=str(draft.get("memo", "")),
-                        initial_harness=draft.get("harness"),
+                        initial_launch=draft.get("launch"),
+                        touched=draft.get("touched", ()),
                     ),
                     create,
                 )
