@@ -44,9 +44,12 @@ Resume remains inferred from Outfitter's documented default state symlink to
 
 from __future__ import annotations
 
+import json
+import re
+import textwrap
 from collections.abc import Mapping
 from pathlib import Path
-from typing import ClassVar
+from typing import ClassVar, Final
 
 from panopticon.core.models import Skill
 from panopticon.harnesses.base import INTERRUPT_PROMPT, BootstrapContext, Harness, LaunchContext
@@ -68,6 +71,33 @@ EXTENSION_FILE = "turn.ts"
 
 SETTINGS = "profile_sources:\n  - path: ./profile_sources\n"
 PI_NATIVE_CONFIG_DIR = Path(".pi") / "agent"
+PROFILE_LABEL_WIDTH: Final = 80
+
+
+def _top_level_scalar(text: str, key: str) -> str | bool | None:
+    """Read the small scalar metadata subset used by profile discovery."""
+    match = re.search(rf"(?m)^{re.escape(key)}:[ \t]*(.*)$", text)
+    if match is None:
+        return None
+    value = match.group(1).strip()
+    if value.casefold() in {"true", "false"}:
+        return value.casefold() == "true"
+    if value.startswith('"'):
+        try:
+            loaded = json.loads(value)
+            return loaded if isinstance(loaded, str) else None
+        except json.JSONDecodeError:
+            return None
+    if value.startswith("'") and value.endswith("'"):
+        return value[1:-1].replace("''", "'")
+    if value in {"|", "|-", "|+", ">", ">-", ">+"}:
+        lines: list[str] = []
+        for line in text[match.end() :].splitlines():
+            if line and not line.startswith((" ", "\t")):
+                break
+            lines.append(line.strip())
+        return " ".join(lines)
+    return value.split(" #", 1)[0].strip() or None
 
 
 class OutfitterHarness(Harness):
@@ -75,6 +105,40 @@ class OutfitterHarness(Harness):
 
     name: ClassVar[str] = "outfitter"
     config_dirname: ClassVar[str] = ".outfitter"
+    field_label: ClassVar[str] = "profile"
+
+    def __init__(self, profile_sources_root: Path | None = None) -> None:
+        self.profile_sources_root = profile_sources_root
+
+    def suggested_models(self) -> tuple[tuple[str, str], ...]:
+        """Discover launchable profiles from the adapter's local profile source."""
+        root = self.profile_sources_root or self.config_dir(Path.home()) / PROFILE_SOURCES_DIR
+        try:
+            paths = sorted(root.glob("*.yml")) + sorted(root.glob("*.yaml"))
+            paths += sorted(path / "profile.yml" for path in root.iterdir() if path.is_dir())
+        except OSError:
+            return ()
+
+        profiles: dict[str, str] = {}
+        for path in paths:
+            try:
+                text = path.read_text()
+            except (OSError, UnicodeError):
+                continue
+            profile_id = _top_level_scalar(text, "id")
+            if profile_id is None and path.parent == root:
+                profile_id = path.stem
+            if not isinstance(profile_id, str) or _top_level_scalar(text, "template") is True:
+                continue
+            description = _top_level_scalar(text, "description")
+            label = profile_id
+            if isinstance(description, str):
+                summary = " ".join(description.split())
+                label = textwrap.shorten(
+                    f"{profile_id} — {summary}", width=PROFILE_LABEL_WIDTH, placeholder="…"
+                )
+            profiles[profile_id] = label
+        return tuple(sorted(profiles.items()))
 
     def image_layer(self) -> str:
         """Install pinned Node, pi, and Outfitter releases.
