@@ -86,10 +86,22 @@ def test_argv_passes_model_on_first_run(tmp_path: Path) -> None:
     assert argv == ["claude", "--dangerously-skip-permissions", "--model", "opus"]
 
 
+def test_argv_splits_an_effort_suffix_into_an_effort_flag(tmp_path: Path) -> None:
+    argv = HARNESS.argv(_ctx(tmp_path, starting_model="opus:high"))
+    assert argv == [
+        "claude",
+        "--dangerously-skip-permissions",
+        "--model",
+        "opus",
+        "--effort",
+        "high",
+    ]
+
+
 def test_argv_omits_model_on_resume(tmp_path: Path) -> None:
     _seed_session(tmp_path)
-    argv = HARNESS.argv(_ctx(tmp_path, starting_model="opus"))
-    assert "--model" not in argv
+    argv = HARNESS.argv(_ctx(tmp_path, starting_model="opus:high"))
+    assert "--model" not in argv and "--effort" not in argv
     assert "--continue" in argv
 
 
