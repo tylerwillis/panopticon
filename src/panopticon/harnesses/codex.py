@@ -221,7 +221,13 @@ class CodexHarness(Harness):
             return argv
         argv = ["codex", *bypass]
         if ctx.starting_model:  # first run only — a resume keeps the session's model
-            argv += ["--model", ctx.starting_model]
+            # An optional ":<effort>" suffix selects reasoning effort (e.g. "gpt-5.6-sol:high")
+            # — the same suffix convention pi uses for thinking level. codex takes effort as
+            # config, not a flag, so it rides a --config override.
+            model, _, effort = ctx.starting_model.partition(":")
+            argv += ["--model", model]
+            if effort:
+                argv += ["--config", f"model_reasoning_effort={effort}"]
         if ctx.initial_prompt:
             argv.append(ctx.initial_prompt)  # positional: the agent's first message
         return argv

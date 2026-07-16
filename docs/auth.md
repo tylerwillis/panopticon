@@ -127,5 +127,6 @@ OpenAI's Codex CLI in its container. Three credential tiers, in order of setup e
    tasks fail with a lifecycle detail naming the fix — re-run the login + copy above.
 
 Pick the model per task via `starting_model` (e.g. `gpt-5.6-sol`, `gpt-5.6-terra`,
-`gpt-5.6-luna`); unset, codex picks its own default. Note the fleet-level constraint: plan
+`gpt-5.6-luna`), with an optional reasoning-effort suffix (`gpt-5.6-sol:high`); unset, codex
+picks its own default. Note the fleet-level constraint: plan
 rate limits (not auth) cap concurrent Codex throughput on Plus/Pro.
