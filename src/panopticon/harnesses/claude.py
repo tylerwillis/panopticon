@@ -41,6 +41,18 @@ MCP_CONFIG_FILE = "panopticon-mcp.json"
 WORKFLOW_OVERVIEW_FILE = "workflow-overview.md"
 
 
+def _probe_status(headers: dict[str, str]) -> int | None:
+    """Status of an authenticated, token-free GET against the API (the models listing), or
+    ``None`` when the probe itself couldn't complete — the caller fails open on ``None``.
+    The preflight's one network seam (a module function: no instance state, easy to patch)."""
+    try:
+        return httpx.get(
+            "https://api.anthropic.com/v1/models", headers=headers, timeout=10
+        ).status_code
+    except Exception:
+        return None
+
+
 def render_command(skill: Skill, task_id: str) -> str:
     """The `.claude/commands/<name>.md` body for a skill: frontmatter + the agent procedure."""
     return (
@@ -195,6 +207,10 @@ class ClaudeHarness(Harness):
                 "No auth token — set CLAUDE_CODE_OAUTH_TOKEN in the repo's env_file "
                 "(see docs/auth.md)"
             )
+        if environ.get("ANTHROPIC_BASE_URL"):
+            # A gateway is configured: its auth semantics (including what its 401 means for a
+            # gateway-issued credential) aren't ours to interpret — fail open entirely.
+            return None
         if api_key:
             var = "ANTHROPIC_API_KEY"
             headers = {"x-api-key": api_key, "anthropic-version": "2023-06-01"}
@@ -205,23 +221,12 @@ class ClaudeHarness(Harness):
                 "anthropic-version": "2023-06-01",
                 "anthropic-beta": "oauth-2025-04-20",
             }
-        if self._probe_status(headers) == 401:
+        if _probe_status(headers) == 401:
             return (
                 f"{var} was rejected by the API (revoked or invalid) — re-mint it and update "
                 "the repo's env_file (see docs/auth.md)"
             )
         return None
-
-    def _probe_status(self, headers: dict[str, str]) -> int | None:
-        """Status of an authenticated, token-free GET against the API (the models listing), or
-        ``None`` when the probe itself couldn't complete — the caller fails open on ``None``.
-        The one network seam of the preflight, injectable in tests (no network in CI)."""
-        try:
-            return httpx.get(
-                "https://api.anthropic.com/v1/models", headers=headers, timeout=10
-            ).status_code
-        except Exception:
-            return None
 
     def bootstrap(self, ctx: BootstrapContext) -> None:
         config_dir = self.config_dir(ctx.home)

@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 
 from panopticon.core.models import Skill
-from panopticon.harnesses import INTERRUPT_PROMPT, BootstrapContext, LaunchContext
+from panopticon.harnesses import INTERRUPT_PROMPT, BootstrapContext, LaunchContext, claude
 from panopticon.harnesses.claude import (
     MCP_CONFIG_FILE,
     WORKFLOW_OVERVIEW_FILE,
@@ -160,7 +160,7 @@ def test_trust_workspace_merges_and_is_idempotent(tmp_path: Path) -> None:
 
 def _probing(monkeypatch, status):
     """Route the harness's one network seam to a canned probe result (no network in CI)."""
-    monkeypatch.setattr(ClaudeHarness, "_probe_status", lambda self, headers: status)
+    monkeypatch.setattr(claude, "_probe_status", lambda headers: status)
 
 
 def test_missing_auth_names_the_token_when_nothing_is_set(tmp_path: Path) -> None:
@@ -191,6 +191,56 @@ def test_missing_auth_fails_open_when_the_probe_cannot_complete(
     # Offline/timeout/5xx must never block a spawn — the agent makes the same call anyway.
     _probing(monkeypatch, None)
     assert HARNESS.missing_auth({"CLAUDE_CODE_OAUTH_TOKEN": "t"}, home=tmp_path) is None
+
+
+def test_missing_auth_skips_the_probe_when_a_gateway_is_configured(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # ANTHROPIC_BASE_URL means a gateway with its own auth semantics — a gateway-issued
+    # credential can 401 against Anthropic while being valid, so the preflight stands down.
+    _probing(monkeypatch, 401)
+    env = {"ANTHROPIC_API_KEY": "gw-key", "ANTHROPIC_BASE_URL": "https://llm-gw.example"}
+    assert HARNESS.missing_auth(env, home=tmp_path) is None
+
+
+def test_probe_seam_sends_the_right_request_and_fails_open(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    seen: dict[str, object] = {}
+
+    class _Resp:
+        status_code = 403
+
+    def fake_get(url: str, *, headers: dict[str, str], timeout: float) -> _Resp:
+        seen.update(url=url, headers=headers, timeout=timeout)
+        return _Resp()
+
+    monkeypatch.setattr(claude.httpx, "get", fake_get)
+    assert claude._probe_status({"x-api-key": "k"}) == 403  # non-401 statuses pass through...
+    assert seen["url"] == "https://api.anthropic.com/v1/models"
+    assert seen["headers"] == {"x-api-key": "k"}
+    assert seen["timeout"] == 10
+
+    def raising_get(url: str, *, headers: dict[str, str], timeout: float) -> _Resp:
+        raise OSError("offline")
+
+    monkeypatch.setattr(claude.httpx, "get", raising_get)
+    assert claude._probe_status({"x-api-key": "k"}) is None  # ...and errors fail open
+
+
+def test_missing_auth_builds_the_right_headers_per_credential(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    captured: list[dict[str, str]] = []
+    monkeypatch.setattr(claude, "_probe_status", lambda headers: captured.append(headers) or 200)
+    HARNESS.missing_auth({"ANTHROPIC_API_KEY": "k"}, home=tmp_path)
+    HARNESS.missing_auth({"CLAUDE_CODE_OAUTH_TOKEN": "t"}, home=tmp_path)
+    assert captured[0] == {"x-api-key": "k", "anthropic-version": "2023-06-01"}
+    assert captured[1] == {
+        "authorization": "Bearer t",
+        "anthropic-version": "2023-06-01",
+        "anthropic-beta": "oauth-2025-04-20",
+    }
 
 
 def test_missing_auth_names_the_api_key_when_it_wins_and_is_rejected(

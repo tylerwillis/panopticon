@@ -9,7 +9,8 @@ import pytest
 
 from panopticon.container import agent
 from panopticon.harnesses import Harness, LaunchContext
-from panopticon.harnesses.claude import MCP_CONFIG_FILE, WORKFLOW_OVERVIEW_FILE, ClaudeHarness
+from panopticon.harnesses import claude as claude_harness
+from panopticon.harnesses.claude import MCP_CONFIG_FILE, WORKFLOW_OVERVIEW_FILE
 
 # Plausible-length stand-ins for real credentials — the harnesses' shape checks reject anything
 # shorter (see tests/harnesses/test_claude.py, test_codex.py for the length-bound tests).
@@ -52,7 +53,7 @@ def _base_env(monkeypatch: pytest.MonkeyPatch, probe_status: int | None = 200) -
     monkeypatch.setenv("PANOPTICON_SERVICE_URL", "http://svc")
     monkeypatch.setenv("PANOPTICON_TASK_ID", "t1")
     # The claude preflight's one network seam — canned in every launcher test (no network in CI).
-    monkeypatch.setattr(ClaudeHarness, "_probe_status", lambda self, headers: probe_status)
+    monkeypatch.setattr(claude_harness, "_probe_status", lambda headers: probe_status)
     for var in (
         "PANOPTICON_HARNESS",
         "CLAUDE_CODE_OAUTH_TOKEN",
