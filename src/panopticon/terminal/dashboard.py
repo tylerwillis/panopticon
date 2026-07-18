@@ -1548,72 +1548,79 @@ class NewWorkflowScreen(ModalScreen[str | None]):
     NewWorkflowScreen { align: center middle; }
     #new-workflow-box { width: 56; height: auto; padding: 1 2; border: round $accent; background: $surface; }
     """
-    BINDINGS = [("enter", "create", "Create"), ("escape", "cancel", "Cancel")]
+    BINDINGS = [("escape", "cancel", "Cancel")]
+    AUTO_FOCUS = "#workflow-name"
 
     def compose(self) -> ComposeResult:
         with Vertical(id="new-workflow-box"):
             yield Label("new workflow — lower-case kebab-case name")
             yield Input(placeholder="my-workflow", id="workflow-name")
 
-    def on_mount(self) -> None:
-        self.query_one(Input).focus()
-
-    def action_create(self) -> None:
-        self.dismiss(self.query_one(Input).value.strip())
-
-    def on_input_submitted(self, _: Input.Submitted) -> None:
-        self.action_create()
+    def on_input_submitted(self, event: Input.Submitted) -> None:
+        self.dismiss(event.value.strip())
 
     def action_cancel(self) -> None:
         self.dismiss(None)
 
 
-class WorkflowsScreen(ModalScreen[None]):
-    """List registered workflow source files; Enter edits one and `n` creates one."""
+class _TableScreen(ModalScreen[None]):
+    """Shared modal shell for the dashboard's tabular management screens."""
 
     CSS = """
-    WorkflowsScreen { align: center middle; }
-    #workflows-box { width: 90%; height: 80%; padding: 1 2; border: round $accent; background: $surface; }
+    WorkflowsScreen, ReposScreen { align: center middle; }
+    .table-box { width: 90%; height: 80%; padding: 1 2; border: round $accent; background: $surface; }
     """
-    BINDINGS = [
-        ("enter", "open_workflow", "Open"),
-        ("n", "new_workflow", "New workflow"),
-        ("escape", "close", "Close"),
-    ]
+    TABLE_ID = ""
+    TITLE = ""
+    COLUMNS: tuple[str, ...] = ()
 
     def __init__(self, client: TaskServiceClient) -> None:
         super().__init__()
         self._client = client
-        self._workflows: dict[str, JsonObj] = {}
-        self._current: str | None = None
 
     def compose(self) -> ComposeResult:
-        with Vertical(id="workflows-box"):
-            yield Label("workflows — enter: open in $EDITOR   n: new   esc: close")
-            yield _VimDataTable(id="workflows")
+        with Vertical(classes="table-box"):
+            yield Label(self.TITLE)
+            yield _VimDataTable(id=self.TABLE_ID, cursor_type="row")
 
     def on_mount(self) -> None:
-        table = self.query_one("#workflows", DataTable)
-        table.cursor_type = "row"
-        table.add_columns("name", "kind", "when to use")
+        table = self.query_one(DataTable)
+        table.add_columns(*self.COLUMNS)
         table.focus()
         self._refresh()
+
+    def _refresh(self) -> None: ...
+
+    @property
+    def _current(self) -> str | None:
+        table = self.query_one(DataTable)
+        return str(table.ordered_rows[table.cursor_row].key.value) if table.row_count else None
+
+    def action_close(self) -> None:
+        self.dismiss(None)
+
+
+class WorkflowsScreen(_TableScreen):
+    """List registered workflow source files; Enter edits one and `n` creates one."""
+
+    BINDINGS = [
+        ("n", "new_workflow", "New workflow"),
+        ("escape", "close", "Close"),
+    ]
+    TABLE_ID = "workflows"
+    TITLE = "workflows — enter: open in $EDITOR   n: new   esc: close"
+    COLUMNS = ("name", "kind", "when to use")
 
     def _refresh(self) -> None:
         table = self.query_one("#workflows", DataTable)
         table.clear()
-        self._workflows = {str(w["name"]): w for w in self._client.list_workflow_files()}
-        for workflow in self._workflows.values():
+        for workflow in self._client.list_workflow_files():
             table.add_row(
                 workflow["name"],
                 "built-in (edit with care)" if workflow["built_in"] else "operator",
                 workflow["when_to_use"],
-                key=str(workflow["name"]),
+                key=str(workflow["path"]),
             )
-        self._current = next(iter(self._workflows), None)
-
-    def on_data_table_row_highlighted(self, event: DataTable.RowHighlighted) -> None:
-        self._current = str(event.row_key.value) if event.row_key.value is not None else None
 
     def _open(self, path: Path) -> None:
         try:
@@ -1622,9 +1629,8 @@ class WorkflowsScreen(ModalScreen[None]):
         except SuspendNotSupported:
             self.notify("Editor not supported in this environment", severity="warning")
 
-    def action_open_workflow(self) -> None:
-        if self._current is not None:
-            self._open(Path(str(self._workflows[self._current]["path"])))
+    def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
+        self._open(Path(str(event.row_key.value)))
 
     def action_new_workflow(self) -> None:
         def create(name: str | None) -> None:
@@ -1639,42 +1645,20 @@ class WorkflowsScreen(ModalScreen[None]):
 
         self.app.push_screen(NewWorkflowScreen(), create)
 
-    def action_close(self) -> None:
-        self.dismiss(None)
 
-
-class ReposScreen(ModalScreen[None]):
+class ReposScreen(_TableScreen):
     """Repo management: list repos, create (`n`) / edit (`e`) them; Escape returns to the task
     view. Mutations go through the task service over REST, then the table refreshes."""
 
-    CSS = """
-    ReposScreen { align: center middle; }
-    #repos-box { width: 90%; height: 80%; padding: 1 2; border: round $accent; background: $surface; }
-    """
     BINDINGS = [
         ("n", "new_repo", "New repo"),
         ("e", "edit_repo", "Edit repo"),
         ("s", "setup_repo", "Setup repo"),
         ("escape", "close", "Close"),
     ]
-
-    def __init__(self, client: TaskServiceClient) -> None:
-        super().__init__()
-        self._client = client
-        self._repos: dict[str, JsonObj] = {}
-        self._current: str | None = None
-
-    def compose(self) -> ComposeResult:
-        with Vertical(id="repos-box"):
-            yield Label("repos — n: new   e: edit   s: setup   esc: close")
-            yield _VimDataTable(id="repos")
-
-    def on_mount(self) -> None:
-        table = self.query_one("#repos", DataTable)
-        table.cursor_type = "row"
-        table.add_columns("id", "name", "git_url", "default_base", "priv")
-        table.focus()
-        self._refresh()
+    TABLE_ID = "repos"
+    TITLE = "repos — n: new   e: edit   s: setup   esc: close"
+    COLUMNS = ("id", "name", "git_url", "default_base", "priv")
 
     def _refresh(self) -> None:
         table = self.query_one("#repos", DataTable)
@@ -1690,16 +1674,6 @@ class ReposScreen(ModalScreen[None]):
                 priv,
                 key=str(repo["id"]),
             )
-        self._current = (
-            self._current if self._current in self._repos else next(iter(self._repos), None)
-        )
-
-    def on_data_table_row_highlighted(self, event: DataTable.RowHighlighted) -> None:
-        key = event.row_key.value
-        self._current = str(key) if key is not None else None
-
-    def action_close(self) -> None:
-        self.dismiss(None)
 
     def action_new_repo(self) -> None:
         # Returns an error to show inline (the form stays open, keeping the user's input) or None
