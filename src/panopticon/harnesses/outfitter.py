@@ -1,6 +1,6 @@
 """The Outfitter harness — ``@ai-outfitter/outfitter`` wrapping pi.
 
-Verified from Outfitter 0.10.0's published docs and TypeScript source: it requires Node
+Verified from Outfitter's published docs and TypeScript source: it requires Node
 ``>=22.19.0``, agent CLIs are installed separately, and ``outfitter run --profile <id>
 --agent pi -- <args>`` passes the remaining arguments to pi. Outfitter profiles own provider,
 model, thinking, skills, extensions, and prompts, so Panopticon deliberately interprets a task's
@@ -20,26 +20,9 @@ Auth is pi auth, not Outfitter auth. Presence checking uses pi's provider enviro
 while credential-dir linking targets Outfitter's native pi-state fallback; provider validity
 remains pi's concern.
 
-**Hard blocker (verified live).** Outfitter does pass the terminal through correctly: its real
-launcher spawns the bundled pi with ``stdio: "inherit"``. The failure is instead Outfitter
-0.10.0's always-injected interactive extension. Its custom startup header returns fixed lines
-from ``render: () => lines`` and ignores the terminal width; several lines exceed a normal
-detached-tmux pane. pi-tui 0.80.3's ``doRender()`` intentionally throws when a custom component
-renders wider than the viewport. Because ``doRender()`` is called by the scheduled render timer,
-the stack misleadingly ends at ``Timeout._onTimeout`` / ``dist/tui.js:540``. Bare pi works because
-it does not load this header.
-
-No Outfitter invocation or flag disables only this extension while retaining an interactive pi
-TUI. ``startup.ascii_art: false`` removes the logo but leaves other unbounded header lines, while
-``-p``/``--print`` and other non-interactive modes are not substitutes for Panopticon's tmux UI.
-The upstream unblock is precise: Outfitter's ``createStartupHeaderLines`` component must implement
-``render(width)`` and wrap or truncate every returned line to that width (using pi-tui's
-``visibleWidth`` plus ``wrapTextWithAnsi``/``truncateToWidth``), with a narrow-terminal regression
-test. Until an Outfitter release contains that fix and passes the live tmux smoke, this module is
-kept for the verified rendering work but deliberately omitted from :data:`HARNESSES`.
-
-Resume remains inferred from Outfitter's documented default state symlink to
-``~/.pi/agent/sessions`` rather than exercised in a successful live session.
+Outfitter 0.11.0 fixed the width-unsafe startup header that blocked 0.10.0 in detached tmux. The
+registered adapter passed the original narrow-pane live smoke with inherited stdio. Resume uses
+Outfitter's documented default state symlink to ``~/.pi/agent/sessions``.
 """
 
 from __future__ import annotations
@@ -105,6 +88,10 @@ class OutfitterHarness(Harness):
 
     name: ClassVar[str] = "outfitter"
     config_dirname: ClassVar[str] = ".outfitter"
+    host_binary: ClassVar[str] = "outfitter"
+    install_hint: ClassVar[str] = (
+        "Install Outfitter (`npm install --global @ai-outfitter/outfitter`)."
+    )
     field_label: ClassVar[str] = "profile"
 
     def __init__(self, profile_sources_root: Path | None = None) -> None:

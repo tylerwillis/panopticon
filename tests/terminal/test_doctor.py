@@ -40,7 +40,8 @@ def test_all_present_passes() -> None:
     assert all(result.ok for result in results)
     assert doctor.report(results) == 0
     names = {result.name for result in results}
-    assert names == {"python", "git", "docker", "tmux", "claude", "docker daemon"}
+    assert {"python", "git", "docker", "tmux", "harness CLI", "docker daemon"} <= names
+    assert {"claude", "codex", "pi", "outfitter"} <= names
 
 
 def test_missing_git_fails_with_hint() -> None:
@@ -52,13 +53,39 @@ def test_missing_git_fails_with_hint() -> None:
 
 
 def test_each_required_binary_is_checked() -> None:
-    for binary in ("git", "docker", "tmux", "claude"):
+    for binary in ("git", "docker", "tmux"):
         results = doctor.run_checks(
             which=_which_missing(binary), run=_run_ok, version_info=(3, 11, 0)
         )
         result = _by_name(results)[binary]
         assert not result.ok, binary
         assert doctor.report(results) == 1
+
+
+def test_missing_claude_passes_when_another_harness_cli_is_installed() -> None:
+    results = doctor.run_checks(
+        which=_which_missing("claude", "pi", "outfitter"),
+        run=_run_ok,
+        version_info=(3, 11, 0),
+    )
+
+    assert not _by_name(results)["claude"].ok
+    assert _by_name(results)["codex"].ok
+    assert _by_name(results)["harness CLI"].ok
+    assert doctor.report(results) == 0
+
+
+def test_no_harness_cli_fails_after_reporting_every_harness() -> None:
+    results = doctor.run_checks(
+        which=_which_missing("claude", "codex", "pi", "outfitter"),
+        run=_run_ok,
+        version_info=(3, 11, 0),
+    )
+
+    by_name = _by_name(results)
+    assert all(not by_name[name].ok for name in ("claude", "codex", "pi", "outfitter"))
+    assert not by_name["harness CLI"].ok
+    assert doctor.report(results) == 1
 
 
 def test_docker_present_but_daemon_down_fails() -> None:

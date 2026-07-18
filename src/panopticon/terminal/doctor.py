@@ -2,11 +2,12 @@
 
 Verifies the **required host binaries** the operator's flows shell out to before anything is
 spawned — enough to run ``panopticon quickstart``, ``panopticon start`` and the ``setup-repo``
-token flow — plus that the docker daemon is actually reachable (a present client with a dead
+auth flow — plus that the docker daemon is actually reachable (a present client with a dead
 daemon fails every spawn). It prints a ``✓``/``✗`` line per check and returns a non-zero exit
 code when a required prerequisite is missing, so a fresh install can self-diagnose.
 
-Deliberately scoped to *required binaries* — it does not inspect credential/config readiness
+Deliberately scoped to binaries — exactly one registered harness CLI is required, while every
+harness gets its own status line. It does not inspect credential/config readiness
 (the secrets env-file, ``CLAUDE_CODE_OAUTH_TOKEN``, ``GH_TOKEN``), the task-service port, or the
 ``panopticon-base`` image (the spawn path auto-builds it). Dev tooling (``uv``/``make``) is not a
 prerequisite for a pip install.
@@ -22,6 +23,8 @@ import subprocess
 import sys
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
+
+from panopticon.harnesses import HARNESSES
 
 #: The minimum Python the package supports (``pyproject`` ``requires-python``). The CLI re-execs
 #: ``sys.executable`` for the background services, so the running interpreter must satisfy it.
@@ -45,6 +48,7 @@ class CheckResult:
     ok: bool
     detail: str
     hint: str = ""
+    required: bool = True
 
 
 #: Required host binaries and how to install each, in the order they're reported. Each is
@@ -52,7 +56,6 @@ class CheckResult:
 #:   git    — quickstart's ``git remote get-url``; the per-task ``git clone --local`` + branch
 #:   docker — the session service builds images and ``docker run``s every task container
 #:   tmux   — ``start``/``host`` background sessions, the console attach, shell workflows
-#:   claude — ``setup-repo`` runs ``claude setup-token`` on the host (not in a container)
 REQUIRED_BINARIES: tuple[tuple[str, str], ...] = (
     ("git", "Install git (e.g. `brew install git` / `apt-get install --yes git`)."),
     (
@@ -60,11 +63,6 @@ REQUIRED_BINARIES: tuple[tuple[str, str], ...] = (
         "Install Docker Desktop (macOS) or Docker Engine (Linux), then start it.",
     ),
     ("tmux", "Install tmux (e.g. `brew install tmux` / `apt-get install --yes tmux`)."),
-    (
-        "claude",
-        "Install the Claude Code CLI (see docs.claude.com/claude-code) — needed for "
-        "`claude setup-token` during setup-repo.",
-    ),
 )
 
 
@@ -136,6 +134,26 @@ def run_checks(
         results.append(result)
         if name == "docker":
             docker_present = result.ok
+    harness_results = [
+        CheckResult(
+            harness.name,
+            (path := which(harness.host_binary)) is not None,
+            f"found at {path}" if path else "not found on PATH",
+            hint=harness.install_hint,
+            required=False,
+        )
+        for harness in HARNESSES.values()
+    ]
+    results.extend(harness_results)
+    installed = [result.name for result in harness_results if result.ok]
+    results.append(
+        CheckResult(
+            "harness CLI",
+            bool(installed),
+            f"available: {', '.join(installed)}" if installed else "none installed",
+            hint="Install at least one of the agent harness CLIs listed above.",
+        )
+    )
     if docker_present:
         results.append(check_docker_daemon(run))
     return results
@@ -145,11 +163,11 @@ def render(results: Sequence[CheckResult]) -> str:
     """Render ``results`` as a human-readable report: one line per check, then a summary."""
     lines = ["Checking host prerequisites for panopticon quickstart / start / setup-repo:", ""]
     for result in results:
-        mark = "✓" if result.ok else "✗"
+        mark = "✓" if result.ok else ("✗" if result.required else "–")
         lines.append(f"  {mark} {result.name}: {result.detail}")
         if not result.ok and result.hint:
             lines.append(f"      → {result.hint}")
-    failures = [result for result in results if not result.ok]
+    failures = [result for result in results if result.required and not result.ok]
     lines.append("")
     if failures:
         missing = ", ".join(result.name for result in failures)
@@ -162,4 +180,4 @@ def render(results: Sequence[CheckResult]) -> str:
 def report(results: Sequence[CheckResult]) -> int:
     """Print :func:`render` for ``results`` and return an exit code (1 if any check failed)."""
     print(render(results))
-    return 1 if any(not result.ok for result in results) else 0
+    return 1 if any(result.required and not result.ok for result in results) else 0

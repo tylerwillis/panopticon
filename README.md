@@ -61,8 +61,8 @@ shells out to a few host tools. You need:
 - **tmux:** the dashboard, console supervisor, and task sessions run on a dedicated
   `tmux -L panopticon` server
 - **git:** the session service clones a per-task workspace for each agent
-- The **`claude` CLI:** first-time setup runs `claude setup-token` on the host to mint the
-  Claude auth token each agent uses inside its container
+- At least one registered **agent harness CLI** (`claude`, `codex`, `pi`, or `outfitter`):
+  quickstart detects installed/authenticated choices and configures the selected default
 
 `panopticon quickstart` checks these first; run `panopticon doctor` to re-check any time.
 
@@ -93,10 +93,10 @@ cd ~/code/my-project   # the repo you want agents to work on
 panopticon quickstart  # first-time setup, then open the dashboard
 ```
 
-`panopticon quickstart` checks your prerequisites, brings the stack up, registers the repo
-you're in, and drops you into a `setup-repo` task; it will walk you through minting a
-repo-specific Claude token (saved to the repo's env-file). Then you create tasks and watch your
-fleet from the dashboard.
+`panopticon quickstart` checks prerequisites, detects installed/authenticated harnesses, asks you to
+confirm or choose the repo default, brings the stack up, registers the repo, and drops you into a
+`setup-repo` task for that harness's auth flow. Then you create tasks and watch your fleet from the
+dashboard.
 
 ## Your first task
 

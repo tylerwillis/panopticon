@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import subprocess
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock
@@ -11,6 +12,119 @@ import httpx
 import pytest
 
 from panopticon.terminal import quickstart as qs
+
+
+class _Harness:
+    def __init__(self, name: str, *, authenticated: bool) -> None:
+        self.name = name
+        self.host_binary = name
+        self.install_hint = f"install {name}"
+        self._authenticated = authenticated
+        self.auth_checks = 0
+
+    def missing_auth(self, environ: Mapping[str, str], *, home: Path) -> str | None:
+        self.auth_checks += 1
+        return None if self._authenticated else f"{self.name} needs auth"
+
+
+def _which_present(*names: str):
+    def which(name: str) -> str | None:
+        return f"/usr/bin/{name}" if name in names else None
+
+    return which
+
+
+def test_detected_harness_recommendation_prefers_authenticated_over_installed() -> None:
+    harnesses = {
+        "claude": _Harness("claude", authenticated=False),
+        "codex": _Harness("codex", authenticated=True),
+        "pi": _Harness("pi", authenticated=False),
+    }
+
+    detected = qs.detect_harnesses(
+        harnesses=harnesses,  # type: ignore[arg-type]
+        environ={},
+        home=Path("/home/operator"),
+        which=_which_present("claude", "codex"),
+    )
+
+    assert qs.recommended_harness(detected) == "codex"
+
+
+def test_detected_harness_recommendation_prefers_installed_over_claude_fallback() -> None:
+    harnesses = {
+        "claude": _Harness("claude", authenticated=False),
+        "pi": _Harness("pi", authenticated=False),
+    }
+
+    detected = qs.detect_harnesses(
+        harnesses=harnesses,  # type: ignore[arg-type]
+        environ={},
+        home=Path("/home/operator"),
+        which=_which_present("pi"),
+    )
+
+    assert qs.recommended_harness(detected) == "pi"
+
+
+def test_detected_harness_recommendation_falls_back_to_claude_when_none_installed() -> None:
+    harnesses = {
+        "claude": _Harness("claude", authenticated=False),
+        "codex": _Harness("codex", authenticated=True),
+    }
+
+    detected = qs.detect_harnesses(
+        harnesses=harnesses,  # type: ignore[arg-type]
+        environ={},
+        home=Path("/home/operator"),
+        which=_which_present(),
+    )
+
+    assert qs.recommended_harness(detected) == "claude"
+    assert all(harness.auth_checks == 1 for harness in harnesses.values())
+
+
+def test_choose_harness_prints_detection_then_confirms_the_only_candidate(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    harnesses = {
+        "claude": _Harness("claude", authenticated=False),
+        "codex": _Harness("codex", authenticated=True),
+        "pi": _Harness("pi", authenticated=False),
+    }
+    detected = qs.detect_harnesses(
+        harnesses=harnesses,  # type: ignore[arg-type]
+        environ={},
+        home=Path("/home/operator"),
+        which=_which_present("codex"),
+    )
+    prompts: list[str] = []
+
+    choice = qs.choose_harness(detected, input_fn=lambda prompt: (prompts.append(prompt), "")[1])
+
+    assert choice == "codex"
+    assert "Press Enter" in prompts[0]
+    output = capsys.readouterr().out
+    assert output.index("Detected agent harnesses") < output.index("codex: authed")
+    assert "pi: not installed — install pi" in output
+
+
+def test_choose_harness_uses_numbered_picker_for_several_candidates(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    detected = [
+        qs.HarnessDetection("claude", True, False, "install claude"),
+        qs.HarnessDetection("codex", True, True, "install codex"),
+        qs.HarnessDetection("pi", False, False, "install pi"),
+    ]
+
+    choice = qs.choose_harness(detected, input_fn=lambda _prompt: "1")
+
+    assert choice == "claude"
+    output = capsys.readouterr().out
+    assert "1) claude — installed" in output
+    assert "2) codex — authed (recommended)" in output
+    assert "pi: not installed — install pi" in output
 
 
 def test_detect_git_url_from_origin(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -80,6 +194,9 @@ def test_ensure_secrets_file_creates(tmp_path: Path, monkeypatch: pytest.MonkeyP
     content = secrets.read_text()
     # Placeholder assignments are commented out — the user uncomments the one they use.
     assert "# CLAUDE_CODE_OAUTH_TOKEN=" in content
+    assert "# CODEX_API_KEY=" in content
+    assert "# CODEX_ACCESS_TOKEN=" in content
+    assert "# GEMINI_API_KEY=" in content
     assert "# GH_TOKEN=" in content
     assert "\nCLAUDE_CODE_OAUTH_TOKEN=" not in content
     assert "\nGH_TOKEN=" not in content
@@ -165,6 +282,30 @@ def test_setup_repo_creates_when_absent() -> None:
     assert created["env_file"] == "panopticon.env"
     # A hosted-forge remote enables the forge lifecycle so the repo can create a coding task.
     assert created["enabled_workflows"] == ["github-peer-reviewed"]
+
+
+def test_setup_repo_records_the_chosen_default_harness_without_a_model() -> None:
+    created: dict[str, Any] = {}
+
+    class _Empty:
+        def list_repos(self) -> list[dict[str, object]]:
+            return []
+
+        def create_repo(
+            self, repo_id: str, name: str, git_url: str, **kw: Any
+        ) -> dict[str, object]:
+            created.update(kw)
+            return {}
+
+    qs.setup_repo(  # type: ignore[arg-type]
+        _Empty(),
+        "https://github.com/x/y.git",
+        "panopticon.env",
+        default_harness="codex",
+    )
+
+    assert created["default_harness"] == "codex"
+    assert "default_model" not in created
 
 
 def test_setup_repo_enables_local_workflow_for_local_remote() -> None:

@@ -146,9 +146,12 @@ def main(
         _start_sessions()
         _qs.wait_for_service(args.service_url)
         env_file = _qs.ensure_secrets_file()
+        harness = _qs.choose_harness(
+            _qs.detect_harnesses(environ=_qs.harness_environment(env_file))
+        )
         git_url = _qs.detect_git_url()
         qs_client = TaskServiceClient(httpx.Client(base_url=args.service_url))
-        repo_id, repo_name = _qs.setup_repo(qs_client, git_url, env_file)
+        repo_id, repo_name = _qs.setup_repo(qs_client, git_url, env_file, default_harness=harness)
         task_id = _qs.ensure_setup_repo_task(qs_client, repo_id, repo_name)
         from panopticon.terminal.console import run_console_local
 
