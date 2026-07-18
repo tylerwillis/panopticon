@@ -95,13 +95,13 @@ def test_suggested_models_discovers_flat_and_directory_profiles(tmp_path: Path) 
         "label: Founder\ndescription: Founder-operator defaults for product and engineering.\n"
     )
     (tmp_path / "data.yaml").write_text(
-        "id: data-analyst\nlabel: Data Analyst\ndescription: >-\n"
-        "  Analyze product data with\n  concise evidence.\n"
+        'id: "data-analyst"\nlabel: Data Analyst\n'
+        'description: "Analyze product data with concise evidence."\n'
     )
     directory = tmp_path / "engineering"
     directory.mkdir()
     (directory / "profile.yml").write_text(
-        "id: engineering-default\nlabel: Engineering Default\n"
+        "id: 'engineering-default'\nlabel: Engineering Default\n"
         "description: 'Review, build, and ship.'\n"
     )
 
@@ -115,9 +115,19 @@ def test_suggested_models_discovers_flat_and_directory_profiles(tmp_path: Path) 
     )
 
 
+def test_suggested_models_block_description_degrades_to_id_only(tmp_path: Path) -> None:
+    (tmp_path / "data.yml").write_text(
+        "id: data-analyst\ndescription: >-\n  Analyze product data with\n  concise evidence.\n"
+    )
+
+    assert OutfitterHarness(profile_sources_root=tmp_path).suggested_models() == (
+        ("data-analyst", "data-analyst"),
+    )
+
+
 def test_suggested_models_skips_bad_and_template_profiles_and_truncates(tmp_path: Path) -> None:
     (tmp_path / "template.yml").write_text(
-        "id: base\ntemplate: true\ndescription: Not directly launchable.\n"
+        "id: base\ntemplate: TrUe\ndescription: Not directly launchable.\n"
     )
     missing_id = tmp_path / "missing-id"
     missing_id.mkdir()

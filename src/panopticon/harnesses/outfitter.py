@@ -27,7 +27,6 @@ Outfitter's documented default state symlink to ``~/.pi/agent/sessions``.
 
 from __future__ import annotations
 
-import json
 import re
 import textwrap
 from collections.abc import Mapping
@@ -63,24 +62,13 @@ def _top_level_scalar(text: str, key: str) -> str | bool | None:
     if match is None:
         return None
     value = match.group(1).strip()
-    if value.casefold() in {"true", "false"}:
+    if not value or value.startswith(("|", ">")):
+        return None
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
+        value = value[1:-1]
+    if key == "template" and value.casefold() in {"true", "false"}:
         return value.casefold() == "true"
-    if value.startswith('"'):
-        try:
-            loaded = json.loads(value)
-            return loaded if isinstance(loaded, str) else None
-        except json.JSONDecodeError:
-            return None
-    if value.startswith("'") and value.endswith("'"):
-        return value[1:-1].replace("''", "'")
-    if value in {"|", "|-", "|+", ">", ">-", ">+"}:
-        lines: list[str] = []
-        for line in text[match.end() :].splitlines():
-            if line and not line.startswith((" ", "\t")):
-                break
-            lines.append(line.strip())
-        return " ".join(lines)
-    return value.split(" #", 1)[0].strip() or None
+    return value or None
 
 
 class OutfitterHarness(Harness):
