@@ -11,6 +11,7 @@ from pathlib import Path
 
 from panopticon.core import Actor
 from panopticon.core.workflow import Workflow
+from panopticon.harnesses.pi import API_KEY_ENV_VARS
 from panopticon.workflows import SetupRepo
 
 WF = SetupRepo()
@@ -87,6 +88,78 @@ def test_shell_script_runs_setup_repo_and_advances() -> None:
     assert "panopticon_advance" in script
 
 
+def test_harness_auth_dispatch_routes_the_approved_harnesses() -> None:
+    body = """
+setup_claude_auth() { echo claude; }
+setup_codex_auth() { echo codex; }
+setup_pi_auth() { echo pi; }
+for harness in claude codex pi; do
+    dispatch_harness_auth "$harness"
+done
+"""
+    assert _sh(body).splitlines() == ["claude", "codex", "pi"]
+
+
+def test_harness_auth_dispatch_flags_an_unapproved_harness() -> None:
+    body = """
+setup_claude_auth() { echo claude; }
+setup_codex_auth() { echo codex; }
+setup_pi_auth() { echo pi; }
+dispatch_harness_auth outfitter || echo unsupported
+"""
+    assert _sh(body).splitlines() == ["unsupported"]
+
+
+def test_codex_repo_auth_check_accepts_env_file_or_credential_dir(tmp_path: Path) -> None:
+    env_file = tmp_path / "repo.env"
+    credentials = tmp_path / "openai.d"
+    credentials.mkdir()
+    q_env = shlex.quote(str(env_file))
+    q_creds = shlex.quote(str(credentials))
+
+    assert (
+        _sh(f"codex_repo_auth_configured {q_env} {q_creds} && echo yes || echo no").strip() == "no"
+    )
+    env_file.write_text("CODEX_ACCESS_TOKEN=workspace-token\n")
+    assert (
+        _sh(f"codex_repo_auth_configured {q_env} {q_creds} && echo yes || echo no").strip() == "yes"
+    )
+    env_file.write_text("")
+    (credentials / "auth.json").write_text("{}")
+    assert (
+        _sh(f"codex_repo_auth_configured {q_env} {q_creds} && echo yes || echo no").strip() == "yes"
+    )
+
+
+def test_pi_auth_helpers_use_the_adapter_api_key_vars(tmp_path: Path) -> None:
+    env_file = tmp_path / "repo.env"
+    env_file.write_text("GEMINI_API_KEY=secret\n")
+    values = " ".join(API_KEY_ENV_VARS)
+    body = (
+        f"PANOPTICON_PI_API_KEY_ENV_VARS={shlex.quote(values)}\n"
+        "is_pi_api_key_var GEMINI_API_KEY && echo accepted\n"
+        "is_pi_api_key_var MADE_UP_KEY || echo rejected\n"
+        f"pi_repo_auth_configured {shlex.quote(str(env_file))} '' && echo configured"
+    )
+    assert _sh(body).splitlines() == ["accepted", "rejected", "configured"]
+
+
+def test_shell_script_pi_flow_lists_adapter_vars_and_reads_hidden_input() -> None:
+    script = WF.shell_script()
+    assert f"PANOPTICON_PI_API_KEY_ENV_VARS='{' '.join(API_KEY_ENV_VARS)}'" in script
+    assert "read -r -s _rs_value" in script
+    assert 'store_token "$pi_var" "$pi_key"' in script
+
+
+def test_shell_script_codex_flow_logs_in_copies_private_auth_and_updates_repo() -> None:
+    script = WF.shell_script()
+    assert "codex login" in script
+    assert 'cp "$HOME/.codex/auth.json" "$credential_path/auth.json"' in script
+    assert 'chmod 600 "$credential_path/auth.json"' in script
+    assert "set_repo_credential_dir" in script
+    assert "Token contents were not printed" in script
+
+
 def test_shell_script_checks_for_an_existing_credential_and_guides_the_operator() -> None:
     script = WF.shell_script()
     # branches on an already-configured credential, checked against the **env-file** (not the sourced
@@ -104,7 +177,7 @@ def test_shell_script_opens_with_the_credentials_goal_intro() -> None:
     # per-repo credentials (not the operator's own session), and they can opt out.
     assert "per-repo credentials" in script
     assert "not your" in script and "personal session" in script
-    assert "set up your own secrets by editing" in script
+    assert "set up secrets yourself" in script
     # the intro comes before the dashboard hint and any prompts
     assert script.index("per-repo credentials") < script.index('echo "$dashboard_hint"')
 
@@ -404,8 +477,8 @@ def test_shell_script_sets_up_the_github_token_for_github_repos() -> None:
     # replaced), and only offers to adopt one that isn't already the env-file's own
     assert "store_token GH_TOKEN" in script
     assert "env_file_has_var GH_TOKEN" in script
-    # the GH step runs after the Claude credential step but before the final summary
-    assert script.rindex("setup_gh_token") > script.index("claude_configured")
+    # the GH step runs after the harness credential dispatch but before the final summary
+    assert script.rindex("setup_gh_token") > script.rindex("dispatch_harness_auth")
     assert script.rindex("setup_gh_token") < script.rindex('echo "Summary:"')
 
 

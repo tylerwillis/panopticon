@@ -150,3 +150,85 @@ mask_last4() {
         printf '...'
     fi
 }
+
+# Print JSON object field $2 from stdin. ShellRunner injects the exact Python interpreter running
+# panopticon, so this uses a real JSON parser without assuming jq is installed on the host.
+json_field() {
+    "$PANOPTICON_PYTHON" -c \
+        'import json, sys; value = json.load(sys.stdin).get(sys.argv[1]); print("" if value is None else value)' \
+        "$1"
+}
+
+# Fetch the setup task's repo and set repo_id/default_harness/credential_dir in the current shell.
+# The task service URL and task id are injected into every shell workflow by ShellRunner.
+load_repo_auth_context() {
+    _rac_task=$(curl --silent --show-error --fail \
+        "$PANOPTICON_SERVICE_URL/tasks/$PANOPTICON_TASK_ID") || return 1
+    repo_id=$(printf '%s' "$_rac_task" | json_field repo_id) || return 1
+    [ -n "$repo_id" ] || return 1
+    _rac_repo=$(curl --silent --show-error --fail \
+        "$PANOPTICON_SERVICE_URL/repos/$repo_id") || return 1
+    default_harness=$(printf '%s' "$_rac_repo" | json_field default_harness) || return 1
+    credential_dir=$(printf '%s' "$_rac_repo" | json_field credential_dir) || return 1
+    [ -n "$default_harness" ] || default_harness=claude
+}
+
+# Update the repo's credential_dir reference after setup creates its host-side directory.
+set_repo_credential_dir() {
+    _srcd_value=$1
+    _srcd_json=$(printf '%s' "$_srcd_value" | "$PANOPTICON_PYTHON" -c \
+        'import json, sys; print(json.dumps({"credential_dir": sys.stdin.read()}))') || return 1
+    curl --silent --show-error --fail --request PATCH \
+        "$PANOPTICON_SERVICE_URL/repos/$repo_id" \
+        --header 'Content-Type: application/json' --data "$_srcd_json" >/dev/null
+}
+
+# True when $1 is one of the pi adapter's API key environment variables. The value is injected by
+# SetupRepo.shell_script directly from panopticon.harnesses.pi.API_KEY_ENV_VARS.
+is_pi_api_key_var() {
+    case " $PANOPTICON_PI_API_KEY_ENV_VARS " in
+        *" $1 "*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+# Repo-visible auth checks used by the opening summary and the Codex/Pi dispatch. Host-only native
+# auth files do not count: task containers receive only the env-file and repo credential directory.
+codex_repo_auth_configured() {
+    env_file_has_var CODEX_API_KEY "$1" \
+        || env_file_has_var OPENAI_API_KEY "$1" \
+        || env_file_has_var CODEX_ACCESS_TOKEN "$1" \
+        || { [ -n "$2" ] && [ -f "$2/auth.json" ]; }
+}
+
+pi_repo_auth_configured() {
+    for _prac_var in $PANOPTICON_PI_API_KEY_ENV_VARS; do
+        env_file_has_var "$_prac_var" "$1" && return 0
+    done
+    [ -n "$2" ] && [ -f "$2/auth.json" ]
+}
+
+# Read one secret line without echo. macOS /bin/sh is bash 3.2 and supports `read -s`; the stty
+# fallback keeps other host /bin/sh implementations usable. The secret itself is the only stdout.
+read_secret() {
+    if [ -n "${BASH_VERSION:-}" ]; then
+        IFS= read -r -s _rs_value
+    else
+        stty -echo
+        IFS= read -r _rs_value
+        stty echo
+    fi
+    printf '\n' >&2
+    printf '%s' "$_rs_value"
+}
+
+# Route the repo's chosen default harness to its approved host-side auth flow. An adapter with no
+# approved onboarding flow returns nonzero; the caller reports it instead of guessing.
+dispatch_harness_auth() {
+    case "$1" in
+        claude) setup_claude_auth ;;
+        codex) setup_codex_auth ;;
+        pi) setup_pi_auth ;;
+        *) return 1 ;;
+    esac
+}

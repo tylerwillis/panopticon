@@ -48,8 +48,8 @@ never crosses the wire. The resolver refuses any name that escapes the secrets d
 segment or an absolute path).
 
 The env-file's most important entry is the container's `claude` auth token,
-`CLAUDE_CODE_OAUTH_TOKEN` (plus any `ANTHROPIC_API_KEY` or `GH_TOKEN` the tasks need). You don't
-have to write it by hand: **`panopticon quickstart` sets a repo's token up at any time**, and the
+the selected harness's auth variables (plus any `GH_TOKEN` the tasks need). You don't have to
+write them by hand: **`panopticon quickstart` runs harness-aware auth setup**, and the
 [`setup-repo` workflow](workflows/setup-repo.md) is available from the dashboard whenever you need
 to (re-)mint it — press `g` to open the repos modal, highlight the repo, and press `s`. See
 [`auth.md`](auth.md) for the details and the by-hand path.
@@ -118,4 +118,4 @@ Repos are managed over the task service's REST API:
 - [`auth.md`](auth.md) — the `claude` token that lives in `env_file`.
 - [`layers.md`](layers.md) — how the base → workflow → repo image layers compose.
 - [`hooks.md`](hooks.md) — repo hooks and how `hook_file` resolves.
-- [`workflows/setup-repo.md`](workflows/setup-repo.md) — host-side utility that mints and places the auth token.
+- [`workflows/setup-repo.md`](workflows/setup-repo.md) — host-side utility that dispatches the selected harness's auth setup.

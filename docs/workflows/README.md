@@ -20,7 +20,7 @@ lifecycle — see [Tasks](../tasks.md).
 | [`local-git-self-reviewed`](local-git-self-reviewed.md) | Keeps the work **local**: commits to a branch and merges it, with no GitHub, PR, or CI. Use when the change never leaves the machine. | A local branch merged into the base |
 | [`spike`](spike.md) | **Open-ended** agent work with no gates. Use for exploration, debugging, and research, until you call it done. | Nothing lands on its own |
 | [`orchestrator`](orchestrator.md) | An agent that **decomposes a goal into child tasks**, each pre-planned and handed to you ready to approve. Use to fan work out across agents. | New pre-planned child tasks |
-| [`setup-repo`](setup-repo.md) | A host-side **setup utility** (no container) that mints a repo's `claude` auth token. Launched from the repos screen, not the task picker. | A token in the repo's env-file |
+| [`setup-repo`](setup-repo.md) | A host-side **setup utility** (no container) that dispatches auth setup for the repo's default harness. Launched from the repos screen, not the task picker. | Harness auth in the repo's env-file or credential directory |
 
 Any task can also be **dropped** at any time (dashboard `x`), which moves it to `DROPPED`
 without merging or shipping anything.
