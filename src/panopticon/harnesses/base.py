@@ -107,6 +107,8 @@ class Harness(ABC):
 
     name: ClassVar[str]
     config_dirname: ClassVar[str]
+    host_binary: ClassVar[str]
+    install_hint: ClassVar[str]
     field_label: ClassVar[str] = "model"
 
     def suggested_models(self) -> Sequence[tuple[str, str]]:

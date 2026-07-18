@@ -83,9 +83,14 @@ def test_quickstart_invokes_all_steps(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(cli, "_start_sessions", lambda: calls.append("sessions"))
     monkeypatch.setattr(qs, "wait_for_service", lambda url, **kw: calls.append("wait"))
     monkeypatch.setattr(qs, "ensure_secrets_file", lambda: (calls.append("secrets"), "/tmp/env")[1])
+    monkeypatch.setattr(qs, "harness_environment", lambda env: (calls.append("harness-env"), {})[1])
+    monkeypatch.setattr(qs, "detect_harnesses", lambda **kw: (calls.append("detect"), [])[1])
+    monkeypatch.setattr(qs, "choose_harness", lambda found: (calls.append("choose"), "codex")[1])
     monkeypatch.setattr(qs, "detect_git_url", lambda: (calls.append("git_url"), "https://x.git")[1])
     monkeypatch.setattr(
-        qs, "setup_repo", lambda c, g, e: (calls.append("setup"), ("repo1", "acme/repo1"))[1]
+        qs,
+        "setup_repo",
+        lambda c, g, e, **kw: (calls.append("setup"), ("repo1", "acme/repo1"))[1],
     )
     monkeypatch.setattr(
         qs,
@@ -108,6 +113,9 @@ def test_quickstart_invokes_all_steps(monkeypatch: pytest.MonkeyPatch) -> None:
         "sessions",
         "wait",
         "secrets",
+        "harness-env",
+        "detect",
+        "choose",
         "git_url",
         "setup",
         "token-task",

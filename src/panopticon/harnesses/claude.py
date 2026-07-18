@@ -186,6 +186,8 @@ class ClaudeHarness(Harness):
 
     name: ClassVar[str] = "claude"
     config_dirname: ClassVar[str] = ".claude"
+    host_binary: ClassVar[str] = "claude"
+    install_hint: ClassVar[str] = "Install Claude Code (https://docs.claude.com/claude-code)."
 
     def suggested_models(self) -> Sequence[tuple[str, str]]:
         return (("fable", "Fable 5"), ("opus", "Opus 4.8"), ("sonnet", "Sonnet 5"))

@@ -71,6 +71,8 @@ def test_spawn_exports_service_env_and_runs_the_script() -> None:
     assert "export PANOPTICON_SERVICE_URL=http://svc:8000" in command
     assert "export PANOPTICON_TASK_ID=t1" in command
     assert "export PANOPTICON_RUNNER_ID=r1" in command
+    assert "export PANOPTICON_PYTHON=" in command
+    assert "export PANOPTICON_SECRETS_DIR=" in command
     assert command.rstrip().endswith("claude setup-token")  # the workflow script runs last
 
 
@@ -184,24 +186,27 @@ def test_minify_shell_drops_full_line_comments_and_blanks_only() -> None:
     ]
 
 
-def test_spawn_command_strips_comments_and_stays_under_the_imsg_cap() -> None:
+def test_spawn_spills_a_large_script_to_avoid_the_imsg_cap(tmp_path: Path) -> None:
     # tmux sends the whole new-session command to its server over imsg (16 KiB cap); a heavily
     # commented workflow script + the task lib can exceed it and fail the spawn, so the assembled
     # command drops whole-line comments/blanks. The real setup-repo script is the motivating case.
     from panopticon.workflows import SetupRepo
 
     rec = _Recorder()
-    ShellRunner("http://svc:8000", run=rec).spawn(
+    ShellRunner("http://svc:8000", script_dir=tmp_path, run=rec).spawn(
         "t1",
         script=SetupRepo().shell_script(),
         git_url="https://github.com/o/r.git",
         repo_name="o/r",
     )
     command = rec.calls[-1][-1]
+    script_path = tmp_path / "panopticon-shell-t1.sh"
+    spilled = script_path.read_text()
     # no whole-line comments survive, but the code (functions, exports) does
-    assert not [ln for ln in command.splitlines() if ln.lstrip().startswith("#")]
-    assert "store_env_token" in command and "panopticon_advance()" in command
-    # comfortably under tmux's MAX_IMSGSIZE, so new-session won't reject it
+    assert not [ln for ln in spilled.splitlines() if ln.lstrip().startswith("#")]
+    assert "store_env_token" in spilled and "panopticon_advance()" in spilled
+    # tmux receives only a tiny wrapper, which removes the private spill file when the pane exits.
+    assert str(script_path) in command and "trap 'rm -f" in command
     assert len(command.encode()) < 16384
 
 

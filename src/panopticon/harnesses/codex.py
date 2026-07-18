@@ -123,6 +123,8 @@ class CodexHarness(Harness):
 
     name: ClassVar[str] = "codex"
     config_dirname: ClassVar[str] = ".codex"
+    host_binary: ClassVar[str] = "codex"
+    install_hint: ClassVar[str] = "Install Codex (`npm install --global @openai/codex`)."
 
     def suggested_models(self) -> Sequence[tuple[str, str]]:
         return (

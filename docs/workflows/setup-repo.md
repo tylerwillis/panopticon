@@ -1,8 +1,8 @@
 # `setup-repo`
 
-A host-side **setup utility**, not a coding workflow. Today it mints a repo's `claude`
-auth token by running `claude setup-token` on the host. It's a **shell** workflow: it runs
-in a host tmux session with **no container and no agent** (no LLM involved).
+A host-side **setup utility**, not a coding workflow. It configures auth for the repo's chosen
+default harness. It's a **shell** workflow: it runs in a host tmux session with **no container and
+no agent** (no LLM involved).
 
 ```
 RUNNING → COMPLETE
@@ -10,9 +10,9 @@ RUNNING → COMPLETE
 
 (plus `DROPPED`, reachable from any state.)
 
-**When to use:** run a repo's host-side setup in a shell. Today that's minting a Claude
-auth token via `claude setup-token`. Attach to complete the interactive flow, and the
-token lands in the repo's env-file.
+**When to use:** run a repo's host-side auth setup. Claude uses `claude setup-token`; Codex reuses
+configured credentials or runs `codex login` and shares its auth file; Pi collects a provider key
+with hidden input. Attach to complete the flow.
 
 ## How you launch it
 
@@ -25,20 +25,18 @@ repo. (It's available for every repo; there's nothing to enable.)
 | State | What happens | Who advances |
 |---|---|---|
 | **RUNNING** | The session service runs the setup script in a host tmux session. Attach with `t`; the script checks for an existing credential, optionally collects a new one, and prompts you to finish. | **The script**: a final Enter completes the task; or **drop** it to keep an existing credential. |
-| **COMPLETE** | Terminal. The token is in the repo's env-file. | n/a |
+| **COMPLETE** | Terminal. Harness auth was kept, added to the env-file, or placed in the repo credential directory. | n/a |
 
 There's no plan, no container image, no per-task clone, and no responsibilities. A shell
 task has no agent to gate.
 
 ## Your part and the script's part
 
-- **You**: attach to the session, complete (or skip) the browser OAuth flow, and press
-  Enter to finish, or drop the task if you'd rather add your own token by hand.
-- **The script**: detects an existing credential, guides you through `claude setup-token`,
-  writes the token to the repo's env-file, and completes the task.
+- **You**: attach, confirm any browser flow or enter a provider key, then press Enter to finish.
+- **The script**: reads `default_harness`, dispatches the matching approved flow, writes credentials
+  privately without printing them, summarizes the result, and completes the task.
 
 ## Related
 
-- [Container authentication](../container-auth.md): what the token is for and how to set
-  it by hand instead.
+- [Container authentication](../auth.md): each harness's manual setup and credential precedence.
 - [Workflow catalog](README.md).

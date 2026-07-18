@@ -1,12 +1,11 @@
-# Set up a repo's per-repo credentials for task containers: a Claude token, and — for a GitHub repo —
-# a GH_TOKEN, written into the repo's env-file. Run by the session service in a host tmux session (no
+# Set up a repo's per-repo credentials for task containers: its chosen harness auth, and — for a
+# GitHub repo — a GH_TOKEN. Run by the session service in a host tmux session (no
 # container); ShellRunner sources the repo's env-file first (so a configured credential shows up as
 # an env var) and exports PANOPTICON_ENV_FILE (its path), PANOPTICON_GIT_URL (the repo's remote, used
 # to detect a GitHub forge below), and PANOPTICON_REPO_NAME (the repo's label, for the summary).
 #
-# Each credential can be adopted from the operator's own environment, pasted, or (for Claude) minted
-# with `claude setup-token`. Whatever route the operator takes, the script converges on a bulleted
-# summary + a prompt to press Enter, which completes the task and returns them to the dashboard.
+# Whatever route the operator takes, the script converges on a bulleted summary + a prompt to press
+# Enter, which completes the task and returns them to the dashboard.
 
 # The fallback text lives outside the expansion: an apostrophe inside a double-quoted
 # ${var:-word} is read as a quote character by bash 3.2 (macOS /bin/sh) and unbalances
@@ -16,6 +15,14 @@ env_file="${PANOPTICON_ENV_FILE:-}"
 repo_name="${PANOPTICON_REPO_NAME:-this repo}"
 repo_url="${PANOPTICON_GIT_URL:-}"
 repo_label=$(repo_source_label "$repo_url")
+repo_id=""
+default_harness=claude
+credential_dir=""
+if ! load_repo_auth_context; then
+    echo "warning: couldn't read the repo's harness setting; falling back to claude setup" >&2
+fi
+credential_path=""
+[ -n "$credential_dir" ] && credential_path="$PANOPTICON_SECRETS_DIR/$credential_dir"
 
 # How to get back to the dashboard: detach from this tmux session. Detect the prefix + detach key
 # from the running server (the operator may have rebound them), falling back to the tmux defaults.
@@ -27,25 +34,35 @@ dashboard_hint="To return to the dashboard without finishing, detach: press $pre
 
 # Open by explaining what this does and that the operator stays in control — task containers get
 # per-repo tokens from the env-file (not the operator's own session), and they can opt out entirely.
-echo "Setting up '$repo_name'. Task containers use per-repo credentials from this repo's env-file — a"
-echo "Claude token, and a GH_TOKEN for GitHub repos — so the agent runs on its own tokens, not your"
-echo "personal session. You can skip this and set up your own secrets by editing $env_file yourself."
+echo "Setting up '$repo_name'. Task containers use per-repo credentials from this repo's secrets —"
+echo "auth for the $default_harness harness, and a GH_TOKEN for GitHub repos — so the agent runs on"
+echo "its own tokens, not your personal session. You can skip this and set up secrets yourself."
 echo
 
 # Show how to get back to the dashboard, up front before any prompts.
 echo "$dashboard_hint"
 echo
 
-# Work out what's already set up and what this repo needs. The Claude credential is always needed
-# (the agent runs `claude` regardless); a GH_TOKEN is only needed for a GitHub remote (a local
-# checkout has nothing to push). "Configured" means the **env-file** carries it — the only thing the
-# container sees (it's launched with `--env-file`, not the host env), so a token that lives only in
-# the operator's shell doesn't count as done.
-claude_configured=0
-if env_file_has_var CLAUDE_CODE_OAUTH_TOKEN "${PANOPTICON_ENV_FILE:-}" \
-    || env_file_has_var ANTHROPIC_API_KEY "${PANOPTICON_ENV_FILE:-}"; then
-    claude_configured=1
-fi
+# Work out what's already set up and what this repo needs. "Configured" means the repo's env-file
+# or credential directory carries auth — a host-only environment variable or native login is not
+# visible to task containers.
+harness_configured=0
+case "$default_harness" in
+    claude)
+        if env_file_has_var CLAUDE_CODE_OAUTH_TOKEN "${PANOPTICON_ENV_FILE:-}" \
+            || env_file_has_var ANTHROPIC_API_KEY "${PANOPTICON_ENV_FILE:-}"; then
+            harness_configured=1
+        fi
+        ;;
+    codex)
+        codex_repo_auth_configured "${PANOPTICON_ENV_FILE:-}" "$credential_path" \
+            && harness_configured=1
+        ;;
+    pi)
+        pi_repo_auth_configured "${PANOPTICON_ENV_FILE:-}" "$credential_path" \
+            && harness_configured=1
+        ;;
+esac
 gh_needed=0
 gh_configured=0
 if is_github_url "$repo_url"; then
@@ -59,10 +76,10 @@ echo "  • Name: $repo_name"
 echo "  • Source: $repo_label"
 echo
 echo "To set up:"
-if [ "$claude_configured" -eq 1 ]; then
-    echo "  • Claude credential — already in $env_file"
+if [ "$harness_configured" -eq 1 ]; then
+    echo "  • $default_harness auth — already configured for task containers"
 else
-    echo "  • Claude credential — needed"
+    echo "  • $default_harness auth — needed"
 fi
 if [ "$gh_needed" -eq 1 ]; then
     if [ "$gh_configured" -eq 1 ]; then
@@ -185,6 +202,92 @@ setup_claude_token() {
     fi
 }
 
+# Full Claude dispatch: preserve the existing replace/adopt/paste/setup-token flow unchanged.
+setup_claude_auth() {
+    if [ "$harness_configured" -eq 1 ]; then
+        echo "A Claude credential is already set in $env_file."
+        echo
+        printf 'Replace it? [y/N] '
+        read answer
+        case "$answer" in
+            [Yy]*) setup_claude_token ;;
+            *) add_summary "Claude credential: kept the existing one in $env_file." ;;
+        esac
+    else
+        setup_claude_token
+    fi
+}
+
+# Full Codex dispatch. Repo env credentials or a shared credential-dir auth.json need no work;
+# otherwise run Codex's browser login, then copy the native auth file into the repo's shared dir.
+setup_codex_auth() {
+    if [ -n "${CODEX_API_KEY:-}" ] || [ -n "${OPENAI_API_KEY:-}" ] \
+        || [ -n "${CODEX_ACCESS_TOKEN:-}" ] \
+        || { [ -n "$credential_path" ] && [ -f "$credential_path/auth.json" ]; }; then
+        echo "Codex credentials already satisfy the harness auth check; no login is needed."
+        add_summary "Codex auth: already configured; skipped login."
+        return
+    fi
+    if ! command -v codex >/dev/null 2>&1; then
+        echo "The codex CLI is not installed. Install it, then resume this setup task."
+        add_summary "Codex auth: codex CLI not installed — login was not run."
+        return
+    fi
+    echo
+    echo "Running 'codex login' — complete the browser flow."
+    if ! codex login; then
+        add_summary "Codex auth: 'codex login' failed or was cancelled."
+        return
+    fi
+    if [ ! -f "$HOME/.codex/auth.json" ]; then
+        echo "Codex login finished, but $HOME/.codex/auth.json was not found."
+        add_summary "Codex auth: login finished but auth.json was not found; nothing copied."
+        return
+    fi
+    if [ -z "$credential_dir" ]; then
+        credential_dir=openai.d
+        credential_path="$PANOPTICON_SECRETS_DIR/$credential_dir"
+    fi
+    umask 077
+    if mkdir -p "$credential_path" \
+        && cp "$HOME/.codex/auth.json" "$credential_path/auth.json" \
+        && chmod 600 "$credential_path/auth.json" \
+        && set_repo_credential_dir "$credential_dir"; then
+        echo "Stored Codex auth in the repo's private credential directory ($credential_dir)."
+        add_summary "Codex auth: logged in and stored auth.json in $credential_dir."
+    else
+        echo "Couldn't store Codex auth in the repo credential directory. Token contents were not printed."
+        add_summary "Codex auth: login succeeded, but auth.json could not be stored for the repo."
+    fi
+}
+
+# Full Pi dispatch. Name every adapter-supported provider variable, then collect the chosen key with
+# hidden input and write it through the same private env-file helper as the other token paths.
+setup_pi_auth() {
+    if pi_repo_auth_configured "${PANOPTICON_ENV_FILE:-}" "$credential_path"; then
+        echo "Pi credentials are already configured for task containers; no key is needed."
+        add_summary "Pi auth: already configured; kept the existing credential."
+        return
+    fi
+    echo "Pi accepts these provider credential variables:"
+    echo "  $PANOPTICON_PI_API_KEY_ENV_VARS"
+    printf 'Environment variable to store [ANTHROPIC_API_KEY]: '
+    read pi_var
+    [ -n "$pi_var" ] || pi_var=ANTHROPIC_API_KEY
+    if ! is_pi_api_key_var "$pi_var"; then
+        echo "$pi_var is not one of the accepted variables listed above."
+        add_summary "Pi auth: no key stored — unrecognized environment variable $pi_var."
+        return
+    fi
+    printf 'Provider API key (input hidden): '
+    pi_key=$(read_secret)
+    if [ -n "$pi_key" ]; then
+        store_token "$pi_var" "$pi_key" "hidden input" "Pi auth"
+    else
+        add_summary "Pi auth: no key entered — nothing stored."
+    fi
+}
+
 # Set up the GH_TOKEN for a GitHub repo: adopt one from the operator's environment (masked, default-No)
 # if present and not already the env-file's own, else let them paste one, else skip (guide them to add
 # it themselves). We don't mint a GitHub token here.
@@ -212,18 +315,10 @@ setup_gh_token() {
     fi
 }
 
-# --- Claude credential -------------------------------------------------------------------------
-if [ "$claude_configured" -eq 1 ]; then
-    echo "A Claude credential is already set in $env_file."
-    echo
-    printf 'Replace it? [y/N] '
-    read answer
-    case "$answer" in
-        [Yy]*) setup_claude_token ;;
-        *) add_summary "Claude credential: kept the existing one in $env_file." ;;
-    esac
-else
-    setup_claude_token
+# --- Harness auth ------------------------------------------------------------------------------
+if ! dispatch_harness_auth "$default_harness"; then
+    echo "No approved setup-repo auth flow exists for the '$default_harness' harness."
+    add_summary "$default_harness auth: unsupported by setup-repo; configure it manually."
 fi
 
 # --- GH_TOKEN (GitHub repos only) --------------------------------------------------------------

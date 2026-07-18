@@ -30,7 +30,22 @@ control plane never interprets them; each harness gives them meaning.
   `credential_dir` (shared rotating credentials, e.g. a ChatGPT subscription auth.json).
   See [auth.md](./auth.md).
 
-## Approved design direction (not yet built)
+## Quickstart: detect, confirm, go
+
+`panopticon quickstart` probes every registered harness without making the control plane choose
+for you. For each adapter it checks whether the adapter's host CLI is on `PATH` and calls that
+adapter's `missing_auth(environ, home)` check. It prints the evidence before prompting.
+
+The recommendation order is: an installed, already-authenticated harness; any installed harness;
+then Claude guidance when none is installed. One installed candidate needs only Enter to confirm.
+Several produce a numbered picker with `authed`, `installed`, or `not installed` status and the
+adapter's install hint. The choice becomes the repo's `default_harness`; quickstart deliberately
+leaves `default_model` unset because task creation owns model choice.
+
+`panopticon doctor` follows the same registry: it reports one line per harness CLI and requires at
+least one, rather than requiring Claude specifically.
+
+## Default resolution
 
 ```mermaid
 flowchart LR
@@ -75,20 +90,18 @@ flowchart LR
 | Layer | Owns | Where set |
 |---|---|---|
 | **Task** | override of harness / model / effort | task modal |
-| **Repo** | `default_harness`, `default_model` *(planned)*, `env_file`, `credential_dir` | repo screen |
-| **Workflow** | lifecycle + skills; *optional* tuned harness+model pair *(planned)* | workflow code |
+| **Repo** | `default_harness`, `default_model`, `env_file`, `credential_dir` | quickstart / repo screen |
+| **Workflow** | lifecycle + skills; *optional* tuned harness+model pair | workflow code |
 | **Harness** | vocabulary, suggestion lists, field label, CLI mechanics | adapter code |
 
-## Experimental Outfitter adapter (blocked, unregistered)
+## Outfitter adapter
 
-The Outfitter adapter is not selectable. A live detached-tmux smoke reached Pi with inherited
-stdio, then crashed in pi-tui rendering: Outfitter 0.10.0 always injects an interactive startup
-header whose renderer ignores the pane width, and pi-tui rejects custom component lines wider
-than the terminal. Disabling ASCII art is insufficient because other fixed header lines are also
-unbounded. Outfitter must change that component to render against its `width` argument and
-wrap/truncate every line, then pass a narrow-terminal regression and Panopticon's live tmux smoke.
-
-The remaining notes describe the staged adapter and become active only after that upstream fix.
+Outfitter 0.11.0 is registered and selectable. That release fixed the width-unsafe startup header
+that blocked 0.10.0 in detached tmux, and the adapter passed the narrow-pane live smoke. Because
+quickstart detection iterates the registry, an installed Outfitter CLI appears in onboarding.
+`setup-repo` intentionally has no approved Outfitter-specific auth dispatch yet; it reports that
+gap instead of guessing. Configure Pi-compatible auth manually as described below, then rerun or
+complete setup.
 
 The Outfitter harness writes `~/.outfitter/settings.yml` with one local source:
 `~/.outfitter/profile_sources/`. Populate that directory before launch with a catalog's flat

@@ -19,10 +19,12 @@ from __future__ import annotations
 import importlib.resources
 import os
 import shlex
+import sys
+import tempfile
 from collections.abc import Callable
 from pathlib import Path
 
-from panopticon.core.dirs import secrets_file_path
+from panopticon.core.dirs import _secrets_dir, secrets_file_path
 from panopticon.core.models import LifecyclePhase
 from panopticon.sessionservice.local_runner import (
     TMUX_SOCKET,
@@ -65,6 +67,7 @@ class ShellRunner(Runner):
         runner_id: str = "local",
         tmux_socket: str | None = TMUX_SOCKET,
         secrets_dir: str | Path | None = None,
+        script_dir: str | Path | None = None,
         run: CommandRunner = _subprocess_run,
     ) -> None:
         self._service_url = service_url
@@ -73,6 +76,7 @@ class ShellRunner(Runner):
         # Root the repo's `env_file` *name* resolves against — this host's local secrets dir, matching
         # LocalRunner (ADR 0007). None = resolve the host's secrets dir dynamically at spawn.
         self._secrets_dir = secrets_dir
+        self._script_dir = Path(script_dir or tempfile.gettempdir())
         self._run = run
 
     def _tmux(self, *args: str) -> list[str]:
@@ -131,6 +135,8 @@ class ShellRunner(Runner):
             f"export PANOPTICON_SERVICE_URL={shlex.quote(self._service_url)}",
             f"export PANOPTICON_TASK_ID={shlex.quote(task_id)}",
             f"export PANOPTICON_RUNNER_ID={shlex.quote(self._runner_id)}",
+            f"export PANOPTICON_PYTHON={shlex.quote(sys.executable)}",
+            f"export PANOPTICON_SECRETS_DIR={shlex.quote(str(self._secrets_dir or _secrets_dir()))}",
             *([f"export PANOPTICON_GIT_URL={shlex.quote(git_url)}"] if git_url else []),
             *([f"export PANOPTICON_REPO_NAME={shlex.quote(repo_name)}"] if repo_name else []),
             f"curl --silent --no-buffer {shlex.quote(live_url)} >/dev/null 2>&1 &",
@@ -149,6 +155,14 @@ class ShellRunner(Runner):
         lines.append(script)
         # Strip comments/blank lines so the assembled command stays under tmux's 16 KiB imsg cap.
         command = _minify_shell("\n".join(lines))
+        # tmux's imsg transport caps one command around 16 KiB. Keep small workflows inline; spill a
+        # larger assembled script to a private host file and run a tiny cleanup wrapper instead.
+        if len(command.encode()) >= 12_000:
+            script_path = self._script_dir / f"panopticon-shell-{task_id}.sh"
+            script_path.write_text(command)
+            script_path.chmod(0o700)
+            quoted_script = shlex.quote(str(script_path))
+            command = f"trap 'rm -f {quoted_script}' EXIT; sh {quoted_script}"
         # Clear any stale session first so a respawn is idempotent (no-op when none exists).
         self._run(self._tmux("kill-session", "-t", session), check=False)
         _report(LifecyclePhase.STARTING)

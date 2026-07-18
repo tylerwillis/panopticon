@@ -1,16 +1,23 @@
 """First-time setup helpers for ``panopticon quickstart``.
 
-Registers the repo quickstart is run in with the running task service (idempotent — deduped on
-the remote URL), writes a secrets template to ``~/.config/panopticon/panopticon.env`` when it
-doesn't already exist, and creates a ``setup-repo`` task the console attaches to on open so the
-operator mints their Claude auth token as the last first-time-setup step.
+Detects and confirms the repo's default harness, registers the repo quickstart is run in with the
+task service (idempotent — deduped on the remote URL), writes a secrets template when absent, and
+creates a harness-aware ``setup-repo`` task the console attaches to for auth setup.
 """
 
 from __future__ import annotations
 
+import os
+import shutil
+from collections.abc import Callable, Mapping
+from dataclasses import dataclass
+from pathlib import Path
+
 import httpx
 
 from panopticon.client import TaskServiceClient
+from panopticon.harnesses import DEFAULT_HARNESS, HARNESSES
+from panopticon.harnesses.base import Harness
 from panopticon.terminal.setup_repo_task import SETUP_REPO_WORKFLOW, create_setup_repo_task
 
 _FALLBACK_GIT_URL = "https://github.com/Unsupervisedcom/panopticon.git"
@@ -26,6 +33,121 @@ _LOCAL_WORKFLOW = "local-git-self-reviewed"
 
 #: URL schemes that mean a networked (hosted-forge) remote rather than a local path.
 _FORGE_SCHEMES = ("https://", "http://", "ssh://", "git://", "ftp://", "ftps://")
+
+
+@dataclass(frozen=True)
+class HarnessDetection:
+    """Host readiness for one registered harness, as shown by quickstart's tiny picker."""
+
+    name: str
+    installed: bool
+    authenticated: bool
+    install_hint: str
+
+    @property
+    def status(self) -> str:
+        if self.authenticated:
+            return "authed"
+        if self.installed:
+            return "installed"
+        return f"not installed — {self.install_hint}"
+
+
+def detect_harnesses(
+    *,
+    harnesses: Mapping[str, Harness] = HARNESSES,
+    environ: Mapping[str, str] = os.environ,
+    home: Path | None = None,
+    which: Callable[[str], str | None] = shutil.which,
+) -> list[HarnessDetection]:
+    """Probe every registered harness locally: CLI presence plus its own auth check.
+
+    A harness is called ``authenticated`` only when both pieces are ready. Credentials for an
+    uninstalled CLI are still probed (the adapter owns that logic), but do not make it runnable.
+    """
+    resolved_home = home or Path.home()
+    detected = []
+    for harness in harnesses.values():
+        installed = which(harness.host_binary) is not None
+        auth_ready = harness.missing_auth(environ, home=resolved_home) is None
+        authenticated = installed and auth_ready
+        detected.append(
+            HarnessDetection(harness.name, installed, authenticated, harness.install_hint)
+        )
+    return detected
+
+
+def recommended_harness(detected: list[HarnessDetection]) -> str:
+    """Best runnable choice: authenticated, then installed, then the Claude fallback."""
+    for harness in detected:
+        if harness.authenticated:
+            return harness.name
+    for harness in detected:
+        if harness.installed:
+            return harness.name
+    return DEFAULT_HARNESS
+
+
+def choose_harness(
+    detected: list[HarnessDetection], *, input_fn: Callable[[str], str] = input
+) -> str:
+    """Print detection evidence, then confirm one candidate or pick among several."""
+    recommended = recommended_harness(detected)
+    candidates = [harness for harness in detected if harness.installed]
+    print("Detected agent harnesses:")
+    for harness in detected:
+        suffix = " (recommended)" if harness.name == recommended and candidates else ""
+        print(f"  {harness.name}: {harness.status}{suffix}")
+
+    if not candidates:
+        claude = next((h for h in detected if h.name == DEFAULT_HARNESS), None)
+        hint = claude.install_hint if claude is not None else "Install the Claude Code CLI."
+        print(f"No agent harness CLI is installed. {hint}")
+        return DEFAULT_HARNESS
+    if len(candidates) == 1:
+        choice = candidates[0].name
+        input_fn(f"Use {choice} as this repo's default harness? Press Enter to continue. ")
+        return choice
+
+    numbered = {str(index): harness.name for index, harness in enumerate(candidates, start=1)}
+    print("Choose the repo default:")
+    for number, harness in zip(numbered, candidates, strict=True):
+        suffix = " (recommended)" if harness.name == recommended else ""
+        print(f"  {number}) {harness.name} — {harness.status}{suffix}")
+    default_number = next(number for number, name in numbered.items() if name == recommended)
+    while True:
+        answer = input_fn(f"Harness [{default_number}]: ").strip()
+        if not answer:
+            return recommended
+        if answer in numbered:
+            return numbered[answer]
+        print(f"Enter a number from 1 to {len(numbered)}.")
+
+
+def harness_environment(env_file: str) -> dict[str, str]:
+    """Environment visible to auth probes, including active values in quickstart's env-file."""
+    from panopticon.core.dirs import secrets_file_path
+
+    environ = dict(os.environ)
+    path = secrets_file_path(env_file)
+    if path is None:
+        return environ
+    try:
+        lines = Path(path).read_text().splitlines()
+    except OSError:
+        return environ
+    for line in lines:
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or "=" not in stripped:
+            continue
+        name, value = stripped.split("=", 1)
+        name = name.strip()
+        value = value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+            value = value[1:-1]
+        if name:
+            environ[name] = value
+    return environ
 
 
 def _secrets_template() -> str:
@@ -136,7 +258,7 @@ def ensure_secrets_file() -> str:
     else:
         secrets_path.write_text(_secrets_template())
         print(f"Created secrets template: {secrets_path}")
-        print("  → Edit it to add your CLAUDE_CODE_OAUTH_TOKEN and GH_TOKEN before creating tasks.")
+        print("  → The setup-repo task will add harness auth; add GH_TOKEN there or by hand.")
     return secrets_path.name
 
 
@@ -175,7 +297,13 @@ def _find_existing_repo(client: TaskServiceClient, git_url: str) -> dict[str, ob
     return None
 
 
-def setup_repo(client: TaskServiceClient, git_url: str, env_file: str) -> tuple[str, str]:
+def setup_repo(
+    client: TaskServiceClient,
+    git_url: str,
+    env_file: str,
+    *,
+    default_harness: str | None = None,
+) -> tuple[str, str]:
     """Register the repo quickstart is run in with the task service; return its ``(id, name)``.
 
     Enables the opt-in coding workflow appropriate to the repo's remote — the forge lifecycle
@@ -194,11 +322,19 @@ def setup_repo(client: TaskServiceClient, git_url: str, env_file: str) -> tuple[
         print(f"Repo already configured for {git_url!r} — skipping registration.")
         _ensure_workflow_enabled(client, existing, workflow)
         repo_id = str(existing["id"])
+        if default_harness is not None and existing.get("default_harness") != default_harness:
+            client.update_repo(repo_id, default_harness=default_harness)
+            print(f"  → Set the repo's default harness to {default_harness!r}.")
         return repo_id, str(existing.get("name") or repo_id)
     repo_id = repo_id_from_url(git_url)
     try:
         client.create_repo(
-            repo_id, repo_id, git_url, env_file=env_file, enabled_workflows=[workflow]
+            repo_id,
+            repo_id,
+            git_url,
+            env_file=env_file,
+            enabled_workflows=[workflow],
+            default_harness=default_harness,
         )
     except httpx.HTTPStatusError as err:
         if err.response.status_code != 409:
@@ -233,12 +369,12 @@ def ensure_setup_repo_task(client: TaskServiceClient, repo_id: str, name: str) -
                 and task.get("workflow") == SETUP_REPO_WORKFLOW
                 and task.get("state") not in _TERMINAL_STATES
             ):
-                print("Attaching to the running setup-repo task to mint a Claude auth token.")
+                print("Attaching to the running setup-repo task to configure harness auth.")
                 return str(task["id"])
         task = create_setup_repo_task(client, repo_id, name)
     except httpx.HTTPError as err:
         print(f"Could not start a setup-repo task ({err}); opening the dashboard instead.")
-        print("  → Mint a token later with `claude setup-token`, or start a setup-repo task.")
+        print("  → Configure auth later by starting a setup-repo task from the repos screen.")
         return None
-    print("Minting a Claude auth token — attach to complete `claude setup-token`.")
+    print("Configuring the repo's harness auth — attach to complete setup-repo.")
     return str(task["id"])

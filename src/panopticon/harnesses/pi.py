@@ -210,6 +210,10 @@ class PiHarness(Harness):
 
     name: ClassVar[str] = "pi"
     config_dirname: ClassVar[str] = ".pi"
+    host_binary: ClassVar[str] = "pi"
+    install_hint: ClassVar[str] = (
+        "Install pi (`npm install --global @earendil-works/pi-coding-agent`)."
+    )
 
     def __init__(self, *, run: CommandRunner = _subprocess_run) -> None:
         self._run = run

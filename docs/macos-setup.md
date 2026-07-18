@@ -16,7 +16,8 @@ confirm the daemon is up:
 docker info
 ```
 
-`panopticon doctor` checks this (along with tmux, git, the `claude` CLI, and Python), and
+`panopticon doctor` checks this (along with tmux, git, Python, and at least one registered harness
+CLI), and
 `panopticon quickstart` runs it for you before doing anything.
 
 Task containers run inside Docker Desktop's Linux VM rather than on your host directly — which is

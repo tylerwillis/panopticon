@@ -1,21 +1,16 @@
 # Container authentication — giving tasks their agent credentials
 
-Each **harness** (the agent CLI a task runs — claude by default, codex for OpenAI models)
-authenticates its own way. The claude setup is below; codex follows in
-[Codex / OpenAI](#codex--openai-gpt-56).
+Each **harness** (the agent CLI a task runs) authenticates its own way. `panopticon quickstart`
+detects installed/authenticated harnesses, asks you to confirm or choose one, stores it as the
+repo's `default_harness`, then drops you into a harness-aware `setup-repo` task. The repo's
+`env_file` carries environment credentials; `credential_dir` carries shared rotating auth files.
 
-Every task runs `claude` inside its container. The agent authenticates from a
-**`CLAUDE_CODE_OAUTH_TOKEN`** environment variable, which the runner injects from the **repo's
-`env_file`** at spawn (ADR 0007 / ADR 0012). You provide that token once per repo; it is long-lived
-and non-rotating, so it survives concurrent tasks and respawns (no ~8h re-login cliff).
+The Claude manual setup is below; [Codex / OpenAI](#codex--openai-gpt-56) and
+[Pi](#pi-earendil-workspi) follow. Claude authenticates from `CLAUDE_CODE_OAUTH_TOKEN` in the
+repo's env-file (or `ANTHROPIC_API_KEY`). The OAuth token is long-lived and non-rotating, so it
+survives concurrent tasks and respawns. There is no Claude `login` command; use `setup-token`.
 
-Normally you don't set this up by hand: **`panopticon quickstart` registers the repo and drops you
-into a `setup-repo` task** that mints the token and writes it into the env-file for you. This page is
-the deep-dive and the manual path — set it up by hand (mint with the `claude` CLI, drop the token
-into the env-file — below), or run the **`setup-repo` workflow** on its own (see *The `setup-repo`
-workflow* below). There is no `login` command.
-
-## One-time setup per account
+## Claude one-time setup per account
 
 1. **Mint a long-lived token** on a machine where you can complete the browser OAuth (it needs a
    Claude subscription or Console login):
@@ -54,14 +49,23 @@ That's it — new task containers for that repo now authenticate from the token.
 ## The `setup-repo` workflow
 
 `panopticon quickstart` runs this workflow for you. To do it manually, start a **`setup-repo`** task
-from the repos modal — press `g` on the dashboard, highlight the repo, and press `s`.
-It runs on the host (no container — `runner_type = "shell"`), attaches you to a shell where it runs
-`claude setup-token`, and on a successful mint **writes the token straight into the repo's env-file**
-as `CLAUDE_CODE_OAUTH_TOKEN=…` (creating the file `0600` if needed). If a token is already present,
-the previous line is **commented out** (kept as a record, not deleted) and any placeholder stub
-(`# CLAUDE_CODE_OAUTH_TOKEN =`) is removed; other lines (`ANTHROPIC_API_KEY`, …) are untouched. When
-it can't capture the token (or the repo has no `env_file`), it falls back to printing the copy-it-in
-instructions above.
+from the repos modal — press `g`, highlight the repo, and press `s`. It runs on the operator host in
+tmux (no container or agent), reads the repo's `default_harness` from the task service, and dispatches:
+
+- **Claude:** the existing `claude setup-token` flow. A captured token is written to the repo
+  env-file as `CLAUDE_CODE_OAUTH_TOKEN`; an old active value is commented out and placeholder stubs
+  are removed. Capture failure falls back to copy instructions.
+- **Codex:** if `CODEX_API_KEY`, `OPENAI_API_KEY`, `CODEX_ACCESS_TOKEN`, or the repo credential
+  directory's `auth.json` already satisfies auth, it reports that and skips login. Otherwise it runs
+  interactive `codex login`, copies `~/.codex/auth.json` privately into the repo credential
+  directory, creates `secrets/openai.d/` and records `credential_dir: openai.d` when the repo had no
+  credential directory, and never prints token contents.
+- **Pi:** names every provider variable from the Pi adapter's `API_KEY_ENV_VARS`, asks which one to
+  store, reads its value with hidden input, and appends it privately to the repo env-file.
+
+Every path converges on the same summary and final Enter-to-complete prompt. Outfitter is registered
+but has no approved setup-repo dispatch yet; the workflow says so and leaves its Pi-compatible auth
+for manual setup rather than inventing a path.
 
 ## Notes
 

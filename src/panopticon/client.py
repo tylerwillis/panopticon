@@ -137,6 +137,7 @@ class TaskServiceClient:
         capabilities: dict[str, Any] | None = None,
         enabled_workflows: list[str] | None = None,
         disabled_workflows: list[str] | None = None,
+        default_harness: str | None = None,
     ) -> JsonObj:
         body: dict[str, Any] = {
             "id": repo_id,
@@ -148,6 +149,7 @@ class TaskServiceClient:
             "hook_file": hook_file,
             "enabled_workflows": enabled_workflows or [],
             "disabled_workflows": disabled_workflows or [],
+            "default_harness": default_harness,
         }
         if capabilities is not None:
             body["capabilities"] = capabilities
