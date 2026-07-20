@@ -121,6 +121,7 @@ class TaskService:
         artifacts: ArtifactStore,
         *,
         layers: LayerStore | None = None,
+        workflow_discovery: Callable[[], Mapping[str, Workflow]] | None = None,
         clock: Callable[[], str] = _utc_now_iso,
         id_factory: Callable[[], str] = _uuid_hex,
     ) -> None:
@@ -130,6 +131,7 @@ class TaskService:
             workflow.validate_registration(HARNESSES)
         self._artifacts = artifacts
         self._layers = layers
+        self._workflow_discovery = workflow_discovery
         self._clock = clock
         self._id = id_factory
         self._registrations: dict[str, Registration] = {}
@@ -262,12 +264,24 @@ class TaskService:
 
     # -- workflows ----------------------------------------------------------------
 
+    def _rescan_workflows(self) -> None:
+        if self._workflow_discovery is None:
+            return
+        for name, workflow in self._workflow_discovery().items():
+            if name in self._workflows:
+                # Additive only: in-flight tasks retain their loaded workflow. Edits and renames
+                # intentionally require a service restart rather than replacing/removing it here.
+                continue
+            workflow.validate_registration(HARNESSES)
+            self._workflows[name] = workflow
+
     async def workflow_names(self) -> list[str]:
         return sorted(self._workflows)
 
     async def list_workflow_infos(self) -> list[dict[str, str | bool]]:
         """Each workflow's name, when_to_use description and opt_in flag, sorted by name.
         ``hidden`` workflows are omitted — this drives the repo form's enable/disable menu."""
+        self._rescan_workflows()
         return [
             {
                 "name": name,
@@ -280,6 +294,7 @@ class TaskService:
 
     async def list_workflow_editor_infos(self) -> list[dict[str, str | bool]]:
         """Every registered workflow and its defining Python file, for the operator UI."""
+        self._rescan_workflows()
         return [
             {
                 "name": name,
@@ -374,6 +389,8 @@ class TaskService:
         if governor_task_id is not None:
             await self.get_task(governor_task_id)  # ensure governor exists (raises NotFound)
         self._validate_harness_name(harness)  # so a spawn never meets an unknown harness
+        if workflow_name not in self._workflows:
+            self._rescan_workflows()
         wf = self._workflow(workflow_name)
         if not self._workflow_visible(wf, repo):
             raise NotAuthorized(f"workflow {workflow_name!r} is not enabled for repo {repo_id!r}")

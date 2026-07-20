@@ -25,15 +25,17 @@ class Custom(Workflow):
 """
 
 
-def test_discovers_the_builtin_workflows() -> None:
-    registry = discover_workflows()
+def test_discovers_the_builtin_workflows(tmp_path: Path) -> None:
+    registry = discover_workflows(_home_workflows=tmp_path / "empty-home-workflows")
     assert {"spike", "github-peer-reviewed"} <= set(registry)  # built-ins, keyed by name
     assert registry["spike"].name == "spike"  # instances, validated on construction
 
 
 def test_discovers_a_workflow_dropped_on_the_path(tmp_path: Path) -> None:
     (tmp_path / "custom_wf.py").write_text(_CUSTOM_WORKFLOW)
-    registry = discover_workflows(path=str(tmp_path))
+    registry = discover_workflows(
+        path=str(tmp_path), _home_workflows=tmp_path / "empty-home-workflows"
+    )
     assert "custom" in registry and registry["custom"].name == "custom"  # no core change needed
     assert {"spike", "github-peer-reviewed"} <= set(registry)  # still includes the built-ins
 
@@ -41,7 +43,9 @@ def test_discovers_a_workflow_dropped_on_the_path(tmp_path: Path) -> None:
 def test_ignores_underscored_and_non_workflow_files(tmp_path: Path) -> None:
     (tmp_path / "_private.py").write_text(_CUSTOM_WORKFLOW.replace('"custom"', '"private"'))
     (tmp_path / "notes.py").write_text("X = 1\n")  # no Workflow subclass
-    registry = discover_workflows(path=str(tmp_path))
+    registry = discover_workflows(
+        path=str(tmp_path), _home_workflows=tmp_path / "empty-home-workflows"
+    )
     assert "private" not in registry  # underscore-prefixed modules are skipped
 
 
@@ -50,7 +54,7 @@ def test_duplicate_name_is_rejected(tmp_path: Path) -> None:
         _CUSTOM_WORKFLOW.replace('"custom"', '"spike"')
     )  # clashes with built-in
     with pytest.raises(ValueError, match="duplicate workflow name 'spike'"):
-        discover_workflows(path=str(tmp_path))
+        discover_workflows(path=str(tmp_path), _home_workflows=tmp_path / "empty-home-workflows")
 
 
 def test_discovers_workflow_in_home_panopticon_dir(tmp_path: Path) -> None:

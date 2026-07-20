@@ -1660,6 +1660,12 @@ def test_create_workflow_file_writes_discoverable_minimal_template(
     assert 'name: ClassVar[str] = "release-check"' in content
     assert "class Working(InitialState):" in content
     assert "transitions = (Complete,)" in content
+    assert "transitions = (Review,)" in content
+
+    from panopticon.workflows.discovery import discover_workflows
+
+    registry = discover_workflows(_home_workflows=tmp_path / "workflows")
+    assert "release-check" in registry
 
 
 async def test_workflows_screen_new_creates_template_and_opens_it(
@@ -1668,8 +1674,21 @@ async def test_workflows_screen_new_creates_template_and_opens_it(
     monkeypatch.setenv("PANOPTICON_CONFIG", str(tmp_path))
     monkeypatch.setattr(App, "suspend", lambda self: contextlib.nullcontext())
     opened: list[Path] = []
-    monkeypatch.setattr(dashboard, "_open_file_in_editor", opened.append)
-    app = Dashboard(_FakeClient([], workflows=[]))  # type: ignore[arg-type]
+    fake = _FakeClient([], workflows=[])
+
+    def open_and_register(path: Path) -> None:
+        opened.append(path)
+        fake._workflows.append(
+            {
+                "name": "release-check",
+                "when_to_use": "Check a release.",
+                "path": str(path),
+                "built_in": False,
+            }
+        )
+
+    monkeypatch.setattr(dashboard, "_open_file_in_editor", open_and_register)
+    app = Dashboard(fake)  # type: ignore[arg-type]
 
     async with app.run_test() as pilot:
         await pilot.pause()
@@ -1680,10 +1699,41 @@ async def test_workflows_screen_new_creates_template_and_opens_it(
         app.screen.query_one("#workflow-name", Input).value = "release-check"
         await pilot.press("enter")
         await pilot.pause()
+        table = app.screen.query_one("#workflows", DataTable)
+        assert table.row_count == 1
+        assert "release-check" in str(table.get_row_at(0))
 
     path = tmp_path / "workflows" / "release-check.py"
     assert opened == [path]
     assert "class ReleaseCheck(Workflow):" in path.read_text()
+
+
+async def test_workflows_screen_refreshes_after_editing_an_existing_file(
+    monkeypatch: Any,
+) -> None:
+    monkeypatch.setattr(App, "suspend", lambda self: contextlib.nullcontext())
+    workflow = {
+        "name": "release",
+        "when_to_use": "Old description.",
+        "path": "/config/workflows/release.py",
+        "built_in": False,
+    }
+    fake = _FakeClient([], workflows=[workflow])
+
+    def edit(_: Path) -> None:
+        workflow["when_to_use"] = "New description."
+
+    monkeypatch.setattr(dashboard, "_open_file_in_editor", edit)
+    app = Dashboard(fake)  # type: ignore[arg-type]
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("w")
+        await pilot.pause()
+        await pilot.press("enter")
+        await pilot.pause()
+        table = app.screen.query_one("#workflows", DataTable)
+        assert "New description." in str(table.get_row_at(0))
 
 
 async def test_pressing_s_in_the_repos_screen_creates_a_setup_repo_task() -> None:
@@ -3449,7 +3499,9 @@ def _rendered_static_text(static: Static) -> str:
     return " ".join(words.split())
 
 
-async def test_workflow_descriptions_are_not_clipped_for_every_registered_workflow() -> None:
+async def test_workflow_descriptions_are_not_clipped_for_every_registered_workflow(
+    tmp_path: Path,
+) -> None:
     """Regression: ``#workflow-desc`` used to be a fixed 2 visible rows (a ``height: 4`` box
     with a 2-row border/padding overhead), so anything past two wrapped lines — e.g. the
     orchestrator's when_to_use — got cut off mid-sentence. It now auto-sizes to the wrapped
@@ -3460,7 +3512,7 @@ async def test_workflow_descriptions_are_not_clipped_for_every_registered_workfl
     source ``when_to_use``."""
     from panopticon.workflows.discovery import discover_workflows
 
-    registry = discover_workflows()
+    registry = discover_workflows(_home_workflows=tmp_path / "empty-home-workflows")
     entries = sorted(
         ({"name": name, "when_to_use": wf.when_to_use} for name, wf in registry.items()),
         key=lambda w: w["name"],
@@ -3535,12 +3587,12 @@ async def test_workflow_description_overflowing_the_cap_scrolls_via_keyboard() -
         assert head in visible_text()  # scrolls back up just as reliably
 
 
-async def test_workflow_picker_still_fits_a_short_terminal() -> None:
+async def test_workflow_picker_still_fits_a_short_terminal(tmp_path: Path) -> None:
     """The auto-sizing description pane (previous test) must stay bounded by its
     ``max-height``, or a long description could push the picker box off a short terminal."""
     from panopticon.workflows.discovery import discover_workflows
 
-    registry = discover_workflows()
+    registry = discover_workflows(_home_workflows=tmp_path / "empty-home-workflows")
     entries = [{"name": name, "when_to_use": wf.when_to_use} for name, wf in registry.items()]
 
     fake = _FakeClient([], repos=["r1"], workflows=entries)

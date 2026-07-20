@@ -42,7 +42,10 @@ def test_multiple_workflows_are_configurable_and_run_concurrently(tmp_path: Path
     (wf_dir / "custom.py").write_text(_CUSTOM_WORKFLOW)
 
     app = build_app(
-        db="sqlite://", artifacts_root=str(tmp_path / "artifacts"), workflows_path=str(wf_dir)
+        db="sqlite://",
+        artifacts_root=str(tmp_path / "artifacts"),
+        workflows_path=str(wf_dir),
+        _home_workflows=tmp_path / "empty-home-workflows",
     )
     with TestClient(app) as client:
         # 1. The built-ins and the path-discovered workflow are all selectable (no core change).

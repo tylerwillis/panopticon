@@ -115,17 +115,24 @@ def build_app(
     artifacts_root: str = ARTIFACTS_DIR,
     layers_root: str = LAYERS_DIR,
     workflows_path: str | None = None,
+    _home_workflows: Path | None = None,
 ) -> FastAPI:
     """Build the task-service app around the default control-plane wiring (no LLM).
 
-    Workflows are discovered from the built-in package plus an optional ``workflows_path`` dir.
+    Workflows are discovered from the built-in package, the operator's config directory, and an
+    optional ``workflows_path`` dir. ``_home_workflows`` overrides the config directory in tests.
     Repo image layers are read as files under ``layers_root`` (served over REST, ADR 0005).
     """
     service = TaskService(
         SqlAlchemyStore(db),
-        discover_workflows(path=workflows_path),
+        discover_workflows(path=workflows_path, _home_workflows=_home_workflows),
         FilesystemArtifactStore(artifacts_root),
         layers=FilesystemLayerStore(layers_root),
+        workflow_discovery=lambda: discover_workflows(
+            path=workflows_path,
+            _home_workflows=_home_workflows,
+            _skip_duplicates=True,
+        ),
     )
     return create_app(service)
 
