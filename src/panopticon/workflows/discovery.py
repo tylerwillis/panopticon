@@ -14,8 +14,11 @@ from __future__ import annotations
 import importlib
 import importlib.util
 import inspect
+import logging
 import pkgutil
+import sys
 from collections.abc import Iterator
+from hashlib import sha256
 from pathlib import Path
 from types import ModuleType
 
@@ -25,6 +28,7 @@ from panopticon.harnesses import HARNESSES
 
 #: Module namespace for directory-discovered workflows (kept distinct from the package's).
 _EXT_PREFIX = "panopticon_workflows_ext"
+_log = logging.getLogger(__name__)
 
 
 def _concrete_workflows(module: ModuleType) -> list[type[Workflow]]:
@@ -47,11 +51,22 @@ def _directory_modules(path: Path) -> Iterator[ModuleType]:
     for file in sorted(path.glob("*.py")):
         if file.name.startswith("_"):
             continue
-        spec = importlib.util.spec_from_file_location(f"{_EXT_PREFIX}.{file.stem}", file)
+        digest = sha256(str(file.resolve()).encode()).hexdigest()[:12]
+        module_name = f"{_EXT_PREFIX}.{file.stem}_{digest}"
+        spec = importlib.util.spec_from_file_location(module_name, file)
         if spec is None or spec.loader is None:  # not importable — skip
             continue
         module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
+        previous = sys.modules.get(module_name)
+        sys.modules[module_name] = module
+        try:
+            spec.loader.exec_module(module)
+        except BaseException:
+            if previous is None:
+                del sys.modules[module_name]
+            else:
+                sys.modules[module_name] = previous
+            raise
         yield module
 
 
@@ -60,11 +75,13 @@ def discover_workflows(
     package: str = "panopticon.workflows",
     path: str | None = None,
     _home_workflows: Path | None = None,
+    _skip_duplicates: bool = False,
 ) -> dict[str, Workflow]:
     """Build the ``{name: workflow}`` registry: built-in ``package`` → ``$XDG_CONFIG_HOME/panopticon/workflows/`` → ``path``.
 
     Each discovered class is instantiated (validating it); a duplicate ``name`` raises ``ValueError``.
     ``_home_workflows`` overrides the default config-dir workflows scan target (tests only).
+    ``_skip_duplicates`` logs and skips later definitions (live-rescan wiring only).
     """
     modules = list(_package_modules(importlib.import_module(package)))
     home_wf = _home_workflows if _home_workflows is not None else (user_config_dir() / "workflows")
@@ -78,6 +95,14 @@ def discover_workflows(
             workflow = cls()  # instantiation validates the workflow (raises InvalidWorkflow)
             workflow.validate_registration(HARNESSES)
             if workflow.name in registry:
+                if _skip_duplicates:
+                    _log.warning(
+                        "skipping duplicate workflow name %r from %s.%s",
+                        workflow.name,
+                        cls.__module__,
+                        cls.__name__,
+                    )
+                    continue
                 raise ValueError(
                     f"duplicate workflow name {workflow.name!r} (from {cls.__module__}.{cls.__name__})"
                 )
