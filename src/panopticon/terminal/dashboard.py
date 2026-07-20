@@ -461,16 +461,35 @@ from panopticon.core.workflow import Workflow
 
 class {class_name}(Workflow):
     name: ClassVar[str] = "{name}"
-    # Explain the situation in which an operator should choose this workflow.
+    # Shown in the workflow picker: say what work should choose this process.
     when_to_use: ClassVar[str] = "Describe when to use this workflow."
 
+    # A State subclass is one workflow stage. Its label is persisted and shown in the dashboard;
+    # description explains the stage; transitions is a tuple of destination state classes.
+    # turn_on_enter chooses who holds the ball on entry (Actor.USER or Actor.AGENT).
+    # advanced_by chooses who is allowed to advance out of the stage.
+    # responsibilities are agent obligations that must be resolved before advance is allowed.
+    #
+    # To insert REVIEW between WORKING and COMPLETE, add State to the import above. The chain is
+    # Working `transitions = (Review,)`, then Review `transitions = (Complete,)`. Define Review
+    # first so that class reference exists, then replace Working below with the commented version:
+    # class Review(State):
+    #     label = "REVIEW"
+    #     description = "Review the completed work."
+    #     transitions = (Complete,)
+    #
+    # class Working(InitialState):
+    #     label = "WORKING"
+    #     description = "Do the work."
+    #     transitions = (Review,)
     class Working(InitialState):
         label = "WORKING"
         description = "Do the work."
-        # Add State subclasses, responsibilities, and transitions as the process requires.
         transitions = (Complete,)
 
     initial = Working
+
+# Saving this file registers the new workflow with the running service.
 '''
 
 
@@ -1628,6 +1647,7 @@ class WorkflowsScreen(_TableScreen):
                 _open_file_in_editor(path)
         except SuspendNotSupported:
             self.notify("Editor not supported in this environment", severity="warning")
+        self._refresh()
 
     def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
         self._open(Path(str(event.row_key.value)))
