@@ -1,0 +1,32 @@
+# 2119 configuration — https://github.com/Unsupervisedcom/2119
+# All fields optional; these are the defaults unless noted.
+#
+# specs:
+#   - "specs/**/*REQ-*.md"
+# tests:
+#   - "test/**"
+#   - "tests/**"
+#   - "**/*.test.*"
+# prefix: "REQ"
+# enforce: ["MUST", "MUST NOT", "SHALL", "SHALL NOT", "REQUIRED"]
+# reviews: true
+#
+# Recommended reviewer model(s) for test-quality judgment reviews. Advisory,
+# platform-specific strings your agent resolves; a list means every model
+# reviews and all must pass (cross-provider diversity catches what one
+# model family rubber-stamps):
+# review_model: "opus"
+# review_model: ["opus", "gpt-5.6-sol"]
+#
+# Shared fixtures/helpers hashed into every test-quality review, so they
+# can't change (or be neutered) without invalidating dependent verdicts:
+# shared_evidence:
+#   - "tests/helpers/**"
+#
+# Extra comment leaders for annotation lines, beyond the defaults
+# (//, #, *, /*, --, ;, %, <!--):
+# comment_leaders: ['"']
+#
+# Generate adversarial audits of passing verdicts on every `review` run
+# (default: only under `review --audit`):
+# audit: "always"
