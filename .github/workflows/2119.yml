@@ -1,0 +1,18 @@
+name: "2119"
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # TODO: add your project's test-suite step here — 2119 does not run tests.
+      # - run: <your install + test commands>
+      - run: npx --yes rfc2119@0.6.1 check
