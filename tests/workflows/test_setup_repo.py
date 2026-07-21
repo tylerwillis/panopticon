@@ -100,14 +100,33 @@ done
     assert _sh(body).splitlines() == ["claude", "codex", "pi"]
 
 
-def test_harness_auth_dispatch_flags_an_unapproved_harness() -> None:
+def test_harness_auth_dispatch_flags_an_unknown_harness() -> None:
     body = """
 setup_claude_auth() { echo claude; }
 setup_codex_auth() { echo codex; }
 setup_pi_auth() { echo pi; }
-dispatch_harness_auth outfitter || echo unsupported
+dispatch_harness_auth unknown || echo unsupported
 """
     assert _sh(body).splitlines() == ["unsupported"]
+
+
+# 2119: REQ-001.1
+# 2119: REQ-001.2
+# 2119: REQ-001.3
+# 2119: REQ-001.4
+def test_harness_auth_dispatch_routes_outfitter_through_pi(tmp_path: Path) -> None:
+    credential_path = tmp_path / "openai.d"
+    body = f"""
+credential_path={shlex.quote(str(credential_path))}
+setup_pi_auth() {{ echo pi-auth-flow; }}
+dispatch_harness_auth outfitter || echo unsupported
+"""
+
+    assert _sh(body).splitlines() == [
+        "Outfitter uses Pi credentials; continuing with Pi authentication.",
+        "pi-auth-flow",
+    ]
+    assert (credential_path / "outfitter" / "profiles").is_dir()
 
 
 def test_codex_repo_auth_check_accepts_env_file_or_credential_dir(tmp_path: Path) -> None:

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.1.1--1679246ab88e",
+  "requirementId": "REQ-001.1.1",
+  "hash": "1679246ab88e",
+  "verdict": "pass",
+  "summary": "Real sourced dispatch_harness_auth (the script's only unsupported-report seam) exercised in real sh; exact-output assertion rejects nonzero-return, silent-accept, and print-but-exit-0 counterexamples — only the downstream pi flow is stubbed.",
+  "timestamp": "2026-07-21T23:38:08.734Z"
+}
