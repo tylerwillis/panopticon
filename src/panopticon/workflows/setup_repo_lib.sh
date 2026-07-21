@@ -229,6 +229,11 @@ dispatch_harness_auth() {
         claude) setup_claude_auth ;;
         codex) setup_codex_auth ;;
         pi) setup_pi_auth ;;
+        outfitter)
+            echo "Outfitter uses Pi credentials; continuing with Pi authentication."
+            [ -z "${credential_path:-}" ] || mkdir -p "$credential_path/outfitter/profiles" || return 1
+            setup_pi_auth
+            ;;
         *) return 1 ;;
     esac
 }
