@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.7.1--f2302960474a",
+  "requirementId": "REQ-001.7.1",
+  "hash": "f2302960474a",
+  "verdict": "pass",
+  "summary": "Real pilot opens both dialogs; new-workflow box pinned to 56-col/auto-height/round accent border/surface background via theme vars, delete box's rendered region+styles asserted equal to it, centering checked against live app geometry - every conjunct has a failing counterexample; only the REST client is faked",
+  "timestamp": "2026-07-21T23:45:15.858Z"
+}

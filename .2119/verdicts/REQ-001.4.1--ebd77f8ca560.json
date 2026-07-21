@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.4.1--ebd77f8ca560",
+  "requirementId": "REQ-001.4.1",
+  "hash": "ebd77f8ca560",
+  "verdict": "pass",
+  "summary": "Asserts real file removal and re-render from a second registry fetch whose payload differs - locally-patched stale rows or a skipped refetch fail; fake client is the service boundary, not the behavior under test",
+  "timestamp": "2026-07-21T23:40:33.605Z"
+}

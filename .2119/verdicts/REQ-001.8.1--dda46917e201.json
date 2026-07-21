@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.8.1--dda46917e201",
+  "requirementId": "REQ-001.8.1",
+  "hash": "dda46917e201",
+  "verdict": "pass",
+  "summary": "Captures app.notify at the notification seam; exactly one notice required containing built-in + delete - silence or an unrelated toast fails",
+  "timestamp": "2026-07-21T23:40:36.045Z"
+}

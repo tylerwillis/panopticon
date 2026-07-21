@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.6.1--841e1ff31b7d",
+  "requirementId": "REQ-001.6.1",
+  "hash": "841e1ff31b7d",
+  "verdict": "pass",
+  "summary": "Dialog labels must contain 'removes the file' and 'next restart' - a bare Delete? yes/no dialog fails; retention clause only indirectly anchored but distinctive phrases are a fair proxy for prose content",
+  "timestamp": "2026-07-21T23:40:34.917Z"
+}

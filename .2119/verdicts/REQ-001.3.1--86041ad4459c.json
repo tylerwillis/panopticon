@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.3.1--86041ad4459c",
+  "requirementId": "REQ-001.3.1",
+  "hash": "86041ad4459c",
+  "verdict": "pass",
+  "summary": "Both cancel paths (click no, Escape) parametrized; real tmp_path file re-read after cancel and screen must return to WorkflowsScreen - lingering dialog or deletion fails",
+  "timestamp": "2026-07-21T23:40:32.986Z"
+}
