@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.4.1--8c1c7923f201",
+  "requirementId": "REQ-001.4.1",
+  "hash": "8c1c7923f201",
+  "verdict": "pass",
+  "summary": "Real-git end-to-end with no git fakes: prepare_workspace makes a real clone --local checkout, slug is set over REST, one daemon pass runs, then 'git branch --show-current' must equal panopticon/fix-widget and the recorded branch/clone are asserted — a provisioning path unable to branch a prepared workspace fails on observable git state",
+  "timestamp": "2026-07-21T23:42:20.155Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.1.1--6cbcab3ddb38",
+  "requirementId": "REQ-001.1.1",
+  "hash": "6cbcab3ddb38",
+  "verdict": "pass",
+  "summary": "Both annotated tests exact-match the emitted git calls: 'Panopticon Agent' verbatim, --local scope on the per-task clone path, and the exists=True idempotent path still asserts the config call — each boundary term has a rejecting counterexample, and the current red failure is exactly the missing user.name call.",
+  "timestamp": "2026-07-21T23:44:28.972Z"
+}

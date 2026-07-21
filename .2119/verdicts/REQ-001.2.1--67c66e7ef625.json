@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.2.1--67c66e7ef625",
+  "requirementId": "REQ-001.2.1",
+  "hash": "67c66e7ef625",
+  "verdict": "pass",
+  "summary": "Exact argv-list equality in both spawn tests pins 'git -C <clone> config --local user.email panopticon-agent@users.noreply.github.com' on fresh AND pre-existing workspaces, rejecting wrong-email, non-local-scope, extra-call, and skip-when-exists implementations; runner fake is the repo's documented seam, real prepare_workspace runs.",
+  "timestamp": "2026-07-21T23:44:31.959Z"
+}

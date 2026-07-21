@@ -37,6 +37,7 @@ def _git(cwd: Path, *args: str) -> str:
     ).stdout.strip()
 
 
+# 2119: REQ-001.4.1
 @pytest.mark.skipif(not shutil.which("git"), reason="needs git")
 def test_provisioning_end_to_end_with_real_git(tmp_path: Path) -> None:
     # A real "forge" repo with a base branch — stands in for both the cache source and origin.

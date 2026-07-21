@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.3.1--73a9f44e46ba",
+  "requirementId": "REQ-001.3.1",
+  "hash": "73a9f44e46ba",
+  "verdict": "pass",
+  "summary": "Exact-equality on the full recorded git call list (fresh + existing-checkout paths) rejects every command-level violation: a --global/--system write, an extra global call alongside the --local ones, or --local aimed at another repo all break calls==[...]; env overrides are explicitly scoped out by the spec overview.",
+  "timestamp": "2026-07-21T23:45:46.071Z"
+}
