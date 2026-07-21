@@ -84,6 +84,7 @@ from textual.screen import ModalScreen
 from textual.suggester import SuggestFromList
 from textual.widget import Widget
 from textual.widgets import (
+    Button,
     Checkbox,
     DataTable,
     Footer,
@@ -1582,6 +1583,38 @@ class NewWorkflowScreen(ModalScreen[str | None]):
         self.dismiss(None)
 
 
+class DeleteWorkflowScreen(ModalScreen[bool]):
+    """Confirm removal of an operator-authored workflow file."""
+
+    CSS = """
+    DeleteWorkflowScreen { align: center middle; }
+    #delete-workflow-box { width: 56; height: auto; padding: 1 2; border: round $accent; background: $surface; }
+    #delete-workflow-actions { height: auto; align: center middle; }
+    """
+    BINDINGS = [("escape", "cancel", "Cancel")]
+    AUTO_FOCUS = "#delete-workflow-no"
+
+    def __init__(self, name: str) -> None:
+        super().__init__()
+        self._name = name
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="delete-workflow-box"):
+            yield Label(f"delete workflow {self._name!r}?")
+            yield Label(
+                "This removes the file; the running service forgets the workflow on next restart."
+            )
+            with Horizontal(id="delete-workflow-actions"):
+                yield Button("yes", variant="error", id="delete-workflow-yes")
+                yield Button("no", id="delete-workflow-no")
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        self.dismiss(event.button.id == "delete-workflow-yes")
+
+    def action_cancel(self) -> None:
+        self.dismiss(False)
+
+
 class _TableScreen(ModalScreen[None]):
     """Shared modal shell for the dashboard's tabular management screens."""
 
@@ -1620,20 +1653,23 @@ class _TableScreen(ModalScreen[None]):
 
 
 class WorkflowsScreen(_TableScreen):
-    """List registered workflow source files; Enter edits one and `n` creates one."""
+    """List workflow source files; Enter edits, `n` creates, and `x` deletes operator files."""
 
     BINDINGS = [
         ("n", "new_workflow", "New workflow"),
+        ("x", "delete_workflow", "Delete workflow"),
         ("escape", "close", "Close"),
     ]
     TABLE_ID = "workflows"
-    TITLE = "workflows — enter: open in $EDITOR   n: new   esc: close"
+    TITLE = "workflows — enter: open in $EDITOR   n: new   x: delete   esc: close"
     COLUMNS = ("name", "kind", "when to use")
 
     def _refresh(self) -> None:
         table = self.query_one("#workflows", DataTable)
         table.clear()
-        for workflow in self._client.list_workflow_files():
+        workflows = self._client.list_workflow_files()
+        self._workflows = {str(workflow["path"]): workflow for workflow in workflows}
+        for workflow in workflows:
             table.add_row(
                 workflow["name"],
                 "built-in (edit with care)" if workflow["built_in"] else "operator",
@@ -1664,6 +1700,27 @@ class WorkflowsScreen(_TableScreen):
             self._open(path)
 
         self.app.push_screen(NewWorkflowScreen(), create)
+
+    def action_delete_workflow(self) -> None:
+        path = self._current
+        if path is None:
+            return
+        workflow = self._workflows[path]
+        if workflow["built_in"]:
+            self.notify("Built-in workflows cannot be deleted.", severity="warning")
+            return
+
+        def delete(confirmed: bool) -> None:
+            if not confirmed:
+                return
+            try:
+                Path(path).unlink()
+            except OSError as exc:
+                self.notify(f"Can't delete workflow: {exc}", severity="error")
+                return
+            self._refresh()
+
+        self.app.push_screen(DeleteWorkflowScreen(str(workflow["name"])), delete)
 
 
 class ReposScreen(_TableScreen):
