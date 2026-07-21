@@ -1710,7 +1710,7 @@ class WorkflowsScreen(_TableScreen):
             self.notify("Built-in workflows cannot be deleted.", severity="warning")
             return
 
-        def delete(confirmed: bool) -> None:
+        def delete(confirmed: bool | None) -> None:
             if not confirmed:
                 return
             try:
