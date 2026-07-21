@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.5.1--64e727f406fd",
+  "requirementId": "REQ-001.5.1",
+  "hash": "64e727f406fd",
+  "verdict": "pass",
+  "summary": "instructions must mention correctness; omission rejected — lexical check is the honest ceiling for skill-text content under the no-LLM-in-tests rule",
+  "timestamp": "2026-07-21T23:40:26.294Z"
+}

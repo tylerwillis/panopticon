@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.12.1--46e17c76b32c",
+  "requirementId": "REQ-001.12.1",
+  "hash": "46e17c76b32c",
+  "verdict": "pass",
+  "summary": "Pins hidden true; existing service test independently proves hidden workflows are absent from both menus but creatable",
+  "timestamp": "2026-07-21T23:41:50.029Z"
+}

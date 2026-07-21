@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.6.1--d026d4920438",
+  "requirementId": "REQ-001.6.1",
+  "hash": "d026d4920438",
+  "verdict": "pass",
+  "summary": "Approve section must contain 'write no artifact'; a missing Approve header fails via IndexError and an artifact-writing approve path is rejected",
+  "timestamp": "2026-07-21T23:40:26.910Z"
+}

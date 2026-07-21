@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.25.1--9c133b8940be",
+  "requirementId": "REQ-001.25.1",
+  "hash": "9c133b8940be",
+  "verdict": "pass",
+  "summary": "Checks literal Must fix and Suggestions markdown headings inside the Findings section; renamed or non-heading mentions fail",
+  "timestamp": "2026-07-21T23:41:28.884Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.3.1--5686d2d8dc01",
+  "requirementId": "REQ-001.3.1",
+  "hash": "5686d2d8dc01",
+  "verdict": "pass",
+  "summary": "advanced_by('REVIEWING') is Actor.AGENT via the public policy query; the USER default is rejected",
+  "timestamp": "2026-07-21T23:40:24.996Z"
+}

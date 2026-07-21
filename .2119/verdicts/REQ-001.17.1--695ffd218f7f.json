@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.17.1--695ffd218f7f",
+  "requirementId": "REQ-001.17.1",
+  "hash": "695ffd218f7f",
+  "verdict": "pass",
+  "summary": "Pins governor_task_id and get_task in skill text; dropping the obtain-governor directive fails",
+  "timestamp": "2026-07-21T23:41:52.334Z"
+}
