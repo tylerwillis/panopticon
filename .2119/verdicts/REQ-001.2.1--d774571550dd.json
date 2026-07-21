@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.2.1--d774571550dd",
+  "requirementId": "REQ-001.2.1",
+  "hash": "d774571550dd",
+  "verdict": "pass",
+  "summary": "The open-pane assertion pins the exact newline-prefixed final hint and an exact-boundary dim span, rejecting suffixes, same-line placement, and partial or absent dim styling.",
+  "timestamp": "2026-07-21T23:43:56.011Z"
+}
