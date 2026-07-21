@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.1.1--ca8565829514",
+  "requirementId": "REQ-001.1.1",
+  "hash": "ca8565829514",
+  "verdict": "pass",
+  "summary": "Genuine: input typed while a release-gated slow discovery is provably still in flight (guard: release unset), asserted to land in the memo text area; kills the current sync-compose implementation (verified failing).",
+  "timestamp": "2026-07-21T23:49:03.949Z"
+}

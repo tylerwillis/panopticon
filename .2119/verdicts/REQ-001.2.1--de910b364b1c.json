@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.2.1--de910b364b1c",
+  "requirementId": "REQ-001.2.1",
+  "hash": "de910b364b1c",
+  "verdict": "pass",
+  "summary": "Genuine: per-harness call counters on 4 fake harnesses stay exactly 1 after 12 cycle presses in one opening, covering model and effort discovery; a per-cycle re-discovery implementation fails it (verified against current sync code).",
+  "timestamp": "2026-07-21T23:49:04.499Z"
+}

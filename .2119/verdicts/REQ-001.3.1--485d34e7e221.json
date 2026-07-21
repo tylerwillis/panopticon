@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.3.1--485d34e7e221",
+  "requirementId": "REQ-001.3.1",
+  "hash": "485d34e7e221",
+  "verdict": "pass",
+  "summary": "Genuine: call-numbered fake makes staleness detectable — second opening must present claude-model-2, so a cache retained from the first opening (claude-model-1) fails the equality; asserts the actually-presented suggester contents.",
+  "timestamp": "2026-07-21T23:49:11.366Z"
+}

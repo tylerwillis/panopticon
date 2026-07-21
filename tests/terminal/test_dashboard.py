@@ -257,6 +257,60 @@ class _FakeClient:
         return {"id": task_id, "claimed_by": None}
 
 
+class _SuggestionHarness:
+    """Controllable harness discovery fake for the memo modal's Pilot tests."""
+
+    field_label = "model"
+
+    def __init__(
+        self,
+        name: str,
+        *,
+        delay: float = 0.0,
+        release: threading.Event | None = None,
+        fail_models: bool = False,
+    ) -> None:
+        self.name = name
+        self.delay = delay
+        self.release = release
+        self.fail_models = fail_models
+        self.started = threading.Event()
+        self.model_calls = 0
+        self.effort_calls = 0
+
+    def suggested_models(self) -> tuple[tuple[str, str], ...]:
+        self.model_calls += 1
+        call = self.model_calls
+        self.started.set()
+        if self.release is not None:
+            self.release.wait(timeout=2)
+        if self.delay:
+            time.sleep(self.delay)
+        if self.fail_models:
+            raise RuntimeError(f"{self.name} discovery failed")
+        return ((f"{self.name}-model-{call}", f"{self.name} model {call}"),)
+
+    def suggested_efforts(self, model: str | None = None) -> tuple[tuple[str, str], ...]:
+        self.effort_calls += 1
+        if self.delay:
+            time.sleep(self.delay)
+        return ((f"{self.name}-effort", f"{self.name} effort"),)
+
+
+async def _open_memo(pilot: Any) -> None:
+    await pilot.press("n", "enter", "enter")
+    await pilot.pause()
+
+
+async def _wait_for(pilot: Any, predicate: Any) -> None:
+    for _ in range(100):
+        if predicate():
+            await pilot.pause()
+            return
+        await pilot.pause(0.01)
+    raise AssertionError("condition did not become true")
+
+
 def test_render_detail_shows_state_turn_and_history() -> None:
     text = render_detail(_TASK)
     assert "fix-widget" in text
@@ -1059,6 +1113,168 @@ async def test_tabbing_to_the_harness_selector_and_cycling_overrides_it_for_this
         await pilot.press("enter")  # submit
         await pilot.pause()
         assert fake.created == [("r1", "spike", None, None, "codex", None)]
+
+
+# 2119: REQ-001.1.1
+async def test_memo_accepts_input_while_harness_suggestions_are_discovered(
+    monkeypatch: Any,
+) -> None:
+    release = threading.Event()
+    slow = _SuggestionHarness("slow", release=release)
+    harnesses = {"claude": _SuggestionHarness("claude"), "slow": slow}
+    monkeypatch.setattr(dashboard, "HARNESSES", harnesses)
+    fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    timer = threading.Timer(1, release.set)  # deadlock backstop for a UI-thread implementation
+    timer.start()
+    try:
+        async with app.run_test() as pilot:
+            await _open_memo(pilot)
+            await _wait_for(pilot, slow.started.is_set)
+            await pilot.press("x")
+            assert not release.is_set()
+            assert app.screen.query_one(dashboard.MemoTextArea).text == "x"
+    finally:
+        release.set()
+        timer.cancel()
+
+
+# 2119: REQ-001.2.1
+async def test_memo_discovers_each_harness_suggestions_once_per_open(
+    monkeypatch: Any,
+) -> None:
+    harnesses = {name: _SuggestionHarness(name) for name in ("claude", "codex", "pi", "outfitter")}
+    monkeypatch.setattr(dashboard, "HARNESSES", harnesses)
+    fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await _open_memo(pilot)
+        await _wait_for(
+            pilot,
+            lambda: all(h.model_calls == h.effort_calls == 1 for h in harnesses.values()),
+        )
+        app.screen.query_one(dashboard.HarnessSelector).focus()
+        for _ in range(len(harnesses) * 3):
+            await pilot.press("enter")
+        assert all(h.model_calls == h.effort_calls == 1 for h in harnesses.values())
+
+
+# 2119: REQ-001.3.1
+async def test_memo_suggestion_cache_is_fresh_for_each_open(monkeypatch: Any) -> None:
+    claude = _SuggestionHarness("claude")
+    monkeypatch.setattr(dashboard, "HARNESSES", {"claude": claude})
+    fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await _open_memo(pilot)
+        first = app.screen.query_one("#launch-model", Input).suggester
+        assert isinstance(first, dashboard.SuggestFromList)
+        assert first._suggestions == ["claude-model-1"]
+        await pilot.press("escape")
+        await _open_memo(pilot)
+        second = app.screen.query_one("#launch-model", Input).suggester
+        assert isinstance(second, dashboard.SuggestFromList)
+        assert second._suggestions == ["claude-model-2"]
+
+
+# 2119: REQ-001.4.1
+# 2119: REQ-001.8.1
+async def test_early_cycle_discovers_once_and_presents_the_selected_harness_suggestions(
+    monkeypatch: Any,
+) -> None:
+    release = threading.Event()
+    target = _SuggestionHarness("target", release=release)
+    harnesses = {"claude": _SuggestionHarness("claude"), "target": target}
+    monkeypatch.setattr(dashboard, "HARNESSES", harnesses)
+    fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    timer = threading.Timer(0.1, release.set)
+    timer.start()
+    try:
+        async with app.run_test() as pilot:
+            await _open_memo(pilot)
+            await _wait_for(pilot, target.started.is_set)
+            app.screen.query_one(dashboard.HarnessSelector).focus()
+            await pilot.press("enter")
+            model = app.screen.query_one("#launch-model", Input).suggester
+            effort = app.screen.query_one("#launch-effort", Input).suggester
+            assert isinstance(model, dashboard.SuggestFromList)
+            assert isinstance(effort, dashboard.SuggestFromList)
+            assert model._suggestions == ["target-model-1"]
+            assert effort._suggestions == ["target-effort"]
+            assert target.model_calls == target.effort_calls == 1
+    finally:
+        release.set()
+        timer.cancel()
+
+
+# 2119: REQ-001.5.1
+async def test_cached_harness_cycles_finish_under_ten_milliseconds(monkeypatch: Any) -> None:
+    harnesses = {name: _SuggestionHarness(name, delay=0.02) for name in ("claude", "codex", "pi")}
+    monkeypatch.setattr(dashboard, "HARNESSES", harnesses)
+    fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await _open_memo(pilot)
+        await _wait_for(
+            pilot,
+            lambda: all(h.model_calls == h.effort_calls == 1 for h in harnesses.values()),
+        )
+        screen = app.screen
+        for name in harnesses:
+            started = time.perf_counter()
+            screen.launch_field_changed("harness", name)
+            elapsed = time.perf_counter() - started
+            assert elapsed < 0.01, f"{name} cycle took {elapsed * 1000:.3f}ms"
+
+
+# 2119: REQ-001.6.1
+async def test_closing_memo_suppresses_an_in_flight_discovery_failure(monkeypatch: Any) -> None:
+    release = threading.Event()
+    slow = _SuggestionHarness("slow", release=release, fail_models=True)
+    monkeypatch.setattr(
+        dashboard,
+        "HARNESSES",
+        {"claude": _SuggestionHarness("claude"), "slow": slow},
+    )
+    fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    notices: list[str] = []
+    monkeypatch.setattr(app, "notify", lambda message, **kwargs: notices.append(str(message)))
+    async with app.run_test() as pilot:
+        await _open_memo(pilot)
+        await _wait_for(pilot, slow.started.is_set)
+        await pilot.press("escape")
+        release.set()
+        await pilot.pause(0.1)
+        assert app.is_running
+        assert not isinstance(app.screen, dashboard.MemoScreen)
+        assert notices == []
+
+
+# 2119: REQ-001.7.1
+async def test_in_flight_discovery_does_not_update_widgets_after_memo_closes(
+    monkeypatch: Any,
+) -> None:
+    release = threading.Event()
+    slow = _SuggestionHarness("slow", release=release)
+    monkeypatch.setattr(
+        dashboard,
+        "HARNESSES",
+        {"claude": _SuggestionHarness("claude"), "slow": slow},
+    )
+    fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await _open_memo(pilot)
+        await _wait_for(pilot, slow.started.is_set)
+        closed_screen = app.screen
+        model = closed_screen.query_one("#launch-model", Input)
+        original_suggester = model.suggester
+        await pilot.press("escape")
+        release.set()
+        await pilot.pause(0.1)
+        assert model.suggester is original_suggester
 
 
 def test_launch_resolution_and_provenance_for_every_source() -> None:
