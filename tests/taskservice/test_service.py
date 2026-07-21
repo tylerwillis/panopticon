@@ -27,6 +27,18 @@ from panopticon.taskservice.store_sqlalchemy import SqlAlchemyStore
 from panopticon.workflows import GithubPeerReviewed, Orchestrator, SetupRepo, Spike
 
 
+class _Review(Workflow):
+    """Test-only marker until ADR-0014 stack 1 supplies the review workflow."""
+
+    name = "review"
+
+    class Reviewing(InitialState):
+        label = "REVIEWING"
+        transitions = (Complete,)
+
+    initial = Reviewing
+
+
 async def make_service(tmp_path: Path) -> TaskService:
     ids: Iterator[str] = iter(f"id{i}" for i in range(1, 10_000))
     times: Iterator[str] = iter(f"t{i}" for i in range(1, 10_000))
@@ -37,6 +49,7 @@ async def make_service(tmp_path: Path) -> TaskService:
             "github-peer-reviewed": GithubPeerReviewed(),
             "orchestrator": Orchestrator(),
             "setup-repo": SetupRepo(),  # opt-out but hidden from the pickers
+            "review": _Review(),
         },
         FilesystemArtifactStore(tmp_path),
         clock=lambda: next(times),
@@ -114,6 +127,66 @@ async def test_create_task_unknown_workflow(tmp_path: Path) -> None:
     svc = await make_service(tmp_path)
     with pytest.raises(UnknownWorkflow):
         await svc.create_task("r1", "nope")
+
+
+# 2119: REQ-001.1.1
+async def test_create_review_task_without_governor_is_rejected(tmp_path: Path) -> None:
+    svc = await make_service(tmp_path)
+
+    with pytest.raises(ValueError, match="governor"):
+        await svc.create_task("r1", "review", harness="codex")
+
+    assert await svc.list_tasks() == []
+
+
+# 2119: REQ-001.2.1
+async def test_create_review_task_with_equal_harness_is_rejected(tmp_path: Path) -> None:
+    svc = await make_service(tmp_path)
+    await svc.update_repo("r1", {"default_harness": "claude"})
+    governor = await svc.create_task("r1", "spike", harness="claude", starting_model="author-model")
+
+    with pytest.raises(ValueError, match="harness"):
+        await svc.create_task(
+            "r1",
+            "review",
+            governor_task_id=governor.id,
+            starting_model="different-review-model",
+        )
+
+    assert [task.id for task in await svc.list_tasks()] == [governor.id]
+
+
+# 2119: REQ-001.3.1
+async def test_create_review_task_with_different_harness_is_accepted(tmp_path: Path) -> None:
+    svc = await make_service(tmp_path)
+    governor = await svc.create_task(
+        "r1", "spike", harness="claude", starting_model="shared-model-string"
+    )
+
+    review = await svc.create_task(
+        "r1",
+        "review",
+        governor_task_id=governor.id,
+        harness="codex",
+        starting_model="shared-model-string",
+    )
+
+    assert review.governor_task_id == governor.id
+    assert review.harness == "codex"
+    assert review.starting_model == governor.starting_model
+
+
+# 2119: REQ-001.4.1
+async def test_create_non_review_tasks_are_unaffected_by_review_validation(tmp_path: Path) -> None:
+    svc = await make_service(tmp_path)
+    ungoverned = await svc.create_task("r1", "spike", harness="claude")
+
+    governed = await svc.create_task(
+        "r1", "spike", governor_task_id=ungoverned.id, harness="claude"
+    )
+
+    assert governed.governor_task_id == ungoverned.id
+    assert governed.harness == ungoverned.harness
 
 
 async def test_create_task_opt_in_workflow_not_enabled_is_rejected(tmp_path: Path) -> None:

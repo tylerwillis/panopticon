@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.4.1--6aff41ee5f88",
+  "requirementId": "REQ-001.4.1",
+  "hash": "6aff41ee5f88",
+  "verdict": "pass",
+  "summary": "test_create_non_review_tasks_are_unaffected_by_review_validation exercises real TaskService calls (not mocked) covering both boundary disjuncts: a non-review 'spike' task created without a governor_task_id (would raise if a naive impl over-broadly required a governor) and one created with a governor plus an equal harness string 'claude'==‘claude' (would raise if the harness-inequality check weren't gated to workflow=='review'); no pytest.raises wraps either call, so any erroneous rejection surfaces as an uncaught exception, and confirmed via  that today's absence of REQ-001.1/1.2 implementation makes this pass non-trivially meaningful for the negative-space check.",
+  "timestamp": "2026-07-21T23:44:05.323Z"
+}

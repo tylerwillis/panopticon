@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.2.1--9a486c1637e1",
+  "requirementId": "REQ-001.2.1",
+  "hash": "9a486c1637e1",
+  "verdict": "pass",
+  "summary": "Genuine behavioral test: equal harness reached via repo-default resolution (not explicit param) with differing starting-models is rejected with a harness-matched ValueError and nothing persisted — kills pair-comparison and explicit-param-only implementations.",
+  "timestamp": "2026-07-21T23:50:42.670Z"
+}
