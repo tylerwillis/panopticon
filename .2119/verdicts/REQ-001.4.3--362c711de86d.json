@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.4.3--362c711de86d",
+  "requirementId": "REQ-001.4.3",
+  "hash": "362c711de86d",
+  "verdict": "pass",
+  "summary": "notices==['respawned N'] exact equality; the skip test's 'respawned 1' with 2 listed proves N counts releases, rejecting the count-listed violation",
+  "timestamp": "2026-07-21T23:42:54.966Z"
+}

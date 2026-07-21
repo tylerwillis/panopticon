@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.2.1--68da35f912be",
+  "requirementId": "REQ-001.2.1",
+  "hash": "68da35f912be",
+  "verdict": "pass",
+  "summary": "fixture interleaves 2 down + live + failed tasks; asserts both down tasks render and live/failed slugs are absent — both the every and the only direction (incl. the failed near-miss) are caught",
+  "timestamp": "2026-07-21T23:42:39.943Z"
+}

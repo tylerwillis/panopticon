@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.1.2--7b4d7ff4fac3",
+  "requirementId": "REQ-001.1.2",
+  "hash": "7b4d7ff4fac3",
+  "verdict": "pass",
+  "summary": "asserts both 'ctrl+r' and 'respawn all down tasks' render in the real #help-keys widget; a missing or mis-described entry drops a substring and fails",
+  "timestamp": "2026-07-21T23:42:34.989Z"
+}

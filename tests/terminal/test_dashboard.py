@@ -1335,6 +1335,172 @@ async def test_respawn_releases_a_down_tasks_claim() -> None:
         assert fake.released == [task["id"]]  # released → the runner re-spawns it
 
 
+# 2119: REQ-001.1.1
+# 2119: REQ-001.2.1
+# 2119: REQ-001.2.2
+async def test_bulk_respawn_binding_lists_only_down_tasks_for_confirmation() -> None:
+    down_a = {
+        **_TASK,
+        "id": "down-abcdef0123",
+        "slug": "restart-api",
+        "memo": "recover the API container after the host reboot",
+        "claimed_by": "host-1",
+        "container_status": "down",
+    }
+    down_b = {
+        **_TASK,
+        "id": "down-fedcba9876",
+        "slug": None,
+        "memo": "recover the background worker",
+        "claimed_by": "host-1",
+        "container_status": "down",
+    }
+    live = {
+        **_TASK,
+        "id": "live-0000000001",
+        "slug": "healthy-web",
+        "container_status": "live",
+    }
+    failed = {
+        **_TASK,
+        "id": "failed-00000001",
+        "slug": "broken-spawn",
+        "container_status": "failed",
+    }
+    app = Dashboard(_FakeClient([down_a, live, failed, down_b]))  # type: ignore[arg-type]
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("ctrl+r")
+        await pilot.pause()
+
+        assert isinstance(app.screen, dashboard.BulkRespawnScreen)
+        text = str(app.screen.query_one("#bulk-respawn-tasks", Static).render())
+        assert down_a["id"][:8] in text
+        assert "restart-api" in text and "recover the API" in text
+        assert down_b["id"][:8] in text
+        assert "–" in text and "recover the background" in text
+        assert "healthy-web" not in text
+        assert "broken-spawn" not in text
+
+
+# 2119: REQ-001.4.1
+# 2119: REQ-001.4.2
+# 2119: REQ-001.4.3
+async def test_bulk_respawn_confirmation_releases_each_down_task_once_in_order(
+    monkeypatch: Any,
+) -> None:
+    first = {
+        **_TASK,
+        "id": "down-first-0001",
+        "slug": "first",
+        "claimed_by": "host-1",
+        "container_status": "down",
+    }
+    second = {
+        **_TASK,
+        "id": "down-second-002",
+        "slug": "second",
+        "claimed_by": "host-1",
+        "container_status": "down",
+    }
+    fake = _FakeClient([first, second])
+    notices: list[str] = []
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    monkeypatch.setattr(app, "notify", lambda message, **kwargs: notices.append(message))
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("ctrl+r")
+        await pilot.pause()
+        await pilot.press("enter")
+        await pilot.pause()
+
+        assert fake.released == [first["id"], second["id"]]
+        assert notices == ["respawned 2"]
+
+
+# 2119: REQ-001.4.4
+# 2119: REQ-001.4.5
+async def test_bulk_respawn_confirmation_silently_skips_a_task_no_longer_down(
+    monkeypatch: Any,
+) -> None:
+    still_down = {
+        **_TASK,
+        "id": "down-still-00001",
+        "slug": "still-down",
+        "claimed_by": "host-1",
+        "container_status": "down",
+    }
+    recovered = {
+        **_TASK,
+        "id": "down-recovered-2",
+        "slug": "recovered",
+        "claimed_by": "host-1",
+        "container_status": "down",
+    }
+    fake = _FakeClient([still_down, recovered])
+    notices: list[str] = []
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    monkeypatch.setattr(app, "notify", lambda message, **kwargs: notices.append(message))
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("ctrl+r")
+        await pilot.pause()
+        recovered["container_status"] = "live"
+        await pilot.press("enter")
+        await pilot.pause()
+
+        assert fake.released == [still_down["id"]]
+        assert notices == ["respawned 1"]
+
+
+# 2119: REQ-001.3.1
+async def test_bulk_respawn_escape_cancels_without_releasing_claims() -> None:
+    task = {
+        **_TASK,
+        "claimed_by": "host-1",
+        "container_status": "down",
+    }
+    fake = _FakeClient([task])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("ctrl+r")
+        await pilot.pause()
+        assert isinstance(app.screen, dashboard.BulkRespawnScreen)
+        await pilot.press("escape")
+        await pilot.pause()
+
+        assert len(app.screen_stack) == 1
+        assert fake.released == []
+
+
+# 2119: REQ-001.5.1
+# 2119: REQ-001.5.2
+async def test_bulk_respawn_with_no_down_tasks_notifies_without_opening_modal(
+    monkeypatch: Any,
+) -> None:
+    tasks = [
+        {**_TASK, "id": "live", "container_status": "live"},
+        {**_TASK, "id": "failed", "container_status": "failed"},
+        {**_TASK, "id": "queued", "container_status": "queued"},
+    ]
+    notices: list[str] = []
+    app = Dashboard(_FakeClient(tasks))  # type: ignore[arg-type]
+    monkeypatch.setattr(app, "notify", lambda message, **kwargs: notices.append(message))
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("ctrl+r")
+        await pilot.pause()
+
+        assert notices == ["no down tasks"]
+        assert len(app.screen_stack) == 1
+
+
 def test_matches_is_a_case_insensitive_substring_over_identifying_fields() -> None:
     task = {**_TASK, "slug": "fix-widget", "state": "WORKING", "workflow": "spike"}
     assert _matches(task, "")  # empty query → no filter
@@ -2744,7 +2910,22 @@ def test_footer_shows_only_the_essential_keys() -> None:
     shown = {b.key for b in Dashboard.BINDINGS if b.show}
     hidden = {b.key for b in Dashboard.BINDINGS if not b.show}
     assert shown == {"t", "n", "x", "/", "d", "question_mark", "q"}
-    assert hidden == {"o", "r", "R", "p", "g", "w", "a", "s", "u", "y", "Y", "c", "escape"}
+    assert hidden == {
+        "o",
+        "r",
+        "R",
+        "ctrl+r",
+        "p",
+        "g",
+        "w",
+        "a",
+        "s",
+        "u",
+        "y",
+        "Y",
+        "c",
+        "escape",
+    }
 
 
 def test_bindings_and_help_derive_from_the_single_hotkey_table() -> None:
@@ -2781,7 +2962,19 @@ async def test_help_screen_lists_every_hotkey() -> None:
             assert hotkey.description in text
             assert (hotkey.display or hotkey.key) in text
         # the non-essential keys (hidden from the footer) are reachable here
-        assert {"r", "R", "p", "g", "a", "s", "u"} <= {h.key for h in dashboard.HOTKEYS}
+        assert {"r", "R", "ctrl+r", "p", "g", "a", "s", "u"} <= {h.key for h in dashboard.HOTKEYS}
+
+
+# 2119: REQ-001.1.2
+async def test_help_screen_documents_bulk_respawn_binding() -> None:
+    app = Dashboard(_FakeClient([_TASK]))  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("question_mark")
+        await pilot.pause()
+        text = str(app.screen.query_one("#help-keys", Static).render())
+        assert "ctrl+r" in text.lower()
+        assert "respawn all down tasks" in text.lower()
 
 
 async def test_help_screen_closes_on_escape() -> None:

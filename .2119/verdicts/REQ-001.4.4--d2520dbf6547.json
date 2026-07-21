@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.4.4--d2520dbf6547",
+  "requirementId": "REQ-001.4.4",
+  "hash": "d2520dbf6547",
+  "verdict": "pass",
+  "summary": "mutates container_status to live after the modal opens, before Enter — a genuine confirmation-time probe; releasing from the captured list would be caught",
+  "timestamp": "2026-07-21T23:42:55.413Z"
+}
