@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.8.1--44a5d2c54bce",
+  "requirementId": "REQ-001.8.1",
+  "hash": "44a5d2c54bce",
+  "verdict": "pass",
+  "summary": "Genuine: asserts presented model and effort suggester contents equal the selected fake harness's distinct discovered values exactly (target-model-1/target-effort), so cross-harness mix-ups or mangled suggestions fail; over-mocking is limited to the harness boundary while the modal's real presentation path runs.",
+  "timestamp": "2026-07-21T23:49:25.771Z"
+}
