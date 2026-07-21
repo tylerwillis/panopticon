@@ -66,6 +66,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import webbrowser
 from collections.abc import Callable, Iterable, Sequence
@@ -100,7 +101,7 @@ from textual.widgets import (
     TextArea,
 )
 from textual.widgets._select import NoSelection as _SelectNoSelection
-from textual.worker import get_current_worker
+from textual.worker import Worker, get_current_worker
 
 from panopticon.client import JsonObj, TaskServiceClient
 from panopticon.core.dirs import ARTIFACTS_DIR, user_config_dir
@@ -759,6 +760,12 @@ class LaunchSelection:
         return f"{self.harness} · {model} — set by {self.source}"
 
 
+@dataclass(frozen=True)
+class _HarnessSuggestions:
+    models: tuple[tuple[str, str], ...]
+    efforts: tuple[tuple[str, str], ...]
+
+
 def _split_model(value: str | None) -> tuple[str, str]:
     if not value:
         return "", ""
@@ -927,11 +934,60 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
         self._initial_memo = initial_memo
         self._overrides = dict(initial_launch or {})
         self._touched = set(touched)
+        self._suggestion_cache: dict[str, _HarnessSuggestions | Exception] = {}
+        self._suggestion_pending: dict[str, threading.Event] = {}
+        self._suggestion_lock = threading.Lock()
+        self._suggestion_worker: Worker[None] | None = None
         self._selection = resolve_launch_selection(
             repo, workflow, overrides=self._overrides, touched=self._touched
         )
 
+    def _suggestions_for(self, harness_name: str) -> _HarnessSuggestions:
+        """Return one modal-scoped discovery result, coordinating UI and worker callers."""
+        discover = False
+        with self._suggestion_lock:
+            if harness_name in self._suggestion_cache:
+                result = self._suggestion_cache[harness_name]
+            else:
+                pending = self._suggestion_pending.get(harness_name)
+                if pending is None:
+                    pending = self._suggestion_pending[harness_name] = threading.Event()
+                    discover = True
+                result = None
+
+        if discover:
+            harness = HARNESSES[harness_name]
+            try:
+                result = _HarnessSuggestions(
+                    tuple(harness.suggested_models()),
+                    tuple(harness.suggested_efforts()),
+                )
+            except Exception as error:
+                result = error
+            with self._suggestion_lock:
+                self._suggestion_cache[harness_name] = result
+                self._suggestion_pending.pop(harness_name).set()
+        elif result is None:
+            assert pending is not None
+            pending.wait()
+            with self._suggestion_lock:
+                result = self._suggestion_cache[harness_name]
+
+        if isinstance(result, Exception):
+            raise result
+        return result
+
+    def _prefetch_suggestions(self) -> None:
+        """Fill this modal opening's cache without blocking Textual's event loop."""
+        worker = get_current_worker()
+        for harness_name in self._harness_names:
+            if worker.is_cancelled:
+                return
+            with contextlib.suppress(Exception):
+                self._suggestions_for(harness_name)
+
     def compose(self) -> ComposeResult:
+        suggestions = self._suggestions_for(self._selection.harness)
         with Vertical(id="memo-box"):
             yield MemoTextArea(self._initial_memo, compact=True)
             yield Label("enter: submit", id="enter-hint", classes="memo-hint")
@@ -945,19 +1001,27 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
                     self._selection.model,
                     placeholder=harness.field_label,
                     id="launch-model",
-                    suggester=SuggestFromList([value for value, _ in harness.suggested_models()]),
+                    suggester=SuggestFromList([value for value, _ in suggestions.models]),
                 )
                 yield Input(
                     self._selection.effort,
                     placeholder="effort",
                     id="launch-effort",
-                    suggester=SuggestFromList(
-                        [value for value, _ in harness.suggested_efforts(self._selection.model)]
-                    ),
+                    suggester=SuggestFromList([value for value, _ in suggestions.efforts]),
                 )
 
     def on_mount(self) -> None:
         self.query_one(MemoTextArea).focus()
+        self._suggestion_worker = self.run_worker(
+            self._prefetch_suggestions,
+            name="memo-suggestion-prefetch",
+            exit_on_error=False,
+            thread=True,
+        )
+
+    def on_unmount(self) -> None:
+        if self._suggestion_worker is not None:
+            self._suggestion_worker.cancel()
 
     def on_descendant_focus(self, event: events.DescendantFocus) -> None:
         # The harness selector shadows enter→submit with enter→cycle while it's focused; keep
@@ -978,6 +1042,7 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
         self.query_one("#launch-summary", Static).update(self._selection.summary)
         if field == "harness":
             harness = HARNESSES[value]
+            suggestions = self._suggestions_for(value)
             model = self.query_one("#launch-model", Input)
             effort = self.query_one("#launch-effort", Input)
             if "model" not in self._touched:
@@ -985,10 +1050,8 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
             if "effort" not in self._touched:
                 effort.value = self._selection.effort
             model.placeholder = harness.field_label
-            model.suggester = SuggestFromList([item for item, _ in harness.suggested_models()])
-            effort.suggester = SuggestFromList(
-                [item for item, _ in harness.suggested_efforts(model.value)]
-            )
+            model.suggester = SuggestFromList([item for item, _ in suggestions.models])
+            effort.suggester = SuggestFromList([item for item, _ in suggestions.efforts])
 
     def on_input_changed(self, event: Input.Changed) -> None:
         if event.input.id == "launch-model":
