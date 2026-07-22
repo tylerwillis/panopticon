@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.3.1--1f574928fce0",
-  "requirementId": "REQ-002.3.1",
-  "hash": "1f574928fce0",
-  "verdict": "pass",
-  "summary": "Asserts REVIEWING carries the review-artifact responsibility and its text contains review.md, artifact, and upload - wrong state or missing upload/artifact direction each fail.",
-  "timestamp": "2026-07-22T04:47:35.285Z"
-}

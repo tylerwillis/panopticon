@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.8.1--8849c6978b9b",
+  "requirementId": "REQ-009.8.1",
+  "hash": "8849c6978b9b",
+  "verdict": "pass",
+  "summary": "Test pins 'every finding' and 'accepted or rejected' in the review-artifact responsibility — the universal quantifier and the disposition vocabulary are both checked; weakening either fails it.",
+  "timestamp": "2026-07-22T15:39:40.125Z"
+}

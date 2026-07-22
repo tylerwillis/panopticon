@@ -27,7 +27,7 @@ def _responsibility_description(workflow: Workflow, state: str, key: str) -> str
 
 @pytest.mark.parametrize("workflow_name", WORKFLOW_NAMES)
 def test_specifying_requires_a_visible_spec_artifact(workflow_name: str) -> None:
-    # 2119: REQ-002.1.1
+    # 2119: REQ-009.1.1
     workflow = _workflow(workflow_name)
     description = _responsibility_description(workflow, "SPECIFYING", "spec-artifact")
     assert "spec.md" in description
@@ -39,7 +39,7 @@ def test_specifying_requires_a_visible_spec_artifact(workflow_name: str) -> None
 def test_briefing_surfaces_the_spec_artifact_uri_after_upload(
     workflow_name: str, tmp_path: Path
 ) -> None:
-    # 2119: REQ-002.2.1
+    # 2119: REQ-009.2.1
     workflow = _workflow(workflow_name)
     artifacts = FilesystemArtifactStore(tmp_path)
     task = workflow.start_task("t1", "r1", at="t0")
@@ -52,7 +52,7 @@ def test_briefing_surfaces_the_spec_artifact_uri_after_upload(
 
 @pytest.mark.parametrize("workflow_name", WORKFLOW_NAMES)
 def test_reviewing_requires_a_visible_review_artifact(workflow_name: str) -> None:
-    # 2119: REQ-002.3.1
+    # 2119: REQ-009.3.1
     workflow = _workflow(workflow_name)
     description = _responsibility_description(workflow, "REVIEWING", "review-artifact")
     assert "review.md" in description
@@ -62,7 +62,7 @@ def test_reviewing_requires_a_visible_review_artifact(workflow_name: str) -> Non
 
 @pytest.mark.parametrize("workflow_name", WORKFLOW_NAMES)
 def test_building_retains_the_external_pr_url_responsibility(workflow_name: str) -> None:
-    # 2119: REQ-002.4.1
+    # 2119: REQ-009.4.1
     workflow = _workflow(workflow_name)
     description = _responsibility_description(workflow, "BUILDING", "url-recorded")
     assert "PR URL" in description
@@ -71,7 +71,7 @@ def test_building_retains_the_external_pr_url_responsibility(workflow_name: str)
 
 @pytest.mark.parametrize("workflow_name", WORKFLOW_NAMES)
 def test_open_pr_skill_references_the_spec_contract(workflow_name: str) -> None:
-    # 2119: REQ-002.5.1
+    # 2119: REQ-009.5.1
     workflow = _workflow(workflow_name)
     instructions = next(
         skill.instructions for skill in workflow.skills() if skill.name == "open-pr"
@@ -83,7 +83,7 @@ def test_open_pr_skill_references_the_spec_contract(workflow_name: str) -> None:
 
 @pytest.mark.parametrize("workflow_name", WORKFLOW_NAMES)
 def test_spec_artifact_identifies_its_repository_source(workflow_name: str) -> None:
-    # 2119: REQ-002.6.1
+    # 2119: REQ-009.6.1
     workflow = _workflow(workflow_name)
     description = _responsibility_description(workflow, "SPECIFYING", "spec-artifact")
     assert "repository specification file" in description
@@ -92,7 +92,7 @@ def test_spec_artifact_identifies_its_repository_source(workflow_name: str) -> N
 
 @pytest.mark.parametrize("workflow_name", WORKFLOW_NAMES)
 def test_review_artifact_includes_the_fable_report(workflow_name: str) -> None:
-    # 2119: REQ-002.7.1
+    # 2119: REQ-009.7.1
     workflow = _workflow(workflow_name)
     description = _responsibility_description(workflow, "REVIEWING", "review-artifact")
     assert "final Fable 5 review report" in description
@@ -100,7 +100,7 @@ def test_review_artifact_includes_the_fable_report(workflow_name: str) -> None:
 
 @pytest.mark.parametrize("workflow_name", WORKFLOW_NAMES)
 def test_review_artifact_includes_every_finding_disposition(workflow_name: str) -> None:
-    # 2119: REQ-002.8.1
+    # 2119: REQ-009.8.1
     workflow = _workflow(workflow_name)
     description = _responsibility_description(workflow, "REVIEWING", "review-artifact")
     assert "every finding" in description
@@ -109,7 +109,7 @@ def test_review_artifact_includes_every_finding_disposition(workflow_name: str) 
 
 @pytest.mark.parametrize("workflow_name", WORKFLOW_NAMES)
 def test_review_artifact_includes_the_sol_report(workflow_name: str) -> None:
-    # 2119: REQ-002.9.1
+    # 2119: REQ-009.9.1
     workflow = _workflow(workflow_name)
     description = _responsibility_description(workflow, "REVIEWING", "review-artifact")
     assert "final Sol 5.6 review report" in description
@@ -117,7 +117,7 @@ def test_review_artifact_includes_the_sol_report(workflow_name: str) -> None:
 
 @pytest.mark.parametrize("workflow_name", WORKFLOW_NAMES)
 def test_review_artifact_includes_a_reason_for_every_disposition(workflow_name: str) -> None:
-    # 2119: REQ-002.10.1
+    # 2119: REQ-009.10.1
     workflow = _workflow(workflow_name)
     description = _responsibility_description(workflow, "REVIEWING", "review-artifact")
     assert "reason" in description

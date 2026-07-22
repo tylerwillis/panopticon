@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.9.1--d24e263c7113",
-  "requirementId": "REQ-002.9.1",
-  "hash": "d24e263c7113",
-  "verdict": "pass",
-  "summary": "Asserts the exact phrase 'final Sol 5.6 review report' on the real REVIEWING review-artifact responsibility (no mocks); omitting the Sol report, a draft-only report, or an unversioned mention each fails the test.",
-  "timestamp": "2026-07-22T04:50:26.445Z"
-}

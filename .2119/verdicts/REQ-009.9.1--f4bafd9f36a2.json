@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.9.1--f4bafd9f36a2",
+  "requirementId": "REQ-009.9.1",
+  "hash": "f4bafd9f36a2",
+  "verdict": "pass",
+  "summary": "Test asserts the exact phrase 'final Sol 5.6 review report' in the review-artifact responsibility, so dropping the second model's report from the direction fails it.",
+  "timestamp": "2026-07-22T15:39:43.896Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.1.1--5446fdaad4a5",
-  "requirementId": "REQ-002.1.1",
-  "hash": "5446fdaad4a5",
-  "verdict": "pass",
-  "summary": "Real discovery, no mocks: asserts SPECIFYING carries the spec-artifact responsibility (missing/wrong-state -> KeyError) and its text contains spec.md, artifact, and upload - each obligation term rejects a nearest-miss.",
-  "timestamp": "2026-07-22T04:47:34.404Z"
-}
