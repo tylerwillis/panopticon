@@ -1,4 +1,4 @@
-# REQ-001: Codex session scrollback
+# REQ-009: Codex session scrollback
 
 ## Overview
 
@@ -10,6 +10,6 @@ handle scrolling.
 
 ## Requirements
 
-### REQ-001.1: Inline Codex output
+### REQ-009.1: Inline Codex output
 
 1. Panopticon-managed Codex task sessions MUST disable Codex's alternate-screen rendering.
