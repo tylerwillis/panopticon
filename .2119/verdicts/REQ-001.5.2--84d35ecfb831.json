@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.5.2--84d35ecfb831",
-  "requirementId": "REQ-001.5.2",
-  "hash": "84d35ecfb831",
-  "verdict": "pass",
-  "summary": "Test drives a real ctrl+r through Textual pilot against a snapshot of live/failed/queued tasks (failed being the nearest confusable status) and asserts screen_stack stays at 1 — the same channel the escape-cancel test proves gains a BulkRespawnScreen when a down task exists — with the 'no down tasks' notice guarding against a vacuous unbound-key pass.",
-  "timestamp": "2026-07-21T23:50:57.983Z"
-}

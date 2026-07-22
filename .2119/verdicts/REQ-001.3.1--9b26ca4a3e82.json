@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.3.1--9b26ca4a3e82",
-  "requirementId": "REQ-001.3.1",
-  "hash": "9b26ca4a3e82",
-  "verdict": "pass",
-  "summary": "asserts modal dismissed (screen_stack==1) AND fake.released==[] after escape; a release-on-escape or stuck modal each fail",
-  "timestamp": "2026-07-21T23:42:48.957Z"
-}

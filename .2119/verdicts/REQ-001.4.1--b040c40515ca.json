@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.4.1--b040c40515ca",
-  "requirementId": "REQ-001.4.1",
-  "hash": "b040c40515ca",
-  "verdict": "pass",
-  "summary": "exact list equality fake.released==[first,second] catches double-release, missed task, or a mechanism other than the single-task action's release() call",
-  "timestamp": "2026-07-21T23:42:49.530Z"
-}

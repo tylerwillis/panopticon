@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.4.2--28bbeb5fc2f3",
-  "requirementId": "REQ-001.4.2",
-  "hash": "28bbeb5fc2f3",
-  "verdict": "pass",
-  "summary": "ordered equality on fake.released rejects the nearest violation (reverse displayed order)",
-  "timestamp": "2026-07-21T23:42:50.127Z"
-}

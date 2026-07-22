@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.2.2--8eef36bf3124",
-  "requirementId": "REQ-001.2.2",
-  "hash": "8eef36bf3124",
-  "verdict": "pass",
-  "summary": "Modal test pins per-task ID prefix, slug/em-dash-when-unset, and leading memo excerpt with distinct fixture data (base fixture has no memo/em-dash, so no spurious pass); fails red without implementation.",
-  "timestamp": "2026-07-21T23:45:41.251Z"
-}

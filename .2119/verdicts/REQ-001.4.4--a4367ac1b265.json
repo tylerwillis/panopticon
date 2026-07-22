@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.4.4--a4367ac1b265",
+  "requirementId": "REQ-001.4.4",
+  "hash": "a4367ac1b265",
+  "verdict": "pass",
+  "summary": "Service-side task mutates to live only AFTER the modal opens, so only a genuine confirmation-time get_task recheck (asserted via got_tasks) can skip it; released excludes the recovered task",
+  "timestamp": "2026-07-22T00:10:43.926Z"
+}

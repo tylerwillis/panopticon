@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.4.5--5a73dee250f6",
-  "requirementId": "REQ-001.4.5",
-  "hash": "5a73dee250f6",
-  "verdict": "pass",
-  "summary": "notices==['respawned 1'] exact equality rejects any per-task skip notification via the captured notify seam",
-  "timestamp": "2026-07-21T23:42:55.887Z"
-}

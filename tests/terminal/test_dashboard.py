@@ -112,6 +112,7 @@ class _FakeClient:
         self.list_tasks_calls = 0  # how many times the table was (re)built — counts feed refreshes
         self.created: list[tuple[str, str, str | None, str | None, str | None]] = []
         self.applied: list[tuple[str, str]] = []
+        self.got_tasks: list[str] = []
         self.released: list[str] = []
         self.created_repos: list[dict[str, Any]] = []
         self.updated_repos: list[tuple[str, dict[str, Any]]] = []
@@ -238,6 +239,7 @@ class _FakeClient:
         return {"id": task_id}
 
     def get_task(self, task_id: str) -> dict[str, Any]:
+        self.got_tasks.append(task_id)
         for t in self._tasks:
             if t["id"] == task_id:
                 return t
@@ -1343,7 +1345,7 @@ async def test_bulk_respawn_binding_lists_only_down_tasks_for_confirmation() -> 
         **_TASK,
         "id": "down-abcdef0123",
         "slug": "restart-api",
-        "memo": "recover the API container after the host reboot",
+        "memo": "recover the API container after the host reboot and restore traffic without delay",
         "claimed_by": "host-1",
         "container_status": "down",
     }
@@ -1376,12 +1378,10 @@ async def test_bulk_respawn_binding_lists_only_down_tasks_for_confirmation() -> 
 
         assert isinstance(app.screen, dashboard.BulkRespawnScreen)
         text = str(app.screen.query_one("#bulk-respawn-tasks", Static).render())
-        assert down_a["id"][:8] in text
-        assert "restart-api" in text and "recover the API" in text
-        assert down_b["id"][:8] in text
-        assert "–" in text and "recover the background" in text
-        assert "healthy-web" not in text
-        assert "broken-spawn" not in text
+        assert text.splitlines() == [
+            "down-abc  restart-api  recover the API container after the host reboot and restore …",
+            "down-fed  –  recover the background worker",
+        ]
 
 
 # 2119: REQ-001.4.1
@@ -1404,7 +1404,7 @@ async def test_bulk_respawn_confirmation_releases_each_down_task_once_in_order(
         "claimed_by": "host-1",
         "container_status": "down",
     }
-    fake = _FakeClient([first, second])
+    fake = _FakeClient([second, first])  # reverse service order; display order sorts first → second
     notices: list[str] = []
     app = Dashboard(fake)  # type: ignore[arg-type]
     monkeypatch.setattr(app, "notify", lambda message, **kwargs: notices.append(message))
@@ -1413,6 +1413,8 @@ async def test_bulk_respawn_confirmation_releases_each_down_task_once_in_order(
         await pilot.pause()
         await pilot.press("ctrl+r")
         await pilot.pause()
+        text = str(app.screen.query_one("#bulk-respawn-tasks", Static).render())
+        assert text.index("down-fir") < text.index("down-sec")
         await pilot.press("enter")
         await pilot.pause()
 
@@ -1448,10 +1450,13 @@ async def test_bulk_respawn_confirmation_silently_skips_a_task_no_longer_down(
         await pilot.pause()
         await pilot.press("ctrl+r")
         await pilot.pause()
-        recovered["container_status"] = "live"
+        # Replace the service-side object: the modal keeps its original down snapshot, so only a
+        # confirmation-time get_task call can observe that this candidate recovered.
+        fake._tasks[1] = {**recovered, "container_status": "live"}
         await pilot.press("enter")
         await pilot.pause()
 
+        assert fake.got_tasks == [recovered["id"], still_down["id"]]
         assert fake.released == [still_down["id"]]
         assert notices == ["respawned 1"]
 

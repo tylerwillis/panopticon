@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.5.1--fa70e9726ca6",
-  "requirementId": "REQ-001.5.1",
-  "hash": "fa70e9726ca6",
-  "verdict": "pass",
-  "summary": "Exact-equality notify capture (== ['no down tasks']) with failed/queued/live in the snapshot rejects failed-as-down, wrong wording, and silence; verified failing red ([] != ['no down tasks']) without implementation.",
-  "timestamp": "2026-07-21T23:45:43.131Z"
-}
