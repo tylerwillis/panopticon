@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.3.1--a0d7b64b328f",
+  "requirementId": "REQ-009.3.1",
+  "hash": "a0d7b64b328f",
+  "verdict": "pass",
+  "summary": "Call-counter-tagged suggestions make retained caches detectable: a second opening presenting the first opening's '-1' values fails the wait for '-2' values on the operator-visible suggesters.",
+  "timestamp": "2026-07-22T15:42:01.823Z"
+}

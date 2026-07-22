@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.5.1--e13f5e075cb4",
-  "requirementId": "REQ-002.5.1",
-  "hash": "e13f5e075cb4",
-  "verdict": "pass",
-  "summary": "20ms fake discovery delay makes any re-discovery on cycle blow the measured <10ms budget; placeholder/suggester/summary asserts run synchronously after the timed action_cycle, proving fields updated within it",
-  "timestamp": "2026-07-22T06:34:52.747Z"
-}

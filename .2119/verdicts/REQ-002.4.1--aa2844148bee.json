@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.4.1--aa2844148bee",
-  "requirementId": "REQ-002.4.1",
-  "hash": "aa2844148bee",
-  "verdict": "pass",
-  "summary": "Release fires only after the cycle to the still-pending harness begins; a cycle that completes without presenting asserts on empty suggesters since discovery cannot have finished yet",
-  "timestamp": "2026-07-22T06:34:42.492Z"
-}

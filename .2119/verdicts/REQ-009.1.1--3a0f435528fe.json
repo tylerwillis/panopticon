@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.1--3a0f435528fe",
+  "requirementId": "REQ-009.1.1",
+  "hash": "3a0f435528fe",
+  "verdict": "pass",
+  "summary": "Blocking-discovery fake + backstop timer: a synchronous mount-blocking impl forces release before input and fails 'assert not release.is_set()'; typing into the memo while discovery is provably in flight verifies mount/focus/input.",
+  "timestamp": "2026-07-22T15:41:52.773Z"
+}

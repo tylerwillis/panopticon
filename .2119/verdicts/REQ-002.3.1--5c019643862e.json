@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.3.1--5c019643862e",
-  "requirementId": "REQ-002.3.1",
-  "hash": "5c019643862e",
-  "verdict": "pass",
-  "summary": "Call-numbered fake suggestions: the second opening's widgets must present call-2 values, so any cache retained across openings times out the wait on 'claude-model-2'",
-  "timestamp": "2026-07-22T06:34:41.997Z"
-}
