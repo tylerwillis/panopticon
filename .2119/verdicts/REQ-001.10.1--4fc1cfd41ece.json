@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.10.1--4fc1cfd41ece",
+  "requirementId": "REQ-001.10.1",
+  "hash": "4fc1cfd41ece",
+  "verdict": "pass",
+  "summary": "With terra highlighted via arrow keys, Enter must set #launch-model to 'terra' while the screen remains MemoScreen and fake.created stays empty — both the accept-candidate and no-submit conjuncts have rejecting assertions",
+  "timestamp": "2026-07-21T23:52:02.421Z"
+}

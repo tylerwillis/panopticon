@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.20.1--d5f422663f02",
+  "requirementId": "REQ-001.20.1",
+  "hash": "d5f422663f02",
+  "verdict": "pass",
+  "summary": "Non-matching text in both model and effort fields must leave the candidate OptionList queryable with option_count==0 and region.width>0; hiding the list or showing stale candidates fails (currently red pending implementation, so not tautological)",
+  "timestamp": "2026-07-22T00:04:56.793Z"
+}

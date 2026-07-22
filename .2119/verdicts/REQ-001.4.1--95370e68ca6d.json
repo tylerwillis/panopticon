@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.4.1--95370e68ca6d",
+  "requirementId": "REQ-001.4.1",
+  "hash": "95370e68ca6d",
+  "verdict": "pass",
+  "summary": "Drives real Down/Down/Up key events through the focused model input against a 2-item filtered list and asserts highlight indices 0/1/0 from a None start",
+  "timestamp": "2026-07-21T23:51:50.178Z"
+}

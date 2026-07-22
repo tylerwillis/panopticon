@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.15.1--173eac0c94ed",
+  "requirementId": "REQ-001.15.1",
+  "hash": "173eac0c94ed",
+  "verdict": "pass",
+  "summary": "Mocks only the $EDITOR subprocess seam (returning 'edited:{text}'), so the assert on the submitted memo 'edited:hi' proves the textarea text was replaced (append would yield 'hiedited:hi') and the current text was passed to the editor; suspend patch is a headless-driver necessity.",
+  "timestamp": "2026-07-21T23:58:24.279Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.5.1--0242e6403335",
+  "requirementId": "REQ-001.5.1",
+  "hash": "0242e6403335",
+  "verdict": "pass",
+  "summary": "Types custom/model and maximum — absent from every harness vocabulary — into both controls and asserts the created task carries model 'custom/model:maximum'; rejection or coercion of free text would fail",
+  "timestamp": "2026-07-21T23:51:50.629Z"
+}

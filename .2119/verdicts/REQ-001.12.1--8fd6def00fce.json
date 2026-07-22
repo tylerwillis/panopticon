@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.12.1--8fd6def00fce",
+  "requirementId": "REQ-001.12.1",
+  "hash": "8fd6def00fce",
+  "verdict": "pass",
+  "summary": "All three override kinds flip the exact-rendered summary to 'this task'; focus-only tabbing is proven not to (repo default), and workflow-over-repo plus app-default winners are exact-matched — each violation branch has a rejecting test.",
+  "timestamp": "2026-07-22T00:09:13.800Z"
+}

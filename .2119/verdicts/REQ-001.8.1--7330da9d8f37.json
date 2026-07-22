@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.8.1--7330da9d8f37",
+  "requirementId": "REQ-001.8.1",
+  "hash": "7330da9d8f37",
+  "verdict": "pass",
+  "summary": "Escape exercised behaviorally from harness/model/effort focus (parametrized, with candidate list asserted visible for model/effort) plus the memo editor via the draft test; violation would fail the not-MemoScreen and created==[] asserts.",
+  "timestamp": "2026-07-21T23:58:06.535Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.3.1--0a93dacd840f",
+  "requirementId": "REQ-001.3.1",
+  "hash": "0a93dacd840f",
+  "verdict": "pass",
+  "summary": "Parametrized filter test pins option_count==expected (only: gpt-5.6-sol excluded for 'A', low/medium for 'H') plus per-value containment (all); uppercase input vs lowercase vocab pins case-insensitivity and xhigh pins contains-not-prefix",
+  "timestamp": "2026-07-21T23:51:49.680Z"
+}
