@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.10.1--392fa8807a21",
+  "requirementId": "REQ-002.10.1",
+  "hash": "392fa8807a21",
+  "verdict": "pass",
+  "summary": "Asserts 'reason' and 'every finding' on the review-artifact responsibility; with the same text pinned to carry accepted/rejected dispositions, omitting per-finding reasons fails the test.",
+  "timestamp": "2026-07-22T04:47:47.476Z"
+}

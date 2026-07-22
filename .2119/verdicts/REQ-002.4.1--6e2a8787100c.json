@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.4.1--6e2a8787100c",
+  "requirementId": "REQ-002.4.1",
+  "hash": "6e2a8787100c",
+  "verdict": "pass",
+  "summary": "Asserts BUILDING's url-recorded responsibility mentions both 'PR URL' and 'external URL' - a responsibility routing the URL anywhere but the external URL field is rejected.",
+  "timestamp": "2026-07-22T04:47:35.700Z"
+}

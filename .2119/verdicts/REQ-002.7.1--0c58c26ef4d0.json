@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.7.1--0c58c26ef4d0",
+  "requirementId": "REQ-002.7.1",
+  "hash": "0c58c26ef4d0",
+  "verdict": "pass",
+  "summary": "Asserts the exact phrase 'final Fable 5 review report' on the real REVIEWING review-artifact responsibility (no mocks); dropping the report, a draft-only report, or an unversioned 'Fable report' all fail, and the upload directive on the same responsibility is pinned by the REQ-002.3.1 test.",
+  "timestamp": "2026-07-22T04:50:25.041Z"
+}

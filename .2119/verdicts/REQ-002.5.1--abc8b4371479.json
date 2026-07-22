@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.5.1--abc8b4371479",
+  "requirementId": "REQ-002.5.1",
+  "hash": "abc8b4371479",
+  "verdict": "pass",
+  "summary": "open-pr skill fetched via real discovery for both workflows; asserts spec.md, artifact, and 'change contract' in its instructions — skill removal, rename, or dropping any conjunct fails the test",
+  "timestamp": "2026-07-22T14:21:54.477Z"
+}

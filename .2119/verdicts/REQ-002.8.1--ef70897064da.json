@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.8.1--ef70897064da",
+  "requirementId": "REQ-002.8.1",
+  "hash": "ef70897064da",
+  "verdict": "pass",
+  "summary": "Asserts the review-artifact responsibility contains 'every finding' and 'accepted or rejected' - dropping either the universality or the disposition vocabulary fails the test.",
+  "timestamp": "2026-07-22T04:47:46.605Z"
+}

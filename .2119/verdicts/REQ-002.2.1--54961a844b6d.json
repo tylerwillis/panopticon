@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.2.1--54961a844b6d",
+  "requirementId": "REQ-002.2.1",
+  "hash": "54961a844b6d",
+  "verdict": "pass",
+  "summary": "Genuinely behavioral: real FilesystemArtifactStore, asserts the canonical mcp_uri is absent from the briefing before spec.md is uploaded and present after - both branches of the conditional are pinned.",
+  "timestamp": "2026-07-22T04:47:34.863Z"
+}

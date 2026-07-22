@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.6.1--017e3b1348c7",
+  "requirementId": "REQ-002.6.1",
+  "hash": "017e3b1348c7",
+  "verdict": "pass",
+  "summary": "Asserts the spec-artifact responsibility contains 'repository specification file' and 'mirror' - a responsibility directing upload without naming the mirrored repo source fails.",
+  "timestamp": "2026-07-22T04:47:45.731Z"
+}
