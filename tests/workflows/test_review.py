@@ -82,15 +82,19 @@ def test_review_exposes_one_review_skill() -> None:
 def test_review_skill_collects_only_governor_artifacts_and_change() -> None:
     instructions = _instructions()
     normalized = " ".join(instructions.split())
-    assert "governor_task_id" in instructions
-    assert "get_task" in instructions
-    assert "list_artifacts" in instructions
-    assert "`plan.md`" in instructions
+    assert (
+        "Call `get_task` with your own review task id and read its `governor_task_id`."
+        in normalized
+    )
+    assert (
+        "Call `list_artifacts` on the governor task id, then read its `plan.md` through the "
+        "returned MCP resource URI."
+    ) in normalized
     assert "`url`" in instructions and "gh pr diff" in instructions
     assert "`branch`" in instructions and "`clone`" in instructions and "git diff" in instructions
     assert (
-        "Do not retrieve, request, or use the author's conversation even if supplied. "
-        "It is not review input"
+        "The author's conversation must not be supplied as review input. Do not retrieve, request, "
+        "or use it even if it is supplied anyway"
     ) in normalized
 
 
@@ -132,11 +136,12 @@ def test_approval_writes_no_verdict_artifact_and_completes() -> None:
 # 2119: REQ-001.26
 def test_findings_are_written_to_the_governor_and_complete() -> None:
     findings = _verdict_section("Findings")
+    normalized = " ".join(findings.split())
     assert 'put_artifact(task_id=<governor_task_id>, name="review.md"' in findings
     assert "## Must fix" in findings
     assert "## Suggestions" in findings
-    assert "advance" in findings
-    assert "`COMPLETE`" in findings
+    assert "Keep every finding concrete and actionable." in findings
+    assert "Then call the `advance` operation to move this review task to `COMPLETE`." in normalized
 
 
 # 2119: REQ-001.8

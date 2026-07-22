@@ -129,7 +129,7 @@ class Workflow(ABC):
     # -- build / validate (the resolution pass; answers "why not a free function?") -----
 
     def validate_registration(self, harnesses: Collection[str]) -> None:
-        """Validate the graph and optional harness-scoped launch pair for registration."""
+        """Validate the graph and optional harness-scoped launch pairs for registration."""
         _ = self._graph
         if (self.default_harness is None) != (self.default_model is None):
             raise InvalidWorkflow(

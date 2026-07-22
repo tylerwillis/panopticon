@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.26.1--83c00f289043",
+  "requirementId": "REQ-001.26.1",
+  "hash": "83c00f289043",
+  "verdict": "pass",
+  "summary": "Findings-only normalized section pins exact advance of review task to COMPLETE directive",
+  "timestamp": "2026-07-22T00:30:43.503Z"
+}

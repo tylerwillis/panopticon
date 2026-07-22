@@ -20,14 +20,16 @@ is not review, and any fixes belong to the author in a later, freshly reviewed r
 
 1. **Identify the governor.** Call `get_task` with your own review task id and read its
    `governor_task_id`. Call `get_task` again with that governor task id; note its `url`, `branch`,
-   `clone`, slug, and memo. Do not retrieve, request, or use the author's conversation even if
-   supplied. It is not review input; use only the recorded task facts and artifacts below.
+   `clone`, slug, and memo. The author's conversation must not be supplied as review input. Do not
+   retrieve, request, or use it even if it is supplied anyway; use only the recorded task facts and
+   artifacts below.
 2. **Read the plan.** Call `list_artifacts` on the governor task id, then read its `plan.md` through
    the returned MCP resource URI.
 3. **Inspect the change.** If the governor has a recorded `url`, run `gh pr view <url>` and
    `gh pr diff <url>`. Otherwise use its recorded `branch` and `clone`: inspect the clone directly
-   when it is accessible, or fetch the branch into `/workspace`, then run `git diff` against the
-   base branch. Do not modify either checkout.
+   when it is accessible, or run `git fetch origin <branch>` in `/workspace`, resolve the base with
+   `git symbolic-ref --short refs/remotes/origin/HEAD`, then run `git diff <base>...FETCH_HEAD`. Do
+   not modify either checkout.
 4. **Assess correctness and whether the change matches the plan without unplanned scope.** Also
    assess simplicity and net line count. Apply the simplicity ladder in this order:
    - delete unnecessary code;
