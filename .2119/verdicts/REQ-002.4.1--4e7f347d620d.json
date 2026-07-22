@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.4.1--4e7f347d620d",
+  "requirementId": "REQ-002.4.1",
+  "hash": "4e7f347d620d",
+  "verdict": "pass",
+  "summary": "Cycles to a harness proven uncached ('target' absent from the cache, release unset); suggesters captured right after the cycle keypress must yield target's payloads, so a deferred-presentation impl leaves the empty initial suggester and fails.",
+  "timestamp": "2026-07-22T06:06:35.229Z"
+}

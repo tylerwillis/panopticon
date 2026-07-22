@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.8.1--081896ceac38",
+  "requirementId": "REQ-002.8.1",
+  "hash": "081896ceac38",
+  "verdict": "pass",
+  "summary": "Harness-named per-call payloads pin presented==discovered for the cycled-to harness (target-model-1/target-empty-effort-1, effort_models==['']), rejecting wrong-harness or stale presentation; single-item fake lists fully determine equality on the tested surface.",
+  "timestamp": "2026-07-22T06:06:55.881Z"
+}
