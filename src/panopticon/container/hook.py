@@ -28,7 +28,6 @@ distinct from the actor so the bare question hooks (`hook user` / `hook agent`) 
 
 from __future__ import annotations
 
-import contextlib
 import json
 import os
 import sys
@@ -46,6 +45,10 @@ from panopticon.core.provisioning import PROVISION_NUDGE
 #: of these. Anything else — including a missing/unknown status — is treated as live, so we err
 #: toward keeping the turn on the agent rather than prematurely handing it back.
 _TERMINAL_STATUSES = frozenset({"completed", "failed", "cancelled", "canceled", "error"})
+
+#: Shorter than the harness's three-second whole-command backstop, leaving time for the callback to
+#: catch the transport error and exit zero instead of being killed by the harness.
+_HTTP_TIMEOUT_SECONDS = 2.0
 
 
 def _read_payload(stdin: TextIO) -> dict[str, Any]:
@@ -124,16 +127,19 @@ def _line_tokens(line: str) -> int:
     return cost_weighted_tokens(int_usage, model)
 
 
-def _report_tokens(client: TaskServiceClient, task_id: str, payload: dict[str, Any]) -> None:
+def _report_tokens(client: TaskServiceClient, task_id: str, payload: dict[str, Any]) -> bool:
     """Best-effort: total the transcript the Stop payload names and record it.
 
     Any failure — no ``transcript_path``, a REST error — is swallowed: token accounting must never
     break the turn-flip the hook exists for."""
     transcript = payload.get("transcript_path")
     if not isinstance(transcript, str):
-        return
-    with contextlib.suppress(httpx.HTTPError):
+        return True
+    try:
         client.set_tokens_used(task_id, session_tokens(transcript))
+    except httpx.HTTPError:
+        return False
+    return True
 
 
 def main(
@@ -155,7 +161,9 @@ def main(
     env = os.environ
     actor, event = args[0], (args[1] if len(args) == 2 else None)
     task_id = env["PANOPTICON_TASK_ID"]
-    client = client or TaskServiceClient(httpx.Client(base_url=env["PANOPTICON_SERVICE_URL"]))
+    client = client or TaskServiceClient(
+        httpx.Client(base_url=env["PANOPTICON_SERVICE_URL"], timeout=_HTTP_TIMEOUT_SECONDS)
+    )
     # `stop` (Stop): the agent's turn just ended. Read the payload once — it carries the transcript
     # path and the background_tasks list. Record cumulative token usage, then decide the turn: don't
     # hand it back while a background task is still running, since the task's completion re-invokes
@@ -164,16 +172,20 @@ def main(
     # not the bare AskUserQuestion `hook user` flip — there the agent is genuinely awaiting the user.)
     if event == "stop":
         payload = _read_payload(stdin or sys.stdin)
-        _report_tokens(client, task_id, payload)
+        if not _report_tokens(client, task_id, payload):
+            return 0
         if _has_live_background_task(payload):
             return 0
-    client.set_turn(task_id, actor)
-    # `prompt` (UserPromptSubmit): ground the agent in its current phase, and (while the task is
-    # unslugged) nudge toward provisioning. claude adds this hook's stdout to its context.
-    if event == "prompt":
-        print(client.get_briefing(task_id))
-        if client.get_task(task_id).get("slug") is None:
-            print(PROVISION_NUDGE)
+    try:
+        client.set_turn(task_id, actor)
+        # `prompt` (UserPromptSubmit): ground the agent in its current phase, and (while the task is
+        # unslugged) nudge toward provisioning. claude adds this hook's stdout to its context.
+        if event == "prompt":
+            print(client.get_briefing(task_id))
+            if client.get_task(task_id).get("slug") is None:
+                print(PROVISION_NUDGE)
+    except httpx.HTTPError:
+        return 0
     # No event (the AskUserQuestion PreToolUse/PostToolUse hooks): a pure turn flip, no side-effects.
     return 0
 
