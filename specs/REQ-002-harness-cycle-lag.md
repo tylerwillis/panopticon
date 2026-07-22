@@ -9,7 +9,7 @@ new-task memo modal opening.
 
 ### REQ-002.1: Responsive opening
 
-1. Suggestion discovery MUST NOT synchronously block the new-task memo modal from mounting, receiving focus, or accepting operator input.
+1. During new-task memo modal opening, suggestion discovery MUST NOT synchronously block the modal from mounting, receiving focus, or accepting operator input.
 
 ### REQ-002.2: One discovery per harness
 
