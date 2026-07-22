@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.7.1--a352ffe1849b",
-  "requirementId": "REQ-002.7.1",
-  "hash": "a352ffe1849b",
-  "verdict": "pass",
-  "summary": "Snapshots widget state including suggester object identity before close, then releases the blocked discovery; an unguarded completion callback installs new suggester objects on the closed modal and fails the equality check.",
-  "timestamp": "2026-07-22T06:06:51.229Z"
-}

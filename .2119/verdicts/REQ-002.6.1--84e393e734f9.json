@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.6.1--84e393e734f9",
-  "requirementId": "REQ-002.6.1",
-  "hash": "84e393e734f9",
-  "verdict": "pass",
-  "summary": "In-flight discovery is rigged to raise after close; a notify spy plus app.is_running cover both operator-visible error channels, so a notifying or exit_on_error=True impl fails.",
-  "timestamp": "2026-07-22T06:06:45.113Z"
-}

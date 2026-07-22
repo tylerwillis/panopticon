@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.3.1--b3a1ef13b8f1",
-  "requirementId": "REQ-002.3.1",
-  "hash": "b3a1ef13b8f1",
-  "verdict": "pass",
-  "summary": "Call-numbered fake payloads make retained results distinguishable: a cache surviving reopen would present claude-model-1 on the second opening, but the test requires the -2 payloads from that opening's discovery.",
-  "timestamp": "2026-07-22T06:06:31.046Z"
-}
