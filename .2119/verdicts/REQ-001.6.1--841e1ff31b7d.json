@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.6.1--841e1ff31b7d",
+  "requirementId": "REQ-001.6.1",
+  "hash": "841e1ff31b7d",
+  "verdict": "pass",
+  "summary": "Rendered dialog labels must contain both 'removes the file' and 'remains loaded until the running service's next restart' - a bare are-you-sure dialog or one omitting retention fails",
+  "timestamp": "2026-07-22T00:12:23.176Z"
+}

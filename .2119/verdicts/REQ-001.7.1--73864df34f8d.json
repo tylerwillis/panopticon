@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.7.1--73864df34f8d",
+  "requirementId": "REQ-001.7.1",
+  "hash": "73864df34f8d",
+  "verdict": "pass",
+  "summary": "Reference independently pinned to 56/auto round-accent-on-surface (both-drift fails); delete box must equal the full style tuple; centering computed from region.x/y vs app size",
+  "timestamp": "2026-07-22T00:12:23.649Z"
+}

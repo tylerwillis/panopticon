@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.5.1--2170e6fc2e61",
+  "requirementId": "REQ-001.5.1",
+  "hash": "2170e6fc2e61",
+  "verdict": "pass",
+  "summary": "Built-in row: still on WorkflowsScreen immediately after x (rejects dialog opening) and real file content intact (rejects deletion) - both conjuncts covered",
+  "timestamp": "2026-07-21T23:40:34.236Z"
+}

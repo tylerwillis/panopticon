@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.4.1--e654b0ddf36c",
+  "requirementId": "REQ-001.4.1",
+  "hash": "e654b0ddf36c",
+  "verdict": "pass",
+  "summary": "Yes-click must unlink the real tmp file for the highlighted row (sibling asserted intact); refresh proven by a second list_workflow_files call whose changed payload must render - local removal without re-fetch fails list_calls==2",
+  "timestamp": "2026-07-22T00:12:22.677Z"
+}

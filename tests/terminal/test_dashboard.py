@@ -14,7 +14,7 @@ import httpx
 import pytest
 from textual.app import App
 from textual.containers import VerticalScroll
-from textual.widgets import Checkbox, DataTable, Input, Label, Select, Static
+from textual.widgets import Button, Checkbox, DataTable, Input, Label, Select, Static
 
 from panopticon.terminal import dashboard
 from panopticon.terminal.dashboard import (
@@ -1734,6 +1734,198 @@ async def test_workflows_screen_refreshes_after_editing_an_existing_file(
         await pilot.pause()
         table = app.screen.query_one("#workflows", DataTable)
         assert "New description." in str(table.get_row_at(0))
+
+
+# 2119: REQ-001.1.1
+# 2119: REQ-001.2.1
+# 2119: REQ-001.6.1
+# 2119: REQ-001.7.1
+async def test_workflows_screen_x_opens_honest_confirmation_for_highlighted_operator_file(
+    tmp_path: Path,
+) -> None:
+    first = tmp_path / "first.py"
+    second = tmp_path / "second.py"
+    first.write_text("first")
+    second.write_text("second")
+    fake = _FakeClient(
+        [],
+        workflows=[
+            {
+                "name": "first",
+                "when_to_use": "First workflow.",
+                "path": str(first),
+                "built_in": False,
+            },
+            {
+                "name": "second",
+                "when_to_use": "Second workflow.",
+                "path": str(second),
+                "built_in": False,
+            },
+        ],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+
+    async with app.run_test(size=(100, 40)) as pilot:
+        await pilot.pause()
+        await pilot.press("w")
+        await pilot.press("n")
+        await pilot.pause()
+        new_workflow_box = app.screen.query_one("#new-workflow-box")
+        reference_style = (
+            new_workflow_box.region.width,
+            str(new_workflow_box.styles.width),
+            str(new_workflow_box.styles.height),
+            new_workflow_box.styles.border,
+            new_workflow_box.styles.background,
+        )
+        theme = app.get_css_variables()
+        assert reference_style[:3] == (56, "56", "auto")
+        assert new_workflow_box.styles.border.top[0] == "round"
+        assert new_workflow_box.styles.border.top[1].hex == theme["accent"]
+        assert new_workflow_box.styles.background.hex == theme["surface"]
+        await pilot.press("escape")
+        await pilot.pause()
+        await pilot.press("down")
+        await pilot.press("x")
+        await pilot.pause()
+
+        assert not isinstance(app.screen, dashboard.WorkflowsScreen)
+        message = "\n".join(label.content for label in app.screen.query(Label))
+        assert "second" in message
+        assert "removes the file" in message.lower()
+        assert "remains loaded until the running service's next restart" in message.lower()
+        assert str(app.screen.query_one("#delete-workflow-yes", Button).label).lower() == "yes"
+        assert str(app.screen.query_one("#delete-workflow-no", Button).label).lower() == "no"
+        box = app.screen.query_one("#delete-workflow-box")
+        assert (
+            box.region.width,
+            str(box.styles.width),
+            str(box.styles.height),
+            box.styles.border,
+            box.styles.background,
+        ) == reference_style
+        assert box.region.x == (app.size.width - box.region.width) // 2
+        assert box.region.y == (app.size.height - box.region.height) // 2
+
+
+# 2119: REQ-001.3.1
+@pytest.mark.parametrize("cancel", ["no", "escape"])
+async def test_workflow_delete_confirmation_cancels_without_removing_file(
+    tmp_path: Path, cancel: str
+) -> None:
+    path = tmp_path / "release.py"
+    path.write_text("workflow")
+    fake = _FakeClient(
+        [],
+        workflows=[
+            {
+                "name": "release",
+                "when_to_use": "Ship a release.",
+                "path": str(path),
+                "built_in": False,
+            }
+        ],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("w")
+        await pilot.press("x")
+        await pilot.pause()
+        if cancel == "no":
+            await pilot.click("#delete-workflow-no")
+        else:
+            await pilot.press("escape")
+        await pilot.pause()
+
+        assert isinstance(app.screen, dashboard.WorkflowsScreen)
+        assert path.read_text() == "workflow"
+
+
+# 2119: REQ-001.4.1
+async def test_workflow_delete_confirmation_yes_removes_file_and_refreshes_loaded_registry(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    first_path = tmp_path / "first.py"
+    first_path.write_text("first workflow")
+    path = tmp_path / "release.py"
+    path.write_text("workflow")
+    first_workflow = {
+        "name": "first",
+        "when_to_use": "First workflow.",
+        "path": str(first_path),
+        "built_in": False,
+    }
+    workflow = {
+        "name": "release",
+        "when_to_use": "Before deletion.",
+        "path": str(path),
+        "built_in": False,
+    }
+    fake = _FakeClient([], workflows=[first_workflow, workflow])
+    list_calls = 0
+
+    def list_workflow_files() -> list[dict[str, Any]]:
+        nonlocal list_calls
+        list_calls += 1
+        description = "Before deletion." if list_calls == 1 else "Loaded until restart."
+        return [first_workflow, {**workflow, "when_to_use": description}]
+
+    monkeypatch.setattr(fake, "list_workflow_files", list_workflow_files)
+    app = Dashboard(fake)  # type: ignore[arg-type]
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("w")
+        await pilot.press("down")
+        await pilot.press("x")
+        await pilot.pause()
+        await pilot.click("#delete-workflow-yes")
+        await pilot.pause()
+
+        assert not path.exists()
+        assert first_path.read_text() == "first workflow"
+        assert list_calls == 2
+        table = app.screen.query_one("#workflows", DataTable)
+        assert "Loaded until restart." in str(table.get_row_at(1))
+
+
+# 2119: REQ-001.5.1
+# 2119: REQ-001.8.1
+async def test_workflows_screen_refuses_builtin_deletion_with_notification(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    path = tmp_path / "spike.py"
+    path.write_text("built in")
+    fake = _FakeClient(
+        [],
+        workflows=[
+            {
+                "name": "spike",
+                "when_to_use": "Open-ended work.",
+                "path": str(path),
+                "built_in": True,
+            }
+        ],
+    )
+    notices: list[str] = []
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    monkeypatch.setattr(app, "notify", lambda message, **kwargs: notices.append(message))
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("w")
+        await pilot.press("x")
+        await pilot.pause()
+
+        assert isinstance(app.screen, dashboard.WorkflowsScreen)
+        assert path.read_text() == "built in"
+        assert len(notices) == 1
+        assert "built-in" in notices[0].lower()
+        assert "cannot" in notices[0].lower()
+        assert "delete" in notices[0].lower()
 
 
 async def test_pressing_s_in_the_repos_screen_creates_a_setup_repo_task() -> None:
