@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.1.1--0e5319d6ec69",
+  "requirementId": "REQ-002.1.1",
+  "hash": "0e5319d6ec69",
+  "verdict": "pass",
+  "summary": "Blocking event fake: modal accepts typed input while discovery is provably still in flight; a synchronous mount would hang past the backstop and trip 'assert not release.is_set()'",
+  "timestamp": "2026-07-22T06:34:33.641Z"
+}

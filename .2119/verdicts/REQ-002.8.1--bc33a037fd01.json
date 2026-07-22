@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.8.1--bc33a037fd01",
+  "requirementId": "REQ-002.8.1",
+  "hash": "bc33a037fd01",
+  "verdict": "pass",
+  "summary": "Presented suggester lists asserted exactly equal to the fake's per-harness discovered values (target-model-1/target-empty-effort-1), so cross-harness or transformed suggestions fail",
+  "timestamp": "2026-07-22T06:35:02.719Z"
+}

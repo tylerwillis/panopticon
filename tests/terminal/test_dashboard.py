@@ -285,7 +285,7 @@ class _SuggestionHarness:
         call = self.model_calls
         self.started.set()
         if self.release is not None:
-            self.release.wait(timeout=2)
+            self.release.wait()
         if self.delay:
             time.sleep(self.delay)
         if self.fail_models:
@@ -314,6 +314,20 @@ async def _wait_for(pilot: Any, predicate: Any) -> None:
             return
         await pilot.pause(0.01)
     raise AssertionError("condition did not become true")
+
+
+async def _wait_for_suggestion(
+    pilot: Any, input_widget: Input, expected: str
+) -> dashboard.SuggestFromList:
+    for _ in range(100):
+        suggester = input_widget.suggester
+        if (
+            isinstance(suggester, dashboard.SuggestFromList)
+            and await suggester.get_suggestion("") == expected
+        ):
+            return suggester
+        await pilot.pause(0.01)
+    raise AssertionError(f"suggestion {expected!r} did not become available")
 
 
 def test_render_detail_shows_state_turn_and_history() -> None:
@@ -1174,20 +1188,16 @@ async def test_memo_suggestion_cache_is_fresh_for_each_open(monkeypatch: Any) ->
     app = Dashboard(fake)  # type: ignore[arg-type]
     async with app.run_test() as pilot:
         await _open_memo(pilot)
-        first = app.screen.query_one("#launch-model", Input).suggester
-        first_effort = app.screen.query_one("#launch-effort", Input).suggester
-        assert isinstance(first, dashboard.SuggestFromList)
-        assert isinstance(first_effort, dashboard.SuggestFromList)
-        assert await first.get_suggestion("") == "claude-model-1"
-        assert await first_effort.get_suggestion("") == "claude-empty-effort-1"
+        first_model = app.screen.query_one("#launch-model", Input)
+        first_effort_input = app.screen.query_one("#launch-effort", Input)
+        await _wait_for_suggestion(pilot, first_model, "claude-model-1")
+        await _wait_for_suggestion(pilot, first_effort_input, "claude-empty-effort-1")
         await pilot.press("escape")
         await _open_memo(pilot)
-        second = app.screen.query_one("#launch-model", Input).suggester
-        second_effort = app.screen.query_one("#launch-effort", Input).suggester
-        assert isinstance(second, dashboard.SuggestFromList)
-        assert isinstance(second_effort, dashboard.SuggestFromList)
-        assert await second.get_suggestion("") == "claude-model-2"
-        assert await second_effort.get_suggestion("") == "claude-empty-effort-2"
+        second_model = app.screen.query_one("#launch-model", Input)
+        second_effort_input = app.screen.query_one("#launch-effort", Input)
+        await _wait_for_suggestion(pilot, second_model, "claude-model-2")
+        await _wait_for_suggestion(pilot, second_effort_input, "claude-empty-effort-2")
 
 
 # 2119: REQ-002.4.1
@@ -1216,8 +1226,8 @@ async def test_early_cycle_discovers_once_and_presents_the_selected_harness_sugg
             effort = app.screen.query_one("#launch-effort", Input).suggester
             assert isinstance(model, dashboard.SuggestFromList)
             assert isinstance(effort, dashboard.SuggestFromList)
-            assert await model.get_suggestion("") == "target-model-1"
-            assert await effort.get_suggestion("") == "target-empty-effort-1"
+            assert model._suggestions == ["target-model-1"]
+            assert effort._suggestions == ["target-empty-effort-1"]
             assert target.model_calls == target.effort_calls == 1
             assert target.effort_models == [""]
     finally:
@@ -1239,14 +1249,16 @@ async def test_cached_harness_cycles_finish_under_ten_milliseconds(monkeypatch: 
             pilot,
             lambda: all(name in screen._suggestion_cache for name in harnesses),
         )
-        for name in harnesses:
+        selector = screen.query_one(dashboard.HarnessSelector)
+        for name in ("codex", "pi", "claude"):
             started = time.perf_counter()
-            screen.launch_field_changed("harness", name)
+            selector.action_cycle()
             elapsed = time.perf_counter() - started
             assert elapsed < 0.01, f"{name} cycle took {elapsed * 1000:.3f}ms"
             model = screen.query_one("#launch-model", Input)
             effort = screen.query_one("#launch-effort", Input)
             summary = screen.query_one("#launch-summary", Static)
+            assert selector.value == name
             assert screen._selection.harness == name
             assert name in str(summary.render())
             assert model.placeholder == f"{name} model"
@@ -1265,7 +1277,19 @@ async def test_closing_memo_suppresses_an_in_flight_discovery_failure(monkeypatc
         "HARNESSES",
         {"claude": _SuggestionHarness("claude"), "slow": slow},
     )
-    fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
+    fake = _FakeClient(
+        [],
+        repos=[
+            {
+                "id": "r1",
+                "name": "r1",
+                "git_url": "",
+                "default_base": "main",
+                "default_harness": "slow",
+            }
+        ],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
     app = Dashboard(fake)  # type: ignore[arg-type]
     notices: list[str] = []
     monkeypatch.setattr(app, "notify", lambda message, **kwargs: notices.append(str(message)))
@@ -1291,7 +1315,19 @@ async def test_in_flight_discovery_does_not_update_widgets_after_memo_closes(
         "HARNESSES",
         {"claude": _SuggestionHarness("claude"), "slow": slow},
     )
-    fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
+    fake = _FakeClient(
+        [],
+        repos=[
+            {
+                "id": "r1",
+                "name": "r1",
+                "git_url": "",
+                "default_base": "main",
+                "default_harness": "slow",
+            }
+        ],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
     app = Dashboard(fake)  # type: ignore[arg-type]
     async with app.run_test() as pilot:
         await _open_memo(pilot)
