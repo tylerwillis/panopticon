@@ -386,8 +386,14 @@ class TaskService:
         depends_on_task_ids: list[str] | None = None,
     ) -> Task:
         repo = await self.get_repo(repo_id)  # ensure exists (raises NotFound)
+        # ADR-0014 stack 2 lands before the review workflow itself on some branches, so its stable
+        # name is the marker here. Stack 3 can rebase this coupling onto a workflow declaration if
+        # stack 1 introduces a cleaner marker.
+        if workflow_name == "review" and governor_task_id is None:
+            raise ValueError("review tasks require a governor_task_id")
+        governor = None
         if governor_task_id is not None:
-            await self.get_task(governor_task_id)  # ensure governor exists (raises NotFound)
+            governor = await self.get_task(governor_task_id)  # ensure it exists (raises NotFound)
         self._validate_harness_name(harness)  # so a spawn never meets an unknown harness
         if workflow_name not in self._workflows:
             self._rescan_workflows()
@@ -408,6 +414,10 @@ class TaskService:
         task.starting_model = starting_model
         if starting_model is None and (harness is None or harness == pair_harness):
             task.starting_model = pair_model
+        if workflow_name == "review" and (
+            governor is None or get_harness(task.harness).name == get_harness(governor.harness).name
+        ):
+            raise ValueError("review task harness must differ from its governor task's harness")
         task.governor_task_id = governor_task_id
         task.created_at = now
         task.updated_at = now  # creation time = first mutation
