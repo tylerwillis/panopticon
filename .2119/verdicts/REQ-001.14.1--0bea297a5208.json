@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.14.1--0bea297a5208",
-  "requirementId": "REQ-001.14.1",
-  "hash": "0bea297a5208",
-  "verdict": "pass",
-  "summary": "Ctrl+S asserts the created tuple carries memo='fix' with initial_prompt=None — a delivering implementation fails on the prompt slot, a non-creating one on created==[]; both conjuncts covered.",
-  "timestamp": "2026-07-21T23:58:23.749Z"
-}

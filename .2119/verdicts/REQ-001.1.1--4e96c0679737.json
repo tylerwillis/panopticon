@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.1.1--4e96c0679737",
-  "requirementId": "REQ-001.1.1",
-  "hash": "4e96c0679737",
-  "verdict": "pass",
-  "summary": "Pre-Tab assertions pin labels {harness,model,effort}, repo-default values (codex/terra/high), and nonzero widget regions before any launch control is focused; hidden, unlabeled, or blank-until-focus controls all fail",
-  "timestamp": "2026-07-21T23:51:48.699Z"
-}

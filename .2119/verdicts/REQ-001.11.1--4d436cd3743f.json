@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.11.1--4d436cd3743f",
-  "requirementId": "REQ-001.11.1",
-  "hash": "4d436cd3743f",
-  "verdict": "pass",
-  "summary": "Types real overrides into both model and effort, cycles the harness via Enter on the focused selector, and asserts the exact typed strings survive; a clearing implementation fails both asserts (Enter-cycles precondition is pinned by the REQ-001.16.1 test).",
-  "timestamp": "2026-07-21T23:58:15.065Z"
-}
