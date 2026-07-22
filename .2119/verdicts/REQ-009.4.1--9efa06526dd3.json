@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.4.1--9efa06526dd3",
+  "requirementId": "REQ-009.4.1",
+  "hash": "9efa06526dd3",
+  "verdict": "pass",
+  "summary": "Real task-service tests verify REVIEW entry seeds exactly one pending review-addressed responsibility on the current history entry for successful creation and two distinct nonfatal creation failures, including free-move and re-entry paths.",
+  "timestamp": "2026-07-22T14:47:52.529Z"
+}

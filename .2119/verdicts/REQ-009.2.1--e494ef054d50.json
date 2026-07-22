@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.2.1--e494ef054d50",
-  "requirementId": "REQ-009.2.1",
-  "hash": "e494ef054d50",
-  "verdict": "pass",
-  "summary": "test_review_entry_creates_governed_worker_and_blocks_author asserts reviews[0].governor_task_id == author.id via a real unmocked TaskService/store path (DRAFT->REVIEW advance), with the author and review task getting distinct sequential ids, so None, self-reference, or any other governor_task_id value would be genuinely rejected; requirement text is a clear observable outcome.",
-  "timestamp": "2026-07-22T14:23:29.448Z"
-}

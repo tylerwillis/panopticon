@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.11.1--f74b668479d3",
+  "requirementId": "REQ-009.11.1",
+  "hash": "f74b668479d3",
+  "verdict": "pass",
+  "summary": "Real-service test enters WORKING in a workflow declaring both review launch fields and fails if any review task is created.",
+  "timestamp": "2026-07-22T14:48:51.415Z"
+}

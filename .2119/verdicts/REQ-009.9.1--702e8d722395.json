@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.9.1--702e8d722395",
-  "requirementId": "REQ-009.9.1",
-  "hash": "702e8d722395",
-  "verdict": "pass",
-  "summary": "After a real creation failure with review-addressed still PENDING (which gates advance), set_state to COMPLETE succeeds — a failure that poisoned the task or blocked free moves would fail.",
-  "timestamp": "2026-07-22T14:23:32.788Z"
-}

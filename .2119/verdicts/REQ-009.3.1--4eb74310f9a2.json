@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.3.1--4eb74310f9a2",
-  "requirementId": "REQ-009.3.1",
-  "hash": "4eb74310f9a2",
-  "verdict": "pass",
-  "summary": "Author's harness/model (claude/claude-fable-5) differ from the declared pair (codex/gpt-5.6-sol:high), so copying the author's pair or falling back to defaults both fail the equality asserts on the created review task.",
-  "timestamp": "2026-07-22T14:23:29.968Z"
-}

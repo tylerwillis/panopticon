@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.8.1--13e24aa105e0",
-  "requirementId": "REQ-009.8.1",
-  "hash": "13e24aa105e0",
-  "verdict": "pass",
-  "summary": "Asserts the current entry's note equals the exact failure message including the underlying cross-harness reason, so a generic or missing note fails.",
-  "timestamp": "2026-07-22T14:23:32.274Z"
-}

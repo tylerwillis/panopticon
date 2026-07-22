@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.7.1--a327f4d3b02e",
+  "requirementId": "REQ-009.7.1",
+  "hash": "a327f4d3b02e",
+  "verdict": "pass",
+  "summary": "Two real service-boundary failure cases enter REVIEW from DRAFT, induce review-task creation failure without mocks, and assert the author transition returns/persists REVIEW rather than aborting or remaining DRAFT.",
+  "timestamp": "2026-07-22T14:46:41.458Z"
+}

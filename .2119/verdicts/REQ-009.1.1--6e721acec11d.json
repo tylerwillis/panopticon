@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.1--6e721acec11d",
+  "requirementId": "REQ-009.1.1",
+  "hash": "6e721acec11d",
+  "verdict": "pass",
+  "summary": "Tests reject zero, duplicate, extra, and wrong-workflow task creation for both declared transition and free-move REVIEW entry, including concurrent entry.",
+  "timestamp": "2026-07-22T14:45:25.035Z"
+}
