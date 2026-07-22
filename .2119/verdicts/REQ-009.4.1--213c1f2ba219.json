@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.4.1--213c1f2ba219",
+  "requirementId": "REQ-009.4.1",
+  "hash": "213c1f2ba219",
+  "verdict": "pass",
+  "summary": "Cycle targets a harness proven mid-discovery (release unset, uncached); assertions run as the cycle keypress resolves, so a cycle completing with empty/stale suggesters fails the target-suggestion equality checks.",
+  "timestamp": "2026-07-22T15:42:09.115Z"
+}

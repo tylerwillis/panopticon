@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.7.1--8a504fc8b724",
-  "requirementId": "REQ-002.7.1",
-  "hash": "8a504fc8b724",
-  "verdict": "pass",
-  "summary": "Snapshot of all harness-dependent widget state (incl. suggester object identity) taken pre-close on the selected pending harness; an unguarded post-close presentation swaps the suggester and fails the identity compare",
-  "timestamp": "2026-07-22T06:35:02.213Z"
-}

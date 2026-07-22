@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.5.1--d10b3bf5b6e5",
+  "requirementId": "REQ-009.5.1",
+  "hash": "d10b3bf5b6e5",
+  "verdict": "pass",
+  "summary": "20ms-per-call fakes make any re-discovery cost >=40ms, blowing the measured 10ms bound; value/summary/placeholder/suggesters are asserted synchronously after action_cycle with no event-loop pause.",
+  "timestamp": "2026-07-22T15:42:09.667Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.2.1--efcbd1b38729",
-  "requirementId": "REQ-002.2.1",
-  "hash": "efcbd1b38729",
-  "verdict": "pass",
-  "summary": "Per-instance call counters on 4 fake harnesses: all reach exactly 1 before any cycling (rejects lazy-only) and stay 1 through 12 cycles (rejects re-discovery)",
-  "timestamp": "2026-07-22T06:34:34.136Z"
-}
