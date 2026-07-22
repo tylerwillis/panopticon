@@ -292,9 +292,10 @@ class _SuggestionHarness:
 
     def suggested_efforts(self, model: str | None = None) -> tuple[tuple[str, str], ...]:
         self.effort_calls += 1
+        call = self.effort_calls
         if self.delay:
             time.sleep(self.delay)
-        return ((f"{self.name}-effort", f"{self.name} effort"),)
+        return ((f"{self.name}-effort-{call}", f"{self.name} effort {call}"),)
 
 
 async def _open_memo(pilot: Any) -> None:
@@ -1168,13 +1169,19 @@ async def test_memo_suggestion_cache_is_fresh_for_each_open(monkeypatch: Any) ->
     async with app.run_test() as pilot:
         await _open_memo(pilot)
         first = app.screen.query_one("#launch-model", Input).suggester
+        first_effort = app.screen.query_one("#launch-effort", Input).suggester
         assert isinstance(first, dashboard.SuggestFromList)
+        assert isinstance(first_effort, dashboard.SuggestFromList)
         assert first._suggestions == ["claude-model-1"]
+        assert first_effort._suggestions == ["claude-effort-1"]
         await pilot.press("escape")
         await _open_memo(pilot)
         second = app.screen.query_one("#launch-model", Input).suggester
+        second_effort = app.screen.query_one("#launch-effort", Input).suggester
         assert isinstance(second, dashboard.SuggestFromList)
+        assert isinstance(second_effort, dashboard.SuggestFromList)
         assert second._suggestions == ["claude-model-2"]
+        assert second_effort._suggestions == ["claude-effort-2"]
 
 
 # 2119: REQ-002.4.1
@@ -1201,7 +1208,7 @@ async def test_early_cycle_discovers_once_and_presents_the_selected_harness_sugg
             assert isinstance(model, dashboard.SuggestFromList)
             assert isinstance(effort, dashboard.SuggestFromList)
             assert model._suggestions == ["target-model-1"]
-            assert effort._suggestions == ["target-effort"]
+            assert effort._suggestions == ["target-effort-1"]
             assert target.model_calls == target.effort_calls == 1
     finally:
         release.set()
