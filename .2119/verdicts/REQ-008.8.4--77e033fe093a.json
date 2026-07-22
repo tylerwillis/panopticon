@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.8.4--77e033fe093a",
+  "requirementId": "REQ-008.8.4",
+  "hash": "77e033fe093a",
+  "verdict": "pass",
+  "summary": "Annotated tests reject omission or weakening of agent agency, explicit re-setting, repetition, and post-automatic-clear timing in the repository glossary.",
+  "timestamp": "2026-07-22T07:07:58.200Z"
+}

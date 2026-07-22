@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.8.3--1362a5ea1116",
+  "requirementId": "REQ-008.8.3",
+  "hash": "1362a5ea1116",
+  "verdict": "pass",
+  "summary": "Annotated tests reject omission or reversal of the glossary statement and pin the unqualified turn-to-user preservation claim in the blocked lifecycle entry.",
+  "timestamp": "2026-07-22T07:07:46.583Z"
+}

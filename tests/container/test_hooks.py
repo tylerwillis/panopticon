@@ -277,6 +277,8 @@ def test_background_task_does_not_suppress_the_askuserquestion_flip(
     assert client.calls == [("t1", "user")]
 
 
+# 2119: REQ-008.4.1
+# 2119: REQ-008.5.1
 def test_user_prompt_submit_unaffected_by_background_tasks(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:

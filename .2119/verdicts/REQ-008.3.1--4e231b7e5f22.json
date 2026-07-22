@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.3.1--4e231b7e5f22",
+  "requirementId": "REQ-008.3.1",
+  "hash": "4e231b7e5f22",
+  "verdict": "pass",
+  "summary": "Blocks, triggers and asserts the automatic clear via set_turn(agent), then re-sets blocked and verifies the requested value on both the returned mutation and a persisted reload; red against the current implementation, so it genuinely fails on violation.",
+  "timestamp": "2026-07-22T06:20:22.860Z"
+}
