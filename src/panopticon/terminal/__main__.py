@@ -196,8 +196,8 @@ def main(
             args.switch_file
         ):  # run under the supervisor: report `t`/`s`/`u` picks via the switch-file
             switch_file = Path(args.switch_file)
-            on_switch = lambda session, host=None: switch_to(  # noqa: E731
-                session, host=host, switch_file=switch_file
+            on_switch = lambda session, host, label: switch_to(  # noqa: E731
+                session, host=host, label=label, switch_file=switch_file
             )
             on_service = make_service_switch(switch_file)
             on_runner = make_runner_switch(switch_file)
