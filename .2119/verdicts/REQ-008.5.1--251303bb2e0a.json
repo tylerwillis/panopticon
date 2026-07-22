@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.5.1--251303bb2e0a",
+  "requirementId": "REQ-008.5.1",
+  "hash": "251303bb2e0a",
+  "verdict": "pass",
+  "summary": "Codex's native UserPromptSubmit wiring targets the agent hook, and a gated write proves the hook cannot exit before that agent-turn write completes.",
+  "timestamp": "2026-07-22T18:01:04.081Z"
+}

@@ -12,6 +12,7 @@ import sys
 import threading
 import time
 import tomllib
+from contextlib import suppress
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
@@ -195,12 +196,13 @@ def test_hook_returns_success_within_bound_against_a_blackholed_service(
             timeout=3.5,
             check=False,
         )
+        elapsed = time.monotonic() - started
     finally:
         release.set()
         listener.close()
         thread.join(timeout=1)
 
-    assert time.monotonic() - started < 3
+    assert elapsed < 3
     assert completed.returncode == 0
     assert completed.stdout == "" and completed.stderr == ""
 
@@ -273,6 +275,7 @@ def test_hook_fails_open_when_a_later_control_plane_request_stalls(
             timeout=3.5,
             check=False,
         )
+        elapsed = time.monotonic() - started
     finally:
         release.set()
         service.shutdown()
@@ -280,7 +283,143 @@ def test_hook_fails_open_when_a_later_control_plane_request_stalls(
         service_thread.join(timeout=1)
 
     assert request_count == successful_requests + 1
-    assert time.monotonic() - started < 3
+    assert elapsed < 3
+    assert completed.returncode == 0
+    assert completed.stdout == expected_stdout and completed.stderr == ""
+
+
+# 2119: REQ-009.1.1
+# 2119: REQ-009.2.1
+def test_hook_whole_callback_deadline_bounds_cumulative_slow_responses() -> None:
+    request_count = 0
+
+    class _SlowResponses(BaseHTTPRequestHandler):
+        def log_message(self, format: str, *args: object) -> None:
+            pass
+
+        def _respond_slowly(self) -> None:
+            nonlocal request_count
+            request_count += 1
+            length = int(self.headers.get("content-length", "0"))
+            if length:
+                self.rfile.read(length)
+            time.sleep(1.1)
+            body = json.dumps(
+                {"briefing": "PHASE BRIEFING"} if self.path.endswith("/briefing") else {}
+            ).encode()
+            self.send_response(200)
+            self.send_header("content-type", "application/json")
+            self.send_header("content-length", str(len(body)))
+            self.end_headers()
+            with suppress(BrokenPipeError):
+                self.wfile.write(body)
+
+        do_GET = _respond_slowly
+        do_PUT = _respond_slowly
+
+    service = ThreadingHTTPServer(("127.0.0.1", 0), _SlowResponses)
+    service_thread = threading.Thread(target=service.serve_forever, daemon=True)
+    service_thread.start()
+    env = {
+        key: value
+        for key, value in os.environ.items()
+        if key.lower() not in {"http_proxy", "https_proxy", "all_proxy"}
+    }
+    env.update(
+        PANOPTICON_SERVICE_URL=f"http://127.0.0.1:{service.server_port}",
+        PANOPTICON_TASK_ID="t1",
+        NO_PROXY="127.0.0.1",
+    )
+
+    started = time.monotonic()
+    try:
+        completed = subprocess.run(
+            [sys.executable, "-m", "panopticon.container.hook", "agent", "prompt"],
+            input="",
+            text=True,
+            capture_output=True,
+            env=env,
+            timeout=3.5,
+            check=False,
+        )
+        elapsed = time.monotonic() - started
+    finally:
+        service.shutdown()
+        service.server_close()
+        service_thread.join(timeout=1)
+
+    assert request_count == 2
+    assert elapsed < 3
+    assert completed.returncode == 0
+    assert completed.stdout == "" and completed.stderr == ""
+
+
+# 2119: REQ-009.2.1
+@pytest.mark.parametrize(
+    ("argv", "malformed_request", "malformed_body", "expected_stdout"),
+    [
+        (["user"], 1, b"not json", ""),
+        (["agent", "prompt"], 3, b"[]", "PHASE BRIEFING\n"),
+    ],
+)
+def test_hook_fails_open_on_malformed_control_plane_responses(
+    argv: list[str], malformed_request: int, malformed_body: bytes, expected_stdout: str
+) -> None:
+    request_count = 0
+
+    class _MalformedResponse(BaseHTTPRequestHandler):
+        def log_message(self, format: str, *args: object) -> None:
+            pass
+
+        def _respond(self) -> None:
+            nonlocal request_count
+            request_count += 1
+            length = int(self.headers.get("content-length", "0"))
+            if length:
+                self.rfile.read(length)
+            if request_count == malformed_request:
+                body = malformed_body
+            elif self.path.endswith("/briefing"):
+                body = b'{"briefing": "PHASE BRIEFING"}'
+            else:
+                body = b"{}"
+            self.send_response(200)
+            self.send_header("content-type", "application/json")
+            self.send_header("content-length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        do_GET = _respond
+        do_PUT = _respond
+
+    service = ThreadingHTTPServer(("127.0.0.1", 0), _MalformedResponse)
+    service_thread = threading.Thread(target=service.serve_forever, daemon=True)
+    service_thread.start()
+    env = {
+        key: value
+        for key, value in os.environ.items()
+        if key.lower() not in {"http_proxy", "https_proxy", "all_proxy"}
+    }
+    env.update(
+        PANOPTICON_SERVICE_URL=f"http://127.0.0.1:{service.server_port}",
+        PANOPTICON_TASK_ID="t1",
+        NO_PROXY="127.0.0.1",
+    )
+    try:
+        completed = subprocess.run(
+            [sys.executable, "-m", "panopticon.container.hook", *argv],
+            input="",
+            text=True,
+            capture_output=True,
+            env=env,
+            check=False,
+        )
+    finally:
+        service.shutdown()
+        service.server_close()
+        service_thread.join(timeout=1)
+
+    assert request_count == malformed_request
     assert completed.returncode == 0
     assert completed.stdout == expected_stdout and completed.stderr == ""
 

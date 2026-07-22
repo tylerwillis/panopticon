@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.3.1--192f90ab8453",
-  "requirementId": "REQ-009.3.1",
-  "hash": "192f90ab8453",
-  "verdict": "pass",
-  "summary": "All ten event mappings are exercised: Claude/Codex share exact rendered callback commands with live-versus-completed Stop boundaries and an executed module PUT path/body, while Pi's bootstrapped, argv-loaded extension is executed against exact PUT URL/body assertions.",
-  "timestamp": "2026-07-22T17:29:28.441Z"
-}
