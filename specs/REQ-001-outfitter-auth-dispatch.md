@@ -21,4 +21,4 @@ profile directory that its Pi-based adapter consumes.
 
 ### REQ-001.4: Profile directory
 
-1. When an Outfitter repository configures `credential_dir`, repository setup MUST leave `<credential_dir>/outfitter/profiles` present as a directory.
+1. When an Outfitter repository configures `credential_dir`, and `<credential_dir>/outfitter/profiles` can be made a directory by creating missing path components without removing or replacing an existing filesystem entry, repository setup MUST successfully ensure that path is a directory, including when it already exists.
