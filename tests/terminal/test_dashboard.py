@@ -1831,7 +1831,7 @@ async def test_memo_harness_selector_cycles_exactly_the_registered_harnesses() -
         assert selector.value == initial
 
 
-# 2119: REQ-001.1.1
+# 2119: REQ-002.1.1
 async def test_memo_accepts_input_while_harness_suggestions_are_discovered(
     monkeypatch: Any,
 ) -> None:
@@ -1855,7 +1855,7 @@ async def test_memo_accepts_input_while_harness_suggestions_are_discovered(
         timer.cancel()
 
 
-# 2119: REQ-001.2.1
+# 2119: REQ-002.2.1
 async def test_memo_discovers_each_harness_suggestions_once_per_open(
     monkeypatch: Any,
 ) -> None:
@@ -1875,7 +1875,7 @@ async def test_memo_discovers_each_harness_suggestions_once_per_open(
         assert all(h.model_calls == h.effort_calls == 1 for h in harnesses.values())
 
 
-# 2119: REQ-001.3.1
+# 2119: REQ-002.3.1
 async def test_memo_suggestion_cache_is_fresh_for_each_open(monkeypatch: Any) -> None:
     claude = _SuggestionHarness("claude")
     monkeypatch.setattr(dashboard, "HARNESSES", {"claude": claude})
@@ -1893,8 +1893,8 @@ async def test_memo_suggestion_cache_is_fresh_for_each_open(monkeypatch: Any) ->
         assert second._suggestions == ["claude-model-2"]
 
 
-# 2119: REQ-001.4.1
-# 2119: REQ-001.8.1
+# 2119: REQ-002.4.1
+# 2119: REQ-002.8.1
 async def test_early_cycle_discovers_once_and_presents_the_selected_harness_suggestions(
     monkeypatch: Any,
 ) -> None:
@@ -1924,7 +1924,7 @@ async def test_early_cycle_discovers_once_and_presents_the_selected_harness_sugg
         timer.cancel()
 
 
-# 2119: REQ-001.5.1
+# 2119: REQ-002.5.1
 async def test_cached_harness_cycles_finish_under_ten_milliseconds(monkeypatch: Any) -> None:
     harnesses = {name: _SuggestionHarness(name, delay=0.02) for name in ("claude", "codex", "pi")}
     monkeypatch.setattr(dashboard, "HARNESSES", harnesses)
@@ -1944,7 +1944,7 @@ async def test_cached_harness_cycles_finish_under_ten_milliseconds(monkeypatch: 
             assert elapsed < 0.01, f"{name} cycle took {elapsed * 1000:.3f}ms"
 
 
-# 2119: REQ-001.6.1
+# 2119: REQ-002.6.1
 async def test_closing_memo_suppresses_an_in_flight_discovery_failure(monkeypatch: Any) -> None:
     release = threading.Event()
     slow = _SuggestionHarness("slow", release=release, fail_models=True)
@@ -1968,7 +1968,7 @@ async def test_closing_memo_suppresses_an_in_flight_discovery_failure(monkeypatc
         assert notices == []
 
 
-# 2119: REQ-001.7.1
+# 2119: REQ-002.7.1
 async def test_in_flight_discovery_does_not_update_widgets_after_memo_closes(
     monkeypatch: Any,
 ) -> None:
