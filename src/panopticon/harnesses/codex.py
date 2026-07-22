@@ -81,6 +81,10 @@ def render_config(service_url: str, overview: str, cwd: Path) -> str:
         "[features]",
         "apps = false",
         "",
+        # Inline rendering keeps conversation output in the enclosing terminal/tmux scrollback.
+        "[tui]",
+        'alternate_screen = "never"',
+        "",
         f"[projects.{_toml_str(str(cwd))}]",
         'trust_level = "trusted"',
     ]

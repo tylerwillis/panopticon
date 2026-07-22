@@ -106,6 +106,12 @@ def test_config_forces_file_backed_credentials() -> None:
     assert cfg["cli_auth_credentials_store"] == "file"
 
 
+# 2119: REQ-001.1
+def test_config_preserves_conversation_output_in_terminal_scrollback() -> None:
+    cfg = tomllib.loads(render_config("http://svc:8000", "", Path("/w")))
+    assert cfg["tui"]["alternate_screen"] == "never"
+
+
 # -- bootstrap: skills + operations + auth ------------------------------------------
 
 

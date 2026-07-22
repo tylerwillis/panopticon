@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.1.1--6a357a07c5b3",
+  "requirementId": "REQ-001.1.1",
+  "hash": "6a357a07c5b3",
+  "verdict": "pass",
+  "summary": "test_config_preserves_conversation_output_in_terminal_scrollback parses the real rendered config as TOML and asserts tui.alternate_screen=='never' (codex's inline mode); omission, other modes, and wrong-table placement all fail; bootstrap provably writes this config to ~/.codex/config.toml",
+  "timestamp": "2026-07-22T04:31:22.043Z"
+}
