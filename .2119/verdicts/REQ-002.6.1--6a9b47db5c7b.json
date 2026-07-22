@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.6.1--6a9b47db5c7b",
+  "requirementId": "REQ-002.6.1",
+  "hash": "6a9b47db5c7b",
+  "verdict": "pass",
+  "summary": "In-flight discovery raises after escape; spied app.notify must stay empty and app.is_running must hold, covering both operator-visible channels (toast and worker-crash)",
+  "timestamp": "2026-07-22T06:34:53.231Z"
+}
