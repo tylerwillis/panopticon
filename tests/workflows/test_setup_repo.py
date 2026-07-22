@@ -20,12 +20,26 @@ WF = SetupRepo()
 # functional tests exercise in a real `sh`, no LLM — the token is a literal fixture, `claude`/`gh`/
 # `script` are never invoked.
 _LIB = (importlib.resources.files("panopticon.workflows") / "setup_repo_lib.sh").read_text()
+_FULL_SCRIPT = WF.shell_script()
+
+
+def _shell_function(name: str) -> str:
+    start = _FULL_SCRIPT.index(f"{name}() {{")
+    end = _FULL_SCRIPT.index("\n}\n", start) + 3
+    return _FULL_SCRIPT[start:end]
+
+
+_SETUP_PI_AUTH = _shell_function("setup_pi_auth")
 
 
 def _sh(body: str) -> str:
     """Run ``body`` after the helpers in a POSIX shell; return its stdout."""
     result = subprocess.run(
-        ["sh", "-c", f"{_LIB}\n{body}"], capture_output=True, text=True, check=True
+        ["sh", "-c", f"{_LIB}\n{body}"],
+        capture_output=True,
+        text=True,
+        check=True,
+        stdin=subprocess.DEVNULL,
     )
     return result.stdout
 
@@ -100,14 +114,95 @@ done
     assert _sh(body).splitlines() == ["claude", "codex", "pi"]
 
 
-def test_harness_auth_dispatch_flags_an_unapproved_harness() -> None:
+def test_harness_auth_dispatch_flags_an_unknown_harness() -> None:
     body = """
 setup_claude_auth() { echo claude; }
 setup_codex_auth() { echo codex; }
 setup_pi_auth() { echo pi; }
-dispatch_harness_auth outfitter || echo unsupported
+dispatch_harness_auth unknown || echo unsupported
 """
     assert _sh(body).splitlines() == ["unsupported"]
+
+
+# 2119: REQ-001.1
+# 2119: REQ-001.3
+# 2119: REQ-001.4
+def test_harness_auth_dispatch_routes_outfitter_through_pi(tmp_path: Path) -> None:
+    new_path = tmp_path / "new.d"
+    existing_root = tmp_path / "existing-root.d"
+    existing_root.mkdir()
+    existing_outfitter = tmp_path / "existing-outfitter.d"
+    (existing_outfitter / "outfitter").mkdir(parents=True)
+
+    for credential_path in (new_path, existing_root, existing_outfitter):
+        body = f"""
+credential_path={shlex.quote(str(credential_path))}
+setup_pi_auth() {{ echo pi-auth-flow; }}
+dispatch_harness_auth outfitter || echo unsupported
+"""
+
+        lines = _sh(body).splitlines()
+        assert len(lines) == 2
+        assert "Outfitter uses Pi credentials" in lines[0]
+        assert lines[1] == "pi-auth-flow"
+        profiles = credential_path / "outfitter" / "profiles"
+        assert profiles.is_dir()
+        assert stat.S_IMODE(profiles.stat().st_mode) == 0o700
+        rerun_lines = _sh(body).splitlines()
+        assert rerun_lines == lines  # an existing profiles directory remains a successful setup
+        assert profiles.is_dir()
+
+    assert stat.S_IMODE(new_path.stat().st_mode) == 0o700
+
+
+# 2119: REQ-001.1
+def test_outfitter_profile_error_does_not_report_supported_harness_as_unsupported(
+    tmp_path: Path,
+) -> None:
+    credential_path = tmp_path / "not-a-directory"
+    credential_path.write_text("")
+    body = f"""
+credential_path={shlex.quote(str(credential_path))}
+setup_pi_auth() {{ echo pi-auth-flow; }}
+dispatch_harness_auth outfitter || echo unsupported
+"""
+
+    lines = _sh(body).splitlines()
+    assert "unsupported" not in lines
+    assert lines[-1] == "pi-auth-flow"
+    assert credential_path.read_text() == ""
+
+
+# 2119: REQ-001.2
+def test_outfitter_uses_real_pi_auth_conditions(tmp_path: Path) -> None:
+    values = " ".join(API_KEY_ENV_VARS)
+    env_key = tmp_path / "env-key"
+    env_key.write_text("ANTHROPIC_API_KEY=secret\n")
+    auth_file = tmp_path / "auth-file"
+    auth_file.mkdir()
+    (auth_file / "auth.json").write_text("{}")
+    no_credentials = tmp_path / "no-credentials"
+    no_credentials.write_text("")
+
+    for env_file, credential_path in (
+        (env_key, ""),
+        (no_credentials, str(auth_file)),
+        (no_credentials, ""),
+    ):
+        common = f"""
+PANOPTICON_PI_API_KEY_ENV_VARS={shlex.quote(values)}
+PANOPTICON_ENV_FILE={shlex.quote(str(env_file))}
+credential_path={shlex.quote(credential_path)}
+{_SETUP_PI_AUTH}
+add_summary() {{ :; }}
+read_secret() {{ printf provider-key; }}
+store_token() {{ echo stored:$1; }}
+"""
+        pi_lines = _sh(f"{common}\nsetup_pi_auth").splitlines()
+        outfitter_lines = _sh(f"{common}\ndispatch_harness_auth outfitter").splitlines()
+
+        assert "Outfitter uses Pi credentials" in outfitter_lines[0]
+        assert outfitter_lines[1:] == pi_lines
 
 
 def test_codex_repo_auth_check_accepts_env_file_or_credential_dir(tmp_path: Path) -> None:
