@@ -608,6 +608,7 @@ class TaskService:
         await wf.on_transition(
             task, from_state=from_state, to_state=task.state, artifacts=self._artifacts
         )
+        task.blocked = False
         await self._save_task(task)
         if to_state == Dropped.label:
             await self._cascade_drop_governed(task.id, trigger=trigger, note=note)
@@ -681,11 +682,13 @@ class TaskService:
     async def set_turn(self, task_id: str, turn: Actor) -> Task:
         """Flip who holds the turn within a state (the in-container hooks' callback).
 
-        This is the agnostic agent↔user ball tracking (ADR 0004). It leaves ``blocked``
-        untouched, so a deliberate block survives turn flips.
+        This is the agnostic agent↔user ball tracking (ADR 0004). A turn-to-agent write means the
+        user addressed the task, so it also clears ``blocked``; a turn-to-user write preserves it.
         """
         task = await self.get_task(task_id)
         task.turn = turn
+        if turn is Actor.AGENT:
+            task.blocked = False
         await self._save_task(task)
         return task
 
