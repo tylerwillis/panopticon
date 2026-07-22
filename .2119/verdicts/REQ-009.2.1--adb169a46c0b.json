@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.1--adb169a46c0b",
+  "requirementId": "REQ-009.2.1",
+  "hash": "adb169a46c0b",
+  "verdict": "pass",
+  "summary": "Pilot-driven focus-chain test asserts memo->harness->model->effort by widget identity after each Tab; any reorder or skipped control fails",
+  "timestamp": "2026-07-22T17:06:52.867Z"
+}

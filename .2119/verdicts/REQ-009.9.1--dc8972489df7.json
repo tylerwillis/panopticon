@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.9.1--dc8972489df7",
+  "requirementId": "REQ-009.9.1",
+  "hash": "dc8972489df7",
+  "verdict": "pass",
+  "summary": "Asserts #memo-box width == 64 exactly both with launch controls shown and again with a candidate list open — any widening/narrowing fails",
+  "timestamp": "2026-07-22T15:42:51.000Z"
+}

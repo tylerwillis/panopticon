@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.20.1--5b858833ee68",
+  "requirementId": "REQ-009.20.1",
+  "hash": "5b858833ee68",
+  "verdict": "pass",
+  "summary": "option_count==0 rejects fallback-to-all and region.width>0 rejects hiding (display:none zeroes the region), for both model and effort lists",
+  "timestamp": "2026-07-22T17:05:09.376Z"
+}

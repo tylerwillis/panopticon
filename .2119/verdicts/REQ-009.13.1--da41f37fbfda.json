@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.13.1--da41f37fbfda",
+  "requirementId": "REQ-009.13.1",
+  "hash": "da41f37fbfda",
+  "verdict": "pass",
+  "summary": "Enter after typing must yield create_task(memo='fix', initial_prompt='fix'); creating without delivery or not creating fails the recorded tuple",
+  "timestamp": "2026-07-22T17:06:54.093Z"
+}

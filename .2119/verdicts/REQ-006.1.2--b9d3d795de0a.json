@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.1.2--b9d3d795de0a",
+  "requirementId": "REQ-006.1.2",
+  "hash": "b9d3d795de0a",
+  "verdict": "pass",
+  "summary": "test_help_screen_documents_bulk_respawn_binding opens the real HelpScreen and asserts the Ctrl+R row reads exactly 'Respawn all down tasks', sourced from the same HOTKEYS table that binds ctrl+r; rejects a dropped, mislabeled, or single-task-worded entry.",
+  "timestamp": "2026-07-22T17:07:50.021Z"
+}

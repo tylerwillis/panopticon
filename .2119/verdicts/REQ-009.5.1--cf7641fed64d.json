@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.5.1--cf7641fed64d",
+  "requirementId": "REQ-009.5.1",
+  "hash": "cf7641fed64d",
+  "verdict": "pass",
+  "summary": "custom/model and maximum are absent from claude's suggestions (empty effort vocab) and the create call must carry custom/model:maximum; rejecting or blocking free text fails",
+  "timestamp": "2026-07-22T17:05:08.511Z"
+}

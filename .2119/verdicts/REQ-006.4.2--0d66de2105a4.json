@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.2--0d66de2105a4",
+  "requirementId": "REQ-006.4.2",
+  "hash": "0d66de2105a4",
+  "verdict": "pass",
+  "summary": "Ordering test seeds the fake client in reverse of display order and asserts check/release events follow the displayed (sorted) order, with a lock-guarded counter plus injected sleep proving max_active_releases==1 (strictly sequential).",
+  "timestamp": "2026-07-22T17:07:52.016Z"
+}

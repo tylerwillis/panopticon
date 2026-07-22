@@ -1033,7 +1033,20 @@ async def test_typing_filters_the_visible_model_and_effort_candidates(
 
 # 2119: REQ-009.4.1
 # 2119: REQ-009.10.1
-async def test_arrow_then_enter_selects_a_filtered_candidate_without_submitting() -> None:
+@pytest.mark.parametrize(
+    ("tabs", "typed", "input_id", "options_id", "expected"),
+    [
+        (2, "a", "#launch-model", "#launch-model-options", "luna"),
+        (3, "h", "#launch-effort", "#launch-effort-options", "xhigh"),
+    ],
+)
+async def test_arrow_then_enter_selects_a_filtered_candidate_without_submitting(
+    tabs: int,
+    typed: str,
+    input_id: str,
+    options_id: str,
+    expected: str,
+) -> None:
     fake = _FakeClient(
         [],
         repos=[
@@ -1050,11 +1063,11 @@ async def test_arrow_then_enter_selects_a_filtered_candidate_without_submitting(
     app = Dashboard(fake)  # type: ignore[arg-type]
     async with app.run_test() as pilot:
         await pilot.pause()
-        await pilot.press("n", "enter", "enter", "tab", "tab")
-        await pilot.press("a")
+        await pilot.press("n", "enter", "enter", *("tab" for _ in range(tabs)))
+        await pilot.press(typed)
         await pilot.pause()
 
-        candidates = app.screen.query_one("#launch-model-options", OptionList)
+        candidates = app.screen.query_one(options_id, OptionList)
         assert len(_option_prompts(candidates)) == 2
         candidates.highlighted = None
         await pilot.press("down")
@@ -1063,10 +1076,12 @@ async def test_arrow_then_enter_selects_a_filtered_candidate_without_submitting(
         assert candidates.highlighted == 1
         await pilot.press("up")
         assert candidates.highlighted == 0
+        await pilot.press("down")
+        assert candidates.highlighted == 1
         await pilot.press("enter")
         await pilot.pause()
         assert isinstance(app.screen, dashboard.MemoScreen)
-        assert app.screen.query_one("#launch-model", Input).value == "terra"
+        assert app.screen.query_one(input_id, Input).value == expected
         assert fake.created == []
 
 

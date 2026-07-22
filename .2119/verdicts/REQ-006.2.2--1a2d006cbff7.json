@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.2.2--1a2d006cbff7",
+  "requirementId": "REQ-006.2.2",
+  "hash": "1a2d006cbff7",
+  "verdict": "pass",
+  "summary": "End-to-end render against 6 down tasks covers all conjuncts: 8-char id truncation, slug vs em-dash when unset, memo omitted when None, whitespace normalization before truncation, and the exact 60-char (no ellipsis) vs 61-char (ellipsis) boundary.",
+  "timestamp": "2026-07-22T17:07:50.847Z"
+}

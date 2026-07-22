@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.2.1--85047fecac14",
+  "requirementId": "REQ-001.2.1",
+  "hash": "85047fecac14",
+  "verdict": "pass",
+  "summary": "Both yes/no buttons queried with label/display/enabled asserts, and sibling tests click each proving divergent functional behavior; missing or disabled choice fails.",
+  "timestamp": "2026-07-22T15:42:35.566Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.14.1--3848c90f774d",
+  "requirementId": "REQ-009.14.1",
+  "hash": "3848c90f774d",
+  "verdict": "pass",
+  "summary": "Ctrl+S must yield create_task(memo='fix', initial_prompt=None) — the exact negative-space counterpart of the Enter-submit test",
+  "timestamp": "2026-07-22T17:06:54.484Z"
+}

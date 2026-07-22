@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-007.2.1--b0feab69680e",
-  "requirementId": "REQ-007.2.1",
-  "hash": "b0feab69680e",
-  "verdict": "pass",
-  "summary": "UI test opens the real details pane and verifies the exact hint as a newline-delimited trailing line whose full span is dim.",
-  "timestamp": "2026-07-22T07:02:48.385Z"
-}
