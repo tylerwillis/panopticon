@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.17.1--42c2a90339a8",
+  "requirementId": "REQ-002.17.1",
+  "hash": "42c2a90339a8",
+  "verdict": "pass",
+  "summary": "Skill-content requirement: test asserts the full directive sentence (get_task on own review task id, read governor_task_id) in the rendered instructions; removing the direction fails it, and text is the observable surface under the no-LLM test policy",
+  "timestamp": "2026-07-22T06:08:38.351Z"
+}

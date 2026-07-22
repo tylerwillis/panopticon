@@ -92,7 +92,7 @@ def build_mcp_server(service: TaskService, *, name: str = "panopticon") -> FastM
     async def set_turn(task_id: str, turn: str) -> dict[str, Any]:
         return _task(await service.set_turn(task_id, Actor(turn)))
 
-    @mcp.tool(description="Set or clear the deliberate 'blocked' marker (survives turn flips).")
+    @mcp.tool(description="Set or clear the deliberate 'blocked' marker explicitly.")
     async def set_blocked(task_id: str, blocked: bool) -> dict[str, Any]:
         return _task(await service.set_blocked(task_id, blocked))
 

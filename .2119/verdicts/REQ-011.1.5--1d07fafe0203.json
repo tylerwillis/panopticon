@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-011.1.5--1d07fafe0203",
+  "requirementId": "REQ-011.1.5",
+  "hash": "1d07fafe0203",
+  "verdict": "pass",
+  "summary": "Parametrized over all seven phases against real compose_container_status with independently hard-coded expected strings; defaults satisfy every conjunct (claimed, non-terminal, unregistered, runner live).",
+  "timestamp": "2026-07-22T17:11:11.610Z"
+}

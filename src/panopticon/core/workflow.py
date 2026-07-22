@@ -103,6 +103,11 @@ class Workflow(ABC):
     #: checks that the harness exists. Built-ins deliberately leave the pair unset.
     default_harness: ClassVar[str | None] = None
     default_model: ClassVar[str | None] = None
+    #: Optional tuned launch pair for a governed review task (ADR 0014). Like the default launch
+    #: pair, workflows declare both values or neither and registration validates the harness.
+    #: Selection and author/reviewer inequality are task-service concerns layered on later.
+    review_harness: ClassVar[str | None] = None
+    review_model: ClassVar[str | None] = None
     #: How this workflow's tasks are executed by the session service. ``"docker"`` (default)
     #: spawns the base → workflow → repo container image and runs the in-container agent (the
     #: determinism invariant — LLM calls happen there). ``"shell"`` runs :meth:`shell_script`
@@ -124,7 +129,7 @@ class Workflow(ABC):
     # -- build / validate (the resolution pass; answers "why not a free function?") -----
 
     def validate_registration(self, harnesses: Collection[str]) -> None:
-        """Validate the graph and optional harness-scoped launch pair for registration."""
+        """Validate the graph and optional harness-scoped launch pairs for registration."""
         _ = self._graph
         if (self.default_harness is None) != (self.default_model is None):
             raise InvalidWorkflow(
@@ -134,6 +139,12 @@ class Workflow(ABC):
             raise InvalidWorkflow(
                 f"{self.name!r}: unknown default_harness {self.default_harness!r}"
             )
+        if (self.review_harness is None) != (self.review_model is None):
+            raise InvalidWorkflow(
+                f"{self.name!r}: review_harness and review_model must be declared together"
+            )
+        if self.review_harness is not None and self.review_harness not in harnesses:
+            raise InvalidWorkflow(f"{self.name!r}: unknown review_harness {self.review_harness!r}")
 
     @cached_property
     def _graph(self) -> _Graph:
@@ -218,6 +229,11 @@ class Workflow(ABC):
                 raise InvalidWorkflow(
                     f"{self.name!r}: operation {name!r} on {cls.label!r} targets {dest!r}, "
                     "which is not one of its transitions"
+                )
+            if name == "drop" and dest != Dropped.label:
+                raise InvalidWorkflow(
+                    f"{self.name!r}: operation 'drop' on {cls.label!r} must target "
+                    f"{Dropped.label!r}"
                 )
             ops[name] = dest
         if "advance" not in ops:

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.1--204f28ba410e",
+  "requirementId": "REQ-009.2.1",
+  "hash": "204f28ba410e",
+  "verdict": "pass",
+  "summary": "Strict dict equality pins drop->DROPPED on linear, zero-edge, and branching non-terminal states, and a drop declared to target Complete is rejected with InvalidWorkflow (the retargeting counterexample).",
+  "timestamp": "2026-07-22T17:11:04.225Z"
+}

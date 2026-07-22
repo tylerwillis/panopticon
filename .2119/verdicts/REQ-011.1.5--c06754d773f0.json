@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-011.1.5--c06754d773f0",
+  "requirementId": "REQ-011.1.5",
+  "hash": "c06754d773f0",
+  "verdict": "pass",
+  "summary": "compose_container_status tested directly (pure function, no mocks) across all 7 LifecyclePhase values; sibling tests (011.1.1-011.1.4, 011.1.6) confirm the phase-shows-through result is correctly overridden when terminal, unclaimed, registered, runner-dead, or phase-absent — genuine coverage of every precedence conjunct.",
+  "timestamp": "2026-07-22T17:08:06.845Z"
+}

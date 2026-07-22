@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.2.3--3c637be0a172",
-  "requirementId": "REQ-001.2.3",
-  "hash": "3c637be0a172",
-  "verdict": "pass",
-  "summary": "Both forbidden branches constructed (zero-edge OnlyDrop, two-edge Branching); exact equality to {drop:DROPPED} proves no advance is derived in either",
-  "timestamp": "2026-07-21T23:53:52.240Z"
-}

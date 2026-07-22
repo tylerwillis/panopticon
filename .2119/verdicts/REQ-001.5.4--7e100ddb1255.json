@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.5.4--7e100ddb1255",
-  "requirementId": "REQ-001.5.4",
-  "hash": "7e100ddb1255",
-  "verdict": "pass",
-  "summary": "test_service.py:665-670 creates a github-peer-reviewed task (PLANNING seeds PLAN_WRITTEN/TOKEN_ESTIMATED as PENDING via start_task) then set_state to MERGING succeeds and is recorded with trigger=set-state, genuinely proving force_transition bypasses the unresolved-responsibility gate (apply_transition would reject it).",
-  "timestamp": "2026-07-21T23:53:03.558Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.3.3--f1deef180585",
+  "requirementId": "REQ-012.3.3",
+  "hash": "f1deef180585",
+  "verdict": "pass",
+  "summary": "Real REST-level test creates a task with explicit harness differing from the workflow pair and asserts starting_model is None; sibling tests prove the pair otherwise applies (012.2.1) and the equal-harness case retains the model (012.3.4), so retaining the losing model would fail it.",
+  "timestamp": "2026-07-22T17:08:10.560Z"
+}

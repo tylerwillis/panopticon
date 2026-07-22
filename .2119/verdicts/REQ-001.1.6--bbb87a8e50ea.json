@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.1.6--bbb87a8e50ea",
-  "requirementId": "REQ-001.1.6",
-  "hash": "bbb87a8e50ea",
-  "verdict": "pass",
-  "summary": "Two distinct state classes both labeled 'X' assert InvalidWorkflow — direct rejection of the duplicate-label counterexample",
-  "timestamp": "2026-07-21T23:53:43.041Z"
-}

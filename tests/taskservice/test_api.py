@@ -314,19 +314,19 @@ def test_repo_default_model_is_opaque_and_patchable(client: TestClient) -> None:
     assert resp.status_code == 200, resp.text
     assert resp.json()["default_model"] == value
     assert client.get("/repos/r1").json()["default_model"] == value
-    # 2119: REQ-004.4.1
+    # 2119: REQ-012.4.1
     task = client.post("/tasks", json={"repo_id": "r1", "workflow": "spike"}).json()
     assert task["starting_model"] == value
 
 
-# 2119: REQ-004.2.4
+# 2119: REQ-012.2.4
 def test_app_default_harness_is_materialized_on_the_task(client: TestClient) -> None:
     task_id = _new_task(client)
     task = client.get(f"/tasks/{task_id}").json()
     assert (task["harness"], task["starting_model"]) == ("claude", None)
 
 
-# 2119: REQ-004.4.3
+# 2119: REQ-012.4.3
 def test_materialized_app_default_survives_later_default_changes(
     client: TestClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -339,7 +339,7 @@ def test_materialized_app_default_survives_later_default_changes(
     assert harness_registry.get_harness(task["harness"]).name == "claude"
 
 
-# 2119: REQ-004.5.1
+# 2119: REQ-012.5.1
 def test_repo_model_requires_an_explicit_repo_harness(client: TestClient) -> None:
     create = client.post(
         "/repos",
@@ -361,7 +361,7 @@ def test_repo_model_requires_an_explicit_repo_harness(client: TestClient) -> Non
     assert clear_harness.status_code == 400, clear_harness.text
 
 
-# 2119: REQ-004.3.1
+# 2119: REQ-012.3.1
 def test_explicit_task_harness_beats_app_defaults(client: TestClient) -> None:
     resp = client.post("/tasks", json={"repo_id": "r1", "workflow": "spike", "harness": "codex"})
     assert (resp.json()["harness"], resp.json()["starting_model"]) == ("codex", None)
@@ -381,7 +381,7 @@ def test_explicit_task_harness_beats_app_defaults(client: TestClient) -> None:
     assert against_non_null_default.json()["harness"] == "codex"
 
 
-# 2119: REQ-004.2.2
+# 2119: REQ-012.2.2
 def test_repo_launch_pair_beats_app_defaults(client: TestClient) -> None:
     client.post(
         "/repos",
@@ -400,7 +400,7 @@ def test_repo_launch_pair_beats_app_defaults(client: TestClient) -> None:
     )
 
 
-# 2119: REQ-004.2.1
+# 2119: REQ-012.2.1
 def test_workflow_launch_pair_beats_repo_pair(tmp_path: Path) -> None:
     service = TaskService(
         SqlAlchemyStore(), {"tuned": _TunedWorkflow()}, FilesystemArtifactStore(tmp_path)
@@ -422,7 +422,7 @@ def test_workflow_launch_pair_beats_repo_pair(tmp_path: Path) -> None:
     assert (task["harness"], task["starting_model"]) == ("codex", "gpt-5.6-sol:high")
 
 
-# 2119: REQ-004.3.3
+# 2119: REQ-012.3.3
 def test_explicit_task_harness_drops_losing_pair_model(tmp_path: Path) -> None:
     service = TaskService(
         SqlAlchemyStore(), {"tuned": _TunedWorkflow()}, FilesystemArtifactStore(tmp_path)
@@ -436,7 +436,7 @@ def test_explicit_task_harness_drops_losing_pair_model(tmp_path: Path) -> None:
     assert (task["harness"], task["starting_model"]) == ("claude", None)
 
 
-# 2119: REQ-004.3.2
+# 2119: REQ-012.3.2
 def test_explicit_task_model_keeps_winning_pair_harness(tmp_path: Path) -> None:
     service = TaskService(
         SqlAlchemyStore(), {"tuned": _TunedWorkflow()}, FilesystemArtifactStore(tmp_path)
@@ -450,7 +450,7 @@ def test_explicit_task_model_keeps_winning_pair_harness(tmp_path: Path) -> None:
     assert (task["harness"], task["starting_model"]) == ("codex", "custom")
 
 
-# 2119: REQ-004.3.4
+# 2119: REQ-012.3.4
 def test_explicit_same_harness_keeps_winning_pair_model(tmp_path: Path) -> None:
     service = TaskService(
         SqlAlchemyStore(), {"tuned": _TunedWorkflow()}, FilesystemArtifactStore(tmp_path)
@@ -464,7 +464,7 @@ def test_explicit_same_harness_keeps_winning_pair_model(tmp_path: Path) -> None:
     assert (task["harness"], task["starting_model"]) == ("codex", "gpt-5.6-sol:high")
 
 
-# 2119: REQ-004.4.2
+# 2119: REQ-012.4.2
 def test_created_tasks_keep_launch_values_after_defaults_change(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.3.4--7aac0671a78d",
-  "requirementId": "REQ-001.3.4",
-  "hash": "7aac0671a78d",
-  "verdict": "pass",
-  "summary": "test_start_task_sets_initial_state_turn_and_history calls the real WF.start_task and asserts task.turn is Actor.USER immediately after creation, catching any regression in start_task's turn derivation, though it only exercises the default InitialState.turn_on_enter=USER case, not an initial state that overrides turn_on_enter to AGENT.",
-  "timestamp": "2026-07-21T23:54:39.652Z"
-}

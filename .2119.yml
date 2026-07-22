@@ -9,7 +9,7 @@
 #   - "**/*.test.*"
 # prefix: "REQ"
 # enforce: ["MUST", "MUST NOT", "SHALL", "SHALL NOT", "REQUIRED"]
-# reviews: true
+reviews: true
 #
 # Recommended reviewer model(s) for test-quality judgment reviews. Advisory,
 # platform-specific strings your agent resolves; a list means every model

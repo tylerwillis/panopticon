@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.1.3--ce2ad20c6314",
-  "requirementId": "REQ-001.1.3",
-  "hash": "ce2ad20c6314",
-  "verdict": "pass",
-  "summary": "Working declares transitions=(Complete,) as a class ref; transitions('WORKING')=={'COMPLETE','DROPPED'} fails unless class refs genuinely resolve",
-  "timestamp": "2026-07-21T23:53:41.534Z"
-}

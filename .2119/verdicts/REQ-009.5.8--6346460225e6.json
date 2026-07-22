@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.5.8--6346460225e6",
+  "requirementId": "REQ-009.5.8",
+  "hash": "6346460225e6",
+  "verdict": "pass",
+  "summary": "test_force_transition_seeds_destination_responsibilities resolves WORKING's responsibilities to MET, force-moves away and back, and asserts the re-entered history entry resets both keys to PENDING using real Workflow/Task/HistoryEntry code (no mocks) — fails if seeding is skipped or stale/resolved responsibilities carry over.",
+  "timestamp": "2026-07-22T17:08:00.363Z"
+}

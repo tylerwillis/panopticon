@@ -45,7 +45,7 @@ are **computed** from the others and are marked as such.
 |---|---|
 | `state` | The current state label (e.g. `PLANNING`, `ITERATING`). Comes from the workflow. |
 | `turn` | Who holds the ball right now — `user` or `agent`. Flips back and forth *within* a state. |
-| `blocked` | A deliberate "waiting on something" marker the agent sets. **Orthogonal to `turn`** — it survives turn flips and is cleared only explicitly. |
+| `blocked` | A deliberate "waiting on something" marker the agent sets. A turn-to-agent write clears it. Every state change clears the old state's marker before lifecycle effects, which may raise a fresh block for the new state. A turn-to-user write preserves it, and the agent may set it again if still stuck. |
 | `history` | Append-only log of every state entry, each carrying the responsibilities promised on entering that state and how they were resolved. |
 | `outstanding_responsibilities` | *(computed)* The promises on the current state still unresolved. Empty means the task may advance. |
 

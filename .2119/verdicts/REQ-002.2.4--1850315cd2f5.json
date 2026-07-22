@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.2.4--1850315cd2f5",
-  "requirementId": "REQ-002.2.4",
-  "hash": "1850315cd2f5",
-  "verdict": "pass",
-  "summary": "Real hook.main path with only the REST client faked; {} and [] both pinned to the flip-to-user outcome, and the nearest violators (null/non-list field, live entry) are pinned to the opposite outcome by sibling tests.",
-  "timestamp": "2026-07-22T05:15:57.318Z"
-}

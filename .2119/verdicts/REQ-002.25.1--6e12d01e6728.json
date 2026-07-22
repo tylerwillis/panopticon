@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.25.1--6e12d01e6728",
+  "requirementId": "REQ-002.25.1",
+  "hash": "6e12d01e6728",
+  "verdict": "pass",
+  "summary": "Test asserts both '## Must fix' and '## Suggestions' headings plus the 'concrete and actionable' directive inside the Findings verdict section; removing either heading from the findings template fails it.",
+  "timestamp": "2026-07-22T06:07:45.480Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.1.2--b816f657b5ec",
-  "requirementId": "REQ-001.1.2",
-  "hash": "b816f657b5ec",
-  "verdict": "pass",
-  "summary": "Task driven into DROPPED, then a departure attempt asserts IllegalTransition — real behavioral rejection of leaving a terminal state (both terminals share the TerminalState path)",
-  "timestamp": "2026-07-21T23:53:34.133Z"
-}

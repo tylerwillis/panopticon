@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.4--2da775a41dcf",
+  "requirementId": "REQ-006.4.4",
+  "hash": "2da775a41dcf",
+  "verdict": "pass",
+  "summary": "Listed tasks changed to every non-down status before confirmation are re-fetched and excluded from the release log, while a still-down peer is released.",
+  "timestamp": "2026-07-22T06:52:32.320Z"
+}

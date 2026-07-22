@@ -162,8 +162,9 @@ responsibility — `review-addressed` — that the *authoring* agent resolves:
 - On entering `REVIEW`, the authoring workflow's `on_transition` lifecycle hook (deterministic,
   control-plane, no LLM — it only writes DB rows / creates a task) MUST create the governed
   review task (§1) with the validated reviewer pair (§2), and SHOULD set the authoring task
-  `blocked` (the "waiting" marker, orthogonal to the turn) so the dashboard shows it awaiting
-  review.
+  `blocked` after the transition's automatic stale-block clear so the dashboard shows a fresh
+  waiting marker for review. A later turn-to-agent write clears that marker presumptively; an
+  agent still waiting on the reviewer sets it again explicitly.
 - When the review task completes: if it approved (no `review.md`), the authoring agent resolves
   `review-addressed` = `MET` and `advance`s (`REVIEW → MERGING`). If it left findings, the
   authoring agent implements the `Must fix` items — a **free move back to `ITERATING`**
@@ -179,8 +180,9 @@ re-reviewed by a new review task on the other side. This is the invariant that m
 reviewer's own fixes non-authoritative until the other model clears them.
 
 Turn and claims need no change: the review task is independently claimed and spawned by a runner,
-holds its own turn, and heartbeats its own liveness. The authoring task simply sits `blocked`
-until its next `REVIEW` re-entry or free move.
+holds its own turn, and heartbeats its own liveness. The authoring task can explicitly remain
+`blocked` while it waits; a user-to-agent turn handoff or its next state change clears that marker
+automatically.
 
 ### 4. Failure modes resolve to free moves and the human — never a wedged task
 

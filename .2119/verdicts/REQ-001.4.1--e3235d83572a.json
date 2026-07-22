@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.4.1--e3235d83572a",
-  "requirementId": "REQ-001.4.1",
-  "hash": "e3235d83572a",
-  "verdict": "pass",
-  "summary": "test_entering_gated_state_seeds_pending_promises exercises real apply_transition, asserting both declared responsibilities (tests-pass, pr-opened) are seeded PENDING with correct descriptions on the WORKING history entry; freshness-on-re-entry isn't exercised by this specific test (GatedWorkflow has no cycle back to WORKING via normal transitions) but is proven by the sibling REQ-001.5.8 test using the same shared _promised() seeding code, and _promised() always builds a new list from class-level declarations rather than copying a prior entry.",
-  "timestamp": "2026-07-21T23:54:05.609Z"
-}

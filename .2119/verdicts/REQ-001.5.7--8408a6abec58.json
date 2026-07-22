@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.5.7--8408a6abec58",
-  "requirementId": "REQ-001.5.7",
-  "hash": "8408a6abec58",
-  "verdict": "pass",
-  "summary": "Asserts history grows 2->3 with prior entries intact and last entry (from,to)==(WORKING,PLAN) after a force move — non-append, overwrite, and wrong-endpoint impls all fail",
-  "timestamp": "2026-07-21T23:58:58.560Z"
-}

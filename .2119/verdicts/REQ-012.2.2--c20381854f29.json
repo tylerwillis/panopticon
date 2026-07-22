@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.2.2--c20381854f29",
+  "requirementId": "REQ-012.2.2",
+  "hash": "c20381854f29",
+  "verdict": "pass",
+  "summary": "Full-stack TestClient test creates repo (codex/gpt-5.6-sol:medium) distinct from app default (claude/None), posts a task with no override under pair-less spike, and asserts both halves of the tuple - app-default fallback or partial model drop would fail it",
+  "timestamp": "2026-07-22T17:08:08.884Z"
+}

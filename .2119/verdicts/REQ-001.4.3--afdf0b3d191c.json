@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.4.3--afdf0b3d191c",
-  "requirementId": "REQ-001.4.3",
-  "hash": "afdf0b3d191c",
-  "verdict": "pass",
-  "summary": "test_failed_requires_comment (parametrized None/''/'   ') and test_outstanding_responsibilities_tracks_progress/test_resolve_responsibility_fulfils_in_place jointly cover all three non-blank violations, the FAILED-with-comment success path, and the MET-without-comment scope boundary, against the real resolve_responsibility guard.",
-  "timestamp": "2026-07-21T23:53:27.321Z"
-}

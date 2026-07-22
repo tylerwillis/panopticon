@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.9.1--848e33381773",
+  "requirementId": "REQ-002.9.1",
+  "hash": "848e33381773",
+  "verdict": "pass",
+  "summary": "test_workflow_review_pair_is_optional_by_default pins both attributes on the Workflow class (AttributeError if either were removed) and their None defaults (fails if either defaulted set); sibling pair tests prove the declarations are real and consumable.",
+  "timestamp": "2026-07-22T15:42:40.062Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-011.2.1--e7ecd058a700",
+  "requirementId": "REQ-011.2.1",
+  "hash": "e7ecd058a700",
+  "verdict": "pass",
+  "summary": "ContainerStatus(phase.value) raises ValueError for any phase without a matching status, so the loop genuinely fails on a missing mapping; the seven names are pinned by the sibling REQ-011.1.5 parametrize referencing each member.",
+  "timestamp": "2026-07-22T17:11:15.140Z"
+}

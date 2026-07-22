@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.2.4--6c3508e73090",
+  "requirementId": "REQ-012.2.4",
+  "hash": "6c3508e73090",
+  "verdict": "pass",
+  "summary": "Real-store REST test with no task/workflow/repo harness selection re-reads the task and asserts the concrete 'claude' default is persisted; a null sentinel or rerouted harness would fail.",
+  "timestamp": "2026-07-22T17:08:09.291Z"
+}

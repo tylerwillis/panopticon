@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.2.1--4a111fe3b2ca",
-  "requirementId": "REQ-001.2.1",
-  "hash": "4a111fe3b2ca",
-  "verdict": "pass",
-  "summary": "Exact-dict equality pins drop:DROPPED (missing or mistargeted drop fails); sibling assertions show drop present even for a zero-transition state",
-  "timestamp": "2026-07-21T23:53:51.274Z"
-}

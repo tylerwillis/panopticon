@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.5--76acbe2b7dd6",
+  "requirementId": "REQ-009.2.5",
+  "hash": "76acbe2b7dd6",
+  "verdict": "pass",
+  "summary": "Real workflow operations query on terminal COMPLETE asserted exactly empty; rejects implicit drop or derived advance leaking onto terminals; no mocks.",
+  "timestamp": "2026-07-22T17:07:56.620Z"
+}

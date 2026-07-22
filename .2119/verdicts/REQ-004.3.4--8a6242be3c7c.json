@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-004.3.4--8a6242be3c7c",
-  "requirementId": "REQ-004.3.4",
-  "hash": "8a6242be3c7c",
-  "verdict": "pass",
-  "summary": "Explicit harness=codex equal to the tuned pair's harness asserts the pair's model 'gpt-5.6-sol:high' is retained, so a discard-on-any-explicit-harness implementation surfaces None and fails; the differs-side is REQ-004.3.3.",
-  "timestamp": "2026-07-22T05:13:56.069Z"
-}

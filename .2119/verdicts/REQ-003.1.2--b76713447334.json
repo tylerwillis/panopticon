@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-003.1.2--b76713447334",
-  "requirementId": "REQ-003.1.2",
-  "hash": "b76713447334",
-  "verdict": "pass",
-  "summary": "Exhaustive product over registered x runner_live x (None + every phase) with claimed=False, all asserted 'queued' — any input leaking past the unclaimed check is directly rejected",
-  "timestamp": "2026-07-21T23:54:56.060Z"
-}

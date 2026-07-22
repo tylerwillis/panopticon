@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.2.4--f7970c13b65f",
-  "requirementId": "REQ-001.2.4",
-  "hash": "f7970c13b65f",
-  "verdict": "pass",
-  "summary": "Declared op jump->'A' targets an existing state that is not a direct transition — the nearest almost-conforming violation — and InvalidWorkflow is asserted",
-  "timestamp": "2026-07-21T23:53:52.738Z"
-}

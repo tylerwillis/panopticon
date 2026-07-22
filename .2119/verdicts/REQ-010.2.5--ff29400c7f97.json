@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.2.5--ff29400c7f97",
+  "requirementId": "REQ-010.2.5",
+  "hash": "ff29400c7f97",
+  "verdict": "pass",
+  "summary": "test_non_list_background_collection_is_treated_as_live drives the real hook.main/_has_live_background_task path across all non-list JSON boundary types (string, null, false, 0, {}), asserting set_turn is never called — a genuine, non-tautological check of the not-a-list conjunct.",
+  "timestamp": "2026-07-22T17:08:03.206Z"
+}

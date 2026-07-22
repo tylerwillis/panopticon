@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.3.1--0e7fe36702d5",
-  "requirementId": "REQ-001.3.1",
-  "hash": "0e7fe36702d5",
-  "verdict": "pass",
-  "summary": "NonFirstInitial workflow proves the configured initial wins over declaration order: a first-declared-state impl would yield FIRST, failing the CONFIGURED assertion; real objects, no mocks",
-  "timestamp": "2026-07-21T23:58:58.110Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.4.5--85dfa370b736",
+  "requirementId": "REQ-009.4.5",
+  "hash": "85dfa370b736",
+  "verdict": "pass",
+  "summary": "Real (unmocked) drop from WORKING with both responsibilities PENDING succeeds via the gated apply_transition channel; sibling test proves the same fixture raises ResponsibilitiesNotMet for a non-DROPPED target, so a gated drop would fail this test.",
+  "timestamp": "2026-07-22T17:07:59.148Z"
+}

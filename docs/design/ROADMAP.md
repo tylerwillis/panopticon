@@ -142,8 +142,8 @@ skills** layered on the core operations — for the parity workflow, the forge b
 PR creation, `babysit-ci` (watch/diagnose/fix loop, retry/budget), `babysit-merge`
 (merge-queue shepherding), and ADOPT-style checkout. Skills are exposed only by workflows that
 define them (a forge-less workflow gets none). Plus the **claude-specific hooks** that wire the
-contracts defined in Slice 4: the turn-flip hooks (stop → `turn=user`, user-prompt →
-`turn=agent`, with `:blocked:` preserved) and the prefill prompt.
+contracts defined in Slice 4: the turn-flip hooks (stop → `turn=user`, preserving `:blocked:`;
+user-prompt → `turn=agent`, clearing `:blocked:`) and the prefill prompt.
 
 **Acceptance:** a parity task is driven end-to-end by a real `claude` agent — it plans,
 implements, advances through the lifecycle, opens a PR, `babysit-ci` reacts to CI and

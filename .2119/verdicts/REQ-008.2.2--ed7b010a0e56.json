@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.2.2--ed7b010a0e56",
+  "requirementId": "REQ-008.2.2",
+  "hash": "ed7b010a0e56",
+  "verdict": "pass",
+  "summary": "test_every_state_change_clears_blocked and the hook-re-block test assert tasks_version()==before+1 across advance/free-move/drop on the real SqlAlchemyStore; the exact-equality version-bump check genuinely rejects a two-write split (would show before+2).",
+  "timestamp": "2026-07-22T17:07:53.422Z"
+}

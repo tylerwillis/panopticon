@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.11.1--c310b6b612ac",
+  "requirementId": "REQ-002.11.1",
+  "hash": "c310b6b612ac",
+  "verdict": "pass",
+  "summary": "test_workflow_review_pair_must_name_a_registered_harness rejects review_harness='cursor' (valid review_model isolates it from the pair-completeness check) with a specific InvalidWorkflow match; sibling tests accept a registered 'codex' pair and leave an unset pair unchecked — the membership check is genuinely exercised, though the service/discovery call-site wiring of validate_registration(HARNESSES) is itself untested (minor residual)",
+  "timestamp": "2026-07-22T15:42:47.775Z"
+}

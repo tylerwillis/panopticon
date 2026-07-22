@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.4.2--a970c42238c6",
+  "requirementId": "REQ-012.4.2",
+  "hash": "a970c42238c6",
+  "verdict": "pass",
+  "summary": "Real-stack test survives repo PATCH and workflow default changes: GET returns creation-time harness/model for both derivation sources; read-time re-resolution would fail it.",
+  "timestamp": "2026-07-22T17:08:11.758Z"
+}

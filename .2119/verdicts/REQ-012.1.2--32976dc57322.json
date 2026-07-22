@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.1.2--32976dc57322",
+  "requirementId": "REQ-012.1.2",
+  "hash": "32976dc57322",
+  "verdict": "pass",
+  "summary": "Negative test rejects an unregistered default_harness ('cursor' vs {claude,codex}) via the real validate_registration that registration actually calls; no mocks, positive path covered elsewhere.",
+  "timestamp": "2026-07-22T17:08:08.081Z"
+}

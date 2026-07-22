@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.5.2--37f9fb0a245b",
+  "requirementId": "REQ-009.5.2",
+  "hash": "37f9fb0a245b",
+  "verdict": "pass",
+  "summary": "force_transition to unknown label 'GHOST' asserted to raise InvalidWorkflow on a real unmocked workflow, while the same test proves an off-graph-but-existing destination succeeds — the rejection is specific to nonexistent states, not blanket",
+  "timestamp": "2026-07-22T17:07:59.551Z"
+}

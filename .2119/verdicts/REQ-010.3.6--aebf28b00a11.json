@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.3.6--aebf28b00a11",
+  "requirementId": "REQ-010.3.6",
+  "hash": "aebf28b00a11",
+  "verdict": "pass",
+  "summary": "test_agent_can_set_blocked_again_after_automatic_clear (parametrized over turn-to-agent and state-change clears) uses the real TaskService/SqlAlchemyStore to clear blocked then explicitly re-set it True, asserting both the returned task and a fresh reload persist True, genuinely rejecting a dropped/ignored explicit-set bug.",
+  "timestamp": "2026-07-22T17:08:04.825Z"
+}

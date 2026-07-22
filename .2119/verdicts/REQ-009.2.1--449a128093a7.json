@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.1--449a128093a7",
+  "requirementId": "REQ-009.2.1",
+  "hash": "449a128093a7",
+  "verdict": "pass",
+  "summary": "Exact-dict operations() assertions on real workflows prove drop:DROPPED for one-edge, zero-edge, and branching non-terminal states, and RetargetedDrop pins InvalidWorkflow when drop targets a legal non-DROPPED state — the nearest violating input is rejected; no mocks.",
+  "timestamp": "2026-07-22T17:14:52.961Z"
+}

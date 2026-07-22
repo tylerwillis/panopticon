@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.4.1--d81c8f72fbe1",
+  "requirementId": "REQ-002.4.1",
+  "hash": "d81c8f72fbe1",
+  "verdict": "pass",
+  "summary": "Test asserts len(WF.skills()) == 1 on the real workflow — rejecting both zero and multiple skills — plus non-empty name/description/instructions on the single review-change skill.",
+  "timestamp": "2026-07-22T06:07:57.606Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.1--de0ee467417c",
+  "requirementId": "REQ-009.1.1",
+  "hash": "de0ee467417c",
+  "verdict": "fail",
+  "summary": "Only tagged test (test_undefined_transition_is_rejected) checks PLAN->COMPLETE rejection, unrelated to inheritance; no tagged test exercises apply_transition against a destination reachable solely via the inherited state-class hierarchy (e.g. PLAN->DROPPED via State), so a regression dropping inherited transitions from the legal set would go uncaught.",
+  "timestamp": "2026-07-22T17:07:51.825Z"
+}

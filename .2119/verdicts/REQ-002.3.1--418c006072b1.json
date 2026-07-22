@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.3.1--418c006072b1",
-  "requirementId": "REQ-002.3.1",
-  "hash": "418c006072b1",
-  "verdict": "pass",
-  "summary": "Real set_turn flips in both directions leave store-reloaded blocked=True unchanged, and a later flip leaves blocked=False unchanged — a flip that sets or clears blocked fails",
-  "timestamp": "2026-07-21T23:58:59.029Z"
-}

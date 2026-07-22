@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.1.1--dc4d5869f0d3",
-  "requirementId": "REQ-001.1.1",
-  "hash": "dc4d5869f0d3",
-  "verdict": "pass",
-  "summary": "PLAN->COMPLETE (existing state, off-edge) raises IllegalTransition against the real engine; inherited DROPPED is in the resolved set and proven accepted elsewhere in the file, so the rejection boundary is tested from both sides",
-  "timestamp": "2026-07-21T23:53:33.504Z"
-}

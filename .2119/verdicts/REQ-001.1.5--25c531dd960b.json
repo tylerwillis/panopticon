@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.1.5--25c531dd960b",
-  "requirementId": "REQ-001.1.5",
-  "hash": "25c531dd960b",
-  "verdict": "pass",
-  "summary": "Workflow with transitions=('GHOST',) — the exact forbidden input — asserts InvalidWorkflow on first use",
-  "timestamp": "2026-07-21T23:53:42.552Z"
-}

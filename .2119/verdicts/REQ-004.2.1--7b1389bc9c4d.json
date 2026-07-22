@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-004.2.1--7b1389bc9c4d",
-  "requirementId": "REQ-004.2.1",
-  "hash": "7b1389bc9c4d",
-  "verdict": "pass",
-  "summary": "Workflow pair (codex/gpt-5.6-sol:high) asserted over a repo declaring a distinguishing pair (claude/opus:low) via real REST creation; a repo- or app-default winner yields a different tuple and fails.",
-  "timestamp": "2026-07-22T05:13:36.929Z"
-}

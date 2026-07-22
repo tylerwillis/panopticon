@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-003.3.1--c816bc2bd85d",
+  "requirementId": "REQ-003.3.1",
+  "hash": "c816bc2bd85d",
+  "verdict": "pass",
+  "summary": "Creation succeeds against the real service for a claude governor with a codex reviewer via both an explicit harness and a repo-default resolution of the unset sentinel, with equal starting-model strings, and asserts the recorded governor/harness/model fields; any wrongful rejection (e.g. model-equality veto) raises and fails.",
+  "timestamp": "2026-07-22T06:13:23.103Z"
+}

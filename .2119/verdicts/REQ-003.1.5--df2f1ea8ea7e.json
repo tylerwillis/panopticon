@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-003.1.5--df2f1ea8ea7e",
-  "requirementId": "REQ-003.1.5",
-  "hash": "df2f1ea8ea7e",
-  "verdict": "pass",
-  "summary": "All seven phases parametrized through the real composition in the claimed/unregistered/live-runner context, each asserted against a hardcoded expected string — any phase-to-status mismatch or down/disconnected fallback fails",
-  "timestamp": "2026-07-21T23:54:53.175Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-003.1.3--62015b6b5040",
-  "requirementId": "REQ-003.1.3",
-  "hash": "62015b6b5040",
-  "verdict": "pass",
-  "summary": "Each 'regardless' axis has a rejected counterexample: runner_live=False (would be disconnected) and phase=AWAITING (would be awaiting) both assert 'live'; phase sampled at AWAITING rather than the full product",
-  "timestamp": "2026-07-21T23:54:56.628Z"
-}

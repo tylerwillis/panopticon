@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.3.3--7c49c3628741",
-  "requirementId": "REQ-001.3.3",
-  "hash": "7c49c3628741",
-  "verdict": "pass",
-  "summary": "test_turn_on_enter_and_advanced_by_are_independent declares state B with turn_on_enter=AGENT (default) diverging from advanced_by=USER, then transitions into it and asserts task.turn is AGENT via real apply_transition, proving turn assignment follows turn_on_enter not advanced_by.",
-  "timestamp": "2026-07-21T23:53:01.117Z"
-}

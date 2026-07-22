@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.3.4--4c65dd1d1e0c",
+  "requirementId": "REQ-012.3.4",
+  "hash": "4c65dd1d1e0c",
+  "verdict": "pass",
+  "summary": "Real REST+store test posts harness equal to the tuned workflow pair with no model and asserts the pair model gpt-5.6-sol:high (absent from the request) is retained; sibling tests pin the differs->discard and explicit-model boundaries, so a discard-on-any-explicit-harness violation would fail.",
+  "timestamp": "2026-07-22T17:08:10.955Z"
+}

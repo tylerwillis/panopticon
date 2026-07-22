@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.5.6--685d7de8b5b1",
+  "requirementId": "REQ-009.5.6",
+  "hash": "685d7de8b5b1",
+  "verdict": "pass",
+  "summary": "test_force_transition_is_a_free_ungated_move (WORKING→PLAN, turn AGENT→USER) and test_force_transition_seeds_destination_responsibilities (PLAN→WORKING, turn USER→AGENT) each force-transition to a destination whose turn_on_enter differs from the pre-move turn, so a bug preserving the old turn or copying the source state's turn_on_enter would fail either assertion; both AGENT and USER destination values are exercised.",
+  "timestamp": "2026-07-22T15:42:47.362Z"
+}

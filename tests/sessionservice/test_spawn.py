@@ -24,6 +24,9 @@ def _recording_runner() -> tuple[list[list[str]], Callable[..., str]]:
 _REPO = {"id": "r1", "git_url": "https://forge/r1.git"}
 
 
+# 2119: REQ-004.1.1
+# 2119: REQ-004.2.1
+# 2119: REQ-004.3.1
 def test_prepare_clones_the_cache_then_the_per_task_checkout() -> None:
     calls, run = _recording_runner()
     cache = CloneCache(
@@ -53,9 +56,22 @@ def test_prepare_clones_the_cache_then_the_per_task_checkout() -> None:
         # …then point origin at the forge (the git_url, verbatim) — not the cache path, which the
         # container can't push to and gh can't resolve (it would fork to the token's own account)
         ["git", "-C", "/tasks/t1", "remote", "set-url", "origin", "https://forge/r1.git"],
+        ["git", "-C", "/tasks/t1", "config", "--local", "user.name", "Panopticon Agent"],
+        [
+            "git",
+            "-C",
+            "/tasks/t1",
+            "config",
+            "--local",
+            "user.email",
+            "panopticon-agent@users.noreply.github.com",
+        ],
     ]
 
 
+# 2119: REQ-004.1.1
+# 2119: REQ-004.2.1
+# 2119: REQ-004.3.1
 def test_prepare_is_idempotent_but_still_asserts_origin_when_the_checkout_exists() -> None:
     calls, run = _recording_runner()
     cache = CloneCache("/cache", run=run, exists=lambda _p: True, makedirs=lambda _p: None)
@@ -74,7 +90,17 @@ def test_prepare_is_idempotent_but_still_asserts_origin_when_the_checkout_exists
     # checkout already there (e.g. container re-creation) — no clone/fetch, but origin is re-asserted
     # (idempotent set-url), which also repoints a clone left over from before this fix
     assert calls == [
-        ["git", "-C", "/tasks/t1", "remote", "set-url", "origin", "https://forge/r1.git"]
+        ["git", "-C", "/tasks/t1", "remote", "set-url", "origin", "https://forge/r1.git"],
+        ["git", "-C", "/tasks/t1", "config", "--local", "user.name", "Panopticon Agent"],
+        [
+            "git",
+            "-C",
+            "/tasks/t1",
+            "config",
+            "--local",
+            "user.email",
+            "panopticon-agent@users.noreply.github.com",
+        ],
     ]
 
 
@@ -96,7 +122,17 @@ def test_prepare_uses_the_git_url_verbatim_as_origin() -> None:
     )
 
     assert calls == [
-        ["git", "-C", "/tasks/t1", "remote", "set-url", "origin", "git@github.com:Org/repo.git"]
+        ["git", "-C", "/tasks/t1", "remote", "set-url", "origin", "git@github.com:Org/repo.git"],
+        ["git", "-C", "/tasks/t1", "config", "--local", "user.name", "Panopticon Agent"],
+        [
+            "git",
+            "-C",
+            "/tasks/t1",
+            "config",
+            "--local",
+            "user.email",
+            "panopticon-agent@users.noreply.github.com",
+        ],
     ]
 
 

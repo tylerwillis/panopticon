@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-004.4.3--86a7587e2aaa",
-  "requirementId": "REQ-004.4.3",
-  "hash": "86a7587e2aaa",
-  "verdict": "pass",
-  "summary": "Genuine: creates an app-default task, flips harnesses.DEFAULT_HARNESS, and asserts the re-fetched task still reads claude — a null-sentinel task (the current pre-BUILDING behavior) or module-attr read-time resolution both fail the assertion.",
-  "timestamp": "2026-07-22T05:13:02.069Z"
-}

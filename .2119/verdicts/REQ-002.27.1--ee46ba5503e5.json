@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.27.1--ee46ba5503e5",
+  "requirementId": "REQ-002.27.1",
+  "hash": "ee46ba5503e5",
+  "verdict": "pass",
+  "summary": "Test discovers the real built-in registry (home workflows disabled via tmp_path), guards non-emptiness, and asserts review_harness and review_model are None on every workflow — any built-in declaring a pair fails.",
+  "timestamp": "2026-07-22T06:07:51.488Z"
+}

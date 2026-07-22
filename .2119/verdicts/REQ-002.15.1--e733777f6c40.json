@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.15.1--e733777f6c40",
+  "requirementId": "REQ-002.15.1",
+  "hash": "e733777f6c40",
+  "verdict": "pass",
+  "summary": "Set equality on transitions('REVIEWING') == {COMPLETE, DROPPED} plus the operations map enforces the 'only' boundary: an extra or missing transition both fail",
+  "timestamp": "2026-07-22T06:08:32.444Z"
+}

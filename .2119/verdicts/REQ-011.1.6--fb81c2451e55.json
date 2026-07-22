@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-011.1.6--fb81c2451e55",
+  "requirementId": "REQ-011.1.6",
+  "hash": "fb81c2451e55",
+  "verdict": "pass",
+  "summary": "Direct unmocked call to compose_container_status hits the exact fact pattern (claimed, non-terminal, unregistered, live runner, no phase) and asserts down; sibling tests reject every near-miss (unclaimed to queued, terminal to dash, registered to live, dead runner to disconnected, set phase shown), covering the precedence order the requirement depends on.",
+  "timestamp": "2026-07-22T17:08:07.246Z"
+}

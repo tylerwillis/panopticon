@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-004.5.1--4cd95a05652c",
-  "requirementId": "REQ-004.5.1",
-  "hash": "4cd95a05652c",
-  "verdict": "pass",
-  "summary": "Genuine and thorough: rejects model-without-harness at create AND patch, rejects clearing default_harness out from under a standing model, and accepts the nearest conforming case (harness+model together, 200) so over-rejection would also be caught.",
-  "timestamp": "2026-07-22T05:13:16.936Z"
-}

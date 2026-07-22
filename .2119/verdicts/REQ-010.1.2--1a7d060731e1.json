@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.1.2--1a7d060731e1",
+  "requirementId": "REQ-010.1.2",
+  "hash": "1a7d060731e1",
+  "verdict": "pass",
+  "summary": "test_stop_does_not_flip_while_a_background_task_is_live directly exercises the real _has_live_background_task gate and asserts client.set_turn is never invoked (the hook's only turn-mutation path), covering the any existential (mixed terminal+live entries) and not-identified-as-terminal (missing status, unknown status, across shell/monitor/subagent/workflow types).",
+  "timestamp": "2026-07-22T17:08:01.139Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-004.4.1--743de1eb268c",
-  "requirementId": "REQ-004.4.1",
-  "hash": "743de1eb268c",
-  "verdict": "pass",
-  "summary": "Out-of-vocabulary 'operator-owned vocabulary:maximum' (spaces + effort colon) must be accepted (validation would 400), round-trip verbatim (interpretation would strip ':maximum'), and land unchanged as the created task's starting_model.",
-  "timestamp": "2026-07-22T05:13:56.568Z"
-}

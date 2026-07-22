@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.6--50ae5c2a3009",
+  "requirementId": "REQ-009.1.6",
+  "hash": "50ae5c2a3009",
+  "verdict": "pass",
+  "summary": "test_validate_rejects_duplicate_labels defines two distinct State classes with label='X' and asserts InvalidWorkflow via real Workflow code (no mocks); the duplicate-label branch is the only reachable path, so the test fails if the check were removed.",
+  "timestamp": "2026-07-22T17:07:55.050Z"
+}

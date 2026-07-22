@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.5.5--bf649cd2bde7",
+  "requirementId": "REQ-009.5.5",
+  "hash": "bf649cd2bde7",
+  "verdict": "pass",
+  "summary": "test_set_state_can_reopen_a_terminal_task drives a real transition to COMPLETE (a genuinely terminal state, zero transitions) then set_state to ITERATING and asserts the state actually changes; force_transition's own docstring confirms it bypasses the terminal check that apply_transition enforces, so the test would fail if that bypass were removed.",
+  "timestamp": "2026-07-22T15:42:29.349Z"
+}

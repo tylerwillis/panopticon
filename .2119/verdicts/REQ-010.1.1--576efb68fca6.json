@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.1.1--576efb68fca6",
+  "requirementId": "REQ-010.1.1",
+  "hash": "576efb68fca6",
+  "verdict": "pass",
+  "summary": "test_stop_flips_to_user_when_no_live_background_task exercises real _has_live_background_task/main logic (fake client only stubs the HTTP boundary) across the boundary payloads (absent field, empty list, terminal-only, case-insensitive terminal) and would fail if the gate wrongly suppressed the flip; complementary REQ-010.1.2/2.x tests cover the live-task complement, so no gap.",
+  "timestamp": "2026-07-22T17:08:00.752Z"
+}

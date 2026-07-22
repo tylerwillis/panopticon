@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.5--026534d7197c",
+  "requirementId": "REQ-009.2.5",
+  "hash": "026534d7197c",
+  "verdict": "pass",
+  "summary": "operations('COMPLETE') == {} is strict equality on the real engine — the nearest violation (implicit drop leaking to terminals) would yield {'drop':'DROPPED'} and fail; gap noted: DROPPED itself and declared-ops-on-terminal untested.",
+  "timestamp": "2026-07-22T17:11:07.934Z"
+}

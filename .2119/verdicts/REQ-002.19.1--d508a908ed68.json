@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.19.1--d508a908ed68",
+  "requirementId": "REQ-002.19.1",
+  "hash": "d508a908ed68",
+  "verdict": "pass",
+  "summary": "Both disjuncts asserted inside the scoped 'Inspect the change' section: gh pr view/diff on the recorded url, and the branch/clone fallback with git fetch + git diff; dropping either path fails",
+  "timestamp": "2026-07-22T06:08:43.726Z"
+}

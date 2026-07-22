@@ -91,6 +91,6 @@ def test_resolve_pending_is_rejected() -> None:
 @pytest.mark.parametrize("comment", [None, "", "   "])
 def test_failed_requires_comment(comment: str | None) -> None:
     task = _working_task()
-    # 2119: REQ-001.4.3
+    # 2119: REQ-009.4.3
     with pytest.raises(ValueError):
         task.resolve_responsibility(key="pr-opened", status=Status.FAILED, comment=comment)

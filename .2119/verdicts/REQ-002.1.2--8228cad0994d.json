@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.1.2--8228cad0994d",
-  "requirementId": "REQ-002.1.2",
-  "hash": "8228cad0994d",
-  "verdict": "pass",
-  "summary": "Real hook.main gate with fake client as transport-only seam; asserts set_turn uncalled for running/mixed/missing-status payloads, incl. the one-terminal-one-running boundary case",
-  "timestamp": "2026-07-21T23:54:31.545Z"
-}

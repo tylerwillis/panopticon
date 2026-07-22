@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.3.1--7d96461d5029",
+  "requirementId": "REQ-009.3.1",
+  "hash": "7d96461d5029",
+  "verdict": "pass",
+  "summary": "Real start_task asserts state==PLAN, and the NonFirstInitial workflow proves the configured InitialState wins over the first-declared state",
+  "timestamp": "2026-07-22T15:42:39.967Z"
+}

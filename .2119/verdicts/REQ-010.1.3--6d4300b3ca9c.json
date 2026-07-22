@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.1.3--6d4300b3ca9c",
+  "requirementId": "REQ-010.1.3",
+  "hash": "6d4300b3ca9c",
+  "verdict": "pass",
+  "summary": "test_user_prompt_submit_unaffected_by_background_tasks drives the real hook.main pipeline (only the REST client is faked) with a payload reporting a running background task and asserts set_turn(agent) still fires — the near-violation (gating the prompt flip on background liveness the way Stop is gated) would fail the pinned assertion.",
+  "timestamp": "2026-07-22T17:08:01.538Z"
+}

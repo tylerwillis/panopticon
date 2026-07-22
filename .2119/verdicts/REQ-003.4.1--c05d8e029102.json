@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-003.4.1--c05d8e029102",
+  "requirementId": "REQ-003.4.1",
+  "hash": "c05d8e029102",
+  "verdict": "pass",
+  "summary": "Non-review (spike) creation succeeds both ungoverned (governor-required leak) and governed with a harness equal to its governor's (inequality-validation leak) — the two nearest inputs review validation rejects — so any leak of either check to other workflows raises and fails the test.",
+  "timestamp": "2026-07-22T06:13:27.343Z"
+}

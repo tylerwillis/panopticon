@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-004.1.1--1daab323e6d1",
-  "requirementId": "REQ-004.1.1",
-  "hash": "1daab323e6d1",
-  "verdict": "pass",
-  "summary": "Both half-declared counterexamples (model-only and harness-only) are rejected by the real validate_registration with the pairing error; the both-unset case is shown allowed and the both-set case validates elsewhere without tripping the pair check — no mocks",
-  "timestamp": "2026-07-21T23:55:05.726Z"
-}

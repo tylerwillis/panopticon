@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.2.1--2012fdb72fcb",
+  "requirementId": "REQ-010.2.1",
+  "hash": "2012fdb72fcb",
+  "verdict": "pass",
+  "summary": "Parametrized test exercises the real _has_live_background_task via hook.main across null/non-object/missing-status/non-string-status/unknown-status entries and asserts set_turn is not called (turn stays live); no mocking of the classification logic, and all boundary terms (missing, unknown, malformed) have a rejecting case.",
+  "timestamp": "2026-07-22T17:08:01.940Z"
+}

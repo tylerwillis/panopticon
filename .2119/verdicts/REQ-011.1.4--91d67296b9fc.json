@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-011.1.4--91d67296b9fc",
+  "requirementId": "REQ-011.1.4",
+  "hash": "91d67296b9fc",
+  "verdict": "pass",
+  "summary": "Pure-function test asserts disconnected for claimed+unregistered+dead-runner across a None and a non-None (BUILDING) phase; implementation short-circuits on runner_live before inspecting phase, so this suffices; sibling tests reject adjacent boundaries (unclaimed->queued, registered->live, terminal->dash).",
+  "timestamp": "2026-07-22T17:08:06.439Z"
+}

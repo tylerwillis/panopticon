@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-011.1.2--d2d6b73c1264",
+  "requirementId": "REQ-011.1.2",
+  "hash": "d2d6b73c1264",
+  "verdict": "pass",
+  "summary": "Exhaustive parametrized test (2x2x9 registered/runner_live/phase combos) calls the real compose_container_status with claimed=False fixed and asserts queued in every case, genuinely proving unclaimed precedes registration/runner/phase; no mocking, no keyword theater.",
+  "timestamp": "2026-07-22T17:08:05.631Z"
+}

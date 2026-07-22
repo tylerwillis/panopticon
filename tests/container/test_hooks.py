@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import io
 import json
+import threading
 from pathlib import Path
 
 import pytest
@@ -230,7 +231,7 @@ def _stop(client: _FakeClient, payload: str) -> int:
         '{"background_tasks": [{"id": "t"}]}',  # no status → treated as live (conservative)
     ],
 )
-# 2119: REQ-002.1.2
+# 2119: REQ-010.1.2
 def test_stop_does_not_flip_while_a_background_task_is_live(
     monkeypatch: pytest.MonkeyPatch, payload: str
 ) -> None:
@@ -252,7 +253,7 @@ def test_stop_does_not_flip_while_a_background_task_is_live(
         '{"status": "unknown"}',
     ],
 )
-# 2119: REQ-002.2.1
+# 2119: REQ-010.2.1
 def test_malformed_or_unknown_background_status_is_treated_as_live(
     monkeypatch: pytest.MonkeyPatch, entry: str
 ) -> None:
@@ -276,7 +277,7 @@ def test_malformed_or_unknown_background_status_is_treated_as_live(
         '{"background_tasks": [{"id": "t", "status": "FAILED"}]}',  # terminal, case-insensitive
     ],
 )
-# 2119: REQ-002.1.1
+# 2119: REQ-010.1.1
 def test_stop_flips_to_user_when_no_live_background_task(
     monkeypatch: pytest.MonkeyPatch, payload: str
 ) -> None:
@@ -291,7 +292,7 @@ def test_stop_flips_to_user_when_no_live_background_task(
     "status",
     ["completed", "FAILED", " cancelled ", "CANCELED", "error"],
 )
-# 2119: REQ-002.2.2
+# 2119: REQ-010.2.2
 def test_known_terminal_background_statuses_are_not_live(
     monkeypatch: pytest.MonkeyPatch, status: str
 ) -> None:
@@ -307,7 +308,7 @@ def test_known_terminal_background_statuses_are_not_live(
     "payload",
     ["{}", '{"background_tasks": []}'],
 )
-# 2119: REQ-002.2.4
+# 2119: REQ-010.2.4
 def test_absent_or_empty_background_collection_reports_no_live_work(
     monkeypatch: pytest.MonkeyPatch, payload: str
 ) -> None:
@@ -328,7 +329,7 @@ def test_absent_or_empty_background_collection_reports_no_live_work(
         '{"background_tasks": {}}',
     ],
 )
-# 2119: REQ-002.2.5
+# 2119: REQ-010.2.5
 def test_non_list_background_collection_is_treated_as_live(
     monkeypatch: pytest.MonkeyPatch, payload: str
 ) -> None:
@@ -352,7 +353,9 @@ def test_background_task_does_not_suppress_the_askuserquestion_flip(
     assert client.calls == [("t1", "user")]
 
 
-# 2119: REQ-002.1.3
+# 2119: REQ-010.1.3
+# 2119: REQ-008.4.1
+# 2119: REQ-008.5.1
 def test_user_prompt_submit_unaffected_by_background_tasks(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
@@ -365,3 +368,39 @@ def test_user_prompt_submit_unaffected_by_background_tasks(
     assert hook.main(["agent", "prompt"], client=client, stdin=io.StringIO(payload)) == 0  # type: ignore[arg-type]
     assert client.calls == [("t1", "agent")]
     assert "PHASE BRIEFING" in capsys.readouterr().out
+
+
+# 2119: REQ-008.4.1
+# 2119: REQ-008.5.1
+def test_user_prompt_submit_waits_for_the_turn_write(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("PANOPTICON_SERVICE_URL", "http://svc")
+    monkeypatch.setenv("PANOPTICON_TASK_ID", "t1")
+    entered = threading.Event()
+    release = threading.Event()
+    result: list[int] = []
+
+    class _GatedClient(_FakeClient):
+        def set_turn(self, task_id: str, turn: str) -> dict[str, object]:
+            entered.set()
+            assert release.wait(timeout=5), "test did not release the turn write"
+            return super().set_turn(task_id, turn)
+
+    client = _GatedClient(slug="fix-widget")
+    thread = threading.Thread(
+        target=lambda: result.append(
+            hook.main(["agent", "prompt"], client=client, stdin=io.StringIO(""))  # type: ignore[arg-type]
+        ),
+        daemon=True,
+    )
+    thread.start()
+    assert entered.wait(timeout=5), "turn write was never attempted"
+    assert thread.is_alive(), "hook returned while the turn write was still pending"
+
+    release.set()
+    thread.join(timeout=5)
+
+    assert not thread.is_alive()
+    assert result == [0]
+    assert client.calls == [("t1", "agent")]
