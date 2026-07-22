@@ -20,6 +20,7 @@ from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from typing import Any
 
+import panopticon.harnesses as harness_registry
 from panopticon.core.artifacts import ArtifactStore
 from panopticon.core.dirs import secrets_file_path
 from panopticon.core.layers import LayerStore
@@ -154,6 +155,7 @@ class TaskService:
     async def create_repo(self, repo: Repo) -> Repo:
         await self._validate_env_file(repo.env_file)
         self._validate_harness_name(repo.default_harness)
+        self._validate_repo_harness_model(repo)
         await self._validate_credential_dir(repo.credential_dir)
         await self._store.create_repo(repo)
         return repo
@@ -187,6 +189,12 @@ class TaskService:
             get_harness(harness)
         except KeyError as exc:
             raise ValueError(str(exc.args[0])) from exc
+
+    @staticmethod
+    def _validate_repo_harness_model(repo: Repo) -> None:
+        """Reject a repo model that has no harness to define its vocabulary."""
+        if repo.default_model is not None and repo.default_harness is None:
+            raise ValueError("default_model requires default_harness")
 
     async def _validate_env_file(self, env_file: str | None) -> None:
         """Reject a repo whose secrets-file reference points at a missing file.
@@ -236,6 +244,8 @@ class TaskService:
             )  # so an unrelated patch never fails on it
         if "default_harness" in changes:
             self._validate_harness_name(updated.default_harness)
+        if "default_harness" in changes or "default_model" in changes:
+            self._validate_repo_harness_model(updated)
         if "credential_dir" in changes:
             await self._validate_credential_dir(updated.credential_dir)
         await self._store.update_repo(updated)
@@ -397,16 +407,18 @@ class TaskService:
         now = self._clock()
         task = wf.start_task(self._id(), repo_id, at=now, memo=memo, initial_prompt=initial_prompt)
         # Defaults travel as an atomic harness/model pair: workflow beats repo beats the app's
-        # empty pair. A task may override either half, but changing the harness discards a model
-        # scoped to the losing harness.
+        # harness-only default. A task may override either half, but changing the harness discards
+        # a model scoped to the losing harness. Materialize the app default so later registry
+        # changes cannot reroute an existing task.
         pair_harness, pair_model = (
             (wf.default_harness, wf.default_model)
             if wf.default_harness is not None
             else (repo.default_harness, repo.default_model)
         )
-        task.harness = harness if harness is not None else pair_harness
+        selected_harness = pair_harness or harness_registry.DEFAULT_HARNESS
+        task.harness = harness if harness is not None else selected_harness
         task.starting_model = starting_model
-        if starting_model is None and (harness is None or harness == pair_harness):
+        if starting_model is None and (harness is None or harness == selected_harness):
             task.starting_model = pair_model
         task.governor_task_id = governor_task_id
         task.created_at = now
