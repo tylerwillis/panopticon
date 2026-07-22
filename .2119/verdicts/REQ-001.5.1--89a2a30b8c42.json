@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.5.1--89a2a30b8c42",
-  "requirementId": "REQ-001.5.1",
-  "hash": "89a2a30b8c42",
-  "verdict": "pass",
-  "summary": "Genuine: 20ms discovery delay bakes in the violating counterexample — any cache-bypassing cycle costs >=40ms — and each post-discovery selection change is asserted under 10ms via the real cycle path (launch_field_changed); verified failing against the current re-discovering code.",
-  "timestamp": "2026-07-21T23:49:17.759Z"
-}

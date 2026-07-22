@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.7.1--ab8625a5edf5",
-  "requirementId": "REQ-001.7.1",
-  "hash": "ab8625a5edf5",
-  "verdict": "pass",
-  "summary": "Genuine: holds the closed modal's model Input and asserts its suggester is identity-unchanged after the blocked discovery is released post-close — any post-close widget write replaces the suggester and fails; coverage is one representative widget, the first one a completing discovery would touch.",
-  "timestamp": "2026-07-21T23:49:25.288Z"
-}

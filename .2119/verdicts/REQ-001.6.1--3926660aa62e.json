@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.6.1--3926660aa62e",
-  "requirementId": "REQ-001.6.1",
-  "hash": "3926660aa62e",
-  "verdict": "pass",
-  "summary": "Genuine: an in-flight discovery is forced to raise only after Escape closes the modal; captured app.notify must stay empty and the app must survive (an unhandled Textual worker failure would also abort run_test), so any operator-visible error path fails it.",
-  "timestamp": "2026-07-21T23:49:18.231Z"
-}
