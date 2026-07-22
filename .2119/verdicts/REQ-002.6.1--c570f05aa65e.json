@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.6.1--c570f05aa65e",
+  "requirementId": "REQ-002.6.1",
+  "hash": "c570f05aa65e",
+  "verdict": "pass",
+  "summary": "In-flight discovery raises RuntimeError after escape; test asserts zero notify calls, app.is_running, and memo closed — a surfaced or crashing worker error fails one of the three.",
+  "timestamp": "2026-07-22T05:44:31.413Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.1.1--67f9e62398b1",
+  "requirementId": "REQ-002.1.1",
+  "hash": "67f9e62398b1",
+  "verdict": "pass",
+  "summary": "Blocked-discovery fake proves typed input lands while release event is still unset; a UI-thread implementation would trip the 1s backstop and fail assert not release.is_set().",
+  "timestamp": "2026-07-22T05:44:09.014Z"
+}
