@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.1.1--c8c5bc2f22f5",
+  "requirementId": "REQ-001.1.1",
+  "hash": "c8c5bc2f22f5",
+  "verdict": "pass",
+  "summary": "test_argv_preserves_scrollback_for_new_and_resumed_sessions asserts exact-element membership of --no-alt-screen in the real (unmocked) harness argv on both the fresh-launch and seeded resume --last paths; dropping the flag from either path fails it, and companion exact-argv tests pin its position before the positional prompt.",
+  "timestamp": "2026-07-22T14:28:31.909Z"
+}
