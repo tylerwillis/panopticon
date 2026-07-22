@@ -145,7 +145,7 @@ async def test_create_review_task_without_governor_is_rejected(tmp_path: Path) -
     [
         (None, "claude", None),
         (None, None, "claude"),
-        ("claude", "claude", None),
+        ("codex", "codex", None),
     ],
 )
 async def test_create_review_task_with_equal_harness_is_rejected(
@@ -174,8 +174,16 @@ async def test_create_review_task_with_equal_harness_is_rejected(
 
 
 # 2119: REQ-001.3.1
-async def test_create_review_task_with_different_harness_is_accepted(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    ("repo_default", "review_harness"),
+    [(None, "codex"), ("codex", None)],
+)
+async def test_create_review_task_with_different_harness_is_accepted(
+    tmp_path: Path, repo_default: str | None, review_harness: str | None
+) -> None:
     svc = await make_service(tmp_path)
+    if repo_default is not None:
+        await svc.update_repo("r1", {"default_harness": repo_default})
     governor = await svc.create_task(
         "r1", "spike", harness="claude", starting_model="shared-model-string"
     )
@@ -184,7 +192,7 @@ async def test_create_review_task_with_different_harness_is_accepted(tmp_path: P
         "r1",
         "review",
         governor_task_id=governor.id,
-        harness="codex",
+        harness=review_harness,
         starting_model="shared-model-string",
     )
 

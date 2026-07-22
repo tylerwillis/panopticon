@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.3.1--5ebcf173d329",
-  "requirementId": "REQ-001.3.1",
-  "hash": "5ebcf173d329",
-  "verdict": "pass",
-  "summary": "test_create_review_task_with_different_harness_is_accepted uses the real service/store/registry (no mocks), constructs the exact differing-harness + equal-starting-model scenario, and a mutation check confirms it fails if an equal-starting-model gate is added; the 'registry-resolved' sentinel nuance is left to REQ-001.2.1's tests, which already cover it.",
-  "timestamp": "2026-07-22T00:08:39.591Z"
-}
