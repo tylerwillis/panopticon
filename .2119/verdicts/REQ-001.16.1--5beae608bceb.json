@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.16.1--5beae608bceb",
-  "requirementId": "REQ-001.16.1",
-  "hash": "5beae608bceb",
-  "verdict": "pass",
-  "summary": "UI-driven: Enter on the focused HarnessSelector advances claude->codex with fake.created still empty, and a later submit proves the modal stayed live; no-cycle, wrong-next, and submit-on-enter violations all fail",
-  "timestamp": "2026-07-22T00:04:43.731Z"
-}

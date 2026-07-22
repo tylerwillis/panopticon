@@ -759,7 +759,7 @@ async def test_pressing_u_with_no_runner_session_does_nothing() -> None:
         assert app.is_running  # reported "none running"; stayed on the dashboard
 
 
-# 2119: REQ-001.13.1
+# 2119: REQ-009.13.1
 async def test_pressing_n_creates_a_task_via_repo_workflow_then_memo() -> None:
     fake = _FakeClient(
         [],
@@ -782,7 +782,7 @@ async def test_pressing_n_creates_a_task_via_repo_workflow_then_memo() -> None:
         assert fake.created == [("r1", "spike", "fix", "fix", None, None)]
 
 
-# 2119: REQ-001.8.1
+# 2119: REQ-009.8.1
 async def test_new_task_memo_draft_survives_close_and_reopen(tmp_path: Path) -> None:
     fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
     app = Dashboard(fake, draft_file=tmp_path / "new-task-drafts.json")  # type: ignore[arg-type]
@@ -935,8 +935,8 @@ def _option_prompts(option_list: OptionList) -> list[str]:
     ]
 
 
-# 2119: REQ-001.1.1
-# 2119: REQ-001.9.1
+# 2119: REQ-009.1.1
+# 2119: REQ-009.9.1
 async def test_memo_launch_fields_are_labeled_visible_and_stay_within_64_columns() -> None:
     fake = _FakeClient(
         [],
@@ -973,7 +973,7 @@ async def test_memo_launch_fields_are_labeled_visible_and_stay_within_64_columns
         assert app.screen.query_one("#memo-box").region.width == 64
 
 
-# 2119: REQ-001.2.1
+# 2119: REQ-009.2.1
 async def test_memo_launch_controls_follow_the_documented_tab_order() -> None:
     fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
     app = Dashboard(fake)  # type: ignore[arg-type]
@@ -997,7 +997,7 @@ async def test_memo_launch_controls_follow_the_documented_tab_order() -> None:
         (3, "H", "#launch-effort-options", ("high", "xhigh")),
     ],
 )
-# 2119: REQ-001.3.1
+# 2119: REQ-009.3.1
 async def test_typing_filters_the_visible_model_and_effort_candidates(
     tabs: int,
     typed: str,
@@ -1031,8 +1031,8 @@ async def test_typing_filters_the_visible_model_and_effort_candidates(
         assert all(any(value in prompt for prompt in prompts) for value in expected)
 
 
-# 2119: REQ-001.4.1
-# 2119: REQ-001.10.1
+# 2119: REQ-009.4.1
+# 2119: REQ-009.10.1
 async def test_arrow_then_enter_selects_a_filtered_candidate_without_submitting() -> None:
     fake = _FakeClient(
         [],
@@ -1070,8 +1070,8 @@ async def test_arrow_then_enter_selects_a_filtered_candidate_without_submitting(
         assert fake.created == []
 
 
-# 2119: REQ-001.17.1
-# 2119: REQ-001.20.1
+# 2119: REQ-009.17.1
+# 2119: REQ-009.20.1
 @pytest.mark.parametrize(
     ("tabs", "options_id", "typed"),
     [
@@ -1111,7 +1111,7 @@ async def test_no_match_stays_visible_and_enter_does_not_submit(
         assert fake.created == []
 
 
-# 2119: REQ-001.6.1
+# 2119: REQ-009.6.1
 async def test_harness_cycle_refreshes_dependent_candidate_vocabularies() -> None:
     fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
     app = Dashboard(fake)  # type: ignore[arg-type]
@@ -1129,8 +1129,8 @@ async def test_harness_cycle_refreshes_dependent_candidate_vocabularies() -> Non
         assert any("medium" in prompt for prompt in effort_prompts)
 
 
-# 2119: REQ-001.7.1
-# 2119: REQ-001.12.1
+# 2119: REQ-009.7.1
+# 2119: REQ-009.12.1
 async def test_focus_only_keeps_launch_fields_tracking_changed_repo_defaults(
     tmp_path: Path,
 ) -> None:
@@ -1159,7 +1159,7 @@ async def test_focus_only_keeps_launch_fields_tracking_changed_repo_defaults(
         assert str(summary.render()) == "codex · luna:low — set by repo default"
 
 
-# 2119: REQ-001.12.1
+# 2119: REQ-009.12.1
 @pytest.mark.parametrize(
     ("tabs", "keys"),
     [
@@ -1181,7 +1181,7 @@ async def test_each_launch_override_updates_the_rendered_summary_source(
         assert str(summary.render()).endswith("— set by this task")
 
 
-# 2119: REQ-001.12.1
+# 2119: REQ-009.12.1
 @pytest.mark.parametrize(
     ("repo", "workflow", "expected"),
     [
@@ -1222,7 +1222,7 @@ async def test_rendered_launch_summary_names_app_and_workflow_default_sources(
         assert str(summary.render()) == expected
 
 
-# 2119: REQ-001.11.1
+# 2119: REQ-009.11.1
 async def test_touched_model_and_effort_survive_a_harness_change() -> None:
     fake = _FakeClient(
         [],
@@ -1247,7 +1247,7 @@ async def test_touched_model_and_effort_survive_a_harness_change() -> None:
         assert app.screen.query_one("#launch-effort", Input).value == "maximum"
 
 
-# 2119: REQ-001.18.1
+# 2119: REQ-009.18.1
 async def test_untouched_model_and_effort_clear_after_a_harness_change() -> None:
     fake = _FakeClient(
         [],
@@ -1272,7 +1272,7 @@ async def test_untouched_model_and_effort_clear_after_a_harness_change() -> None
         assert app.screen.query_one("#launch-effort", Input).value == ""
 
 
-# 2119: REQ-001.8.1
+# 2119: REQ-009.8.1
 @pytest.mark.parametrize("tabs", [1, 2, 3])
 async def test_escape_cancels_from_every_launch_control(tabs: int) -> None:
     fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
@@ -1396,7 +1396,7 @@ async def test_the_enter_hint_reflects_cycle_while_the_harness_selector_is_focus
         assert hint.content == "enter: submit"
 
 
-# 2119: REQ-001.16.1
+# 2119: REQ-009.16.1
 async def test_tabbing_to_the_harness_selector_and_cycling_overrides_it_for_this_task() -> None:
     fake = _FakeClient(
         [],
@@ -1427,7 +1427,7 @@ async def test_tabbing_to_the_harness_selector_and_cycling_overrides_it_for_this
         assert fake.created == [("r1", "spike", None, None, "codex", None)]
 
 
-# 2119: REQ-001.19.1
+# 2119: REQ-009.19.1
 async def test_memo_harness_selector_cycles_exactly_the_registered_harnesses() -> None:
     fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
     app = Dashboard(fake)  # type: ignore[arg-type]
@@ -1486,7 +1486,7 @@ def test_touched_launch_fields_survive_workflow_reselection() -> None:
     )
 
 
-# 2119: REQ-001.5.1
+# 2119: REQ-009.5.1
 async def test_free_text_model_and_effort_are_composed_for_create() -> None:
     fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
     app = Dashboard(fake)  # type: ignore[arg-type]
@@ -1501,7 +1501,7 @@ async def test_free_text_model_and_effort_are_composed_for_create() -> None:
     assert fake.created == [("r1", "spike", None, None, None, "custom/model:maximum")]
 
 
-# 2119: REQ-001.14.1
+# 2119: REQ-009.14.1
 async def test_memo_ctrl_s_sets_the_memo_without_submitting() -> None:
     # ctrl+s records the memo but does NOT deliver it as an initial prompt (unsent paste).
     fake = _FakeClient(
@@ -1525,7 +1525,7 @@ async def test_memo_ctrl_s_sets_the_memo_without_submitting() -> None:
         assert fake.created == [("r1", "spike", "fix", None, None, None)]
 
 
-# 2119: REQ-001.15.1
+# 2119: REQ-009.15.1
 async def test_memo_ctrl_g_opens_editor_and_updates_textarea(monkeypatch: Any) -> None:
     # Ctrl-G should open $EDITOR and replace the TextArea's text with the returned content.
     monkeypatch.setattr(dashboard, "_edit_with_editor", lambda text: f"edited:{text}")
@@ -2250,7 +2250,7 @@ def test_harness_selector_initial_tracks_the_resolved_fallback_not_the_raw_effec
     assert sel.initial == sel.value == "claude"
 
 
-# 2119: REQ-001.19.1
+# 2119: REQ-009.19.1
 def test_harness_selector_cycles_forward_and_wraps() -> None:
     from panopticon.terminal.dashboard import HarnessSelector
 

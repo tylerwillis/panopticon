@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.18.1--f5cfcdfb8c2d",
-  "requirementId": "REQ-001.18.1",
-  "hash": "f5cfcdfb8c2d",
-  "verdict": "pass",
-  "summary": "Repo default codex/terra:high populates untouched fields, the harness is cycled, and both inputs are asserted empty — a retaining implementation fails; the populated-default precondition is pinned by the REQ-001.7.1 tracking test.",
-  "timestamp": "2026-07-21T23:58:34.352Z"
-}

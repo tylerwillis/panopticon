@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.2.1--168af80187f0",
-  "requirementId": "REQ-001.2.1",
-  "hash": "168af80187f0",
-  "verdict": "pass",
-  "summary": "Identity-asserts the focused widget after each Tab from the memo editor: HarnessSelector, #launch-model, #launch-effort in order; any reorder or inserted stop fails an assertion",
-  "timestamp": "2026-07-21T23:51:49.179Z"
-}

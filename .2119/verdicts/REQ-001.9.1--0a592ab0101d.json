@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.9.1--0a592ab0101d",
-  "requirementId": "REQ-001.9.1",
-  "hash": "0a592ab0101d",
-  "verdict": "pass",
-  "summary": "Asserts #memo-box width == 64 both with the launch controls rendered and again while the model candidate list is open — a modal that widens for the controls or dropdown fails",
-  "timestamp": "2026-07-21T23:52:01.934Z"
-}
