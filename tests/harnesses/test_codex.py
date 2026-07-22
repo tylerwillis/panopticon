@@ -85,10 +85,15 @@ def test_config_wires_the_turn_flip_hooks_to_the_shared_callback() -> None:
     cfg = tomllib.loads(render_config("http://svc:8000", "", Path("/w")))
     stop = cfg["hooks"]["Stop"][0]["hooks"][0]
     prompt = cfg["hooks"]["UserPromptSubmit"][0]["hooks"][0]
-    assert stop == {"type": "command", "command": "python -m panopticon.container.hook user stop"}
+    assert stop == {
+        "type": "command",
+        "command": "python -m panopticon.container.hook user stop",
+        "timeout": 3,
+    }
     assert prompt == {
         "type": "command",
         "command": "python -m panopticon.container.hook agent prompt",
+        "timeout": 3,
     }
 
 

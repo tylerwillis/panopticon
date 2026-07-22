@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.4.1--bf287a7546b4",
-  "requirementId": "REQ-008.4.1",
-  "hash": "bf287a7546b4",
-  "verdict": "pass",
-  "summary": "Claude's native UserPromptSubmit wiring invokes the shared agent callback, and the gated callback test rejects a missing/wrong turn write or hook exit before that write completes.",
-  "timestamp": "2026-07-22T17:29:03.776Z"
-}

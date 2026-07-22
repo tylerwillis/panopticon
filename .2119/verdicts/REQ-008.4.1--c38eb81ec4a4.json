@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.4.1--c38eb81ec4a4",
+  "requirementId": "REQ-008.4.1",
+  "hash": "c38eb81ec4a4",
+  "verdict": "pass",
+  "summary": "Claude's native UserPromptSubmit entry still pins the agent prompt command in the dispatched hook position, and the gated callback test rejects a missing/wrong turn write or exit before completion; asserting timeout 3 adds no coverage escape.",
+  "timestamp": "2026-07-22T17:44:54.729Z"
+}

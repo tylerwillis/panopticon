@@ -56,6 +56,7 @@ def test_user_prompt_submit_waits_for_the_agent_turn_hook() -> None:
             {
                 "type": "command",
                 "command": "python -m panopticon.container.hook agent prompt",
+                "timeout": 3,
             }
         ]
     }
