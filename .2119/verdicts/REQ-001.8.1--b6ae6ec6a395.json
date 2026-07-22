@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.8.1--b6ae6ec6a395",
+  "requirementId": "REQ-001.8.1",
+  "hash": "b6ae6ec6a395",
+  "verdict": "pass",
+  "summary": "x on a built_in row drives the real action; captured app.notify must fire exactly once containing 'built-in', 'cannot', 'delete' - silence or an unrelated toast fails",
+  "timestamp": "2026-07-22T00:12:24.119Z"
+}

@@ -1602,7 +1602,8 @@ class DeleteWorkflowScreen(ModalScreen[bool]):
         with Vertical(id="delete-workflow-box"):
             yield Label(f"delete workflow {self._name!r}?")
             yield Label(
-                "This removes the file; the running service forgets the workflow on next restart."
+                "This removes the file; the workflow remains loaded until the running service's "
+                "next restart."
             )
             with Horizontal(id="delete-workflow-actions"):
                 yield Button("yes", variant="error", id="delete-workflow-yes")

@@ -1794,7 +1794,7 @@ async def test_workflows_screen_x_opens_honest_confirmation_for_highlighted_oper
         message = "\n".join(label.content for label in app.screen.query(Label))
         assert "second" in message
         assert "removes the file" in message.lower()
-        assert "next restart" in message.lower()
+        assert "remains loaded until the running service's next restart" in message.lower()
         assert str(app.screen.query_one("#delete-workflow-yes", Button).label).lower() == "yes"
         assert str(app.screen.query_one("#delete-workflow-no", Button).label).lower() == "no"
         box = app.screen.query_one("#delete-workflow-box")
@@ -1848,22 +1848,30 @@ async def test_workflow_delete_confirmation_cancels_without_removing_file(
 async def test_workflow_delete_confirmation_yes_removes_file_and_refreshes_loaded_registry(
     tmp_path: Path, monkeypatch: Any
 ) -> None:
+    first_path = tmp_path / "first.py"
+    first_path.write_text("first workflow")
     path = tmp_path / "release.py"
     path.write_text("workflow")
+    first_workflow = {
+        "name": "first",
+        "when_to_use": "First workflow.",
+        "path": str(first_path),
+        "built_in": False,
+    }
     workflow = {
         "name": "release",
         "when_to_use": "Before deletion.",
         "path": str(path),
         "built_in": False,
     }
-    fake = _FakeClient([], workflows=[workflow])
+    fake = _FakeClient([], workflows=[first_workflow, workflow])
     list_calls = 0
 
     def list_workflow_files() -> list[dict[str, Any]]:
         nonlocal list_calls
         list_calls += 1
         description = "Before deletion." if list_calls == 1 else "Loaded until restart."
-        return [{**workflow, "when_to_use": description}]
+        return [first_workflow, {**workflow, "when_to_use": description}]
 
     monkeypatch.setattr(fake, "list_workflow_files", list_workflow_files)
     app = Dashboard(fake)  # type: ignore[arg-type]
@@ -1871,15 +1879,17 @@ async def test_workflow_delete_confirmation_yes_removes_file_and_refreshes_loade
     async with app.run_test() as pilot:
         await pilot.pause()
         await pilot.press("w")
+        await pilot.press("down")
         await pilot.press("x")
         await pilot.pause()
         await pilot.click("#delete-workflow-yes")
         await pilot.pause()
 
         assert not path.exists()
+        assert first_path.read_text() == "first workflow"
         assert list_calls == 2
         table = app.screen.query_one("#workflows", DataTable)
-        assert "Loaded until restart." in str(table.get_row_at(0))
+        assert "Loaded until restart." in str(table.get_row_at(1))
 
 
 # 2119: REQ-001.5.1
@@ -1914,6 +1924,7 @@ async def test_workflows_screen_refuses_builtin_deletion_with_notification(
         assert path.read_text() == "built in"
         assert len(notices) == 1
         assert "built-in" in notices[0].lower()
+        assert "cannot" in notices[0].lower()
         assert "delete" in notices[0].lower()
 
 
