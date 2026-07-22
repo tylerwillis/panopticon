@@ -66,11 +66,11 @@ async def _make_service(tmp_path: Path) -> TaskService:
     return service
 
 
-# 2119: REQ-004.1.1
-# 2119: REQ-004.2.1
-# 2119: REQ-004.3.1
-# 2119: REQ-004.4.1
-# 2119: REQ-004.5.1
+# 2119: REQ-008.1.1
+# 2119: REQ-008.2.1
+# 2119: REQ-008.3.1
+# 2119: REQ-008.4.1
+# 2119: REQ-008.5.1
 async def test_review_entry_creates_governed_worker_and_blocks_author(tmp_path: Path) -> None:
     service = await _make_service(tmp_path)
     author = await service.create_task(
@@ -93,8 +93,8 @@ async def test_review_entry_creates_governed_worker_and_blocks_author(tmp_path: 
     ] == [("review-addressed", Status.PENDING)]
 
 
-# 2119: REQ-004.6.1
-# 2119: REQ-004.12.1
+# 2119: REQ-008.6.1
+# 2119: REQ-008.12.1
 async def test_unpaired_review_entry_does_not_create_worker_or_responsibility(
     tmp_path: Path,
 ) -> None:
@@ -109,7 +109,7 @@ async def test_unpaired_review_entry_does_not_create_worker_or_responsibility(
     assert reloaded.current_entry.responsibilities == []
 
 
-# 2119: REQ-004.11.1
+# 2119: REQ-008.11.1
 async def test_paired_workflow_does_not_create_review_worker_outside_review(
     tmp_path: Path,
 ) -> None:
@@ -119,12 +119,15 @@ async def test_paired_workflow_does_not_create_review_worker_outside_review(
     await service.set_state(author.id, "WORKING")
 
     assert [task.workflow for task in await service.list_tasks()] == ["paired-authoring"]
+    reloaded = await service.get_task(author.id)
+    assert reloaded.state == "WORKING"
+    assert reloaded.current_entry.responsibilities == []
 
 
-# 2119: REQ-004.4.1
-# 2119: REQ-004.7.1
-# 2119: REQ-004.8.1
-# 2119: REQ-004.9.1
+# 2119: REQ-008.4.1
+# 2119: REQ-008.7.1
+# 2119: REQ-008.8.1
+# 2119: REQ-008.9.1
 async def test_review_creation_failure_is_recorded_nonfatal_and_allows_free_move(
     tmp_path: Path,
 ) -> None:
@@ -134,16 +137,21 @@ async def test_review_creation_failure_is_recorded_nonfatal_and_allows_free_move
     transitioned = await service.apply_operation(author.id, "advance")
 
     assert transitioned.state == "REVIEW"
-    assert [r.key for r in transitioned.current_entry.responsibilities] == ["review-addressed"]
-    assert transitioned.current_entry.note is not None
-    assert "harness" in transitioned.current_entry.note.lower()
+    assert [
+        (responsibility.key, responsibility.status)
+        for responsibility in transitioned.current_entry.responsibilities
+    ] == [("review-addressed", Status.PENDING)]
+    assert transitioned.current_entry.note == (
+        "Review task creation failed: review task harness must differ from its governor task's "
+        "harness"
+    )
     assert [task.workflow for task in await service.list_tasks()] == ["paired-authoring"]
 
     moved = await service.set_state(author.id, "COMPLETE")
     assert moved.state == "COMPLETE"
 
 
-# 2119: REQ-004.10.1
+# 2119: REQ-008.10.1
 async def test_each_review_reentry_creates_a_fresh_worker(tmp_path: Path) -> None:
     service = await _make_service(tmp_path)
     author = await service.create_task("r1", "paired-authoring", harness="claude")

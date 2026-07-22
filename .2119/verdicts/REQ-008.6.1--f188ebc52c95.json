@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.6.1--f188ebc52c95",
+  "requirementId": "REQ-008.6.1",
+  "hash": "f188ebc52c95",
+  "verdict": "pass",
+  "summary": "Real service, no mocks: test confirms task genuinely reaches REVIEW then asserts total task count is unchanged and no review-addressed responsibility was seeded, which would catch a violation that creates a review task (under any workflow name) despite no declared pair; the only boundary case (partial pair declaration) is structurally excluded by Workflow's own construction-time validation.",
+  "timestamp": "2026-07-22T06:12:36.948Z"
+}

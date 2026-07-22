@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.11.1--aa9ec323445c",
+  "requirementId": "REQ-008.11.1",
+  "hash": "aa9ec323445c",
+  "verdict": "pass",
+  "summary": "Free-move entry to WORKING on a paired workflow via the real TaskService asserts no review task exists and no responsibility is seeded; removing the REVIEW-label guard would fail the list_tasks assertion.",
+  "timestamp": "2026-07-22T06:15:29.865Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.10.1--84fcb38bd4ff",
+  "requirementId": "REQ-008.10.1",
+  "hash": "84fcb38bd4ff",
+  "verdict": "pass",
+  "summary": "Real end-to-end test forces REVIEW->DRAFT->REVIEW via the actual service (no mocking) and asserts a 2nd distinct review-task id + governor link; a reuse-the-round-1-task implementation would collapse the count to 1, which the test would reject.",
+  "timestamp": "2026-07-22T06:12:38.373Z"
+}

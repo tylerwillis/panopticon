@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.7.1--f888e99ef2b5",
+  "requirementId": "REQ-008.7.1",
+  "hash": "f888e99ef2b5",
+  "verdict": "pass",
+  "summary": "Failure is induced via the real cross-harness ValueError in create_task (service.py:421), and the test asserts the transition still lands in REVIEW with no review task created.",
+  "timestamp": "2026-07-22T06:15:31.248Z"
+}

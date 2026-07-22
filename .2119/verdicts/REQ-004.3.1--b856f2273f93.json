@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-004.3.1--b856f2273f93",
-  "requirementId": "REQ-004.3.1",
-  "hash": "b856f2273f93",
-  "verdict": "pass",
-  "summary": "Review task asserts harness codex and model gpt-5.6-sol:high — the declared pair, distinct from the author's claude/claude-fable-5 — so copying the author or the default would fail",
-  "timestamp": "2026-07-22T05:51:45.012Z"
-}

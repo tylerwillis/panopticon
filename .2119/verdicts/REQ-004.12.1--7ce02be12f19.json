@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-004.12.1--7ce02be12f19",
-  "requirementId": "REQ-004.12.1",
-  "hash": "7ce02be12f19",
-  "verdict": "pass",
-  "summary": "Unpaired REVIEW entry asserts an empty responsibilities list on the current entry with state confirmed as REVIEW, so any seeded review-addressed responsibility would fail",
-  "timestamp": "2026-07-22T05:51:48.232Z"
-}

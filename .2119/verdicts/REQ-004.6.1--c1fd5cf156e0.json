@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-004.6.1--c1fd5cf156e0",
-  "requirementId": "REQ-004.6.1",
-  "hash": "c1fd5cf156e0",
-  "verdict": "pass",
-  "summary": "Unpaired workflow verifiably reaches REVIEW (state asserted) and the full task list contains only the author, so any created review task would fail the test",
-  "timestamp": "2026-07-22T05:51:45.897Z"
-}

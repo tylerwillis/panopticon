@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-004.2.1--dd56d2cfb8bd",
-  "requirementId": "REQ-004.2.1",
-  "hash": "dd56d2cfb8bd",
-  "verdict": "pass",
-  "summary": "Asserts the created review task's governor_task_id equals the authoring task's id through the real service; a missing or wrong governor fails",
-  "timestamp": "2026-07-22T05:51:44.583Z"
-}
