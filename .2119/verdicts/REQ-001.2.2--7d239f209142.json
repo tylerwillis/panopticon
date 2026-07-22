@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.2.2--7d239f209142",
+  "requirementId": "REQ-001.2.2",
+  "hash": "7d239f209142",
+  "verdict": "pass",
+  "summary": "Exact-line assertions pin the 8-char ID prefix, slug, '–' for a None slug, and a 60-char leading memo excerpt with ellipsis (long memo proves truncation)",
+  "timestamp": "2026-07-22T00:10:26.548Z"
+}

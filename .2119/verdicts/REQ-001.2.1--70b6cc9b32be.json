@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.2.1--70b6cc9b32be",
+  "requirementId": "REQ-001.2.1",
+  "hash": "70b6cc9b32be",
+  "verdict": "pass",
+  "summary": "Fixture includes live AND failed boundary tasks; exact splitlines equality on the rendered modal rejects both an extra non-down task and an omitted down task ('every and only')",
+  "timestamp": "2026-07-22T00:10:25.952Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.1.1--613f065cedff",
+  "requirementId": "REQ-001.1.1",
+  "hash": "613f065cedff",
+  "verdict": "pass",
+  "summary": "pilot.press('ctrl+r') exercises the real Textual binding and asserts BulkRespawnScreen opens; rebinding or removing the key fails it",
+  "timestamp": "2026-07-22T00:10:18.463Z"
+}

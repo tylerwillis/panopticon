@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.1.2--1bdb230a4f5b",
+  "requirementId": "REQ-001.1.2",
+  "hash": "1bdb230a4f5b",
+  "verdict": "pass",
+  "summary": "Opens the real help modal and asserts the rendered keymap contains ctrl+r and 'respawn all down tasks'; dropping the entry, changing the key, or rewording the description each fails",
+  "timestamp": "2026-07-22T00:10:19.062Z"
+}

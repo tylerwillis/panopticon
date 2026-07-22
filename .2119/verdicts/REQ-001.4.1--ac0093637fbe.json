@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.4.1--ac0093637fbe",
+  "requirementId": "REQ-001.4.1",
+  "hash": "ac0093637fbe",
+  "verdict": "pass",
+  "summary": "Exact released-list equality proves one release per down task — duplicates or a missed task both fail; release() is the same observable the single-respawn test pins",
+  "timestamp": "2026-07-22T00:10:36.828Z"
+}

@@ -16,8 +16,9 @@ container tmux, `n` creates a task (pick repo → workflow → describe the work
 width, press to reveal it), `q` quits, and `?` opens the **help screen** (a modal listing every key). The
 rest still work but are hidden from the legend (both the footer bindings and `HelpScreen` derive
 from the single ``HOTKEYS`` keymap): `r` refreshes from the task service over REST, `R` **respawns**
-a down task (releases its claim so the host runner re-spawns it), `p` opens the task's `url` in the
-browser (cloude-cade's `p` "open PR"), `g` opens the **repo config screen** (list / create / edit
+a down task (releases its claim so the host runner re-spawns it), `Ctrl+R` confirms and respawns
+all tasks the service reports as down, `p` opens the task's `url` in the browser (cloude-cade's
+`p` "open PR"), `g` opens the **repo config screen** (list / create / edit
 repos — and it **opens automatically on start when no repos are configured**, the first-run
 nudge to add one), `s` switches to the task-service session, and `a` opens a modal listing the task's
 artifacts — Enter opens the selected
@@ -616,6 +617,49 @@ class ChoiceScreen(_OptionListModal[str]):
 
     def on_option_list_option_selected(self, event: OptionList.OptionSelected) -> None:
         self.dismiss(str(event.option.prompt))
+
+
+def _bulk_respawn_line(task: JsonObj) -> str:
+    """One compact, single-line task summary for the bulk-respawn confirmation."""
+    task_id = str(task["id"])[:8]
+    slug = str(task.get("slug") or "–")
+    memo = " ".join(str(task.get("memo") or "").split())
+    excerpt = f"  {memo[:60]}{'…' if len(memo) > 60 else ''}" if memo else ""
+    return f"{task_id}  {slug}{excerpt}"
+
+
+class BulkRespawnScreen(ModalScreen[bool]):
+    """Confirm one claim-release respawn pass over the displayed down-task snapshot."""
+
+    CSS = """
+    BulkRespawnScreen { align: center middle; }
+    #bulk-respawn-box { width: 72; height: auto; max-height: 80%; padding: 1 2; border: round $accent; background: $surface; }
+    #bulk-respawn-list { height: auto; max-height: 20; overflow-y: auto; }
+    #bulk-respawn-tasks { padding: 1 0; }
+    #bulk-respawn-hint { color: $text-muted; }
+    """
+    BINDINGS = [
+        ("enter", "confirm", "Confirm"),
+        ("escape", "cancel", "Cancel"),
+    ]
+
+    def __init__(self, tasks: Sequence[JsonObj]) -> None:
+        super().__init__()
+        self._tasks = tuple(tasks)
+
+    def compose(self) -> ComposeResult:
+        lines = "\n".join(_bulk_respawn_line(task) for task in self._tasks)
+        with Vertical(id="bulk-respawn-box"):
+            yield Label(f"Respawn {len(self._tasks)} down task(s)?")
+            with VerticalScroll(id="bulk-respawn-list"):
+                yield Static(Text(lines), id="bulk-respawn-tasks")
+            yield Label("Enter: confirm · Esc: cancel", id="bulk-respawn-hint")
+
+    def action_confirm(self) -> None:
+        self.dismiss(True)
+
+    def action_cancel(self) -> None:
+        self.dismiss(False)
 
 
 class WorkflowScreen(_OptionListModal[str]):
@@ -1931,6 +1975,14 @@ HOTKEYS: tuple[Hotkey, ...] = (
     Hotkey("o", "toggle_sort", "Sort order", "Toggle sort: created ↔ updated", show=False),
     Hotkey("r", "refresh", "Refresh", "Refresh from the task service now", show=False),
     Hotkey("R", "respawn", "Respawn", "Respawn a down task (release its claim)", show=False),
+    Hotkey(
+        "ctrl+r",
+        "respawn_all_down",
+        "Respawn all",
+        "Respawn all down tasks",
+        show=False,
+        display="Ctrl+R",
+    ),
     Hotkey("p", "open_url", "Open URL", "Open the task's URL in the browser", show=False),
     Hotkey("g", "repos", "Repos", "Repo config (list / create / edit repos)", show=False),
     Hotkey("w", "workflows", "Workflows", "List / create workflows in $EDITOR", show=False),
@@ -2466,12 +2518,40 @@ class Dashboard(App[None]):
         if task_id is None:
             return
         task = self._tasks.get(task_id)
-        if not task or not task.get("claimed_by"):
+        if not task or not self._respawn_task(task):
             self.notify("Task isn't claimed by a runner — nothing to respawn.", severity="warning")
             return
-        self._client.release(task_id)  # back to unclaimed → the host runner kills + re-spawns
         self.notify("Respawning: the runner will stop and restart the container.")
         self.action_refresh()
+
+    def _respawn_task(self, task: JsonObj) -> bool:
+        """Release one claimed task through the path shared by single and bulk respawn."""
+        if not task.get("claimed_by"):
+            return False
+        self._client.release(str(task["id"]))
+        return True
+
+    def action_respawn_all_down(self) -> None:
+        """`Ctrl+R`: confirm one sequential respawn pass over service-reported down tasks."""
+        ordered = sorted(self._client.list_tasks(), key=_make_sort_key(self._sort_by_updated))
+        candidates = [task for task in ordered if task.get("container_status") == "down"]
+        if not candidates:
+            self.notify("no down tasks")
+            return
+
+        def respawn(confirmed: bool | None) -> None:
+            if not confirmed:
+                return
+            count = 0
+            for candidate in candidates:
+                latest = self._client.get_task(str(candidate["id"]))
+                if latest.get("container_status") != "down":
+                    continue
+                count += self._respawn_task(latest)
+            self.notify(f"respawned {count}")
+            self.action_refresh()
+
+        self.push_screen(BulkRespawnScreen(candidates), respawn)
 
     def action_attach(self) -> None:
         """`t`: hand off to the highlighted task's tmux session, if it's running.
