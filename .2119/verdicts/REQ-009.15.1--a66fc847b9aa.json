@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.15.1--a66fc847b9aa",
+  "requirementId": "REQ-009.15.1",
+  "hash": "a66fc847b9aa",
+  "verdict": "pass",
+  "summary": "Editor mock returns f'edited:{text}', so memo=='edited:hi' proves the buffer text was passed to the editor and its return replaced (not appended to) the memo; mock sits at the external-process boundary",
+  "timestamp": "2026-07-22T17:06:54.894Z"
+}

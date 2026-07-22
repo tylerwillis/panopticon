@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.2.1--29477a61fe12",
+  "requirementId": "REQ-007.2.1",
+  "hash": "29477a61fe12",
+  "verdict": "pass",
+  "summary": "Visible pane render must end with newline+exact hint and a dim span covering precisely that suffix; wrong text, position, or styling fails",
+  "timestamp": "2026-07-22T17:08:14.577Z"
+}

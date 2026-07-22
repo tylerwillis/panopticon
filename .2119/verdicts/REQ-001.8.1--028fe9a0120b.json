@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.8.1--028fe9a0120b",
+  "requirementId": "REQ-001.8.1",
+  "hash": "028fe9a0120b",
+  "verdict": "pass",
+  "summary": "Test presses w then x on a built-in workflow row through the real dashboard, asserts no DeleteWorkflowScreen was pushed, file untouched, and captured notify() message equals exactly 'Built-in workflows cannot be deleted.' -- rejects silent-refusal, dialog-opens-anyway, and wrong-message counterexamples.",
+  "timestamp": "2026-07-22T17:07:49.240Z"
+}

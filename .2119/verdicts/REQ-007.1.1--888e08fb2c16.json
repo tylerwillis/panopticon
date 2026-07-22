@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.1.1--888e08fb2c16",
+  "requirementId": "REQ-007.1.1",
+  "hash": "888e08fb2c16",
+  "verdict": "pass",
+  "summary": "Both clipboard seams each receive exactly render_detail(task); highlighted-task source pinned via j-navigation; host attempt survives terminal failure",
+  "timestamp": "2026-07-22T17:08:14.187Z"
+}

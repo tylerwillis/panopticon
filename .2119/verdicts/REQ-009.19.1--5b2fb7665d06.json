@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.19.1--5b2fb7665d06",
+  "requirementId": "REQ-009.19.1",
+  "hash": "5b2fb7665d06",
+  "verdict": "pass",
+  "summary": "Cycling len(HARNESSES) times must visit exactly set(HARNESSES) from the real registry and wrap; a rogue or missing name breaks set equality, and the Static selector has no free-text path",
+  "timestamp": "2026-07-22T17:06:56.516Z"
+}

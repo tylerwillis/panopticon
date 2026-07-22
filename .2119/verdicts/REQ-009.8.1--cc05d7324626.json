@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.8.1--cc05d7324626",
+  "requirementId": "REQ-009.8.1",
+  "hash": "cc05d7324626",
+  "verdict": "pass",
+  "summary": "Escape asserted to close the modal (screen no longer MemoScreen, nothing created) from harness/model/effort focus with candidate lists asserted visible; draft test covers escape from the memo editor",
+  "timestamp": "2026-07-22T15:42:50.406Z"
+}

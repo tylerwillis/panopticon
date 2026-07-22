@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.4.1--70d42b04624a",
+  "requirementId": "REQ-009.4.1",
+  "hash": "70d42b04624a",
+  "verdict": "pass",
+  "summary": "Real Down/Up presses on the visible 2-item filtered OptionList assert highlight None->0->1->0; frozen highlight or unfiltered-list navigation fails",
+  "timestamp": "2026-07-22T17:05:08.101Z"
+}

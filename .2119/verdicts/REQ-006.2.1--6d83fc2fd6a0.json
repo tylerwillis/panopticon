@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.2.1--6d83fc2fd6a0",
+  "requirementId": "REQ-006.2.1",
+  "hash": "6d83fc2fd6a0",
+  "verdict": "pass",
+  "summary": "Two real-code tests: a 6-down/1-live/1-failed mix asserts the modal renders exactly the 6 down lines (every+only), and a live-to-down flip between polls proves ctrl+r uses a fresh list_tasks() call rather than stale cached data.",
+  "timestamp": "2026-07-22T17:07:50.438Z"
+}

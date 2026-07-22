@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.1--3e9dcd5411e5",
+  "requirementId": "REQ-009.1.1",
+  "hash": "3e9dcd5411e5",
+  "verdict": "pass",
+  "summary": "Exact label set and values derived from repo default_harness/default_model (terra:high split) asserted visible at modal open before any launch control is focused",
+  "timestamp": "2026-07-22T17:08:15.818Z"
+}

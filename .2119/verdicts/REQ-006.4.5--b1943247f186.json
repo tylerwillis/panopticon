@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.4.5--b1943247f186",
-  "requirementId": "REQ-006.4.5",
-  "hash": "b1943247f186",
-  "verdict": "pass",
-  "summary": "Mixed stale-snapshot test covers every non-down status and rejects any extra task-specific notification while preserving the aggregate respawn count.",
-  "timestamp": "2026-07-22T06:52:56.617Z"
-}

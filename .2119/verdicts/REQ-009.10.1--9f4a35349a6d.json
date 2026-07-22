@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.10.1--9f4a35349a6d",
+  "requirementId": "REQ-009.10.1",
+  "hash": "9f4a35349a6d",
+  "verdict": "pass",
+  "summary": "Enter on highlight index 1 must set the field to that exact candidate (luna/xhigh, not the first match or typed text) while fake.created stays empty and MemoScreen stays open — submission would fail both assertions, as sibling tests prove created records real submits.",
+  "timestamp": "2026-07-22T17:10:09.849Z"
+}

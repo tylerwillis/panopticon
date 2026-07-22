@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.1--1b30fb7c9657",
+  "requirementId": "REQ-006.4.1",
+  "hash": "1b30fb7c9657",
+  "verdict": "pass",
+  "summary": "Bulk path shares single-task's _respawn_task/release; tests pin exactly-once ordered releases via an exact event sequence, and a parametrized 11-status sweep proves the confirm-time get_task recheck skips a recovered task.",
+  "timestamp": "2026-07-22T17:07:51.631Z"
+}
