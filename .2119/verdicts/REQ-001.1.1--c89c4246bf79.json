@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.1.1--c89c4246bf79",
+  "requirementId": "REQ-001.1.1",
+  "hash": "c89c4246bf79",
+  "verdict": "pass",
+  "summary": "The two-row interaction rejects wrong selection, non-exact detail text, no-op c, and bypassing the shared _copy_to_clipboard facility.",
+  "timestamp": "2026-07-21T23:43:52.214Z"
+}

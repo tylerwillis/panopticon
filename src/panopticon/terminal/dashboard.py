@@ -2399,9 +2399,11 @@ class Dashboard(App[None]):
                 )  # fall back to summary when the service is unreachable
         # wrap in Text so the pane renders literally — never parse task content as console markup
         # (a "[" in e.g. a docker-command lifecycle_detail would otherwise crash the whole dashboard)
-        self.query_one("#detail", Static).update(
-            Text(render_detail(task)) if task else Text("no tasks")
-        )
+        detail = Text(render_detail(task)) if task else Text("no tasks")
+        if task:
+            detail.append("\n")
+            detail.append("c: copy details  y: copy slug  Y: copy id", style="dim")
+        self.query_one("#detail", Static).update(detail)
 
     def action_new_task(self) -> None:
         """`n`: create a task — pick a repo, a workflow, describe the work, then POST it."""
@@ -2627,13 +2629,13 @@ class Dashboard(App[None]):
         self.notify(f"copied id: {self._current}")
 
     def action_copy_detail(self) -> None:
-        """`c`: copy the highlighted task's rendered detail text via OSC 52."""
+        """`c`: copy the highlighted task's rendered detail text to the clipboard."""
         if self._current is None:
             return
         task = self._tasks.get(self._current)
         if task is None:
             return
-        self.copy_to_clipboard(render_detail(task))
+        self._copy_to_clipboard(render_detail(task))
         self.notify("copied task details", timeout=1.5)
 
     def action_toggle_sort(self) -> None:

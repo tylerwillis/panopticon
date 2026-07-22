@@ -357,6 +357,27 @@ async def test_dashboard_mounts_lists_tasks_and_shows_detail() -> None:
         assert "2026-06-22T10:00:00+00:00" not in str(detail.render())
 
 
+async def test_detail_pane_shows_copy_key_hint_without_changing_copyable_detail() -> None:
+    # 2119: REQ-001.2.1
+    # 2119: REQ-001.3.1
+    hint = "c: copy details  y: copy slug  Y: copy id"
+    assert hint not in render_detail(_TASK)
+    app = Dashboard(_FakeClient([_TASK]))  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("d")
+        await pilot.pause()
+        rendered = app.query_one("#detail", Static).render()
+        assert rendered.plain.endswith(f"\n{hint}")  # type: ignore[union-attr]
+        hint_start = len(rendered.plain) - len(hint)  # type: ignore[union-attr]
+        assert any(
+            span.start == hint_start
+            and span.end == len(rendered.plain)
+            and getattr(span.style, "dim", False)
+            for span in rendered.spans  # type: ignore[union-attr]
+        )
+
+
 async def test_detail_pane_is_hidden_by_default() -> None:
     # the detail pane starts hidden so the task table gets the full width; `d` reveals it.
     app = Dashboard(_FakeClient([_TASK]))  # type: ignore[arg-type]
@@ -1263,15 +1284,19 @@ async def test_pressing_ctrl_c_with_detail_open_shows_quit_notice_and_does_not_c
 
 
 async def test_pressing_c_with_detail_open_copies_the_rendered_detail(monkeypatch: Any) -> None:
+    # 2119: REQ-001.1.1
     copied: list[str] = []
-    app = Dashboard(_FakeClient([_TASK]))  # type: ignore[arg-type]
-    monkeypatch.setattr(app, "copy_to_clipboard", copied.append)
+    other = {**_TASK, "id": "task-second9999", "slug": "other"}
+    app = Dashboard(_FakeClient([_TASK, other]))  # type: ignore[arg-type]
+    monkeypatch.setattr(app, "_copy_to_clipboard", copied.append)
     async with app.run_test() as pilot:
         await pilot.pause()
         await pilot.press("d")
+        await pilot.press("j")
         await pilot.press("c")
         await pilot.pause()
-        assert copied == [render_detail(_TASK)]
+        assert copied == [render_detail(other)]
+        assert "task-second9999" in copied[0]
 
 
 def test_render_detail_shows_the_claim() -> None:
