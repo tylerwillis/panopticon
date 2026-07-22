@@ -1,8 +1,8 @@
 {
-  "reviewId": "REQ-008.12.1--84098c28c621",
-  "requirementId": "REQ-008.12.1",
-  "hash": "84098c28c621",
+  "reviewId": "REQ-009.12.1--7b8109057513",
+  "requirementId": "REQ-009.12.1",
+  "hash": "7b8109057513",
   "verdict": "pass",
   "summary": "Real service+workflow drive to REVIEW confirms the unpaired case entered REVIEW with an empty responsibilities list; paired with the sibling paired-workflow test seeding review-addressed, the two genuinely bracket the MUST NOT boundary with no mocking or keyword matching.",
-  "timestamp": "2026-07-22T06:12:39.302Z"
+  "timestamp": "2026-07-22T14:23:34.369Z"
 }

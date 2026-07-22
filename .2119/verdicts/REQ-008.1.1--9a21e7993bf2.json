@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.1.1--9a21e7993bf2",
-  "requirementId": "REQ-008.1.1",
-  "hash": "9a21e7993bf2",
-  "verdict": "pass",
-  "summary": "Real end-to-end test (no mocks) asserts exactly one review-workflow task is created on REVIEW entry with a declared pair; negative cases correctly covered by REQ-008.6/11/12.",
-  "timestamp": "2026-07-22T06:12:35.112Z"
-}

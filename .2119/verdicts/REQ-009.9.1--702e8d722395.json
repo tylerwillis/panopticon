@@ -1,8 +1,8 @@
 {
-  "reviewId": "REQ-008.9.1--6876d8ad56e1",
-  "requirementId": "REQ-008.9.1",
-  "hash": "6876d8ad56e1",
+  "reviewId": "REQ-009.9.1--702e8d722395",
+  "requirementId": "REQ-009.9.1",
+  "hash": "702e8d722395",
   "verdict": "pass",
   "summary": "After a real creation failure with review-addressed still PENDING (which gates advance), set_state to COMPLETE succeeds — a failure that poisoned the task or blocked free moves would fail.",
-  "timestamp": "2026-07-22T06:15:32.124Z"
+  "timestamp": "2026-07-22T14:23:32.788Z"
 }

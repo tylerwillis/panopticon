@@ -66,11 +66,11 @@ async def _make_service(tmp_path: Path) -> TaskService:
     return service
 
 
-# 2119: REQ-008.1.1
-# 2119: REQ-008.2.1
-# 2119: REQ-008.3.1
-# 2119: REQ-008.4.1
-# 2119: REQ-008.5.1
+# 2119: REQ-009.1.1
+# 2119: REQ-009.2.1
+# 2119: REQ-009.3.1
+# 2119: REQ-009.4.1
+# 2119: REQ-009.5.1
 async def test_review_entry_creates_governed_worker_and_blocks_author(tmp_path: Path) -> None:
     service = await _make_service(tmp_path)
     author = await service.create_task(
@@ -93,8 +93,8 @@ async def test_review_entry_creates_governed_worker_and_blocks_author(tmp_path: 
     ] == [("review-addressed", Status.PENDING)]
 
 
-# 2119: REQ-008.6.1
-# 2119: REQ-008.12.1
+# 2119: REQ-009.6.1
+# 2119: REQ-009.12.1
 async def test_unpaired_review_entry_does_not_create_worker_or_responsibility(
     tmp_path: Path,
 ) -> None:
@@ -109,7 +109,7 @@ async def test_unpaired_review_entry_does_not_create_worker_or_responsibility(
     assert reloaded.current_entry.responsibilities == []
 
 
-# 2119: REQ-008.11.1
+# 2119: REQ-009.11.1
 async def test_paired_workflow_does_not_create_review_worker_outside_review(
     tmp_path: Path,
 ) -> None:
@@ -124,10 +124,10 @@ async def test_paired_workflow_does_not_create_review_worker_outside_review(
     assert reloaded.current_entry.responsibilities == []
 
 
-# 2119: REQ-008.4.1
-# 2119: REQ-008.7.1
-# 2119: REQ-008.8.1
-# 2119: REQ-008.9.1
+# 2119: REQ-009.4.1
+# 2119: REQ-009.7.1
+# 2119: REQ-009.8.1
+# 2119: REQ-009.9.1
 async def test_review_creation_failure_is_recorded_nonfatal_and_allows_free_move(
     tmp_path: Path,
 ) -> None:
@@ -151,7 +151,7 @@ async def test_review_creation_failure_is_recorded_nonfatal_and_allows_free_move
     assert moved.state == "COMPLETE"
 
 
-# 2119: REQ-008.10.1
+# 2119: REQ-009.10.1
 async def test_each_review_reentry_creates_a_fresh_worker(tmp_path: Path) -> None:
     service = await _make_service(tmp_path)
     author = await service.create_task("r1", "paired-authoring", harness="claude")
