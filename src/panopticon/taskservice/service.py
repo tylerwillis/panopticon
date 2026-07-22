@@ -28,6 +28,7 @@ from panopticon.core.models import (
     ContainerStatus,
     LifecyclePhase,
     Repo,
+    Responsibility,
     Skill,
     Status,
     Task,
@@ -611,10 +612,53 @@ class TaskService:
         await wf.on_transition(
             task, from_state=from_state, to_state=task.state, artifacts=self._artifacts
         )
+        await self._create_review_task_on_entry(task, wf, to_state=task.state)
         await self._save_task(task)
         if to_state == Dropped.label:
             await self._cascade_drop_governed(task.id, trigger=trigger, note=note)
         return task
+
+    async def _create_review_task_on_entry(
+        self, task: Task, workflow: Workflow, *, to_state: str
+    ) -> None:
+        """Apply ADR-0014's deterministic review-gate lifecycle effect.
+
+        A workflow opts in by declaring its reviewer launch pair. The ordinary task-creation path
+        remains the single validation boundary for the governed worker, including cross-harness
+        enforcement. A rejected pair is recorded on the authoring transition instead of undoing
+        it, preserving the user's free-move fallback.
+        """
+        if to_state != "REVIEW" or workflow.review_harness is None:
+            return
+        if workflow.review_model is None:  # registration validates the pair before tasks run
+            raise RuntimeError("review_harness and review_model must be declared together")
+
+        responsibilities = task.current_entry.responsibilities
+        if not any(item.key == "review-addressed" for item in responsibilities):
+            responsibilities.append(
+                Responsibility(
+                    key="review-addressed",
+                    description="Address the governed review verdict before advancing.",
+                )
+            )
+
+        try:
+            await self.create_task(
+                task.repo_id,
+                "review",
+                governor_task_id=task.id,
+                harness=workflow.review_harness,
+                starting_model=workflow.review_model,
+            )
+        except ValueError as exc:
+            entry = task.current_entry
+            failure = f"Review task creation failed: {exc}"
+            task.history[-1] = replace(
+                entry,
+                note=f"{entry.note}\n{failure}" if entry.note else failure,
+            )
+        else:
+            task.blocked = True
 
     async def _cascade_drop_governed(
         self, governor_id: str, *, trigger: str | None, note: str | None
