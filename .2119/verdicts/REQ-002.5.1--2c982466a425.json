@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.5.1--2c982466a425",
+  "requirementId": "REQ-002.5.1",
+  "hash": "2c982466a425",
+  "verdict": "pass",
+  "summary": "Each fake harness carries a 20ms discovery delay, so any re-discovery on selection change necessarily exceeds the perf_counter-asserted 10ms budget; summary/placeholder/suggester assertions confirm the fields actually updated within it.",
+  "timestamp": "2026-07-22T06:06:39.333Z"
+}

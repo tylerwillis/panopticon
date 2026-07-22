@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.1.1--77adb0df8289",
+  "requirementId": "REQ-002.1.1",
+  "hash": "77adb0df8289",
+  "verdict": "pass",
+  "summary": "Discovery is held blocked via an event while typed input reaches the memo text area; a synchronously-blocking impl stalls until the backstop timer, failing 'assert not release.is_set()'.",
+  "timestamp": "2026-07-22T06:06:18.822Z"
+}
