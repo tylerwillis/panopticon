@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.2.1--9df183f7dbf7",
-  "requirementId": "REQ-002.2.1",
-  "hash": "9df183f7dbf7",
-  "verdict": "pass",
-  "summary": "Counters on 4 fake harnesses assert exactly one model+effort discovery each after 12 cycle presses; any re-discovery per cycle breaks the ==1 assertion.",
-  "timestamp": "2026-07-22T05:44:10.412Z"
-}

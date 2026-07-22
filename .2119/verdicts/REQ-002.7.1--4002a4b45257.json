@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.7.1--4002a4b45257",
-  "requirementId": "REQ-002.7.1",
-  "hash": "4002a4b45257",
-  "verdict": "pass",
-  "summary": "Holds the closed screen's model Input and asserts suggester identity is unchanged after the late discovery releases; a post-close widget update swaps the suggester and fails the identity check.",
-  "timestamp": "2026-07-22T05:44:37.541Z"
-}

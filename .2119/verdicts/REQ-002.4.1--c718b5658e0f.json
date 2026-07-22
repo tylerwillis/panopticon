@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.4.1--c718b5658e0f",
-  "requirementId": "REQ-002.4.1",
-  "hash": "c718b5658e0f",
-  "verdict": "pass",
-  "summary": "Cycling to a still-blocked harness must show target-model-1/effort-1 right after the cycle keypress; empty, stale-claude, or re-discovered (-2) suggestions all fail.",
-  "timestamp": "2026-07-22T05:44:24.619Z"
-}
