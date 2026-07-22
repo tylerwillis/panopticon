@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.2.1--3f4f7154df47",
+  "requirementId": "REQ-002.2.1",
+  "hash": "3f4f7154df47",
+  "verdict": "pass",
+  "summary": "Real WF.start_task asserts state == 'REVIEWING' and the single-entry history to REVIEWING; any other initial state fails both assertions",
+  "timestamp": "2026-07-22T06:08:44.174Z"
+}

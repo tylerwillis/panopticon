@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.7.1--c875e8ab2b80",
+  "requirementId": "REQ-002.7.1",
+  "hash": "c875e8ab2b80",
+  "verdict": "pass",
+  "summary": "Findings section must contain put_artifact(task_id=<governor_task_id>, name=\"review.md\") — pins both the governor target and the artifact name, so writing to the review task's own id or another filename fails.",
+  "timestamp": "2026-07-22T06:08:29.405Z"
+}

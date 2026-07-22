@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.14.1--82887eb37294",
+  "requirementId": "REQ-002.14.1",
+  "hash": "82887eb37294",
+  "verdict": "pass",
+  "summary": "Asserts list(WF.responsibilities('REVIEWING')) == [] against the real workflow; any declared responsibility fails the empty-list equality",
+  "timestamp": "2026-07-22T06:08:28.152Z"
+}

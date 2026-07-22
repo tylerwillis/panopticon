@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.1.2--581d2e27b5c5",
+  "requirementId": "REQ-008.1.2",
+  "hash": "581d2e27b5c5",
+  "verdict": "pass",
+  "summary": "blocked=True survives a persisted user-turn write (reload-checked), rejecting the nearest violator of an unconditional clear on any turn write.",
+  "timestamp": "2026-07-22T06:14:31.782Z"
+}

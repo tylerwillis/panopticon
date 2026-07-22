@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.24.1--c955b3b019fd",
+  "requirementId": "REQ-002.24.1",
+  "hash": "c955b3b019fd",
+  "verdict": "pass",
+  "summary": "Test extracts the text between the **Approve** and **Findings** verdict headings and asserts the 'Call the advance operation to move this review task to COMPLETE' directive inside it — scoped so an advance directive only in the Findings branch would not pass.",
+  "timestamp": "2026-07-22T06:07:44.982Z"
+}

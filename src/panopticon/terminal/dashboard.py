@@ -16,8 +16,9 @@ container tmux, `n` creates a task (pick repo → workflow → describe the work
 width, press to reveal it), `q` quits, and `?` opens the **help screen** (a modal listing every key). The
 rest still work but are hidden from the legend (both the footer bindings and `HelpScreen` derive
 from the single ``HOTKEYS`` keymap): `r` refreshes from the task service over REST, `R` **respawns**
-a down task (releases its claim so the host runner re-spawns it), `p` opens the task's `url` in the
-browser (cloude-cade's `p` "open PR"), `g` opens the **repo config screen** (list / create / edit
+a down task (releases its claim so the host runner re-spawns it), `Ctrl+R` confirms and respawns
+all tasks the service reports as down, `p` opens the task's `url` in the browser (cloude-cade's
+`p` "open PR"), `g` opens the **repo config screen** (list / create / edit
 repos — and it **opens automatically on start when no repos are configured**, the first-run
 nudge to add one), `s` switches to the task-service session, and `a` opens a modal listing the task's
 artifacts — Enter opens the selected
@@ -84,6 +85,7 @@ from textual.screen import ModalScreen
 from textual.suggester import SuggestFromList
 from textual.widget import Widget
 from textual.widgets import (
+    Button,
     Checkbox,
     DataTable,
     Footer,
@@ -615,6 +617,49 @@ class ChoiceScreen(_OptionListModal[str]):
 
     def on_option_list_option_selected(self, event: OptionList.OptionSelected) -> None:
         self.dismiss(str(event.option.prompt))
+
+
+def _bulk_respawn_line(task: JsonObj) -> str:
+    """One compact, single-line task summary for the bulk-respawn confirmation."""
+    task_id = str(task["id"])[:8]
+    slug = str(task.get("slug") or "–")
+    memo = " ".join(str(task.get("memo") or "").split())
+    excerpt = f"  {memo[:60]}{'…' if len(memo) > 60 else ''}" if memo else ""
+    return f"{task_id}  {slug}{excerpt}"
+
+
+class BulkRespawnScreen(ModalScreen[bool]):
+    """Confirm one claim-release respawn pass over the displayed down-task snapshot."""
+
+    CSS = """
+    BulkRespawnScreen { align: center middle; }
+    #bulk-respawn-box { width: 72; height: auto; max-height: 80%; padding: 1 2; border: round $accent; background: $surface; }
+    #bulk-respawn-list { height: auto; max-height: 20; overflow-y: auto; }
+    #bulk-respawn-tasks { padding: 1 0; }
+    #bulk-respawn-hint { color: $text-muted; }
+    """
+    BINDINGS = [
+        ("enter", "confirm", "Confirm"),
+        ("escape", "cancel", "Cancel"),
+    ]
+
+    def __init__(self, tasks: Sequence[JsonObj]) -> None:
+        super().__init__()
+        self._tasks = tuple(tasks)
+
+    def compose(self) -> ComposeResult:
+        lines = "\n".join(_bulk_respawn_line(task) for task in self._tasks)
+        with Vertical(id="bulk-respawn-box"):
+            yield Label(f"Respawn {len(self._tasks)} down task(s)?")
+            with VerticalScroll(id="bulk-respawn-list"):
+                yield Static(Text(lines), id="bulk-respawn-tasks")
+            yield Label("Enter: confirm · Esc: cancel", id="bulk-respawn-hint")
+
+    def action_confirm(self) -> None:
+        self.dismiss(True)
+
+    def action_cancel(self) -> None:
+        self.dismiss(False)
 
 
 class WorkflowScreen(_OptionListModal[str]):
@@ -1582,6 +1627,39 @@ class NewWorkflowScreen(ModalScreen[str | None]):
         self.dismiss(None)
 
 
+class DeleteWorkflowScreen(ModalScreen[bool]):
+    """Confirm removal of an operator-authored workflow file."""
+
+    CSS = """
+    DeleteWorkflowScreen { align: center middle; }
+    #delete-workflow-box { width: 56; height: auto; padding: 1 2; border: round $accent; background: $surface; }
+    #delete-workflow-actions { height: auto; align: center middle; }
+    """
+    BINDINGS = [("escape", "cancel", "Cancel")]
+    AUTO_FOCUS = "#delete-workflow-no"
+
+    def __init__(self, name: str) -> None:
+        super().__init__()
+        self._name = name
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="delete-workflow-box"):
+            yield Label(f"delete workflow {self._name!r}?")
+            yield Label(
+                "This removes the file; the workflow remains loaded until the running service's "
+                "next restart."
+            )
+            with Horizontal(id="delete-workflow-actions"):
+                yield Button("yes", variant="error", id="delete-workflow-yes")
+                yield Button("no", id="delete-workflow-no")
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        self.dismiss(event.button.id == "delete-workflow-yes")
+
+    def action_cancel(self) -> None:
+        self.dismiss(False)
+
+
 class _TableScreen(ModalScreen[None]):
     """Shared modal shell for the dashboard's tabular management screens."""
 
@@ -1620,20 +1698,23 @@ class _TableScreen(ModalScreen[None]):
 
 
 class WorkflowsScreen(_TableScreen):
-    """List registered workflow source files; Enter edits one and `n` creates one."""
+    """List workflow source files; Enter edits, `n` creates, and `x` deletes operator files."""
 
     BINDINGS = [
         ("n", "new_workflow", "New workflow"),
+        ("x", "delete_workflow", "Delete workflow"),
         ("escape", "close", "Close"),
     ]
     TABLE_ID = "workflows"
-    TITLE = "workflows — enter: open in $EDITOR   n: new   esc: close"
+    TITLE = "workflows — enter: open in $EDITOR   n: new   x: delete   esc: close"
     COLUMNS = ("name", "kind", "when to use")
 
     def _refresh(self) -> None:
         table = self.query_one("#workflows", DataTable)
         table.clear()
-        for workflow in self._client.list_workflow_files():
+        workflows = self._client.list_workflow_files()
+        self._workflows = {str(workflow["path"]): workflow for workflow in workflows}
+        for workflow in workflows:
             table.add_row(
                 workflow["name"],
                 "built-in (edit with care)" if workflow["built_in"] else "operator",
@@ -1664,6 +1745,27 @@ class WorkflowsScreen(_TableScreen):
             self._open(path)
 
         self.app.push_screen(NewWorkflowScreen(), create)
+
+    def action_delete_workflow(self) -> None:
+        path = self._current
+        if path is None:
+            return
+        workflow = self._workflows[path]
+        if workflow["built_in"]:
+            self.notify("Built-in workflows cannot be deleted.", severity="warning")
+            return
+
+        def delete(confirmed: bool | None) -> None:
+            if not confirmed:
+                return
+            try:
+                Path(path).unlink()
+            except OSError as exc:
+                self.notify(f"Can't delete workflow: {exc}", severity="error")
+                return
+            self._refresh()
+
+        self.app.push_screen(DeleteWorkflowScreen(str(workflow["name"])), delete)
 
 
 class ReposScreen(_TableScreen):
@@ -1873,6 +1975,14 @@ HOTKEYS: tuple[Hotkey, ...] = (
     Hotkey("o", "toggle_sort", "Sort order", "Toggle sort: created ↔ updated", show=False),
     Hotkey("r", "refresh", "Refresh", "Refresh from the task service now", show=False),
     Hotkey("R", "respawn", "Respawn", "Respawn a down task (release its claim)", show=False),
+    Hotkey(
+        "ctrl+r",
+        "respawn_all_down",
+        "Respawn all",
+        "Respawn all down tasks",
+        show=False,
+        display="Ctrl+R",
+    ),
     Hotkey("p", "open_url", "Open URL", "Open the task's URL in the browser", show=False),
     Hotkey("g", "repos", "Repos", "Repo config (list / create / edit repos)", show=False),
     Hotkey("w", "workflows", "Workflows", "List / create workflows in $EDITOR", show=False),
@@ -2098,11 +2208,6 @@ class Dashboard(App[None]):
         REST client is blocking) — ``call_from_thread`` marshals the rebuild onto the UI thread,
         and Textual cancels the worker on unmount (the cancel lands when the parked poll returns)."""
         worker = get_current_worker()
-        # Seed the cursor without redrawing: on_mount already painted the current snapshot, so the
-        # first poll should wait for the *next* change rather than re-firing on the current version.
-        # service not up yet — fall through; the loop retries with back-off
-        with contextlib.suppress(Exception):
-            _, self._version = self._client.list_tasks_versioned()
         while not worker.is_cancelled:
             try:
                 _, version = self._client.list_tasks_versioned(
@@ -2135,7 +2240,8 @@ class Dashboard(App[None]):
         table = self.query_one("#tasks", DataTable)
         selected = self._current  # keep the operator's highlight across the rebuild (feed refresh)
         table.clear()
-        ordered = sorted(self._client.list_tasks(), key=_make_sort_key(self._sort_by_updated))
+        tasks, self._version = self._client.list_tasks_versioned()
+        ordered = sorted(tasks, key=_make_sort_key(self._sort_by_updated))
         new_multi_runner = (
             len({r.get("host") for r in self._client.live_runners() if r.get("host")}) > 1
         )
@@ -2289,9 +2395,11 @@ class Dashboard(App[None]):
                 )  # fall back to summary when the service is unreachable
         # wrap in Text so the pane renders literally — never parse task content as console markup
         # (a "[" in e.g. a docker-command lifecycle_detail would otherwise crash the whole dashboard)
-        self.query_one("#detail", Static).update(
-            Text(render_detail(task)) if task else Text("no tasks")
-        )
+        detail = Text(render_detail(task)) if task else Text("no tasks")
+        if task:
+            detail.append("\n")
+            detail.append("c: copy details  y: copy slug  Y: copy id", style="dim")
+        self.query_one("#detail", Static).update(detail)
 
     def action_new_task(self) -> None:
         """`n`: create a task — pick a repo, a workflow, describe the work, then POST it."""
@@ -2408,12 +2516,40 @@ class Dashboard(App[None]):
         if task_id is None:
             return
         task = self._tasks.get(task_id)
-        if not task or not task.get("claimed_by"):
+        if not task or not self._respawn_task(task):
             self.notify("Task isn't claimed by a runner — nothing to respawn.", severity="warning")
             return
-        self._client.release(task_id)  # back to unclaimed → the host runner kills + re-spawns
         self.notify("Respawning: the runner will stop and restart the container.")
         self.action_refresh()
+
+    def _respawn_task(self, task: JsonObj) -> bool:
+        """Release one claimed task through the path shared by single and bulk respawn."""
+        if not task.get("claimed_by"):
+            return False
+        self._client.release(str(task["id"]))
+        return True
+
+    def action_respawn_all_down(self) -> None:
+        """`Ctrl+R`: confirm one sequential respawn pass over service-reported down tasks."""
+        ordered = sorted(self._client.list_tasks(), key=_make_sort_key(self._sort_by_updated))
+        candidates = [task for task in ordered if task.get("container_status") == "down"]
+        if not candidates:
+            self.notify("no down tasks")
+            return
+
+        def respawn(confirmed: bool | None) -> None:
+            if not confirmed:
+                return
+            count = 0
+            for candidate in candidates:
+                latest = self._client.get_task(str(candidate["id"]))
+                if latest.get("container_status") != "down":
+                    continue
+                count += self._respawn_task(latest)
+            self.notify(f"respawned {count}")
+            self.action_refresh()
+
+        self.push_screen(BulkRespawnScreen(candidates), respawn)
 
     def action_attach(self) -> None:
         """`t`: hand off to the highlighted task's tmux session, if it's running.
@@ -2489,13 +2625,13 @@ class Dashboard(App[None]):
         self.notify(f"copied id: {self._current}")
 
     def action_copy_detail(self) -> None:
-        """`c`: copy the highlighted task's rendered detail text via OSC 52."""
+        """`c`: copy the highlighted task's rendered detail text to the clipboard."""
         if self._current is None:
             return
         task = self._tasks.get(self._current)
         if task is None:
             return
-        self.copy_to_clipboard(render_detail(task))
+        self._copy_to_clipboard(render_detail(task))
         self.notify("copied task details", timeout=1.5)
 
     def action_toggle_sort(self) -> None:

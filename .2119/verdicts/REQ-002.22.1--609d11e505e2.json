@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.22.1--609d11e505e2",
+  "requirementId": "REQ-002.22.1",
+  "hash": "609d11e505e2",
+  "verdict": "pass",
+  "summary": "Test asserts the directive 'assess simplicity and net line count' in the real skill instructions; omitting either the simplicity or the net-line-count criterion fails the substring match.",
+  "timestamp": "2026-07-22T06:07:37.426Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.3--56df92194583",
+  "requirementId": "REQ-006.4.3",
+  "hash": "56df92194583",
+  "verdict": "pass",
+  "summary": "Tests reject pre-completion reporting, wrong released-claim counts at N=2 and N=0, multiline/extra text, and failure to use the dashboard notification surface.",
+  "timestamp": "2026-07-22T07:07:23.398Z"
+}

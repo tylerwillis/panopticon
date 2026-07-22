@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.1--ab3ed7651623",
+  "requirementId": "REQ-006.4.1",
+  "hash": "ab3ed7651623",
+  "verdict": "pass",
+  "summary": "Dashboard-path tests reject omitted or duplicate releases, re-check each listed task at confirmation, and release exactly once only when its current status is down.",
+  "timestamp": "2026-07-22T07:01:50.203Z"
+}
