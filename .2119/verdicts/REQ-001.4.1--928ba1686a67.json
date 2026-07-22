@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.4.1--928ba1686a67",
-  "requirementId": "REQ-001.4.1",
-  "hash": "928ba1686a67",
-  "verdict": "pass",
-  "summary": "Real-shell test creates all missing components on a real filesystem (is_dir + 0700 asserted, not stubbed - only the orthogonal setup_pi_auth is faked), and a rerun rejects already-exists failures via identical output + is_dir; success is enforced by the line-count guard on '|| echo unsupported'. Untested soft edge: partial pre-existence (credential root exists, outfitter/profiles missing).",
-  "timestamp": "2026-07-22T00:15:15.046Z"
-}

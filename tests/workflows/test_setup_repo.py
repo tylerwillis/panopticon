@@ -35,7 +35,11 @@ _SETUP_PI_AUTH = _shell_function("setup_pi_auth")
 def _sh(body: str) -> str:
     """Run ``body`` after the helpers in a POSIX shell; return its stdout."""
     result = subprocess.run(
-        ["sh", "-c", f"{_LIB}\n{body}"], capture_output=True, text=True, check=True
+        ["sh", "-c", f"{_LIB}\n{body}"],
+        capture_output=True,
+        text=True,
+        check=True,
+        stdin=subprocess.DEVNULL,
     )
     return result.stdout
 
@@ -124,22 +128,31 @@ dispatch_harness_auth unknown || echo unsupported
 # 2119: REQ-001.3
 # 2119: REQ-001.4
 def test_harness_auth_dispatch_routes_outfitter_through_pi(tmp_path: Path) -> None:
-    credential_path = tmp_path / "openai.d"
-    body = f"""
+    new_path = tmp_path / "new.d"
+    existing_root = tmp_path / "existing-root.d"
+    existing_root.mkdir()
+    existing_outfitter = tmp_path / "existing-outfitter.d"
+    (existing_outfitter / "outfitter").mkdir(parents=True)
+
+    for credential_path in (new_path, existing_root, existing_outfitter):
+        body = f"""
 credential_path={shlex.quote(str(credential_path))}
 setup_pi_auth() {{ echo pi-auth-flow; }}
 dispatch_harness_auth outfitter || echo unsupported
 """
 
-    lines = _sh(body).splitlines()
-    assert len(lines) == 2
-    assert "Outfitter uses Pi credentials" in lines[0]
-    assert lines[1] == "pi-auth-flow"
-    assert (credential_path / "outfitter" / "profiles").is_dir()
-    assert stat.S_IMODE(credential_path.stat().st_mode) == 0o700
-    rerun_lines = _sh(body).splitlines()
-    assert rerun_lines == lines  # an existing profiles directory remains a successful setup
-    assert (credential_path / "outfitter" / "profiles").is_dir()
+        lines = _sh(body).splitlines()
+        assert len(lines) == 2
+        assert "Outfitter uses Pi credentials" in lines[0]
+        assert lines[1] == "pi-auth-flow"
+        profiles = credential_path / "outfitter" / "profiles"
+        assert profiles.is_dir()
+        assert stat.S_IMODE(profiles.stat().st_mode) == 0o700
+        rerun_lines = _sh(body).splitlines()
+        assert rerun_lines == lines  # an existing profiles directory remains a successful setup
+        assert profiles.is_dir()
+
+    assert stat.S_IMODE(new_path.stat().st_mode) == 0o700
 
 
 # 2119: REQ-001.1
@@ -157,6 +170,7 @@ dispatch_harness_auth outfitter || echo unsupported
     lines = _sh(body).splitlines()
     assert "unsupported" not in lines
     assert lines[-1] == "pi-auth-flow"
+    assert credential_path.read_text() == ""
 
 
 # 2119: REQ-001.2
@@ -189,10 +203,6 @@ store_token() {{ echo stored:$1; }}
 
         assert "Outfitter uses Pi credentials" in outfitter_lines[0]
         assert outfitter_lines[1:] == pi_lines
-
-
-def test_outfitter_opening_summary_uses_pi_credential_check() -> None:
-    assert "pi|outfitter)" in WF.shell_script()
 
 
 def test_codex_repo_auth_check_accepts_env_file_or_credential_dir(tmp_path: Path) -> None:
