@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.7.1--e4f87b0ce01f",
+  "requirementId": "REQ-008.7.1",
+  "hash": "e4f87b0ce01f",
+  "verdict": "pass",
+  "summary": "Unversioned list_tasks() raises (forcing the versioned seed), the seed response's snapshot differs from pre-seed state and arrives with cursor 1, and no later change is signalled — so a dashboard that initializes the cursor but discards the returned snapshot renders 'user' forever and fails; the table is asserted to show the seeded 'agent' row.",
+  "timestamp": "2026-07-22T14:46:30.948Z"
+}

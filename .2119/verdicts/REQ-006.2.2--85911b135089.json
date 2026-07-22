@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.2.2--85911b135089",
+  "requirementId": "REQ-006.2.2",
+  "hash": "85911b135089",
+  "verdict": "pass",
+  "summary": "Exact rendered-line assertions cover every boundary: 8-char ID prefix, dash for null slug, 60-char memo without ellipsis, normalize-then-truncate at 62 chars with ellipsis, whitespace collapse, and null memo omitting the segment.",
+  "timestamp": "2026-07-22T14:41:26.400Z"
+}

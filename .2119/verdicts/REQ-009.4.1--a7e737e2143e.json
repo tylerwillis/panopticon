@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.4.1--a7e737e2143e",
+  "requirementId": "REQ-009.4.1",
+  "hash": "a7e737e2143e",
+  "verdict": "pass",
+  "summary": "Asserts the exact 'e: edit slug' string in the real rendered #detail widget after opening the pane; fails today without the feature. Trailing-hint placement isn't pinned, but the pane body renders only task data (fixture contains no such string), so the assertion can't be satisfied except by an added key hint; note REQ-007.2.1's endswith test forces any added hint text off the final copy-hint line.",
+  "timestamp": "2026-07-22T14:47:03.038Z"
+}

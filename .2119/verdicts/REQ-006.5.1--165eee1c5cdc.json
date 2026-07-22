@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.5.1--165eee1c5cdc",
+  "requirementId": "REQ-006.5.1",
+  "hash": "165eee1c5cdc",
+  "verdict": "pass",
+  "summary": "Exact notices == ['no down tasks'] for a live/failed/queued mix plus a parametrized sweep over empty and all 11 non-down statuses, with the snapshot mutated post-mount to pin 'latest'.",
+  "timestamp": "2026-07-22T14:41:57.550Z"
+}

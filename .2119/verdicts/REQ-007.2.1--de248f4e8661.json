@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.2.1--de248f4e8661",
+  "requirementId": "REQ-007.2.1",
+  "hash": "de248f4e8661",
+  "verdict": "pass",
+  "summary": "Real mounted pane: endswith('\\n'+exact hint) rejects wrong wording, non-trailing placement, or trailing additions; a span check pins dim styling over precisely the hint range; pane visibility/width asserted, so all three conjuncts (dim, trailing, exact text) have rejecting counterexamples.",
+  "timestamp": "2026-07-22T14:46:16.847Z"
+}

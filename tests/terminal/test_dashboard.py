@@ -115,6 +115,7 @@ class _FakeClient:
         self.applied: list[tuple[str, str]] = []
         self.got_tasks: list[str] = []
         self.released: list[str] = []
+        self.set_slugs: list[tuple[str, str]] = []
         self.created_repos: list[dict[str, Any]] = []
         self.updated_repos: list[tuple[str, dict[str, Any]]] = []
         # When set, create_repo/update_repo raise a 400 carrying this detail (mimics the task
@@ -255,6 +256,14 @@ class _FakeClient:
             if t["id"] == task_id:
                 t["claimed_by"] = None
         return {"id": task_id, "claimed_by": None}
+
+    def set_slug(self, task_id: str, slug: str) -> dict[str, Any]:
+        self.set_slugs.append((task_id, slug))
+        for task in self._tasks:
+            if task["id"] == task_id:
+                task["slug"] = slug
+                return task
+        raise KeyError(task_id)
 
 
 def test_render_detail_shows_state_turn_and_history() -> None:
@@ -1278,6 +1287,68 @@ async def test_pressing_y_with_no_slug_warns(monkeypatch: Any) -> None:
         await pilot.pause()
         assert copied == []
         assert app.is_running
+
+
+# 2119: REQ-009.1.1
+async def test_pressing_e_edits_slug_only_while_detail_is_open() -> None:
+    fake = _FakeClient([_TASK.copy()])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("e")
+        await pilot.pause()
+        assert not isinstance(app.screen, dashboard.SlugScreen)
+
+        await pilot.press("d")
+        await pilot.press("e")
+        await pilot.pause()
+        assert isinstance(app.screen, dashboard.SlugScreen)
+        assert app.screen.query_one(Input).value == "fix-widget"
+
+
+# 2119: REQ-009.2.1
+async def test_submitting_slug_editor_renames_highlighted_task_and_refreshes() -> None:
+    fake = _FakeClient([_TASK.copy()])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("d")
+        await pilot.press("e")
+        await pilot.pause()
+        editor = app.screen.query_one(Input)
+        editor.value = "better-widget-name"
+        await pilot.press("enter")
+        await pilot.pause()
+
+        assert fake.set_slugs == [("task-abcdef0123", "better-widget-name")]
+        assert "better-widget-name" in str(app.query_one("#detail", Static).render())
+
+
+# 2119: REQ-009.3.1
+async def test_cancelling_slug_editor_does_not_rename_task() -> None:
+    fake = _FakeClient([_TASK.copy()])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("d")
+        await pilot.press("e")
+        await pilot.pause()
+        app.screen.query_one(Input).value = "discard-me"
+        await pilot.press("escape")
+        await pilot.pause()
+
+        assert fake.set_slugs == []
+        assert "fix-widget" in str(app.query_one("#detail", Static).render())
+
+
+# 2119: REQ-009.4.1
+async def test_detail_pane_shows_edit_slug_key_hint() -> None:
+    app = Dashboard(_FakeClient([_TASK.copy()]))  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("d")
+        await pilot.pause()
+        assert "e: edit slug" in str(app.query_one("#detail", Static).render())
 
 
 async def test_pressing_shift_y_copies_the_id(monkeypatch: Any) -> None:

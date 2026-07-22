@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.2.1--a90f428c3289",
+  "requirementId": "REQ-006.2.1",
+  "hash": "a90f428c3289",
+  "verdict": "pass",
+  "summary": "Exact splitlines equality on the rendered modal proves every/only down tasks (live+failed in snapshot excluded); a second test mutates the snapshot post-mount to pin 'latest snapshot'.",
+  "timestamp": "2026-07-22T14:41:21.634Z"
+}

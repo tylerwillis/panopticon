@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.5.1--0a6573ec005e",
+  "requirementId": "REQ-001.5.1",
+  "hash": "0a6573ec005e",
+  "verdict": "pass",
+  "summary": "Pressing x on a built_in workflow asserts the screen stays WorkflowsScreen (no dialog) and the real file's content is unchanged — either violation fails directly.",
+  "timestamp": "2026-07-22T14:39:10.850Z"
+}

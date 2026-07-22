@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.8.1--b3a28b8744c1",
+  "requirementId": "REQ-001.8.1",
+  "hash": "b3a28b8744c1",
+  "verdict": "pass",
+  "summary": "Captured notify calls are cleared after screen mount so the x press alone must emit exactly ['Built-in workflows cannot be deleted.']; a silent refusal or mount-time notice fails.",
+  "timestamp": "2026-07-22T14:39:22.657Z"
+}
