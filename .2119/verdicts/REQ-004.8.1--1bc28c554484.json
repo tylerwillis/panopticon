@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-004.8.1--1bc28c554484",
+  "requirementId": "REQ-004.8.1",
+  "hash": "1bc28c554484",
+  "verdict": "pass",
+  "summary": "Failure is induced via the real harness-inequality rule (no mocks); test rejects a missing note and a reason-free note on the current history entry via the None + 'harness'-content checks",
+  "timestamp": "2026-07-22T05:51:48.662Z"
+}

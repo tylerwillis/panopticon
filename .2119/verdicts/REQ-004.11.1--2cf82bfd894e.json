@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-004.11.1--2cf82bfd894e",
+  "requirementId": "REQ-004.11.1",
+  "hash": "2cf82bfd894e",
+  "verdict": "pass",
+  "summary": "Paired workflow enters DRAFT at creation and WORKING via free move; the task list asserts no review task, catching a gate keyed on pairing rather than the REVIEW label",
+  "timestamp": "2026-07-22T05:51:47.395Z"
+}

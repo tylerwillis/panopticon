@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-004.10.1--4e18f8cc0467",
+  "requirementId": "REQ-004.10.1",
+  "hash": "4e18f8cc0467",
+  "verdict": "pass",
+  "summary": "Two REVIEW entries via advance/free-move-back/advance assert two review tasks with distinct ids both governed by the author; reusing the round-1 task would fail the count",
+  "timestamp": "2026-07-22T05:51:46.920Z"
+}

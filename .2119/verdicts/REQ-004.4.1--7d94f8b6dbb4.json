@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-004.4.1--7d94f8b6dbb4",
+  "requirementId": "REQ-004.4.1",
+  "hash": "7d94f8b6dbb4",
+  "verdict": "pass",
+  "summary": "Success branch asserts exactly one pending review-addressed responsibility; failure branch induces a genuine creation failure via real harness-equality validation and still asserts the seed",
+  "timestamp": "2026-07-22T05:51:45.462Z"
+}

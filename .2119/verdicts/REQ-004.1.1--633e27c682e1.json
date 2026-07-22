@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-004.1.1--633e27c682e1",
+  "requirementId": "REQ-004.1.1",
+  "hash": "633e27c682e1",
+  "verdict": "pass",
+  "summary": "Real advance into REVIEW on a paired workflow asserts exactly one review-workflow task across the full task list; zero or duplicate creation both fail the count",
+  "timestamp": "2026-07-22T05:51:44.147Z"
+}
