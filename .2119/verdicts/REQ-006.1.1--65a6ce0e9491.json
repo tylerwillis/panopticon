@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.1.1--65a6ce0e9491",
+  "requirementId": "REQ-006.1.1",
+  "hash": "65a6ce0e9491",
+  "verdict": "pass",
+  "summary": "test_bulk_respawn_binding_lists_only_down_tasks_for_confirmation drives a real ctrl+r keypress via Textual pilot through Dashboard.BINDINGS and asserts BulkRespawnScreen opens with exactly the down-task set; an unbound/mis-bound Ctrl+R would fail the isinstance/content assertions.",
+  "timestamp": "2026-07-22T17:08:41.232Z"
+}

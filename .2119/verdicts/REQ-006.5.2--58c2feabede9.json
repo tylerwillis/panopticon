@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.5.2--58c2feabede9",
+  "requirementId": "REQ-006.5.2",
+  "hash": "58c2feabede9",
+  "verdict": "pass",
+  "summary": "Real ctrl+r path with unmocked screen_stack check across empty plus all 11 non-down statuses; stale-to-latest mutation proves latest-snapshot semantics; sibling test proves the modal opens when down tasks exist.",
+  "timestamp": "2026-07-22T17:09:18.238Z"
+}

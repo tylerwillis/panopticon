@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.1.1--7757fd2dfee3",
+  "requirementId": "REQ-007.1.1",
+  "hash": "7757fd2dfee3",
+  "verdict": "pass",
+  "summary": "Real key dispatch verifies both clipboard paths receive the highlighted task's render_detail text, and the host write still fires after a terminal-write failure.",
+  "timestamp": "2026-07-22T17:09:18.635Z"
+}

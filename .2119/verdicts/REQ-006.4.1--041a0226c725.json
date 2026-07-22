@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.1--041a0226c725",
+  "requirementId": "REQ-006.4.1",
+  "hash": "041a0226c725",
+  "verdict": "pass",
+  "summary": "Tests re-check container_status at confirmation time (get_task) rather than the modal-open snapshot, assert release fires exactly once per still-down task via the same client.release path as single respawn, and reject stale-snapshot/double-release/non-down violations via fake.released/events assertions.",
+  "timestamp": "2026-07-22T17:08:43.253Z"
+}

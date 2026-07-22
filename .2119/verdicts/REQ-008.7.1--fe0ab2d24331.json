@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.7.1--fe0ab2d24331",
+  "requirementId": "REQ-008.7.1",
+  "hash": "fe0ab2d24331",
+  "verdict": "pass",
+  "summary": "Unversioned list_tasks() raises and the fake mutates tasks+version only in the first wait=None versioned call, so the rendered turn can only come from the paired seed response, not a stale snapshot or later refresh.",
+  "timestamp": "2026-07-22T17:09:19.817Z"
+}

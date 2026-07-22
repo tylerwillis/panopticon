@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.3.1--10c5c0ba7e77",
+  "requirementId": "REQ-001.3.1",
+  "hash": "10c5c0ba7e77",
+  "verdict": "pass",
+  "summary": "Parametrized no-click and Escape each must dismiss to WorkflowsScreen with the real tmp file's bytes intact.",
+  "timestamp": "2026-07-22T17:09:14.655Z"
+}

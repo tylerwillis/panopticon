@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.5.1--f1cdf3c77769",
+  "requirementId": "REQ-006.5.1",
+  "hash": "f1cdf3c77769",
+  "verdict": "pass",
+  "summary": "Ctrl+R tests over empty plus all non-down statuses and a stale-to-latest mutation assert the exact 'no down tasks' notice, proving the check reads a fresh list_tasks() snapshot.",
+  "timestamp": "2026-07-22T17:09:17.838Z"
+}
