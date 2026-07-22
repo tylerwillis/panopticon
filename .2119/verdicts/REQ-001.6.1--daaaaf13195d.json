@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.6.1--daaaaf13195d",
+  "requirementId": "REQ-001.6.1",
+  "hash": "daaaaf13195d",
+  "verdict": "pass",
+  "summary": "After cycling claude→codex, model candidates must contain terra and exclude fable, and effort candidates must contain codex-only 'medium' (claude's effort vocab is empty) — a stale pre-change vocabulary fails both halves",
+  "timestamp": "2026-07-21T23:52:00.280Z"
+}

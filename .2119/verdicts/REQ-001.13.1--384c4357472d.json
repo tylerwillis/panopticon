@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.13.1--384c4357472d",
+  "requirementId": "REQ-001.13.1",
+  "hash": "384c4357472d",
+  "verdict": "pass",
+  "summary": "Types a memo in the focused editor, presses Enter, and asserts the fake client received both memo='fix' and initial_prompt='fix'; no-submit or memo-without-prompt implementations fail the created-tuple assert.",
+  "timestamp": "2026-07-21T23:58:16.004Z"
+}

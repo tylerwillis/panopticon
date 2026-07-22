@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.7.1--4a347d0634c2",
+  "requirementId": "REQ-001.7.1",
+  "hash": "4a347d0634c2",
+  "verdict": "pass",
+  "summary": "Focuses all three launch controls without editing, cancels, mutates the repo default to luna:low, reopens, and asserts the controls plus summary show the new default — focus-as-touched or defaults frozen at first open would fail",
+  "timestamp": "2026-07-21T23:52:00.773Z"
+}

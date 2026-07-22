@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.17.1--1f979a94284e",
+  "requirementId": "REQ-001.17.1",
+  "hash": "1f979a94284e",
+  "verdict": "pass",
+  "summary": "Both model and effort parametrized: no-match text (option_count==0, so no highlight) then Enter must leave MemoScreen on top with no task created; close-or-submit violations fail (test is currently red pending the OptionList implementation, so not tautological)",
+  "timestamp": "2026-07-22T00:04:47.940Z"
+}
