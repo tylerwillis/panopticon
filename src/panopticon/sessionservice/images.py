@@ -1,8 +1,8 @@
 """Composable task images (ADR 0005): a task's image = **base → harness → workflow → repo**.
 
 The base is minimal and general; a **harness** contributes its agent CLI (M3 — empty for claude,
-whose CLI still ships in the base); a workflow contributes a layer with what its skills need
-(e.g. `gh`); a repo contributes its toolchain/setup. We compose them by writing a Dockerfile
+whose CLI still ships in the base); a workflow contributes any workflow-specific additions; a
+repo contributes its toolchain/setup. We compose them by writing a Dockerfile
 that `FROM`s the base and appends the layers, tag it `panopticon-<harness>-<workflow>-<repo>`,
 and `docker build` it behind the injectable command-runner (so it's unit-testable without a
 daemon). LLM-free. The runner builds the composed image, then spawns the task on it.

@@ -114,7 +114,7 @@ def test_workflow_image_layer_endpoint(client: TestClient) -> None:
     assert client.get("/workflows/spike/image-layer").json() == {"layer": ""}
 
 
-def test_workflow_image_layer_surfaces_github_peer_revieweds_gh_layer(tmp_path: Path) -> None:
+def test_workflow_image_layer_is_empty_when_forge_tools_are_in_base(tmp_path: Path) -> None:
     from panopticon.workflows import GithubPeerReviewed
 
     svc = TaskService(
@@ -123,9 +123,7 @@ def test_workflow_image_layer_surfaces_github_peer_revieweds_gh_layer(tmp_path: 
         FilesystemArtifactStore(tmp_path),
     )
     with TestClient(create_app(svc)) as c:
-        assert (
-            "gh" in c.get("/workflows/github-peer-reviewed/image-layer").json()["layer"]
-        )  # forge skills need gh
+        assert c.get("/workflows/github-peer-reviewed/image-layer").json() == {"layer": ""}
 
 
 def _repo_layer_client(tmp_path: Path, *, image_layer_file: str | None) -> TestClient:

@@ -23,7 +23,8 @@ src/panopticon/
                    # branch/worktree ops; LLM-free, behind an injectable command-runner)
   workflows/       # built-in Workflow subclasses (Spike seed; GithubPeerReviewed [formerly Parity]
                    # = cloude-cade lifecycle; GithubSelfReviewed = same, sans the peer-review state,
-                   # the user self-reviews; both share the GithubForgeWorkflow base = gh tool/layer/skills;
+                   # the user self-reviews; both share the GithubForgeWorkflow base = gh tool/skills
+                   # (gh is base-installed);
                    # Orchestrator = an agent that creates + pre-plans other tasks, `orchestrates=True`
                    # gating the create/list MCP tools to it, ready-to-approve via the spawn-task skill;
                    # SetupRepo = a `runner_type="shell"` workflow — no container, the session service runs
@@ -72,7 +73,7 @@ src/panopticon/
                    # pane's launcher: fetch the workflow surface, dispatch to the task's harness
                    # (bootstrap = pure file writes), then run its argv) + hook.py (the turn-flip
                    # callback BOTH harnesses' hooks invoke) — the ONLY LLM pkg (the launch)
-docker/Dockerfile  # base task-container image (ADR 0005 base layer): python + git + bash +
+docker/Dockerfile  # base task-container image (ADR 0005 base layer): python + git + gh + bash +
                    # the panopticon package + the `claude` CLI the agent execs; runs as the
                    # unprivileged `panopticon` user. docker/entrypoint.sh = remap that user to the
                    # invoking host uid/gid (PANOPTICON_PUID/PGID) then drop via gosu
