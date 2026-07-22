@@ -386,6 +386,7 @@ async def test_user_turn_preserves_blocked_marker(tmp_path: Path) -> None:
 
 
 # 2119: REQ-008.2.1
+# 2119: REQ-008.2.2
 @pytest.mark.parametrize("change", ["declared-transition", "free-move", "drop"])
 async def test_every_state_change_clears_blocked(tmp_path: Path, change: str) -> None:
     svc = await make_service(tmp_path)
@@ -420,12 +421,54 @@ async def test_cascade_drop_clears_a_governed_tasks_blocked_marker(tmp_path: Pat
     assert dropped_child.blocked is False
 
 
+# 2119: REQ-008.2.1
+# 2119: REQ-008.2.2
+async def test_transition_hook_can_raise_a_fresh_block_after_the_stale_one_clears(
+    tmp_path: Path,
+) -> None:
+    class Hooked(Workflow):
+        name = "blocked-on-entry"
+
+        class A(InitialState):
+            label = "A"
+            transitions = (Complete,)
+
+        initial = A
+
+        async def on_transition(self, task, *, from_state, to_state, artifacts):  # type: ignore[override]
+            assert task.blocked is False
+            task.blocked = True
+
+    svc = TaskService(
+        SqlAlchemyStore(), {"blocked-on-entry": Hooked()}, FilesystemArtifactStore(tmp_path)
+    )
+    await svc.init()
+    await svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
+    task = await svc.create_task("r1", "blocked-on-entry")
+    await svc.set_blocked(task.id, True)
+    before = svc.tasks_version()
+
+    moved = await svc.apply_operation(task.id, "advance")
+
+    assert moved.state == "COMPLETE"
+    assert moved.blocked is True
+    assert svc.tasks_version() == before + 1
+    assert (await svc.get_task(task.id)).blocked is True
+
+
 # 2119: REQ-008.3.1
-async def test_agent_can_set_blocked_again_after_automatic_clear(tmp_path: Path) -> None:
+@pytest.mark.parametrize("automatic_clear", ["agent-turn", "state-change"])
+async def test_agent_can_set_blocked_again_after_automatic_clear(
+    tmp_path: Path, automatic_clear: str
+) -> None:
     svc = await make_service(tmp_path)
     task = await svc.create_task("r1", "spike")
     await svc.set_blocked(task.id, True)
-    assert (await svc.set_turn(task.id, Actor.AGENT)).blocked is False
+    if automatic_clear == "agent-turn":
+        cleared = await svc.set_turn(task.id, Actor.AGENT)
+    else:
+        cleared = await svc.apply_operation(task.id, "advance")
+    assert cleared.blocked is False
 
     reset = await svc.set_blocked(task.id, True)
 

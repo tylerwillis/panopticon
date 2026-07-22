@@ -331,8 +331,7 @@ on every PR (the same commands the Makefile wraps).
   `turn=agent`. The claude wiring is `container/hooks.py` (renders `.claude/settings.json`) +
   `container/hook.py` (the callback the events invoke), rendered by the agent launcher. `Task.blocked`
   (`PUT …/blocked`) is a deliberate "waiting" marker the agent sets (cloude-cade's `:blocked:`).
-  A turn-to-agent write clears `blocked`, because the user has addressed the task; every task state change clears `blocked`,
-  because the state that raised it has ended. A turn-to-user write preserves `blocked`, and the agent can explicitly set `blocked` again after either automatic clear if it is still stuck.
+  A turn-to-agent write clears `blocked`, because the user has addressed the task; every task state change clears the existing `blocked` before lifecycle effects run, because the state that raised it has ended. A lifecycle effect may raise a fresh block for the state being entered. A turn-to-user write preserves `blocked`, and the agent can explicitly set `blocked` again after either automatic clear if it is still stuck.
   Claude's blocking `UserPromptSubmit` command hook runs before prompt processing; its floor is callback process startup plus the synchronous task-service write.
   Codex's blocking `UserPromptSubmit` command hook runs before prompt processing; its floor is callback process startup plus the synchronous task-service write.
   Pi's `input` event runs before prompt processing, and its handler waits for the task-service write.

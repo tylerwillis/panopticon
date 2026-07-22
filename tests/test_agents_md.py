@@ -25,7 +25,9 @@ def _blocked_lifecycle() -> str:
 def test_glossary_states_the_complete_blocked_lifecycle_without_qualifiers() -> None:
     assert _blocked_lifecycle() == (
         "A turn-to-agent write clears `blocked`, because the user has addressed the task; "
-        "every task state change clears `blocked`, because the state that raised it has ended. "
+        "every task state change clears the existing `blocked` before lifecycle effects run, "
+        "because the state that raised it has ended. A lifecycle effect may raise a fresh block "
+        "for the state being entered. "
         "A turn-to-user write preserves `blocked`, and the agent can explicitly set `blocked` "
         "again after either automatic clear if it is still stuck."
     )

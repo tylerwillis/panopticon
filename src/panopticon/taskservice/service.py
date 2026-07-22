@@ -603,12 +603,14 @@ class TaskService:
             wf.force_transition(task, to_state, at=self._clock(), trigger=trigger, note=note)
         else:
             wf.apply_transition(task, to_state, at=self._clock(), trigger=trigger, note=note)
+        # End the stale waiting condition from the state being left before lifecycle effects run.
+        # A hook may deliberately raise a fresh block for the state being entered.
+        task.blocked = False
         # Deterministic lifecycle hook (e.g. seed the plan on plan acceptance) — may touch the
         # task/artifacts; run before the single save so any task mutation persists with it.
         await wf.on_transition(
             task, from_state=from_state, to_state=task.state, artifacts=self._artifacts
         )
-        task.blocked = False
         await self._save_task(task)
         if to_state == Dropped.label:
             await self._cascade_drop_governed(task.id, trigger=trigger, note=note)
