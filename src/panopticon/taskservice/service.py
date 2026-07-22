@@ -414,7 +414,9 @@ class TaskService:
         task.starting_model = starting_model
         if starting_model is None and (harness is None or harness == pair_harness):
             task.starting_model = pair_model
-        if workflow_name == "review" and (governor is None or task.harness == governor.harness):
+        if workflow_name == "review" and (
+            governor is None or get_harness(task.harness).name == get_harness(governor.harness).name
+        ):
             raise ValueError("review task harness must differ from its governor task's harness")
         task.governor_task_id = governor_task_id
         task.created_at = now
