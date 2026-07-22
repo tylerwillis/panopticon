@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.20.1--156fc320d71d",
+  "requirementId": "REQ-001.20.1",
+  "hash": "156fc320d71d",
+  "verdict": "pass",
+  "summary": "Pins the prohibition covering both conjuncts (supplying + retrieving) in the real skill instructions — the correct observable under the no-LLM test policy",
+  "timestamp": "2026-07-22T00:46:07.540Z"
+}

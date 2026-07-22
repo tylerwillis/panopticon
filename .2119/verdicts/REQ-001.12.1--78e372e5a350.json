@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.12.1--78e372e5a350",
+  "requirementId": "REQ-001.12.1",
+  "hash": "78e372e5a350",
+  "verdict": "pass",
+  "summary": "Review absent from both real menu feeds (GET /workflows and /repos/{id}/workflows) while registered and creatable — distinguishes hidden from unregistered; spike presence guards empty-menu vacuity",
+  "timestamp": "2026-07-22T00:46:07.067Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.20.1--cb4550103f91",
-  "requirementId": "REQ-001.20.1",
-  "hash": "cb4550103f91",
-  "verdict": "pass",
-  "summary": "Exact skill prohibition covers both retrieving and supplying author conversation as review input",
-  "timestamp": "2026-07-22T00:24:19.675Z"
-}

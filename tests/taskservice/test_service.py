@@ -24,7 +24,7 @@ from panopticon.taskservice.service import (
     UnknownWorkflow,
 )
 from panopticon.taskservice.store_sqlalchemy import SqlAlchemyStore
-from panopticon.workflows import GithubPeerReviewed, Orchestrator, SetupRepo, Spike
+from panopticon.workflows import GithubPeerReviewed, Orchestrator, Review, SetupRepo, Spike
 
 
 async def make_service(tmp_path: Path) -> TaskService:
@@ -36,6 +36,7 @@ async def make_service(tmp_path: Path) -> TaskService:
             "spike": Spike(),
             "github-peer-reviewed": GithubPeerReviewed(),
             "orchestrator": Orchestrator(),
+            "review": Review(),
             "setup-repo": SetupRepo(),  # opt-out but hidden from the pickers
         },
         FilesystemArtifactStore(tmp_path),
@@ -151,17 +152,25 @@ async def test_list_workflow_infos_for_repo_shows_opt_in_and_filters(tmp_path: P
     assert all("opt_in" in w for w in infos)
 
 
+# 2119: REQ-001.12
 async def test_hidden_workflow_absent_from_both_menus_but_still_creatable(tmp_path: Path) -> None:
     svc = await make_service(tmp_path)
-    # setup-repo is hidden → excluded from the repo-form menu (all workflows) and the
-    # task-creation picker (repo-filtered), even though it's opt-out (visible to the create gate).
-    assert "setup-repo" not in {w["name"] for w in await svc.list_workflow_infos()}
-    assert "setup-repo" not in {w["name"] for w in await svc.list_workflow_infos_for_repo("r1")}
+    # Hidden workflows are excluded from the repo-form menu (all workflows) and the
+    # task-creation picker (repo-filtered), even though they remain registered and creatable.
+    all_menu = {w["name"] for w in await svc.list_workflow_infos()}
+    repo_menu = {w["name"] for w in await svc.list_workflow_infos_for_repo("r1")}
+    assert "review" in await svc.workflow_names()
+    assert "review" not in all_menu
+    assert "review" not in repo_menu
+    assert "setup-repo" not in all_menu
+    assert "setup-repo" not in repo_menu
     # sanity: a non-hidden opt-out workflow is still present in the all-workflows menu
     assert "spike" in {w["name"] for w in await svc.list_workflow_infos()}
     # hidden is display-only — the workflow stays creatable (e.g. via the repos-modal hotkey)
-    task = await svc.create_task("r1", "setup-repo")
-    assert task.workflow == "setup-repo"
+    setup = await svc.create_task("r1", "setup-repo")
+    review = await svc.create_task("r1", "review")
+    assert setup.workflow == "setup-repo"
+    assert review.workflow == "review"
 
 
 async def test_list_workflow_infos_for_repo_hides_disabled_opt_out(tmp_path: Path) -> None:

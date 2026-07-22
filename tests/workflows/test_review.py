@@ -24,7 +24,6 @@ def _verdict_section(name: str, next_name: str | None = None) -> str:
 
 
 # 2119: REQ-001.1
-# 2119: REQ-001.12
 def test_review_is_a_hidden_builtin(tmp_path: Path) -> None:
     registry = discover_workflows(_home_workflows=tmp_path / "no-home-workflows")
     assert registry["review"].name == "review"
@@ -82,6 +81,9 @@ def test_review_exposes_one_review_skill() -> None:
 def test_review_skill_collects_only_governor_artifacts_and_change() -> None:
     instructions = _instructions()
     normalized = " ".join(instructions.split())
+    inspect_change = normalized.split("3. **Inspect the change.**", 1)[1].split(
+        "4. **Assess correctness", 1
+    )[0]
     assert (
         "Call `get_task` with your own review task id and read its `governor_task_id`."
         in normalized
@@ -90,8 +92,15 @@ def test_review_skill_collects_only_governor_artifacts_and_change() -> None:
         "Call `list_artifacts` on the governor task id, then read its `plan.md` through the "
         "returned MCP resource URI."
     ) in normalized
-    assert "`url`" in instructions and "gh pr diff" in instructions
-    assert "`branch`" in instructions and "`clone`" in instructions and "git diff" in instructions
+    assert (
+        "If the governor has a recorded `url`, run `gh pr view <url>` and `gh pr diff <url>`."
+        in inspect_change
+    )
+    assert (
+        "Otherwise use its recorded `branch` and `clone`: inspect the clone directly when it is "
+        "accessible, or run `git fetch origin <branch>`"
+    ) in inspect_change
+    assert "run `git diff <base>...FETCH_HEAD`" in inspect_change
     assert (
         "The author's conversation must not be supplied as review input. Do not retrieve, request, "
         "or use it even if it is supplied anyway"
@@ -127,7 +136,9 @@ def test_review_skill_orders_the_simplicity_ladder() -> None:
 # 2119: REQ-001.24
 def test_approval_writes_no_verdict_artifact_and_completes() -> None:
     approval = _verdict_section("Approve", "Findings")
-    assert "write no artifact" in approval.lower()
+    normalized = " ".join(approval.split())
+    assert "Write no artifact: no `review.md` or other verdict artifact." in normalized
+    assert "put_artifact" not in approval
     assert "Call the `advance` operation to move this review task to `COMPLETE`." in approval
 
 

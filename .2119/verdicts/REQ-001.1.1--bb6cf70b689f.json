@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.1.1--bb6cf70b689f",
-  "requirementId": "REQ-001.1.1",
-  "hash": "bb6cf70b689f",
-  "verdict": "pass",
-  "summary": "Real discovery registry lookup rejects missing or renamed review workflow",
-  "timestamp": "2026-07-21T23:56:11.679Z"
-}
