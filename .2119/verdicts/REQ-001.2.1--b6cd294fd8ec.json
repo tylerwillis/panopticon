@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.2.1--b6cd294fd8ec",
-  "requirementId": "REQ-001.2.1",
-  "hash": "b6cd294fd8ec",
-  "verdict": "pass",
-  "summary": "Delegation verified in real sh with exact-output equality: outfitter dispatch enters the same setup_pi_auth that owns pi's offer/skip check, so pi's conditions apply by construction; test is currently red pre-implementation, and unsupported/wrong-flow/duplicate-offer violators all break the exact two-line assertion.",
-  "timestamp": "2026-07-21T23:38:09.177Z"
-}

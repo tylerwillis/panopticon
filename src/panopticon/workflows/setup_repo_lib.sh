@@ -230,8 +230,12 @@ dispatch_harness_auth() {
         codex) setup_codex_auth ;;
         pi) setup_pi_auth ;;
         outfitter)
-            echo "Outfitter uses Pi credentials; continuing with Pi authentication."
-            [ -z "${credential_path:-}" ] || mkdir -p "$credential_path/outfitter/profiles" || return 1
+            echo "Outfitter uses Pi credentials."
+            if [ -n "${credential_path:-}" ]; then
+                umask 077
+                mkdir -p "$credential_path/outfitter/profiles" \
+                    || echo "warning: couldn't prepare Outfitter's profiles directory" >&2
+            fi
             setup_pi_auth
             ;;
         *) return 1 ;;

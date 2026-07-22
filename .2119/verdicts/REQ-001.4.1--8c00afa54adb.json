@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.4.1--8c00afa54adb",
-  "requirementId": "REQ-001.4.1",
-  "hash": "8c00afa54adb",
-  "verdict": "pass",
-  "summary": "Real-sh run of the actual lib asserts credential_path/outfitter/profiles is_dir on a path the test never pre-creates (only interactive setup_pi_auth is stubbed, which can only cause false failure); rejects missing-dir, file-at-path, and wrong-path violations and fails today against the outfitter-less dispatch; only the preserve-a-preexisting-dir edge of 'leave present' is untested.",
-  "timestamp": "2026-07-21T23:38:10.087Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.2.1--3006f946d332",
+  "requirementId": "REQ-001.2.1",
+  "hash": "3006f946d332",
+  "verdict": "pass",
+  "summary": "test_outfitter_uses_real_pi_auth_conditions runs the real (unmocked) setup_pi_auth against 3 credential combos (env-var configured, credential-dir configured, unconfigured) and asserts outfitter's dispatch output equals pi's line-for-line beyond the notice, genuinely covering both the skip and offer branches.",
+  "timestamp": "2026-07-22T00:04:09.109Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.1.1--baa3aaf57fdc",
+  "requirementId": "REQ-001.1.1",
+  "hash": "baa3aaf57fdc",
+  "verdict": "pass",
+  "summary": "Two REQ-001.1 tests exercise the real dispatch_harness_auth in sh (only setup_pi_auth stubbed); one confirms outfitter's output is exactly [notice, pi-auth-flow] with no fallthrough, the other forces the profiles-mkdir to fail and asserts 'unsupported' is absent — both would fail against the pre-fix code (mkdir failure -> return 1 -> unsupported), a genuine counterexample-rejecting check.",
+  "timestamp": "2026-07-22T00:04:08.598Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.3.1--f184b44bc271",
+  "requirementId": "REQ-001.3.1",
+  "hash": "f184b44bc271",
+  "verdict": "pass",
+  "summary": "Real dispatch_harness_auth (only downstream setup_pi_auth stubbed) is asserted via exact 2-line splitlines equality, so a missing, reworded, or multi-line-split notice each breaks the assertions.",
+  "timestamp": "2026-07-22T00:04:09.598Z"
+}

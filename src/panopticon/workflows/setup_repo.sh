@@ -58,7 +58,7 @@ case "$default_harness" in
         codex_repo_auth_configured "${PANOPTICON_ENV_FILE:-}" "$credential_path" \
             && harness_configured=1
         ;;
-    pi)
+    pi|outfitter)
         pi_repo_auth_configured "${PANOPTICON_ENV_FILE:-}" "$credential_path" \
             && harness_configured=1
         ;;
