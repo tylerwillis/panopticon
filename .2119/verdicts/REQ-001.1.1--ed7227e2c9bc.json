@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.1.1--ed7227e2c9bc",
-  "requirementId": "REQ-001.1.1",
-  "hash": "ed7227e2c9bc",
-  "verdict": "pass",
-  "summary": "registry['review'] resolved via real discover_workflows with home dir isolated; missing/renamed builtin raises KeyError; no mocks",
-  "timestamp": "2026-07-21T23:40:23.803Z"
-}

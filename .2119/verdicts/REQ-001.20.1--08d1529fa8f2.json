@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.20.1--08d1529fa8f2",
+  "requirementId": "REQ-001.20.1",
+  "hash": "08d1529fa8f2",
+  "verdict": "pass",
+  "summary": "Unmocked full prohibition sentence covers retrieving supplied conversation and review-input boundary after whitespace normalization",
+  "timestamp": "2026-07-22T00:07:18.212Z"
+}

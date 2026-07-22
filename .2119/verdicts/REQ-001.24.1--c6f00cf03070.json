@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.24.1--c6f00cf03070",
-  "requirementId": "REQ-001.24.1",
-  "hash": "c6f00cf03070",
-  "verdict": "pass",
-  "summary": "Scoped to the Approve section; missing marker raises IndexError and approval lacking advance to COMPLETE fails",
-  "timestamp": "2026-07-21T23:41:28.446Z"
-}

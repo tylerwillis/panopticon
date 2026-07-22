@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.26.1--52e84acdfa5b",
+  "requirementId": "REQ-001.26.1",
+  "hash": "52e84acdfa5b",
+  "verdict": "pass",
+  "summary": "Findings tail pins advance-to-COMPLETE direction",
+  "timestamp": "2026-07-21T23:56:23.050Z"
+}

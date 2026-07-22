@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.4.1--84fd0b0f8baa",
+  "requirementId": "REQ-001.4.1",
+  "hash": "84fd0b0f8baa",
+  "verdict": "pass",
+  "summary": "Exact skill count rejects zero and multiple workflow skills",
+  "timestamp": "2026-07-21T23:56:13.271Z"
+}

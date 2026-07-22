@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.27.1--8dc4e0e6fc4f",
-  "requirementId": "REQ-001.27.1",
-  "hash": "8dc4e0e6fc4f",
-  "verdict": "pass",
-  "summary": "Discovery sweep of all built-ins suppresses home workflows and guards vacuity; both pair attrs must be None",
-  "timestamp": "2026-07-21T23:41:29.811Z"
-}

@@ -12,7 +12,7 @@ WF = Review()
 
 
 def _instructions() -> str:
-    return tuple(WF.skills())[0].instructions
+    return next(iter(WF.skills())).instructions
 
 
 def _verdict_section(name: str, next_name: str | None = None) -> str:
@@ -81,13 +81,17 @@ def test_review_exposes_one_review_skill() -> None:
 # 2119: REQ-001.20
 def test_review_skill_collects_only_governor_artifacts_and_change() -> None:
     instructions = _instructions()
+    normalized = " ".join(instructions.split())
     assert "governor_task_id" in instructions
     assert "get_task" in instructions
     assert "list_artifacts" in instructions
     assert "`plan.md`" in instructions
     assert "`url`" in instructions and "gh pr diff" in instructions
     assert "`branch`" in instructions and "`clone`" in instructions and "git diff" in instructions
-    assert "Do not retrieve or request the author's conversation" in instructions
+    assert (
+        "Do not retrieve, request, or use the author's conversation even if supplied. "
+        "It is not review input"
+    ) in normalized
 
 
 # 2119: REQ-001.5
@@ -95,11 +99,11 @@ def test_review_skill_collects_only_governor_artifacts_and_change() -> None:
 # 2119: REQ-001.22
 def test_review_skill_covers_correctness_scope_and_simplicity() -> None:
     instructions = _instructions().lower()
-    assert "correctness" in instructions
-    assert "matches the plan" in instructions
-    assert "unplanned scope" in instructions
-    assert "simplicity" in instructions
-    assert "net line count" in instructions
+    assert (
+        "assess correctness and whether the change matches the plan without unplanned scope"
+        in instructions
+    )
+    assert "assess simplicity and net line count" in instructions
 
 
 # 2119: REQ-001.23
@@ -120,8 +124,7 @@ def test_review_skill_orders_the_simplicity_ladder() -> None:
 def test_approval_writes_no_verdict_artifact_and_completes() -> None:
     approval = _verdict_section("Approve", "Findings")
     assert "write no artifact" in approval.lower()
-    assert "advance" in approval
-    assert "`COMPLETE`" in approval
+    assert "Call the `advance` operation to move this review task to `COMPLETE`." in approval
 
 
 # 2119: REQ-001.7

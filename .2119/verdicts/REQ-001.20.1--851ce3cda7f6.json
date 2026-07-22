@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.20.1--851ce3cda7f6",
-  "requirementId": "REQ-001.20.1",
-  "hash": "851ce3cda7f6",
-  "verdict": "pass",
-  "summary": "Pins explicit prohibition against retrieving or requesting the author conversation",
-  "timestamp": "2026-07-21T23:41:53.690Z"
-}

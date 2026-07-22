@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.24.1--3f6457980154",
+  "requirementId": "REQ-001.24.1",
+  "hash": "3f6457980154",
+  "verdict": "pass",
+  "summary": "Approve-only section must direct advance of this review task to COMPLETE",
+  "timestamp": "2026-07-22T00:00:15.690Z"
+}

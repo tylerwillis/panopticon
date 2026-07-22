@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.6.1--fca0c4033fae",
+  "requirementId": "REQ-001.6.1",
+  "hash": "fca0c4033fae",
+  "verdict": "pass",
+  "summary": "Approve section requires explicit write-no-artifact direction",
+  "timestamp": "2026-07-21T23:56:14.269Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.2.1--a25657b19911",
+  "requirementId": "REQ-001.2.1",
+  "hash": "a25657b19911",
+  "verdict": "pass",
+  "summary": "Real start_task asserts REVIEWING state and single-entry history",
+  "timestamp": "2026-07-21T23:56:12.202Z"
+}

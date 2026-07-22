@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.2.1--00320afc0df1",
-  "requirementId": "REQ-001.2.1",
-  "hash": "00320afc0df1",
-  "verdict": "pass",
-  "summary": "real start_task asserts state REVIEWING and history exactly [REVIEWING], rejecting both a different initial state and a start-then-hop",
-  "timestamp": "2026-07-21T23:40:24.309Z"
-}

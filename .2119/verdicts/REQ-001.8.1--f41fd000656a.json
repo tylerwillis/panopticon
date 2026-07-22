@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.8.1--f41fd000656a",
-  "requirementId": "REQ-001.8.1",
-  "hash": "f41fd000656a",
-  "verdict": "pass",
-  "summary": "pins the outright prohibition Never edit the governor's code; softer phrasing or omission fails",
-  "timestamp": "2026-07-21T23:40:28.177Z"
-}

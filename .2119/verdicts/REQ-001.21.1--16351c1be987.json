@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.21.1--16351c1be987",
-  "requirementId": "REQ-001.21.1",
-  "hash": "16351c1be987",
-  "verdict": "pass",
-  "summary": "Distinct phrases matches the plan and unplanned scope asserted on the real skill instructions; dropping either direction fails",
-  "timestamp": "2026-07-21T23:41:27.110Z"
-}

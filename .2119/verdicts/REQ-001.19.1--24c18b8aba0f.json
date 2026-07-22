@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.19.1--24c18b8aba0f",
+  "requirementId": "REQ-001.19.1",
+  "hash": "24c18b8aba0f",
+  "verdict": "pass",
+  "summary": "Both URL and branch-clone diff routes are pinned",
+  "timestamp": "2026-07-21T23:56:19.703Z"
+}

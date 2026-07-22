@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.22.1--ca42cb3193f7",
-  "requirementId": "REQ-001.22.1",
-  "hash": "ca42cb3193f7",
-  "verdict": "pass",
-  "summary": "Asserts simplicity and net line count in the real skill instructions; removing either assessment direction fails",
-  "timestamp": "2026-07-21T23:41:27.611Z"
-}

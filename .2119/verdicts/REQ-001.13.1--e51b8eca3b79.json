@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.13.1--e51b8eca3b79",
-  "requirementId": "REQ-001.13.1",
-  "hash": "e51b8eca3b79",
-  "verdict": "pass",
-  "summary": "Real start_task asserts turn is Actor.AGENT; golden suite proves turn derives from state declaration",
-  "timestamp": "2026-07-21T23:41:50.482Z"
-}

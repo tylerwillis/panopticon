@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.14.1--e716e0717a11",
-  "requirementId": "REQ-001.14.1",
-  "hash": "e716e0717a11",
-  "verdict": "pass",
-  "summary": "responsibilities(REVIEWING) equals empty; any declared responsibility fails",
-  "timestamp": "2026-07-21T23:41:50.941Z"
-}

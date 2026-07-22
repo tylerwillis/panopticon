@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.7.1--50e997d54413",
-  "requirementId": "REQ-001.7.1",
-  "hash": "50e997d54413",
-  "verdict": "pass",
-  "summary": "Findings section pins put_artifact(task_id=<governor_task_id>, name=review.md): wrong name or write-to-own-task both rejected",
-  "timestamp": "2026-07-21T23:40:27.534Z"
-}

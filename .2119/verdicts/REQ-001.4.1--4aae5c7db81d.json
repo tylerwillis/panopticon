@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.4.1--4aae5c7db81d",
-  "requirementId": "REQ-001.4.1",
-  "hash": "4aae5c7db81d",
-  "verdict": "pass",
-  "summary": "len(WF.skills())==1 rejects zero and two; skills() is the workflow-specific set (provision is prepended by the service separately)",
-  "timestamp": "2026-07-21T23:40:25.636Z"
-}

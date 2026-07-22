@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.15.1--610d6ebfd47c",
-  "requirementId": "REQ-001.15.1",
-  "hash": "610d6ebfd47c",
-  "verdict": "pass",
-  "summary": "Transition set equality rejects missing and extra transitions; operations mapping and apply_transition cover destinations",
-  "timestamp": "2026-07-21T23:41:51.426Z"
-}

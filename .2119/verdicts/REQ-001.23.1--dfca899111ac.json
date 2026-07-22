@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.23.1--dfca899111ac",
-  "requirementId": "REQ-001.23.1",
-  "hash": "dfca899111ac",
-  "verdict": "pass",
-  "summary": "index of all four ladder rungs must be sorted; a missing rung raises ValueError and reordered ladder fails",
-  "timestamp": "2026-07-21T23:41:28.015Z"
-}

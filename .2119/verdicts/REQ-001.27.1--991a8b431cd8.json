@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.27.1--991a8b431cd8",
+  "requirementId": "REQ-001.27.1",
+  "hash": "991a8b431cd8",
+  "verdict": "pass",
+  "summary": "Production discovery sweep requires both pairing fields unset on every builtin",
+  "timestamp": "2026-07-21T23:56:23.588Z"
+}

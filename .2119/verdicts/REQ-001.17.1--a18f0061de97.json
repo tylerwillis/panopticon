@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.17.1--a18f0061de97",
+  "requirementId": "REQ-001.17.1",
+  "hash": "a18f0061de97",
+  "verdict": "pass",
+  "summary": "Skill text anchors get_task and governor_task_id source",
+  "timestamp": "2026-07-21T23:56:18.608Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.19.1--bbe6c17977a4",
-  "requirementId": "REQ-001.19.1",
-  "hash": "bbe6c17977a4",
-  "verdict": "pass",
-  "summary": "Pins both URL and branch-clone inspection routes; dropping either route fails",
-  "timestamp": "2026-07-21T23:41:53.244Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.22.1--547c9779dddd",
+  "requirementId": "REQ-001.22.1",
+  "hash": "547c9779dddd",
+  "verdict": "pass",
+  "summary": "Full directive phrase assess simplicity and net line count is required in real unmocked skill instructions",
+  "timestamp": "2026-07-22T00:02:24.872Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.16.1--0ee414fbd877",
-  "requirementId": "REQ-001.16.1",
-  "hash": "0ee414fbd877",
-  "verdict": "pass",
-  "summary": "Exact labels equality REVIEWING COMPLETE DROPPED fails if any additional nonterminal state is declared",
-  "timestamp": "2026-07-21T23:41:51.887Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.12.1--4b221e355bf2",
+  "requirementId": "REQ-001.12.1",
+  "hash": "4b221e355bf2",
+  "verdict": "pass",
+  "summary": "Pins Review.hidden true; service suite independently proves menu exclusion",
+  "timestamp": "2026-07-21T23:56:15.952Z"
+}

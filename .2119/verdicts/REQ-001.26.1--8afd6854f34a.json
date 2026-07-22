@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.26.1--8afd6854f34a",
-  "requirementId": "REQ-001.26.1",
-  "hash": "8afd6854f34a",
-  "verdict": "pass",
-  "summary": "advance and COMPLETE asserted within the Findings section, not borrowed from approval; drop or open task fails",
-  "timestamp": "2026-07-21T23:41:29.341Z"
-}

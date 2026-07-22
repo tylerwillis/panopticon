@@ -20,8 +20,8 @@ is not review, and any fixes belong to the author in a later, freshly reviewed r
 
 1. **Identify the governor.** Call `get_task` with your own review task id and read its
    `governor_task_id`. Call `get_task` again with that governor task id; note its `url`, `branch`,
-   `clone`, slug, and memo. Do not retrieve or request the author's conversation. It is not review
-   input; use only the recorded task facts and artifacts below.
+   `clone`, slug, and memo. Do not retrieve, request, or use the author's conversation even if
+   supplied. It is not review input; use only the recorded task facts and artifacts below.
 2. **Read the plan.** Call `list_artifacts` on the governor task id, then read its `plan.md` through
    the returned MCP resource URI.
 3. **Inspect the change.** If the governor has a recorded `url`, run `gh pr view <url>` and

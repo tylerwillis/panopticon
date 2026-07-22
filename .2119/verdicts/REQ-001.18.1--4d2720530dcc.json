@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.18.1--4d2720530dcc",
-  "requirementId": "REQ-001.18.1",
-  "hash": "4d2720530dcc",
-  "verdict": "pass",
-  "summary": "Pins plan.md and list_artifacts in skill text; omitting the plan-read directive fails",
-  "timestamp": "2026-07-21T23:41:52.782Z"
-}
