@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.2.1--7ce08c80e5c4",
-  "requirementId": "REQ-002.2.1",
-  "hash": "7ce08c80e5c4",
-  "verdict": "pass",
-  "summary": "Waits for all four registered harnesses to reach exactly one model+effort call (rejecting zero/lazy discovery), then cycles 3 full loops and re-asserts counts stay exactly 1 (rejecting re-discovery).",
-  "timestamp": "2026-07-22T06:06:24.132Z"
-}
