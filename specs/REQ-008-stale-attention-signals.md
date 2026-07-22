@@ -4,7 +4,8 @@
 
 Keep the task service's persisted attention signals aligned with an operator addressing a task.
 The user-to-agent turn handoff and every state change end the blocking condition for the state that
-was being attended, while an agent can explicitly report a new block afterward.
+was being attended, while an agent or transition lifecycle effect can explicitly report a new block
+afterward.
 
 Each supported interactive harness reports the user-to-agent handoff at its earliest native input
 event. A harness whose native event blocks prompt processing until its handler finishes completes
@@ -24,8 +25,10 @@ handoff. The existing Stop behavior for live background work issues no turn writ
 
 ### REQ-008.2: State changes
 
-1. Applying any task state change, whether a declared transition or a free move, MUST persist its
-   blocked marker as false in that change's task mutation.
+1. Applying any task state change, whether a declared transition or a free move, MUST clear its
+   existing blocked marker before transition lifecycle effects run.
+
+2. A task state change and its resulting blocked marker MUST be persisted in one task mutation.
 
 ### REQ-008.3: Renewed block
 
