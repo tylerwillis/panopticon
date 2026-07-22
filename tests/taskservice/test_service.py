@@ -254,9 +254,7 @@ async def test_hidden_workflow_absent_from_both_menus_but_still_creatable(tmp_pa
     # Hidden is display-only — each workflow stays creatable when its own validation is satisfied.
     setup = await svc.create_task("r1", "setup-repo")
     governor = await svc.create_task("r1", "spike")
-    review = await svc.create_task(
-        "r1", "review", governor_task_id=governor.id, harness="codex"
-    )
+    review = await svc.create_task("r1", "review", governor_task_id=governor.id, harness="codex")
     assert setup.workflow == "setup-repo"
     assert review.workflow == "review"
 
