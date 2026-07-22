@@ -3501,6 +3501,7 @@ def test_footer_shows_only_the_essential_keys() -> None:
         "a",
         "s",
         "u",
+        "e",
         "y",
         "Y",
         "c",
