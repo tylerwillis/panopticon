@@ -22,13 +22,14 @@ import pytest
 
 import panopticon.docker as _docker_pkg
 from panopticon.core.models import Repo
+from panopticon.sessionservice.images import ImageBuilder
 from panopticon.sessionservice.local_runner import LocalRunner, session_name
 from panopticon.sessionservice.shell_runner import ShellRunner
 from panopticon.taskservice.api import create_app
 from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
 from panopticon.taskservice.service import TaskService
 from panopticon.taskservice.store_sqlalchemy import SqlAlchemyStore
-from panopticon.workflows import Spike
+from panopticon.workflows import GithubPeerReviewed, Spike
 
 _IMAGE = "panopticon-acceptance:latest"
 _TMUX_SOCKET = "panopticon-acceptance"
@@ -131,7 +132,28 @@ def test_runner_spawns_real_container_that_registers_and_loses_liveness(
         extra_env={"PANOPTICON_PROPOSED_SLUG": "acc-slug"},
     )
     container = runner.spawn(task_id)
+    composed_image: str | None = None
     try:
+        # 2119: REQ-009.1
+        subprocess.run(
+            ["docker", "run", "--rm", "--entrypoint", "gh", _IMAGE, "--version"],
+            check=True,
+            capture_output=True,
+        )
+
+        composed_image = ImageBuilder(base=_IMAGE).build(
+            "claude",
+            "github-peer-reviewed",
+            "acceptance",
+            [GithubPeerReviewed().image_layer()],
+        )
+        # 2119: REQ-009.3
+        subprocess.run(
+            ["docker", "run", "--rm", "--entrypoint", "gh", composed_image, "--version"],
+            check=True,
+            capture_output=True,
+        )
+
         # 1. the container connected back and registered (liveness)
         reg = None
         for _ in range(120):
@@ -173,6 +195,8 @@ def test_runner_spawns_real_container_that_registers_and_loses_liveness(
     finally:
         subprocess.run(["docker", "rm", "--force", container], capture_output=True)
         subprocess.run(["tmux", "-L", _TMUX_SOCKET, "kill-server"], capture_output=True)
+        if composed_image is not None:
+            subprocess.run(["docker", "rmi", "--force", composed_image], capture_output=True)
         subprocess.run(["docker", "rmi", "--force", _IMAGE], capture_output=True)
 
 

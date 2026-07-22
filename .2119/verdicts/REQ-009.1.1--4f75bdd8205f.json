@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.1--4f75bdd8205f",
+  "requirementId": "REQ-009.1.1",
+  "hash": "4f75bdd8205f",
+  "verdict": "pass",
+  "summary": "Genuine two-tier verification: acceptance test runs 'gh --version' (check=True) against the bare base image — no workflow layer composed, covering the 'without a workflow-specific layer' boundary behaviorally — and the Dockerfile install-line unit test demonstrably fails today against the gh-less base.",
+  "timestamp": "2026-07-22T14:26:19.911Z"
+}

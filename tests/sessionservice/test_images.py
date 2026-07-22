@@ -3,10 +3,37 @@ command — unit-tested without a real daemon (the command-runner is faked)."""
 
 from __future__ import annotations
 
+import importlib.resources
+import re
 from collections.abc import Sequence
 from pathlib import Path
 
+import panopticon.docker as _docker_pkg
 from panopticon.sessionservice.images import ImageBuilder, compose_dockerfile, image_tag
+from panopticon.workflows.discovery import discover_workflows
+
+
+def _base_dockerfile() -> str:
+    return (importlib.resources.files(_docker_pkg) / "Dockerfile").read_text()
+
+
+# 2119: REQ-009.1
+def test_base_image_installs_github_cli() -> None:
+    install = (
+        _base_dockerfile()
+        .split("apt-get install --yes --no-install-recommends", 1)[1]
+        .split("&& rm", 1)[0]
+    )
+    assert re.search(r"\bgh\b", install)
+
+
+# 2119: REQ-009.2
+def test_workflow_layers_do_not_reinstall_github_cli(tmp_path: Path) -> None:
+    workflows = discover_workflows(_home_workflows=tmp_path / "no-home-workflows")
+    offenders = [
+        name for name, workflow in workflows.items() if re.search(r"\bgh\b", workflow.image_layer())
+    ]
+    assert offenders == []
 
 
 def test_image_tag_names_by_harness_workflow_and_repo() -> None:
