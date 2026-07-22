@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.2--7b1f06ca0db2",
+  "requirementId": "REQ-009.1.2",
+  "hash": "7b1f06ca0db2",
+  "verdict": "pass",
+  "summary": "Caller-level slug-only coverage verifies the exact slug reaches tmux status-left while attach retains the intended session target.",
+  "timestamp": "2026-07-22T14:35:06.166Z"
+}

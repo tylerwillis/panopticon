@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.4--16ef766fd6b0",
+  "requirementId": "REQ-009.1.4",
+  "hash": "16ef766fd6b0",
+  "verdict": "pass",
+  "summary": "Null slug and memo are tested through join resolution: the registered tmux session name must be set as status-left before attaching to that same session.",
+  "timestamp": "2026-07-22T14:37:21.965Z"
+}

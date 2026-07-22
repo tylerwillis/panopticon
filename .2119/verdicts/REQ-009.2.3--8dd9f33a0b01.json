@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.3--8dd9f33a0b01",
+  "requirementId": "REQ-009.2.3",
+  "hash": "8dd9f33a0b01",
+  "verdict": "pass",
+  "summary": "Test rejects non-normalization in both slug and memo, covering single and mixed contiguous Unicode whitespace runs and requiring one ASCII space.",
+  "timestamp": "2026-07-22T14:38:27.194Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.3--a4e1cc8e48f6",
+  "requirementId": "REQ-009.1.3",
+  "hash": "a4e1cc8e48f6",
+  "verdict": "pass",
+  "summary": "Tests reject the nearest boundary violations by exercising slug=None with a memo and asserting exactly '[memo]' reaches the target tmux session's status-left before attach.",
+  "timestamp": "2026-07-22T14:36:41.922Z"
+}

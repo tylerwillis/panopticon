@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.3.3--450ce50620bd",
+  "requirementId": "REQ-009.3.3",
+  "hash": "450ce50620bd",
+  "verdict": "pass",
+  "summary": "Exact local and remote command assertions reject renaming: decoration sets status-left while attach continues to target the original session name.",
+  "timestamp": "2026-07-22T14:40:46.649Z"
+}
