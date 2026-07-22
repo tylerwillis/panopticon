@@ -6,8 +6,10 @@ import asyncio
 from collections.abc import Iterator
 from pathlib import Path
 
+import pytest
+
 from panopticon.core import Complete, InitialState, State, Workflow
-from panopticon.core.models import Repo, Status
+from panopticon.core.models import Repo, Status, Task
 from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
 from panopticon.taskservice.service import TaskService
 from panopticon.taskservice.store_sqlalchemy import SqlAlchemyStore
@@ -48,11 +50,22 @@ class _UnpairedAuthoring(Workflow):
     initial = Draft
 
 
-async def _make_service(tmp_path: Path) -> TaskService:
+class _ReviewStoreFailure(RuntimeError):
+    pass
+
+
+class _FailingReviewStore(SqlAlchemyStore):
+    async def _create_task(self, task: Task) -> None:
+        if task.workflow == "review":
+            raise _ReviewStoreFailure("review persistence unavailable")
+        await super()._create_task(task)
+
+
+async def _make_service(tmp_path: Path, *, store: SqlAlchemyStore | None = None) -> TaskService:
     ids: Iterator[str] = iter(f"id{i}" for i in range(1, 100))
     times: Iterator[str] = iter(f"t{i}" for i in range(1, 100))
     service = TaskService(
-        SqlAlchemyStore(),
+        store or SqlAlchemyStore(),
         {
             "paired-authoring": _PairedAuthoring(),
             "unpaired-authoring": _UnpairedAuthoring(),
@@ -82,9 +95,9 @@ async def test_review_entry_creates_governed_worker_and_blocks_author(tmp_path: 
     await service.apply_operation(author.id, "advance")
 
     tasks = await service.list_tasks()
-    assert {task.id for task in tasks} - before_ids == {"id2"}
     reviews = [task for task in tasks if task.workflow == "review"]
     assert len(reviews) == 1
+    assert {task.id for task in tasks} - before_ids == {reviews[0].id}
     assert reviews[0].governor_task_id == author.id
     assert reviews[0].harness == "codex"
     assert reviews[0].starting_model == "gpt-5.6-sol:high"
@@ -137,23 +150,28 @@ async def test_paired_free_move_into_review_runs_the_review_gate(tmp_path: Path)
     reviews = [task for task in await service.list_tasks() if task.workflow == "review"]
     assert len(reviews) == 1
     assert reviews[0].governor_task_id == author.id
+    assert reviews[0].harness == "codex"
+    assert reviews[0].starting_model == "gpt-5.6-sol:high"
     reloaded = await service.get_task(author.id)
     assert reloaded.state == "REVIEW"
-    assert [item.key for item in reloaded.current_entry.responsibilities] == ["review-addressed"]
+    assert [(item.key, item.status) for item in reloaded.current_entry.responsibilities] == [
+        ("review-addressed", Status.PENDING)
+    ]
 
 
 # 2119: REQ-009.11.1
+@pytest.mark.parametrize("destination", ["DRAFT", "WORKING", "COMPLETE", "DROPPED"])
 async def test_paired_workflow_does_not_create_review_worker_outside_review(
-    tmp_path: Path,
+    tmp_path: Path, destination: str
 ) -> None:
     service = await _make_service(tmp_path)
     author = await service.create_task("r1", "paired-authoring", harness="claude")
 
-    await service.set_state(author.id, "WORKING")
+    await service.set_state(author.id, destination)
 
     assert [task.workflow for task in await service.list_tasks()] == ["paired-authoring"]
     reloaded = await service.get_task(author.id)
-    assert reloaded.state == "WORKING"
+    assert reloaded.state == destination
     assert reloaded.current_entry.responsibilities == []
 
 
@@ -211,6 +229,32 @@ async def test_disabled_review_workflow_is_a_nonfatal_creation_failure(tmp_path:
     assert (await service.get_task(author.id)).state == "COMPLETE"
 
 
+# 2119: REQ-009.4.1
+# 2119: REQ-009.7.1
+# 2119: REQ-009.8.1
+# 2119: REQ-009.9.1
+async def test_review_store_failure_is_recorded_nonfatal_and_allows_free_move(
+    tmp_path: Path,
+) -> None:
+    service = await _make_service(tmp_path, store=_FailingReviewStore())
+    author = await service.create_task("r1", "paired-authoring", harness="claude")
+
+    await service.apply_operation(author.id, "advance")
+
+    reloaded = await service.get_task(author.id)
+    assert reloaded.state == "REVIEW"
+    assert [(item.key, item.status) for item in reloaded.current_entry.responsibilities] == [
+        ("review-addressed", Status.PENDING)
+    ]
+    assert reloaded.current_entry.note == (
+        "Review task creation failed: review persistence unavailable"
+    )
+    assert [task.workflow for task in await service.list_tasks()] == ["paired-authoring"]
+
+    await service.set_state(author.id, "COMPLETE")
+    assert (await service.get_task(author.id)).state == "COMPLETE"
+
+
 # 2119: REQ-009.1.1
 async def test_concurrent_review_entry_creates_exactly_one_worker(tmp_path: Path) -> None:
     service = await _make_service(tmp_path)
@@ -230,6 +274,7 @@ async def test_concurrent_review_entry_creates_exactly_one_worker(tmp_path: Path
     assert [entry.to_state for entry in reloaded.history] == ["DRAFT", "REVIEW"]
 
 
+# 2119: REQ-009.1.1
 # 2119: REQ-009.4.1
 # 2119: REQ-009.10.1
 async def test_each_review_reentry_creates_a_fresh_worker(tmp_path: Path) -> None:

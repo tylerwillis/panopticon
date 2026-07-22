@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.1--13c059bfa27a",
+  "requirementId": "REQ-009.1.1",
+  "hash": "13c059bfa27a",
+  "verdict": "pass",
+  "summary": "Tests reject zero, duplicate, wrong-workflow, pre-existing-only, concurrent duplicate, and globally deduplicated workers while proving one fresh review task per paired REVIEW transition.",
+  "timestamp": "2026-07-22T15:07:09.474Z"
+}

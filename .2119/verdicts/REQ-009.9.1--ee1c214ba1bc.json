@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.9.1--ee1c214ba1bc",
-  "requirementId": "REQ-009.9.1",
-  "hash": "ee1c214ba1bc",
-  "verdict": "pass",
-  "summary": "Real TaskService tests trigger two review-task creation failures, confirm the author remains in REVIEW, then prove a subsequent set_state free move exits to COMPLETE.",
-  "timestamp": "2026-07-22T14:49:47.189Z"
-}

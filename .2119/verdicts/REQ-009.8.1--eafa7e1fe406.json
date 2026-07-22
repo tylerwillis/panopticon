@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.8.1--eafa7e1fe406",
-  "requirementId": "REQ-009.8.1",
-  "hash": "eafa7e1fe406",
-  "verdict": "pass",
-  "summary": "Real service-boundary tests trigger two creation failures and require each specific reason in the author's current history note.",
-  "timestamp": "2026-07-22T14:48:05.302Z"
-}

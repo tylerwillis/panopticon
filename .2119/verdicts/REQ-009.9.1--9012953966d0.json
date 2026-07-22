@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.9.1--9012953966d0",
+  "requirementId": "REQ-009.9.1",
+  "hash": "9012953966d0",
+  "verdict": "pass",
+  "summary": "Tests induce validation, disabled-workflow, and persistence failures, then verify persisted free moves to every non-REVIEW destination.",
+  "timestamp": "2026-07-22T15:12:06.342Z"
+}

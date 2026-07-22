@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.10.1--57967eaeaaca",
-  "requirementId": "REQ-009.10.1",
-  "hash": "57967eaeaaca",
-  "verdict": "pass",
-  "summary": "Exercises two REVIEW re-entries via free move and declared transition, and requires three distinct governed review-task IDs, rejecting reuse from either earlier round.",
-  "timestamp": "2026-07-22T14:49:52.254Z"
-}

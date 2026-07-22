@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.12.1--4e8391132a0b",
-  "requirementId": "REQ-009.12.1",
-  "hash": "4e8391132a0b",
-  "verdict": "pass",
-  "summary": "Real task-service tests cover transition and free-move entry into REVIEW for a workflow declaring no review pair; exact empty-responsibility assertions reject any seeded review-addressed gate.",
-  "timestamp": "2026-07-22T14:49:59.227Z"
-}

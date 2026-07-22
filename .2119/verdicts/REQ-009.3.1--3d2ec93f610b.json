@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.3.1--3d2ec93f610b",
-  "requirementId": "REQ-009.3.1",
-  "hash": "3d2ec93f610b",
-  "verdict": "pass",
-  "summary": "Real review-entry coverage uses an author launch pair distinct from the workflow declaration and exactly asserts the new review worker's declared harness and starting model, rejecting inheritance, omission, or field swapping.",
-  "timestamp": "2026-07-22T14:45:56.765Z"
-}

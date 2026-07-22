@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.2.1--25da32588f37",
-  "requirementId": "REQ-009.2.1",
-  "hash": "25da32588f37",
-  "verdict": "pass",
-  "summary": "Real TaskService transition test isolates the newly created review task and rejects a missing or wrong governor_task_id by comparing it directly with the author task id.",
-  "timestamp": "2026-07-22T14:45:26.044Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.6.1--78c590f74b9c",
-  "requirementId": "REQ-009.6.1",
-  "hash": "78c590f74b9c",
-  "verdict": "pass",
-  "summary": "Real task-service tests enter REVIEW via both advance and free move with no launch pair, and reject the nearest violation by asserting no review task exists.",
-  "timestamp": "2026-07-22T14:48:07.450Z"
-}
