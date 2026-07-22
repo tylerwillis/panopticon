@@ -31,30 +31,6 @@ def test_glossary_states_the_complete_blocked_lifecycle_without_qualifiers() -> 
     )
 
 
-# 2119: REQ-008.8.1
-def test_glossary_documents_agent_turn_blocked_clear() -> None:
-    assert "A turn-to-agent write clears `blocked`" in _glossary()
-
-
-# 2119: REQ-008.8.2
-def test_glossary_documents_state_change_blocked_clear() -> None:
-    entry = _blocked_entry()
-    assert entry.count("every task state change clears `blocked`") == 1
-    assert "except" not in entry.lower()
-
-
-# 2119: REQ-008.8.3
-def test_glossary_documents_user_turn_blocked_preservation() -> None:
-    assert "A turn-to-user write preserves `blocked`" in _glossary()
-
-
-# 2119: REQ-008.8.4
-def test_glossary_documents_explicit_reblock() -> None:
-    assert (
-        "the agent can explicitly set `blocked` again after either automatic clear" in _glossary()
-    )
-
-
 # 2119: REQ-008.9.1
 def test_glossary_documents_claude_turn_signal_floor() -> None:
     assert (

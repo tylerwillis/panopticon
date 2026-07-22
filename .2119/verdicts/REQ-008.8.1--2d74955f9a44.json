@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.8.1--2d74955f9a44",
-  "requirementId": "REQ-008.8.1",
-  "hash": "2d74955f9a44",
-  "verdict": "pass",
-  "summary": "Annotated tests read the glossary and reject omission, reversal, qualification, or relocation of the statement that every turn-to-agent write clears blocked.",
-  "timestamp": "2026-07-22T07:06:43.950Z"
-}

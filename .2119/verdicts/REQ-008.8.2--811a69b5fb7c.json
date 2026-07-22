@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.8.2--811a69b5fb7c",
-  "requirementId": "REQ-008.8.2",
-  "hash": "811a69b5fb7c",
-  "verdict": "pass",
-  "summary": "Tests read the actual glossary and reject missing, weakened, relocated, duplicated, or exception-qualified state-change blocked-clear documentation.",
-  "timestamp": "2026-07-22T07:08:01.075Z"
-}

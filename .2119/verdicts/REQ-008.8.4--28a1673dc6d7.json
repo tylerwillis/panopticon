@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.8.4--28a1673dc6d7",
+  "requirementId": "REQ-008.8.4",
+  "hash": "28a1673dc6d7",
+  "verdict": "pass",
+  "summary": "Glossary-entry test rejects omission or weakening of the agent's explicit ability to set blocked again after an automatic clear.",
+  "timestamp": "2026-07-22T07:35:40.638Z"
+}

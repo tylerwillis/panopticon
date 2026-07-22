@@ -693,7 +693,7 @@ class TaskService:
         return task
 
     async def set_blocked(self, task_id: str, blocked: bool) -> Task:
-        """Set/clear the task's deliberate ``blocked`` marker (orthogonal to the turn)."""
+        """Explicitly set/clear ``blocked``; later agent-turn writes and state changes clear it."""
         task = await self.get_task(task_id)
         task.blocked = blocked
         await self._save_task(task)

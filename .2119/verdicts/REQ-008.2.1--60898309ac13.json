@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.2.1--60898309ac13",
-  "requirementId": "REQ-008.2.1",
-  "hash": "60898309ac13",
-  "verdict": "pass",
-  "summary": "Parametrized over both advance and set_state on the real service+store; asserts blocked=False on the returned mutation and persisted reload, and pins same-mutation via a single version bump — currently red pre-implementation, proving it fails on violation.",
-  "timestamp": "2026-07-22T06:20:18.366Z"
-}

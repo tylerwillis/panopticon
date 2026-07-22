@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import io
 import json
+import threading
 from pathlib import Path
 
 import pytest
@@ -291,3 +292,39 @@ def test_user_prompt_submit_unaffected_by_background_tasks(
     assert hook.main(["agent", "prompt"], client=client, stdin=io.StringIO(payload)) == 0  # type: ignore[arg-type]
     assert client.calls == [("t1", "agent")]
     assert "PHASE BRIEFING" in capsys.readouterr().out
+
+
+# 2119: REQ-008.4.1
+# 2119: REQ-008.5.1
+def test_user_prompt_submit_waits_for_the_turn_write(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("PANOPTICON_SERVICE_URL", "http://svc")
+    monkeypatch.setenv("PANOPTICON_TASK_ID", "t1")
+    entered = threading.Event()
+    release = threading.Event()
+    result: list[int] = []
+
+    class _GatedClient(_FakeClient):
+        def set_turn(self, task_id: str, turn: str) -> dict[str, object]:
+            entered.set()
+            assert release.wait(timeout=5), "test did not release the turn write"
+            return super().set_turn(task_id, turn)
+
+    client = _GatedClient(slug="fix-widget")
+    thread = threading.Thread(
+        target=lambda: result.append(
+            hook.main(["agent", "prompt"], client=client, stdin=io.StringIO(""))  # type: ignore[arg-type]
+        ),
+        daemon=True,
+    )
+    thread.start()
+    assert entered.wait(timeout=5), "turn write was never attempted"
+    assert thread.is_alive(), "hook returned while the turn write was still pending"
+
+    release.set()
+    thread.join(timeout=5)
+
+    assert not thread.is_alive()
+    assert result == [0]
+    assert client.calls == [("t1", "agent")]

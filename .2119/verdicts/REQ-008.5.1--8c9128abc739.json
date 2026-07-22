@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.5.1--8c9128abc739",
-  "requirementId": "REQ-008.5.1",
-  "hash": "8c9128abc739",
-  "verdict": "pass",
-  "summary": "Codex config test pins UserPromptSubmit to the exact 'hook agent prompt' command (wrong/missing event or actor fails the equality), and the shared-callback test drives hook.main with a live-background-task payload asserting set_turn(task,'agent') completed before main returned — the fake client sits below the constrained seam (a sync PUT), not in place of it.",
-  "timestamp": "2026-07-22T06:25:23.876Z"
-}

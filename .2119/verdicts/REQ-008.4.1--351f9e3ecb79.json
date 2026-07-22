@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.4.1--351f9e3ecb79",
-  "requirementId": "REQ-008.4.1",
-  "hash": "351f9e3ecb79",
-  "verdict": "pass",
-  "summary": "Settings test pins UserPromptSubmit to the exact 'hook agent prompt' command hook; hooks test drives real hook.main with a running-background_tasks payload and asserts the synchronous set_turn('agent') completed before main returned — an async/suppressed write would fail both.",
-  "timestamp": "2026-07-22T06:25:23.868Z"
-}

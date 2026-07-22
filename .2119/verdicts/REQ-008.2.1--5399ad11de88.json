@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.2.1--5399ad11de88",
+  "requirementId": "REQ-008.2.1",
+  "hash": "5399ad11de88",
+  "verdict": "pass",
+  "summary": "Tests reject blocked=true surviving declared advance, drop, free move, or cascade, and direct changes assert one mutation plus persisted false.",
+  "timestamp": "2026-07-22T07:35:56.755Z"
+}

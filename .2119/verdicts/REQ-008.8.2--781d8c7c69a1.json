@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.8.2--781d8c7c69a1",
+  "requirementId": "REQ-008.8.2",
+  "hash": "781d8c7c69a1",
+  "verdict": "pass",
+  "summary": "Exact glossary-entry assertion rejects omission, qualification, wrong lifecycle action, or wrong marker for task state changes.",
+  "timestamp": "2026-07-22T07:36:12.813Z"
+}

@@ -386,7 +386,7 @@ async def test_user_turn_preserves_blocked_marker(tmp_path: Path) -> None:
 
 
 # 2119: REQ-008.2.1
-@pytest.mark.parametrize("change", ["declared-transition", "free-move"])
+@pytest.mark.parametrize("change", ["declared-transition", "free-move", "drop"])
 async def test_every_state_change_clears_blocked(tmp_path: Path, change: str) -> None:
     svc = await make_service(tmp_path)
     task = await svc.create_task("r1", "spike")
@@ -395,13 +395,29 @@ async def test_every_state_change_clears_blocked(tmp_path: Path, change: str) ->
 
     if change == "declared-transition":
         moved = await svc.apply_operation(task.id, "advance")
+    elif change == "drop":
+        moved = await svc.apply_operation(task.id, "drop")
     else:
         moved = await svc.set_state(task.id, "COMPLETE")
 
-    assert moved.state == "COMPLETE"
+    assert moved.state == ("DROPPED" if change == "drop" else "COMPLETE")
     assert moved.blocked is False
     assert svc.tasks_version() == before + 1
     assert (await svc.get_task(task.id)).blocked is False
+
+
+# 2119: REQ-008.2.1
+async def test_cascade_drop_clears_a_governed_tasks_blocked_marker(tmp_path: Path) -> None:
+    svc = await make_service(tmp_path)
+    governor = await svc.create_task("r1", "spike")
+    child = await svc.create_task("r1", "spike", governor_task_id=governor.id)
+    await svc.set_blocked(child.id, True)
+
+    await svc.apply_operation(governor.id, "drop")
+
+    dropped_child = await svc.get_task(child.id)
+    assert dropped_child.state == "DROPPED"
+    assert dropped_child.blocked is False
 
 
 # 2119: REQ-008.3.1
