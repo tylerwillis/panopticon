@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.2.1--9a58906b7438",
+  "requirementId": "REQ-001.2.1",
+  "hash": "9a58906b7438",
+  "verdict": "pass",
+  "summary": "Real-git acceptance test asserts 'git config --local --get user.email' equals the exact address after fresh prepare AND after re-preparing an existing workspace seeded with a leaked local identity, while proving the operator's global config is untouched; unit tests pin the emitted 'git config --local user.email' call in both fresh and existing-checkout paths.",
+  "timestamp": "2026-07-22T00:03:50.549Z"
+}
