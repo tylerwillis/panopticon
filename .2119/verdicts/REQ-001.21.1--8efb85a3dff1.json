@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.21.1--8efb85a3dff1",
+  "requirementId": "REQ-001.21.1",
+  "hash": "8efb85a3dff1",
+  "verdict": "pass",
+  "summary": "Exact directive covers plan match and absence of unplanned scope",
+  "timestamp": "2026-07-22T00:00:15.204Z"
+}

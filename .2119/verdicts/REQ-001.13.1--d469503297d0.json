@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.13.1--d469503297d0",
+  "requirementId": "REQ-001.13.1",
+  "hash": "d469503297d0",
+  "verdict": "pass",
+  "summary": "Real start_task must assign initial turn to Actor.AGENT",
+  "timestamp": "2026-07-21T23:56:16.440Z"
+}
