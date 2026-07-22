@@ -2208,11 +2208,6 @@ class Dashboard(App[None]):
         REST client is blocking) — ``call_from_thread`` marshals the rebuild onto the UI thread,
         and Textual cancels the worker on unmount (the cancel lands when the parked poll returns)."""
         worker = get_current_worker()
-        # Seed the cursor without redrawing: on_mount already painted the current snapshot, so the
-        # first poll should wait for the *next* change rather than re-firing on the current version.
-        # service not up yet — fall through; the loop retries with back-off
-        with contextlib.suppress(Exception):
-            _, self._version = self._client.list_tasks_versioned()
         while not worker.is_cancelled:
             try:
                 _, version = self._client.list_tasks_versioned(
@@ -2245,7 +2240,8 @@ class Dashboard(App[None]):
         table = self.query_one("#tasks", DataTable)
         selected = self._current  # keep the operator's highlight across the rebuild (feed refresh)
         table.clear()
-        ordered = sorted(self._client.list_tasks(), key=_make_sort_key(self._sort_by_updated))
+        tasks, self._version = self._client.list_tasks_versioned()
+        ordered = sorted(tasks, key=_make_sort_key(self._sort_by_updated))
         new_multi_runner = (
             len({r.get("host") for r in self._client.live_runners() if r.get("host")}) > 1
         )

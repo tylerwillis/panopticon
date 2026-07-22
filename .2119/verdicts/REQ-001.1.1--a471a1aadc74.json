@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.1.1--a471a1aadc74",
-  "requirementId": "REQ-001.1.1",
-  "hash": "a471a1aadc74",
-  "verdict": "pass",
-  "summary": "Genuine: test_create_review_task_without_governor_is_rejected exercises the real TaskService/store with no governor_task_id, asserts ValueError('governor') AND that no task was persisted (list_tasks()==[]), correctly failing today since the governor-required check is unimplemented; counterexample (governor supplied) is distinguished by the accepted-path test, confirming the boundary is genuinely enforced rather than keyword theater.",
-  "timestamp": "2026-07-21T23:44:25.597Z"
-}

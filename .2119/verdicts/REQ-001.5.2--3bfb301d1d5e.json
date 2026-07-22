@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.5.2--3bfb301d1d5e",
-  "requirementId": "REQ-001.5.2",
-  "hash": "3bfb301d1d5e",
-  "verdict": "pass",
-  "summary": "screen_stack length asserted == 1 after ctrl+r on a down-free snapshot; sibling tests prove a modal push grows the stack to 2 under the same press/pause rhythm, so any modal (even empty) fails.",
-  "timestamp": "2026-07-22T00:09:01.039Z"
-}

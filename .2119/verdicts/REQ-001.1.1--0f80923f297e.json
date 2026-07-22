@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.1.1--0f80923f297e",
-  "requirementId": "REQ-001.1.1",
-  "hash": "0f80923f297e",
-  "verdict": "pass",
-  "summary": "Real-git acceptance test asserts --local user.name == 'Panopticon Agent' after fresh prepare AND after re-prepare of an existing workspace seeded with a leaked 'Leaked Operator' identity (isolated GIT_CONFIG_GLOBAL proves repo-local scope); unit tests pin the exact emitted config command on both paths.",
-  "timestamp": "2026-07-22T00:03:54.468Z"
-}

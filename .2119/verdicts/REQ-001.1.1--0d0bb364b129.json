@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.1.1--0d0bb364b129",
-  "requirementId": "REQ-001.1.1",
-  "hash": "0d0bb364b129",
-  "verdict": "pass",
-  "summary": "Real pilot presses x on the highlighted second row; dialog must name 'second' and expose yes/no widgets via query_one - unbound key, wrong target, or no dialog all fail",
-  "timestamp": "2026-07-21T23:40:31.793Z"
-}

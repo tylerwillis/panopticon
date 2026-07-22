@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.3.1--20f09fa52e99",
-  "requirementId": "REQ-001.3.1",
-  "hash": "20f09fa52e99",
-  "verdict": "pass",
-  "summary": "Direct substring assertion rejects the exact copy-key hint anywhere in render_detail output, including the nearest trailing-line violation.",
-  "timestamp": "2026-07-21T23:47:19.352Z"
-}

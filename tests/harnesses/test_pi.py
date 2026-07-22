@@ -141,6 +141,29 @@ def test_extension_flips_to_user_on_settle_and_agent_on_input() -> None:
     assert 'pi.on("input", () => setTurn("agent"));' in TURN_EXTENSION
 
 
+# 2119: REQ-008.6.1
+def test_input_handler_waits_for_the_agent_turn_request() -> None:
+    source = TURN_EXTENSION.replace("export default function", "const extension = function")
+    probe = (
+        source
+        + """
+let inputHandler;
+const pi = { on(event, handler) { if (event === "input") inputHandler = handler; } };
+let resolveFetch;
+globalThis.fetch = () => new Promise((resolve) => { resolveFetch = resolve; });
+extension(pi);
+let settled = false;
+const pending = Promise.resolve(inputHandler()).then(() => { settled = true; });
+await new Promise(setImmediate);
+if (settled) throw new Error("input handler returned before the turn request completed");
+resolveFetch({ ok: true });
+await pending;
+"""
+    )
+
+    subprocess.run(["node", "--input-type=module", "--eval", probe], check=True)
+
+
 def test_bootstrap_writes_the_extension_file(tmp_path: Path) -> None:
     HARNESS.bootstrap(_bootstrap_ctx(tmp_path))
     assert (tmp_path / ".pi" / EXTENSION_FILE).read_text() == TURN_EXTENSION

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.6.1--287ad68fedfb",
+  "requirementId": "REQ-001.6.1",
+  "hash": "287ad68fedfb",
+  "verdict": "pass",
+  "summary": "The real dialog flow asserts the complete rendered warning: file removal, workflow retained by the running service, and retention ending at its next restart.",
+  "timestamp": "2026-07-22T07:02:00.608Z"
+}

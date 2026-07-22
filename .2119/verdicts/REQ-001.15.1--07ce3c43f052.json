@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.15.1--07ce3c43f052",
-  "requirementId": "REQ-001.15.1",
-  "hash": "07ce3c43f052",
-  "verdict": "pass",
-  "summary": "Exact transition set and operations reject missing and extra edges",
-  "timestamp": "2026-07-21T23:56:17.480Z"
-}

@@ -603,6 +603,9 @@ class TaskService:
             wf.force_transition(task, to_state, at=self._clock(), trigger=trigger, note=note)
         else:
             wf.apply_transition(task, to_state, at=self._clock(), trigger=trigger, note=note)
+        # End the stale waiting condition from the state being left before lifecycle effects run.
+        # A hook may deliberately raise a fresh block for the state being entered.
+        task.blocked = False
         # Deterministic lifecycle hook (e.g. seed the plan on plan acceptance) — may touch the
         # task/artifacts; run before the single save so any task mutation persists with it.
         await wf.on_transition(
@@ -681,16 +684,18 @@ class TaskService:
     async def set_turn(self, task_id: str, turn: Actor) -> Task:
         """Flip who holds the turn within a state (the in-container hooks' callback).
 
-        This is the agnostic agent↔user ball tracking (ADR 0004). It leaves ``blocked``
-        untouched, so a deliberate block survives turn flips.
+        This is the agnostic agent↔user ball tracking (ADR 0004). A turn-to-agent write means the
+        user addressed the task, so it also clears ``blocked``; a turn-to-user write preserves it.
         """
         task = await self.get_task(task_id)
         task.turn = turn
+        if turn is Actor.AGENT:
+            task.blocked = False
         await self._save_task(task)
         return task
 
     async def set_blocked(self, task_id: str, blocked: bool) -> Task:
-        """Set/clear the task's deliberate ``blocked`` marker (orthogonal to the turn)."""
+        """Explicitly set/clear ``blocked``; later agent-turn writes and state changes clear it."""
         task = await self.get_task(task_id)
         task.blocked = blocked
         await self._save_task(task)

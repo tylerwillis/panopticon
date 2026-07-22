@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.24.1--edbfadb0b24e",
-  "requirementId": "REQ-001.24.1",
-  "hash": "edbfadb0b24e",
-  "verdict": "pass",
-  "summary": "Advance-to-COMPLETE assertion scoped to the Approve verdict section, honoring 'for an approval'; missing heading or findings-only directive fails",
-  "timestamp": "2026-07-22T00:46:08.011Z"
-}

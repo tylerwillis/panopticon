@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.3.1--aa205e26fa9d",
+  "requirementId": "REQ-001.3.1",
+  "hash": "aa205e26fa9d",
+  "verdict": "pass",
+  "summary": "Both No and Escape are driven through the real dialog and each test rejects either a non-dismissed dialog or removal/truncation of the selected workflow file.",
+  "timestamp": "2026-07-22T06:50:00.733Z"
+}

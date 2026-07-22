@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.4.5--e1c6f9392a89",
-  "requirementId": "REQ-001.4.5",
-  "hash": "e1c6f9392a89",
-  "verdict": "pass",
-  "summary": "notify is captured in full and notices==['respawned 1'] exactly — any task-specific skip notification would lengthen the list and fail",
-  "timestamp": "2026-07-22T00:10:44.473Z"
-}

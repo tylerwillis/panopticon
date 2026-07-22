@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.23.1--68ffd516e438",
-  "requirementId": "REQ-001.23.1",
-  "hash": "68ffd516e438",
-  "verdict": "pass",
-  "summary": "Sorted phrase positions genuinely verify all four ladder rungs",
-  "timestamp": "2026-07-21T23:56:21.517Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.5.1--1c0f9661222c",
-  "requirementId": "REQ-001.5.1",
-  "hash": "1c0f9661222c",
-  "verdict": "pass",
-  "summary": "Exact-equality assert on notices == ['no down tasks'] after ctrl+r over a live/failed/queued snapshot (failed = the near-miss); unbound key, wrong text, or a wrongly-opened modal all fail the test.",
-  "timestamp": "2026-07-22T00:08:56.899Z"
-}

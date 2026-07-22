@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.10.1--0663980098ee",
-  "requirementId": "REQ-001.10.1",
-  "hash": "0663980098ee",
-  "verdict": "pass",
-  "summary": "both singleton orientations raise InvalidWorkflow from real validate_registration; full pair accepted by companion test",
-  "timestamp": "2026-07-21T23:40:29.444Z"
-}

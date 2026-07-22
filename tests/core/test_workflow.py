@@ -88,14 +88,14 @@ def test_workflow_launch_defaults_are_an_optional_pair() -> None:
     assert WF.default_model is None
 
 
-# 2119: REQ-001.9
+# 2119: REQ-002.9
 def test_workflow_review_pair_is_optional_by_default() -> None:
     assert Workflow.review_harness is None
     assert Workflow.review_model is None
     assert {"review_harness", "review_model"} <= Workflow.__annotations__.keys()
 
 
-# 2119: REQ-001.10
+# 2119: REQ-002.10
 def test_workflow_review_pair_must_be_declared_together_both_ways() -> None:
     class MissingReviewModel(GatedWorkflow):
         name = "missing-review-model"
@@ -114,7 +114,7 @@ def test_workflow_review_pair_must_be_declared_together_both_ways() -> None:
             workflow.validate_registration({"claude", "codex"})
 
 
-# 2119: REQ-001.11
+# 2119: REQ-002.11
 def test_workflow_review_pair_must_name_a_registered_harness() -> None:
     class UnknownReviewHarness(GatedWorkflow):
         name = "unknown-review-harness"

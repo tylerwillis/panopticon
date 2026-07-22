@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.3.1--0a0563366e48",
-  "requirementId": "REQ-001.3.1",
-  "hash": "0a0563366e48",
-  "verdict": "pass",
-  "summary": "advanced_by query must return Actor.AGENT",
-  "timestamp": "2026-07-21T23:56:12.789Z"
-}

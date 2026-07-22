@@ -23,15 +23,15 @@ def _verdict_section(name: str, next_name: str | None = None) -> str:
     return section
 
 
-# 2119: REQ-001.1
+# 2119: REQ-002.1
 def test_review_is_a_hidden_builtin(tmp_path: Path) -> None:
     registry = discover_workflows(_home_workflows=tmp_path / "no-home-workflows")
     assert registry["review"].name == "review"
     assert WF.hidden is True
 
 
-# 2119: REQ-001.2
-# 2119: REQ-001.13
+# 2119: REQ-002.2
+# 2119: REQ-002.13
 def test_review_starts_on_the_agent_turn() -> None:
     task = WF.start_task("review-1", "repo-1", at="t0")
     assert task.state == "REVIEWING"
@@ -40,15 +40,15 @@ def test_review_starts_on_the_agent_turn() -> None:
     assert [entry.to_state for entry in task.history] == ["REVIEWING"]
 
 
-# 2119: REQ-001.3
-# 2119: REQ-001.14
+# 2119: REQ-002.3
+# 2119: REQ-002.14
 def test_reviewing_is_agent_advanced_and_ungated() -> None:
     assert WF.advanced_by("REVIEWING") is Actor.AGENT
     assert list(WF.responsibilities("REVIEWING")) == []
 
 
-# 2119: REQ-001.15
-# 2119: REQ-001.16
+# 2119: REQ-002.15
+# 2119: REQ-002.16
 def test_reviewing_is_the_only_nonterminal_state() -> None:
     assert list(WF.labels()) == ["REVIEWING", "COMPLETE", "DROPPED"]
     assert set(WF.transitions("REVIEWING")) == {"COMPLETE", "DROPPED"}
@@ -65,7 +65,7 @@ def test_reviewing_can_complete_or_drop() -> None:
     assert dropped.state == "DROPPED"
 
 
-# 2119: REQ-001.4
+# 2119: REQ-002.4
 def test_review_exposes_one_review_skill() -> None:
     skills = tuple(WF.skills())
     assert len(skills) == 1
@@ -74,10 +74,10 @@ def test_review_exposes_one_review_skill() -> None:
     assert skills[0].instructions
 
 
-# 2119: REQ-001.17
-# 2119: REQ-001.18
-# 2119: REQ-001.19
-# 2119: REQ-001.20
+# 2119: REQ-002.17
+# 2119: REQ-002.18
+# 2119: REQ-002.19
+# 2119: REQ-002.20
 def test_review_skill_collects_only_governor_artifacts_and_change() -> None:
     instructions = _instructions()
     normalized = " ".join(instructions.split())
@@ -107,9 +107,9 @@ def test_review_skill_collects_only_governor_artifacts_and_change() -> None:
     ) in normalized
 
 
-# 2119: REQ-001.5
-# 2119: REQ-001.21
-# 2119: REQ-001.22
+# 2119: REQ-002.5
+# 2119: REQ-002.21
+# 2119: REQ-002.22
 def test_review_skill_covers_correctness_scope_and_simplicity() -> None:
     instructions = _instructions().lower()
     assert (
@@ -119,7 +119,7 @@ def test_review_skill_covers_correctness_scope_and_simplicity() -> None:
     assert "assess simplicity and net line count" in instructions
 
 
-# 2119: REQ-001.23
+# 2119: REQ-002.23
 def test_review_skill_orders_the_simplicity_ladder() -> None:
     instructions = _instructions().lower()
     rungs = (
@@ -132,8 +132,8 @@ def test_review_skill_orders_the_simplicity_ladder() -> None:
     assert positions == sorted(positions)
 
 
-# 2119: REQ-001.6
-# 2119: REQ-001.24
+# 2119: REQ-002.6
+# 2119: REQ-002.24
 def test_approval_writes_no_verdict_artifact_and_completes() -> None:
     approval = _verdict_section("Approve", "Findings")
     normalized = " ".join(approval.split())
@@ -142,9 +142,9 @@ def test_approval_writes_no_verdict_artifact_and_completes() -> None:
     assert "Call the `advance` operation to move this review task to `COMPLETE`." in approval
 
 
-# 2119: REQ-001.7
-# 2119: REQ-001.25
-# 2119: REQ-001.26
+# 2119: REQ-002.7
+# 2119: REQ-002.25
+# 2119: REQ-002.26
 def test_findings_are_written_to_the_governor_and_complete() -> None:
     findings = _verdict_section("Findings")
     normalized = " ".join(findings.split())
@@ -155,12 +155,12 @@ def test_findings_are_written_to_the_governor_and_complete() -> None:
     assert "Then call the `advance` operation to move this review task to `COMPLETE`." in normalized
 
 
-# 2119: REQ-001.8
+# 2119: REQ-002.8
 def test_review_skill_forbids_code_edits() -> None:
     assert "Never edit the governor's code" in _instructions()
 
 
-# 2119: REQ-001.27
+# 2119: REQ-002.27
 def test_builtins_do_not_declare_review_pairs(tmp_path: Path) -> None:
     registry = discover_workflows(_home_workflows=tmp_path / "no-home-workflows")
     assert registry

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.1.1--02ed47954b4d",
-  "requirementId": "REQ-001.1.1",
-  "hash": "02ed47954b4d",
-  "verdict": "pass",
-  "summary": "Real-sh execution of the actual dispatch_harness_auth proves outfitter routes to an auth flow instead of the unsupported fallback (extra-line/len assertions fail on revert), including the profile-dir-error boundary; unsupported path stays live via the unknown-harness test, so not tautological.",
-  "timestamp": "2026-07-22T00:31:25.790Z"
-}

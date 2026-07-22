@@ -4,8 +4,8 @@ claude's Stop / UserPromptSubmit hooks invoke this to flip the live turn (the Sl
 so do the PreToolUse / PostToolUse hooks matched to ``AskUserQuestion``, so the turn reads *user*
 while the agent is asking the user something and *agent* once it's answered. It reads the task from
 the container's env and POSTs `set_turn`. claude-specific wiring (M3); the deterministic turn
-mechanism it calls lives in the task service. It sets only the turn, so a deliberate `blocked`
-marker survives.
+mechanism it calls lives in the task service. A turn-to-agent write also clears the deliberate
+`blocked` marker; a turn-to-user write preserves it.
 
 The first argument is the turn to set; the optional second selects an **event side-effect** — kept
 distinct from the actor so the bare question hooks (`hook user` / `hook agent`) are a pure turn flip:

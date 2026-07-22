@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.26.1--6f9cc6a2abcd",
+  "requirementId": "REQ-002.26.1",
+  "hash": "6f9cc6a2abcd",
+  "verdict": "pass",
+  "summary": "Test asserts 'Then call the advance operation to move this review task to COMPLETE' within the section after the **Findings** heading — scoped to the findings branch, so dropping the advance step there fails it.",
+  "timestamp": "2026-07-22T06:07:51.022Z"
+}
