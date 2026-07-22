@@ -4,19 +4,45 @@ from __future__ import annotations
 
 import io
 import json
+import os
+import shlex
+import socket
+import subprocess
+import sys
 import threading
+import time
+import tomllib
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+import httpx
 import pytest
 
 from panopticon.container import hook
+from panopticon.harnesses import BootstrapContext, LaunchContext
 from panopticon.harnesses.claude import settings, write_settings
+from panopticon.harnesses.codex import render_config
+from panopticon.harnesses.pi import EXTENSION_FILE, PiHarness
+
+_CONTROL_PLANE_SENTINEL = "CONTROL_PLANE_FAILURE_SENTINEL"
 
 
 def test_settings_wire_stop_to_user_and_prompt_to_agent() -> None:
     s = settings()
     assert s["hooks"]["Stop"][0]["hooks"][0]["command"].endswith("hook user stop")
     assert s["hooks"]["UserPromptSubmit"][0]["hooks"][0]["command"].endswith("hook agent prompt")
+
+
+# 2119: REQ-009.1.1
+def test_every_command_turn_hook_has_a_three_second_backstop() -> None:
+    claude_hooks = settings()["hooks"]
+    for entries in claude_hooks.values():
+        for entry in entries:
+            assert entry["hooks"][0]["timeout"] == 3
+
+    codex_config = tomllib.loads(render_config("http://svc", "", Path("/workspace")))
+    for event in ("Stop", "UserPromptSubmit"):
+        assert codex_config["hooks"][event][0]["hooks"][0]["timeout"] == 3
 
 
 def test_settings_flip_to_user_while_asking_a_question_and_back_when_answered() -> None:
@@ -74,6 +100,390 @@ class _FakeClient:
     def set_tokens_used(self, task_id: str, tokens_used: int) -> dict[str, object]:
         self.tokens.append((task_id, tokens_used))
         return {}
+
+
+class _FailingClient(_FakeClient):
+    def __init__(self, operation: str, error: httpx.HTTPError) -> None:
+        super().__init__(slug=None)
+        self._operation = operation
+        self._error = error
+
+    def _fail(self, operation: str) -> None:
+        if operation == self._operation:
+            raise self._error
+
+    def set_turn(self, task_id: str, turn: str) -> dict[str, object]:
+        self._fail("set_turn")
+        return super().set_turn(task_id, turn)
+
+    def set_tokens_used(self, task_id: str, tokens_used: int) -> dict[str, object]:
+        self._fail("set_tokens_used")
+        return super().set_tokens_used(task_id, tokens_used)
+
+    def get_briefing(self, task_id: str) -> str:
+        self._fail("get_briefing")
+        return super().get_briefing(task_id)
+
+    def get_task(self, task_id: str) -> dict[str, object]:
+        self._fail("get_task")
+        return super().get_task(task_id)
+
+
+def _control_plane_error(kind: str) -> httpx.HTTPError:
+    request = httpx.Request("PUT", "http://svc/tasks/t1/turn")
+    if kind == "connection":
+        return httpx.ConnectError(_CONTROL_PLANE_SENTINEL, request=request)
+    if kind == "timeout":
+        return httpx.ReadTimeout(_CONTROL_PLANE_SENTINEL, request=request)
+    if kind == "protocol":
+        return httpx.RemoteProtocolError(_CONTROL_PLANE_SENTINEL, request=request)
+    response = httpx.Response(503, request=request)
+    return httpx.HTTPStatusError(_CONTROL_PLANE_SENTINEL, request=request, response=response)
+
+
+# 2119: REQ-009.1.1
+# 2119: REQ-009.2.1
+@pytest.mark.parametrize(
+    ("argv", "payload"),
+    [
+        (["user"], ""),
+        (["agent"], ""),
+        (["agent", "prompt"], ""),
+        (["user", "stop"], ""),
+        (["user", "stop"], '{"transcript_path": "/missing"}'),
+    ],
+)
+def test_hook_returns_success_within_bound_against_a_blackholed_service(
+    argv: list[str], payload: str
+) -> None:
+    listener = socket.socket()
+    listener.bind(("127.0.0.1", 0))
+    listener.listen()
+    listener.settimeout(5)
+    release = threading.Event()
+
+    def blackhole() -> None:
+        try:
+            connection, _ = listener.accept()
+        except OSError:
+            return
+        with connection:
+            release.wait(timeout=5)
+
+    thread = threading.Thread(target=blackhole, daemon=True)
+    thread.start()
+    host, port = listener.getsockname()
+    env = {
+        key: value
+        for key, value in os.environ.items()
+        if key.lower() not in {"http_proxy", "https_proxy", "all_proxy"}
+    }
+    env.update(
+        PANOPTICON_SERVICE_URL=f"http://{host}:{port}",
+        PANOPTICON_TASK_ID="t1",
+        NO_PROXY=host,
+    )
+
+    started = time.monotonic()
+    try:
+        completed = subprocess.run(
+            [sys.executable, "-m", "panopticon.container.hook", *argv],
+            input=payload,
+            text=True,
+            capture_output=True,
+            env=env,
+            timeout=3.5,
+            check=False,
+        )
+    finally:
+        release.set()
+        listener.close()
+        thread.join(timeout=1)
+
+    assert time.monotonic() - started < 3
+    assert completed.returncode == 0
+    assert completed.stdout == "" and completed.stderr == ""
+
+
+# 2119: REQ-009.2.1
+@pytest.mark.parametrize(
+    ("argv", "payload", "successful_requests", "expected_stdout"),
+    [
+        (["agent", "prompt"], "", 1, ""),
+        (["agent", "prompt"], "", 2, "PHASE BRIEFING\n"),
+        (["user", "stop"], '{"transcript_path": "/missing"}', 1, ""),
+    ],
+)
+def test_hook_fails_open_when_a_later_control_plane_request_stalls(
+    argv: list[str], payload: str, successful_requests: int, expected_stdout: str
+) -> None:
+    request_count = 0
+    release = threading.Event()
+
+    class _LaterBlackhole(BaseHTTPRequestHandler):
+        def log_message(self, format: str, *args: object) -> None:
+            pass
+
+        def _handle_request(self) -> None:
+            nonlocal request_count
+            request_count += 1
+            if request_count > successful_requests:
+                release.wait(timeout=5)
+                return
+            length = int(self.headers.get("content-length", "0"))
+            if length:
+                self.rfile.read(length)
+            response: dict[str, object] = {}
+            if self.path.endswith("/briefing"):
+                response = {"briefing": "PHASE BRIEFING"}
+            elif self.command == "GET":
+                response = {"id": "t1", "slug": "hook-fail-open"}
+            body = json.dumps(response).encode()
+            self.send_response(200)
+            self.send_header("content-type", "application/json")
+            self.send_header("content-length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        do_GET = _handle_request
+        do_PUT = _handle_request
+
+    service = ThreadingHTTPServer(("127.0.0.1", 0), _LaterBlackhole)
+    service_thread = threading.Thread(target=service.serve_forever, daemon=True)
+    service_thread.start()
+    env = {
+        key: value
+        for key, value in os.environ.items()
+        if key.lower() not in {"http_proxy", "https_proxy", "all_proxy"}
+    }
+    env.update(
+        PANOPTICON_SERVICE_URL=f"http://127.0.0.1:{service.server_port}",
+        PANOPTICON_TASK_ID="t1",
+        NO_PROXY="127.0.0.1",
+    )
+
+    started = time.monotonic()
+    try:
+        completed = subprocess.run(
+            [sys.executable, "-m", "panopticon.container.hook", *argv],
+            input=payload,
+            text=True,
+            capture_output=True,
+            env=env,
+            timeout=3.5,
+            check=False,
+        )
+    finally:
+        release.set()
+        service.shutdown()
+        service.server_close()
+        service_thread.join(timeout=1)
+
+    assert request_count == successful_requests + 1
+    assert time.monotonic() - started < 3
+    assert completed.returncode == 0
+    assert completed.stdout == expected_stdout and completed.stderr == ""
+
+
+# 2119: REQ-009.2.1
+@pytest.mark.parametrize(
+    ("argv", "operation", "failure", "payload"),
+    [
+        (["user"], "set_turn", "connection", ""),
+        (["agent"], "set_turn", "protocol", ""),
+        (["user", "stop"], "set_tokens_used", "status", '{"transcript_path": "/missing"}'),
+        (["user", "stop"], "set_turn", "timeout", ""),
+        (["agent", "prompt"], "set_turn", "status", ""),
+        (["agent", "prompt"], "get_briefing", "connection", ""),
+        (["agent", "prompt"], "get_task", "protocol", ""),
+    ],
+)
+def test_every_shared_callback_path_fails_open_on_control_plane_errors(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    argv: list[str],
+    operation: str,
+    failure: str,
+    payload: str,
+) -> None:
+    monkeypatch.setenv("PANOPTICON_SERVICE_URL", "http://svc")
+    monkeypatch.setenv("PANOPTICON_TASK_ID", "t1")
+    client = _FailingClient(operation, _control_plane_error(failure))
+
+    assert hook.main(argv, client=client, stdin=io.StringIO(payload)) == 0  # type: ignore[arg-type]
+    captured = capsys.readouterr()
+    expected_stdout = "PHASE BRIEFING: you are in PLANNING\n" if operation == "get_task" else ""
+    assert captured.out == expected_stdout
+    assert captured.err == ""
+
+
+# 2119: REQ-009.3.1
+def test_every_injected_turn_hook_preserves_its_event_mapping(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setenv("PANOPTICON_SERVICE_URL", "http://svc")
+    monkeypatch.setenv("PANOPTICON_TASK_ID", "t1")
+    claude_hooks = settings()["hooks"]
+    assert (
+        claude_hooks["Stop"][0]["hooks"][0]["command"]
+        == "python -m panopticon.container.hook user stop"
+    )
+    assert (
+        claude_hooks["UserPromptSubmit"][0]["hooks"][0]["command"]
+        == "python -m panopticon.container.hook agent prompt"
+    )
+    assert claude_hooks["PreToolUse"][0]["matcher"] == "AskUserQuestion"
+    assert (
+        claude_hooks["PreToolUse"][0]["hooks"][0]["command"]
+        == "python -m panopticon.container.hook user"
+    )
+    assert claude_hooks["PostToolUse"][0]["matcher"] == "AskUserQuestion"
+    assert (
+        claude_hooks["PostToolUse"][0]["hooks"][0]["command"]
+        == "python -m panopticon.container.hook agent"
+    )
+
+    codex_config = tomllib.loads(render_config("http://svc", "", Path("/workspace")))
+    assert (
+        codex_config["hooks"]["Stop"][0]["hooks"][0]["command"]
+        == "python -m panopticon.container.hook user stop"
+    )
+    assert (
+        codex_config["hooks"]["UserPromptSubmit"][0]["hooks"][0]["command"]
+        == "python -m panopticon.container.hook agent prompt"
+    )
+
+    subprocess_turns: list[str] = []
+    subprocess_paths: list[str] = []
+
+    class _ResponsiveService(BaseHTTPRequestHandler):
+        def log_message(self, format: str, *args: object) -> None:
+            pass
+
+        def _respond(self, body: dict[str, object]) -> None:
+            encoded = json.dumps(body).encode()
+            self.send_response(200)
+            self.send_header("content-type", "application/json")
+            self.send_header("content-length", str(len(encoded)))
+            self.end_headers()
+            self.wfile.write(encoded)
+
+        def do_PUT(self) -> None:
+            length = int(self.headers.get("content-length", "0"))
+            body = json.loads(self.rfile.read(length))
+            subprocess_paths.append(self.path)
+            subprocess_turns.append(body["turn"])
+            self._respond({})
+
+        def do_GET(self) -> None:
+            if self.path.endswith("/briefing"):
+                self._respond({"briefing": "PHASE BRIEFING"})
+            else:
+                self._respond({"id": "t1", "slug": "hook-fail-open"})
+
+    service = ThreadingHTTPServer(("127.0.0.1", 0), _ResponsiveService)
+    service_thread = threading.Thread(target=service.serve_forever, daemon=True)
+    service_thread.start()
+    env = {
+        key: value
+        for key, value in os.environ.items()
+        if key.lower() not in {"http_proxy", "https_proxy", "all_proxy"}
+    }
+    env.update(
+        PANOPTICON_SERVICE_URL=f"http://127.0.0.1:{service.server_port}",
+        PANOPTICON_TASK_ID="t1",
+        NO_PROXY="127.0.0.1",
+    )
+    try:
+        for command in (
+            claude_hooks["Stop"][0]["hooks"][0]["command"],
+            claude_hooks["UserPromptSubmit"][0]["hooks"][0]["command"],
+        ):
+            completed = subprocess.run(
+                shlex.split(command),
+                input="",
+                text=True,
+                capture_output=True,
+                env=env,
+                check=False,
+            )
+            assert completed.returncode == 0 and completed.stderr == ""
+    finally:
+        service.shutdown()
+        service.server_close()
+        service_thread.join(timeout=1)
+    assert subprocess_turns == ["user", "agent"]
+    assert subprocess_paths == ["/tasks/t1/turn", "/tasks/t1/turn"]
+
+    client = _FakeClient(slug="hook-fail-open")
+    assert hook.main(["user", "stop"], client=client, stdin=io.StringIO("")) == 0  # type: ignore[arg-type]
+    live = '{"background_tasks": [{"status": "running"}]}'
+    assert hook.main(["user", "stop"], client=client, stdin=io.StringIO(live)) == 0  # type: ignore[arg-type]
+    completed_background = '{"background_tasks": [{"status": "completed"}]}'
+    assert (
+        hook.main(  # type: ignore[arg-type]
+            ["user", "stop"], client=client, stdin=io.StringIO(completed_background)
+        )
+        == 0
+    )
+    assert hook.main(["agent", "prompt"], client=client, stdin=io.StringIO("")) == 0  # type: ignore[arg-type]
+    assert hook.main(["user"], client=client) == 0  # type: ignore[arg-type]
+    assert hook.main(["agent"], client=client) == 0  # type: ignore[arg-type]
+    assert client.calls == [
+        ("t1", "user"),
+        ("t1", "user"),
+        ("t1", "agent"),
+        ("t1", "user"),
+        ("t1", "agent"),
+    ]
+
+    pi_harness = PiHarness()
+    pi_harness.bootstrap(
+        BootstrapContext(
+            home=tmp_path,
+            cwd=Path("/workspace"),
+            service_url="http://svc",
+            task_id="t1",
+        )
+    )
+    extension_path = tmp_path / ".pi" / EXTENSION_FILE
+    assert pi_harness.argv(LaunchContext(home=tmp_path, cwd=Path("/workspace"))) == [
+        "pi",
+        "--extension",
+        str(extension_path),
+    ]
+    source = extension_path.read_text().replace(
+        "export default function", "const extension = function"
+    )
+    probe = (
+        source
+        + """
+const handlers = {};
+const turns = [];
+const pi = { on(event, handler) { handlers[event] = handler; } };
+globalThis.fetch = (url, options) => {
+  if (url !== "http://svc/tasks/t1/turn") throw new Error(`unexpected URL: ${url}`);
+  if (options.method !== "PUT") throw new Error(`unexpected method: ${options.method}`);
+  turns.push(JSON.parse(options.body).turn);
+  return Promise.resolve({ ok: true });
+};
+extension(pi);
+await handlers.agent_end();
+await handlers.input();
+if (JSON.stringify(turns) !== JSON.stringify(["user", "agent"])) {
+  throw new Error(`unexpected pi turns: ${turns}`);
+}
+"""
+    )
+    subprocess.run(
+        ["node", "--input-type=module", "--eval", probe],
+        check=True,
+        env={
+            **os.environ,
+            "PANOPTICON_SERVICE_URL": "http://svc",
+            "PANOPTICON_TASK_ID": "t1",
+        },
+    )
 
 
 def test_hook_flips_the_turn(monkeypatch: pytest.MonkeyPatch) -> None:

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.1--6ac87aeeb6af",
+  "requirementId": "REQ-009.2.1",
+  "hash": "6ac87aeeb6af",
+  "verdict": "pass",
+  "summary": "Behavioral tests reject hangs, nonzero or rejected completion, and stdout/stderr leakage for every shared callback operation, all defined failure classes, later-request stalls, and both Pi handlers.",
+  "timestamp": "2026-07-22T17:36:09.527Z"
+}

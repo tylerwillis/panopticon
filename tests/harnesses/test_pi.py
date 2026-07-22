@@ -164,6 +164,76 @@ await pending;
     subprocess.run(["node", "--input-type=module", "--eval", probe], check=True)
 
 
+# 2119: REQ-009.1.1
+# 2119: REQ-009.2.1
+def test_turn_signal_handlers_bound_requests_and_fail_open() -> None:
+    source = TURN_EXTENSION.replace("export default function", "const extension = function")
+    probe = (
+        source
+        + """
+const handlers = {};
+const pi = { on(event, handler) { handlers[event] = handler; } };
+globalThis.fetch = (_url, options) => {
+  if (!options.signal) throw new Error("turn request has no abort signal");
+  return new Promise((_resolve, reject) => {
+    options.signal.addEventListener(
+      "abort",
+      () => reject(new Error("control plane unavailable")),
+      { once: true },
+    );
+  });
+};
+extension(pi);
+const started = Date.now();
+await Promise.all([handlers.agent_end(), handlers.input()]);
+const elapsed = Date.now() - started;
+if (elapsed >= 3000) throw new Error(`handlers blocked for ${elapsed}ms`);
+"""
+    )
+
+    completed = subprocess.run(
+        ["node", "--input-type=module", "--eval", probe],
+        check=True,
+        timeout=3.5,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.stdout == "" and completed.stderr == ""
+
+
+# 2119: REQ-009.2.1
+def test_turn_signal_handlers_do_not_surface_network_or_status_failures() -> None:
+    source = TURN_EXTENSION.replace("export default function", "const extension = function")
+    probe = (
+        source
+        + """
+const handlers = {};
+const pi = { on(event, handler) { handlers[event] = handler; } };
+let failure = "network";
+globalThis.fetch = () => {
+  if (failure === "network") {
+    return Promise.reject(new Error("CONTROL_PLANE_FAILURE_SENTINEL"));
+  }
+  return Promise.resolve({ ok: false, status: 503, statusText: "CONTROL_PLANE_FAILURE_SENTINEL" });
+};
+extension(pi);
+await handlers.agent_end();
+await handlers.input();
+failure = "status";
+await handlers.agent_end();
+await handlers.input();
+"""
+    )
+
+    completed = subprocess.run(
+        ["node", "--input-type=module", "--eval", probe],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.stdout == "" and completed.stderr == ""
+
+
 def test_bootstrap_writes_the_extension_file(tmp_path: Path) -> None:
     HARNESS.bootstrap(_bootstrap_ctx(tmp_path))
     assert (tmp_path / ".pi" / EXTENSION_FILE).read_text() == TURN_EXTENSION

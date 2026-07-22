@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.1--2f85d0310fec",
+  "requirementId": "REQ-009.1.1",
+  "hash": "2f85d0310fec",
+  "verdict": "pass",
+  "summary": "Global command-hook deadlines plus blackhole subprocess timing and both timed Pi handlers reject any callback exceeding three seconds.",
+  "timestamp": "2026-07-22T17:30:34.464Z"
+}

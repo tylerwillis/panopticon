@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.5.1--257722ea3eb5",
+  "requirementId": "REQ-008.5.1",
+  "hash": "257722ea3eb5",
+  "verdict": "pass",
+  "summary": "Codex's native UserPromptSubmit wiring invokes the shared agent callback, and the gated callback test rejects a missing/wrong turn write or hook exit before that write completes.",
+  "timestamp": "2026-07-22T17:29:04.190Z"
+}
