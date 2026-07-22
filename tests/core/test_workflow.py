@@ -62,10 +62,28 @@ def _to_working() -> object:
 
 def test_start_task_sets_initial_state_turn_and_history() -> None:
     task = WF.start_task("t1", "r1", at="t0")
+    # 2119: REQ-001.3.1
     assert task.state == "PLAN"
+
+    class NonFirstInitial(Workflow):
+        name = "non-first-initial"
+
+        class FirstDeclared(State):
+            label = "FIRST"
+            transitions = (Complete,)
+
+        class ConfiguredInitial(InitialState):
+            label = "CONFIGURED"
+            transitions = (Complete,)
+
+        initial = ConfiguredInitial
+
+    assert NonFirstInitial().start_task("t2", "r1", at="t0").state == "CONFIGURED"
+    # 2119: REQ-001.3.4
     assert task.turn is Actor.USER  # PLAN is the initial state → turn starts with the user
     assert task.slug is None
     assert task.initial_prompt is None
+    # 2119: REQ-001.3.5
     assert task.history[0].from_state is None
     assert task.history[0].to_state == "PLAN"
     assert task.history[0].trigger == "start"
@@ -95,8 +113,18 @@ def test_workflow_launch_defaults_must_be_a_pair() -> None:
         Plan = GatedWorkflow.Plan
         Working = GatedWorkflow.Working
 
+    # 2119: REQ-004.1.1
     with pytest.raises(InvalidWorkflow, match="must be declared together"):
         HalfConfigured().validate_registration({"claude"})
+
+    class OtherHalfConfigured(GatedWorkflow):
+        name = "other-half-configured"
+        default_harness = "claude"
+        Plan = GatedWorkflow.Plan
+        Working = GatedWorkflow.Working
+
+    with pytest.raises(InvalidWorkflow, match="must be declared together"):
+        OtherHalfConfigured().validate_registration({"claude"})
 
 
 def test_workflow_launch_pair_must_name_a_registered_harness() -> None:
@@ -107,6 +135,7 @@ def test_workflow_launch_pair_must_name_a_registered_harness() -> None:
         Plan = GatedWorkflow.Plan
         Working = GatedWorkflow.Working
 
+    # 2119: REQ-004.1.2
     with pytest.raises(InvalidWorkflow, match="unknown default_harness 'cursor'"):
         UnknownHarness().validate_registration({"claude", "codex"})
 
@@ -115,7 +144,9 @@ def test_workflow_launch_pair_must_name_a_registered_harness() -> None:
 
 
 def test_transitions_resolve_strings_classes_and_inherited_drop() -> None:
+    # 2119: REQ-001.1.4
     assert set(WF.transitions("PLAN")) == {"WORKING", "DROPPED"}  # string ref + inherited
+    # 2119: REQ-001.1.3
     assert set(WF.transitions("WORKING")) == {"COMPLETE", "DROPPED"}  # class ref + inherited
     assert list(WF.transitions("COMPLETE")) == []  # terminal
 
@@ -151,6 +182,7 @@ def test_advanced_by_policy() -> None:
 
 def test_turn_updates_on_each_transition() -> None:
     task = _to_working()
+    # 2119: REQ-001.3.2
     assert task.turn is Actor.AGENT  # WORKING.turn_on_enter
     task.resolve_responsibility(key="tests-pass", status=Status.MET)
     task.resolve_responsibility(key="pr-opened", status=Status.MET)
@@ -158,14 +190,72 @@ def test_turn_updates_on_each_transition() -> None:
     assert task.turn is Actor.USER  # COMPLETE is terminal → back to the user
 
 
+def test_turn_on_enter_and_advanced_by_are_independent() -> None:
+    class Orthogonal(Workflow):
+        name = "orthogonal-turn"
+
+        class A(InitialState):
+            label = "A"
+            transitions = ("B",)
+
+        class B(State):
+            label = "B"
+            advanced_by = Actor.USER
+            transitions = (Complete,)
+
+        initial = A
+
+    wf = Orthogonal()
+    # 2119: REQ-001.3.3
+    assert wf.turn_on_enter("B") is Actor.AGENT
+    assert wf.advanced_by("B") is Actor.USER
+    task = wf.start_task("t1", "r1", at="t0")
+    wf.apply_transition(task, "B", at="t1")
+    assert task.turn is Actor.AGENT
+
+
 # -- named core operations (advance / drop, derived; declared ops) ------------------
 
 
 def test_operations_derive_advance_and_imply_drop() -> None:
     # PLAN and WORKING each have a single non-DROPPED edge → advance is derived; drop is implicit.
+    # 2119: REQ-001.2.1
     assert WF.operations("PLAN") == {"advance": "WORKING", "drop": "DROPPED"}
+    # 2119: REQ-001.2.2
     assert WF.operations("WORKING") == {"advance": "COMPLETE", "drop": "DROPPED"}
+    # 2119: REQ-001.2.5
     assert WF.operations("COMPLETE") == {}  # terminal: no operations
+
+
+def test_advance_is_not_derived_without_exactly_one_forward_edge() -> None:
+    class OnlyDrop(Workflow):
+        name = "only-drop"
+
+        class A(InitialState):
+            label = "A"
+
+        initial = A
+
+    class Branching(Workflow):
+        name = "branching"
+
+        class A(InitialState):
+            label = "A"
+            transitions = ("B", "C")
+
+        class B(State):
+            label = "B"
+            transitions = (Complete,)
+
+        class C(State):
+            label = "C"
+            transitions = (Complete,)
+
+        initial = A
+
+    # 2119: REQ-001.2.3
+    assert OnlyDrop().operations("A") == {"drop": "DROPPED"}
+    assert Branching().operations("A") == {"drop": "DROPPED"}
 
 
 def test_resolve_operation_returns_target_or_raises() -> None:
@@ -192,18 +282,44 @@ def test_declared_operation_must_target_a_legal_transition() -> None:
 
         initial = A
 
+    # 2119: REQ-001.2.4
     with pytest.raises(InvalidWorkflow):
         Bad().operations("A")
 
 
 def test_force_transition_is_a_free_ungated_move() -> None:
     task = _to_working()  # WORKING has unresolved promises and only COMPLETE/DROPPED edges
+    # 2119: REQ-001.5.1
     WF.force_transition(task, "PLAN", at="t2", trigger="set-state")  # backward, ungated, off-graph
+    # 2119: REQ-001.5.3
     assert task.state == "PLAN"
+    # 2119: REQ-001.5.6
     assert task.turn is Actor.USER  # PLAN.turn_on_enter (initial state → user)
-    assert task.history[-1].from_state == "WORKING"
+    # 2119: REQ-001.5.7
+    assert len(task.history) == 3
+    assert [entry.to_state for entry in task.history[:-1]] == ["PLAN", "WORKING"]
+    assert (task.history[-1].from_state, task.history[-1].to_state) == ("WORKING", "PLAN")
+    # 2119: REQ-001.5.2
     with pytest.raises(InvalidWorkflow):
         WF.force_transition(task, "GHOST", at="t3")  # target must still exist
+
+
+def test_force_transition_seeds_destination_responsibilities() -> None:
+    task = WF.start_task("t1", "r1", at="t0")
+    WF.force_transition(task, "WORKING", at="t1", trigger="set-state")
+    # 2119: REQ-001.5.6
+    assert task.turn is Actor.AGENT
+    # 2119: REQ-001.5.7
+    assert task.history[-1].to_state == "WORKING"
+    task.resolve_responsibility(key="tests-pass", status=Status.MET)
+    task.resolve_responsibility(key="pr-opened", status=Status.MET)
+    WF.force_transition(task, "PLAN", at="t2", trigger="set-state")
+    WF.force_transition(task, "WORKING", at="t3", trigger="set-state")
+    # 2119: REQ-001.5.8
+    assert {r.key: r.status for r in task.history[-1].responsibilities} == {
+        "tests-pass": Status.PENDING,
+        "pr-opened": Status.PENDING,
+    }
 
 
 # -- illegal transitions ------------------------------------------------------------
@@ -211,6 +327,7 @@ def test_force_transition_is_a_free_ungated_move() -> None:
 
 def test_undefined_transition_is_rejected() -> None:
     task = WF.start_task("t1", "r1", at="t0")
+    # 2119: REQ-001.1.1
     with pytest.raises(IllegalTransition):
         WF.apply_transition(task, "COMPLETE", at="t1")  # PLAN -> COMPLETE not an edge
 
@@ -218,6 +335,7 @@ def test_undefined_transition_is_rejected() -> None:
 def test_cannot_transition_out_of_terminal() -> None:
     task = WF.start_task("t1", "r1", at="t0")
     WF.apply_transition(task, "DROPPED", at="t1")
+    # 2119: REQ-001.1.2
     with pytest.raises(IllegalTransition):
         WF.apply_transition(task, "WORKING", at="t2")
 
@@ -228,6 +346,7 @@ def test_cannot_transition_out_of_terminal() -> None:
 def test_entering_gated_state_seeds_pending_promises() -> None:
     task = _to_working()
     entry = task.history[-1]  # the entry recorded on entering WORKING
+    # 2119: REQ-001.4.1
     assert entry.to_state == "WORKING"
     assert {r.key: r.status for r in entry.responsibilities} == {
         "tests-pass": Status.PENDING,
@@ -238,6 +357,7 @@ def test_entering_gated_state_seeds_pending_promises() -> None:
 
 def test_leaving_gated_state_requires_all_resolved() -> None:
     task = _to_working()
+    # 2119: REQ-001.4.2
     with pytest.raises(ResponsibilitiesNotMet):
         WF.apply_transition(task, "COMPLETE", at="t2")  # nothing resolved
     task.resolve_responsibility(key="tests-pass", status=Status.MET)
@@ -264,12 +384,14 @@ def test_failed_with_comment_allows_transition() -> None:
     task = _to_working()
     task.resolve_responsibility(key="tests-pass", status=Status.MET)
     task.resolve_responsibility(key="pr-opened", status=Status.FAILED, comment="forge down")
+    # 2119: REQ-001.4.4
     WF.apply_transition(task, "COMPLETE", at="t2")
     assert task.state == "COMPLETE"
 
 
 def test_drop_bypasses_responsibilities() -> None:
     task = _to_working()  # WORKING has unresolved promises
+    # 2119: REQ-001.4.5
     WF.apply_transition(task, "DROPPED", at="t2")  # always allowed
     assert task.state == "DROPPED"
     assert task.history[-1].responsibilities == []  # DROPPED defines none
@@ -350,6 +472,7 @@ def test_validate_rejects_unknown_transition_target() -> None:
 
         initial = A
 
+    # 2119: REQ-001.1.5
     with pytest.raises(InvalidWorkflow):
         list(Bad().labels())
 
@@ -368,6 +491,7 @@ def test_validate_rejects_duplicate_labels() -> None:
 
         initial = A
 
+    # 2119: REQ-001.1.6
     with pytest.raises(InvalidWorkflow):
         list(Bad().labels())
 

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.1.1--32a8086ae4be",
+  "requirementId": "REQ-002.1.1",
+  "hash": "32a8086ae4be",
+  "verdict": "pass",
+  "summary": "test_stop_flips_to_user_when_no_live_background_task exercises real hook.main + _has_live_background_task over 9 no-live-work payloads and asserts client.calls == [(\"t1\",\"user\")]; the fake client only records calls (doesn't decide the turn), so the test fails if the gate wrongly suppresses set_turn or if the turn value were hardcoded to agent.",
+  "timestamp": "2026-07-21T23:54:15.778Z"
+}

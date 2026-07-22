@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.2.5--7d89a26fd8ba",
+  "requirementId": "REQ-002.2.5",
+  "hash": "7d89a26fd8ba",
+  "verdict": "pass",
+  "summary": "Five type-diverse non-list values incl. falsy null/false/0 (kills the truthiness shortcut) asserted to preserve the turn with exit 0; demonstrably fails against the current pre-amendment implementation, proving falsifiability.",
+  "timestamp": "2026-07-22T05:15:59.146Z"
+}

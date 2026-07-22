@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.5.6--3303f2ace9cc",
+  "requirementId": "REQ-001.5.6",
+  "hash": "3303f2ace9cc",
+  "verdict": "pass",
+  "summary": "test_force_transition_is_a_free_ungated_move (AGENT->USER via WORKING->PLAN) and test_force_transition_seeds_destination_responsibilities (USER->AGENT via PLAN->WORKING) both assert task.turn after force_transition equals the destination's turn_on_enter, and in each case the pre-move turn genuinely differs from the post-move value, so the assertion cannot pass if turn_on_enter were ignored or the turn left unchanged.",
+  "timestamp": "2026-07-21T23:53:17.439Z"
+}

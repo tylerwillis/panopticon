@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-003.1.4--6260c2df4c4b",
+  "requirementId": "REQ-003.1.4",
+  "hash": "6260c2df4c4b",
+  "verdict": "pass",
+  "summary": "Real compose_container_status calls assert 'disconnected' for a claimed/non-terminal/unregistered task with a dead runner, both with no phase and with a stale BUILDING phase — a phase-shows-through or down-fallback violation fails the literal equality",
+  "timestamp": "2026-07-21T23:54:49.088Z"
+}

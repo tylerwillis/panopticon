@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-004.2.2--c7949bd39410",
+  "requirementId": "REQ-004.2.2",
+  "hash": "c7949bd39410",
+  "verdict": "pass",
+  "summary": "Repo pair (codex/gpt-5.6-sol:medium) asserted on a task created with no override and a pair-less workflow; the app default (claude/None) differs on both halves, so app-default precedence fails the test.",
+  "timestamp": "2026-07-22T05:13:37.386Z"
+}

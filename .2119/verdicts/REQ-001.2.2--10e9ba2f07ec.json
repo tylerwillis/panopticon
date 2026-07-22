@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.2.2--10e9ba2f07ec",
+  "requirementId": "REQ-001.2.2",
+  "hash": "10e9ba2f07ec",
+  "verdict": "pass",
+  "summary": "WORKING has exactly one non-DROPPED edge and no declared advance; exact equality pins the derived advance:COMPLETE, failing if derivation is skipped or mistargeted",
+  "timestamp": "2026-07-21T23:53:51.757Z"
+}

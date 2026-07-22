@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-003.1.6--9f68647fb311",
+  "requirementId": "REQ-003.1.6",
+  "hash": "9f68647fb311",
+  "verdict": "pass",
+  "summary": "Direct behavioral assert: claimed + non-terminal + unregistered + live runner + phase=None composes to 'down' via the real function; any other status (live/disconnected/a phase value) fails the equality",
+  "timestamp": "2026-07-21T23:54:56.995Z"
+}

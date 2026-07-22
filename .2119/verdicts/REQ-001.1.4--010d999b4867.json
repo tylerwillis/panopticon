@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.1.4--010d999b4867",
+  "requirementId": "REQ-001.1.4",
+  "hash": "010d999b4867",
+  "verdict": "pass",
+  "summary": "Plan declares a forward string ref 'WORKING' before the class exists, so the transitions assertion can only pass via real label resolution",
+  "timestamp": "2026-07-21T23:53:42.037Z"
+}

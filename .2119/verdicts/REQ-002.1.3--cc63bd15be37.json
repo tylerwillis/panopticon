@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.1.3--cc63bd15be37",
+  "requirementId": "REQ-002.1.3",
+  "hash": "cc63bd15be37",
+  "verdict": "pass",
+  "summary": "Feeds a running background_tasks entry to the prompt event and asserts the agent flip still happens — a Stop-gate-extended-to-prompt implementation would fail it",
+  "timestamp": "2026-07-21T23:54:32.171Z"
+}

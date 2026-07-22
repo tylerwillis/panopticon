@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.5.3--647208166f68",
+  "requirementId": "REQ-001.5.3",
+  "hash": "647208166f68",
+  "verdict": "pass",
+  "summary": "test_force_transition_is_a_free_ungated_move asserts task.state == \"PLAN\" after force_transition from WORKING (a genuinely different source state), directly verifying the destination is set on success.",
+  "timestamp": "2026-07-21T23:52:45.051Z"
+}

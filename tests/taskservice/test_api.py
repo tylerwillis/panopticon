@@ -256,10 +256,9 @@ def test_create_task_records_the_harness(client: TestClient) -> None:
     assert got.json()["harness"] == "codex"
 
 
-def test_create_task_defaults_to_no_harness(client: TestClient) -> None:
-    # None = the claude default; recorded as null so old rows and new defaults read the same.
+def test_create_task_materializes_the_app_default_harness(client: TestClient) -> None:
     task_id = _new_task(client)
-    assert client.get(f"/tasks/{task_id}").json()["harness"] is None
+    assert client.get(f"/tasks/{task_id}").json()["harness"] == "claude"
 
 
 def test_repo_default_harness_flows_to_new_tasks(client: TestClient, tmp_path: Path) -> None:
@@ -278,11 +277,11 @@ def test_repo_default_harness_flows_to_new_tasks(client: TestClient, tmp_path: P
     assert task["harness"] == "claude"  # resolved at creation and recorded on the task
 
 
-def test_repo_without_a_default_harness_leaves_tasks_on_the_system_default(
+def test_repo_without_a_default_harness_materializes_the_system_default(
     client: TestClient,
 ) -> None:
     task_id = _new_task(client)
-    assert client.get(f"/tasks/{task_id}").json()["harness"] is None  # None = claude
+    assert client.get(f"/tasks/{task_id}").json()["harness"] == "claude"
 
 
 def test_create_repo_with_an_unknown_default_harness_is_400(client: TestClient) -> None:
@@ -309,23 +308,80 @@ def test_patch_repo_validates_the_default_harness(client: TestClient) -> None:
 
 def test_repo_default_model_is_opaque_and_patchable(client: TestClient) -> None:
     value = "operator-owned vocabulary:maximum"
+    harness = client.patch("/repos/r1", json={"default_harness": "claude"})
+    assert harness.status_code == 200, harness.text
     resp = client.patch("/repos/r1", json={"default_model": value})
     assert resp.status_code == 200, resp.text
     assert resp.json()["default_model"] == value
     assert client.get("/repos/r1").json()["default_model"] == value
+    # 2119: REQ-004.4.1
+    task = client.post("/tasks", json={"repo_id": "r1", "workflow": "spike"}).json()
+    assert task["starting_model"] == value
 
 
-def test_app_defaults_leave_both_launch_fields_unset(client: TestClient) -> None:
+# 2119: REQ-004.2.4
+def test_app_default_harness_is_materialized_on_the_task(client: TestClient) -> None:
     task_id = _new_task(client)
     task = client.get(f"/tasks/{task_id}").json()
-    assert (task["harness"], task["starting_model"]) == (None, None)
+    assert (task["harness"], task["starting_model"]) == ("claude", None)
 
 
+# 2119: REQ-004.4.3
+def test_materialized_app_default_survives_later_default_changes(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import panopticon.harnesses as harness_registry
+
+    task_id = _new_task(client)
+    monkeypatch.setattr(harness_registry, "DEFAULT_HARNESS", "codex")
+    task = client.get(f"/tasks/{task_id}").json()
+    assert task["harness"] == "claude"
+    assert harness_registry.get_harness(task["harness"]).name == "claude"
+
+
+# 2119: REQ-004.5.1
+def test_repo_model_requires_an_explicit_repo_harness(client: TestClient) -> None:
+    create = client.post(
+        "/repos",
+        json={
+            "id": "r2",
+            "name": "acme/other",
+            "git_url": "https://x/r2.git",
+            "default_model": "opus",
+        },
+    )
+    assert create.status_code == 400, create.text
+    patch = client.patch("/repos/r1", json={"default_model": "opus"})
+    assert patch.status_code == 400, patch.text
+    configured = client.patch(
+        "/repos/r1", json={"default_harness": "claude", "default_model": "opus"}
+    )
+    assert configured.status_code == 200, configured.text
+    clear_harness = client.patch("/repos/r1", json={"default_harness": None})
+    assert clear_harness.status_code == 400, clear_harness.text
+
+
+# 2119: REQ-004.3.1
 def test_explicit_task_harness_beats_app_defaults(client: TestClient) -> None:
     resp = client.post("/tasks", json={"repo_id": "r1", "workflow": "spike", "harness": "codex"})
     assert (resp.json()["harness"], resp.json()["starting_model"]) == ("codex", None)
+    client.post(
+        "/repos",
+        json={
+            "id": "r2",
+            "name": "acme/other",
+            "git_url": "https://x/r2.git",
+            "default_harness": "claude",
+            "default_model": "opus",
+        },
+    )
+    against_non_null_default = client.post(
+        "/tasks", json={"repo_id": "r2", "workflow": "spike", "harness": "codex"}
+    )
+    assert against_non_null_default.json()["harness"] == "codex"
 
 
+# 2119: REQ-004.2.2
 def test_repo_launch_pair_beats_app_defaults(client: TestClient) -> None:
     client.post(
         "/repos",
@@ -344,6 +400,7 @@ def test_repo_launch_pair_beats_app_defaults(client: TestClient) -> None:
     )
 
 
+# 2119: REQ-004.2.1
 def test_workflow_launch_pair_beats_repo_pair(tmp_path: Path) -> None:
     service = TaskService(
         SqlAlchemyStore(), {"tuned": _TunedWorkflow()}, FilesystemArtifactStore(tmp_path)
@@ -365,6 +422,7 @@ def test_workflow_launch_pair_beats_repo_pair(tmp_path: Path) -> None:
     assert (task["harness"], task["starting_model"]) == ("codex", "gpt-5.6-sol:high")
 
 
+# 2119: REQ-004.3.3
 def test_explicit_task_harness_drops_losing_pair_model(tmp_path: Path) -> None:
     service = TaskService(
         SqlAlchemyStore(), {"tuned": _TunedWorkflow()}, FilesystemArtifactStore(tmp_path)
@@ -378,6 +436,7 @@ def test_explicit_task_harness_drops_losing_pair_model(tmp_path: Path) -> None:
     assert (task["harness"], task["starting_model"]) == ("claude", None)
 
 
+# 2119: REQ-004.3.2
 def test_explicit_task_model_keeps_winning_pair_harness(tmp_path: Path) -> None:
     service = TaskService(
         SqlAlchemyStore(), {"tuned": _TunedWorkflow()}, FilesystemArtifactStore(tmp_path)
@@ -389,6 +448,66 @@ def test_explicit_task_model_keeps_winning_pair_harness(tmp_path: Path) -> None:
             "/tasks", json={"repo_id": "r1", "workflow": "tuned", "starting_model": "custom"}
         ).json()
     assert (task["harness"], task["starting_model"]) == ("codex", "custom")
+
+
+# 2119: REQ-004.3.4
+def test_explicit_same_harness_keeps_winning_pair_model(tmp_path: Path) -> None:
+    service = TaskService(
+        SqlAlchemyStore(), {"tuned": _TunedWorkflow()}, FilesystemArtifactStore(tmp_path)
+    )
+    asyncio.run(service.init())
+    asyncio.run(service.create_repo(Repo(id="r1", name="acme", git_url="https://x/r1.git")))
+    with TestClient(create_app(service)) as tuned_client:
+        task = tuned_client.post(
+            "/tasks", json={"repo_id": "r1", "workflow": "tuned", "harness": "codex"}
+        ).json()
+    assert (task["harness"], task["starting_model"]) == ("codex", "gpt-5.6-sol:high")
+
+
+# 2119: REQ-004.4.2
+def test_created_tasks_keep_launch_values_after_defaults_change(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    service = TaskService(
+        SqlAlchemyStore(),
+        {"spike": Spike(), "tuned": _TunedWorkflow()},
+        FilesystemArtifactStore(tmp_path),
+    )
+    asyncio.run(service.init())
+    asyncio.run(
+        service.create_repo(
+            Repo(
+                id="r1",
+                name="acme",
+                git_url="https://x/r1.git",
+                default_harness="claude",
+                default_model="opus:low",
+            )
+        )
+    )
+    with TestClient(create_app(service)) as tuned_client:
+        repo_task = tuned_client.post("/tasks", json={"repo_id": "r1", "workflow": "spike"}).json()
+        workflow_task = tuned_client.post(
+            "/tasks", json={"repo_id": "r1", "workflow": "tuned"}
+        ).json()
+        tuned_client.patch(
+            "/repos/r1",
+            json={"default_harness": "codex", "default_model": "replacement"},
+        )
+        monkeypatch.setattr(_TunedWorkflow, "default_harness", "claude")
+        monkeypatch.setattr(_TunedWorkflow, "default_model", "replacement")
+
+        persisted_repo_task = tuned_client.get(f"/tasks/{repo_task['id']}").json()
+        persisted_workflow_task = tuned_client.get(f"/tasks/{workflow_task['id']}").json()
+
+    assert (persisted_repo_task["harness"], persisted_repo_task["starting_model"]) == (
+        "claude",
+        "opus:low",
+    )
+    assert (persisted_workflow_task["harness"], persisted_workflow_task["starting_model"]) == (
+        "codex",
+        "gpt-5.6-sol:high",
+    )
 
 
 def test_create_task_records_an_explicit_starting_model(client: TestClient) -> None:

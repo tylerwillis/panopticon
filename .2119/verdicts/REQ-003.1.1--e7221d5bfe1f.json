@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-003.1.1--e7221d5bfe1f",
+  "requirementId": "REQ-003.1.1",
+  "hash": "e7221d5bfe1f",
+  "verdict": "pass",
+  "summary": "Exhaustive cartesian product over claimed x registered x runner_live x (None + every phase) with terminal=True, all asserted to compose '–' against the real pure function",
+  "timestamp": "2026-07-21T23:54:51.144Z"
+}

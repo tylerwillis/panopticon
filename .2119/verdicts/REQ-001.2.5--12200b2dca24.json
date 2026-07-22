@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.2.5--12200b2dca24",
+  "requirementId": "REQ-001.2.5",
+  "hash": "12200b2dca24",
+  "verdict": "pass",
+  "summary": "test_operations_derive_advance_and_imply_drop asserts WF.operations('COMPLETE') == {} against real graph construction; mutation-testing confirms it fails if the terminal early-return guard is removed (drop would leak in).",
+  "timestamp": "2026-07-21T23:53:33.897Z"
+}

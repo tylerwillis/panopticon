@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.4.4--a9c118b39071",
+  "requirementId": "REQ-001.4.4",
+  "hash": "a9c118b39071",
+  "verdict": "pass",
+  "summary": "test_failed_with_comment_allows_transition exercises the failed-with-comment unlock route via the real apply_transition path and asserts the state actually advances to COMPLETE, catching an all-MET-only regression.",
+  "timestamp": "2026-07-21T23:53:48.687Z"
+}

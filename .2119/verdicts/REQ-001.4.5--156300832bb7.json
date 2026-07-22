@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.4.5--156300832bb7",
+  "requirementId": "REQ-001.4.5",
+  "hash": "156300832bb7",
+  "verdict": "pass",
+  "summary": "test_drop_bypasses_responsibilities (test_workflow.py:375) transitions WORKING->DROPPED with tests-pass/pr-opened still PENDING and asserts success; removing the 'to_state != Dropped.label' bypass at core/workflow.py:563 would make it raise ResponsibilitiesNotMet, and the non-drop contrast case is independently covered by test_leaving_gated_state_requires_all_resolved.",
+  "timestamp": "2026-07-21T23:52:39.303Z"
+}

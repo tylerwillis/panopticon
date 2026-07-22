@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.2.1--773c7c2f9c82",
+  "requirementId": "REQ-002.2.1",
+  "hash": "773c7c2f9c82",
+  "verdict": "pass",
+  "summary": "Parametrized over null/non-object entries, missing status, non-string statuses, and 'unknown'; each asserts the Stop hook made no set_turn call (the observable live outcome), so treating any as terminal fails the test.",
+  "timestamp": "2026-07-22T05:13:28.134Z"
+}

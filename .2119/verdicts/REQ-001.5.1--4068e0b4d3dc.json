@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.5.1--4068e0b4d3dc",
+  "requirementId": "REQ-001.5.1",
+  "hash": "4068e0b4d3dc",
+  "verdict": "pass",
+  "summary": "test_force_transition_is_a_free_ungated_move (test_workflow.py:275-287) force_transitions WORKING->PLAN, a destination absent from WORKING's declared transitions (only COMPLETE/DROPPED per WF.operations), and asserts it succeeds — genuinely proving bypass of the declared graph, not a coincidental legal edge.",
+  "timestamp": "2026-07-21T23:52:48.601Z"
+}

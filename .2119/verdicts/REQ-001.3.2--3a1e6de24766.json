@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.3.2--3a1e6de24766",
+  "requirementId": "REQ-001.3.2",
+  "hash": "3a1e6de24766",
+  "verdict": "pass",
+  "summary": "test_turn_updates_on_each_transition asserts turn flips PLAN(USER)->WORKING(AGENT) then WORKING->COMPLETE(USER, terminal), catching unchanged-turn, hardcoded-AGENT, hardcoded-USER, and terminal-skips-assignment violations, against the real Workflow (no mocking).",
+  "timestamp": "2026-07-21T23:53:05.144Z"
+}

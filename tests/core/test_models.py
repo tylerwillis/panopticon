@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from itertools import product
+
 import pytest
 
 from panopticon.core.models import (
@@ -28,6 +30,50 @@ def _compose(
     ).value
 
 
+@pytest.mark.parametrize(
+    ("claimed", "registered", "runner_live", "phase"),
+    list(product((False, True), (False, True), (False, True), (None, *LifecyclePhase))),
+)
+# 2119: REQ-003.1.1
+def test_terminal_status_precedes_every_other_input(
+    claimed: bool,
+    registered: bool,
+    runner_live: bool,
+    phase: LifecyclePhase | None,
+) -> None:
+    assert (
+        _compose(
+            terminal=True,
+            claimed=claimed,
+            registered=registered,
+            runner_live=runner_live,
+            phase=phase,
+        )
+        == "–"
+    )
+
+
+@pytest.mark.parametrize(
+    ("registered", "runner_live", "phase"),
+    list(product((False, True), (False, True), (None, *LifecyclePhase))),
+)
+# 2119: REQ-003.1.2
+def test_unclaimed_status_precedes_registration_runner_and_phase(
+    registered: bool,
+    runner_live: bool,
+    phase: LifecyclePhase | None,
+) -> None:
+    assert (
+        _compose(
+            claimed=False,
+            registered=registered,
+            runner_live=runner_live,
+            phase=phase,
+        )
+        == "queued"
+    )
+
+
 def test_terminal_task_has_no_container_status() -> None:
     # A terminal task wins over everything else — even a (stale) live registration.
     assert _compose(terminal=True, registered=True) == "–"
@@ -39,6 +85,7 @@ def test_unclaimed_non_terminal_is_queued() -> None:
     assert _compose(claimed=False, runner_live=False) == "queued"
 
 
+# 2119: REQ-003.1.3
 def test_open_registration_is_live_regardless_of_phase_or_runner() -> None:
     # The container holds its own /live connection, so a registration means live even if the
     # runner's own liveness dropped or a stale spawn phase lingers.
@@ -47,6 +94,7 @@ def test_open_registration_is_live_regardless_of_phase_or_runner() -> None:
     assert _compose(registered=True, phase=LifecyclePhase.AWAITING) == "live"
 
 
+# 2119: REQ-003.1.4
 def test_dead_runner_is_disconnected_even_with_a_stale_phase() -> None:
     assert _compose(runner_live=False) == "disconnected"
     assert _compose(runner_live=False, phase=LifecyclePhase.BUILDING) == "disconnected"
@@ -65,10 +113,13 @@ def test_dead_runner_is_disconnected_even_with_a_stale_phase() -> None:
     ],
 )
 def test_a_reported_phase_shows_through(phase: LifecyclePhase, expected: str) -> None:
+    # 2119: REQ-003.1.5
     assert _compose(phase=phase) == expected
+    # 2119: REQ-003.2.1
     assert ContainerStatus(expected)  # each phase maps to a real status value
 
 
+# 2119: REQ-003.1.6
 def test_claimed_live_runner_no_phase_no_registration_is_down() -> None:
     # Came up and vanished (reconcile cleared the phase), or never reported one.
     assert _compose(phase=None) == "down"

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.3.2--c78a4fe9b4e7",
+  "requirementId": "REQ-002.3.2",
+  "hash": "c78a4fe9b4e7",
+  "verdict": "pass",
+  "summary": "blocked=True survives both in-scope turn flips and only the explicit set_blocked(False) clears it; an auto-clearing flip or a no-op explicit clear both fail",
+  "timestamp": "2026-07-21T23:58:59.509Z"
+}

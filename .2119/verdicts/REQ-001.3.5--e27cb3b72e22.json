@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.3.5--e27cb3b72e22",
+  "requirementId": "REQ-001.3.5",
+  "hash": "e27cb3b72e22",
+  "verdict": "pass",
+  "summary": "test_start_task_sets_initial_state_turn_and_history asserts all three conjuncts (from_state is None, to_state == PLAN, trigger == 'start') on the real history entry produced by WF.start_task, a live GatedWorkflow instance with no mocking.",
+  "timestamp": "2026-07-21T23:53:03.990Z"
+}

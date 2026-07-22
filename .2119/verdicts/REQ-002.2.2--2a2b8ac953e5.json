@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.2.2--2a2b8ac953e5",
+  "requirementId": "REQ-002.2.2",
+  "hash": "2a2b8ac953e5",
+  "verdict": "pass",
+  "summary": "All five terminal statuses asserted to release the turn, with case (FAILED/CANCELED) and whitespace (' cancelled ') variants; non-member status 'unknown' is asserted live by the sibling REQ-002.2.1 test, so the closed set is falsifiable; classification runs unmocked (fake client only records set_turn).",
+  "timestamp": "2026-07-22T05:08:25.533Z"
+}

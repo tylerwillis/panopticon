@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-004.3.1--ca11947b77b3",
+  "requirementId": "REQ-004.3.1",
+  "hash": "ca11947b77b3",
+  "verdict": "pass",
+  "summary": "Explicit harness=codex asserted to win over both the app default and a repo declaring claude/opus; a chain-winner implementation surfaces 'claude' and fails (the workflow-tier case is pinned by REQ-004.3.3/3.4).",
+  "timestamp": "2026-07-22T05:13:45.260Z"
+}

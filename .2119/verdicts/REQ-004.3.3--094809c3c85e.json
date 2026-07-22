@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-004.3.3--094809c3c85e",
+  "requirementId": "REQ-004.3.3",
+  "hash": "094809c3c85e",
+  "verdict": "pass",
+  "summary": "Explicit harness=claude against the tuned codex/gpt-5.6-sol:high pair asserts starting_model is None, so retaining the losing pair's model fails; the equals-side boundary is covered by REQ-004.3.4.",
+  "timestamp": "2026-07-22T05:13:46.215Z"
+}

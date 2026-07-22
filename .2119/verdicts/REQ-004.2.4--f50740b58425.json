@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-004.2.4--f50740b58425",
+  "requirementId": "REQ-004.2.4",
+  "hash": "f50740b58425",
+  "verdict": "pass",
+  "summary": "With no task/workflow/repo selection the test re-fetches the task and asserts the concrete ('claude', None), rejecting a null-sentinel harness; persistence-across-default-change is separately pinned by REQ-004.4.3's monkeypatch test.",
+  "timestamp": "2026-07-22T05:13:37.832Z"
+}

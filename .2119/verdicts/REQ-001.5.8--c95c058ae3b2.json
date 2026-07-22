@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.5.8--c95c058ae3b2",
+  "requirementId": "REQ-001.5.8",
+  "hash": "c95c058ae3b2",
+  "verdict": "pass",
+  "summary": "test_force_transition_seeds_destination_responsibilities revisits WORKING after resolving both responsibilities MET, force-transitions away and back, and asserts the new entry's responsibilities are PENDING again (not carried-over MET) for both destination-declared keys; confirmed by mutation test that the assertion fails when _enter reuses a prior entry's responsibilities list instead of reseeding.",
+  "timestamp": "2026-07-21T23:54:30.436Z"
+}

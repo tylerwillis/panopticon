@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.5.2--9b2deaf50606",
+  "requirementId": "REQ-001.5.2",
+  "hash": "9b2deaf50606",
+  "verdict": "pass",
+  "summary": "test_force_transition_is_a_free_ungated_move asserts force_transition('GHOST') raises InvalidWorkflow via the real _state_class lookup, exercising the exact unknown-label boundary case with no mocking.",
+  "timestamp": "2026-07-21T23:52:52.417Z"
+}

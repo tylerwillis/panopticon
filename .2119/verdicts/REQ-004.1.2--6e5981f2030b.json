@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-004.1.2--6e5981f2030b",
+  "requirementId": "REQ-004.1.2",
+  "hash": "6e5981f2030b",
+  "verdict": "pass",
+  "summary": "Unregistered name 'cursor' checked against a real registry set {claude, codex} raises InvalidWorkflow with the unknown-harness message — deleting the enforcement makes the pytest.raises fail; registered-name acceptance is exercised by the tuned-workflow resolution tests",
+  "timestamp": "2026-07-21T23:55:10.415Z"
+}

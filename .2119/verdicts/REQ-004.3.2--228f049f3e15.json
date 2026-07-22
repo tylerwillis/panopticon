@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-004.3.2--228f049f3e15",
+  "requirementId": "REQ-004.3.2",
+  "hash": "228f049f3e15",
+  "verdict": "pass",
+  "summary": "Explicit starting_model='custom' with no task harness asserts ('codex','custom') against the tuned workflow pair — a dropped harness would read 'claude' and an unreplaced model 'gpt-5.6-sol:high', so either violation fails.",
+  "timestamp": "2026-07-22T05:13:45.733Z"
+}

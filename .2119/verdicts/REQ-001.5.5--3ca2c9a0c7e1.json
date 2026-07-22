@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.5.5--3ca2c9a0c7e1",
+  "requirementId": "REQ-001.5.5",
+  "hash": "3ca2c9a0c7e1",
+  "verdict": "pass",
+  "summary": "test_set_state_can_reopen_a_terminal_task drives COMPLETE (a real TerminalState) then set_state(ITERATING) through the real service/force_transition path (which skips the is_terminal check apply_transition enforces) and asserts the new state sticks — would fail if a terminal check were added to force_transition.",
+  "timestamp": "2026-07-21T23:53:14.997Z"
+}

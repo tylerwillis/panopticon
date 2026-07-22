@@ -262,15 +262,18 @@ async def test_set_turn_flips_within_a_state(tmp_path: Path) -> None:
     assert (await svc.set_turn(task.id, Actor.AGENT)).turn is Actor.AGENT  # user replied
 
 
+# 2119: REQ-002.3
 async def test_blocked_marker_survives_turn_flips(tmp_path: Path) -> None:
     svc = await make_service(tmp_path)
     task = await svc.create_task("r1", "spike")
     await svc.set_blocked(task.id, True)
-    await svc.set_turn(task.id, Actor.USER)  # a flip must not clear the deliberate block
+    await svc.set_turn(task.id, Actor.AGENT)  # a real flip must not clear the deliberate block
     reloaded = await svc.get_task(task.id)
-    assert reloaded.turn is Actor.USER
+    assert reloaded.turn is Actor.AGENT
     assert reloaded.blocked is True
+    assert (await svc.set_turn(task.id, Actor.USER)).blocked is True
     assert (await svc.set_blocked(task.id, False)).blocked is False  # cleared only explicitly
+    assert (await svc.set_turn(task.id, Actor.AGENT)).blocked is False
 
 
 # -- claim: a runner owns the task (the spawn gate) ---------------------------------
@@ -662,6 +665,7 @@ async def test_set_state_is_a_free_move_off_graph_and_ungated(tmp_path: Path) ->
     svc = await make_service(tmp_path)
     task = await svc.create_task("r1", "github-peer-reviewed")  # PLANNING, plan-written unmet
     # Skip straight to MERGING — not a legal transition, and the gate is unmet — yet it succeeds.
+    # 2119: REQ-001.5.4
     moved = await svc.set_state(task.id, "MERGING")
     assert moved.state == "MERGING"
     assert (await svc.get_task(task.id)).history[-1].trigger == "set-state"
@@ -671,6 +675,7 @@ async def test_set_state_can_reopen_a_terminal_task(tmp_path: Path) -> None:
     svc = await make_service(tmp_path)
     task = await svc.create_task("r1", "spike")
     await svc.request_transition(task.id, "COMPLETE")  # terminal
+    # 2119: REQ-001.5.5
     await svc.set_state(task.id, "ITERATING")  # the user can move even out of a terminal
     assert (await svc.get_task(task.id)).state == "ITERATING"
 

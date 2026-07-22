@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.4.2--14f9ed9a332d",
+  "requirementId": "REQ-001.4.2",
+  "hash": "14f9ed9a332d",
+  "verdict": "pass",
+  "summary": "test_leaving_gated_state_requires_all_resolved exercises real apply_transition on the advance-path WORKING->COMPLETE edge, raising ResponsibilitiesNotMet both with zero and with one-of-two responsibilities resolved (covers the 'any' straggler case), correctly scoped to the non-drop transition.",
+  "timestamp": "2026-07-21T23:54:08.010Z"
+}
