@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.4.3--4949a07f58cd",
-  "requirementId": "REQ-001.4.3",
-  "hash": "4949a07f58cd",
-  "verdict": "pass",
-  "summary": "notices==['respawned 2'] exactly; the sibling skip test's 'respawned 1' (2 listed, 1 released) proves N counts released claims, not listed tasks",
-  "timestamp": "2026-07-22T00:10:37.939Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.20.1--f4f33876053d",
+  "requirementId": "REQ-002.20.1",
+  "hash": "f4f33876053d",
+  "verdict": "pass",
+  "summary": "Test asserts the full verbatim prohibition ('must not be supplied as review input... Do not retrieve, request, or use it even if it is supplied anyway') in the real skill's rendered instructions; deleting or weakening the forbidding directive fails it.",
+  "timestamp": "2026-07-22T06:07:31.526Z"
+}

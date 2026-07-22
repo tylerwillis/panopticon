@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.12.1--96dfebb0d9c2",
+  "requirementId": "REQ-002.12.1",
+  "hash": "96dfebb0d9c2",
+  "verdict": "pass",
+  "summary": "Test asserts review is absent from both list_workflow_infos() and list_workflow_infos_for_repo() — the sole sources of the dashboard's repo-form and task-creation menus — while still registered and creatable, with a spike-present sanity check that defeats a hide-everything trivial pass.",
+  "timestamp": "2026-07-22T06:13:07.335Z"
+}

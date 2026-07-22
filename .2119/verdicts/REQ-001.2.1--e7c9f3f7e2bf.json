@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.2.1--e7c9f3f7e2bf",
-  "requirementId": "REQ-001.2.1",
-  "hash": "e7c9f3f7e2bf",
-  "verdict": "pass",
-  "summary": "Real-service tests reject equal resolved harnesses and non-persistence; codex-repo-default param kills raw-string comparison, both sentinel orientations covered, differing models in every param kill model-based inequality",
-  "timestamp": "2026-07-22T00:27:39.675Z"
-}

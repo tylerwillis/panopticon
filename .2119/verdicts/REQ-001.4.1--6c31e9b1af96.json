@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.4.1--6c31e9b1af96",
-  "requirementId": "REQ-001.4.1",
-  "hash": "6c31e9b1af96",
-  "verdict": "pass",
-  "summary": "Real-sh test drives the actual dispatch_harness_auth across missing/partial/existing paths and a rerun, asserting profiles is_dir() on the real filesystem with pinned stdout; non-recursive, skipping, file-creating, and non-idempotent implementations all fail, and the sibling blocking-file test rejects destructive mkdir.",
-  "timestamp": "2026-07-22T00:31:27.153Z"
-}

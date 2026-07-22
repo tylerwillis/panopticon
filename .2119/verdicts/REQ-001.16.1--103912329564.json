@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.16.1--103912329564",
-  "requirementId": "REQ-001.16.1",
-  "hash": "103912329564",
-  "verdict": "pass",
-  "summary": "Exact labels list rejects any additional nonterminal state",
-  "timestamp": "2026-07-21T23:56:18.052Z"
-}

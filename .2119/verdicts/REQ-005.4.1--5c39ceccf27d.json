@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-005.4.1--5c39ceccf27d",
+  "requirementId": "REQ-005.4.1",
+  "hash": "5c39ceccf27d",
+  "verdict": "pass",
+  "summary": "profiles.is_dir() checked on the real filesystem for fully-missing, partial, and pre-existing paths plus an idempotent rerun; the sibling file-at-credential_path test pins the no-replace boundary",
+  "timestamp": "2026-07-22T06:13:13.424Z"
+}

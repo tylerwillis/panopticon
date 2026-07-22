@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.9.1--56b4780e9090",
-  "requirementId": "REQ-001.9.1",
-  "hash": "56b4780e9090",
-  "verdict": "pass",
-  "summary": "reads review_harness/review_model off Workflow itself (absence=AttributeError) and asserts None defaults; non-None default rejected",
-  "timestamp": "2026-07-21T23:40:28.794Z"
-}

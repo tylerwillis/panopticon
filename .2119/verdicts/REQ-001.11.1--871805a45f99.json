@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.11.1--871805a45f99",
-  "requirementId": "REQ-001.11.1",
-  "hash": "871805a45f99",
-  "verdict": "pass",
-  "summary": "Drives validate_registration with unregistered review_harness cursor expecting InvalidWorkflow; sibling test accepts registered harness",
-  "timestamp": "2026-07-21T23:41:49.543Z"
-}

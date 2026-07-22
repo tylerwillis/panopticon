@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.3.1--c8257d8b416e",
-  "requirementId": "REQ-001.3.1",
-  "hash": "c8257d8b416e",
-  "verdict": "pass",
-  "summary": "Real-sh run of dispatch_harness_auth outfitter pins the notice as exactly one stdout line with the required text (len==2 + substring on lines[0]); split-line, merged-line, and wrong-text counterexamples all fail, and the REQ-001.2 test corroborates one-line containment with the unmocked pi flow.",
-  "timestamp": "2026-07-22T00:31:26.714Z"
-}

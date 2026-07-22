@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.5.1--d8b183aa699c",
+  "requirementId": "REQ-002.5.1",
+  "hash": "d8b183aa699c",
+  "verdict": "pass",
+  "summary": "Asserts the real Review skill's rendered instructions contain the full correctness-assessment directive; omitting or weakening the directive fails the substring check — appropriate depth for a text-content requirement under the no-LLM test policy.",
+  "timestamp": "2026-07-22T06:08:22.019Z"
+}

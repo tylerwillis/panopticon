@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.8.1--86747cf89a55",
-  "requirementId": "REQ-001.8.1",
-  "hash": "86747cf89a55",
-  "verdict": "pass",
-  "summary": "Exact prohibition rejects editing the governor code",
-  "timestamp": "2026-07-21T23:56:15.272Z"
-}

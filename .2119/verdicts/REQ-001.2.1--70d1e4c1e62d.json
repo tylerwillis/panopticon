@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.2.1--70d1e4c1e62d",
-  "requirementId": "REQ-001.2.1",
-  "hash": "70d1e4c1e62d",
-  "verdict": "pass",
-  "summary": "Asserts both #delete-workflow-yes/-no Buttons exist with literal yes/no labels; sibling tests click them, so ok/cancel relabels or a missing button fail",
-  "timestamp": "2026-07-21T23:40:32.393Z"
-}

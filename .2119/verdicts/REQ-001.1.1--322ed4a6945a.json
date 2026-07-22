@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.1.1--322ed4a6945a",
-  "requirementId": "REQ-001.1.1",
-  "hash": "322ed4a6945a",
-  "verdict": "pass",
-  "summary": "Real discover_workflows scan of the builtin package (home-workflows isolated) asserts registry['review'] exists — removal/rename raises KeyError; no mocks",
-  "timestamp": "2026-07-22T00:46:06.565Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.3.1--3ab4beda2ecb",
-  "requirementId": "REQ-001.3.1",
-  "hash": "3ab4beda2ecb",
-  "verdict": "pass",
-  "summary": "Acceptance test seeds a distinct operator identity in GIT_CONFIG_GLOBAL and asserts it survives two real-git prepare_workspace runs (incl. re-prep replacing a leaked local identity), and unit tests pin the exact emitted command list so any --global/--system or other-repo config write would break equality.",
-  "timestamp": "2026-07-22T00:04:26.255Z"
-}

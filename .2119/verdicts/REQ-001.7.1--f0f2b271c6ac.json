@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.7.1--f0f2b271c6ac",
-  "requirementId": "REQ-001.7.1",
-  "hash": "f0f2b271c6ac",
-  "verdict": "pass",
-  "summary": "Findings section pins governor target and review.md name",
-  "timestamp": "2026-07-21T23:56:14.738Z"
-}

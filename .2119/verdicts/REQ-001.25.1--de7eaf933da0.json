@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.25.1--de7eaf933da0",
-  "requirementId": "REQ-001.25.1",
-  "hash": "de7eaf933da0",
-  "verdict": "pass",
-  "summary": "Findings section pins both exact markdown headings",
-  "timestamp": "2026-07-21T23:56:22.540Z"
-}

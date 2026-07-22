@@ -37,10 +37,10 @@ def _git(cwd: Path, *args: str) -> str:
     ).stdout.strip()
 
 
-# 2119: REQ-001.1.1
-# 2119: REQ-001.2.1
-# 2119: REQ-001.3.1
-# 2119: REQ-001.4.1
+# 2119: REQ-004.1.1
+# 2119: REQ-004.2.1
+# 2119: REQ-004.3.1
+# 2119: REQ-004.4.1
 @pytest.mark.skipif(not shutil.which("git"), reason="needs git")
 def test_provisioning_end_to_end_with_real_git(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch

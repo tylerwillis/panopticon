@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.13.1--ca1227b9eb3a",
+  "requirementId": "REQ-002.13.1",
+  "hash": "ca1227b9eb3a",
+  "verdict": "pass",
+  "summary": "Real WF.start_task asserts task.turn is Actor.AGENT on creation; a USER-turn start would fail the identity assertion, no mocks involved",
+  "timestamp": "2026-07-22T06:08:27.674Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.2.1--1cb6b827852d",
-  "requirementId": "REQ-001.2.1",
-  "hash": "1cb6b827852d",
-  "verdict": "pass",
-  "summary": "Differential test runs the real setup_pi_auth and real dispatch_harness_auth under identical inputs across all three condition regimes (env-file key, credential-dir auth.json, neither) and asserts byte-identical offer/skip output; divergence in either direction is rejected.",
-  "timestamp": "2026-07-22T00:31:26.256Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.3.1--7c4c92f8b52d",
-  "requirementId": "REQ-001.3.1",
-  "hash": "7c4c92f8b52d",
-  "verdict": "pass",
-  "summary": "Escape asserts both dismissal (screen_stack==1) and fake.released==[] with the fake recording every outbound release request",
-  "timestamp": "2026-07-22T00:10:27.084Z"
-}

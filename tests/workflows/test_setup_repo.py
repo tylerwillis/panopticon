@@ -124,9 +124,9 @@ dispatch_harness_auth unknown || echo unsupported
     assert _sh(body).splitlines() == ["unsupported"]
 
 
-# 2119: REQ-001.1
-# 2119: REQ-001.3
-# 2119: REQ-001.4
+# 2119: REQ-005.1
+# 2119: REQ-005.3
+# 2119: REQ-005.4
 def test_harness_auth_dispatch_routes_outfitter_through_pi(tmp_path: Path) -> None:
     new_path = tmp_path / "new.d"
     existing_root = tmp_path / "existing-root.d"
@@ -155,7 +155,7 @@ dispatch_harness_auth outfitter || echo unsupported
     assert stat.S_IMODE(new_path.stat().st_mode) == 0o700
 
 
-# 2119: REQ-001.1
+# 2119: REQ-005.1
 def test_outfitter_profile_error_does_not_report_supported_harness_as_unsupported(
     tmp_path: Path,
 ) -> None:
@@ -173,7 +173,7 @@ dispatch_harness_auth outfitter || echo unsupported
     assert credential_path.read_text() == ""
 
 
-# 2119: REQ-001.2
+# 2119: REQ-005.2
 def test_outfitter_uses_real_pi_auth_conditions(tmp_path: Path) -> None:
     values = " ".join(API_KEY_ENV_VARS)
     env_key = tmp_path / "env-key"

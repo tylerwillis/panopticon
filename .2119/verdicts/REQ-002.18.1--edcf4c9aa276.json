@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.18.1--edcf4c9aa276",
+  "requirementId": "REQ-002.18.1",
+  "hash": "edcf4c9aa276",
+  "verdict": "pass",
+  "summary": "Asserts the directive to list_artifacts on the governor task id and read plan.md via the returned MCP resource URI; a skill dropping the plan.md read fails the assertion",
+  "timestamp": "2026-07-22T06:08:38.850Z"
+}

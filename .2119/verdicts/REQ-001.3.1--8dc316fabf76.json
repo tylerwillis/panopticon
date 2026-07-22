@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.3.1--8dc316fabf76",
-  "requirementId": "REQ-001.3.1",
-  "hash": "8dc316fabf76",
-  "verdict": "pass",
-  "summary": "Acceptance verified end-to-end with equal starting-model strings both params; unset review harness resolving via repo default codex kills app-default mis-resolution, and recorded harness/governor fields are asserted from the created task",
-  "timestamp": "2026-07-22T00:27:41.338Z"
-}

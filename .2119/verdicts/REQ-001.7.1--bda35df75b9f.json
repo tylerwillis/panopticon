@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.7.1--bda35df75b9f",
+  "requirementId": "REQ-001.7.1",
+  "hash": "bda35df75b9f",
+  "verdict": "pass",
+  "summary": "Rendered-dialog test rejects off-center placement, non-56 width, fixed height, and any border/background mismatch from the verified round accent/surface reference dialog.",
+  "timestamp": "2026-07-22T07:03:45.517Z"
+}

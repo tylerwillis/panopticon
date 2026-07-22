@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.14.1--2edc9aae5463",
-  "requirementId": "REQ-001.14.1",
-  "hash": "2edc9aae5463",
-  "verdict": "pass",
-  "summary": "Derived REVIEWING responsibilities query must be empty",
-  "timestamp": "2026-07-21T23:56:16.956Z"
-}

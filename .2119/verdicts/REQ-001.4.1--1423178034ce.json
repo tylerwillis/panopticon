@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.4.1--1423178034ce",
-  "requirementId": "REQ-001.4.1",
-  "hash": "1423178034ce",
-  "verdict": "pass",
-  "summary": "Real-git acceptance test: daemon provisioning on a genuinely prepared clone (with the local agent identity set) is verified by 'git branch --show-current' == panopticon/fix-widget, rejecting record-without-create, wrong-branch-name, and identity-configured-workspace failure counterexamples",
-  "timestamp": "2026-07-22T00:04:12.128Z"
-}

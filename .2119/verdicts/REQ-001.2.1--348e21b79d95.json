@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.2.1--348e21b79d95",
-  "requirementId": "REQ-001.2.1",
-  "hash": "348e21b79d95",
-  "verdict": "pass",
-  "summary": "Test drives the real Dashboard pane (fake client only stubs data), asserts exact hint text as the trailing line via endswith and a dim span covering exactly the hint range - each boundary term (trailing, exact text, dim, open pane) has a failing counterexample.",
-  "timestamp": "2026-07-22T00:10:02.726Z"
-}
