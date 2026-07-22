@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.3.1--007cf55fd0df",
-  "requirementId": "REQ-001.3.1",
-  "hash": "007cf55fd0df",
-  "verdict": "pass",
-  "summary": "Test genuinely exercises real TaskService.create_task with no mocks: uses two distinct registered harnesses (claude/codex) and deliberately equal starting_model strings to guard the 'equal models, differing harness must still succeed' boundary, and would fail via uncaught ValueError if an implementation wrongly rejected this case (including a models-equality mixup bug).",
-  "timestamp": "2026-07-21T23:44:26.808Z"
-}

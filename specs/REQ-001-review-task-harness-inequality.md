@@ -12,11 +12,11 @@ Review-task creation enforces cross-harness review through deterministic validat
 
 ### REQ-001.2: Equal harnesses rejected
 
-1. Creating a task whose workflow name is `review` MUST fail with a creation validation error when the harness string that resolution would record exactly equals its governor task's recorded harness string, including when the two tasks' recorded starting-model strings differ.
+1. Creating a task whose workflow name is `review` MUST fail with a creation validation error when the registry-resolved harness names that the two tasks would execute are equal, including when one task records the unset default sentinel and the other explicitly records that default harness while their starting-model strings differ.
 
 ### REQ-001.3: Different harnesses accepted
 
-1. An otherwise-valid task creation whose workflow name is `review` MUST succeed when the harness string that resolution would record differs from its governor task's recorded harness string, including when the two tasks' recorded starting-model strings are equal.
+1. An otherwise-valid task creation whose workflow name is `review` MUST succeed when the registry-resolved harness name it would execute differs from the registry-resolved harness name its governor would execute, including when the two tasks' recorded starting-model strings are equal.
 
 ### REQ-001.4: Other workflows unaffected
 

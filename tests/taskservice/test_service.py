@@ -140,16 +140,33 @@ async def test_create_review_task_without_governor_is_rejected(tmp_path: Path) -
 
 
 # 2119: REQ-001.2.1
-async def test_create_review_task_with_equal_harness_is_rejected(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    ("repo_default", "governor_harness", "review_harness"),
+    [
+        (None, "claude", None),
+        (None, None, "claude"),
+        ("claude", "claude", None),
+    ],
+)
+async def test_create_review_task_with_equal_harness_is_rejected(
+    tmp_path: Path,
+    repo_default: str | None,
+    governor_harness: str | None,
+    review_harness: str | None,
+) -> None:
     svc = await make_service(tmp_path)
-    await svc.update_repo("r1", {"default_harness": "claude"})
-    governor = await svc.create_task("r1", "spike", harness="claude", starting_model="author-model")
+    if repo_default is not None:
+        await svc.update_repo("r1", {"default_harness": repo_default})
+    governor = await svc.create_task(
+        "r1", "spike", harness=governor_harness, starting_model="author-model"
+    )
 
     with pytest.raises(ValueError, match="harness"):
         await svc.create_task(
             "r1",
             "review",
             governor_task_id=governor.id,
+            harness=review_harness,
             starting_model="different-review-model",
         )
 

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.2.1--0ed5b21b4618",
+  "requirementId": "REQ-001.2.1",
+  "hash": "0ed5b21b4618",
+  "verdict": "pass",
+  "summary": "The 3-way parametrized test exercises real create_task (no mocks), and a mutation test confirms it catches both the sentinel-vs-explicit resolution bug and the model-difference distraction; REQ-001.4.1's non-review case confirms the workflow-name boundary and REQ-001.3.1 confirms the differing-harness boundary.",
+  "timestamp": "2026-07-22T00:08:01.844Z"
+}
