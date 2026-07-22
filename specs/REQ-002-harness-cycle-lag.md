@@ -9,11 +9,11 @@ new-task memo modal opening.
 
 ### REQ-002.1: Responsive opening
 
-1. The new-task memo modal MUST accept operator input before suggestion discovery for all registered harnesses has completed.
+1. Suggestion discovery MUST NOT synchronously block the new-task memo modal from mounting, receiving focus, or accepting operator input.
 
 ### REQ-002.2: One discovery per harness
 
-1. Within one opening of the new-task memo modal, model and effort suggestion discovery for each registered harness MUST occur at most once regardless of how many times the operator cycles through harnesses.
+1. Within one opening of the new-task memo modal, model and effort suggestion discovery for every registered harness MUST occur exactly once regardless of how many times the operator cycles through harnesses.
 
 ### REQ-002.3: Per-open freshness
 
