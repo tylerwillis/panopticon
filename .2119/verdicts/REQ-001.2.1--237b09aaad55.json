@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.2.1--237b09aaad55",
+  "requirementId": "REQ-001.2.1",
+  "hash": "237b09aaad55",
+  "verdict": "pass",
+  "summary": "Mounted-dialog tests require visible, enabled buttons explicitly labeled yes and no, and exercise both choices behaviorally.",
+  "timestamp": "2026-07-22T07:01:03.798Z"
+}

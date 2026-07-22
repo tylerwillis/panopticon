@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.3.1--23fea611d3df",
+  "requirementId": "REQ-007.3.1",
+  "hash": "23fea611d3df",
+  "verdict": "pass",
+  "summary": "The annotated test uses a hint-free task and rejects the nearest violation: render_detail returning the exact copy-key hint as a line.",
+  "timestamp": "2026-07-22T07:01:36.929Z"
+}

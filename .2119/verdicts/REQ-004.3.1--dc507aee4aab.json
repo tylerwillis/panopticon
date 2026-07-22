@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-004.3.1--dc507aee4aab",
+  "requirementId": "REQ-004.3.1",
+  "hash": "dc507aee4aab",
+  "verdict": "pass",
+  "summary": "Acceptance pins a GIT_CONFIG_GLOBAL operator identity unchanged across both prepares with real git, and the spawn unit tests' exact full-command-list equality (calls == [...]) rejects any emitted git command outside '-C <task> config --local', catching global/system/cache-clone identity writes.",
+  "timestamp": "2026-07-22T06:13:36.291Z"
+}

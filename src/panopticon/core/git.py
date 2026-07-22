@@ -107,3 +107,8 @@ class GitClones:
     def set_origin(self, *, repo_path: str, url: str) -> None:
         """``git -C <repo> remote set-url origin <url>`` — point at the forge, not the cache."""
         self._run(["git", "-C", repo_path, "remote", "set-url", "origin", url])
+
+    def set_identity(self, *, repo_path: str, name: str, email: str) -> None:
+        """Set the repository-local author identity for commits in a task clone."""
+        self._run(["git", "-C", repo_path, "config", "--local", "user.name", name])
+        self._run(["git", "-C", repo_path, "config", "--local", "user.email", email])

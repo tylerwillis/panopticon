@@ -78,6 +78,7 @@ def test_config_trusts_the_workspace() -> None:
     assert cfg["projects"]["/workspace"] == {"trust_level": "trusted"}
 
 
+# 2119: REQ-008.5.1
 def test_config_wires_the_turn_flip_hooks_to_the_shared_callback() -> None:
     # codex's hooks system is Claude-Code-compatible (same events, same JSON-on-stdin), so both
     # events invoke the exact command claude's settings.json uses — one callback, two harnesses.

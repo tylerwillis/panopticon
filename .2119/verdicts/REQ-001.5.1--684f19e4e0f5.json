@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.5.1--684f19e4e0f5",
+  "requirementId": "REQ-001.5.1",
+  "hash": "684f19e4e0f5",
+  "verdict": "pass",
+  "summary": "Dashboard interaction test rejects both built-in file removal and opening the deletion confirmation modal.",
+  "timestamp": "2026-07-22T06:52:26.298Z"
+}

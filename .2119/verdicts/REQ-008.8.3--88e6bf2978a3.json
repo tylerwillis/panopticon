@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.8.3--88e6bf2978a3",
+  "requirementId": "REQ-008.8.3",
+  "hash": "88e6bf2978a3",
+  "verdict": "pass",
+  "summary": "Reads the actual glossary and exactly requires an unqualified turn-to-user write preserves blocked statement; wrong location, trigger, or clears/removes wording fails.",
+  "timestamp": "2026-07-22T07:35:18.570Z"
+}

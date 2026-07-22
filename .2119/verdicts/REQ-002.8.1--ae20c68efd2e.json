@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.8.1--ae20c68efd2e",
+  "requirementId": "REQ-002.8.1",
+  "hash": "ae20c68efd2e",
+  "verdict": "pass",
+  "summary": "Asserts the unconditional prohibition 'Never edit the governor's code' in the real skill text; hedged variants ('avoid where possible') or omission fail. Thin single-substring check but the strongest deterministic verification available for an instruction-content MUST.",
+  "timestamp": "2026-07-22T06:08:35.596Z"
+}

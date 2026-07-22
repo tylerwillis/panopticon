@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.10.1--d2b0d735c4d2",
+  "requirementId": "REQ-002.10.1",
+  "hash": "d2b0d735c4d2",
+  "verdict": "pass",
+  "summary": "Both single-sided declarations (harness-only and model-only) must raise InvalidWorkflow from validate_registration — the same method the real registration path invokes (discovery.py:96, service.py) — and a neighboring test accepts the complete pair, covering the 'exactly one' boundary.",
+  "timestamp": "2026-07-22T06:07:59.572Z"
+}

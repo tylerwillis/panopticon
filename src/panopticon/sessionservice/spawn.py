@@ -52,6 +52,9 @@ def prepare_workspace(
     the container should use as its remote — HTTPS for token auth, SSH for key auth — so no rewriting
     happens here. Done at spawn, not deferred to slug-time provisioning, so the agent has a correct
     ``origin`` from its first action; ``set-url`` is idempotent, so it also repoints an existing clone.
+
+    Finally sets a deterministic repository-local author identity for the agent. This is reasserted
+    for an existing checkout so an operator or harness identity cannot leak into task commits.
     """
     git = git or GitClones()
     clone = f"{tasks_root.rstrip('/')}/{task_id}"
@@ -60,6 +63,11 @@ def prepare_workspace(
         cache_path = cache.ensure(repo["id"], repo["git_url"])
         git.clone_local(cache_path=cache_path, dest=clone)
     git.set_origin(repo_path=clone, url=repo["git_url"])
+    git.set_identity(
+        repo_path=clone,
+        name="Panopticon Agent",
+        email="panopticon-agent@users.noreply.github.com",
+    )
     return clone
 
 

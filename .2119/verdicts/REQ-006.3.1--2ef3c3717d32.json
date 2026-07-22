@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.3.1--2ef3c3717d32",
+  "requirementId": "REQ-006.3.1",
+  "hash": "2ef3c3717d32",
+  "verdict": "pass",
+  "summary": "Real Escape input dismisses the active bulk-respawn modal, and an all-request release spy proves cancellation issues no claim release.",
+  "timestamp": "2026-07-22T06:50:57.231Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.8.1--859a28e0fcf7",
+  "requirementId": "REQ-008.8.1",
+  "hash": "859a28e0fcf7",
+  "verdict": "pass",
+  "summary": "The glossary-scoped exact assertion rejects omission, wrong turn direction, and preserve/no-clear wording for the blocked marker.",
+  "timestamp": "2026-07-22T07:35:13.431Z"
+}

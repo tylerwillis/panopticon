@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.6.1--adec0da8e341",
+  "requirementId": "REQ-002.6.1",
+  "hash": "adec0da8e341",
+  "verdict": "pass",
+  "summary": "Scopes to the Approve section and asserts both the explicit 'Write no artifact' directive and the absence of put_artifact there — an approval branch instructing any verdict write is rejected; a missing Approve section errors the split.",
+  "timestamp": "2026-07-22T06:08:28.961Z"
+}

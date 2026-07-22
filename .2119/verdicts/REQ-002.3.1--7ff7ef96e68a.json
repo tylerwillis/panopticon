@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.3.1--7ff7ef96e68a",
+  "requirementId": "REQ-002.3.1",
+  "hash": "7ff7ef96e68a",
+  "verdict": "pass",
+  "summary": "Test queries the real workflow engine (WF.advanced_by('REVIEWING') is Actor.AGENT) with no mocks; verified the State default is Actor.USER, so omitting the explicit agent declaration would fail it.",
+  "timestamp": "2026-07-22T06:07:57.091Z"
+}

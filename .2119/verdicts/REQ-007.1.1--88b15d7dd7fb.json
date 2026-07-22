@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.1.1--88b15d7dd7fb",
+  "requirementId": "REQ-007.1.1",
+  "hash": "88b15d7dd7fb",
+  "verdict": "pass",
+  "summary": "Behavioral tests reject wrong-task or wrong-rendered-detail payloads, omission of either clipboard path, and skipping the host attempt after terminal failure.",
+  "timestamp": "2026-07-22T07:03:25.652Z"
+}

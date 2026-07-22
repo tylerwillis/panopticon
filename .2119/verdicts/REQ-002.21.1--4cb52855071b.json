@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.21.1--4cb52855071b",
+  "requirementId": "REQ-002.21.1",
+  "hash": "4cb52855071b",
+  "verdict": "pass",
+  "summary": "Test asserts the imperative directive 'assess correctness and whether the change matches the plan without unplanned scope' in the real Review skill instructions; dropping the plan/scope assessment fails it.",
+  "timestamp": "2026-07-22T06:07:31.976Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.8.4--71c72d15b9de",
+  "requirementId": "REQ-008.8.4",
+  "hash": "71c72d15b9de",
+  "verdict": "pass",
+  "summary": "Exact-equality assertion on the anchored blocked-lifecycle passage of AGENTS.md fails on deletion, negation, weakening to one clear, implicit wording, or relocation of the renewed-block statement (all five mutations verified rejected); reads the real file, no mocking.",
+  "timestamp": "2026-07-22T07:56:14.529Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-004.1.1--b00a21aa1966",
+  "requirementId": "REQ-004.1.1",
+  "hash": "b00a21aa1966",
+  "verdict": "pass",
+  "summary": "Acceptance test checks 'git config --local --get user.name' == 'Panopticon Agent' with real git on fresh prepare AND on re-prepare of an existing workspace seeded with a leaked local identity; unit tests pin the emitted config command in both fresh and existing paths — wrong name, global-only scope, or an idempotency early-exit all fail.",
+  "timestamp": "2026-07-22T06:08:55.697Z"
+}

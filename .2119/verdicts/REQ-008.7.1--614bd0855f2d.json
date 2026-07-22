@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.7.1--614bd0855f2d",
+  "requirementId": "REQ-008.7.1",
+  "hash": "614bd0855f2d",
+  "verdict": "pass",
+  "summary": "Startup test rejects an older unversioned snapshot and verifies the rendered turn comes from the cursor-initializing versioned response.",
+  "timestamp": "2026-07-22T07:02:38.358Z"
+}

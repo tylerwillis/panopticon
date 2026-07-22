@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.9.1--449d89d5cca7",
+  "requirementId": "REQ-008.9.1",
+  "hash": "449d89d5cca7",
+  "verdict": "pass",
+  "summary": "The glossary-content test rejects omission or alteration of Claude/UserPromptSubmit, blocking pre-processing timing, callback startup, and synchronous task-service write.",
+  "timestamp": "2026-07-22T07:07:37.093Z"
+}

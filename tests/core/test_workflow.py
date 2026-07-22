@@ -88,6 +88,56 @@ def test_workflow_launch_defaults_are_an_optional_pair() -> None:
     assert WF.default_model is None
 
 
+# 2119: REQ-002.9
+def test_workflow_review_pair_is_optional_by_default() -> None:
+    assert Workflow.review_harness is None
+    assert Workflow.review_model is None
+    assert {"review_harness", "review_model"} <= Workflow.__annotations__.keys()
+
+
+# 2119: REQ-002.10
+def test_workflow_review_pair_must_be_declared_together_both_ways() -> None:
+    class MissingReviewModel(GatedWorkflow):
+        name = "missing-review-model"
+        review_harness = "codex"
+        Plan = GatedWorkflow.Plan
+        Working = GatedWorkflow.Working
+
+    class MissingReviewHarness(GatedWorkflow):
+        name = "missing-review-harness"
+        review_model = "claude-fable-5"
+        Plan = GatedWorkflow.Plan
+        Working = GatedWorkflow.Working
+
+    for workflow in (MissingReviewModel(), MissingReviewHarness()):
+        with pytest.raises(InvalidWorkflow, match="must be declared together"):
+            workflow.validate_registration({"claude", "codex"})
+
+
+# 2119: REQ-002.11
+def test_workflow_review_pair_must_name_a_registered_harness() -> None:
+    class UnknownReviewHarness(GatedWorkflow):
+        name = "unknown-review-harness"
+        review_harness = "cursor"
+        review_model = "model:high"
+        Plan = GatedWorkflow.Plan
+        Working = GatedWorkflow.Working
+
+    with pytest.raises(InvalidWorkflow, match="unknown review_harness 'cursor'"):
+        UnknownReviewHarness().validate_registration({"claude", "codex"})
+
+
+def test_workflow_registered_review_pair_is_valid() -> None:
+    class ReviewPair(GatedWorkflow):
+        name = "review-pair"
+        review_harness = "codex"
+        review_model = "gpt-5.6-sol:high"
+        Plan = GatedWorkflow.Plan
+        Working = GatedWorkflow.Working
+
+    ReviewPair().validate_registration({"claude", "codex"})
+
+
 def test_workflow_launch_defaults_must_be_a_pair() -> None:
     class HalfConfigured(GatedWorkflow):
         name = "half-configured"
