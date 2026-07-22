@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.1.2--fb8f8aedc48d",
-  "requirementId": "REQ-006.1.2",
-  "hash": "fb8f8aedc48d",
-  "verdict": "pass",
-  "summary": "Rendered help is exercised end-to-end and must contain exactly one 'Ctrl+R Respawn all down tasks' line, rejecting a wrong key, missing all/down scope, or unrelated action.",
-  "timestamp": "2026-07-22T06:52:50.027Z"
-}

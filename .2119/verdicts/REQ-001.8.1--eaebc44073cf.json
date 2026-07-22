@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.8.1--eaebc44073cf",
+  "requirementId": "REQ-001.8.1",
+  "hash": "eaebc44073cf",
+  "verdict": "pass",
+  "summary": "notify captured with notices cleared post-mount; exactly one 'Built-in workflows cannot be deleted.' message proves the press emits it.",
+  "timestamp": "2026-07-22T17:09:16.639Z"
+}

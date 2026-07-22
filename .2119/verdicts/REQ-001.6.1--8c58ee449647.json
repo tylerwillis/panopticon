@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.6.1--8c58ee449647",
+  "requirementId": "REQ-001.6.1",
+  "hash": "8c58ee449647",
+  "verdict": "pass",
+  "summary": "Exact whole-message equality including the loaded-until-restart disclosure; a missing or altered explanation fails.",
+  "timestamp": "2026-07-22T17:09:15.853Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.4.1--38a8b744b3f5",
+  "requirementId": "REQ-001.4.1",
+  "hash": "38a8b744b3f5",
+  "verdict": "pass",
+  "summary": "Yes-click must unlink the real file (sibling untouched), re-fetch the registry (list_calls==2), and render the post-refresh row — cached re-render fails.",
+  "timestamp": "2026-07-22T17:09:15.057Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.5--5998b084bfa6",
+  "requirementId": "REQ-006.4.5",
+  "hash": "5998b084bfa6",
+  "verdict": "pass",
+  "summary": "notices pinned to exactly ['respawned 1'] across 11 recovered-status cases, so any per-task notify on skip fails the test.",
+  "timestamp": "2026-07-22T17:09:17.445Z"
+}

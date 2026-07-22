@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.2.1--b5edcbf1a1fa",
+  "requirementId": "REQ-001.2.1",
+  "hash": "b5edcbf1a1fa",
+  "verdict": "pass",
+  "summary": "Yes/no buttons asserted present, labeled, displayed, enabled — and each is functionally clicked to a distinct outcome in sibling tests.",
+  "timestamp": "2026-07-22T17:09:14.266Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.3--5821fff99e66",
+  "requirementId": "REQ-006.4.3",
+  "hash": "5821fff99e66",
+  "verdict": "pass",
+  "summary": "Tests distinguish N=claims-released from listed-candidate count (skip test: 2 listed, 1 released -> 'respawned 1'; zero-recovered test -> 'respawned 0') and assert exact single-line notify strings via both a monkeypatched notify and the real Textual notification surface.",
+  "timestamp": "2026-07-22T17:08:44.053Z"
+}

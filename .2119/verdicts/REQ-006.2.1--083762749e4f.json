@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.2.1--083762749e4f",
+  "requirementId": "REQ-006.2.1",
+  "hash": "083762749e4f",
+  "verdict": "pass",
+  "summary": "Tests exercise the real BulkRespawnScreen: one asserts exact every-and-only content from a mix of down/live/failed tasks via rendered lines; the other proves the modal uses a fresh list_tasks() call (latest snapshot) by mutating the fake client right before invocation with no refresh in between.",
+  "timestamp": "2026-07-22T17:08:42.035Z"
+}

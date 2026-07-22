@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.7.1--db4990c917fb",
+  "requirementId": "REQ-001.7.1",
+  "hash": "db4990c917fb",
+  "verdict": "pass",
+  "summary": "Asserts width 56 (region+style), auto height, round accent border, surface background, tuple-equality with the new-workflow box, and centered x/y arithmetic.",
+  "timestamp": "2026-07-22T17:09:16.246Z"
+}
