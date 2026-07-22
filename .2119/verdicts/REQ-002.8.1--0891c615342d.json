@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.8.1--0891c615342d",
-  "requirementId": "REQ-002.8.1",
-  "hash": "0891c615342d",
-  "verdict": "pass",
-  "summary": "Presented suggesters must equal the fake's discovered target-model-1/target-effort-1 with exactly one discovery call, so substituted, transformed, or re-discovered values fail.",
-  "timestamp": "2026-07-22T05:44:38.848Z"
-}

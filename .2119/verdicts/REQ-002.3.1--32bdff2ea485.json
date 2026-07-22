@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.3.1--32bdff2ea485",
-  "requirementId": "REQ-002.3.1",
-  "hash": "32bdff2ea485",
-  "verdict": "pass",
-  "summary": "Call-numbered fake suggestions make the second opening assert claude-model-2/effort-2; results retained from the first open (-1 values) fail both suggester assertions.",
-  "timestamp": "2026-07-22T05:44:23.324Z"
-}
