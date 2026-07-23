@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.8.1--15fa5d0b2d11",
-  "requirementId": "REQ-009.8.1",
-  "hash": "15fa5d0b2d11",
-  "verdict": "pass",
-  "summary": "Presented suggester contents asserted equal to the fake's name+call-tagged discovered values incl. the effort call's model argument; another harness's or transformed suggestions would fail.",
-  "timestamp": "2026-07-22T15:42:20.406Z"
-}

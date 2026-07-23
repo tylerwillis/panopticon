@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.6.1--9d12cfe82ae0",
-  "requirementId": "REQ-009.6.1",
-  "hash": "9d12cfe82ae0",
-  "verdict": "pass",
-  "summary": "Failing discovery is released only after close; a surfaced worker error would either hit the recorded app.notify (asserted empty) or crash the app via Textual's default worker handling (asserted app.is_running).",
-  "timestamp": "2026-07-22T15:42:19.333Z"
-}

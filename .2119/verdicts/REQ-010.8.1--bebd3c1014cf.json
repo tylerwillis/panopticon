@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.8.1--bebd3c1014cf",
+  "requirementId": "REQ-010.8.1",
+  "hash": "bebd3c1014cf",
+  "verdict": "pass",
+  "summary": "Pilot test cycles to a fake harness with distinctive per-call values and asserts the modal's model/effort suggesters equal exactly that harness's discovered lists; wrong-harness, hardcoded, subset, and undiscovered counterexamples all fail.",
+  "timestamp": "2026-07-23T17:44:04.953Z"
+}

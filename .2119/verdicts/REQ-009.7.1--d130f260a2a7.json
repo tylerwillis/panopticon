@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.7.1--d130f260a2a7",
-  "requirementId": "REQ-009.7.1",
-  "hash": "d130f260a2a7",
-  "verdict": "pass",
-  "summary": "Post-close snapshot includes suggester object identities -- exactly what the completion callback replaces if the is_attached guard were absent -- compared after releasing the in-flight discovery.",
-  "timestamp": "2026-07-22T15:42:19.826Z"
-}

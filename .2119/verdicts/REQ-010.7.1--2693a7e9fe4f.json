@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.7.1--2693a7e9fe4f",
+  "requirementId": "REQ-010.7.1",
+  "hash": "2693a7e9fe4f",
+  "verdict": "pass",
+  "summary": "Snapshot of real widget objects (values, placeholders, suggester identities) taken mid-discovery, then escape + release + settle asserts nothing changed; a guardless late apply assigning fresh suggesters breaks the identity tuple.",
+  "timestamp": "2026-07-23T17:44:04.580Z"
+}
