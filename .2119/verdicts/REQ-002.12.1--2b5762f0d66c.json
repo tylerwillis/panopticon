@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.12.1--2b5762f0d66c",
+  "requirementId": "REQ-002.12.1",
+  "hash": "2b5762f0d66c",
+  "verdict": "pass",
+  "summary": "Asserts review absent from both menu endpoints the dashboard renders, with non-empty-menu sanity and still-registered/creatable guards",
+  "timestamp": "2026-07-23T18:15:58.350Z"
+}

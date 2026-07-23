@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-003.3.1--3ff2a0fa3a66",
+  "requirementId": "REQ-003.3.1",
+  "hash": "3ff2a0fa3a66",
+  "verdict": "pass",
+  "summary": "Differing harnesses accepted via explicit override and repo-default resolution, with equal starting-model strings",
+  "timestamp": "2026-07-23T18:15:59.711Z"
+}

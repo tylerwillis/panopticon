@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.12.1--0345d8c3f3c2",
-  "requirementId": "REQ-002.12.1",
-  "hash": "0345d8c3f3c2",
-  "verdict": "pass",
-  "summary": "Real-service test rejects review appearing in either operator picker while confirming it remains registered and governor-creatable.",
-  "timestamp": "2026-07-22T07:14:18.091Z"
-}

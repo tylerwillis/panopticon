@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-003.1.1--f606e004deab",
+  "requirementId": "REQ-003.1.1",
+  "hash": "f606e004deab",
+  "verdict": "pass",
+  "summary": "Governor-less review with harness=codex isolates the governor conjunct; governor error expected and no task persisted",
+  "timestamp": "2026-07-23T18:15:58.774Z"
+}

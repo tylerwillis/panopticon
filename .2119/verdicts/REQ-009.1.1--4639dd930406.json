@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.1.1--4639dd930406",
-  "requirementId": "REQ-009.1.1",
-  "hash": "4639dd930406",
-  "verdict": "pass",
-  "summary": "Real Dashboard via pilot, only the REST client faked: closed-pane 'e' must yield no SlugScreen (rejects an always-available editor); after 'd', 'e' must push a SlugScreen whose Input equals the current slug 'fix-widget' (rejects no-editor, empty-init, wrong-init); confirmed red today (SlugScreen unimplemented), proving non-tautology. Minor gap: closed-pane branch omits set_slugs == [], but a silent rename would need an editor the test asserts absent.",
-  "timestamp": "2026-07-22T14:46:45.494Z"
-}

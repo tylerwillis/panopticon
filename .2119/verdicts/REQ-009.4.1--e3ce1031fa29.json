@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.4.1--e3ce1031fa29",
+  "requirementId": "REQ-009.4.1",
+  "hash": "e3ce1031fa29",
+  "verdict": "pass",
+  "summary": "Exact e: edit slug asserted at a trailing line of the rendered detail pane; string match is the requirement's observable outcome — missing/reworded/misplaced hint all fail",
+  "timestamp": "2026-07-23T18:14:29.516Z"
+}

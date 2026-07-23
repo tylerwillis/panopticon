@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-003.2.1--1ead3976fda3",
+  "requirementId": "REQ-003.2.1",
+  "hash": "1ead3976fda3",
+  "verdict": "pass",
+  "summary": "Covers both sentinel/explicit-default directions plus repo-default resolution with models differing; raw-string or app-default-only comparison would fail",
+  "timestamp": "2026-07-23T18:15:59.315Z"
+}
