@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.5--54ab9d79393b",
+  "requirementId": "REQ-009.2.5",
+  "hash": "54ab9d79393b",
+  "verdict": "pass",
+  "summary": "Over-limit input is shortened through the production helper, and exact output asserts U+2026 as the final code point.",
+  "timestamp": "2026-07-22T14:39:33.061Z"
+}

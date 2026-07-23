@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.3.1--1db2a6127c1f",
+  "requirementId": "REQ-009.3.1",
+  "hash": "1db2a6127c1f",
+  "verdict": "pass",
+  "summary": "Tests reject missing, wrong-target, wrong-status-area, and post-attach updates by asserting status-left is set on the task session before the attach command.",
+  "timestamp": "2026-07-22T14:39:16.348Z"
+}

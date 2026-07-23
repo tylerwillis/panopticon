@@ -9,7 +9,11 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 from panopticon.terminal.console import (
+    attach_target,
+    decode_switch_target,
     resolve_join,
     run_console,
     switch_file_path,
@@ -113,8 +117,13 @@ def test_switch_target_encode_decode_round_trips() -> None:
         encode_switch_target("panopticon-t1", "box.example.com") == "box.example.com\tpanopticon-t1"
     )
     assert encode_switch_target("panopticon-t2", None) == "panopticon-t2"
-    assert decode_switch_target(encode_switch_target("s", "h")) == ("s", "h")
-    assert decode_switch_target(encode_switch_target("s", None)) == ("s", None)
+    assert decode_switch_target(encode_switch_target("s", "h")) == ("s", "h", None)
+    assert decode_switch_target(encode_switch_target("s", None)) == ("s", None, None)
+    assert decode_switch_target(encode_switch_target("s", "h", "slug [memo]")) == (
+        "s",
+        "h",
+        "slug [memo]",
+    )
 
 
 def test_resolve_join_by_slug_returns_the_container_session() -> None:
@@ -123,7 +132,9 @@ def test_resolve_join_by_slug_returns_the_container_session() -> None:
         tasks=[{"id": "t1", "slug": "fix-login", "runner_host": None}],
         registrations={"t1": [{"container_id": "panopticon-t1"}]},
     )
-    assert resolve_join(client, "fix-login") == "panopticon-t1"  # type: ignore[arg-type]
+    target = resolve_join(client, "fix-login")  # type: ignore[arg-type]
+    assert target is not None
+    assert decode_switch_target(target) == ("panopticon-t1", None, "fix-login")
 
 
 def test_resolve_join_by_id_returns_the_container_session() -> None:
@@ -131,7 +142,9 @@ def test_resolve_join_by_id_returns_the_container_session() -> None:
         tasks=[{"id": "t1", "slug": "fix-login", "runner_host": None}],
         registrations={"t1": [{"container_id": "panopticon-t1"}]},
     )
-    assert resolve_join(client, "t1") == "panopticon-t1"  # type: ignore[arg-type]
+    target = resolve_join(client, "t1")  # type: ignore[arg-type]
+    assert target is not None
+    assert decode_switch_target(target) == ("panopticon-t1", None, "fix-login")
 
 
 def test_resolve_join_encodes_a_remote_task_with_its_host() -> None:
@@ -141,7 +154,84 @@ def test_resolve_join_encodes_a_remote_task_with_its_host() -> None:
         tasks=[{"id": "t1", "slug": "fix-login", "runner_host": "box.example.com"}],
         registrations={"t1": [{"container_id": "panopticon-t1"}]},
     )
-    assert resolve_join(client, "t1") == "box.example.com\tpanopticon-t1"  # type: ignore[arg-type]
+    target = resolve_join(client, "t1")  # type: ignore[arg-type]
+    assert target is not None
+    assert decode_switch_target(target) == (
+        "panopticon-t1",
+        "box.example.com",
+        "fix-login",
+    )
+
+
+# 2119: REQ-009.1.1
+# 2119: REQ-009.3.1
+# 2119: REQ-009.3.2
+# 2119: REQ-009.3.3
+def test_current_remote_task_context_reaches_the_supervisor_attach_command() -> None:
+    client = _JoinClient(
+        tasks=[
+            {
+                "id": "t1",
+                "slug": "fix-login",
+                "memo": "handle token expiry",
+                "runner_host": "box.example.com",
+            }
+        ],
+        registrations={"t1": [{"container_id": "panopticon-t1"}]},
+    )
+    target = resolve_join(client, "t1")  # type: ignore[arg-type]
+    assert target is not None
+    calls: list[tuple[list[str], bool]] = []
+
+    def run(command: list[str], *, check: bool) -> None:
+        calls.append((command, check))
+
+    attach_target(target, socket="panopticon", run=run)
+
+    assert calls == [
+        (
+            [
+                "ssh",
+                "-t",
+                "box.example.com",
+                "tmux -L panopticon set-option -t panopticon-t1 status-left "
+                "'fix-login [handle token expiry]' ';' attach -t panopticon-t1",
+            ],
+            False,
+        )
+    ]
+
+
+# 2119: REQ-009.1.1
+# 2119: REQ-009.1.2
+# 2119: REQ-009.1.3
+# 2119: REQ-009.1.4
+@pytest.mark.parametrize(
+    ("slug", "memo", "expected"),
+    [
+        ("fix-login", "handle expiry", "fix-login [handle expiry]"),
+        ("fix-login", None, "fix-login"),
+        (None, "handle expiry", "[handle expiry]"),
+        (None, None, "panopticon-t1"),
+    ],
+)
+def test_current_task_context_reaches_local_tmux_status_left(
+    slug: str | None, memo: str | None, expected: str
+) -> None:
+    client = _JoinClient(
+        tasks=[{"id": "t1", "slug": slug, "memo": memo, "runner_host": None}],
+        registrations={"t1": [{"container_id": "panopticon-t1"}]},
+    )
+    target = resolve_join(client, "t1")  # type: ignore[arg-type]
+    assert target is not None
+    calls: list[list[str]] = []
+
+    attach_target(target, socket="panopticon", run=lambda command, **_kwargs: calls.append(command))
+
+    assert len(calls) == 1
+    command = calls[0]
+    assert command[command.index("status-left") + 1] == expected
+    assert command[-3:] == ["attach", "-t", "panopticon-t1"]
 
 
 def test_resolve_join_returns_none_for_an_unknown_task() -> None:
@@ -174,7 +264,7 @@ def test_resolve_join_polls_across_the_reconnect_window() -> None:
 
     assert (
         resolve_join(client, "fix-login", attempts=25, interval=0.2, sleep=sleep)  # type: ignore[arg-type]
-        == "panopticon-t1"
+        is not None
     )
     assert naps["n"] == 3  # stopped polling once it appeared
 
@@ -228,21 +318,17 @@ def test_supervisor_parses_remote_host_from_switch_file(tmp_path: Path) -> None:
     assert decode_switch_target("box.example.com\tpanopticon-t1") == (
         "panopticon-t1",
         "box.example.com",
+        None,
     )
     # Local pick: plain "session"
-    assert decode_switch_target("panopticon-t2") == ("panopticon-t2", None)
+    assert decode_switch_target("panopticon-t2") == ("panopticon-t2", None, None)
 
     # Confirm attach_command receives the host correctly
     assert attach_command("panopticon-t1", socket="panopticon", host="box.example.com") == [
         "ssh",
         "-t",
         "box.example.com",
-        "tmux",
-        "-L",
-        "panopticon",
-        "attach",
-        "-t",
-        "panopticon-t1",
+        "tmux -L panopticon attach -t panopticon-t1",
     ]
     assert attach_command("panopticon-t2", socket="panopticon", host=None) == [
         "tmux",

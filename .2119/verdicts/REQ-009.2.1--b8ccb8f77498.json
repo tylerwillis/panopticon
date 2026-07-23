@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.1--b8ccb8f77498",
+  "requirementId": "REQ-009.2.1",
+  "hash": "b8ccb8f77498",
+  "verdict": "pass",
+  "summary": "The annotated attach-command test supplies style, alias, braced, escaped, and lone-hash tmux format forms and verifies every hash is escaped before status-left rendering.",
+  "timestamp": "2026-07-22T14:37:25.999Z"
+}

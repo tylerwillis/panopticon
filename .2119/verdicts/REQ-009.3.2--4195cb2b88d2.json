@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.3.2--4195cb2b88d2",
+  "requirementId": "REQ-009.3.2",
+  "hash": "4195cb2b88d2",
+  "verdict": "pass",
+  "summary": "Remote attach is tested against the same local context label, including shell-sensitive text, and the supervisor integration verifies that label reaches the remote tmux command.",
+  "timestamp": "2026-07-22T14:40:41.497Z"
+}

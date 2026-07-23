@@ -21,6 +21,7 @@ prefix. LLM-free.
 
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 import tempfile
@@ -32,7 +33,7 @@ import httpx
 
 from panopticon.client import TaskServiceClient
 from panopticon.sessionservice.local_runner import TMUX_SOCKET
-from panopticon.terminal.attach import attach_command
+from panopticon.terminal.attach import attach_command, task_context_label
 
 #: tmux session name the dashboard runs in (on the panopticon socket, beside the task sessions).
 DASHBOARD_SESSION = "dashboard"
@@ -59,34 +60,47 @@ def switch_file_path(socket: str) -> Path:
 Selector = Callable[[], "str | None"]
 #: Hand the terminal to a task's session; blocks until the operator detaches.
 Attacher = Callable[[str], None]
+#: Execute an argv with subprocess-compatible keyword arguments.
+CommandExecutor = Callable[..., object]
 
 
 def _tmux_detach() -> None:
     subprocess.run(["tmux", "detach-client"], check=False)
 
 
-def encode_switch_target(session: str, host: str | None) -> str:
-    """Encode a ``(session, host)`` pick into a switch-file line: ``"<host>\\t<session>"`` for a
-    remote runner (so the supervisor can ssh-wrap the attach), bare ``"<session>"`` when local.
+def encode_switch_target(session: str, host: str | None, label: str | None = None) -> str:
+    """Encode a session pick and optional context label into one switch-file line.
 
-    The **one** place the switch-file format is written — the `t` hook (:func:`switch_to`) and the
-    `panopticon start <task>` join (:func:`resolve_join`) both go through it; :func:`decode_switch_target`
-    is the inverse the supervisor's attach parses with."""
+    Labelled task picks use JSON so arbitrary human text is safe. Unlabelled service/runner picks
+    retain the original tab-delimited format, which also keeps a dashboard process from an older
+    supervisor invocation compatible. The `t` hook and direct join both go through this seam;
+    :func:`decode_switch_target` is its inverse."""
+    if label is not None:
+        return json.dumps({"session": session, "host": host, "label": label})
     return f"{host}\t{session}" if host else session
 
 
-def decode_switch_target(line: str) -> tuple[str, str | None]:
-    """Inverse of :func:`encode_switch_target`: the ``(session, host)`` from a switch-file line
-    (``host`` is ``None`` when there's no ``\\t`` — a local pick)."""
+def decode_switch_target(line: str) -> tuple[str, str | None, str | None]:
+    """Return ``(session, host, label)`` from either supported switch-file encoding."""
+    if line.startswith("{"):
+        target = json.loads(line)
+        return target["session"], target.get("host"), target.get("label")
     parts = line.split("\t", 1)
     host = parts[0] if len(parts) == 2 else None
-    return parts[-1], host or None
+    return parts[-1], host or None, None
+
+
+def attach_target(target: str, *, socket: str, run: CommandExecutor = subprocess.run) -> None:
+    """Decorate and attach one supervisor target through its local or remote runner."""
+    session, host, label = decode_switch_target(target)
+    run(attach_command(session, socket=socket, host=host, label=label), check=False)
 
 
 def switch_to(
     session: str,
     *,
     host: str | None = None,
+    label: str | None = None,
     switch_file: Path,
     detach: Callable[[], None] = _tmux_detach,
 ) -> None:
@@ -94,10 +108,10 @@ def switch_to(
     the supervisor, then detach this client so the supervisor attaches the task. The dashboard
     process keeps running (detached), so returning to it shows the same live view.
 
-    When ``host`` is set the switch-file carries ``<host>\\t<session>`` so the
-    supervisor can ssh-wrap the attach; a plain ``<session>`` (no tab) means local.
+    Task picks carry their human context label for attach-time tmux decoration. Unlabelled sibling
+    session picks keep the legacy host/session representation.
     """
-    switch_file.write_text(encode_switch_target(session, host))
+    switch_file.write_text(encode_switch_target(session, host, label))
     detach()
 
 
@@ -216,7 +230,11 @@ def resolve_join(
         registrations = client.list_registrations(str(match["id"]))
         if registrations:
             session = str(registrations[0]["container_id"])
-            return encode_switch_target(session, match.get("runner_host"))
+            return encode_switch_target(
+                session,
+                match.get("runner_host"),
+                task_context_label(match, session),
+            )
         if attempt < attempts - 1:
             sleep(interval)
     return None
@@ -289,7 +307,6 @@ def run_console_local(
         return switch_file.read_text().strip() or None
 
     def attach(pick: str) -> None:
-        session, host = decode_switch_target(pick)
-        subprocess.run(attach_command(session, socket=socket, host=host), check=False)
+        attach_target(pick, socket=socket)
 
     run_console(show_dashboard=show_dashboard, attach=attach, initial=initial)

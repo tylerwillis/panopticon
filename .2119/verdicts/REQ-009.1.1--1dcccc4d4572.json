@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.1--1dcccc4d4572",
+  "requirementId": "REQ-009.1.1",
+  "hash": "1dcccc4d4572",
+  "verdict": "pass",
+  "summary": "Exact slug [memo] formatting is verified through dashboard selection and local/remote tmux status-left attach commands.",
+  "timestamp": "2026-07-22T14:36:29.614Z"
+}

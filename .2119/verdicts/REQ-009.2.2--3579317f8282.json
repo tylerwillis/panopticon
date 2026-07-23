@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.2--3579317f8282",
+  "requirementId": "REQ-009.2.2",
+  "hash": "3579317f8282",
+  "verdict": "pass",
+  "summary": "Exact label assertion rejects leading and trailing Unicode EM SPACE/whitespace on both slug and memo.",
+  "timestamp": "2026-07-22T14:38:21.178Z"
+}

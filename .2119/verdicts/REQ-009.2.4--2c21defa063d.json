@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.4--2c21defa063d",
+  "requirementId": "REQ-009.2.4",
+  "hash": "2c21defa063d",
+  "verdict": "pass",
+  "summary": "Over-limit emoji input must produce exactly 100 Unicode code points, so the nearest forbidden 101-code-point result fails.",
+  "timestamp": "2026-07-22T14:38:23.681Z"
+}
