@@ -16,8 +16,9 @@ available from the open details pane and uses `e`, for “edit”, as its memora
 ### REQ-009.2: Save the renamed slug
 
 1. Submitting a non-empty value accepted by the task service from the slug editor MUST set the
-   highlighted task's slug to the normalized submitted value and refresh the dashboard's displayed
-   task data; a rejected value leaves the existing slug displayed and the dashboard running.
+   highlighted task's slug to the surrounding-whitespace-trimmed submitted value and refresh the
+   dashboard's displayed task data; a rejected value leaves the existing slug displayed and the
+   dashboard running.
 
 ### REQ-009.3: Cancel without renaming
 
