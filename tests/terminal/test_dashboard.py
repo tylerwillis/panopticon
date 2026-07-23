@@ -1298,12 +1298,30 @@ async def test_pressing_e_edits_slug_only_while_detail_is_open() -> None:
         await pilot.press("e")
         await pilot.pause()
         assert not isinstance(app.screen, dashboard.SlugScreen)
+        assert fake.set_slugs == []
+        assert fake.get_task("task-abcdef0123")["slug"] == "fix-widget"
 
         await pilot.press("d")
         await pilot.press("e")
         await pilot.pause()
         assert isinstance(app.screen, dashboard.SlugScreen)
         assert app.screen.query_one(Input).value == "fix-widget"
+
+
+# 2119: REQ-009.1.1
+async def test_slug_editor_uses_current_service_value_over_stale_list_snapshot() -> None:
+    class DivergentClient(_FakeClient):
+        def get_task(self, task_id: str) -> dict[str, Any]:
+            task = super().get_task(task_id)
+            return {**task, "slug": "service-current"}
+
+    app = Dashboard(DivergentClient([{**_TASK, "slug": "stale-summary"}]))  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("d")
+        await pilot.press("e")
+        await pilot.pause()
+        assert app.screen.query_one(Input).value == "service-current"
 
 
 # 2119: REQ-009.2.1
@@ -1315,13 +1333,40 @@ async def test_submitting_slug_editor_renames_highlighted_task_and_refreshes() -
         await pilot.press("d")
         await pilot.press("e")
         await pilot.pause()
+        calls_before_submit = fake.list_tasks_calls
         editor = app.screen.query_one(Input)
         editor.value = "better-widget-name"
         await pilot.press("enter")
         await pilot.pause()
 
         assert fake.set_slugs == [("task-abcdef0123", "better-widget-name")]
+        assert fake.list_tasks_calls > calls_before_submit
         assert "better-widget-name" in str(app.query_one("#detail", Static).render())
+        assert "better-widget-name" in str(app.query_one("#tasks", DataTable).get_row_at(0))
+
+
+# 2119: REQ-009.2.1
+async def test_rejected_slug_keeps_dashboard_running_and_existing_slug_visible() -> None:
+    class RejectingClient(_FakeClient):
+        def set_slug(self, task_id: str, slug: str) -> dict[str, Any]:
+            request = httpx.Request("PUT", f"http://service/tasks/{task_id}/slug")
+            response = httpx.Response(
+                400, request=request, json={"detail": "invalid artifact segment"}
+            )
+            raise httpx.HTTPStatusError("bad slug", request=request, response=response)
+
+    app = Dashboard(RejectingClient([_TASK.copy()]))  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("d")
+        await pilot.press("e")
+        await pilot.pause()
+        app.screen.query_one(Input).value = "bad/name"
+        await pilot.press("enter")
+        await pilot.pause()
+
+        assert app.is_running
+        assert "fix-widget" in str(app.query_one("#detail", Static).render())
 
 
 # 2119: REQ-009.3.1
@@ -1348,7 +1393,9 @@ async def test_detail_pane_shows_edit_slug_key_hint() -> None:
         await pilot.pause()
         await pilot.press("d")
         await pilot.pause()
-        assert "e: edit slug" in str(app.query_one("#detail", Static).render())
+        rendered: Any = app.query_one("#detail", Static).render()
+        assert str(rendered).splitlines()[-2] == "e: edit slug"
+        assert rendered.spans[-2].style.dim is True
 
 
 async def test_pressing_shift_y_copies_the_id(monkeypatch: Any) -> None:

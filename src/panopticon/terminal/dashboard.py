@@ -2658,16 +2658,23 @@ class Dashboard(App[None]):
         """`e`: edit the highlighted task's slug while its details pane is open."""
         if not self._detail_visible or self._current is None:
             return
-        task = self._tasks.get(self._current)
+        task_id = self._current
+        try:
+            task = self._client.get_task(task_id)
+        except Exception:
+            task = self._tasks.get(task_id)
         if task is None:
             return
-
-        task_id = self._current
 
         def rename(slug: str | None) -> None:
             if slug is None:
                 return
-            self._client.set_slug(task_id, slug)
+            try:
+                self._client.set_slug(task_id, slug)
+            except httpx.HTTPStatusError as exc:
+                self.notify(f"Can't rename task: {_detail(exc)}", severity="error")
+                self.action_refresh()
+                return
             self.action_refresh()
 
         self.push_screen(SlugScreen(str(task.get("slug") or "")), rename)

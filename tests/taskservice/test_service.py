@@ -14,6 +14,7 @@ from panopticon.core import (
     ResponsibilitiesNotMet,
     Workflow,
 )
+from panopticon.core.artifacts import InvalidArtifactName
 from panopticon.core.models import Actor, LifecyclePhase, Repo, Responsibility, Status
 from panopticon.core.store import NotFound
 from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
@@ -721,6 +722,18 @@ async def test_set_slug(tmp_path: Path) -> None:
     task = await svc.create_task("r1", "spike")
     await svc.set_slug(task.id, "fix-widget")
     assert (await svc.get_task(task.id)).slug == "fix-widget"
+
+
+async def test_set_slug_rejects_invalid_segment_before_persisting(tmp_path: Path) -> None:
+    svc = await make_service(tmp_path)
+    task = await svc.create_task("r1", "spike")
+    await svc.set_slug(task.id, "fix-widget")
+
+    with pytest.raises(InvalidArtifactName):
+        await svc.set_slug(task.id, "bad/name")
+
+    assert (await svc.get_task(task.id)).slug == "fix-widget"
+    assert (tmp_path / "tasks" / "fix-widget").is_symlink()
 
 
 async def test_set_slug_aliases_the_artifacts_dir(tmp_path: Path) -> None:
