@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-005.2.1--9608966a2f4a",
+  "requirementId": "REQ-005.2.1",
+  "hash": "9608966a2f4a",
+  "verdict": "pass",
+  "summary": "Runs the real extracted setup_pi_auth and the real outfitter dispatch in sh across three credential inputs exercising both skip paths (env-file API key, credential-dir auth.json) and the offer path (no credentials), asserting outfitter's output byte-equals pi's after the notice line — any outfitter-specific offer/skip divergence breaks the equality; only interactive I/O helpers are stubbed, identically for both runs.",
+  "timestamp": "2026-07-22T06:13:51.072Z"
+}

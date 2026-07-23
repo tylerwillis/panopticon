@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.16.1--5a2ca35d2853",
+  "requirementId": "REQ-002.16.1",
+  "hash": "5a2ca35d2853",
+  "verdict": "pass",
+  "summary": "Exact-list assertion labels() == [REVIEWING, COMPLETE, DROPPED] rejects any additional nonterminal state; COMPLETE/DROPPED are the built-in terminals",
+  "timestamp": "2026-07-22T06:08:32.898Z"
+}

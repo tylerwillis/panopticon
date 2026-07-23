@@ -37,8 +37,14 @@ def _git(cwd: Path, *args: str) -> str:
     ).stdout.strip()
 
 
+# 2119: REQ-004.1.1
+# 2119: REQ-004.2.1
+# 2119: REQ-004.3.1
+# 2119: REQ-004.4.1
 @pytest.mark.skipif(not shutil.which("git"), reason="needs git")
-def test_provisioning_end_to_end_with_real_git(tmp_path: Path) -> None:
+def test_provisioning_end_to_end_with_real_git(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     # A real "forge" repo with a base branch — stands in for both the cache source and origin.
     origin = tmp_path / "origin"
     origin.mkdir()
@@ -50,6 +56,11 @@ def test_provisioning_end_to_end_with_real_git(tmp_path: Path) -> None:
     (origin / "README").write_text("hi\n")
     _git(origin, "add", "--all")
     _git(origin, "commit", "--message", "init")
+
+    global_config = tmp_path / "global.gitconfig"
+    _git(origin, "config", "--file", str(global_config), "user.name", "Operator")
+    _git(origin, "config", "--file", str(global_config), "user.email", "operator@example.com")
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(global_config))
 
     service = TaskService(SqlAlchemyStore(), {"spike": Spike()}, FilesystemArtifactStore(tmp_path))
     asyncio.run(service.init())
@@ -76,6 +87,31 @@ def test_provisioning_end_to_end_with_real_git(tmp_path: Path) -> None:
         assert _git(per_task, "remote", "get-url", "origin") == str(
             origin
         )  # origin → forge at spawn-prep
+        assert _git(per_task, "config", "--local", "--get", "user.name") == "Panopticon Agent"
+        assert (
+            _git(per_task, "config", "--local", "--get", "user.email")
+            == "panopticon-agent@users.noreply.github.com"
+        )
+
+        # Re-preparing an existing workspace replaces a leaked local identity without touching the
+        # operator's global identity.
+        _git(per_task, "config", "--local", "user.name", "Leaked Operator")
+        _git(per_task, "config", "--local", "user.email", "leaked@example.com")
+        assert (
+            Path(
+                prepare_workspace(
+                    task_id, client.get_repo("r1"), cache=cache, tasks_root=str(clones_root)
+                )
+            )
+            == per_task
+        )
+        assert _git(per_task, "config", "--local", "--get", "user.name") == "Panopticon Agent"
+        assert (
+            _git(per_task, "config", "--local", "--get", "user.email")
+            == "panopticon-agent@users.noreply.github.com"
+        )
+        assert _git(per_task, "config", "--global", "--get", "user.name") == "Operator"
+        assert _git(per_task, "config", "--global", "--get", "user.email") == "operator@example.com"
 
         # The agent sets its slug; the daemon observes it and provisions in one pass.
         client.set_slug(task_id, "fix-widget")

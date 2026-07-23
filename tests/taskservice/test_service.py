@@ -25,7 +25,7 @@ from panopticon.taskservice.service import (
     UnknownWorkflow,
 )
 from panopticon.taskservice.store_sqlalchemy import SqlAlchemyStore
-from panopticon.workflows import GithubPeerReviewed, Orchestrator, SetupRepo, Spike
+from panopticon.workflows import GithubPeerReviewed, Orchestrator, Review, SetupRepo, Spike
 
 
 async def make_service(tmp_path: Path) -> TaskService:
@@ -37,6 +37,7 @@ async def make_service(tmp_path: Path) -> TaskService:
             "spike": Spike(),
             "github-peer-reviewed": GithubPeerReviewed(),
             "orchestrator": Orchestrator(),
+            "review": Review(),
             "setup-repo": SetupRepo(),  # opt-out but hidden from the pickers
         },
         FilesystemArtifactStore(tmp_path),
@@ -117,6 +118,91 @@ async def test_create_task_unknown_workflow(tmp_path: Path) -> None:
         await svc.create_task("r1", "nope")
 
 
+# 2119: REQ-003.1.1
+async def test_create_review_task_without_governor_is_rejected(tmp_path: Path) -> None:
+    svc = await make_service(tmp_path)
+
+    with pytest.raises(ValueError, match="governor"):
+        await svc.create_task("r1", "review", harness="codex")
+
+    assert await svc.list_tasks() == []
+
+
+# 2119: REQ-003.2.1
+@pytest.mark.parametrize(
+    ("repo_default", "governor_harness", "review_harness"),
+    [
+        (None, "claude", None),
+        (None, None, "claude"),
+        ("codex", "codex", None),
+    ],
+)
+async def test_create_review_task_with_equal_harness_is_rejected(
+    tmp_path: Path,
+    repo_default: str | None,
+    governor_harness: str | None,
+    review_harness: str | None,
+) -> None:
+    svc = await make_service(tmp_path)
+    if repo_default is not None:
+        await svc.update_repo("r1", {"default_harness": repo_default})
+    governor = await svc.create_task(
+        "r1", "spike", harness=governor_harness, starting_model="author-model"
+    )
+
+    with pytest.raises(ValueError, match="harness"):
+        await svc.create_task(
+            "r1",
+            "review",
+            governor_task_id=governor.id,
+            harness=review_harness,
+            starting_model="different-review-model",
+        )
+
+    assert [task.id for task in await svc.list_tasks()] == [governor.id]
+
+
+# 2119: REQ-003.3.1
+@pytest.mark.parametrize(
+    ("repo_default", "review_harness"),
+    [(None, "codex"), ("codex", None)],
+)
+async def test_create_review_task_with_different_harness_is_accepted(
+    tmp_path: Path, repo_default: str | None, review_harness: str | None
+) -> None:
+    svc = await make_service(tmp_path)
+    if repo_default is not None:
+        await svc.update_repo("r1", {"default_harness": repo_default})
+    governor = await svc.create_task(
+        "r1", "spike", harness="claude", starting_model="shared-model-string"
+    )
+
+    review = await svc.create_task(
+        "r1",
+        "review",
+        governor_task_id=governor.id,
+        harness=review_harness,
+        starting_model="shared-model-string",
+    )
+
+    assert review.governor_task_id == governor.id
+    assert review.harness == "codex"
+    assert review.starting_model == governor.starting_model
+
+
+# 2119: REQ-003.4.1
+async def test_create_non_review_tasks_are_unaffected_by_review_validation(tmp_path: Path) -> None:
+    svc = await make_service(tmp_path)
+    ungoverned = await svc.create_task("r1", "spike", harness="claude")
+
+    governed = await svc.create_task(
+        "r1", "spike", governor_task_id=ungoverned.id, harness="claude"
+    )
+
+    assert governed.governor_task_id == ungoverned.id
+    assert governed.harness == ungoverned.harness
+
+
 async def test_create_task_opt_in_workflow_not_enabled_is_rejected(tmp_path: Path) -> None:
     svc = await make_service(tmp_path)
     # spike is opt-out so it is always allowed; github-peer-reviewed is opt-in and IS enabled
@@ -152,17 +238,26 @@ async def test_list_workflow_infos_for_repo_shows_opt_in_and_filters(tmp_path: P
     assert all("opt_in" in w for w in infos)
 
 
+# 2119: REQ-002.12
 async def test_hidden_workflow_absent_from_both_menus_but_still_creatable(tmp_path: Path) -> None:
     svc = await make_service(tmp_path)
-    # setup-repo is hidden → excluded from the repo-form menu (all workflows) and the
-    # task-creation picker (repo-filtered), even though it's opt-out (visible to the create gate).
-    assert "setup-repo" not in {w["name"] for w in await svc.list_workflow_infos()}
-    assert "setup-repo" not in {w["name"] for w in await svc.list_workflow_infos_for_repo("r1")}
+    # Hidden workflows are excluded from the repo-form menu (all workflows) and the
+    # task-creation picker (repo-filtered), even though they remain registered and creatable.
+    all_menu = {w["name"] for w in await svc.list_workflow_infos()}
+    repo_menu = {w["name"] for w in await svc.list_workflow_infos_for_repo("r1")}
+    assert "review" in await svc.workflow_names()
+    assert "review" not in all_menu
+    assert "review" not in repo_menu
+    assert "setup-repo" not in all_menu
+    assert "setup-repo" not in repo_menu
     # sanity: a non-hidden opt-out workflow is still present in the all-workflows menu
     assert "spike" in {w["name"] for w in await svc.list_workflow_infos()}
-    # hidden is display-only — the workflow stays creatable (e.g. via the repos-modal hotkey)
-    task = await svc.create_task("r1", "setup-repo")
-    assert task.workflow == "setup-repo"
+    # Hidden is display-only — each workflow stays creatable when its own validation is satisfied.
+    setup = await svc.create_task("r1", "setup-repo")
+    governor = await svc.create_task("r1", "spike")
+    review = await svc.create_task("r1", "review", governor_task_id=governor.id, harness="codex")
+    assert setup.workflow == "setup-repo"
+    assert review.workflow == "review"
 
 
 async def test_list_workflow_infos_for_repo_hides_disabled_opt_out(tmp_path: Path) -> None:
@@ -263,15 +358,123 @@ async def test_set_turn_flips_within_a_state(tmp_path: Path) -> None:
     assert (await svc.set_turn(task.id, Actor.AGENT)).turn is Actor.AGENT  # user replied
 
 
-async def test_blocked_marker_survives_turn_flips(tmp_path: Path) -> None:
+# 2119: REQ-008.1.1
+async def test_agent_turn_clears_blocked_in_the_same_write(tmp_path: Path) -> None:
     svc = await make_service(tmp_path)
     task = await svc.create_task("r1", "spike")
     await svc.set_blocked(task.id, True)
-    await svc.set_turn(task.id, Actor.USER)  # a flip must not clear the deliberate block
+    before = svc.tasks_version()
+
+    flipped = await svc.set_turn(task.id, Actor.AGENT)
+
+    assert flipped.turn is Actor.AGENT
+    assert flipped.blocked is False
+    assert svc.tasks_version() == before + 1
+    reloaded = await svc.get_task(task.id)
+    assert reloaded.turn is Actor.AGENT
+    assert reloaded.blocked is False
+
+
+# 2119: REQ-008.1.2
+async def test_user_turn_preserves_blocked_marker(tmp_path: Path) -> None:
+    svc = await make_service(tmp_path)
+    task = await svc.create_task("r1", "spike")
+    await svc.set_blocked(task.id, True)
+    await svc.set_turn(task.id, Actor.USER)
     reloaded = await svc.get_task(task.id)
     assert reloaded.turn is Actor.USER
     assert reloaded.blocked is True
-    assert (await svc.set_blocked(task.id, False)).blocked is False  # cleared only explicitly
+
+
+# 2119: REQ-008.2.1
+# 2119: REQ-008.2.2
+@pytest.mark.parametrize("change", ["declared-transition", "free-move", "drop"])
+async def test_every_state_change_clears_blocked(tmp_path: Path, change: str) -> None:
+    svc = await make_service(tmp_path)
+    task = await svc.create_task("r1", "spike")
+    await svc.set_blocked(task.id, True)
+    before = svc.tasks_version()
+
+    if change == "declared-transition":
+        moved = await svc.apply_operation(task.id, "advance")
+    elif change == "drop":
+        moved = await svc.apply_operation(task.id, "drop")
+    else:
+        moved = await svc.set_state(task.id, "COMPLETE")
+
+    assert moved.state == ("DROPPED" if change == "drop" else "COMPLETE")
+    assert moved.blocked is False
+    assert svc.tasks_version() == before + 1
+    assert (await svc.get_task(task.id)).blocked is False
+
+
+# 2119: REQ-008.2.1
+async def test_cascade_drop_clears_a_governed_tasks_blocked_marker(tmp_path: Path) -> None:
+    svc = await make_service(tmp_path)
+    governor = await svc.create_task("r1", "spike")
+    child = await svc.create_task("r1", "spike", governor_task_id=governor.id)
+    await svc.set_blocked(child.id, True)
+
+    await svc.apply_operation(governor.id, "drop")
+
+    dropped_child = await svc.get_task(child.id)
+    assert dropped_child.state == "DROPPED"
+    assert dropped_child.blocked is False
+
+
+# 2119: REQ-008.2.1
+# 2119: REQ-008.2.2
+async def test_transition_hook_can_raise_a_fresh_block_after_the_stale_one_clears(
+    tmp_path: Path,
+) -> None:
+    class Hooked(Workflow):
+        name = "blocked-on-entry"
+
+        class A(InitialState):
+            label = "A"
+            transitions = (Complete,)
+
+        initial = A
+
+        async def on_transition(self, task, *, from_state, to_state, artifacts):  # type: ignore[override]
+            assert task.blocked is False
+            task.blocked = True
+
+    svc = TaskService(
+        SqlAlchemyStore(), {"blocked-on-entry": Hooked()}, FilesystemArtifactStore(tmp_path)
+    )
+    await svc.init()
+    await svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
+    task = await svc.create_task("r1", "blocked-on-entry")
+    await svc.set_blocked(task.id, True)
+    before = svc.tasks_version()
+
+    moved = await svc.apply_operation(task.id, "advance")
+
+    assert moved.state == "COMPLETE"
+    assert moved.blocked is True
+    assert svc.tasks_version() == before + 1
+    assert (await svc.get_task(task.id)).blocked is True
+
+
+# 2119: REQ-008.3.1
+@pytest.mark.parametrize("automatic_clear", ["agent-turn", "state-change"])
+async def test_agent_can_set_blocked_again_after_automatic_clear(
+    tmp_path: Path, automatic_clear: str
+) -> None:
+    svc = await make_service(tmp_path)
+    task = await svc.create_task("r1", "spike")
+    await svc.set_blocked(task.id, True)
+    if automatic_clear == "agent-turn":
+        cleared = await svc.set_turn(task.id, Actor.AGENT)
+    else:
+        cleared = await svc.apply_operation(task.id, "advance")
+    assert cleared.blocked is False
+
+    reset = await svc.set_blocked(task.id, True)
+
+    assert reset.blocked is True
+    assert (await svc.get_task(task.id)).blocked is True
 
 
 # -- claim: a runner owns the task (the spawn gate) ---------------------------------

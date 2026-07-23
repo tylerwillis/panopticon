@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.5.1--692a65630688",
+  "requirementId": "REQ-006.5.1",
+  "hash": "692a65630688",
+  "verdict": "pass",
+  "summary": "Pilot tests invoke Ctrl+R against empty, mixed valid non-down, and stale-to-latest non-down snapshots and require the exact 'no down tasks' notification.",
+  "timestamp": "2026-07-22T06:49:35.507Z"
+}

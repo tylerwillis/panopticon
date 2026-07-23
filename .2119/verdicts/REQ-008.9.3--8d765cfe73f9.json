@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.9.3--8d765cfe73f9",
+  "requirementId": "REQ-008.9.3",
+  "hash": "8d765cfe73f9",
+  "verdict": "pass",
+  "summary": "Glossary-scoped assertion requires Pi input before prompt processing and handler completion of the task-service write, rejecting each nearest conjunct violation.",
+  "timestamp": "2026-07-22T07:07:33.654Z"
+}

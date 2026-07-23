@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-004.4.1--c7bc4adc8f61",
+  "requirementId": "REQ-004.4.1",
+  "hash": "c7bc4adc8f61",
+  "verdict": "pass",
+  "summary": "End-to-end with real git: after slug-set, one daemon pass provisions the identity-configured prepared workspace and the test verifies 'branch --show-current' == panopticon/fix-widget plus the recorded branch/clone facts — a provisioning failure in the prepared workspace fails these assertions directly.",
+  "timestamp": "2026-07-22T06:13:40.912Z"
+}

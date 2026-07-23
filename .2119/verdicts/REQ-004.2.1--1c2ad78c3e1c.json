@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-004.2.1--1c2ad78c3e1c",
+  "requirementId": "REQ-004.2.1",
+  "hash": "1c2ad78c3e1c",
+  "verdict": "pass",
+  "summary": "Real-git acceptance reads back 'git config --local --get user.email' == panopticon-agent@users.noreply.github.com after a fresh prepare AND after re-preparing an existing workspace seeded with a leaked local identity (so a global-only or skipped write fails); spawn unit tests pin the exact emitted config --local command on both fresh and existing paths.",
+  "timestamp": "2026-07-22T06:13:32.223Z"
+}

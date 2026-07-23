@@ -254,8 +254,8 @@ class Task:
     workflow: str
     state: str
     turn: Actor
-    #: A deliberate "waiting on something" marker the agent sets; it is **orthogonal to the
-    #: turn** and survives turn flips (cloude-cade's `:blocked:`), cleared only explicitly.
+    #: A deliberate "waiting on something" marker the agent sets. A turn-to-agent write or state
+    #: change clears it; a turn-to-user write preserves it, and the agent may set it again.
     blocked: bool = False
     #: A brief, one-line reminder of what the task is, collected when the task is created (shown
     #: in the dashboard's task summary) — a human label of *intent*, not a full description (that

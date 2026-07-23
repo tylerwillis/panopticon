@@ -221,7 +221,7 @@ class TaskServiceClient:
         )
 
     def set_blocked(self, task_id: str, blocked: bool) -> JsonObj:
-        """Set/clear the deliberate `blocked` marker (survives turn flips)."""
+        """Set/clear the deliberate `blocked` marker explicitly."""
         return cast(
             JsonObj,
             self._json(self._http.put(f"/tasks/{task_id}/blocked", json={"blocked": blocked})),

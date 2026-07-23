@@ -386,8 +386,14 @@ class TaskService:
         depends_on_task_ids: list[str] | None = None,
     ) -> Task:
         repo = await self.get_repo(repo_id)  # ensure exists (raises NotFound)
+        # ADR-0014 stack 2 lands before the review workflow itself on some branches, so its stable
+        # name is the marker here. Stack 3 can rebase this coupling onto a workflow declaration if
+        # stack 1 introduces a cleaner marker.
+        if workflow_name == "review" and governor_task_id is None:
+            raise ValueError("review tasks require a governor_task_id")
+        governor = None
         if governor_task_id is not None:
-            await self.get_task(governor_task_id)  # ensure governor exists (raises NotFound)
+            governor = await self.get_task(governor_task_id)  # ensure it exists (raises NotFound)
         self._validate_harness_name(harness)  # so a spawn never meets an unknown harness
         if workflow_name not in self._workflows:
             self._rescan_workflows()
@@ -408,6 +414,10 @@ class TaskService:
         task.starting_model = starting_model
         if starting_model is None and (harness is None or harness == pair_harness):
             task.starting_model = pair_model
+        if workflow_name == "review" and (
+            governor is None or get_harness(task.harness).name == get_harness(governor.harness).name
+        ):
+            raise ValueError("review task harness must differ from its governor task's harness")
         task.governor_task_id = governor_task_id
         task.created_at = now
         task.updated_at = now  # creation time = first mutation
@@ -593,6 +603,9 @@ class TaskService:
             wf.force_transition(task, to_state, at=self._clock(), trigger=trigger, note=note)
         else:
             wf.apply_transition(task, to_state, at=self._clock(), trigger=trigger, note=note)
+        # End the stale waiting condition from the state being left before lifecycle effects run.
+        # A hook may deliberately raise a fresh block for the state being entered.
+        task.blocked = False
         # Deterministic lifecycle hook (e.g. seed the plan on plan acceptance) — may touch the
         # task/artifacts; run before the single save so any task mutation persists with it.
         await wf.on_transition(
@@ -688,16 +701,18 @@ class TaskService:
     async def set_turn(self, task_id: str, turn: Actor) -> Task:
         """Flip who holds the turn within a state (the in-container hooks' callback).
 
-        This is the agnostic agent↔user ball tracking (ADR 0004). It leaves ``blocked``
-        untouched, so a deliberate block survives turn flips.
+        This is the agnostic agent↔user ball tracking (ADR 0004). A turn-to-agent write means the
+        user addressed the task, so it also clears ``blocked``; a turn-to-user write preserves it.
         """
         task = await self.get_task(task_id)
         task.turn = turn
+        if turn is Actor.AGENT:
+            task.blocked = False
         await self._save_task(task)
         return task
 
     async def set_blocked(self, task_id: str, blocked: bool) -> Task:
-        """Set/clear the task's deliberate ``blocked`` marker (orthogonal to the turn)."""
+        """Explicitly set/clear ``blocked``; later agent-turn writes and state changes clear it."""
         task = await self.get_task(task_id)
         task.blocked = blocked
         await self._save_task(task)

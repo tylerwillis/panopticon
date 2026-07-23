@@ -48,6 +48,19 @@ def _seed_session(home: Path) -> None:
     (project / "session.jsonl").write_text("{}")
 
 
+# 2119: REQ-008.4.1
+def test_user_prompt_submit_waits_for_the_agent_turn_hook() -> None:
+    prompt = claude.settings()["hooks"]["UserPromptSubmit"][0]
+    assert prompt == {
+        "hooks": [
+            {
+                "type": "command",
+                "command": "python -m panopticon.container.hook agent prompt",
+            }
+        ]
+    }
+
+
 def test_argv_starts_fresh_without_a_session(tmp_path: Path) -> None:
     # Unattended container, per-task clone → skip permission prompts (no operator to answer them).
     assert HARNESS.argv(_ctx(tmp_path)) == ["claude", "--dangerously-skip-permissions"]

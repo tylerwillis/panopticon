@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.5.1--cd2e764fff05",
+  "requirementId": "REQ-008.5.1",
+  "hash": "cd2e764fff05",
+  "verdict": "pass",
+  "summary": "Codex config binds native UserPromptSubmit to the agent callback, and a gated write proves the hook cannot exit before that turn-to-agent write completes.",
+  "timestamp": "2026-07-22T07:35:21.013Z"
+}

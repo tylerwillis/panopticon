@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.1.1--e45b0cc0eb24",
+  "requirementId": "REQ-002.1.1",
+  "hash": "e45b0cc0eb24",
+  "verdict": "pass",
+  "summary": "discover_workflows with a nonexistent home dir yields built-ins only; registry['review'] KeyErrors if absent and .name=='review' pins the exposed name — genuinely fails if the registry drops or renames it.",
+  "timestamp": "2026-07-22T06:07:55.945Z"
+}

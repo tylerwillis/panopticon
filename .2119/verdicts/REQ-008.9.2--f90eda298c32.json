@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.9.2--f90eda298c32",
+  "requirementId": "REQ-008.9.2",
+  "hash": "f90eda298c32",
+  "verdict": "pass",
+  "summary": "Exact glossary assertion rejects wrong harness, non-blocking or post-processing wording, and omission of either callback startup or task-service write from the timing floor.",
+  "timestamp": "2026-07-22T07:06:46.400Z"
+}

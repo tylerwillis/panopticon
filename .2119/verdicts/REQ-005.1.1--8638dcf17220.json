@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-005.1.1--8638dcf17220",
+  "requirementId": "REQ-005.1.1",
+  "hash": "8638dcf17220",
+  "verdict": "pass",
+  "summary": "The real shipped dispatch runs in a real sh: 'dispatch_harness_auth outfitter || echo unsupported' must yield exactly the notice + pi-auth-flow (len==2, so 'unsupported' cannot appear) across new/existing credential paths, and the error-path test asserts 'unsupported' absent even when the profile dir cannot be created; only the downstream setup_pi_auth is stubbed, not the dispatch under test.",
+  "timestamp": "2026-07-22T06:13:46.310Z"
+}
