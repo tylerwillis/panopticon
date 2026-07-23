@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.2.4--4fa319150e33",
-  "requirementId": "REQ-012.2.4",
-  "hash": "4fa319150e33",
-  "verdict": "pass",
-  "summary": "Varies the app default to codex (not the hardcoded claude) with no task/workflow/repo selection and asserts the task record carries that concrete name — rejects both the hardcoded-name and null-sentinel counterexamples; persistence-over-time is pinned by the sibling REQ-012.4.3 test in the same file.",
-  "timestamp": "2026-07-23T17:39:04.591Z"
-}

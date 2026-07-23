@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.2.1--5144e52b2c20",
-  "requirementId": "REQ-012.2.1",
-  "hash": "5144e52b2c20",
-  "verdict": "pass",
-  "summary": "test_workflow_launch_pair_beats_repo_pair pins (codex, gpt-5.6-sol:high) over a distinct non-null repo pair (claude, opus:low) via the real REST/service path with no override; any repo-win or mix-and-match resolution fails the tuple assertion",
-  "timestamp": "2026-07-22T17:08:08.486Z"
-}

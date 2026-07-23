@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.3.1--4fd5146114e6",
+  "requirementId": "REQ-012.3.1",
+  "hash": "4fd5146114e6",
+  "verdict": "pass",
+  "summary": "test_explicit_task_harness_beats_app_defaults asserts explicit codex wins over both the claude app default and a non-null claude/opus repo pair; the workflow-pair chain is covered by the REQ-012.3.3 test; a chain-wins violation surfaces as claude and fails",
+  "timestamp": "2026-07-23T18:15:55.616Z"
+}

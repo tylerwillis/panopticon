@@ -74,6 +74,57 @@ def test_health_and_workflows(client: TestClient) -> None:
     ]
 
 
+def test_stale_persisted_state_remains_listable_after_workflow_code_changes(
+    tmp_path: Path,
+) -> None:
+    class BeforeRename(Workflow):
+        name = "versioned"
+
+        class RenamedAway(InitialState):
+            label = "RENAMED_AWAY"
+            transitions = (Complete,)
+
+        initial = RenamedAway
+
+    class AfterRename(Workflow):
+        name = "versioned"
+
+        class Current(InitialState):
+            label = "CURRENT"
+            transitions = (Complete,)
+
+        initial = Current
+
+    store = SqlAlchemyStore()
+    old_service = TaskService(
+        store,
+        {"versioned": BeforeRename()},
+        FilesystemArtifactStore(tmp_path),
+    )
+    asyncio.run(old_service.init())
+    asyncio.run(
+        old_service.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
+    )
+    task = asyncio.run(old_service.create_task("r1", "versioned"))
+
+    new_service = TaskService(
+        store,
+        {"versioned": AfterRename()},
+        FilesystemArtifactStore(tmp_path),
+    )
+    asyncio.run(new_service.init())
+
+    with TestClient(create_app(new_service)) as stale_client:
+        listed = stale_client.get("/tasks")
+        assert listed.status_code == 200
+        assert listed.json()[0]["state"] == "RENAMED_AWAY"
+        assert listed.json()[0]["container_status"] == "queued"
+
+        active = stale_client.get("/tasks", params={"terminal": "false"})
+        assert active.status_code == 200
+        assert [item["id"] for item in active.json()] == [task.id]
+
+
 def test_repo_workflows_endpoint_filters_by_opt_in(tmp_path: Path) -> None:
     from panopticon.workflows import GithubSelfReviewed
 

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.3.2--9a0b84bb939c",
+  "requirementId": "REQ-012.3.2",
+  "hash": "9a0b84bb939c",
+  "verdict": "pass",
+  "summary": "test_explicit_task_model_keeps_winning_pair_harness sends only starting_model=custom against the codex/gpt-5.6-sol:high workflow pair and asserts (codex, custom): both conjuncts — model replaced and harness retained — fail independently if violated",
+  "timestamp": "2026-07-23T18:16:01.508Z"
+}

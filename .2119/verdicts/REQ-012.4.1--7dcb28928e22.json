@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.4.1--7dcb28928e22",
-  "requirementId": "REQ-012.4.1",
-  "hash": "7dcb28928e22",
-  "verdict": "pass",
-  "summary": "test_api.py:317 round-trips the nonsense model string 'operator-owned vocabulary:maximum' verbatim through real repo PATCH + task creation (no mocks): rejects the validation counterexample (a 400 on unknown vocabulary) and the interpretation counterexample (stripping/normalizing the fake ':maximum' effort suffix)",
-  "timestamp": "2026-07-22T17:08:11.374Z"
-}

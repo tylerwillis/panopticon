@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.3.2--5edd206be9ab",
-  "requirementId": "REQ-012.3.2",
-  "hash": "5edd206be9ab",
-  "verdict": "pass",
-  "summary": "Real end-to-end test: explicit starting_model 'custom' replaces the tuned workflow pair's model while harness stays 'codex' (distinguishable from app-default 'claude'), so both a kept chain model and a dropped harness would fail; no mocks in the resolution path.",
-  "timestamp": "2026-07-22T17:08:10.148Z"
-}

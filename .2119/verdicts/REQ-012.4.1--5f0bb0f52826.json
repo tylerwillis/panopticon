@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.4.1--5f0bb0f52826",
+  "requirementId": "REQ-012.4.1",
+  "hash": "5f0bb0f52826",
+  "verdict": "pass",
+  "summary": "Nonsense model string with space + colon-effort suffix ('operator-owned vocabulary:maximum') is accepted and round-trips byte-for-byte through PATCH/GET and onto a created task's starting_model — would fail under any validation, normalization, or effort parsing",
+  "timestamp": "2026-07-23T18:16:17.210Z"
+}

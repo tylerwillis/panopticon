@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.5.1--30606a9d3bbd",
-  "requirementId": "REQ-012.5.1",
-  "hash": "30606a9d3bbd",
-  "verdict": "pass",
-  "summary": "Rejects model-without-harness on create, patch, and harness-clearing (400 each) and allows the harness+model pair, against the real service and store with no mocks",
-  "timestamp": "2026-07-22T17:08:12.519Z"
-}

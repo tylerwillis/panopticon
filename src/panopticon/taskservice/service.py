@@ -37,7 +37,7 @@ from panopticon.core.models import (
 from panopticon.core.provisioning import PROVISION_SKILL
 from panopticon.core.state import TERMINAL_LABELS, Dropped
 from panopticon.core.store import NotFound, Store
-from panopticon.core.workflow import Workflow
+from panopticon.core.workflow import InvalidWorkflow, Workflow
 from panopticon.harnesses import HARNESSES, get_harness
 
 _log = logging.getLogger(__name__)
@@ -372,7 +372,12 @@ class TaskService:
         workflow = self._workflows.get(task.workflow)
         if workflow is None:
             return task.state in TERMINAL_LABELS
-        return workflow.is_terminal(task.state)
+        try:
+            return workflow.is_terminal(task.state)
+        except InvalidWorkflow:
+            # Persisted state labels can outlive workflow-code changes. Keep those tasks
+            # listable and operable so an operator can recover them with a free state move.
+            return task.state in TERMINAL_LABELS
 
     # -- tasks --------------------------------------------------------------------
 
