@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.5.1--0cf09dcc8035",
-  "requirementId": "REQ-008.5.1",
-  "hash": "0cf09dcc8035",
-  "verdict": "pass",
-  "summary": "Codex hook wiring is pinned to the exact shared-callback command under the UserPromptSubmit TOML key, and a threading-gated test on hook.main proves the callback blocks on client.set_turn before returning; together they reject misrouted wiring, wrong-actor writes, and fire-and-forget dispatch.",
-  "timestamp": "2026-07-22T17:07:54.276Z"
-}

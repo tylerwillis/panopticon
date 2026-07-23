@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-010.2.2--2b76fd60c6f0",
-  "requirementId": "REQ-010.2.2",
-  "hash": "2b76fd60c6f0",
-  "verdict": "pass",
-  "summary": "test_known_terminal_background_statuses_are_not_live exercises the real hook.main -> _has_live_background_task path (only the HTTP client is faked) and parametrizes all 5 canonical statuses with case (FAILED, CANCELED) and surrounding-whitespace (' cancelled ') variants that each fail if strip()/lower() or the exact 5-string set were broken.",
-  "timestamp": "2026-07-22T17:08:02.365Z"
-}

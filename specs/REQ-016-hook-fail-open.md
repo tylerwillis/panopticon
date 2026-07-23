@@ -1,4 +1,4 @@
-# REQ-009: Fail-open in-container hooks
+# REQ-016: Fail-open in-container hooks
 
 ## Overview
 
@@ -20,17 +20,17 @@ makes.
 
 ## Requirements
 
-### REQ-009.1: Bounded input path
+### REQ-016.1: Bounded input path
 
 1. Every Panopticon-injected in-container hook MUST return control to its originating harness
    within three seconds of invocation, regardless of the control-plane outcome.
 
-### REQ-009.2: Fail-open completion
+### REQ-016.2: Fail-open completion
 
 1. A Panopticon-injected in-container hook that encounters a control-plane failure MUST return
    successfully without surfacing the failure to its originating harness.
 
-### REQ-009.3: Successful turn signals
+### REQ-016.3: Successful turn signals
 
 1. When no control-plane failure occurs, every Panopticon-injected turn-flip hook MUST produce the
    event outcome in this table:

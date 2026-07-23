@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.1.3--bcbc394bb096",
+  "requirementId": "REQ-010.1.3",
+  "hash": "bcbc394bb096",
+  "verdict": "pass",
+  "summary": "The prompt event fed a running background-task payload still asserts set_turn('agent'); an implementation leaking the Stop gate into UserPromptSubmit would leave calls empty and fail — the 'even when live' boundary is the tested case.",
+  "timestamp": "2026-07-23T18:24:35.355Z"
+}

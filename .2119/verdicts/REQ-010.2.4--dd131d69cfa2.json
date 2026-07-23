@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-010.2.4--dd131d69cfa2",
-  "requirementId": "REQ-010.2.4",
-  "hash": "dd131d69cfa2",
-  "verdict": "pass",
-  "summary": "Genuine test: only the HTTP client is faked; the real _has_live_background_task/_read_payload logic runs, and the test asserts the turn actually flips to user for absent ({}) and empty-list background_tasks payloads — it would fail if either were misclassified as live.",
-  "timestamp": "2026-07-22T17:08:02.774Z"
-}

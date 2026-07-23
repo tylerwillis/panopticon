@@ -34,7 +34,7 @@ def test_settings_wire_stop_to_user_and_prompt_to_agent() -> None:
     assert s["hooks"]["UserPromptSubmit"][0]["hooks"][0]["command"].endswith("hook agent prompt")
 
 
-# 2119: REQ-009.1.1
+# 2119: REQ-016.1.1
 def test_every_command_turn_hook_has_a_three_second_backstop() -> None:
     claude_hooks = settings()["hooks"]
     for entries in claude_hooks.values():
@@ -142,8 +142,8 @@ def _control_plane_error(kind: str) -> httpx.HTTPError:
     return httpx.HTTPStatusError(_CONTROL_PLANE_SENTINEL, request=request, response=response)
 
 
-# 2119: REQ-009.1.1
-# 2119: REQ-009.2.1
+# 2119: REQ-016.1.1
+# 2119: REQ-016.2.1
 @pytest.mark.parametrize(
     ("argv", "payload"),
     [
@@ -207,7 +207,7 @@ def test_hook_returns_success_within_bound_against_a_blackholed_service(
     assert completed.stdout == "" and completed.stderr == ""
 
 
-# 2119: REQ-009.2.1
+# 2119: REQ-016.2.1
 @pytest.mark.parametrize(
     ("argv", "payload", "successful_requests", "expected_stdout"),
     [
@@ -288,8 +288,8 @@ def test_hook_fails_open_when_a_later_control_plane_request_stalls(
     assert completed.stdout == expected_stdout and completed.stderr == ""
 
 
-# 2119: REQ-009.1.1
-# 2119: REQ-009.2.1
+# 2119: REQ-016.1.1
+# 2119: REQ-016.2.1
 def test_hook_whole_callback_deadline_bounds_cumulative_slow_responses() -> None:
     request_count = 0
 
@@ -354,7 +354,7 @@ def test_hook_whole_callback_deadline_bounds_cumulative_slow_responses() -> None
     assert completed.stdout == "" and completed.stderr == ""
 
 
-# 2119: REQ-009.2.1
+# 2119: REQ-016.2.1
 @pytest.mark.parametrize(
     ("argv", "malformed_request", "malformed_body", "expected_stdout"),
     [
@@ -424,7 +424,7 @@ def test_hook_fails_open_on_malformed_control_plane_responses(
     assert completed.stdout == expected_stdout and completed.stderr == ""
 
 
-# 2119: REQ-009.2.1
+# 2119: REQ-016.2.1
 @pytest.mark.parametrize(
     ("argv", "operation", "failure", "payload"),
     [
@@ -456,7 +456,7 @@ def test_every_shared_callback_path_fails_open_on_control_plane_errors(
     assert captured.err == ""
 
 
-# 2119: REQ-009.3.1
+# 2119: REQ-016.3.1
 def test_every_injected_turn_hook_preserves_its_event_mapping(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:

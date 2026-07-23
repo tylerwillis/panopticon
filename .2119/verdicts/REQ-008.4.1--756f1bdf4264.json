@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.4.1--756f1bdf4264",
-  "requirementId": "REQ-008.4.1",
-  "hash": "756f1bdf4264",
-  "verdict": "pass",
-  "summary": "test_user_prompt_submit_waits_for_the_turn_write blocks hook.main on a gated fake client and asserts it has not returned until the write finishes; test_claude.py pins the synchronous UserPromptSubmit command hook with actor=agent, rejecting fire-and-forget or wrong-actor wiring.",
-  "timestamp": "2026-07-22T17:07:53.833Z"
-}
