@@ -22,6 +22,7 @@ import pytest
 
 import panopticon.docker as _docker_pkg
 from panopticon.core.models import Repo
+from panopticon.sessionservice.images import ImageBuilder, _base_fingerprint
 from panopticon.sessionservice.local_runner import LocalRunner, session_name
 from panopticon.sessionservice.shell_runner import ShellRunner
 from panopticon.taskservice.api import create_app
@@ -106,6 +107,8 @@ def test_runner_spawns_real_container_that_registers_and_loses_liveness(
                     _IMAGE,
                     "--build-arg",
                     f"PANOPTICON_WHEEL={whl.name}",
+                    "--build-arg",
+                    f"PANOPTICON_BASE_FINGERPRINT={_base_fingerprint()}",
                     "--file",
                     str(dockerfile_path),
                     str(dockerfile_path.parent),
@@ -123,15 +126,44 @@ def test_runner_spawns_real_container_that_registers_and_loses_liveness(
         image=_IMAGE,
         runner_id="acceptance",
         tmux_socket=_TMUX_SOCKET,
-        # The pane normally execs the agent launcher, but that runs `claude`, which the bare
-        # base image lacks (it arrives in a later image layer) — and "no LLMs in tests" anyway.
-        # This acceptance test only proves liveness + a live tmux pane to attach to, so a
-        # stay-alive shell stands in for the agent.
+        # The pane normally execs the agent launcher, but "no LLMs in tests": this acceptance test
+        # only proves liveness + a live tmux pane to attach to, so a stay-alive shell stands in for
+        # the agent.
         agent_command=["bash"],
         extra_env={"PANOPTICON_PROPOSED_SLUG": "acc-slug"},
     )
     container = runner.spawn(task_id)
+    composed_image: str | None = None
     try:
+        # 2119: REQ-009.1
+        subprocess.run(
+            ["docker", "run", "--rm", _IMAGE, "gh", "--version"],
+            check=True,
+            capture_output=True,
+        )
+
+        workflow_layer = "RUN touch /panopticon-workflow-layer-applied"
+        composed_image = ImageBuilder(base=_IMAGE).build(
+            "claude",
+            "layered",
+            "acceptance",
+            [workflow_layer],
+        )
+        # 2119: REQ-009.3
+        subprocess.run(
+            [
+                "docker",
+                "run",
+                "--rm",
+                composed_image,
+                "bash",
+                "-c",
+                "test -f /panopticon-workflow-layer-applied && gh --version",
+            ],
+            check=True,
+            capture_output=True,
+        )
+
         # 1. the container connected back and registered (liveness)
         reg = None
         for _ in range(120):
@@ -173,6 +205,8 @@ def test_runner_spawns_real_container_that_registers_and_loses_liveness(
     finally:
         subprocess.run(["docker", "rm", "--force", container], capture_output=True)
         subprocess.run(["tmux", "-L", _TMUX_SOCKET, "kill-server"], capture_output=True)
+        if composed_image is not None:
+            subprocess.run(["docker", "rmi", "--force", composed_image], capture_output=True)
         subprocess.run(["docker", "rmi", "--force", _IMAGE], capture_output=True)
 
 

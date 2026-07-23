@@ -1,16 +1,16 @@
 """Shared base for the GitHub-forge workflows (ADR 0004, ADR 0005).
 
 `GithubForgeWorkflow` carries everything common to workflows whose code reaches GitHub and
-whose lifecycle is shepherded through a PR: the `gh` tool the agent reaches for, the image
-layer that installs it, and the forge skills (`open-pr`, `babysit-ci`, `babysit-merge`) the
-agent drives against `gh`/CI. The concrete lifecycles differ only in their **states** — a
+whose lifecycle is shepherded through a PR: the base-installed `gh` tool the agent reaches for
+and the forge skills (`open-pr`, `babysit-ci`, `babysit-merge`) the agent drives against `gh`/CI.
+The concrete lifecycles differ only in their **states** — a
 peer gates the merge (`GithubPeerReviewed`) or the user self-reviews and approves it
 (`GithubSelfReviewed`) — so each subclass supplies its own `name` + states and inherits the
 forge plumbing from here.
 
 The plan convention (artifact name, shared responsibilities, URI resolver, briefing hook)
 lives on :class:`~panopticon.workflows.planned_workflow.PlannedWorkflow`; this class extends
-it and adds the GitHub-specific layer (``gh`` tool, image layer, forge skills).
+it with the GitHub-specific surface (``gh`` tool and forge skills).
 
 This base is **abstract**: it declares no `name` value and no states, so workflow discovery
 (`workflows.discovery`) never registers or instantiates it — it keeps only classes with a
@@ -27,9 +27,9 @@ from panopticon.workflows.planned_workflow import PlannedWorkflow
 
 
 class GithubForgeWorkflow(PlannedWorkflow):
-    """Abstract base for GitHub-forge workflows: shared `gh` tool, image layer, and forge
-    skills. Concrete subclasses add a ``name`` and their states; they inherit the plumbing
-    below. Not a registrable workflow on its own (no ``name``, no states).
+    """Abstract base for GitHub-forge workflows: shared `gh` tool and forge skills.
+    Concrete subclasses add a ``name`` and their states; they inherit the plumbing below.
+    Not a registrable workflow on its own (no ``name``, no states).
 
     The plan convention (``PLAN_ARTIFACT_NAME``, ``PLAN_WRITTEN``, ``TOKEN_ESTIMATED``,
     :meth:`plan_uri`, :meth:`_briefing_extras`) is inherited from
@@ -41,7 +41,7 @@ class GithubForgeWorkflow(PlannedWorkflow):
     )
 
     def tools(self) -> Sequence[Tool]:
-        """`gh` is in the image (see `image_layer`); name it so the agent reaches for it."""
+        """Name the base-installed `gh` executable so the agent reaches for it."""
         return (
             Tool(
                 "gh",
@@ -50,10 +50,6 @@ class GithubForgeWorkflow(PlannedWorkflow):
                 "drive it.",
             ),
         )
-
-    def image_layer(self) -> str:
-        """The forge skills shell out to `gh`, so layer it onto the base image (ADR 0005)."""
-        return "RUN apt-get update && apt-get install --yes --no-install-recommends gh"
 
     def skills(self) -> Sequence[Skill]:
         """The forge skills (ADR 0004 — remote VCS is workflow-specific). The agent runs these

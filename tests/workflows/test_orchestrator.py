@@ -51,7 +51,7 @@ def test_exposes_spawn_task_and_review_task_skills() -> None:
 
 
 def test_carries_no_forge_plumbing() -> None:
-    assert WF.image_layer() == ""  # works purely through MCP — no `gh`, no image layer
+    assert WF.image_layer() == ""  # works purely through MCP — no workflow image layer
     assert tuple(WF.tools()) == ()
 
 

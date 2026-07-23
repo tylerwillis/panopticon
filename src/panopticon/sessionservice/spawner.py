@@ -466,9 +466,9 @@ class Spawner:
     def _compose_image(self, harness: Harness, workflow: str, repo: JsonObj) -> str | None:
         """Compose the task's image (base → harness → workflow → repo layers, ADR 0005) and return
         its tag; ``None`` when no tier contributes a layer (the runner falls back to the base
-        image). E.g. the codex harness layers its CLI, github-peer-reviewed layers `gh` for its
-        forge skills, then the repo layers its toolchain (`uv`, `make`). Docker layer-caches, so
-        this is a no-op once built."""
+        image). E.g. the codex harness layers its CLI, a workflow may add specialized tools, then
+        the repo layers its toolchain (`uv`, `make`). Docker layer-caches, so this is a no-op once
+        built."""
         layers = [
             harness.image_layer(),
             self._client.workflow_image_layer(workflow),

@@ -10,13 +10,14 @@ the model and gives copy-pasteable recipes for adding a workflow layer and a rep
 Each tier is a Dockerfile fragment, and the effective image is those fragments `FROM`-chained on top
 of one another:
 
-- **Base** — minimal and general: `python`, `git`, `bash`, `curl`, `tmux`; the `claude` CLI the
-  agent execs; the `panopticon` package; and the entrypoint (uid/gid remap → privilege drop). Built
-  from `src/panopticon/docker/Dockerfile` and tagged `panopticon-base` (`make build`). It is
-  deliberately **not** opinionated about any workflow or repo.
+- **Base** — minimal and general: `python`, `git`, `gh`, `bash`, `curl`, `tmux`; the `claude` CLI
+  the agent execs; the `panopticon` package; and the entrypoint (uid/gid remap → privilege drop).
+  Built from `src/panopticon/docker/Dockerfile` and tagged `panopticon-base` (`make build`). It is
+  deliberately **not** opinionated about any single workflow or repo; `gh` is shared because
+  credentials and GitHub-bound work are workflow-independent.
 - **Workflow** — a fragment a `Workflow` subclass contributes via its `image_layer()` method, adding
-  what the workflow's skills need. The GitHub-forge workflows layer in `gh`, for example, because
-  their `open-pr`/`babysit-ci`/`babysit-merge` skills shell out to it.
+  workflow-specific additions its skills need. It is empty when the base already supplies every
+  required tool, as it is for the GitHub-forge workflows.
 - **Repo** — a fragment referenced by a repo's `image_layer_file`, adding repo-specific setup:
   build toolchain, dependencies, pre-launch configuration (e.g. `uv`, `make sync`).
 
@@ -34,8 +35,10 @@ When the session service (the runner) spawns a task, it composes the image befor
 3. Otherwise it writes a Dockerfile that starts `FROM panopticon-base` and appends the fragments,
    then `docker build`s it, tagged **`panopticon-<workflow>-<repo_id>`**.
 
-Docker layer-caches the result, so a spawn whose layers haven't changed rebuilds nothing — it's a
-no-op once built. Change a layer and the next spawn rebuilds only the affected steps.
+Every spawn first compares the base image's content/version fingerprint with the packaged
+Dockerfile, entrypoint, and Panopticon release, rebuilding the static `panopticon-base` tag when it
+is missing or stale. Docker layer-caches that rebuild and the composed image, so unchanged inputs
+are cheap. Change a layer and the next spawn rebuilds only the affected steps.
 
 > Workflows whose `runner_type` is `"shell"` (e.g. `setup-repo`) run on the host with no container,
 > so they have no image and layers are ignored.
@@ -44,20 +47,19 @@ no-op once built. Change a layer and the next spawn rebuilds only the affected s
 
 Override `image_layer()` on your `Workflow` subclass to return a Dockerfile fragment string. The
 default (`core/workflow.py`) returns `""` — no layer. Everything the string contains is baked into
-the image, so use it for system-level installs your skills depend on. The real example, from
-`src/panopticon/workflows/github_forge.py`:
+the image, so use it for system-level installs your skills depend on. For example, a workflow that
+renders diagrams could add Graphviz:
 
 ```python
 def image_layer(self) -> str:
-    """The forge skills shell out to `gh`, so layer it onto the base image."""
-    return "RUN apt-get update && apt-get install --yes --no-install-recommends gh"
+    return "RUN apt-get update && apt-get install --yes --no-install-recommends graphviz"
 ```
 
 Notes:
 
 - This is distinct from `tools()` and `skills()`. `image_layer()` puts a binary **in the image**;
-  `tools()` just *names* it so the agent reaches for it, and `skills()` declares agent-driven
-  procedures. Installing `gh` and naming it are two separate declarations on the same workflow.
+  `tools()` just *names* an expected tool so the agent reaches for it, and `skills()` declares
+  agent-driven procedures. A named tool may already be installed in the base image.
 - Spell external-program flags in full (`apt-get install --yes`, `--no-install-recommends`) — they
   are self-documenting and grep-able.
 - Keep it small. The base stays general on purpose; only add what the workflow's own skills need.
@@ -71,7 +73,7 @@ A repo layer is **operator-authored** and referenced by name, so you don't touch
    example `~/.config/panopticon/layers/myrepo.dockerfile`:
 
    ```dockerfile
-   # Layered on top of base → workflow, so gh (etc.) is already present.
+   # Layered on top of base → workflow, so shared tools such as gh are already present.
    RUN curl --location --silent https://astral.sh/uv/install.sh | sh
    ```
 
@@ -96,8 +98,10 @@ absolute paths) are rejected; nested names (`team/myrepo.dockerfile`) are allowe
   own layers dir. With a single host that's your machine; with remote runners (M5), place a
   same-named file under each runner host's layers dir.
 - **Rebuilds & cleanup.** Editing a layer rebuilds the affected steps on the next spawn (Docker
-  caches the rest). `make clean` removes `panopticon-base` and every composed `panopticon-*` image;
-  `make build` rebuilds the base.
+  caches the rest). A packaged base-input or version change also refreshes a stale base
+  automatically. `make clean` removes `panopticon-base` and every composed `panopticon-*` image;
+  `make build` rebuilds the base immediately with the current development wheel. Changes to
+  package code outside the fingerprinted Dockerfile/entrypoint/version still require `make build`.
 - **Elevated privileges are a capability, not a layer.** Docker-in-Docker is opt-in via the repo's
   `capabilities` map (`docker_in_docker`), which makes the runner spawn `--privileged` and the
   entrypoint start a nested daemon — it is not something you add through a Dockerfile fragment.

@@ -329,14 +329,14 @@ class Workflow(ABC):
         return ()
 
     def tools(self) -> Sequence[Tool]:
-        """Command-line tools this workflow's container provides beyond the base shell/git — named
-        so the agent's system prompt can tell it what to use (e.g. github-peer-reviewed's `gh`). Declared as data;
-        the *install* is :meth:`image_layer`. Default none; a workflow overrides this."""
+        """Command-line tools this workflow expects, named so the agent's system prompt can tell it
+        what to use (e.g. github-peer-reviewed's base-installed `gh`). Declared independently of
+        the image tier that installs the tool. Default none; a workflow overrides this."""
         return ()
 
     def image_layer(self) -> str:
         """The workflow's Docker image layer (ADR 0005): a Dockerfile fragment appended on top of
-        the base image with what this workflow's skills need (e.g. `gh` for forge). Default none;
+        the base image with workflow-specific additions its skills need. Default none;
         the runner composes base → workflow → repo into the task's image. Ignored when
         :attr:`runner_type` is ``"shell"`` (there is no image)."""
         return ""

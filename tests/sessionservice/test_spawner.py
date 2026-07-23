@@ -445,7 +445,7 @@ class _FakeImageBuilder:
 
 def test_spawn_one_composes_the_workflow_image_when_it_has_a_layer() -> None:
     client, runner = (
-        _FakeClient(repo=_REPO, image_layer="RUN apt-get install --yes gh"),
+        _FakeClient(repo=_REPO, image_layer="RUN apt-get install --yes graphviz"),
         _FakeRunner(),
     )
     images = _FakeImageBuilder()
@@ -470,7 +470,7 @@ def test_spawn_one_composes_the_workflow_image_when_it_has_a_layer() -> None:
         }
     )
     assert images.built == [
-        ("claude", "github-peer-reviewed", "r1", ["RUN apt-get install --yes gh"])
+        ("claude", "github-peer-reviewed", "r1", ["RUN apt-get install --yes graphviz"])
     ]  # composed base → layer (harness first: the claude tier is empty today)
     assert (
         runner.spawned[0]["image"] == "panopticon-claude-github-peer-reviewed-r1"
@@ -478,11 +478,13 @@ def test_spawn_one_composes_the_workflow_image_when_it_has_a_layer() -> None:
 
 
 def test_spawn_one_composes_workflow_then_repo_layers() -> None:
-    # base → workflow (gh) → repo (toolchain), in that order (ADR 0005 tiers). The repo layer is
-    # fetched over REST (repo_image_layer), not read inline off the repo record.
+    # base → workflow (graphviz) → repo (toolchain), in that order (ADR 0005 tiers). The repo layer
+    # is fetched over REST (repo_image_layer), not read inline off the repo record.
     repo = {**_REPO, "image_layer_file": "r1.layer"}
     client = _FakeClient(
-        repo=repo, image_layer="RUN apt-get install --yes gh", repo_layer="RUN pip install uv"
+        repo=repo,
+        image_layer="RUN apt-get install --yes graphviz",
+        repo_layer="RUN pip install uv",
     )
     runner, images = _FakeRunner(), _FakeImageBuilder()
     cache = CloneCache("/cache", run=_no_op_run, exists=lambda _p: True, makedirs=lambda _p: None)  # type: ignore[arg-type]
@@ -510,7 +512,7 @@ def test_spawn_one_composes_workflow_then_repo_layers() -> None:
             "claude",
             "github-peer-reviewed",
             "r1",
-            ["RUN apt-get install --yes gh", "RUN pip install uv"],
+            ["RUN apt-get install --yes graphviz", "RUN pip install uv"],
         )
     ]
     assert runner.spawned[0]["image"] == "panopticon-claude-github-peer-reviewed-r1"
