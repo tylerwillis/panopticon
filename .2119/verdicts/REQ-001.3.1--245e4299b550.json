@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.3.1--245e4299b550",
+  "requirementId": "REQ-001.3.1",
+  "hash": "245e4299b550",
+  "verdict": "pass",
+  "summary": "Parametrized test drives both No-click and Escape through the real dialog, asserting return to WorkflowsScreen and that the workflow file still exists with its content; only the service client is faked.",
+  "timestamp": "2026-07-23T18:22:08.342Z"
+}

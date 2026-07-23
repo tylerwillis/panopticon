@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.2.1--3118f2328836",
+  "requirementId": "REQ-006.2.1",
+  "hash": "3118f2328836",
+  "verdict": "pass",
+  "summary": "Modal tests assert exact rendered list equality with live+failed distractors excluded (every/only) and a post-refresh swapped snapshot with one newly-down task (latest, at-least-one boundary); real Dashboard driven via ctrl+r, fake stubs only the transport.",
+  "timestamp": "2026-07-23T18:23:10.949Z"
+}

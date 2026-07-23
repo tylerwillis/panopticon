@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.2.1--a1f7fe691500",
+  "requirementId": "REQ-007.2.1",
+  "hash": "a1f7fe691500",
+  "verdict": "pass",
+  "summary": "Real Textual run asserts pane render ends with the exact hint line and a dim span covers precisely that trailing segment; text, position, and dimness violations each fail.",
+  "timestamp": "2026-07-23T18:24:42.544Z"
+}

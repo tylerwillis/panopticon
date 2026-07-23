@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.3.1--3716d7fb0261",
+  "requirementId": "REQ-007.3.1",
+  "hash": "3716d7fb0261",
+  "verdict": "pass",
+  "summary": "Test calls real render_detail on a hint-free fixture and asserts the exact implementation hint literal absent as substring and as a full line; the paired positive assertion anchors the literal to the real UI hint, so adding the line in render_detail would fail it.",
+  "timestamp": "2026-07-23T18:25:01.458Z"
+}

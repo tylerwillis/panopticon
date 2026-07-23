@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.3.1--2396f0176552",
+  "requirementId": "REQ-006.3.1",
+  "hash": "2396f0176552",
+  "verdict": "pass",
+  "summary": "Test opens the real modal, presses Escape, and asserts both conjuncts: screen_stack returns to 1 (dismissed) and fake.released stays empty (no release_claim call); either violation would fail it.",
+  "timestamp": "2026-07-23T18:23:38.510Z"
+}

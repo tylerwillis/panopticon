@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.3--219c54d551f8",
+  "requirementId": "REQ-006.4.3",
+  "hash": "219c54d551f8",
+  "verdict": "pass",
+  "summary": "Tests assert exactly one 'respawned N' notification with N tied to actual releases (2 after two releases; 0 when the sole candidate recovered mid-confirm, distinguishing released-count from candidate-count), verified both via patched notify and the unpatched app._notifications surface.",
+  "timestamp": "2026-07-23T18:23:49.555Z"
+}

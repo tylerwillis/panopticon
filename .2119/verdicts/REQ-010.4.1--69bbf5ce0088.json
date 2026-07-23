@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-010.4.1--69bbf5ce0088",
-  "requirementId": "REQ-010.4.1",
-  "hash": "69bbf5ce0088",
-  "verdict": "pass",
-  "summary": "Both incomplete-discovery cases constructed (in-flight blocked on an event; not-yet-started with the prefetch worker wedged so only the cycle can discover); name-tagged model+effort suggesters asserted immediately after the cycle keypress, so a fire-and-forget cycle or stale-harness presentation fails.",
-  "timestamp": "2026-07-23T18:06:23.757Z"
-}

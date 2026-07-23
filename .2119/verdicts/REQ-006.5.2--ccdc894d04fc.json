@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.5.2--ccdc894d04fc",
+  "requirementId": "REQ-006.5.2",
+  "hash": "ccdc894d04fc",
+  "verdict": "pass",
+  "summary": "Real ctrl+r keypress with no down tasks asserts screen_stack stays 1 and captured push_screen is empty; parametrized over every non-down status (incl. failed/disconnected/terminal '–') and an empty snapshot, with a snapshot-swap proving confirmation reads the latest fetch — a sibling test shows the same keypress does open BulkRespawnScreen when a down task exists, so the no-modal assertions are behavioral, not vacuous",
+  "timestamp": "2026-07-23T18:24:27.367Z"
+}

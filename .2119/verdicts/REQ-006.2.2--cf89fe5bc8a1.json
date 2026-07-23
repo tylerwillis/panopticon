@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.2.2--cf89fe5bc8a1",
-  "requirementId": "REQ-006.2.2",
-  "hash": "cf89fe5bc8a1",
-  "verdict": "pass",
-  "summary": "test_bulk_respawn_binding_lists_only_down_tasks_for_confirmation exercises the real _bulk_respawn_line via rendered modal text and covers every boundary: 8-char id truncation, dash for unset slug, memo omitted when None, whitespace normalization, exact-60-char memo with no ellipsis, and a 61-char-after-normalization memo forcing normalize-before-truncate ordering.",
-  "timestamp": "2026-07-22T17:08:42.440Z"
-}

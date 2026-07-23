@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.2.2--a0cbcb006a93",
+  "requirementId": "REQ-006.2.2",
+  "hash": "a0cbcb006a93",
+  "verdict": "pass",
+  "summary": "Exact full-line assertions on the rendered modal cover every conjunct with boundary counterexamples: 8-char ID prefix, en-dash for a null slug, whitespace-normalized memo (internal runs, newline, padding), exactly-60-char memo without ellipsis, 61-char normalized memo truncated with …, and no memo segment when memo is None; rendering runs through the real Textual screen, not mocks.",
+  "timestamp": "2026-07-23T18:23:25.462Z"
+}

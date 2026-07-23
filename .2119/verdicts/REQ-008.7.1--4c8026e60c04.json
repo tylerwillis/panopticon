@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.7.1--4c8026e60c04",
+  "requirementId": "REQ-008.7.1",
+  "hash": "4c8026e60c04",
+  "verdict": "pass",
+  "summary": "Seed mutates the task inside the versioned seed call and quiets the feed, so a discarded seed snapshot or an unversioned first paint both fail; asserts rendered table content.",
+  "timestamp": "2026-07-23T18:25:30.788Z"
+}

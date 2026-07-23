@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.4.1--6716d8125675",
+  "requirementId": "REQ-010.4.1",
+  "hash": "6716d8125675",
+  "verdict": "pass",
+  "summary": "Both annotated tests force the not-yet-complete state (blocked in-flight and never-started discovery), then assert the target harness's model/effort suggesters are populated immediately after the cycle keypress with exactly one discovery call — a cycle presenting stale or empty suggestions would fail.",
+  "timestamp": "2026-07-23T18:25:42.780Z"
+}

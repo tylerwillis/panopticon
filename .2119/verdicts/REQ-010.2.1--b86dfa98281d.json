@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.2.1--b86dfa98281d",
+  "requirementId": "REQ-010.2.1",
+  "hash": "b86dfa98281d",
+  "verdict": "pass",
+  "summary": "Fake harness registry counts real suggested_models/suggested_efforts invocations: _wait_for fails if any of 4 registered harnesses (incl. outfitter) is discovered <1 time, and 12 Enter-cycles (3 full loops) then asserting counts==1 rejects per-cycle re-discovery; early-close and failure-path companions keep the exactly-once bound.",
+  "timestamp": "2026-07-23T18:25:19.245Z"
+}

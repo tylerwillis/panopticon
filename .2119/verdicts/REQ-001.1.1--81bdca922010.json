@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.1.1--81bdca922010",
+  "requirementId": "REQ-001.1.1",
+  "hash": "81bdca922010",
+  "verdict": "pass",
+  "summary": "x pressed via real Textual pilot opens a confirmation dialog naming the highlighted operator workflow; highlight-targeting, built-in refusal, and cancel-without-delete counterexamples all covered",
+  "timestamp": "2026-07-23T18:22:40.081Z"
+}

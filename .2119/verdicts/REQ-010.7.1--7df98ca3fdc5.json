@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.7.1--7df98ca3fdc5",
+  "requirementId": "REQ-010.7.1",
+  "hash": "7df98ca3fdc5",
+  "verdict": "pass",
+  "summary": "Test blocks in-flight discovery for the selected harness, closes the modal, releases it, and asserts all widget state incl. suggester object identity is unchanged — removing the is_attached guard would swap suggesters and fail it",
+  "timestamp": "2026-07-23T18:26:31.352Z"
+}

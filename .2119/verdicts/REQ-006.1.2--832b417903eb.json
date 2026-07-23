@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.1.2--832b417903eb",
+  "requirementId": "REQ-006.1.2",
+  "hash": "832b417903eb",
+  "verdict": "pass",
+  "summary": "test_help_screen_documents_bulk_respawn_binding renders the live HelpScreen and asserts exactly one 'Ctrl+R Respawn all down tasks' line; missing, misdescribed, or duplicated entries all fail",
+  "timestamp": "2026-07-23T18:23:03.949Z"
+}

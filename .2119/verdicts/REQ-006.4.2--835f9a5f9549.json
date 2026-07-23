@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.2--835f9a5f9549",
+  "requirementId": "REQ-006.4.2",
+  "hash": "835f9a5f9549",
+  "verdict": "pass",
+  "summary": "Test reverses service order vs display order and asserts exact release event sequence plus max_active_releases==1 (sleep-forced overlap), failing on both out-of-order and concurrent processing",
+  "timestamp": "2026-07-23T18:23:36.039Z"
+}

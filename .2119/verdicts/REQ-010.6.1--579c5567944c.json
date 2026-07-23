@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-010.6.1--579c5567944c",
-  "requirementId": "REQ-010.6.1",
-  "hash": "579c5567944c",
-  "verdict": "pass",
-  "summary": "Real escape-close with discovery thread provably blocked in-flight, then a genuine RuntimeError on release; test rejects both operator-visible surfaces (captured app.notify must stay empty; a propagating worker error would panic the app).",
-  "timestamp": "2026-07-23T17:44:04.229Z"
-}

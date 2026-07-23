@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.4.4--5c8541266992",
-  "requirementId": "REQ-006.4.4",
-  "hash": "5c8541266992",
-  "verdict": "pass",
-  "summary": "Mid-confirmation status change forced; fake.released excludes the recovered task across all 11 non-down statuses, exercising the confirmation-time re-check and release gate.",
-  "timestamp": "2026-07-22T17:09:17.049Z"
-}

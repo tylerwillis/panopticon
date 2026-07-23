@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-007.2.1--6dc37b665899",
-  "requirementId": "REQ-007.2.1",
-  "hash": "6dc37b665899",
-  "verdict": "pass",
-  "summary": "Rendered pane must end with the exact literal hint line and carry a resolved dim=True span over exactly that range via the real rendering pipeline; wrong text, non-dim, or non-trailing placement all fail.",
-  "timestamp": "2026-07-22T17:09:19.030Z"
-}
