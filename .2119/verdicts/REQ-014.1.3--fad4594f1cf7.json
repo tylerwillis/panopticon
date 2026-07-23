@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.1.3--fad4594f1cf7",
+  "requirementId": "REQ-014.1.3",
+  "hash": "fad4594f1cf7",
+  "verdict": "pass",
+  "summary": "User-advanced fixture otherwise fully qualifies (single derivable advance, all responsibilities resolved) so advanced_by is the sole discriminator; mutation forcing advanced_by=AGENT makes the test fail",
+  "timestamp": "2026-07-23T17:57:48.830Z"
+}

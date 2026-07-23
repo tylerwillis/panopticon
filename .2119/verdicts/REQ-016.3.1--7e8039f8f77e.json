@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-016.3.1--7e8039f8f77e",
+  "requirementId": "REQ-016.3.1",
+  "hash": "7e8039f8f77e",
+  "verdict": "pass",
+  "summary": "All ten table rows verified compositionally: exact config equality binds each Claude/Codex event to its callback argv, real subprocesses against a live HTTP server plus in-process hook.main bind argv to the resulting turn write (incl. live-background Stop = no write, i.e. unchanged), and pi's real rendered extension runs under node asserting agent_end->user, input->agent via PUT .../turn; any swapped mapping breaks an equality assertion.",
+  "timestamp": "2026-07-23T18:26:09.920Z"
+}

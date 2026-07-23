@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.3.2--e766e280d8a8",
+  "requirementId": "REQ-014.3.2",
+  "hash": "e766e280d8a8",
+  "verdict": "pass",
+  "summary": "Cascade test enters MIDDLE (agent-advanced, zero responsibilities, single forward transition — satisfies every auto-advance condition) via a real auto-advance and asserts it stays there; a chaining implementation would land at COMPLETE and fail, and the sibling REQ-014.3.1 test covers set_state entry into the same qualifying state.",
+  "timestamp": "2026-07-23T17:55:54.446Z"
+}

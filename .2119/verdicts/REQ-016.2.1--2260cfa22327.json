@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-016.2.1--2260cfa22327",
+  "requirementId": "REQ-016.2.1",
+  "hash": "2260cfa22327",
+  "verdict": "pass",
+  "summary": "Exit-0 + empty-stderr asserted end-to-end across every spec-defined failure class (connection, stall, malformed/protocol, 503, timeout) per callback path, and Pi handlers settle on rejected/503 fetches; mutation-verified: a re-raising hook and a no-catch Pi extension both fail the tests.",
+  "timestamp": "2026-07-23T18:30:30.834Z"
+}

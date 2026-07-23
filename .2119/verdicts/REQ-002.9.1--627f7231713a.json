@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.9.1--627f7231713a",
-  "requirementId": "REQ-002.9.1",
-  "hash": "627f7231713a",
-  "verdict": "pass",
-  "summary": "Verifies review_harness/review_model default to None on the Workflow base and appear in its annotations; a non-None default or missing attribute fails, and sibling REQ-002.10/.11 tests prove declared pairs are honored.",
-  "timestamp": "2026-07-22T06:08:36.102Z"
-}

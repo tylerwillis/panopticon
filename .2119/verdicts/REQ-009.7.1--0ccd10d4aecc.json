@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.7.1--0ccd10d4aecc",
-  "requirementId": "REQ-009.7.1",
-  "hash": "0ccd10d4aecc",
-  "verdict": "pass",
-  "summary": "Real task-service tests force validation, disabled-workflow, and persistence creation failures and require the author transition to return and persist REVIEW.",
-  "timestamp": "2026-07-22T15:07:53.379Z"
-}

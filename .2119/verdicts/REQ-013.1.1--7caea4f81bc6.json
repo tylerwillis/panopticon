@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-013.1.1--7caea4f81bc6",
+  "requirementId": "REQ-013.1.1",
+  "hash": "7caea4f81bc6",
+  "verdict": "pass",
+  "summary": "Exactly-one verified via before/after id-set difference, concurrent double-advance, and per-reentry freshness; double-creation and no-creation mutants each empirically fail the annotated tests.",
+  "timestamp": "2026-07-23T17:57:46.566Z"
+}

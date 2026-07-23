@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.3.3--42833fb6d290",
+  "requirementId": "REQ-010.3.3",
+  "hash": "42833fb6d290",
+  "verdict": "pass",
+  "summary": "Parametrized over both initial marker values with a post-write reload; a mutant clearing blocked on turn-to-user empirically fails the initially-blocked case.",
+  "timestamp": "2026-07-23T17:57:38.450Z"
+}

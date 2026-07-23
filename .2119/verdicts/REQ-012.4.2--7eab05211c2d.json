@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.4.2--7eab05211c2d",
+  "requirementId": "REQ-012.4.2",
+  "hash": "7eab05211c2d",
+  "verdict": "pass",
+  "summary": "Repo-derived and workflow-derived tasks re-fetched after both default sources change to different values still show creation-time harness/model; read-time resolution would fail; the workflow monkeypatch alters the live instance's class attrs, not the path under test",
+  "timestamp": "2026-07-23T18:16:25.341Z"
+}

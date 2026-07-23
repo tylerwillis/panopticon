@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.1.4--9ba75cf8919e",
-  "requirementId": "REQ-009.1.4",
-  "hash": "9ba75cf8919e",
-  "verdict": "pass",
-  "summary": "_Ambiguous reproduces the requirement's own example (two forward transitions, no declared advance) and confirms the state does not change, matching _resolve_operations' real non-derivation of 'advance' for that shape.",
-  "timestamp": "2026-07-23T10:07:55.908Z"
-}

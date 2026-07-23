@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.2.4--694c2da40b05",
+  "requirementId": "REQ-012.2.4",
+  "hash": "694c2da40b05",
+  "verdict": "pass",
+  "summary": "test_app_default_harness_is_materialized_on_the_task monkeypatches DEFAULT_HARNESS to codex (read dynamically via get_harness, verified) and reads the persisted harness back via GET /tasks/{id}; a null-sentinel or hardcoded-claude violation fails the assert",
+  "timestamp": "2026-07-23T18:15:55.223Z"
+}

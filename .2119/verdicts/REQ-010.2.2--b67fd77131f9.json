@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.2.2--b67fd77131f9",
+  "requirementId": "REQ-010.2.2",
+  "hash": "b67fd77131f9",
+  "verdict": "pass",
+  "summary": "All five terminal tokens are asserted to flip the turn, with case (FAILED, CANCELED) and surrounding-whitespace (' cancelled ') variants; a case-sensitive or non-stripping comparator fails, and the unknown-status live test bounds the terminal set from above.",
+  "timestamp": "2026-07-23T18:24:36.202Z"
+}

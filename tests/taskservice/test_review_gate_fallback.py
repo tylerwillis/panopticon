@@ -50,7 +50,7 @@ async def _make_service(tmp_path: Path) -> TaskService:
     return service
 
 
-# 2119: REQ-009.9.1
+# 2119: REQ-013.9.1
 @pytest.mark.parametrize("destination", ["DRAFT", "WORKING", "COMPLETE", "DROPPED"])
 async def test_review_creation_failure_allows_every_free_move_destination(
     tmp_path: Path, destination: str

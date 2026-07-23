@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.10.1--ef60922c9d5d",
+  "requirementId": "REQ-002.10.1",
+  "hash": "ef60922c9d5d",
+  "verdict": "pass",
+  "summary": "Both half-declared counterexamples (harness-only and model-only) are rejected via validate_registration — the same gate the registry/service registration paths invoke — and a sibling test accepts the fully-declared pair, pinning the 'exactly one' boundary.",
+  "timestamp": "2026-07-23T17:38:26.237Z"
+}

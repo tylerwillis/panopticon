@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.3.1--a9b697c9a23e",
+  "requirementId": "REQ-008.3.1",
+  "hash": "a9b697c9a23e",
+  "verdict": "pass",
+  "summary": "Parametrized over both automatic-clear paths (agent-turn, state change), verifies the clear actually happened, then persists blocked=True AND re-clears to False — 'the requested value' is tested in both directions, defeating a hardcoded-True implementation; asserted on store reload.",
+  "timestamp": "2026-07-23T17:57:09.283Z"
+}

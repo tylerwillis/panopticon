@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.12.1--20d60b3b824e",
-  "requirementId": "REQ-009.12.1",
-  "hash": "20d60b3b824e",
-  "verdict": "pass",
-  "summary": "PASS: declared and free-move transitions into REVIEW with both review-pair fields unset assert an empty current responsibility list, so any seeded review-addressed responsibility is rejected.",
-  "timestamp": "2026-07-22T15:10:29.912Z"
-}

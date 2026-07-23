@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.9.1--18398c7bfb30",
+  "requirementId": "REQ-002.9.1",
+  "hash": "18398c7bfb30",
+  "verdict": "pass",
+  "summary": "Test asserts both class attributes default to None and are declared in Workflow.__annotations__; a sibling test proves the pair is settable and valid, so optional-with-unset-default is genuinely pinned.",
+  "timestamp": "2026-07-23T17:38:25.843Z"
+}

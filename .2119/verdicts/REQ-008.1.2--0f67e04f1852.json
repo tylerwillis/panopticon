@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.1.2--0f67e04f1852",
+  "requirementId": "REQ-008.1.2",
+  "hash": "0f67e04f1852",
+  "verdict": "pass",
+  "summary": "Parametrized over both initial blocked values, so a turn-to-user write that clears (True case) or sets (False case) the marker would fail; preservation is asserted on a store reload, no mocks.",
+  "timestamp": "2026-07-23T17:57:01.291Z"
+}

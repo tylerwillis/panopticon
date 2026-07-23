@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-016.1.1--89f1c09518cd",
+  "requirementId": "REQ-016.1.1",
+  "hash": "89f1c09518cd",
+  "verdict": "pass",
+  "summary": "Real-subprocess blackhole/slow-cumulative tests assert <3s exit for every command-hook argv (Claude+Codex share the callback; timeout:3 backstop pinned in both configs) and the Pi probe bounds agent_end+input; mutation-verified: removing the Pi abort signal/timeout and the Python deadline+HTTP timeout each make the tests fail.",
+  "timestamp": "2026-07-23T18:30:26.323Z"
+}

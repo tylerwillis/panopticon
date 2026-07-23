@@ -214,7 +214,8 @@ class Repo:
     #: default never re-routes existing tasks.
     default_harness: str | None = None
     #: Harness-scoped model/effort string (for example ``"gpt-5.6-sol:high"``). Opaque to the
-    #: control plane; harness adapters own their vocabulary.
+    #: control plane; harness adapters own their vocabulary. A non-null model requires a
+    #: non-null :attr:`default_harness`, so the vocabulary always has an explicit owner.
     default_model: str | None = None
 
 
@@ -300,8 +301,9 @@ class Task:
     starting_model: str | None = None
     #: Which agent-CLI **harness** runs this task's container (``"claude"``, ``"codex"``, …) —
     #: an opaque name the control plane records and the container/runner resolve against the
-    #: harness registry (:mod:`panopticon.harnesses`). Validated at creation; ``None`` means the
-    #: default (claude). Like ``starting_model``, recorded — never interpreted — here.
+    #: harness registry (:mod:`panopticon.harnesses`). Validated and materialized at creation;
+    #: ``None`` remains readable for legacy rows and resolves to the current application default.
+    #: Like ``starting_model``, recorded — never interpreted — here.
     harness: str | None = None
     #: The task that *governs* (oversees) this one — its ``id``. Set by the orchestrator on the
     #: tasks it creates so the relationship is recorded; also settable manually via

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.6--9babe6d024b0",
+  "requirementId": "REQ-009.1.6",
+  "hash": "9babe6d024b0",
+  "verdict": "pass",
+  "summary": "Two distinct State classes both labeled 'X' raise InvalidWorkflow at resolution — the exact almost-conforming duplicate the requirement forbids, tested without mocks",
+  "timestamp": "2026-07-23T17:38:57.110Z"
+}

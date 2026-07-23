@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.3.3--308137e1d65a",
-  "requirementId": "REQ-009.3.3",
-  "hash": "308137e1d65a",
-  "verdict": "pass",
-  "summary": "Parametrized over the three named rejection cases (unknown key, explicit PENDING, FAILED w/o comment) against the very last outstanding responsibility, then reloads from the store independently to confirm no transition and no silent resolution occurred.",
-  "timestamp": "2026-07-23T10:07:58.251Z"
-}

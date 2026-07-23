@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.4.1--410404118579",
+  "requirementId": "REQ-009.4.1",
+  "hash": "410404118579",
+  "verdict": "pass",
+  "summary": "Entry seeding asserts every declared key is PENDING with its description on the new history entry; the force-transition re-entry test proves 'fresh copy' — the second WORKING entry gets distinct PENDING objects (identity-checked) while the first entry's MET resolutions persist, rejecting shared/carried-over responsibilities.",
+  "timestamp": "2026-07-23T17:40:16.122Z"
+}

@@ -80,11 +80,11 @@ async def _make_service(tmp_path: Path, *, store: SqlAlchemyStore | None = None)
     return service
 
 
-# 2119: REQ-009.1.1
-# 2119: REQ-009.2.1
-# 2119: REQ-009.3.1
-# 2119: REQ-009.4.1
-# 2119: REQ-009.5.1
+# 2119: REQ-013.1.1
+# 2119: REQ-013.2.1
+# 2119: REQ-013.3.1
+# 2119: REQ-013.4.1
+# 2119: REQ-013.5.1
 async def test_review_entry_creates_governed_worker_and_blocks_author(tmp_path: Path) -> None:
     service = await _make_service(tmp_path)
     author = await service.create_task(
@@ -109,8 +109,8 @@ async def test_review_entry_creates_governed_worker_and_blocks_author(tmp_path: 
     ] == [("review-addressed", Status.PENDING)]
 
 
-# 2119: REQ-009.6.1
-# 2119: REQ-009.12.1
+# 2119: REQ-013.6.1
+# 2119: REQ-013.12.1
 async def test_unpaired_review_entry_does_not_create_worker_or_responsibility(
     tmp_path: Path,
 ) -> None:
@@ -125,8 +125,8 @@ async def test_unpaired_review_entry_does_not_create_worker_or_responsibility(
     assert reloaded.current_entry.responsibilities == []
 
 
-# 2119: REQ-009.6.1
-# 2119: REQ-009.12.1
+# 2119: REQ-013.6.1
+# 2119: REQ-013.12.1
 async def test_unpaired_free_move_into_review_has_no_review_gate_effects(tmp_path: Path) -> None:
     service = await _make_service(tmp_path)
     author = await service.create_task("r1", "unpaired-authoring", harness="claude")
@@ -139,8 +139,8 @@ async def test_unpaired_free_move_into_review_has_no_review_gate_effects(tmp_pat
     assert reloaded.current_entry.responsibilities == []
 
 
-# 2119: REQ-009.1.1
-# 2119: REQ-009.4.1
+# 2119: REQ-013.1.1
+# 2119: REQ-013.4.1
 async def test_paired_free_move_into_review_runs_the_review_gate(tmp_path: Path) -> None:
     service = await _make_service(tmp_path)
     author = await service.create_task("r1", "paired-authoring", harness="claude")
@@ -159,7 +159,7 @@ async def test_paired_free_move_into_review_runs_the_review_gate(tmp_path: Path)
     ]
 
 
-# 2119: REQ-009.11.1
+# 2119: REQ-013.11.1
 @pytest.mark.parametrize("destination", ["DRAFT", "WORKING", "COMPLETE", "DROPPED"])
 async def test_paired_workflow_does_not_create_review_worker_outside_review(
     tmp_path: Path, destination: str
@@ -175,10 +175,10 @@ async def test_paired_workflow_does_not_create_review_worker_outside_review(
     assert reloaded.current_entry.responsibilities == []
 
 
-# 2119: REQ-009.4.1
-# 2119: REQ-009.7.1
-# 2119: REQ-009.8.1
-# 2119: REQ-009.9.1
+# 2119: REQ-013.4.1
+# 2119: REQ-013.7.1
+# 2119: REQ-013.8.1
+# 2119: REQ-013.9.1
 async def test_review_creation_failure_is_recorded_nonfatal_and_allows_free_move(
     tmp_path: Path,
 ) -> None:
@@ -203,10 +203,10 @@ async def test_review_creation_failure_is_recorded_nonfatal_and_allows_free_move
     assert (await service.get_task(author.id)).state == "COMPLETE"
 
 
-# 2119: REQ-009.4.1
-# 2119: REQ-009.7.1
-# 2119: REQ-009.8.1
-# 2119: REQ-009.9.1
+# 2119: REQ-013.4.1
+# 2119: REQ-013.7.1
+# 2119: REQ-013.8.1
+# 2119: REQ-013.9.1
 async def test_disabled_review_workflow_is_a_nonfatal_creation_failure(tmp_path: Path) -> None:
     service = await _make_service(tmp_path)
     await service.update_repo("r1", {"disabled_workflows": ["review"]})
@@ -229,10 +229,10 @@ async def test_disabled_review_workflow_is_a_nonfatal_creation_failure(tmp_path:
     assert (await service.get_task(author.id)).state == "COMPLETE"
 
 
-# 2119: REQ-009.4.1
-# 2119: REQ-009.7.1
-# 2119: REQ-009.8.1
-# 2119: REQ-009.9.1
+# 2119: REQ-013.4.1
+# 2119: REQ-013.7.1
+# 2119: REQ-013.8.1
+# 2119: REQ-013.9.1
 async def test_review_store_failure_is_recorded_nonfatal_and_allows_free_move(
     tmp_path: Path,
 ) -> None:
@@ -255,7 +255,7 @@ async def test_review_store_failure_is_recorded_nonfatal_and_allows_free_move(
     assert (await service.get_task(author.id)).state == "COMPLETE"
 
 
-# 2119: REQ-009.1.1
+# 2119: REQ-013.1.1
 async def test_concurrent_review_entry_creates_exactly_one_worker(tmp_path: Path) -> None:
     service = await _make_service(tmp_path)
     author = await service.create_task("r1", "paired-authoring", harness="claude")
@@ -274,9 +274,9 @@ async def test_concurrent_review_entry_creates_exactly_one_worker(tmp_path: Path
     assert [entry.to_state for entry in reloaded.history] == ["DRAFT", "REVIEW"]
 
 
-# 2119: REQ-009.1.1
-# 2119: REQ-009.4.1
-# 2119: REQ-009.10.1
+# 2119: REQ-013.1.1
+# 2119: REQ-013.4.1
+# 2119: REQ-013.10.1
 async def test_each_review_reentry_creates_a_fresh_worker(tmp_path: Path) -> None:
     service = await _make_service(tmp_path)
     author = await service.create_task("r1", "paired-authoring", harness="claude")

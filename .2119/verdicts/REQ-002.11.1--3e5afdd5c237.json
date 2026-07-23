@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.11.1--3e5afdd5c237",
+  "requirementId": "REQ-002.11.1",
+  "hash": "3e5afdd5c237",
+  "verdict": "pass",
+  "summary": "Unregistered 'cursor' review_harness is rejected against a registered set {claude,codex} through the real validate_registration gate; the nearest conforming case (registered 'codex') is accepted by a sibling test.",
+  "timestamp": "2026-07-23T17:38:26.656Z"
+}

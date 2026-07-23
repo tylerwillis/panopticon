@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.8.1--108221ff2142",
-  "requirementId": "REQ-009.8.1",
-  "hash": "108221ff2142",
-  "verdict": "pass",
-  "summary": "Tests drive real transitions into REVIEW across validation, disabled-workflow, and persistence failures, then assert the current history note contains each failure reason.",
-  "timestamp": "2026-07-22T15:09:08.439Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.5.2--7aa7ba42e7b1",
+  "requirementId": "REQ-009.5.2",
+  "hash": "7aa7ba42e7b1",
+  "verdict": "pass",
+  "summary": "force_transition to the nonexistent label GHOST is asserted to raise InvalidWorkflow, in the same test where an off-graph-but-existing destination (WORKING->PLAN) succeeds — the rejection is specific to non-states, not blanket; an accepting mutant cannot satisfy pytest.raises.",
+  "timestamp": "2026-07-23T17:45:29.845Z"
+}

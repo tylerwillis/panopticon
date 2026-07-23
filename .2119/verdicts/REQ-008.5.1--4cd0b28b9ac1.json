@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.5.1--4cd0b28b9ac1",
+  "requirementId": "REQ-008.5.1",
+  "hash": "4cd0b28b9ac1",
+  "verdict": "pass",
+  "summary": "Codex config.toml pins UserPromptSubmit verbatim to 'python -m panopticon.container.hook agent prompt', and the gated-client test proves hook.main stays alive until set_turn('agent') completes (fire-and-forget would trip the thread.is_alive assertion); module __main__ routes to the tested main().",
+  "timestamp": "2026-07-23T18:24:19.710Z"
+}

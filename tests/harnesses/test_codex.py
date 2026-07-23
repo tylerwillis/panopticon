@@ -229,7 +229,7 @@ def _seed_session(home: Path) -> None:
     (rollouts / "rollout-1.jsonl").write_text("{}")
 
 
-# 2119: REQ-009.1.1
+# 2119: REQ-015.1.1
 def test_argv_preserves_scrollback_for_new_and_resumed_sessions(tmp_path: Path) -> None:
     assert "--no-alt-screen" in HARNESS.argv(_ctx(tmp_path))
     _seed_session(tmp_path)

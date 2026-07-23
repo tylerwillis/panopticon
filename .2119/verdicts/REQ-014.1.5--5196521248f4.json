@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.1.5--5196521248f4",
+  "requirementId": "REQ-014.1.5",
+  "hash": "5196521248f4",
+  "verdict": "pass",
+  "summary": "Same test asserts state stays WORKING with outstanding_responsibilities empty — rejects the nearest violation (rolling back the resolution when no advance is available); persistence of resolutions is proven by the sibling gated-transition test",
+  "timestamp": "2026-07-23T17:57:54.944Z"
+}
