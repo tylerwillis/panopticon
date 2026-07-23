@@ -1180,6 +1180,34 @@ async def test_memo_discovers_each_harness_suggestions_once_per_open(
         assert all(h.model_calls == h.effort_calls == 1 for h in harnesses.values())
 
 
+# 2119: REQ-010.2.1
+async def test_memo_finishes_each_harness_discovery_after_early_close(
+    monkeypatch: Any,
+) -> None:
+    release = threading.Event()
+    harnesses = {
+        "claude": _SuggestionHarness("claude"),
+        "slow": _SuggestionHarness("slow", release=release),
+        "zlater": _SuggestionHarness("zlater"),
+    }
+    monkeypatch.setattr(dashboard, "HARNESSES", harnesses)
+    fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    try:
+        async with app.run_test() as pilot:
+            await _open_memo(pilot)
+            await _wait_for(pilot, harnesses["slow"].started.is_set)
+            await pilot.press("escape")
+            release.set()
+            await _wait_for(
+                pilot,
+                lambda: all(h.model_calls == h.effort_calls == 1 for h in harnesses.values()),
+            )
+            assert not isinstance(app.screen, dashboard.MemoScreen)
+    finally:
+        release.set()
+
+
 # 2119: REQ-010.3.1
 async def test_memo_suggestion_cache_is_fresh_for_each_open(monkeypatch: Any) -> None:
     claude = _SuggestionHarness("claude")
@@ -1234,6 +1262,37 @@ async def test_early_cycle_discovers_once_and_presents_the_selected_harness_sugg
         release.set()
         if timer is not None:
             timer.cancel()
+
+
+# 2119: REQ-010.4.1
+async def test_early_cycle_discovers_an_unstarted_harness_before_returning(
+    monkeypatch: Any,
+) -> None:
+    release = threading.Event()
+    slow = _SuggestionHarness("claude", release=release)
+    target = _SuggestionHarness("target")
+    monkeypatch.setattr(dashboard, "HARNESSES", {"claude": slow, "target": target})
+    fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    try:
+        async with app.run_test() as pilot:
+            await _open_memo(pilot)
+            await _wait_for(pilot, slow.started.is_set)
+            screen = app.screen
+            screen.query_one(dashboard.HarnessSelector).focus()
+            assert target.model_calls == target.effort_calls == 0
+            assert "target" not in screen._suggestion_cache
+            assert "target" not in screen._suggestion_pending
+            await pilot.press("enter")
+            model = screen.query_one("#launch-model", Input).suggester
+            effort = screen.query_one("#launch-effort", Input).suggester
+            assert isinstance(model, dashboard.SuggestFromList)
+            assert isinstance(effort, dashboard.SuggestFromList)
+            assert model._suggestions == ["target-model-1"]
+            assert effort._suggestions == ["target-empty-effort-1"]
+            assert target.model_calls == target.effort_calls == 1
+    finally:
+        release.set()
 
 
 # 2119: REQ-010.5.1

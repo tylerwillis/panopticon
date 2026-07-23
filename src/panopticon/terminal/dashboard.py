@@ -981,7 +981,7 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
             raise result
         return result
 
-    def _prefetch_suggestions(self) -> None:
+    def _prefetch_suggestions(self, app: App[Any]) -> None:
         """Fill this modal opening's cache without blocking Textual's event loop."""
         worker = get_current_worker()
         for harness_name in self._harness_names:
@@ -993,9 +993,10 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
                 continue
             if worker.is_cancelled:
                 return
-            self.app.call_from_thread(
-                self._present_suggestions_if_selected, harness_name, suggestions
-            )
+            if self.is_attached:
+                app.call_from_thread(
+                    self._present_suggestions_if_selected, harness_name, suggestions
+                )
 
     def _present_suggestions_if_selected(
         self, harness_name: str, suggestions: _HarnessSuggestions
@@ -1035,8 +1036,9 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
 
     def on_mount(self) -> None:
         self.query_one(MemoTextArea).focus()
-        self.run_worker(
-            self._prefetch_suggestions,
+        app = self.app
+        app.run_worker(
+            functools.partial(self._prefetch_suggestions, app),
             name="memo-suggestion-prefetch",
             exit_on_error=False,
             thread=True,
