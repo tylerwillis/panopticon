@@ -34,6 +34,7 @@ from typing import ClassVar
 from panopticon.core.models import Skill
 from panopticon.harnesses.base import (
     HOOK_COMMAND,
+    HOOK_TIMEOUT_SECONDS,
     INTERRUPT_PROMPT,
     BootstrapContext,
     Harness,
@@ -94,6 +95,7 @@ def render_config(service_url: str, overview: str, cwd: Path) -> str:
             f"[[hooks.{event}.hooks]]",
             'type = "command"',
             f"command = {_toml_str(f'{HOOK_COMMAND} {actor} {side_effect}')}",
+            f"timeout = {HOOK_TIMEOUT_SECONDS}",
         ]
     return "\n".join(lines) + "\n"
 

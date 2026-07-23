@@ -28,12 +28,15 @@ distinct from the actor so the bare question hooks (`hook user` / `hook agent`) 
 
 from __future__ import annotations
 
-import contextlib
 import json
 import os
+import signal
 import sys
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
+from contextlib import contextmanager
 from pathlib import Path
+from threading import current_thread, main_thread
+from types import FrameType
 from typing import Any, TextIO
 
 import httpx
@@ -46,6 +49,39 @@ from panopticon.core.provisioning import PROVISION_NUDGE
 #: of these. Anything else — including a missing/unknown status — is treated as live, so we err
 #: toward keeping the turn on the agent rather than prematurely handing it back.
 _TERMINAL_STATUSES = frozenset({"completed", "failed", "cancelled", "canceled", "error"})
+
+#: Shorter than the harness's three-second whole-command backstop. The absolute deadline covers all
+#: requests and response processing together; the per-request timeout is a second line of defence.
+_CALLBACK_DEADLINE_SECONDS = 2.0
+_HTTP_TIMEOUT_SECONDS = 1.5
+
+
+class _CallbackDeadlineExceeded(TimeoutError):
+    """The callback's fail-open deadline expired."""
+
+
+def _raise_callback_deadline(_signum: int, _frame: FrameType | None) -> None:
+    raise _CallbackDeadlineExceeded
+
+
+@contextmanager
+def _callback_deadline() -> Iterator[None]:
+    """Bound the complete callback while preserving direct, threaded unit-test use.
+
+    Production invokes this module as the process's main thread on Linux. Python only permits
+    signal handlers on that thread, so injected clients used by threaded unit tests retain their
+    own timeout semantics instead of trying to install an invalid handler.
+    """
+    if current_thread() is not main_thread():
+        yield
+        return
+    previous_handler = signal.signal(signal.SIGALRM, _raise_callback_deadline)
+    previous_timer = signal.setitimer(signal.ITIMER_REAL, _CALLBACK_DEADLINE_SECONDS)
+    try:
+        yield
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, *previous_timer)
+        signal.signal(signal.SIGALRM, previous_handler)
 
 
 def _read_payload(stdin: TextIO) -> dict[str, Any]:
@@ -127,13 +163,40 @@ def _line_tokens(line: str) -> int:
 def _report_tokens(client: TaskServiceClient, task_id: str, payload: dict[str, Any]) -> None:
     """Best-effort: total the transcript the Stop payload names and record it.
 
-    Any failure — no ``transcript_path``, a REST error — is swallowed: token accounting must never
-    break the turn-flip the hook exists for."""
+    A missing ``transcript_path`` is a no-op. Control-plane failures are handled by the callback's
+    shared fail-open boundary."""
     transcript = payload.get("transcript_path")
     if not isinstance(transcript, str):
         return
-    with contextlib.suppress(httpx.HTTPError):
-        client.set_tokens_used(task_id, session_tokens(transcript))
+    client.set_tokens_used(task_id, session_tokens(transcript))
+
+
+def _run_callback(
+    client: TaskServiceClient,
+    task_id: str,
+    actor: str,
+    event: str | None,
+    stdin: TextIO,
+) -> None:
+    """Perform one hook callback inside the caller's fail-open deadline."""
+    # `stop` (Stop): the agent's turn just ended. Read the payload once — it carries the transcript
+    # path and the background_tasks list. Record cumulative token usage, then decide the turn: don't
+    # hand it back while a background task is still running, since the task's completion re-invokes
+    # the agent without a UserPromptSubmit and a flip to `user` would never flip back. Leave it on
+    # the agent; the next real stop with nothing in flight flips. (This gate is the Stop event only,
+    # not the bare AskUserQuestion `hook user` flip — there the agent is genuinely awaiting the user.)
+    if event == "stop":
+        payload = _read_payload(stdin)
+        _report_tokens(client, task_id, payload)
+        if _has_live_background_task(payload):
+            return
+    client.set_turn(task_id, actor)
+    # `prompt` (UserPromptSubmit): ground the agent in its current phase, and (while the task is
+    # unslugged) nudge toward provisioning. claude adds this hook's stdout to its context.
+    if event == "prompt":
+        print(client.get_briefing(task_id))
+        if client.get_task(task_id).get("slug") is None:
+            print(PROVISION_NUDGE)
 
 
 def main(
@@ -155,25 +218,16 @@ def main(
     env = os.environ
     actor, event = args[0], (args[1] if len(args) == 2 else None)
     task_id = env["PANOPTICON_TASK_ID"]
-    client = client or TaskServiceClient(httpx.Client(base_url=env["PANOPTICON_SERVICE_URL"]))
-    # `stop` (Stop): the agent's turn just ended. Read the payload once — it carries the transcript
-    # path and the background_tasks list. Record cumulative token usage, then decide the turn: don't
-    # hand it back while a background task is still running, since the task's completion re-invokes
-    # the agent without a UserPromptSubmit and a flip to `user` would never flip back. Leave it on
-    # the agent; the next real stop with nothing in flight flips. (This gate is the Stop event only,
-    # not the bare AskUserQuestion `hook user` flip — there the agent is genuinely awaiting the user.)
-    if event == "stop":
-        payload = _read_payload(stdin or sys.stdin)
-        _report_tokens(client, task_id, payload)
-        if _has_live_background_task(payload):
-            return 0
-    client.set_turn(task_id, actor)
-    # `prompt` (UserPromptSubmit): ground the agent in its current phase, and (while the task is
-    # unslugged) nudge toward provisioning. claude adds this hook's stdout to its context.
-    if event == "prompt":
-        print(client.get_briefing(task_id))
-        if client.get_task(task_id).get("slug") is None:
-            print(PROVISION_NUDGE)
+    try:
+        with _callback_deadline():
+            callback_client = client or TaskServiceClient(
+                httpx.Client(base_url=env["PANOPTICON_SERVICE_URL"], timeout=_HTTP_TIMEOUT_SECONDS)
+            )
+            _run_callback(callback_client, task_id, actor, event, stdin or sys.stdin)
+    except Exception:
+        # The turn flip is cosmetic; input availability is not. Transport/status failures, malformed
+        # responses, unexpected response shapes, and the absolute deadline all fail open and silent.
+        return 0
     # No event (the AskUserQuestion PreToolUse/PostToolUse hooks): a pure turn flip, no side-effects.
     return 0
 

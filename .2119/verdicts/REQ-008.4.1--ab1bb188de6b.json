@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.4.1--ab1bb188de6b",
-  "requirementId": "REQ-008.4.1",
-  "hash": "ab1bb188de6b",
-  "verdict": "pass",
-  "summary": "Claude UserPromptSubmit wiring is pinned to the agent prompt command, and a gated set_turn proves the hook cannot exit before the agent-turn write completes.",
-  "timestamp": "2026-07-22T07:35:52.027Z"
-}
