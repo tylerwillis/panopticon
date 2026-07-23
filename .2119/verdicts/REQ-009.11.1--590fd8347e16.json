@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.11.1--590fd8347e16",
+  "requirementId": "REQ-009.11.1",
+  "hash": "590fd8347e16",
+  "verdict": "pass",
+  "summary": "Free-typed model+effort survive a harness cycle verbatim; the companion test asserts the harness really changed (outfitter) and the touched value flows into the created task's starting model",
+  "timestamp": "2026-07-23T17:56:34.987Z"
+}

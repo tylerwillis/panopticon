@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.17.1--7734a7734235",
+  "requirementId": "REQ-009.17.1",
+  "hash": "7734a7734235",
+  "verdict": "pass",
+  "summary": "Enter with an empty candidate list and with candidates-but-no-highlight both assert the screen is still MemoScreen and no task was created, for model and effort alike",
+  "timestamp": "2026-07-23T17:56:35.788Z"
+}

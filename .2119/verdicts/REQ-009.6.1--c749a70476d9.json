@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.6.1--c749a70476d9",
-  "requirementId": "REQ-009.6.1",
-  "hash": "c749a70476d9",
-  "verdict": "pass",
-  "summary": "Typing terra after cycling claude->codex matches only the refreshed codex vocab; medium-effort assertion falsifiable since claude's suggested_efforts is empty",
-  "timestamp": "2026-07-22T17:05:08.963Z"
-}

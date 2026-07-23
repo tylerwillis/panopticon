@@ -962,6 +962,7 @@ async def test_memo_launch_fields_are_labeled_visible_and_stay_within_64_columns
         harness = app.screen.query_one(dashboard.HarnessSelector)
         model = app.screen.query_one("#launch-model", Input)
         effort = app.screen.query_one("#launch-effort", Input)
+        assert isinstance(app.screen.focused, dashboard.MemoTextArea)
         assert labels == {"harness", "model", "effort"}
         assert (harness.value, model.value, effort.value) == ("codex", "terra", "high")
         assert all(widget.region.width > 0 for widget in (harness, model, effort))
@@ -993,8 +994,8 @@ async def test_memo_launch_controls_follow_the_documented_tab_order() -> None:
 @pytest.mark.parametrize(
     ("tabs", "typed", "options_id", "expected"),
     [
-        (2, "A", "#launch-model-options", ("terra", "luna")),
-        (3, "H", "#launch-effort-options", ("high", "xhigh")),
+        (2, "A", "#launch-model-options", ("terra — Terra", "luna — Luna")),
+        (3, "H", "#launch-effort-options", ("high — High", "xhigh — X-high")),
     ],
 )
 # 2119: REQ-009.3.1
@@ -1027,8 +1028,7 @@ async def test_typing_filters_the_visible_model_and_effort_candidates(
         candidates = app.screen.query_one(options_id, OptionList)
         prompts = _option_prompts(candidates)
         assert candidates.region.width > 0
-        assert len(prompts) == len(expected)
-        assert all(any(value in prompt for prompt in prompts) for value in expected)
+        assert prompts == list(expected)
 
 
 # 2119: REQ-009.4.1
@@ -1126,22 +1126,118 @@ async def test_no_match_stays_visible_and_enter_does_not_submit(
         assert fake.created == []
 
 
+# 2119: REQ-009.17.1
+@pytest.mark.parametrize(
+    ("tabs", "options_id"),
+    [
+        (2, "#launch-model-options"),
+        (3, "#launch-effort-options"),
+    ],
+)
+async def test_enter_with_nonempty_candidates_but_no_highlight_does_not_submit(
+    tabs: int, options_id: str
+) -> None:
+    fake = _FakeClient(
+        [],
+        repos=[
+            {
+                "id": "r1",
+                "name": "r1",
+                "git_url": "",
+                "default_base": "main",
+                "default_harness": "codex",
+            }
+        ],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter", *(("tab",) * tabs))
+        await pilot.pause()
+
+        candidates = app.screen.query_one(options_id, OptionList)
+        assert candidates.option_count > 0
+        assert candidates.highlighted is None
+        await pilot.press("enter")
+        await pilot.pause()
+        assert isinstance(app.screen, dashboard.MemoScreen)
+        assert fake.created == []
+
+
 # 2119: REQ-009.6.1
 async def test_harness_cycle_refreshes_dependent_candidate_vocabularies() -> None:
     fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
     app = Dashboard(fake)  # type: ignore[arg-type]
     async with app.run_test() as pilot:
         await pilot.pause()
-        await pilot.press("n", "enter", "enter", "tab", "enter", "tab")
-        await pilot.press(*"terra")
+        await pilot.press("n", "enter", "enter", "tab", "tab")
         await pilot.pause()
 
-        model_prompts = _option_prompts(app.screen.query_one("#launch-model-options", OptionList))
-        assert any("terra" in prompt for prompt in model_prompts)
-        assert all("fable" not in prompt for prompt in model_prompts)
+        assert _option_prompts(app.screen.query_one("#launch-model-options", OptionList)) == [
+            "fable — Fable 5",
+            "opus — Opus 4.8",
+            "sonnet — Sonnet 5",
+        ]
         await pilot.press("tab")
-        effort_prompts = _option_prompts(app.screen.query_one("#launch-effort-options", OptionList))
-        assert any("medium" in prompt for prompt in effort_prompts)
+        assert _option_prompts(app.screen.query_one("#launch-effort-options", OptionList)) == []
+
+        await pilot.press("shift+tab", "shift+tab", "enter", "tab")
+        await pilot.pause()
+        assert app.screen.query_one(dashboard.HarnessSelector).value == "codex"
+        assert _option_prompts(app.screen.query_one("#launch-model-options", OptionList)) == [
+            "gpt-5.6-sol — GPT-5.6 Sol",
+            "terra — Terra",
+            "luna — Luna",
+        ]
+        await pilot.press("tab")
+        assert _option_prompts(app.screen.query_one("#launch-effort-options", OptionList)) == [
+            "low — Low",
+            "medium — Medium",
+            "high — High",
+            "xhigh — X-high",
+        ]
+
+
+async def test_candidate_vocabulary_is_cached_while_typing(monkeypatch: Any) -> None:
+    model_calls = 0
+    effort_calls = 0
+    harness = dashboard.HARNESSES["codex"]
+
+    def suggested_models() -> tuple[tuple[str, str], ...]:
+        nonlocal model_calls
+        model_calls += 1
+        return (("gpt", "GPT"),)
+
+    def suggested_efforts(model: str | None = None) -> tuple[tuple[str, str], ...]:
+        nonlocal effort_calls
+        assert model == "gpt"
+        effort_calls += 1
+        return (("high", "High"),)
+
+    monkeypatch.setattr(harness, "suggested_models", suggested_models)
+    monkeypatch.setattr(harness, "suggested_efforts", suggested_efforts)
+    fake = _FakeClient(
+        [],
+        repos=[
+            {
+                "id": "r1",
+                "name": "r1",
+                "git_url": "",
+                "default_base": "main",
+                "default_harness": "codex",
+            }
+        ],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter", "tab", "tab", *"gpt", "tab", *"hi")
+        await pilot.pause()
+
+        assert model_calls == 1
+        assert effort_calls == 1
 
 
 # 2119: REQ-009.7.1
@@ -1176,15 +1272,15 @@ async def test_focus_only_keeps_launch_fields_tracking_changed_repo_defaults(
 
 # 2119: REQ-009.12.1
 @pytest.mark.parametrize(
-    ("tabs", "keys"),
+    ("tabs", "keys", "expected"),
     [
-        (1, ("enter",)),
-        (2, ("x",)),
-        (3, ("x",)),
+        (1, ("enter",), "codex · (codex default) — set by this task"),
+        (2, ("x",), "claude · x — set by this task"),
+        (3, ("x",), "claude · (claude default) — set by this task"),
     ],
 )
 async def test_each_launch_override_updates_the_rendered_summary_source(
-    tabs: int, keys: tuple[str, ...]
+    tabs: int, keys: tuple[str, ...], expected: str
 ) -> None:
     fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
     app = Dashboard(fake)  # type: ignore[arg-type]
@@ -1193,7 +1289,7 @@ async def test_each_launch_override_updates_the_rendered_summary_source(
         await pilot.press("n", "enter", "enter", *("tab" for _ in range(tabs)), *keys)
         await pilot.pause()
         summary = app.screen.query_one("#launch-summary", Static)
-        assert str(summary.render()).endswith("— set by this task")
+        assert str(summary.render()) == expected
 
 
 # 2119: REQ-009.12.1
@@ -1262,6 +1358,38 @@ async def test_touched_model_and_effort_survive_a_harness_change() -> None:
         assert app.screen.query_one("#launch-effort", Input).value == "maximum"
 
 
+# 2119: REQ-009.11.1
+async def test_touched_effort_survives_when_untouched_model_clears_on_harness_change() -> None:
+    fake = _FakeClient(
+        [],
+        repos=[
+            {
+                "id": "r1",
+                "name": "r1",
+                "git_url": "",
+                "default_base": "main",
+                "default_harness": "codex",
+                "default_model": "terra:high",
+            }
+        ],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter", "tab", "tab", "tab")
+        await pilot.press("ctrl+shift+a", *"maximum", "shift+tab", "shift+tab", "enter")
+        await pilot.pause()
+
+        assert app.screen.query_one(dashboard.HarnessSelector).value == "outfitter"
+        assert app.screen.query_one("#launch-model", Input).value == ""
+        assert app.screen.query_one("#launch-effort", Input).value == "maximum"
+
+        await pilot.press("tab", *"custom/model", "shift+tab", "shift+tab", "ctrl+s")
+        await pilot.pause()
+        assert fake.created == [("r1", "spike", None, None, "outfitter", "custom/model:maximum")]
+
+
 # 2119: REQ-009.18.1
 async def test_untouched_model_and_effort_clear_after_a_harness_change() -> None:
     fake = _FakeClient(
@@ -1285,6 +1413,38 @@ async def test_untouched_model_and_effort_clear_after_a_harness_change() -> None
         await pilot.pause()
         assert app.screen.query_one("#launch-model", Input).value == ""
         assert app.screen.query_one("#launch-effort", Input).value == ""
+
+
+# 2119: REQ-009.18.1
+async def test_untouched_effort_clears_when_touched_model_survives_harness_change() -> None:
+    fake = _FakeClient(
+        [],
+        repos=[
+            {
+                "id": "r1",
+                "name": "r1",
+                "git_url": "",
+                "default_base": "main",
+                "default_harness": "codex",
+                "default_model": "terra:high",
+            }
+        ],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter", "tab", "tab")
+        await pilot.press("ctrl+shift+a", *"custom/model", "shift+tab", "enter")
+        await pilot.pause()
+
+        assert app.screen.query_one(dashboard.HarnessSelector).value == "outfitter"
+        assert app.screen.query_one("#launch-model", Input).value == "custom/model"
+        assert app.screen.query_one("#launch-effort", Input).value == ""
+
+        await pilot.press("shift+tab", "ctrl+s")
+        await pilot.pause()
+        assert fake.created == [("r1", "spike", None, None, "outfitter", "custom/model")]
 
 
 # 2119: REQ-009.8.1
