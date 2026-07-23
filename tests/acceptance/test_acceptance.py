@@ -22,7 +22,7 @@ import pytest
 
 import panopticon.docker as _docker_pkg
 from panopticon.core.models import Repo
-from panopticon.sessionservice.images import ImageBuilder
+from panopticon.sessionservice.images import ImageBuilder, _base_fingerprint
 from panopticon.sessionservice.local_runner import LocalRunner, session_name
 from panopticon.sessionservice.shell_runner import ShellRunner
 from panopticon.taskservice.api import create_app
@@ -107,6 +107,8 @@ def test_runner_spawns_real_container_that_registers_and_loses_liveness(
                     _IMAGE,
                     "--build-arg",
                     f"PANOPTICON_WHEEL={whl.name}",
+                    "--build-arg",
+                    f"PANOPTICON_BASE_FINGERPRINT={_base_fingerprint()}",
                     "--file",
                     str(dockerfile_path),
                     str(dockerfile_path.parent),

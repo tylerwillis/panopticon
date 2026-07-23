@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.1.1--fc29c67e6c16",
-  "requirementId": "REQ-009.1.1",
-  "hash": "fc29c67e6c16",
-  "verdict": "pass",
-  "summary": "Acceptance test runs 'gh --version' (check=True) in the bare base image built from the real Dockerfile — behavioral and layer-free; Dockerfile regex + fingerprint-stale rebuild guard the unit level",
-  "timestamp": "2026-07-23T18:16:55.188Z"
-}

@@ -8,6 +8,9 @@
 # gosu. claude is installed under that user's home so it's readable + self-manageable by it.
 FROM python:3.13-slim
 
+ARG PANOPTICON_BASE_FINGERPRINT=""
+LABEL io.panopticon.base-fingerprint="${PANOPTICON_BASE_FINGERPRINT}"
+
 RUN apt-get update \
  && apt-get install --yes --no-install-recommends git gh bash curl ca-certificates gosu passwd vim \
  && rm --recursive --force /var/lib/apt/lists/*

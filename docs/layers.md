@@ -100,7 +100,8 @@ absolute paths) are rejected; nested names (`team/myrepo.dockerfile`) are allowe
 - **Rebuilds & cleanup.** Editing a layer rebuilds the affected steps on the next spawn (Docker
   caches the rest). A packaged base-input or version change also refreshes a stale base
   automatically. `make clean` removes `panopticon-base` and every composed `panopticon-*` image;
-  `make build` rebuilds the base immediately.
+  `make build` rebuilds the base immediately with the current development wheel. Changes to
+  package code outside the fingerprinted Dockerfile/entrypoint/version still require `make build`.
 - **Elevated privileges are a capability, not a layer.** Docker-in-Docker is opt-in via the repo's
   `capabilities` map (`docker_in_docker`), which makes the runner spawn `--privileged` and the
   entrypoint start a nested daemon — it is not something you add through a Dockerfile fragment.

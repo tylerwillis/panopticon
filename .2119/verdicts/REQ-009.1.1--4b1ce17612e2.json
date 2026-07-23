@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.1--4b1ce17612e2",
+  "requirementId": "REQ-009.1.1",
+  "hash": "4b1ce17612e2",
+  "verdict": "pass",
+  "summary": "Acceptance runs 'gh --version' (check=True) in the bare base image before any layer; unit regex pins gh on the base Dockerfile's real apt-get line for docker-less runs",
+  "timestamp": "2026-07-23T18:33:03.682Z"
+}

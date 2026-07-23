@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.3.1--7f08140e2ba1",
+  "requirementId": "REQ-009.3.1",
+  "hash": "7f08140e2ba1",
+  "verdict": "pass",
+  "summary": "Real ImageBuilder composes a non-empty gh-neutral layer; in-container 'test -f <marker> && gh --version' proves both layer-applied and gh-functioning, blocking a vacuous base-only pass",
+  "timestamp": "2026-07-23T18:33:04.540Z"
+}

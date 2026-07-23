@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.2.1--95583a4f4c0a",
-  "requirementId": "REQ-009.2.1",
-  "hash": "95583a4f4c0a",
-  "verdict": "pass",
-  "summary": "Sweeps every discovered shipped workflow's real image_layer() for \\bgh\\b — rejects the realistic reinstall inputs; over-broad match is harmless for a MUST NOT",
-  "timestamp": "2026-07-23T18:16:55.573Z"
-}

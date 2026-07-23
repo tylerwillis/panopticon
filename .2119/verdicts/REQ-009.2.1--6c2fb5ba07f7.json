@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.1--6c2fb5ba07f7",
+  "requirementId": "REQ-009.2.1",
+  "hash": "6c2fb5ba07f7",
+  "verdict": "pass",
+  "summary": "Real discover_workflows sweep (home dir disabled) rejects any shipped image_layer() matching \\bgh\\b — over-broad in the safe direction; advisory: no non-empty-discovery assert",
+  "timestamp": "2026-07-23T18:33:04.104Z"
+}

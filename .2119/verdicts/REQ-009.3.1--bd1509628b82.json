@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.3.1--bd1509628b82",
-  "requirementId": "REQ-009.3.1",
-  "hash": "bd1509628b82",
-  "verdict": "pass",
-  "summary": "Real ImageBuilder composition with a non-empty layer, marker-file assertion defeats the dropped-layer tautology, and 'gh --version' verifies functioning by execution",
-  "timestamp": "2026-07-23T18:16:55.951Z"
-}

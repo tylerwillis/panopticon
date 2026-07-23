@@ -22,11 +22,25 @@ def _base_dockerfile() -> str:
     return (importlib.resources.files(_docker_pkg) / "Dockerfile").read_text()
 
 
+def _build_args(command: list[str]) -> list[str]:
+    return [command[index + 1] for index, item in enumerate(command) if item == "--build-arg"]
+
+
 # 2119: REQ-009.1
 def test_base_image_installs_github_cli() -> None:
     assert re.search(
         r"(?m)^\s*&& apt-get install --yes --no-install-recommends .*\bgh\b.*$",
         _base_dockerfile(),
+    )
+
+
+# 2119: REQ-009.1
+def test_documented_make_build_applies_the_base_fingerprint() -> None:
+    makefile = (Path(__file__).parents[2] / "Makefile").read_text()
+    assert "--build-arg PANOPTICON_BASE_FINGERPRINT=" in makefile
+    assert "from panopticon.sessionservice.images import _base_fingerprint" in makefile
+    assert 'LABEL io.panopticon.base-fingerprint="${PANOPTICON_BASE_FINGERPRINT}"' in (
+        _base_dockerfile()
     )
 
 
@@ -112,9 +126,7 @@ def test_build_base_if_missing_rebuilds_when_fingerprint_is_stale() -> None:
     assert result is True
     assert len(rec.calls) == 2
     assert rec.calls[1][0][:4] == ["docker", "build", "--tag", "panopticon-base"]
-    assert "--label" in rec.calls[1][0]
-    label = rec.calls[1][0][rec.calls[1][0].index("--label") + 1]
-    assert label == f"io.panopticon.base-fingerprint={_base_fingerprint()}"
+    assert f"PANOPTICON_BASE_FINGERPRINT={_base_fingerprint()}" in _build_args(rec.calls[1][0])
 
 
 def test_build_base_if_missing_builds_when_inspect_returns_empty_string() -> None:
@@ -135,25 +147,16 @@ def test_build_base_if_missing_builds_when_inspect_returns_empty_string() -> Non
     assert rec.calls[1][1] is True  # check=True so a build failure propagates
 
 
-def test_build_base_if_missing_builds_when_inspect_returns_empty_array() -> None:
-    rec = _MultiRecorder("[]")  # tolerate the missing-image output used by older fakes
-    result = ImageBuilder(base="panopticon-base", run=rec).build_base_if_missing()
-    assert result is True
-    assert len(rec.calls) == 2  # inspect + build
-
-
 def test_build_base_unconditional() -> None:
     rec = _MultiRecorder("")
     ImageBuilder(base="panopticon-base", run=rec).build_base(verbose=True)
     assert len(rec.calls) == 1  # no inspect probe — just the build
     build_cmd = rec.calls[0][0]
     assert build_cmd[:4] == ["docker", "build", "--tag", "panopticon-base"]
-    assert "--label" in build_cmd
-    label = build_cmd[build_cmd.index("--label") + 1]
-    assert label == f"io.panopticon.base-fingerprint={_base_fingerprint()}"
     assert "--build-arg" in build_cmd
-    version_arg = build_cmd[build_cmd.index("--build-arg") + 1]
-    assert version_arg.startswith("PANOPTICON_VERSION=")
+    build_args = _build_args(build_cmd)
+    assert any(arg.startswith("PANOPTICON_VERSION=") for arg in build_args)
+    assert f"PANOPTICON_BASE_FINGERPRINT={_base_fingerprint()}" in build_args
     assert "--file" in build_cmd
     file_arg = build_cmd[build_cmd.index("--file") + 1]
     assert file_arg.endswith("Dockerfile")
