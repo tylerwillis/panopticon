@@ -1335,7 +1335,7 @@ async def test_submitting_slug_editor_renames_highlighted_task_and_refreshes() -
         await pilot.pause()
         calls_before_submit = fake.list_tasks_calls
         editor = app.screen.query_one(Input)
-        editor.value = "better-widget-name"
+        editor.value = "  better-widget-name  "
         await pilot.press("enter")
         await pilot.pause()
 
