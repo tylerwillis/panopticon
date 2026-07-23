@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.1.2--34fbef02447c",
-  "requirementId": "REQ-009.1.2",
-  "hash": "34fbef02447c",
-  "verdict": "pass",
-  "summary": "Two-responsibility fixture resolves only one; asserts state stays WORKING, genuinely catching a premature-fire bug.",
-  "timestamp": "2026-07-23T09:20:33.650Z"
-}

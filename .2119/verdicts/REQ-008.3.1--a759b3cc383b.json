@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.3.1--a759b3cc383b",
-  "requirementId": "REQ-008.3.1",
-  "hash": "a759b3cc383b",
-  "verdict": "pass",
-  "summary": "Parametrized test (agent-turn clear, state-change clear) then explicitly calls set_blocked(True) and asserts the requested True value persists on reload; rejects an implementation that ignores/debounces an explicit set right after an automatic clear.",
-  "timestamp": "2026-07-23T09:17:34.879Z"
-}

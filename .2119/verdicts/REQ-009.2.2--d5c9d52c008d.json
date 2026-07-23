@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.2--d5c9d52c008d",
+  "requirementId": "REQ-009.2.2",
+  "hash": "d5c9d52c008d",
+  "verdict": "pass",
+  "summary": "Genuine: within the same trigger test, the returned object's state, recomputed turn, and current history entry (to_state/from_state/trigger/seeded responsibilities) are all asserted, then independently re-verified via a fresh get_task reload, directly showing the returned object already reflects the post-transition state.",
+  "timestamp": "2026-07-23T09:38:30.183Z"
+}

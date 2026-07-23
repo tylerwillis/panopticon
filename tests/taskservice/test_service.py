@@ -859,7 +859,7 @@ async def test_report_unknown_responsibility_rejected(tmp_path: Path) -> None:
         await svc.resolve_responsibility(task.id, "ghost", status=Status.MET)
 
 
-# -- auto-advance on responsibilities met (REQ-001) ----------------------------------
+# -- auto-advance on responsibilities met (REQ-009) ----------------------------------
 
 
 class _AutoAdvance(Workflow):
@@ -876,6 +876,7 @@ class _AutoAdvance(Workflow):
 
     class Landed(State):
         label = "LANDED"
+        responsibilities = (Responsibility(key="landed-check", description="Landed check"),)
 
     class Working(InitialState):
         label = "WORKING"
@@ -910,10 +911,36 @@ async def test_auto_advance_fires_when_last_responsibility_resolved(tmp_path: Pa
     # 2119: REQ-009.2.1
     assert wf.on_transition_calls == [("WORKING", "LANDED")]
     assert [h.to_state for h in resolved.history] == ["WORKING", "LANDED"]
+    assert resolved.history[-1].from_state == "WORKING"
     assert resolved.turn is Actor.AGENT  # LANDED's turn_on_enter — proves it was recomputed
     assert resolved.history[-1].trigger == "advance"  # same trigger an explicit advance records
+    # LANDED's own responsibility is freshly seeded PENDING, exactly as an explicit advance
+    # would seed it — not skipped because this transition happened to be auto-fired.
+    assert [r.status for r in resolved.history[-1].responsibilities] == [Status.PENDING]
     # 2119: REQ-009.2.2
     assert resolved.history[-1].to_state == "LANDED"
+    # The transition is genuinely persisted, not just reflected on the returned in-memory
+    # object — reload from the store independently of what resolve_responsibility returned.
+    reloaded = await svc.get_task(task.id)
+    assert reloaded.state == "LANDED"
+    assert reloaded.turn is Actor.AGENT
+    assert [h.to_state for h in reloaded.history] == ["WORKING", "LANDED"]
+
+
+async def test_auto_advance_fires_on_a_failed_with_comment_last_responsibility(
+    tmp_path: Path,
+) -> None:
+    """A `FAILED` (with comment) responsibility already counts as resolved — the same
+    pre-existing gate an explicit `advance` already honored before this feature existed
+    (`outstanding_responsibilities` only ever counted `PENDING`). Auto-advance reuses that
+    same rule rather than inventing a stricter one: it fires here exactly as it would for
+    `MET`."""
+    svc, _wf = await make_auto_advance_service(tmp_path)
+    task = await svc.create_task("r1", "auto-advance")
+    resolved = await svc.resolve_responsibility(
+        task.id, "tests-pass", status=Status.FAILED, comment="couldn't verify"
+    )
+    assert resolved.state == "LANDED"
 
 
 class _AutoAdvanceMulti(Workflow):
@@ -954,14 +981,28 @@ async def test_auto_advance_does_not_fire_with_responsibilities_still_outstandin
     assert resolved.state == "WORKING"
 
 
-async def test_rejected_resolve_does_not_transition(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    "key,status,comment",
+    [
+        pytest.param("b", Status.FAILED, None, id="failed-without-comment"),
+        pytest.param("b", Status.PENDING, None, id="explicit-pending"),
+        pytest.param("ghost", Status.MET, None, id="unknown-key"),
+    ],
+)
+async def test_rejected_resolve_does_not_transition(
+    tmp_path: Path, key: str, status: Status, comment: str | None
+) -> None:
     svc = await make_auto_advance_multi_service(tmp_path)
     task = await svc.create_task("r1", "auto-advance-multi")
-    await svc.resolve_responsibility(task.id, "a", status=Status.MET)
+    await svc.resolve_responsibility(task.id, "a", status=Status.MET)  # only "b" left outstanding
     with pytest.raises(ValueError):
-        await svc.resolve_responsibility(task.id, "b", status=Status.FAILED)  # no comment
+        await svc.resolve_responsibility(task.id, key, status=status, comment=comment)
     # 2119: REQ-009.3.3
-    assert (await svc.get_task(task.id)).state == "WORKING"
+    reloaded = await svc.get_task(task.id)
+    assert reloaded.state == "WORKING"
+    assert reloaded.outstanding_responsibilities == [
+        r for r in reloaded.current_entry.responsibilities if r.key == "b"
+    ]
 
 
 async def test_auto_advance_does_not_fire_for_a_user_advanced_state(tmp_path: Path) -> None:

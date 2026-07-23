@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.2.1--414c3656100c",
-  "requirementId": "REQ-009.2.1",
-  "hash": "414c3656100c",
-  "verdict": "pass",
-  "summary": "Discriminating fixture (LANDED turn_on_enter=AGENT vs WORKING's USER) confirms on_transition hook call, appended history, recomputed turn, and advance trigger name match an explicit advance.",
-  "timestamp": "2026-07-23T09:20:43.117Z"
-}
