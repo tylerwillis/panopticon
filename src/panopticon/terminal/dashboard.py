@@ -793,9 +793,11 @@ def resolve_launch_selection(
     touched_set = set(touched)
     for field in touched_set:
         values[field] = (overrides or {}).get(field, "")
-    if "harness" in touched_set and "model" not in touched_set:
-        values["model"] = ""
-        values["effort"] = ""
+    if "harness" in touched_set:
+        if "model" not in touched_set:
+            values["model"] = ""
+        if "effort" not in touched_set:
+            values["effort"] = ""
     return LaunchSelection(**values, source="this task" if touched_set else source)
 
 
@@ -917,7 +919,6 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
     .launch-field HarnessSelector, .launch-field Input {
         width: 1fr; height: 1; border: none; padding: 0 1;
     }
-    .launch-field HarnessSelector { padding: 0 1; }
     .launch-candidate-box { display: none; height: 4; margin-left: 9; }
     .launch-candidate-box.-open { display: block; }
     .launch-candidates { width: 1fr; height: 3; border: tall $panel; }
@@ -952,6 +953,7 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
             repo, workflow, overrides=self._overrides, touched=self._touched
         )
         self._candidate_values: dict[str, list[str]] = {"model": [], "effort": []}
+        self._suggestion_cache: dict[tuple[str, str, str], tuple[tuple[str, str], ...]] = {}
         self._programmatic_values: dict[str, str] = {}
         self._launch_events_ready = False
 
@@ -1027,10 +1029,16 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
         return "model" if input_widget.id == "launch-model" else "effort"
 
     def _suggestions(self, field: str) -> Sequence[tuple[str, str]]:
-        harness = HARNESSES[self._selection.harness]
-        if field == "model":
-            return harness.suggested_models()
-        return harness.suggested_efforts(self.query_one("#launch-model", Input).value)
+        harness_name = self._selection.harness
+        model = self.query_one("#launch-model", Input).value if field == "effort" else ""
+        key = (harness_name, field, model)
+        if key not in self._suggestion_cache:
+            harness = HARNESSES[harness_name]
+            suggestions = (
+                harness.suggested_models() if field == "model" else harness.suggested_efforts(model)
+            )
+            self._suggestion_cache[key] = tuple(suggestions)
+        return self._suggestion_cache[key]
 
     def _refresh_candidates(self, field: str) -> None:
         input_widget = self.query_one(f"#launch-{field}", Input)

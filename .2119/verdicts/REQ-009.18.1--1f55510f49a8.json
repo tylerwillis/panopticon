@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.18.1--1f55510f49a8",
+  "requirementId": "REQ-009.18.1",
+  "hash": "1f55510f49a8",
+  "verdict": "pass",
+  "summary": "Displayed repo defaults terra/high become empty after a harness change while a touched model survives, and the ctrl+s creation omits the cleared effort so the new harness's defaults govern",
+  "timestamp": "2026-07-23T17:56:36.173Z"
+}

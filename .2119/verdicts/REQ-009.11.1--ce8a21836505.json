@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.11.1--ce8a21836505",
-  "requirementId": "REQ-009.11.1",
-  "hash": "ce8a21836505",
-  "verdict": "pass",
-  "summary": "Free-text model/effort typed (touched), harness cycled via Enter on the focused selector, both asserted verbatim after; the clear-on-change violation would empty them and fail",
-  "timestamp": "2026-07-22T17:06:53.266Z"
-}

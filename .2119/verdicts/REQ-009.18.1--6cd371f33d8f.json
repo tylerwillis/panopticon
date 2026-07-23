@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.18.1--6cd371f33d8f",
-  "requirementId": "REQ-009.18.1",
-  "hash": "6cd371f33d8f",
-  "verdict": "pass",
-  "summary": "Repo default prefills terra/high; an untouched harness cycle must leave both inputs empty — a sticky-value implementation fails",
-  "timestamp": "2026-07-22T17:06:56.104Z"
-}

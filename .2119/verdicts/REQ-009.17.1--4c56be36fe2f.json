@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.17.1--4c56be36fe2f",
-  "requirementId": "REQ-009.17.1",
-  "hash": "4c56be36fe2f",
-  "verdict": "pass",
-  "summary": "Parametrized over model and effort: non-matching filter gives option_count==0 (no highlightable candidate), then Enter must leave MemoScreen active with nothing created",
-  "timestamp": "2026-07-22T17:06:55.698Z"
-}

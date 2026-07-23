@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.3.1--c14e537273d0",
+  "requirementId": "REQ-009.3.1",
+  "hash": "c14e537273d0",
+  "verdict": "pass",
+  "summary": "Exact-list equality pins codex 'A'->terra,luna (gpt-5.6-sol excluded) and 'H'->high,xhigh with uppercase needles vs lowercase values, rejecting unfiltered, case-sensitive, and wrong-harness candidate lists",
+  "timestamp": "2026-07-23T17:56:33.785Z"
+}

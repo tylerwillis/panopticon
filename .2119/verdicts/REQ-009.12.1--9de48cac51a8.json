@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.12.1--9de48cac51a8",
-  "requirementId": "REQ-009.12.1",
-  "hash": "9de48cac51a8",
-  "verdict": "pass",
-  "summary": "Exact-string renders pin repo/app/workflow-default labels (workflow beating a competing repo default) and 'set by this task' is asserted after each override kind (harness/model/effort)",
-  "timestamp": "2026-07-22T17:06:53.686Z"
-}

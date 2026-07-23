@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.12.1--162bc5f9f88c",
+  "requirementId": "REQ-009.12.1",
+  "hash": "162bc5f9f88c",
+  "verdict": "pass",
+  "summary": "Full-string summary equality covers 'this task' after each single-field override, focus-only traversal staying 'repo default', bare 'app default', and workflow beating repo for 'workflow default'",
+  "timestamp": "2026-07-23T17:56:35.389Z"
+}

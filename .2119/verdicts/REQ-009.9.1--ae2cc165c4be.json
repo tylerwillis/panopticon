@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.9.1--ae2cc165c4be",
+  "requirementId": "REQ-009.9.1",
+  "hash": "ae2cc165c4be",
+  "verdict": "pass",
+  "summary": "Asserts #memo-box region width == 64 both with the launch controls visible and again with the model candidate list open (list genuinely rendered, width > 0)",
+  "timestamp": "2026-07-23T17:56:34.597Z"
+}
