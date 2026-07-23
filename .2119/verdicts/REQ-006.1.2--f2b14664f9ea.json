@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.1.2--f2b14664f9ea",
-  "requirementId": "REQ-006.1.2",
-  "hash": "f2b14664f9ea",
-  "verdict": "pass",
-  "summary": "test_help_screen_documents_bulk_respawn_binding opens the real HelpScreen and asserts exactly one line 'Ctrl+R Respawn all down tasks', exercising Hotkey.display + HelpScreen.compose; rejects missing display override, mislabeling onto a different key, vague descriptions, and duplicate Ctrl+R lines.",
-  "timestamp": "2026-07-22T17:08:41.634Z"
-}
