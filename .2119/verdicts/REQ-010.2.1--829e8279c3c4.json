@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-010.2.1--829e8279c3c4",
-  "requirementId": "REQ-010.2.1",
-  "hash": "829e8279c3c4",
-  "verdict": "pass",
-  "summary": "Counters live inside fake harnesses driven by the real modal discovery path; test waits for all model+effort counts to hit exactly 1, then cycles 3 full wraps and asserts counts stay 1 - missing discovery, per-cycle rediscovery, and effort-only rediscovery all fail it.",
-  "timestamp": "2026-07-23T17:44:02.682Z"
-}
