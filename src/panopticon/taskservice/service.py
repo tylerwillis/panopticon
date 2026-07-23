@@ -651,7 +651,12 @@ class TaskService:
         # slug cannot leave the recorded slug changed without its corresponding alias.
         await self._artifacts.link_slug(task_id, slug)
         task.slug = slug
-        await self._save_task(task)
+        try:
+            await self._save_task(task)
+        except Exception:
+            if previous != slug:
+                await self._artifacts.unlink_slug(slug)
+            raise
         _log.info("task %s: slug → %s", task_id, slug)
         # Expose the task's artifacts under the slug alias; drop a stale one on a re-slug so the
         # tasks/ dir keeps a single live alias per task (the symlinks live on the artifact store).

@@ -2662,7 +2662,7 @@ class Dashboard(App[None]):
         task: JsonObj | None
         try:
             task = self._client.get_task(task_id)
-        except Exception:
+        except httpx.HTTPError:
             task = self._tasks.get(task_id)
         if task is None:
             return
@@ -2674,8 +2674,8 @@ class Dashboard(App[None]):
                 self._client.set_slug(task_id, slug)
             except httpx.HTTPStatusError as exc:
                 self.notify(f"Can't rename task: {_detail(exc)}", severity="error")
-                self.action_refresh()
-                return
+            except httpx.RequestError as exc:
+                self.notify(f"Can't rename task: {exc}", severity="error")
             self.action_refresh()
 
         self.push_screen(SlugScreen(str(task.get("slug") or "")), rename)

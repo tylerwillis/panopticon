@@ -60,13 +60,17 @@ class FilesystemArtifactStore(ArtifactStore):
         if link.is_symlink():
             if link.readlink() == Path(task_id):
                 return  # already the right alias
-            link.unlink()
+            raise InvalidArtifactName(f"slug {slug!r} is already used by another task")
         elif link.exists():
             raise InvalidArtifactName(f"slug {slug!r} collides with an existing artifact entry")
         # Ensure the target exists so the alias resolves immediately rather than dangling.
         self._task_dir(task_id).mkdir(parents=True, exist_ok=True)
         link.parent.mkdir(parents=True, exist_ok=True)
-        link.symlink_to(task_id, target_is_directory=True)
+        try:
+            link.symlink_to(task_id, target_is_directory=True)
+        except FileExistsError as exc:
+            # Another concurrent setter won the alias after the checks above.
+            raise InvalidArtifactName(f"slug {slug!r} is already used") from exc
 
     async def link_slug(self, task_id: str, slug: str) -> None:
         """Alias ``<root>/tasks/<slug>`` to the task's id-named directory.

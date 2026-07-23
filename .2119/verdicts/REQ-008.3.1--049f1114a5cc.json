@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.3.1--049f1114a5cc",
-  "requirementId": "REQ-008.3.1",
-  "hash": "049f1114a5cc",
-  "verdict": "pass",
-  "summary": "Both automatic-clear kinds verified cleared before the explicit set_blocked(True) persists on reload",
-  "timestamp": "2026-07-23T18:16:02.223Z"
-}
