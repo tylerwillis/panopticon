@@ -29,7 +29,7 @@ from panopticon.taskservice.api import create_app
 from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
 from panopticon.taskservice.service import TaskService
 from panopticon.taskservice.store_sqlalchemy import SqlAlchemyStore
-from panopticon.workflows import GithubPeerReviewed, Spike
+from panopticon.workflows import Spike
 
 _IMAGE = "panopticon-acceptance:latest"
 _TMUX_SOCKET = "panopticon-acceptance"
@@ -124,10 +124,9 @@ def test_runner_spawns_real_container_that_registers_and_loses_liveness(
         image=_IMAGE,
         runner_id="acceptance",
         tmux_socket=_TMUX_SOCKET,
-        # The pane normally execs the agent launcher, but that runs `claude`, which the bare
-        # base image lacks (it arrives in a later image layer) — and "no LLMs in tests" anyway.
-        # This acceptance test only proves liveness + a live tmux pane to attach to, so a
-        # stay-alive shell stands in for the agent.
+        # The pane normally execs the agent launcher, but "no LLMs in tests": this acceptance test
+        # only proves liveness + a live tmux pane to attach to, so a stay-alive shell stands in for
+        # the agent.
         agent_command=["bash"],
         extra_env={"PANOPTICON_PROPOSED_SLUG": "acc-slug"},
     )
@@ -136,20 +135,29 @@ def test_runner_spawns_real_container_that_registers_and_loses_liveness(
     try:
         # 2119: REQ-009.1
         subprocess.run(
-            ["docker", "run", "--rm", "--entrypoint", "gh", _IMAGE, "--version"],
+            ["docker", "run", "--rm", _IMAGE, "gh", "--version"],
             check=True,
             capture_output=True,
         )
 
+        workflow_layer = "RUN touch /panopticon-workflow-layer-applied"
         composed_image = ImageBuilder(base=_IMAGE).build(
             "claude",
-            "github-peer-reviewed",
+            "layered",
             "acceptance",
-            [GithubPeerReviewed().image_layer()],
+            [workflow_layer],
         )
         # 2119: REQ-009.3
         subprocess.run(
-            ["docker", "run", "--rm", "--entrypoint", "gh", composed_image, "--version"],
+            [
+                "docker",
+                "run",
+                "--rm",
+                composed_image,
+                "bash",
+                "-c",
+                "test -f /panopticon-workflow-layer-applied && gh --version",
+            ],
             check=True,
             capture_output=True,
         )

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.2.1--4bfc51a8a56a",
-  "requirementId": "REQ-009.2.1",
-  "hash": "4bfc51a8a56a",
-  "verdict": "pass",
-  "summary": "Sweeps every discovered workflow's real image_layer() for \\bgh\\b and fails today with 3 real offenders (github-peer-reviewed, github-self-reviewed, review) — rejects the actual apt-install violation; text inspection is direct verification for a layer-content MUST NOT, not keyword theater. Caveat: an exotic .deb-download install (gh_*.deb, no standalone 'gh' token) could evade the regex.",
-  "timestamp": "2026-07-22T14:26:25.066Z"
-}

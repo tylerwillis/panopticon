@@ -35,8 +35,10 @@ When the session service (the runner) spawns a task, it composes the image befor
 3. Otherwise it writes a Dockerfile that starts `FROM panopticon-base` and appends the fragments,
    then `docker build`s it, tagged **`panopticon-<workflow>-<repo_id>`**.
 
-Docker layer-caches the result, so a spawn whose layers haven't changed rebuilds nothing — it's a
-no-op once built. Change a layer and the next spawn rebuilds only the affected steps.
+Every spawn first compares the base image's content/version fingerprint with the packaged
+Dockerfile, entrypoint, and Panopticon release, rebuilding the static `panopticon-base` tag when it
+is missing or stale. Docker layer-caches that rebuild and the composed image, so unchanged inputs
+are cheap. Change a layer and the next spawn rebuilds only the affected steps.
 
 > Workflows whose `runner_type` is `"shell"` (e.g. `setup-repo`) run on the host with no container,
 > so they have no image and layers are ignored.
@@ -96,8 +98,9 @@ absolute paths) are rejected; nested names (`team/myrepo.dockerfile`) are allowe
   own layers dir. With a single host that's your machine; with remote runners (M5), place a
   same-named file under each runner host's layers dir.
 - **Rebuilds & cleanup.** Editing a layer rebuilds the affected steps on the next spawn (Docker
-  caches the rest). `make clean` removes `panopticon-base` and every composed `panopticon-*` image;
-  `make build` rebuilds the base.
+  caches the rest). A packaged base-input or version change also refreshes a stale base
+  automatically. `make clean` removes `panopticon-base` and every composed `panopticon-*` image;
+  `make build` rebuilds the base immediately.
 - **Elevated privileges are a capability, not a layer.** Docker-in-Docker is opt-in via the repo's
   `capabilities` map (`docker_in_docker`), which makes the runner spawn `--privileged` and the
   entrypoint start a nested daemon — it is not something you add through a Dockerfile fragment.

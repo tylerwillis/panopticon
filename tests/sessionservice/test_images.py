@@ -9,7 +9,12 @@ from collections.abc import Sequence
 from pathlib import Path
 
 import panopticon.docker as _docker_pkg
-from panopticon.sessionservice.images import ImageBuilder, compose_dockerfile, image_tag
+from panopticon.sessionservice.images import (
+    ImageBuilder,
+    _base_fingerprint,
+    compose_dockerfile,
+    image_tag,
+)
 from panopticon.workflows.discovery import discover_workflows
 
 
@@ -19,16 +24,14 @@ def _base_dockerfile() -> str:
 
 # 2119: REQ-009.1
 def test_base_image_installs_github_cli() -> None:
-    install = (
-        _base_dockerfile()
-        .split("apt-get install --yes --no-install-recommends", 1)[1]
-        .split("&& rm", 1)[0]
+    assert re.search(
+        r"(?m)^\s*&& apt-get install --yes --no-install-recommends .*\bgh\b.*$",
+        _base_dockerfile(),
     )
-    assert re.search(r"\bgh\b", install)
 
 
 # 2119: REQ-009.2
-def test_workflow_layers_do_not_reinstall_github_cli(tmp_path: Path) -> None:
+def test_panopticon_shipped_workflow_layers_do_not_reinstall_github_cli(tmp_path: Path) -> None:
     workflows = discover_workflows(_home_workflows=tmp_path / "no-home-workflows")
     offenders = [
         name for name, workflow in workflows.items() if re.search(r"\bgh\b", workflow.image_layer())
@@ -86,17 +89,36 @@ class _MultiRecorder:
         return self._responses.pop(0) if self._responses else ""
 
 
-def test_build_base_if_missing_skips_build_when_image_present() -> None:
-    rec = _MultiRecorder('[{"Id": "sha256:abc"}]')  # inspect returns JSON → image present
+def test_build_base_if_missing_skips_build_when_fingerprint_matches() -> None:
+    rec = _MultiRecorder(_base_fingerprint())
     result = ImageBuilder(base="panopticon-base", run=rec).build_base_if_missing()
     assert result is False
-    assert len(rec.calls) == 1  # only the inspect probe, no build
-    assert rec.calls[0][0] == ["docker", "image", "inspect", "panopticon-base"]
-    assert rec.calls[0][1] is False  # check=False so a missing image doesn't raise
+    assert len(rec.calls) == 1  # only the fingerprint probe, no build
+    assert rec.calls[0][0][:5] == [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        '{{ index .Config.Labels "io.panopticon.base-fingerprint" }}',
+    ]
+    assert rec.calls[0][0][-1] == "panopticon-base"
+    assert rec.calls[0][1] is False  # check=False so a missing or stale image does not raise
+
+
+# 2119: REQ-009.1
+def test_build_base_if_missing_rebuilds_when_fingerprint_is_stale() -> None:
+    rec = _MultiRecorder("pre-gh-base-fingerprint")
+    result = ImageBuilder(base="panopticon-base", run=rec).build_base_if_missing()
+    assert result is True
+    assert len(rec.calls) == 2
+    assert rec.calls[1][0][:4] == ["docker", "build", "--tag", "panopticon-base"]
+    assert "--label" in rec.calls[1][0]
+    label = rec.calls[1][0][rec.calls[1][0].index("--label") + 1]
+    assert label == f"io.panopticon.base-fingerprint={_base_fingerprint()}"
 
 
 def test_build_base_if_missing_builds_when_inspect_returns_empty_string() -> None:
-    rec = _MultiRecorder("")  # inspect returns "" → image absent
+    rec = _MultiRecorder("")  # label inspect returns "" → image absent
     result = ImageBuilder(base="panopticon-base", run=rec).build_base_if_missing()
     assert result is True
     assert len(rec.calls) == 2
@@ -114,7 +136,7 @@ def test_build_base_if_missing_builds_when_inspect_returns_empty_string() -> Non
 
 
 def test_build_base_if_missing_builds_when_inspect_returns_empty_array() -> None:
-    rec = _MultiRecorder("[]")  # docker inspect outputs "[]" on a missing image
+    rec = _MultiRecorder("[]")  # tolerate the missing-image output used by older fakes
     result = ImageBuilder(base="panopticon-base", run=rec).build_base_if_missing()
     assert result is True
     assert len(rec.calls) == 2  # inspect + build
@@ -126,6 +148,9 @@ def test_build_base_unconditional() -> None:
     assert len(rec.calls) == 1  # no inspect probe — just the build
     build_cmd = rec.calls[0][0]
     assert build_cmd[:4] == ["docker", "build", "--tag", "panopticon-base"]
+    assert "--label" in build_cmd
+    label = build_cmd[build_cmd.index("--label") + 1]
+    assert label == f"io.panopticon.base-fingerprint={_base_fingerprint()}"
     assert "--build-arg" in build_cmd
     version_arg = build_cmd[build_cmd.index("--build-arg") + 1]
     assert version_arg.startswith("PANOPTICON_VERSION=")
