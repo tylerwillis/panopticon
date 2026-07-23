@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.3.1--9ac07d023ef6",
+  "requirementId": "REQ-010.3.1",
+  "hash": "9ac07d023ef6",
+  "verdict": "pass",
+  "summary": "Fresh-open test embeds discovery call count in suggestions and asserts the second opening presents call-2 model/effort values via the live suggester; a retained first-open cache would present call-1 and time out the wait, failing the test.",
+  "timestamp": "2026-07-23T18:25:39.197Z"
+}

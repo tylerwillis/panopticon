@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.1.1--68c5d90bf327",
+  "requirementId": "REQ-006.1.1",
+  "hash": "68c5d90bf327",
+  "verdict": "pass",
+  "summary": "pilot.press('ctrl+r') on the real Dashboard asserts BulkRespawnScreen is pushed — the binding is exercised through Textual key dispatch, no mocks; removing or rebinding Ctrl+R fails the isinstance assertion",
+  "timestamp": "2026-07-23T18:23:03.423Z"
+}

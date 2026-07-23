@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.6.1--81556d6406b8",
+  "requirementId": "REQ-001.6.1",
+  "hash": "81556d6406b8",
+  "verdict": "pass",
+  "summary": "Real-UI test asserts whole-dialog text equality including both the file-removal and retained-until-restart explanations; any omission or alteration fails the == assertion.",
+  "timestamp": "2026-07-23T18:22:36.325Z"
+}

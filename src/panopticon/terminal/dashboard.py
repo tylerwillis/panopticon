@@ -934,7 +934,7 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
         self._initial_memo = initial_memo
         self._overrides = dict(initial_launch or {})
         self._touched = set(touched)
-        self._suggestion_cache: dict[str, _HarnessSuggestions | Exception] = {}
+        self._suggestion_cache: dict[str, _HarnessSuggestions] = {}
         self._suggestion_pending: dict[str, threading.Event] = {}
         self._suggestion_lock = threading.Lock()
         self._selection = resolve_launch_selection(
@@ -962,12 +962,14 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
         if discover:
             harness = HARNESSES[harness_name]
             try:
-                result = _HarnessSuggestions(
-                    tuple(harness.suggested_models()),
-                    tuple(harness.suggested_efforts(self._suggestion_models[harness_name])),
-                )
-            except Exception as error:
-                result = error
+                models = tuple(harness.suggested_models())
+            except Exception:
+                models = ()
+            try:
+                efforts = tuple(harness.suggested_efforts(self._suggestion_models[harness_name]))
+            except Exception:
+                efforts = ()
+            result = _HarnessSuggestions(models, efforts)
             with self._suggestion_lock:
                 self._suggestion_cache[harness_name] = result
                 self._suggestion_pending.pop(harness_name).set()
@@ -977,8 +979,6 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
             with self._suggestion_lock:
                 result = self._suggestion_cache[harness_name]
 
-        if isinstance(result, Exception):
-            raise result
         return result
 
     def _prefetch_suggestions(self, app: App[Any]) -> None:
@@ -987,10 +987,7 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
         for harness_name in self._harness_names:
             if worker.is_cancelled:
                 return
-            try:
-                suggestions = self._suggestions_for(harness_name)
-            except Exception:
-                continue
+            suggestions = self._suggestions_for(harness_name)
             if worker.is_cancelled:
                 return
             if self.is_attached:

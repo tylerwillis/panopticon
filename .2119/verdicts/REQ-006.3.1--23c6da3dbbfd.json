@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.3.1--23c6da3dbbfd",
-  "requirementId": "REQ-006.3.1",
-  "hash": "23c6da3dbbfd",
-  "verdict": "pass",
-  "summary": "test_bulk_respawn_escape_cancels_without_releasing_claims exercises the real BulkRespawnScreen escape binding via Textual's pilot and asserts both the modal is popped (screen_stack==1) and the fake client's release() was never called, rejecting both a stuck-modal violation and a still-releases-claims violation.",
-  "timestamp": "2026-07-22T17:08:42.835Z"
-}

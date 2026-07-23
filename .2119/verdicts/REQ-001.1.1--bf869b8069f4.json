@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.1.1--bf869b8069f4",
-  "requirementId": "REQ-001.1.1",
-  "hash": "bf869b8069f4",
-  "verdict": "pass",
-  "summary": "Key-driven tests open the dialog for exactly the highlighted operator row; wrong-target and unbound-key behavior both fail explicit assertions.",
-  "timestamp": "2026-07-22T17:09:13.862Z"
-}

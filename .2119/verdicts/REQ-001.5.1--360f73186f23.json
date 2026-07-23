@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.5.1--360f73186f23",
+  "requirementId": "REQ-001.5.1",
+  "hash": "360f73186f23",
+  "verdict": "pass",
+  "summary": "Real-pilot test presses x on a built-in workflow, asserts the file's content is unchanged on disk and app.screen is still WorkflowsScreen (a pushed confirmation modal would replace it); only listing data is faked, the guarded deletion path is real.",
+  "timestamp": "2026-07-23T18:22:33.948Z"
+}

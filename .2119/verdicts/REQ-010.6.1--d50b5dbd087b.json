@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.6.1--d50b5dbd087b",
+  "requirementId": "REQ-010.6.1",
+  "hash": "d50b5dbd087b",
+  "verdict": "pass",
+  "summary": "Test holds discovery in-flight, closes the modal, then lets it genuinely raise; asserts no notify and the app survives — the exact violating scenarios (post-close notification or worker crash) would fail it.",
+  "timestamp": "2026-07-23T18:26:10.995Z"
+}

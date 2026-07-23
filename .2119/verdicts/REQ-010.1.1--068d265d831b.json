@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-010.1.1--068d265d831b",
-  "requirementId": "REQ-010.1.1",
-  "hash": "068d265d831b",
-  "verdict": "pass",
-  "summary": "Fake harness blocks discovery on an Event; test proves the modal mounted, focused, and accepted a keystroke while release.is_set() is still false, so any synchronous block on mount/focus/input fails.",
-  "timestamp": "2026-07-23T17:44:02.330Z"
-}

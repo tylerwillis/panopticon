@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.4.2--74f8688cf604",
-  "requirementId": "REQ-006.4.2",
-  "hash": "74f8688cf604",
-  "verdict": "pass",
-  "summary": "test_bulk_respawn_confirmation_releases_each_down_task_once_in_order forces first-before-second display order (reversed service order via _make_sort_key's id tiebreak) and uses a lock+sleep to prove non-overlapping releases plus an exact interleaved check/release event log, rejecting both out-of-order and concurrent/batched processing.",
-  "timestamp": "2026-07-22T17:08:43.653Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.1.1--7ea34c4a7a25",
+  "requirementId": "REQ-010.1.1",
+  "hash": "7ea34c4a7a25",
+  "verdict": "pass",
+  "summary": "test_memo_accepts_input_while_harness_suggestions_are_discovered blocks discovery on an unreleased Event and proves the memo modal mounts, holds focus, and accepts the 'x' keystroke during the block; the 'assert not release.is_set()' guard means a synchronous-blocking implementation (rescued only by the 5s backstop) would fail",
+  "timestamp": "2026-07-23T18:25:13.542Z"
+}

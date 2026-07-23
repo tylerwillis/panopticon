@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-010.3.1--0f9f1f1562bc",
-  "requirementId": "REQ-010.3.1",
-  "hash": "0f9f1f1562bc",
-  "verdict": "pass",
-  "summary": "Fake harness returns call-numbered suggestions; the test reopens the modal and waits for the -2 values, so a stale cache serving the first opening's -1 results would time out and fail; only the discovery source is mocked.",
-  "timestamp": "2026-07-23T17:44:03.072Z"
-}

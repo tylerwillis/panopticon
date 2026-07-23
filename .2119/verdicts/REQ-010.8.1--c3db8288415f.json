@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.8.1--c3db8288415f",
+  "requirementId": "REQ-010.8.1",
+  "hash": "c3db8288415f",
+  "verdict": "pass",
+  "summary": "test_early_cycle_discovers_once_and_presents_the_selected_harness_suggestions asserts the modal's model/effort suggesters exactly equal the selected harness's name-prefixed discovered values (target-model-1/target-empty-effort-1), so a swapped, stale, or empty presentation would fail; the fake substitutes only the discovery source, not the presentation path.",
+  "timestamp": "2026-07-23T18:26:18.207Z"
+}

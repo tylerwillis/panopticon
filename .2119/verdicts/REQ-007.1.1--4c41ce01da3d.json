@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.1.1--4c41ce01da3d",
+  "requirementId": "REQ-007.1.1",
+  "hash": "4c41ce01da3d",
+  "verdict": "pass",
+  "summary": "Both clipboard paths asserted via real 'c' keypress with leaf-effect stubs; failure-of-terminal-path and wrong-task counterexamples rejected by dedicated tests",
+  "timestamp": "2026-07-23T18:24:40.139Z"
+}

@@ -269,11 +269,13 @@ class _SuggestionHarness:
         delay: float = 0.0,
         release: threading.Event | None = None,
         fail_models: bool = False,
+        fail_efforts: bool = False,
     ) -> None:
         self.name = name
         self.delay = delay
         self.release = release
         self.fail_models = fail_models
+        self.fail_efforts = fail_efforts
         self.field_label = f"{name} model"
         self.started = threading.Event()
         self.model_calls = 0
@@ -298,6 +300,8 @@ class _SuggestionHarness:
         self.effort_models.append(model)
         if self.delay:
             time.sleep(self.delay)
+        if self.fail_efforts:
+            raise RuntimeError(f"{self.name} effort discovery failed")
         model_tag = "none" if model is None else model or "empty"
         return ((f"{self.name}-{model_tag}-effort-{call}", f"{self.name} effort {call}"),)
 
@@ -1327,6 +1331,7 @@ async def test_cached_harness_cycles_finish_under_ten_milliseconds(monkeypatch: 
             assert await effort.suggester.get_suggestion("") == f"{name}-empty-effort-1"
 
 
+# 2119: REQ-010.2.1
 # 2119: REQ-010.6.1
 async def test_closing_memo_suppresses_an_in_flight_discovery_failure(monkeypatch: Any) -> None:
     release = threading.Event()
@@ -1357,10 +1362,50 @@ async def test_closing_memo_suppresses_an_in_flight_discovery_failure(monkeypatc
         await _wait_for(pilot, slow.started.is_set)
         await pilot.press("escape")
         release.set()
-        await pilot.pause(0.1)
+        await _wait_for(pilot, lambda: slow.model_calls == slow.effort_calls == 1)
         assert app.is_running
         assert not isinstance(app.screen, dashboard.MemoScreen)
         assert notices == []
+
+
+# 2119: REQ-010.2.1
+async def test_discovery_failures_keep_the_successful_half_and_cycle_safely(
+    monkeypatch: Any,
+) -> None:
+    harnesses = {
+        "claude": _SuggestionHarness("claude"),
+        "model-broken": _SuggestionHarness("model-broken", fail_models=True),
+        "effort-broken": _SuggestionHarness("effort-broken", fail_efforts=True),
+    }
+    monkeypatch.setattr(dashboard, "HARNESSES", harnesses)
+    fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await _open_memo(pilot)
+        await _wait_for(
+            pilot,
+            lambda: all(h.model_calls == h.effort_calls == 1 for h in harnesses.values()),
+        )
+        selector = app.screen.query_one(dashboard.HarnessSelector)
+        selector.focus()
+
+        await pilot.press("enter")
+        model = app.screen.query_one("#launch-model", Input).suggester
+        effort = app.screen.query_one("#launch-effort", Input).suggester
+        assert isinstance(model, dashboard.SuggestFromList)
+        assert isinstance(effort, dashboard.SuggestFromList)
+        assert model._suggestions == ["effort-broken-model-1"]
+        assert effort._suggestions == []
+
+        await pilot.press("enter")
+        model = app.screen.query_one("#launch-model", Input).suggester
+        effort = app.screen.query_one("#launch-effort", Input).suggester
+        assert isinstance(model, dashboard.SuggestFromList)
+        assert isinstance(effort, dashboard.SuggestFromList)
+        assert model._suggestions == []
+        assert effort._suggestions == ["model-broken-empty-effort-1"]
+        assert app.is_running
+        assert all(h.model_calls == h.effort_calls == 1 for h in harnesses.values())
 
 
 # 2119: REQ-010.7.1

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.1.2--aaa4c24acd33",
-  "requirementId": "REQ-006.1.2",
-  "hash": "aaa4c24acd33",
-  "verdict": "pass",
-  "summary": "Test opens the real help modal via keypress and asserts exactly one rendered 'Ctrl+R Respawn all down tasks' line; removal, misdescription, or duplicate Ctrl+R entries all fail it.",
-  "timestamp": "2026-07-23T17:44:01.963Z"
-}

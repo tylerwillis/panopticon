@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.8.1--977f35d2faf0",
+  "requirementId": "REQ-001.8.1",
+  "hash": "977f35d2faf0",
+  "verdict": "pass",
+  "summary": "test_workflows_screen_refuses_builtin_deletion_with_notification drives a real pilot 'x' press on a built-in workflow and asserts exactly one 'Built-in workflows cannot be deleted.' notify emitted by the deletion request (notices cleared post-mount), file untouched — a missing/wrong/mount-time notice or an actual deletion fails it",
+  "timestamp": "2026-07-23T18:22:58.482Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-007.3.1--b9dfc2548309",
-  "requirementId": "REQ-007.3.1",
-  "hash": "b9dfc2548309",
-  "verdict": "pass",
-  "summary": "splitlines() membership check on the real render_detail output directly rejects the hint being added as a line.",
-  "timestamp": "2026-07-22T17:09:19.424Z"
-}
