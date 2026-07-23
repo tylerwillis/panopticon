@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.2.1--61e579142f48",
+  "requirementId": "REQ-001.2.1",
+  "hash": "61e579142f48",
+  "verdict": "pass",
+  "summary": "Test asserts on_transition hook call, appended history entry, recomputed turn (LANDED discriminates from WORKING/USER), and the literal trigger==\"advance\" — genuinely closes the prior trigger-field gap; currently fails as expected (feature unimplemented).",
+  "timestamp": "2026-07-23T09:00:45.877Z"
+}

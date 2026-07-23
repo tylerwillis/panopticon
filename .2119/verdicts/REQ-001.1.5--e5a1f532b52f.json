@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.1.5--e5a1f532b52f",
+  "requirementId": "REQ-001.1.5",
+  "hash": "e5a1f532b52f",
+  "verdict": "pass",
+  "summary": "Same ambiguous-state test additionally asserts outstanding_responsibilities==[], confirming the responsibility itself still resolved even though no auto-transition fired -- a distinct, non-tautological check from the state-unchanged assertion.",
+  "timestamp": "2026-07-23T08:56:23.916Z"
+}

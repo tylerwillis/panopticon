@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.1.4--ca20b5260f5c",
+  "requirementId": "REQ-001.1.4",
+  "hash": "ca20b5260f5c",
+  "verdict": "pass",
+  "summary": "_Ambiguous.Working has two forward transitions with none declared advance (confirmed via _resolve_operations: forward list len==2 means no 'advance' key), matching the requirement's own example; asserting state stays WORKING rejects an implementation that picks an arbitrary transition anyway.",
+  "timestamp": "2026-07-23T08:56:23.561Z"
+}

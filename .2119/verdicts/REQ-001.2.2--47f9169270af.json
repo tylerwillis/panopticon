@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.2.2--47f9169270af",
+  "requirementId": "REQ-001.2.2",
+  "hash": "47f9169270af",
+  "verdict": "pass",
+  "summary": "resolved is the direct return of resolve_responsibility (no intervening get_task); its .state, .turn (LANDED=AGENT vs WORKING=USER, deliberately non-degenerate), and .history[-1].to_state/.trigger are all asserted post-transition, covering all three conjuncts (state/turn/current history entry) against a stale-return-value bug, not just the persisted store.",
+  "timestamp": "2026-07-23T09:03:59.289Z"
+}

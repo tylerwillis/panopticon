@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.3.2--8344b44e44cd",
+  "requirementId": "REQ-001.3.2",
+  "hash": "8344b44e44cd",
+  "verdict": "pass",
+  "summary": "test_auto_advance_does_not_cascade_through_a_freshly_entered_state chains WORKING->MIDDLE->(would-be COMPLETE) and asserts it stops at MIDDLE, genuinely catching recursive re-evaluation; note it currently fails (not passes) since it depends on REQ-001.1.1's auto-advance also being implemented — both hops are currently absent, giving 'WORKING' not 'MIDDLE' — but the test's discriminating logic is sound once the prerequisite lands.",
+  "timestamp": "2026-07-23T09:00:50.186Z"
+}
