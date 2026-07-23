@@ -2659,6 +2659,7 @@ class Dashboard(App[None]):
         if not self._detail_visible or self._current is None:
             return
         task_id = self._current
+        task: JsonObj | None
         try:
             task = self._client.get_task(task_id)
         except Exception:
