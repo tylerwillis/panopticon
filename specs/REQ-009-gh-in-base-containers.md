@@ -21,10 +21,11 @@ workflows, without requiring each workflow or repository layer to anticipate Git
 
 ### REQ-009.2: Single installation tier
 
-1. Workflow-specific image layers MUST NOT reinstall the `gh` executable supplied by the base
-   task-container image.
+1. Panopticon-shipped workflow-specific image layers MUST NOT reinstall the `gh` executable
+   supplied by the base task-container image.
 
 ### REQ-009.3: Composed image availability
 
-1. A task-container image composed with a workflow-specific image layer MUST retain a functioning
-   `gh` executable.
+1. A task-container image composed by Panopticon with a non-empty workflow-specific image layer
+   that does not modify the base-provided `gh` executable MUST retain a functioning `gh`
+   executable.
