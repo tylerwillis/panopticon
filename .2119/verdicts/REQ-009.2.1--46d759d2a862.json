@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.2.1--46d759d2a862",
-  "requirementId": "REQ-009.2.1",
-  "hash": "46d759d2a862",
-  "verdict": "pass",
-  "summary": "Counting fakes reject both bounds of 'exactly once': all four harnesses must reach one model+effort call before any cycling (lazy/never-discovery times out) and counts must still be 1 after 12 cycles (re-discovery fails).",
-  "timestamp": "2026-07-22T15:42:01.295Z"
-}
