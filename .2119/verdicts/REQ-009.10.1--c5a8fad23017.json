@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.10.1--c5a8fad23017",
+  "requirementId": "REQ-009.10.1",
+  "hash": "c5a8fad23017",
+  "verdict": "pass",
+  "summary": "Test pins 'reason' together with 'every finding' in the review-artifact responsibility; a direction that records dispositions without their reasons fails it.",
+  "timestamp": "2026-07-22T15:39:45.322Z"
+}

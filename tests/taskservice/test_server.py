@@ -48,6 +48,8 @@ def test_build_app_serves_default_wiring(tmp_path: Path) -> None:
     # setup-repo is hidden → absent from /workflows (the menu source); the rest are shown.
     assert {w["name"] for w in client.get("/workflows").json()} == {
         "spike",
+        "2119-auto-spec",
+        "2119-human-spec",
         "github-peer-reviewed",
         "github-self-reviewed",
         "local-git-self-reviewed",

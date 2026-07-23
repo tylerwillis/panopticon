@@ -11,6 +11,7 @@ from panopticon.workflows.local_git_self_reviewed import LocalGitSelfReviewed
 from panopticon.workflows.orchestrator import Orchestrator
 from panopticon.workflows.review import Review
 from panopticon.workflows.setup_repo import SetupRepo
+from panopticon.workflows.spec_2119 import Spec2119Auto, Spec2119Human
 from panopticon.workflows.spike import Spike
 
 __all__ = [
@@ -20,5 +21,7 @@ __all__ = [
     "Orchestrator",
     "Review",
     "SetupRepo",
+    "Spec2119Auto",
+    "Spec2119Human",
     "Spike",
 ]

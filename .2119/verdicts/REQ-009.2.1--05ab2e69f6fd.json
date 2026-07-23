@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.1--05ab2e69f6fd",
+  "requirementId": "REQ-009.2.1",
+  "hash": "05ab2e69f6fd",
+  "verdict": "pass",
+  "summary": "Genuinely behavioral: real FilesystemArtifactStore + real briefing call, asserting the canonical mcp URI is absent before put(spec.md) and present after — both directions of the conditional are exercised, no mocks.",
+  "timestamp": "2026-07-22T15:39:22.006Z"
+}

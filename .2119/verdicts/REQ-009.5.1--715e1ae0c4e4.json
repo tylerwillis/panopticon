@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.5.1--715e1ae0c4e4",
+  "requirementId": "REQ-009.5.1",
+  "hash": "715e1ae0c4e4",
+  "verdict": "pass",
+  "summary": "Test pulls the open-pr skill from the real workflow's skills() and pins spec.md/artifact/'change contract' in its instructions; removing the skill (StopIteration) or dropping the contract reference fails it.",
+  "timestamp": "2026-07-22T15:39:32.357Z"
+}

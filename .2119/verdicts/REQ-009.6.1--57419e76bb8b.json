@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.6.1--57419e76bb8b",
+  "requirementId": "REQ-009.6.1",
+  "hash": "57419e76bb8b",
+  "verdict": "pass",
+  "summary": "Test pins both boundary terms — 'repository specification file' and 'mirror' — in the SPECIFYING spec-artifact responsibility; dropping either the mirroring or the source-identification direction fails it.",
+  "timestamp": "2026-07-22T15:39:33.960Z"
+}

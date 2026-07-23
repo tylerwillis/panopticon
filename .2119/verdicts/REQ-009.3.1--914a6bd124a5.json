@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.3.1--914a6bd124a5",
+  "requirementId": "REQ-009.3.1",
+  "hash": "914a6bd124a5",
+  "verdict": "pass",
+  "summary": "Mirrors the spec-artifact test on REVIEWING/review-artifact: pins review.md/artifact/upload on the real discovered workflows; deleting or moving the responsibility, or renaming the artifact, fails the test.",
+  "timestamp": "2026-07-22T15:39:26.385Z"
+}

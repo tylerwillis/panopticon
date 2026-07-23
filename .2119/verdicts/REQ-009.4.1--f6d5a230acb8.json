@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.4.1--f6d5a230acb8",
+  "requirementId": "REQ-009.4.1",
+  "hash": "f6d5a230acb8",
+  "verdict": "pass",
+  "summary": "Test keys into BUILDING's url-recorded responsibility and pins both nouns ('PR URL', 'external URL'); removing the responsibility or retargeting the field fails it. Weakness noted: no directive verb asserted, but all realistic violations (deletion, wrong state, wrong field) are caught.",
+  "timestamp": "2026-07-22T15:39:28.303Z"
+}

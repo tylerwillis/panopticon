@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.1--d752bc109663",
+  "requirementId": "REQ-009.1.1",
+  "hash": "d752bc109663",
+  "verdict": "pass",
+  "summary": "Test resolves the real discovered workflows' SPECIFYING spec-artifact responsibility and pins spec.md/artifact/upload; removing, relocating, or renaming the responsibility fails it (KeyError or assertion).",
+  "timestamp": "2026-07-22T15:39:19.925Z"
+}

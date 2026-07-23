@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.7.1--2e992c3cbd6f",
+  "requirementId": "REQ-009.7.1",
+  "hash": "2e992c3cbd6f",
+  "verdict": "pass",
+  "summary": "Test asserts the exact phrase 'final Fable 5 review report' in the REVIEWING review-artifact responsibility; omitting the report, its finality, or the model name fails it.",
+  "timestamp": "2026-07-22T15:39:38.734Z"
+}
