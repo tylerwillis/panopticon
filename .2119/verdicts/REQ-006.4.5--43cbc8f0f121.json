@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.5--43cbc8f0f121",
+  "requirementId": "REQ-006.4.5",
+  "hash": "43cbc8f0f121",
+  "verdict": "pass",
+  "summary": "notify fully captured and asserted equal to exactly ['respawned 1'], so any task-specific skip notification breaks the equality",
+  "timestamp": "2026-07-22T17:08:12.936Z"
+}

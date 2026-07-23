@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.3--63922dfc9073",
+  "requirementId": "REQ-006.4.3",
+  "hash": "63922dfc9073",
+  "verdict": "pass",
+  "summary": "Tests pin N=2 for a full double-release and N=0 for a listed-but-recovered candidate (released list empty), rejecting hardcoded or listed-count formulas; the notification-surface test verifies the one-line 'respawned N' via the real widget, not a mocked notify.",
+  "timestamp": "2026-07-22T17:07:52.426Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.1.1--d391d5e1ece6",
-  "requirementId": "REQ-006.1.1",
-  "hash": "d391d5e1ece6",
-  "verdict": "pass",
-  "summary": "The test sends Ctrl+R through the real dashboard key-dispatch path and requires the bulk-respawn confirmation screen to open; a missing, different, or misrouted binding fails.",
-  "timestamp": "2026-07-22T06:51:37.585Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.6.1--876e420a21a4",
+  "requirementId": "REQ-009.6.1",
+  "hash": "876e420a21a4",
+  "verdict": "pass",
+  "summary": "Pins claude's exact model list and empty effort list, cycles the harness to codex, then pins codex's exact model and four-effort lists — a stale vocabulary fails either equality",
+  "timestamp": "2026-07-23T17:56:34.188Z"
+}

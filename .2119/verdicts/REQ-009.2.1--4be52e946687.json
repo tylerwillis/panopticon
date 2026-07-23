@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.1--4be52e946687",
+  "requirementId": "REQ-009.2.1",
+  "hash": "4be52e946687",
+  "verdict": "pass",
+  "summary": "Pilot tabs forward from the memo editor and asserts focus lands on harness, model, then effort by widget identity; any reorder or skipped control fails",
+  "timestamp": "2026-07-23T17:56:33.381Z"
+}

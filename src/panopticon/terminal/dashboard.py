@@ -793,9 +793,11 @@ def resolve_launch_selection(
     touched_set = set(touched)
     for field in touched_set:
         values[field] = (overrides or {}).get(field, "")
-    if "harness" in touched_set and "model" not in touched_set:
-        values["model"] = ""
-        values["effort"] = ""
+    if "harness" in touched_set:
+        if "model" not in touched_set:
+            values["model"] = ""
+        if "effort" not in touched_set:
+            values["effort"] = ""
     return LaunchSelection(**values, source="this task" if touched_set else source)
 
 
@@ -875,6 +877,21 @@ class RepoHarnessSelector(HarnessSelector):
         self.update(f"harness: {self.value} ({self._source})")
 
 
+class _LaunchInput(Input):
+    """A normal text input whose navigation keys drive its adjacent candidate list."""
+
+    async def _on_key(self, event: events.Key) -> None:
+        if event.key in {"up", "down", "enter"} and isinstance(self.screen, MemoScreen):
+            event.prevent_default()
+            event.stop()
+            if event.key == "enter":
+                self.screen.accept_launch_candidate(self)
+            else:
+                self.screen.move_launch_candidate(self, -1 if event.key == "up" else 1)
+            return
+        await super()._on_key(event)
+
+
 class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]"]):
     """Memo prompt for task creation.
 
@@ -895,13 +912,18 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
     #memo-box .memo-hint { color: $text-muted; }
     #memo-box HarnessSelector { color: $text-muted; }
     #memo-box HarnessSelector:focus { color: $text; text-style: bold; }
-    #launch-line { height: 1; }
-    #launch-summary { width: 1fr; color: $text-muted; }
-    #launch-line HarnessSelector, #launch-line Input {
-        width: 0; height: 1; border: none; padding: 0;
+    #launch-line { height: auto; margin-top: 1; }
+    #launch-summary { width: 1fr; height: 1; color: $text-muted; }
+    .launch-field { height: 1; }
+    .launch-field-label { width: 9; color: $text-muted; }
+    .launch-field HarnessSelector, .launch-field Input {
+        width: 1fr; height: 1; border: none; padding: 0 1;
     }
-    #launch-line HarnessSelector:focus { width: auto; }
-    #launch-line Input:focus { width: 1fr; }
+    .launch-candidate-box { display: none; height: 4; margin-left: 9; }
+    .launch-candidate-box.-open { display: block; }
+    .launch-candidates { width: 1fr; height: 3; border: tall $panel; }
+    .launch-empty { display: none; height: 1; color: $text-muted; }
+    .launch-candidate-box.-empty .launch-empty { display: block; }
     """
     BINDINGS = [
         ("escape", "cancel", "Cancel"),
@@ -930,6 +952,10 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
         self._selection = resolve_launch_selection(
             repo, workflow, overrides=self._overrides, touched=self._touched
         )
+        self._candidate_values: dict[str, list[str]] = {"model": [], "effort": []}
+        self._suggestion_cache: dict[tuple[str, str, str], tuple[tuple[str, str], ...]] = {}
+        self._programmatic_values: dict[str, str] = {}
+        self._launch_events_ready = False
 
     def compose(self) -> ComposeResult:
         with Vertical(id="memo-box"):
@@ -938,36 +964,131 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
             yield Label("ctrl+s: set without submitting", classes="memo-hint")
             yield Label("ctrl+g: edit in $EDITOR", classes="memo-hint")
             harness = HARNESSES[self._selection.harness]
-            with Horizontal(id="launch-line"):
+            with Vertical(id="launch-line"):
+                with Horizontal(classes="launch-field"):
+                    yield Label("harness", classes="launch-field-label")
+                    yield HarnessSelector(self._selection.harness, self._harness_names)
+                with Horizontal(classes="launch-field"):
+                    yield Label("model", classes="launch-field-label")
+                    yield _LaunchInput(
+                        self._selection.model,
+                        placeholder=harness.field_label,
+                        id="launch-model",
+                    )
+                with Vertical(id="launch-model-candidates", classes="launch-candidate-box"):
+                    model_options = OptionList(
+                        id="launch-model-options", classes="launch-candidates"
+                    )
+                    model_options.can_focus = False
+                    yield model_options
+                    yield Label("no matches", classes="launch-empty")
+                with Horizontal(classes="launch-field"):
+                    yield Label("effort", classes="launch-field-label")
+                    yield _LaunchInput(
+                        self._selection.effort,
+                        placeholder="effort",
+                        id="launch-effort",
+                    )
+                with Vertical(id="launch-effort-candidates", classes="launch-candidate-box"):
+                    effort_options = OptionList(
+                        id="launch-effort-options", classes="launch-candidates"
+                    )
+                    effort_options.can_focus = False
+                    yield effort_options
+                    yield Label("no matches", classes="launch-empty")
                 yield Static(self._selection.summary, id="launch-summary")
-                yield HarnessSelector(self._selection.harness, self._harness_names)
-                yield Input(
-                    self._selection.model,
-                    placeholder=harness.field_label,
-                    id="launch-model",
-                    suggester=SuggestFromList([value for value, _ in harness.suggested_models()]),
-                )
-                yield Input(
-                    self._selection.effort,
-                    placeholder="effort",
-                    id="launch-effort",
-                    suggester=SuggestFromList(
-                        [value for value, _ in harness.suggested_efforts(self._selection.model)]
-                    ),
-                )
 
     def on_mount(self) -> None:
         self.query_one(MemoTextArea).focus()
+        self.app.call_after_refresh(self._enable_launch_events)
+
+    def _enable_launch_events(self) -> None:
+        self._launch_events_ready = True
 
     def on_descendant_focus(self, event: events.DescendantFocus) -> None:
         # The harness selector shadows enter→submit with enter→cycle while it's focused; keep
         # the hint truthful rather than always reading "enter: submit".
         if isinstance(event.widget, HarnessSelector):
             self.query_one("#enter-hint", Label).update("enter: cycle harness")
+        elif isinstance(event.widget, _LaunchInput):
+            field = self._field_for_input(event.widget)
+            self._refresh_candidates(field)
+            self.query_one(f"#launch-{field}-candidates").add_class("-open")
+            self.query_one("#enter-hint", Label).update("enter: choose candidate")
 
     def on_descendant_blur(self, event: events.DescendantBlur) -> None:
         if isinstance(event.widget, HarnessSelector):
             self.query_one("#enter-hint", Label).update("enter: submit")
+        elif isinstance(event.widget, _LaunchInput):
+            field = self._field_for_input(event.widget)
+            self.query_one(f"#launch-{field}-candidates").remove_class("-open")
+            self.query_one("#enter-hint", Label).update("enter: submit")
+
+    @staticmethod
+    def _field_for_input(input_widget: Input) -> str:
+        return "model" if input_widget.id == "launch-model" else "effort"
+
+    def _suggestions(self, field: str) -> Sequence[tuple[str, str]]:
+        harness_name = self._selection.harness
+        model = self.query_one("#launch-model", Input).value if field == "effort" else ""
+        key = (harness_name, field, model)
+        if key not in self._suggestion_cache:
+            harness = HARNESSES[harness_name]
+            suggestions = (
+                harness.suggested_models() if field == "model" else harness.suggested_efforts(model)
+            )
+            self._suggestion_cache[key] = tuple(suggestions)
+        return self._suggestion_cache[key]
+
+    def _refresh_candidates(self, field: str) -> None:
+        input_widget = self.query_one(f"#launch-{field}", Input)
+        needle = input_widget.value.casefold()
+        matches = [
+            (value, label)
+            for value, label in self._suggestions(field)
+            if needle in value.casefold() or needle in label.casefold()
+        ]
+        self._candidate_values[field] = [value for value, _ in matches]
+        prompts = [value if label == value else f"{value} — {label}" for value, label in matches]
+        self.query_one(f"#launch-{field}-options", OptionList).set_options(prompts)
+        self.query_one(f"#launch-{field}-candidates").set_class(not matches, "-empty")
+
+    def move_launch_candidate(self, input_widget: Input, delta: int) -> None:
+        field = self._field_for_input(input_widget)
+        candidates = self.query_one(f"#launch-{field}-options", OptionList)
+        if candidates.option_count == 0:
+            return
+        if candidates.highlighted is None:
+            candidates.highlighted = 0 if delta > 0 else candidates.option_count - 1
+        else:
+            candidates.highlighted = (candidates.highlighted + delta) % candidates.option_count
+
+    def accept_launch_candidate(self, input_widget: Input) -> None:
+        field = self._field_for_input(input_widget)
+        candidates = self.query_one(f"#launch-{field}-options", OptionList)
+        if candidates.highlighted is None or candidates.option_count == 0:
+            return
+        value = self._candidate_values[field][candidates.highlighted]
+        if input_widget.value == value:
+            self.launch_field_changed(field, value)
+        else:
+            input_widget.value = value
+
+    def on_option_list_option_selected(self, event: OptionList.OptionSelected) -> None:
+        if event.option_list.id not in {"launch-model-options", "launch-effort-options"}:
+            return
+        field = "model" if event.option_list.id == "launch-model-options" else "effort"
+        input_widget = self.query_one(f"#launch-{field}", Input)
+        event.option_list.highlighted = event.option_index
+        self.accept_launch_candidate(input_widget)
+        input_widget.focus()
+
+    def _set_untouched_value(self, field: str, value: str) -> None:
+        input_widget = self.query_one(f"#launch-{field}", Input)
+        if input_widget.value == value:
+            return
+        self._programmatic_values[field] = value
+        input_widget.value = value
 
     def launch_field_changed(self, field: str, value: str) -> None:
         self._touched.add(field)
@@ -979,22 +1100,28 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
         if field == "harness":
             harness = HARNESSES[value]
             model = self.query_one("#launch-model", Input)
-            effort = self.query_one("#launch-effort", Input)
             if "model" not in self._touched:
-                model.value = self._selection.model
+                self._set_untouched_value("model", self._selection.model)
             if "effort" not in self._touched:
-                effort.value = self._selection.effort
+                self._set_untouched_value("effort", self._selection.effort)
             model.placeholder = harness.field_label
-            model.suggester = SuggestFromList([item for item, _ in harness.suggested_models()])
-            effort.suggester = SuggestFromList(
-                [item for item, _ in harness.suggested_efforts(model.value)]
-            )
+            if isinstance(self.focused, _LaunchInput):
+                self._refresh_candidates(self._field_for_input(self.focused))
 
     def on_input_changed(self, event: Input.Changed) -> None:
-        if event.input.id == "launch-model":
-            self.launch_field_changed("model", event.value)
-        elif event.input.id == "launch-effort":
-            self.launch_field_changed("effort", event.value)
+        if event.input.id not in {"launch-model", "launch-effort"}:
+            return
+        field = self._field_for_input(event.input)
+        if not self._launch_events_ready:
+            return
+        if self._programmatic_values.get(field) == event.value:
+            del self._programmatic_values[field]
+        else:
+            self.launch_field_changed(field, event.value)
+        if event.input.has_focus:
+            self._refresh_candidates(field)
+        if field == "model" and self.query_one("#launch-effort", Input).has_focus:
+            self._refresh_candidates("effort")
 
     def _result(self, submit: bool | None) -> tuple[str, bool | None, dict[str, str], list[str]]:
         return self.query_one(MemoTextArea).text, submit, self._overrides, sorted(self._touched)

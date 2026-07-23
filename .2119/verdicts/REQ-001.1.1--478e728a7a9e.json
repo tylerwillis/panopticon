@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.1.1--478e728a7a9e",
+  "requirementId": "REQ-001.1.1",
+  "hash": "478e728a7a9e",
+  "verdict": "pass",
+  "summary": "Real x keypress opens confirm dialog naming exactly the highlighted operator row (down->second, default->first with 'second' excluded); silent-delete and wrong-target counterexamples fail.",
+  "timestamp": "2026-07-22T15:42:34.947Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.6.1--57d2331cdb5c",
+  "requirementId": "REQ-001.6.1",
+  "hash": "57d2331cdb5c",
+  "verdict": "pass",
+  "summary": "Exact full-message equality on the dialog's rendered labels covers both the removes-the-file and loaded-until-service-restart clauses; any weakened copy fails.",
+  "timestamp": "2026-07-22T15:42:48.507Z"
+}

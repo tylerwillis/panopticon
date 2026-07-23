@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.7.1--44809c78be71",
+  "requirementId": "REQ-009.7.1",
+  "hash": "44809c78be71",
+  "verdict": "pass",
+  "summary": "Real-modal test focuses all three controls without editing, mutates the repo default between opens, and asserts fields re-track luna:low — a sticky/frozen-value implementation fails",
+  "timestamp": "2026-07-22T15:42:49.844Z"
+}

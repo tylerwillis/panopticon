@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.3.1--1d6403c8535a",
+  "requirementId": "REQ-006.3.1",
+  "hash": "1d6403c8535a",
+  "verdict": "pass",
+  "summary": "Escape test drives the real ctrl+r->modal->escape path and asserts both screen_stack==1 (modal dismissed) and fake.released==[] (zero claim-release calls), rejecting stuck-modal, release-on-cancel, and partial-release counterexamples.",
+  "timestamp": "2026-07-22T17:07:51.242Z"
+}

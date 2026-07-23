@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.16.1--5efd8aabbc19",
+  "requirementId": "REQ-009.16.1",
+  "hash": "5efd8aabbc19",
+  "verdict": "pass",
+  "summary": "Enter on the focused selector must change value to codex with created==[] at that point, and the cycled harness must flow into the eventual create",
+  "timestamp": "2026-07-22T17:06:55.296Z"
+}

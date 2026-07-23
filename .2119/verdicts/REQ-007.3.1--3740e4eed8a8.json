@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.3.1--3740e4eed8a8",
+  "requirementId": "REQ-007.3.1",
+  "hash": "3740e4eed8a8",
+  "verdict": "pass",
+  "summary": "render_detail of a hint-free task asserted hint-free as substring and per-line, keeping the copyable text clean",
+  "timestamp": "2026-07-22T17:08:14.990Z"
+}
