@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.1.2--2d8d4ca2f805",
+  "requirementId": "REQ-012.1.2",
+  "hash": "2d8d4ca2f805",
+  "verdict": "pass",
+  "summary": "A complete pair naming unregistered 'cursor' against a non-empty registry {claude, codex} raises InvalidWorkflow naming the offending harness, through the same validate_registration the service/discovery run — no mocks.",
+  "timestamp": "2026-07-23T17:39:02.440Z"
+}

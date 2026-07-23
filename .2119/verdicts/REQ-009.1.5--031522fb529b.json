@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.1.5--031522fb529b",
-  "requirementId": "REQ-009.1.5",
-  "hash": "031522fb529b",
-  "verdict": "pass",
-  "summary": "test_validate_rejects_unknown_transition_target builds a workflow with an unresolvable string transition target and asserts InvalidWorkflow on graph build; paired positive tests confirm valid string/class refs resolve, so the unknown-label rejection is genuinely isolated.",
-  "timestamp": "2026-07-22T17:07:54.664Z"
-}

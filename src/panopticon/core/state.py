@@ -98,10 +98,11 @@ class InitialState(State):
     """A workflow's entry state — every workflow's ``initial`` must subclass this
     (enforced when the workflow is built).
 
-    The turn starts with the **user**: the agent always needs a first instruction before
-    it can work, so a freshly created task waits on the user rather than the agent. Every
-    other aspect is inherited from :class:`State` (``advanced_by = USER``, the inherited
-    ``Dropped`` transition); being a :class:`State`, it is also non-terminal.
+    The turn defaults to the **user**, so the common freshly created task waits for an
+    instruction. Workflows that start autonomously may override :attr:`turn_on_enter`; task
+    creation always uses the configured initial state's value. Every other aspect is inherited
+    from :class:`State` (``advanced_by = USER``, the inherited ``Dropped`` transition); being a
+    :class:`State`, it is also non-terminal.
     """
 
     turn_on_enter: ClassVar[Actor] = Actor.USER

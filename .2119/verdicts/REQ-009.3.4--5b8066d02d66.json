@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.3.4--5b8066d02d66",
-  "requirementId": "REQ-009.3.4",
-  "hash": "5b8066d02d66",
-  "verdict": "pass",
-  "summary": "Freshly started task asserts turn is Actor.USER through the real start_task path; an agent-first start would fail",
-  "timestamp": "2026-07-22T15:42:50.622Z"
-}

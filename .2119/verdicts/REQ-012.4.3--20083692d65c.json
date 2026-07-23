@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.4.3--20083692d65c",
-  "requirementId": "REQ-012.4.3",
-  "hash": "20083692d65c",
-  "verdict": "pass",
-  "summary": "Test creates a task on the app-default path (repo/workflow declare no pair), then flips harness_registry.DEFAULT_HARNESS to codex and re-reads over REST through the real service+SQLAlchemy store: a null-sentinel or read-time-resolved harness would surface codex/None and fail; the monkeypatch is effective because service.py:424 and get_harness read the module global dynamically.",
-  "timestamp": "2026-07-22T17:08:12.140Z"
-}

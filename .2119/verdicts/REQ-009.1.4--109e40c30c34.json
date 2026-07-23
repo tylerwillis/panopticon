@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.1.4--109e40c30c34",
-  "requirementId": "REQ-009.1.4",
-  "hash": "109e40c30c34",
-  "verdict": "pass",
-  "summary": "PLAN declares a forward string label ref ('WORKING') and exact-set assertion proves it resolves; pairs with .1.5's unknown-label rejection",
-  "timestamp": "2026-07-22T15:50:52.375Z"
-}

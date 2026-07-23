@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.2.1--6dc2cc4c54de",
+  "requirementId": "REQ-008.2.1",
+  "hash": "6dc2cc4c54de",
+  "verdict": "pass",
+  "summary": "Clearing verified for declared transition, free move, drop, and cascade drop; in-hook assert (blocked False inside on_transition, fresh block survives) pins clear-before-lifecycle-effects ordering on the advance path",
+  "timestamp": "2026-07-23T17:38:34.801Z"
+}

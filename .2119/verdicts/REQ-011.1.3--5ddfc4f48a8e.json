@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-011.1.3--5ddfc4f48a8e",
-  "requirementId": "REQ-011.1.3",
-  "hash": "5ddfc4f48a8e",
-  "verdict": "pass",
-  "summary": "test_open_registration_is_live_regardless_of_phase_or_runner exercises the real compose_container_status with no mocking, asserting LIVE holds with runner_live=False and with a set phase; the claimed/terminal boundary counterexamples are confirmed rejected by the sibling REQ-011.1.1/1.2 parametrized tests.",
-  "timestamp": "2026-07-22T17:08:06.041Z"
-}

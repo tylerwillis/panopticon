@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.1.1--c2b67088a680",
-  "requirementId": "REQ-012.1.1",
-  "hash": "c2b67088a680",
-  "verdict": "pass",
-  "summary": "Both half-declared cases (harness-only, model-only) genuinely raise InvalidWorkflow via the real, unmocked validate_registration path; requirement text is clear and observable.",
-  "timestamp": "2026-07-22T17:08:07.660Z"
-}

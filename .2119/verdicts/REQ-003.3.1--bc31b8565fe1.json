@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-003.3.1--bc31b8565fe1",
+  "requirementId": "REQ-003.3.1",
+  "hash": "bc31b8565fe1",
+  "verdict": "pass",
+  "summary": "Acceptance covered for explicit-differing and repo-default-resolved-differing harnesses with identical starting-model strings on both tasks, so an implementation rejecting on model equality or resolved-harness difference would fail.",
+  "timestamp": "2026-07-23T17:38:37.609Z"
+}

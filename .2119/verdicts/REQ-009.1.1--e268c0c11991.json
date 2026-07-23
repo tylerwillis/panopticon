@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.1--e268c0c11991",
+  "requirementId": "REQ-009.1.1",
+  "hash": "e268c0c11991",
+  "verdict": "pass",
+  "summary": "PLAN->COMPLETE (off-graph) raises IllegalTransition as the rejected counterexample, and inherited DROPPED is accepted, covering the state-class-hierarchy clause against the real workflow",
+  "timestamp": "2026-07-23T17:38:41.962Z"
+}

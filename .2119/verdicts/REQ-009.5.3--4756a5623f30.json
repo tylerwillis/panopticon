@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.5.3--4756a5623f30",
-  "requirementId": "REQ-009.5.3",
-  "hash": "4756a5623f30",
-  "verdict": "pass",
-  "summary": "test_force_transition_is_a_free_ungated_move (tests/core/test_workflow.py:340-345) drives a real force_transition on a real Task (WORKING -> PLAN, a non-declared backward edge) and asserts task.state == 'PLAN', the destination, distinct from the pre-move source state 'WORKING'; a violation that left state unset or wrong would fail this assertion. No mocks; force_transition/_enter run for real.",
-  "timestamp": "2026-07-22T15:42:01.950Z"
-}

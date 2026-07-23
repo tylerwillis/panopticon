@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.1.1--1224ff5f8538",
-  "requirementId": "REQ-009.1.1",
-  "hash": "1224ff5f8538",
-  "verdict": "pass",
-  "summary": "Real-engine tests reject an off-graph destination (PLAN->COMPLETE raises IllegalTransition) and prove inherited DROPPED is in the resolved set; no mocks, both conjuncts covered.",
-  "timestamp": "2026-07-22T17:11:00.298Z"
-}

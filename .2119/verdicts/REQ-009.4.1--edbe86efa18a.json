@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.4.1--edbe86efa18a",
-  "requirementId": "REQ-009.4.1",
-  "hash": "edbe86efa18a",
-  "verdict": "pass",
-  "summary": "Real PLAN->WORKING transition asserts exact key/PENDING/description set on history[-1]; wrong-set, non-pending, wrong-entry and stale-copy (re-entry after MET) counterexamples all fail; no mocks.",
-  "timestamp": "2026-07-22T17:07:57.580Z"
-}

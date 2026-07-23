@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.2.1--6f097c07e70e",
-  "requirementId": "REQ-008.2.1",
-  "hash": "6f097c07e70e",
-  "verdict": "pass",
-  "summary": "Unmocked service tests cover all state-change paths (advance/drop/free-move/cascade-drop) starting from blocked=True, and the on_transition hook test pins the before-lifecycle ordering both ways: the hook observes blocked=False and its fresh block survives persistence.",
-  "timestamp": "2026-07-22T07:56:14.606Z"
-}

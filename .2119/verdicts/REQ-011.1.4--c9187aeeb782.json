@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-011.1.4--c9187aeeb782",
+  "requirementId": "REQ-011.1.4",
+  "hash": "c9187aeeb782",
+  "verdict": "pass",
+  "summary": "Parametrized over every phase incl. None with runner_live=False on a claimed, unregistered, non-terminal task, all pinned to 'disconnected' — a stale AWAITING/FAILED phase showing through would fail.",
+  "timestamp": "2026-07-23T17:38:37.595Z"
+}

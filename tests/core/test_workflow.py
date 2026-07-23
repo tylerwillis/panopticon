@@ -22,6 +22,7 @@ from panopticon.core import (
     Responsibility,
     State,
     Status,
+    TerminalState,
     Workflow,
 )
 
@@ -79,7 +80,6 @@ def test_start_task_sets_initial_state_turn_and_history() -> None:
         initial = ConfiguredInitial
 
     assert NonFirstInitial().start_task("t2", "r1", at="t0").state == "CONFIGURED"
-    # 2119: REQ-009.3.4
     assert task.turn is Actor.USER  # PLAN is the initial state → turn starts with the user
     assert task.slug is None
     assert task.initial_prompt is None
@@ -88,6 +88,22 @@ def test_start_task_sets_initial_state_turn_and_history() -> None:
     assert task.history[0].to_state == "PLAN"
     assert task.history[0].trigger == "start"
     assert task.history[0].responsibilities == []  # PLAN is ungated
+
+
+def test_start_task_derives_turn_from_the_configured_initial_state() -> None:
+    class AgentFirst(Workflow):
+        name = "agent-first"
+
+        class Entry(InitialState):
+            label = "ENTRY"
+            turn_on_enter = Actor.AGENT
+            transitions = (Complete,)
+
+        initial = Entry
+
+    # 2119: REQ-009.3.4
+    assert WF.start_task("t1", "r1", at="t0").turn is Actor.USER
+    assert AgentFirst().start_task("t2", "r1", at="t0").turn is Actor.AGENT
 
 
 def test_start_task_records_initial_prompt() -> None:
@@ -201,6 +217,28 @@ def test_transitions_resolve_strings_classes_and_inherited_drop() -> None:
     assert list(WF.transitions("COMPLETE")) == []  # terminal
 
 
+def test_class_reference_registers_a_directly_referenced_external_state() -> None:
+    class ExternalTerminal(TerminalState):
+        label = "EXTERNAL"
+
+    class ExternalReference(Workflow):
+        name = "external-reference"
+
+        class Entry(InitialState):
+            label = "ENTRY"
+            transitions = (ExternalTerminal,)
+
+        initial = Entry
+
+    wf = ExternalReference()
+    # 2119: REQ-009.1.3
+    assert set(wf.transitions("ENTRY")) == {"EXTERNAL", "DROPPED"}
+    assert wf.is_terminal("EXTERNAL")
+    task = wf.start_task("t1", "r1", at="t0")
+    wf.apply_transition(task, "EXTERNAL", at="t1")
+    assert task.state == "EXTERNAL"
+
+
 def test_can_transition_and_terminals() -> None:
     assert WF.can_transition("PLAN", "WORKING")
     assert not WF.can_transition("PLAN", "COMPLETE")  # not a direct edge
@@ -238,6 +276,25 @@ def test_turn_updates_on_each_transition() -> None:
     task.resolve_responsibility(key="pr-opened", status=Status.MET)
     WF.apply_transition(task, "COMPLETE", at="t2")
     assert task.turn is Actor.USER  # COMPLETE is terminal → back to the user
+
+    class SameTurnDestination(Workflow):
+        name = "same-turn-destination"
+
+        class A(InitialState):
+            label = "A"
+            transitions = ("B",)
+
+        class B(State):
+            label = "B"
+            turn_on_enter = Actor.USER
+            transitions = (Complete,)
+
+        initial = A
+
+    same_turn = SameTurnDestination()
+    same_turn_task = same_turn.start_task("t2", "r1", at="t0")
+    same_turn.apply_transition(same_turn_task, "B", at="t1")
+    assert same_turn_task.turn is Actor.USER
 
 
 def test_turn_on_enter_and_advanced_by_are_independent() -> None:
@@ -337,7 +394,7 @@ def test_declared_operation_must_target_a_legal_transition() -> None:
     class Bad(Workflow):
         name = "bad-op"
 
-        class A(State):
+        class A(InitialState):
             label = "A"
             transitions = ("B",)
             operations = {"jump": "A"}  # self-target is not a transition
@@ -349,7 +406,7 @@ def test_declared_operation_must_target_a_legal_transition() -> None:
         initial = A
 
     # 2119: REQ-009.2.4
-    with pytest.raises(InvalidWorkflow):
+    with pytest.raises(InvalidWorkflow, match=r"operation 'jump'.*not one of its transitions"):
         Bad().operations("A")
 
 
@@ -370,9 +427,37 @@ def test_force_transition_is_a_free_ungated_move() -> None:
         WF.force_transition(task, "GHOST", at="t3")  # target must still exist
 
 
+def test_force_transition_assigns_turn_from_destination_metadata() -> None:
+    class OrthogonalFreeMove(Workflow):
+        name = "orthogonal-free-move"
+
+        class A(InitialState):
+            label = "A"
+            turn_on_enter = Actor.AGENT
+            transitions = (Complete,)
+
+        class B(State):
+            label = "B"
+            turn_on_enter = Actor.USER
+            advanced_by = Actor.AGENT
+            transitions = (Complete,)
+
+        initial = A
+
+    wf = OrthogonalFreeMove()
+    task = wf.start_task("t1", "r1", at="t0")
+    assert task.turn is Actor.AGENT
+    # 2119: REQ-009.5.6
+    wf.force_transition(task, "B", at="t1", trigger="set-state")
+    assert task.turn is Actor.USER
+    wf.force_transition(task, "COMPLETE", at="t2", trigger="set-state")
+    assert task.turn is Actor.USER
+
+
 def test_force_transition_seeds_destination_responsibilities() -> None:
     task = WF.start_task("t1", "r1", at="t0")
     WF.force_transition(task, "WORKING", at="t1", trigger="set-state")
+    first_working_entry = task.history[-1]
     # 2119: REQ-009.5.6
     assert task.turn is Actor.AGENT
     # 2119: REQ-009.5.7
@@ -381,11 +466,18 @@ def test_force_transition_seeds_destination_responsibilities() -> None:
     task.resolve_responsibility(key="pr-opened", status=Status.MET)
     WF.force_transition(task, "PLAN", at="t2", trigger="set-state")
     WF.force_transition(task, "WORKING", at="t3", trigger="set-state")
+    second_working_entry = task.history[-1]
+    # 2119: REQ-009.4.1
     # 2119: REQ-009.5.8
-    assert {r.key: r.status for r in task.history[-1].responsibilities} == {
+    assert {r.key: r.status for r in second_working_entry.responsibilities} == {
         "tests-pass": Status.PENDING,
         "pr-opened": Status.PENDING,
     }
+    assert {r.key: r.status for r in first_working_entry.responsibilities} == {
+        "tests-pass": Status.MET,
+        "pr-opened": Status.MET,
+    }
+    assert second_working_entry.responsibilities is not first_working_entry.responsibilities
 
 
 # -- illegal transitions ------------------------------------------------------------

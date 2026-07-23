@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.1.2--04b0d1cad785",
-  "requirementId": "REQ-008.1.2",
-  "hash": "04b0d1cad785",
-  "verdict": "pass",
-  "summary": "test_user_turn_preserves_blocked_marker drives the real TaskService against a real store, parametrized over initially_blocked False/True; the True case would fail if a user-turn write ever cleared blocked, and the sibling REQ-008.1.1 test proves the agent-turn path does clear it, so preservation is genuinely distinguished.",
-  "timestamp": "2026-07-22T17:07:53.024Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.4.5--238fca1342a6",
+  "requirementId": "REQ-009.4.5",
+  "hash": "238fca1342a6",
+  "verdict": "pass",
+  "summary": "test_drop_bypasses_responsibilities drops from WORKING with both promises still PENDING via the real apply_transition and asserts the DROPPED state; a gated drop would raise and fail the test",
+  "timestamp": "2026-07-23T17:39:15.495Z"
+}

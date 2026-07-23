@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.3.2--af2c654df159",
-  "requirementId": "REQ-009.3.2",
-  "hash": "af2c654df159",
-  "verdict": "pass",
-  "summary": "Real transitions assert turn=AGENT entering WORKING (kills unchanged/source-derived turn) and turn=USER entering terminal COMPLETE (the explicit terminal clause)",
-  "timestamp": "2026-07-22T15:42:40.529Z"
-}

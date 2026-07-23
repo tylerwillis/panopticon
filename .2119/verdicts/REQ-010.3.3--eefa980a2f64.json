@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-010.3.3--eefa980a2f64",
-  "requirementId": "REQ-010.3.3",
-  "hash": "eefa980a2f64",
-  "verdict": "pass",
-  "summary": "test_user_turn_preserves_blocked_marker parametrizes both blocked=True/False through the real TaskService.set_turn/set_blocked/get_task (no mocks), so a violation in either direction (forcing clear or forcing set) is caught by re-fetching persisted state.",
-  "timestamp": "2026-07-22T17:08:03.604Z"
-}

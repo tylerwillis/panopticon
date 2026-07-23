@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.4--1bb2f218dd53",
+  "requirementId": "REQ-009.1.4",
+  "hash": "1bb2f218dd53",
+  "verdict": "pass",
+  "summary": "String-ref PLAN->'WORKING' resolves into transitions('PLAN'); a broken label lookup would drop WORKING from the resolved set and fail; the unknown-label rejection is covered separately by REQ-009.1.5",
+  "timestamp": "2026-07-23T17:38:50.950Z"
+}

@@ -12,6 +12,7 @@ from panopticon.core import (
     IllegalTransition,
     InitialState,
     ResponsibilitiesNotMet,
+    TerminalState,
     Workflow,
 )
 from panopticon.core.models import Actor, LifecyclePhase, Repo, Responsibility, Status
@@ -427,6 +428,7 @@ async def test_cascade_drop_clears_a_governed_tasks_blocked_marker(tmp_path: Pat
 
 # 2119: REQ-008.2.1
 # 2119: REQ-008.2.2
+# 2119: REQ-010.3.5
 async def test_transition_hook_can_raise_a_fresh_block_after_the_stale_one_clears(
     tmp_path: Path,
 ) -> None:
@@ -642,6 +644,40 @@ async def test_container_status_is_disconnected_when_the_claiming_runner_is_gone
     assert svc.container_status(await svc.get_task(task.id)).value == "disconnected"
     await svc.apply_operation(task.id, "drop")  # terminal → no container concept
     assert svc.container_status(await svc.get_task(task.id)).value == "–"
+
+
+async def test_workflow_defined_terminal_is_terminal_throughout_the_service(
+    tmp_path: Path,
+) -> None:
+    class CustomTerminal(Workflow):
+        name = "custom-terminal"
+
+        class Active(InitialState):
+            label = "ACTIVE"
+            transitions = ("ARCHIVED",)
+
+        class Archived(TerminalState):
+            label = "ARCHIVED"
+
+        initial = Active
+
+    svc = TaskService(
+        SqlAlchemyStore(),
+        {"custom-terminal": CustomTerminal()},
+        FilesystemArtifactStore(tmp_path),
+    )
+    await svc.init()
+    await svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
+    task = await svc.create_task("r1", "custom-terminal")
+    await svc.claim(task.id, "host-dead")
+    await svc.apply_operation(task.id, "advance")
+    archived = await svc.get_task(task.id)
+
+    # 2119: REQ-011.1.1
+    assert svc.container_status(archived).value == "–"
+    assert [t.id for t in await svc.list_tasks_summary(terminal=True)] == [task.id]
+    assert await svc.reclaim("host-dead") == []
+    assert (await svc.get_task(task.id)).claimed_by == "host-dead"
 
 
 async def test_lifecycle_phase_is_cleared_on_release_and_reclaim(tmp_path: Path) -> None:

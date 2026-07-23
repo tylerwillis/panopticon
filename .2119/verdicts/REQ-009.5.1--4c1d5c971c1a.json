@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.5.1--4c1d5c971c1a",
-  "requirementId": "REQ-009.5.1",
-  "hash": "4c1d5c971c1a",
-  "verdict": "pass",
-  "summary": "test_force_transition_is_a_free_ungated_move (tests/core/test_workflow.py:340) forces WORKING->PLAN, an edge absent from the declared graph (Working.transitions=(Complete,) resolves to {COMPLETE,DROPPED}, no PLAN); apply_transition would raise IllegalTransition for this same move, so the assertion task.state=='PLAN' genuinely proves the declared-graph bypass, not a tautology.",
-  "timestamp": "2026-07-22T15:42:39.959Z"
-}

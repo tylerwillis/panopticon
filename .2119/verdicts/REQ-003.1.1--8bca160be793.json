@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-003.1.1--8bca160be793",
-  "requirementId": "REQ-003.1.1",
-  "hash": "8bca160be793",
-  "verdict": "pass",
-  "summary": "Governor-less review creation is driven through the real TaskService (no mocks) and must raise ValueError with no task persisted (list_tasks == []); removing the validation makes the create succeed and the test fail.",
-  "timestamp": "2026-07-22T06:13:13.530Z"
-}

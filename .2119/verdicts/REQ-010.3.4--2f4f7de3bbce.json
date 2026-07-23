@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-010.3.4--2f4f7de3bbce",
-  "requirementId": "REQ-010.3.4",
-  "hash": "2f4f7de3bbce",
-  "verdict": "pass",
-  "summary": "test_agent_turn_clears_blocked_in_the_same_write uses the real TaskService/SqlAlchemyStore, sets blocked=True beforehand, then asserts blocked is False on both the returned and re-fetched task, and pins tasks_version()==before+1 to prove a single save_task call — genuinely rejects both a blocked-left-true bug and a two-write violation of 'same mutation'.",
-  "timestamp": "2026-07-22T17:08:04.023Z"
-}

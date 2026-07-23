@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-003.2.1--f6489b596e3c",
+  "requirementId": "REQ-003.2.1",
+  "hash": "f6489b596e3c",
+  "verdict": "pass",
+  "summary": "Parametrized rejection covers sentinel-vs-explicit in both directions plus repo-default resolution, with differing model strings — naive recorded-string comparison (None vs 'claude') would pass creation and fail the test, so registry resolution is genuinely forced; no task is persisted.",
+  "timestamp": "2026-07-23T17:38:37.228Z"
+}

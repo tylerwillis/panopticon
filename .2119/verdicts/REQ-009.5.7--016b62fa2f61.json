@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.5.7--016b62fa2f61",
-  "requirementId": "REQ-009.5.7",
-  "hash": "016b62fa2f61",
-  "verdict": "pass",
-  "summary": "test_force_transition_is_a_free_ungated_move asserts history grows 2->3, prior entries [PLAN,WORKING] preserved, and the new entry's (from_state,to_state)==(WORKING,PLAN) — catching no-append, overwrite, and wrong-source/destination violations.",
-  "timestamp": "2026-07-22T15:42:41.326Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.1--c6928753c53d",
+  "requirementId": "REQ-009.2.1",
+  "hash": "c6928753c53d",
+  "verdict": "pass",
+  "summary": "operations() asserts drop:DROPPED via exact-dict equality on non-terminal states (incl. a zero-transition state elsewhere in the file), and a declared drop retargeted at COMPLETE is rejected, pinning the 'targeting DROPPED' boundary",
+  "timestamp": "2026-07-23T17:38:57.505Z"
+}

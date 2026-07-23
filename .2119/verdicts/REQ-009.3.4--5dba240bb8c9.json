@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.3.4--5dba240bb8c9",
+  "requirementId": "REQ-009.3.4",
+  "hash": "5dba240bb8c9",
+  "verdict": "pass",
+  "summary": "Covers both turn values — WF's initial (USER) and AgentFirst's turn_on_enter=AGENT — so a hardcoded default in either direction fails; turn read from real start_task, no mocks.",
+  "timestamp": "2026-07-23T17:40:10.440Z"
+}

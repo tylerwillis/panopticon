@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.5.6--d2bb7d397562",
+  "requirementId": "REQ-009.5.6",
+  "hash": "d2bb7d397562",
+  "verdict": "pass",
+  "summary": "Tests kill every near-miss: toggle dies on the same-turn USER->COMPLETE(USER) move, advanced_by-based dies on the orthogonal B fixture, constants/source-based/no-op die on the AGENT and USER destination asserts; real engine, no mocks.",
+  "timestamp": "2026-07-23T17:47:09.343Z"
+}

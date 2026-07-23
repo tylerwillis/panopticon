@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.3.2--24d50aefbdc0",
+  "requirementId": "REQ-009.3.2",
+  "hash": "24d50aefbdc0",
+  "verdict": "pass",
+  "summary": "Prior toggle hole closed: SameTurnDestination asserts a USER->USER same-turn transition, and a turn-toggling apply_transition mutant now fails the test (verified by mutation); AGENT on entering WORKING kills unchanged/source-derived turns and COMPLETE->USER covers the terminal clause.",
+  "timestamp": "2026-07-23T17:45:23.541Z"
+}

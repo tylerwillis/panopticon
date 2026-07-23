@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.1.2--0f9c57703f8c",
-  "requirementId": "REQ-009.1.2",
-  "hash": "0f9c57703f8c",
-  "verdict": "pass",
-  "summary": "apply_transition out of DROPPED raises IllegalTransition on the real state machine; free-move path correctly excluded (COMPLETE exit untested — breadth note only)",
-  "timestamp": "2026-07-22T15:42:55.262Z"
-}

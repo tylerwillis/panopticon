@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.3.3--e1d315853df0",
-  "requirementId": "REQ-009.3.3",
-  "hash": "e1d315853df0",
-  "verdict": "pass",
-  "summary": "Orthogonal workflow pins a state where turn_on_enter (AGENT) differs from advanced_by (USER) and asserts the live turn via a real transition — advanced_by-derived turn would fail",
-  "timestamp": "2026-07-22T15:42:50.062Z"
-}

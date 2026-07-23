@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.1.2--dd5f060f72a2",
+  "requirementId": "REQ-008.1.2",
+  "hash": "dd5f060f72a2",
+  "verdict": "pass",
+  "summary": "Parametrized over initially_blocked True/False, set_turn(USER) leaves the persisted blocked marker unchanged — catching both a clearing and a setting violation.",
+  "timestamp": "2026-07-23T17:38:38.780Z"
+}

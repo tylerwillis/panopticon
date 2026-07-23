@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.4.4--d0c552dea529",
-  "requirementId": "REQ-009.4.4",
-  "hash": "d0c552dea529",
-  "verdict": "pass",
-  "summary": "test_failed_with_comment_allows_transition drives the real engine (MET + FAILED-with-comment then apply_transition to COMPLETE succeeds); boundaries covered: pending-remaining rejected (REQ-009.4.2 test) and blank/absent failure comment rejected (REQ-009.4.3 parametrized test)",
-  "timestamp": "2026-07-22T17:07:58.756Z"
-}

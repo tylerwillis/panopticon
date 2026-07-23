@@ -178,9 +178,28 @@ class Workflow(ABC):
                 return target
             if not (isinstance(target, type) and issubclass(target, BaseState)):
                 raise InvalidWorkflow(f"{self.name!r}: invalid transition target {target!r}")
-            if target.label not in by_label:
-                register(target)  # a directly-referenced class not nested (e.g. a built-in)
+            register(target)
             return target.label
+
+        # Close over directly referenced classes before materializing the graph. Registering a
+        # target while iterating a snapshot would leave that target without its own state and
+        # transition entries, so walk newly discovered classes until the set is stable.
+        pending = list(by_label.values())
+        visited: set[type[BaseState]] = set()
+        while pending:
+            cls = pending.pop()
+            if cls in visited:
+                continue
+            visited.add(cls)
+            if issubclass(cls, TerminalState):
+                continue
+            for target in _accumulated_transitions(cls):
+                if not (isinstance(target, type) and issubclass(target, BaseState)):
+                    continue  # strings and malformed targets are resolved/rejected below
+                is_new = target.label not in by_label
+                register(target)
+                if is_new:
+                    pending.append(target)
 
         states: dict[str, type[BaseState]] = {}
         transitions: dict[str, frozenset[str]] = {}

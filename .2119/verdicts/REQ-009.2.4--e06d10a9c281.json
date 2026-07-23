@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.2.4--e06d10a9c281",
-  "requirementId": "REQ-009.2.4",
-  "hash": "e06d10a9c281",
-  "verdict": "pass",
-  "summary": "Genuine negative test: a declared op ('jump' -> self) targeting a valid state that is not among the declaring state's resolved transitions raises InvalidWorkflow on a real Workflow subclass, no mocks; would fail if off-graph declared operations were accepted.",
-  "timestamp": "2026-07-22T17:07:56.220Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.3.1--8201af6e0c66",
-  "requirementId": "REQ-008.3.1",
-  "hash": "8201af6e0c66",
-  "verdict": "pass",
-  "summary": "test_agent_can_set_blocked_again_after_automatic_clear exercises both clear paths (turn-to-agent, state change), asserts the clear happened, then re-sets blocked=True and reads it back via get_task from the real store",
-  "timestamp": "2026-07-22T15:42:30.044Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.2.2--56028e4ee91c",
+  "requirementId": "REQ-008.2.2",
+  "hash": "56028e4ee91c",
+  "verdict": "pass",
+  "summary": "tasks_version()==before+1 (store bumps once per mutation) proves state change + blocked marker land in one write, incl. a hook-raised fresh block; a second write would bump twice and fail",
+  "timestamp": "2026-07-23T17:38:35.194Z"
+}

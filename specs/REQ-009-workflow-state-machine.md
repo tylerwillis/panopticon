@@ -29,7 +29,7 @@ turn assignment, responsibility gate, and the user's off-graph free-move authori
 1. A newly created task MUST use the workflow's configured `InitialState` as its state.
 2. Every successful transition MUST assign the live turn from the destination state's `turn_on_enter` value, including the user turn for terminal states.
 3. State-entry turn assignment MUST remain independent of the state's `advanced_by` actor.
-4. A newly created task MUST begin on the user turn.
+4. A newly created task MUST assign its live turn from the configured initial state's `turn_on_enter` value.
 5. A newly created task MUST have an initial history entry whose source is null, destination is the initial state, and trigger is `start`.
 
 ### REQ-009.4: Responsibility gating

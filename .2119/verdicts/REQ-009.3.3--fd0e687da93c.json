@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.3.3--fd0e687da93c",
+  "requirementId": "REQ-009.3.3",
+  "hash": "fd0e687da93c",
+  "verdict": "pass",
+  "summary": "Orthogonal.B pits advanced_by=USER against turn_on_enter=AGENT and asserts the entered turn is AGENT after a real transition — an implementation deriving turn from advanced_by fails; this is exactly the diverging-values counterexample.",
+  "timestamp": "2026-07-23T17:40:08.975Z"
+}

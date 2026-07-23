@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-010.3.5--cbe8821dab37",
-  "requirementId": "REQ-010.3.5",
-  "hash": "cbe8821dab37",
-  "verdict": "pass",
-  "summary": "Real-store test_every_state_change_clears_blocked (spike, no mocks) sets blocked=True then verifies advance/set_state/drop all persist blocked=False across the 3 state-change paths; the ordering half of the requirement (clear precedes lifecycle effects) is pinned in the same file by test_transition_hook_can_raise_a_fresh_block_after_the_stale_one_clears, whose on_transition hook observes blocked=False mid-transition and its fresh re-block survives — the identical evidence already accepted for the duplicate REQ-008.2.1 requirement this wave-1 REQ realigns with.",
-  "timestamp": "2026-07-22T17:08:04.423Z"
-}

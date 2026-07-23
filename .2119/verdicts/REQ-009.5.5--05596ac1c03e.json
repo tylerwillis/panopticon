@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.5.5--05596ac1c03e",
+  "requirementId": "REQ-009.5.5",
+  "hash": "05596ac1c03e",
+  "verdict": "pass",
+  "summary": "the test drives a spike task to terminal COMPLETE via the real service then set_state to ITERATING and re-fetches the state; terminal-source rejection (the REQ-009.1.2 behavior) would make it raise and fail",
+  "timestamp": "2026-07-23T17:39:36.854Z"
+}

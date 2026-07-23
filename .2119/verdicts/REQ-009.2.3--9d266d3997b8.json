@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.2.3--9d266d3997b8",
-  "requirementId": "REQ-009.2.3",
-  "hash": "9d266d3997b8",
-  "verdict": "pass",
-  "summary": "test_advance_is_not_derived_without_exactly_one_forward_edge covers both boundaries (zero via OnlyDrop.A, multiple via Branching.A) with no declared advance, asserting the exact operations dict excludes advance; real instantiation, no mocking.",
-  "timestamp": "2026-07-22T17:07:55.830Z"
-}

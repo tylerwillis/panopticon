@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.4.2--1669783fdaee",
-  "requirementId": "REQ-009.4.2",
-  "hash": "1669783fdaee",
-  "verdict": "pass",
-  "summary": "Gate test drives the real Workflow unmocked: rejects departure with all-pending and with the nearest violating case (one MET, one PENDING); sibling tests prove all-resolved passes and drop bypasses, so the assertion is non-tautological.",
-  "timestamp": "2026-07-22T17:07:57.978Z"
-}

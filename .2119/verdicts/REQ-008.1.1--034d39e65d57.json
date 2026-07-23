@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.1.1--034d39e65d57",
-  "requirementId": "REQ-008.1.1",
-  "hash": "034d39e65d57",
-  "verdict": "pass",
-  "summary": "test_agent_turn_clears_blocked_in_the_same_write starts from a stored blocked=true, reads blocked=false back from the real SqlAlchemyStore, and pins exactly one version bump — a split turn/blocked write (two save_task calls) would show before+2 and fail",
-  "timestamp": "2026-07-22T15:42:52.947Z"
-}

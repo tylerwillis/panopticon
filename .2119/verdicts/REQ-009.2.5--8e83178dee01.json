@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.5--8e83178dee01",
+  "requirementId": "REQ-009.2.5",
+  "hash": "8e83178dee01",
+  "verdict": "pass",
+  "summary": "WF.operations('COMPLETE') == {} is exact equality on a real terminal state — any exposed operation (even the universal drop) fails it; DROPPED shares TerminalState so one instance suffices.",
+  "timestamp": "2026-07-23T17:39:57.635Z"
+}

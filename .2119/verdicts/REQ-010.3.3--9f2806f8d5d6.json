@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-010.3.3--9f2806f8d5d6",
-  "requirementId": "REQ-010.3.3",
-  "hash": "9f2806f8d5d6",
-  "verdict": "pass",
-  "summary": "test_user_turn_preserves_blocked_marker exercises a real service+store (no mocks), parametrizes blocked over both True and False, and asserts the reloaded-from-store task keeps that exact value after set_turn(USER) — a user-turn write that cleared blocked=True (the nearest violation, symmetric with the agent-turn clear pinned by the REQ-010.3.4 sibling) would fail it.",
-  "timestamp": "2026-07-22T17:16:27.361Z"
-}

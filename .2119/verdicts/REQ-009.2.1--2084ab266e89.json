@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.2.1--2084ab266e89",
-  "requirementId": "REQ-009.2.1",
-  "hash": "2084ab266e89",
-  "verdict": "fail",
-  "summary": "test_operations_derive_advance_and_imply_drop only checks the default case; a state declaring operations={'drop': <other-legal-transition>} silently retargets drop away from DROPPED (ops.setdefault never fires once drop is keyed) and no test constructs or rejects that case, so the 'targeting DROPPED' boundary is unverified.",
-  "timestamp": "2026-07-22T17:07:52.215Z"
-}

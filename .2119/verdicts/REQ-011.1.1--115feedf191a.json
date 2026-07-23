@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-011.1.1--115feedf191a",
-  "requirementId": "REQ-011.1.1",
-  "hash": "115feedf191a",
-  "verdict": "pass",
-  "summary": "test_terminal_status_precedes_every_other_input exhaustively parametrizes all 64 combinations of claimed/registered/runner_live/phase against the real compose_container_status (no mocking), asserting terminal always yields the exact en-dash ContainerStatus.NONE value — genuine, non-tautological coverage of the 'regardless of' claim.",
-  "timestamp": "2026-07-22T17:08:05.219Z"
-}

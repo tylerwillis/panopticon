@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.5.4--62db4c310610",
-  "requirementId": "REQ-009.5.4",
-  "hash": "62db4c310610",
-  "verdict": "pass",
-  "summary": "test_set_state_is_a_free_move_off_graph_and_ungated drives the real TaskService end to end: PLANNING responsibilities genuinely seeded PENDING, set_state to MERGING succeeds with trigger 'set-state'; a gate-enforcing implementation would raise ResponsibilitiesNotMet — no mocks.",
-  "timestamp": "2026-07-22T17:07:59.956Z"
-}

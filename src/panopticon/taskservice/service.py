@@ -20,7 +20,6 @@ from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from typing import Any
 
-import panopticon.harnesses as harness_registry
 from panopticon.core.artifacts import ArtifactStore
 from panopticon.core.dirs import secrets_file_path
 from panopticon.core.layers import LayerStore
@@ -366,6 +365,13 @@ class TaskService:
         except KeyError:
             raise UnknownWorkflow(f"unknown workflow {name!r}") from None
 
+    def _task_is_terminal(self, task: Task) -> bool:
+        """Classify a task through its workflow, with built-in labels as a legacy fallback."""
+        workflow = self._workflows.get(task.workflow)
+        if workflow is None:
+            return task.state in TERMINAL_LABELS
+        return workflow.is_terminal(task.state)
+
     # -- tasks --------------------------------------------------------------------
 
     async def _save_task(self, task: Task) -> None:
@@ -421,7 +427,7 @@ class TaskService:
             if wf.default_harness is not None
             else (repo.default_harness, repo.default_model)
         )
-        selected_harness = pair_harness or harness_registry.DEFAULT_HARNESS
+        selected_harness = pair_harness or get_harness(None).name
         task.harness = harness if harness is not None else selected_harness
         task.starting_model = starting_model
         if starting_model is None and (harness is None or harness == selected_harness):
@@ -504,7 +510,7 @@ class TaskService:
         tasks = await self._store.list_tasks_summary()
         if terminal is None:
             return tasks
-        return [t for t in tasks if (t.state in TERMINAL_LABELS) == terminal]
+        return [t for t in tasks if self._task_is_terminal(t) == terminal]
 
     async def _tasks_snapshot(self, *, terminal: bool | None = None) -> tuple[int, list[Task]]:
         """Read the version before the query so the reported version is a lower bound.
@@ -637,7 +643,7 @@ class TaskService:
         runs this, so nested governor chains cascade without an explicit outer loop."""
         count = 0
         for child in await self._store.list_tasks_summary():
-            if child.governor_task_id == governor_id and child.state not in TERMINAL_LABELS:
+            if child.governor_task_id == governor_id and not self._task_is_terminal(child):
                 await self.request_transition(
                     child.id, Dropped.label, trigger="cascade-drop", note=note
                 )
@@ -883,7 +889,7 @@ class TaskService:
         fold the reported phase together with registration presence + runner liveness."""
         lifecycle = self._lifecycles.get(task.id)
         return compose_container_status(
-            terminal=task.state in TERMINAL_LABELS,
+            terminal=self._task_is_terminal(task),
             claimed=task.claimed_by is not None,
             registered=bool(self.registrations(task.id)),
             runner_live=task.claimed_by in self.live_runners(),
@@ -947,7 +953,7 @@ class TaskService:
         a deliberate action until spawn-dedup exists."""
         reclaimed = []
         for task in await self._store.list_tasks():
-            if task.claimed_by == runner_id and task.state not in TERMINAL_LABELS:
+            if task.claimed_by == runner_id and not self._task_is_terminal(task):
                 task.claimed_by = None
                 self.clear_lifecycle(task.id)  # the dead runner's phase is stale; start clean
                 await self._save_container_state(task)

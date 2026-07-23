@@ -320,10 +320,15 @@ def test_repo_default_model_is_opaque_and_patchable(client: TestClient) -> None:
 
 
 # 2119: REQ-012.2.4
-def test_app_default_harness_is_materialized_on_the_task(client: TestClient) -> None:
+def test_app_default_harness_is_materialized_on_the_task(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import panopticon.harnesses as harness_registry
+
+    monkeypatch.setattr(harness_registry, "DEFAULT_HARNESS", "codex")
     task_id = _new_task(client)
     task = client.get(f"/tasks/{task_id}").json()
-    assert (task["harness"], task["starting_model"]) == ("claude", None)
+    assert (task["harness"], task["starting_model"]) == ("codex", None)
 
 
 # 2119: REQ-012.4.3
@@ -334,9 +339,9 @@ def test_materialized_app_default_survives_later_default_changes(
 
     task_id = _new_task(client)
     monkeypatch.setattr(harness_registry, "DEFAULT_HARNESS", "codex")
-    task = client.get(f"/tasks/{task_id}").json()
-    assert task["harness"] == "claude"
-    assert harness_registry.get_harness(task["harness"]).name == "claude"
+    later_task_id = _new_task(client)
+    assert client.get(f"/tasks/{task_id}").json()["harness"] == "claude"
+    assert client.get(f"/tasks/{later_task_id}").json()["harness"] == "codex"
 
 
 # 2119: REQ-012.5.1

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.4.3--e25db9f4e49f",
+  "requirementId": "REQ-012.4.3",
+  "hash": "e25db9f4e49f",
+  "verdict": "pass",
+  "summary": "Creates a task under default claude, flips the app default to codex, and asserts the earlier task still reads claude while a post-flip control task reads codex — the control proves the flip took effect, so lazy read-time resolution would fail.",
+  "timestamp": "2026-07-23T17:39:05.939Z"
+}

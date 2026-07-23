@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.12.1--dfc169f86b56",
+  "requirementId": "REQ-002.12.1",
+  "hash": "dfc169f86b56",
+  "verdict": "pass",
+  "summary": "Test asserts 'review' is absent from both operator menu sources (list_workflow_infos and list_workflow_infos_for_repo) while remaining registered and creatable — so unregistering it could not fake the pass — with a non-hidden control workflow present.",
+  "timestamp": "2026-07-23T17:38:27.054Z"
+}

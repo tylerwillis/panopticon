@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.5.4--7d8563f66f23",
+  "requirementId": "REQ-009.5.4",
+  "hash": "7d8563f66f23",
+  "verdict": "pass",
+  "summary": "set_state PLANNING->MERGING through the real TaskService with plan-written/token-estimated still PENDING succeeds and is re-read from the store; a gated free move would raise ResponsibilitiesNotMet",
+  "timestamp": "2026-07-23T17:39:33.271Z"
+}

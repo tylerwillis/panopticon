@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.2.2--38e73631c328",
-  "requirementId": "REQ-009.2.2",
-  "hash": "38e73631c328",
-  "verdict": "pass",
-  "summary": "GatedWorkflow.WORKING with a single forward transition and no declared advance asserts operations()=={'advance':'COMPLETE','drop':'DROPPED'} against real unmocked derivation; the exactly-one boundary is counter-tested under REQ-009.2.3 and terminal states structurally cannot satisfy the antecedent.",
-  "timestamp": "2026-07-22T17:07:55.424Z"
-}

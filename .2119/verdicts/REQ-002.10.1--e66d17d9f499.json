@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.10.1--e66d17d9f499",
-  "requirementId": "REQ-002.10.1",
-  "hash": "e66d17d9f499",
-  "verdict": "pass",
-  "summary": "Both one-sided violators (review_harness-only, review_model-only) are real subclasses rejected via validate_registration with the default pair unset so only the review check can raise; the both-declared registered pair validates without error, ruling out over-broad rejection.",
-  "timestamp": "2026-07-22T15:42:50.303Z"
-}
