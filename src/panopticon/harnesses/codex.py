@@ -34,6 +34,7 @@ from typing import ClassVar
 from panopticon.core.models import Skill
 from panopticon.harnesses.base import (
     HOOK_COMMAND,
+    HOOK_TIMEOUT_SECONDS,
     INTERRUPT_PROMPT,
     BootstrapContext,
     Harness,
@@ -94,6 +95,7 @@ def render_config(service_url: str, overview: str, cwd: Path) -> str:
             f"[[hooks.{event}.hooks]]",
             'type = "command"',
             f"command = {_toml_str(f'{HOOK_COMMAND} {actor} {side_effect}')}",
+            f"timeout = {HOOK_TIMEOUT_SECONDS}",
         ]
     return "\n".join(lines) + "\n"
 
@@ -214,14 +216,18 @@ class CodexHarness(Harness):
         ``$CODEX_HOME/sessions`` — any recorded one means ``resume --last`` (the per-task
         ``CODEX_HOME`` guarantees "most recent" is this task's); like claude, a resume on the
         agent's turn gets :data:`INTERRUPT_PROMPT` so it picks up where it left off."""
-        bypass = ["--dangerously-bypass-approvals-and-sandbox", "--dangerously-bypass-hook-trust"]
+        session_flags = [
+            "--dangerously-bypass-approvals-and-sandbox",
+            "--dangerously-bypass-hook-trust",
+            "--no-alt-screen",
+        ]
         sessions = self.config_dir(ctx.home) / "sessions"
         if sessions.exists() and any(sessions.rglob("*.jsonl")):
-            argv = ["codex", "resume", "--last", *bypass]
+            argv = ["codex", "resume", "--last", *session_flags]
             if ctx.turn == "agent":
                 argv.append(INTERRUPT_PROMPT)
             return argv
-        argv = ["codex", *bypass]
+        argv = ["codex", *session_flags]
         if ctx.starting_model:  # first run only — a resume keeps the session's model
             # An optional ":<effort>" suffix selects reasoning effort (e.g. "gpt-5.6-sol:high")
             # — the same suffix convention pi uses for thinking level. codex takes effort as
