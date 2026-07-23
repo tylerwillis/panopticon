@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.3.1--b878311f28df",
-  "requirementId": "REQ-008.3.1",
-  "hash": "b878311f28df",
-  "verdict": "pass",
-  "summary": "Both auto-clear paths (agent-turn, state change) are parameterized with the clear proven as a precondition, and the explicit re-block is verified via a fresh store reload against the real SqlAlchemyStore-backed service - a derived/sticky-clear or unsaved-write implementation would fail.",
-  "timestamp": "2026-07-22T07:56:25.937Z"
-}

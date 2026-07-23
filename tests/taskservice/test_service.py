@@ -12,6 +12,8 @@ from panopticon.core import (
     IllegalTransition,
     InitialState,
     ResponsibilitiesNotMet,
+    State,
+    TerminalState,
     Workflow,
 )
 from panopticon.core.models import Actor, LifecyclePhase, Repo, Responsibility, Status
@@ -475,6 +477,13 @@ async def test_agent_can_set_blocked_again_after_automatic_clear(
     assert reset.blocked is True
     assert (await svc.get_task(task.id)).blocked is True
 
+    # The requested value persists either way — not just a hardcoded `True` — so explicitly
+    # clearing it again from an already-`True` state must actually take hold.
+    unset = await svc.set_blocked(task.id, False)
+
+    assert unset.blocked is False
+    assert (await svc.get_task(task.id)).blocked is False
+
 
 # -- claim: a runner owns the task (the spawn gate) ---------------------------------
 
@@ -856,6 +865,355 @@ async def test_report_unknown_responsibility_rejected(tmp_path: Path) -> None:
     task = await svc.create_task("r1", "gated")
     with pytest.raises(ValueError):
         await svc.resolve_responsibility(task.id, "ghost", status=Status.MET)
+
+
+# -- auto-advance on responsibilities met (REQ-009) ----------------------------------
+
+
+class _AutoAdvance(Workflow):
+    """Agent-advanced, single-responsibility, single-transition — the trigger case.
+
+    Lands in a non-terminal ``LANDED`` state (turn_on_enter=AGENT, the ``State`` default)
+    rather than ``Complete`` (turn_on_enter=USER) so the turn assertion below actually
+    discriminates: WORKING's turn (as an ``InitialState``) starts at USER, so an
+    implementation that never recomputes the turn on auto-advance would leave it at USER
+    too, and a same-value assertion couldn't tell the difference.
+    """
+
+    name = "auto-advance"
+
+    class Landed(State):
+        label = "LANDED"
+        responsibilities = (Responsibility(key="landed-check", description="Landed check"),)
+
+    class Working(InitialState):
+        label = "WORKING"
+        advanced_by = Actor.AGENT
+        responsibilities = (Responsibility(key="tests-pass", description="Tests pass"),)
+        transitions = ("LANDED",)
+
+    initial = Working
+
+    def __init__(self) -> None:
+        self.on_transition_calls: list[tuple[str | None, str]] = []
+
+    async def on_transition(self, task, *, from_state, to_state, artifacts):  # type: ignore[override]
+        self.on_transition_calls.append((from_state, to_state))
+
+
+async def make_auto_advance_service(tmp_path: Path) -> tuple[TaskService, _AutoAdvance]:
+    wf = _AutoAdvance()
+    svc = TaskService(SqlAlchemyStore(), {"auto-advance": wf}, FilesystemArtifactStore(tmp_path))
+    await svc.init()
+    await svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
+    return svc, wf
+
+
+async def test_auto_advance_fires_when_last_responsibility_resolved(tmp_path: Path) -> None:
+    svc, wf = await make_auto_advance_service(tmp_path)
+    task = await svc.create_task("r1", "auto-advance")  # WORKING, advanced_by=AGENT
+    assert task.turn is Actor.USER  # WORKING's turn_on_enter, before any resolve
+    before = svc.tasks_version()
+    resolved = await svc.resolve_responsibility(task.id, "tests-pass", status=Status.MET)
+    # One persisted mutation for the whole call (responsibility resolution + transition
+    # committed together) — not the separate resolve-then-reload-then-transition sequence
+    # this replaced, which would have bumped the version twice.
+    assert svc.tasks_version() == before + 1
+    # 2119: REQ-009.1.1
+    assert resolved.state == "LANDED"
+    # 2119: REQ-009.2.1
+    assert wf.on_transition_calls == [("WORKING", "LANDED")]
+    assert [h.to_state for h in resolved.history] == ["WORKING", "LANDED"]
+    assert resolved.history[-1].from_state == "WORKING"
+    assert resolved.turn is Actor.AGENT  # LANDED's turn_on_enter — proves it was recomputed
+    assert resolved.history[-1].trigger == "advance"  # same trigger an explicit advance records
+    # LANDED's own responsibility is freshly seeded PENDING, exactly as an explicit advance
+    # would seed it — not skipped because this transition happened to be auto-fired.
+    assert [r.status for r in resolved.history[-1].responsibilities] == [Status.PENDING]
+    # 2119: REQ-009.2.2
+    assert resolved.history[-1].to_state == "LANDED"
+    # The transition is genuinely persisted, not just reflected on the returned in-memory
+    # object — reload from the store independently of what resolve_responsibility returned.
+    reloaded = await svc.get_task(task.id)
+    assert reloaded.state == "LANDED"
+    assert reloaded.turn is Actor.AGENT
+    assert [h.to_state for h in reloaded.history] == ["WORKING", "LANDED"]
+
+
+async def test_auto_advance_fires_on_a_failed_with_comment_last_responsibility(
+    tmp_path: Path,
+) -> None:
+    """A `FAILED` (with comment) responsibility already counts as resolved — the same
+    pre-existing gate an explicit `advance` already honored before this feature existed
+    (`outstanding_responsibilities` only ever counted `PENDING`). Auto-advance reuses that
+    same rule rather than inventing a stricter one: it fires here exactly as it would for
+    `MET`."""
+    svc, _wf = await make_auto_advance_service(tmp_path)
+    task = await svc.create_task("r1", "auto-advance")
+    resolved = await svc.resolve_responsibility(
+        task.id, "tests-pass", status=Status.FAILED, comment="couldn't verify"
+    )
+    assert resolved.state == "LANDED"
+
+
+class _AutoAdvanceExplicitOp(Workflow):
+    """Agent-advanced with two forward transitions, but `advance` is explicitly declared
+    (disambiguating which of the two is the happy path) — the "available advance operation"
+    clause of REQ-009.1.1 must also cover this declared case, not just the auto-derived
+    single-edge shape every other fixture here uses."""
+
+    name = "auto-advance-explicit-op"
+
+    class Other(State):
+        label = "OTHER"
+        transitions = ()
+
+    class Landed(State):
+        label = "LANDED"
+
+    class Working(InitialState):
+        label = "WORKING"
+        advanced_by = Actor.AGENT
+        responsibilities = (Responsibility(key="tests-pass", description="Tests pass"),)
+        transitions = ("OTHER", "LANDED")
+        operations = {"advance": "LANDED"}
+
+    initial = Working
+
+
+async def test_auto_advance_fires_with_an_explicitly_declared_advance_operation(
+    tmp_path: Path,
+) -> None:
+    svc = TaskService(
+        SqlAlchemyStore(),
+        {"auto-advance-explicit-op": _AutoAdvanceExplicitOp()},
+        FilesystemArtifactStore(tmp_path),
+    )
+    await svc.init()
+    await svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
+    task = await svc.create_task("r1", "auto-advance-explicit-op")
+    resolved = await svc.resolve_responsibility(task.id, "tests-pass", status=Status.MET)
+    # 2119: REQ-009.1.1
+    assert resolved.state == "LANDED"
+
+
+class _TerminalWithResponsibility(Workflow):
+    """A terminal state carrying a (structurally unusual, but not forbidden) responsibility —
+    proves resolving it can't accidentally reach `advanced_by`, which raises for any
+    terminal state. Guards the auto-advance short-circuit's evaluation order."""
+
+    name = "terminal-with-responsibility"
+
+    class Landed(TerminalState):
+        label = "LANDED"
+        responsibilities = (Responsibility(key="closing-check", description="Closing check"),)
+
+    class Working(InitialState):
+        label = "WORKING"
+        transitions = ("LANDED",)
+
+    initial = Working
+
+
+async def test_resolving_a_responsibility_on_a_terminal_state_does_not_raise(
+    tmp_path: Path,
+) -> None:
+    svc = TaskService(
+        SqlAlchemyStore(),
+        {"terminal-with-responsibility": _TerminalWithResponsibility()},
+        FilesystemArtifactStore(tmp_path),
+    )
+    await svc.init()
+    await svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
+    task = await svc.create_task("r1", "terminal-with-responsibility")
+    moved = await svc.set_state(task.id, "LANDED")  # a free move straight into the terminal state
+    resolved = await svc.resolve_responsibility(moved.id, "closing-check", status=Status.MET)
+    assert resolved.state == "LANDED"
+    assert resolved.outstanding_responsibilities == []
+
+
+class _QualifyingInitialState(Workflow):
+    """The *initial* state itself has zero responsibilities, is agent-advanced, and has a
+    single forward transition — it structurally qualifies for auto-advance from the moment
+    a task is created, before `resolve_responsibility` is ever called."""
+
+    name = "qualifying-initial-state"
+
+    class Working(InitialState):
+        label = "WORKING"
+        advanced_by = Actor.AGENT
+        transitions = (Complete,)
+
+    initial = Working
+
+
+async def test_creating_a_task_in_a_qualifying_empty_state_does_not_auto_advance(
+    tmp_path: Path,
+) -> None:
+    """Auto-advance must never fire just from `create_task`, since nothing there calls
+    `resolve_responsibility` — the sole call site that ever evaluates it."""
+    svc = TaskService(
+        SqlAlchemyStore(),
+        {"qualifying-initial-state": _QualifyingInitialState()},
+        FilesystemArtifactStore(tmp_path),
+    )
+    await svc.init()
+    await svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
+    task = await svc.create_task("r1", "qualifying-initial-state")
+    assert task.state == "WORKING"  # creation alone never evaluates auto-advance
+
+
+class _AutoAdvanceMulti(Workflow):
+    """Agent-advanced, two responsibilities — proves a partial resolve doesn't fire."""
+
+    name = "auto-advance-multi"
+
+    class Working(InitialState):
+        label = "WORKING"
+        advanced_by = Actor.AGENT
+        responsibilities = (
+            Responsibility(key="a", description="First"),
+            Responsibility(key="b", description="Second"),
+        )
+        transitions = (Complete,)
+
+    initial = Working
+
+
+async def make_auto_advance_multi_service(tmp_path: Path) -> TaskService:
+    svc = TaskService(
+        SqlAlchemyStore(),
+        {"auto-advance-multi": _AutoAdvanceMulti()},
+        FilesystemArtifactStore(tmp_path),
+    )
+    await svc.init()
+    await svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
+    return svc
+
+
+async def test_auto_advance_does_not_fire_with_responsibilities_still_outstanding(
+    tmp_path: Path,
+) -> None:
+    svc = await make_auto_advance_multi_service(tmp_path)
+    task = await svc.create_task("r1", "auto-advance-multi")
+    resolved = await svc.resolve_responsibility(task.id, "a", status=Status.MET)
+    # 2119: REQ-009.1.2
+    assert resolved.state == "WORKING"
+
+
+@pytest.mark.parametrize(
+    "key,status,comment",
+    [
+        pytest.param("b", Status.FAILED, None, id="failed-without-comment"),
+        pytest.param("b", Status.PENDING, None, id="explicit-pending"),
+        pytest.param("ghost", Status.MET, None, id="unknown-key"),
+    ],
+)
+async def test_rejected_resolve_does_not_transition(
+    tmp_path: Path, key: str, status: Status, comment: str | None
+) -> None:
+    svc = await make_auto_advance_multi_service(tmp_path)
+    task = await svc.create_task("r1", "auto-advance-multi")
+    await svc.resolve_responsibility(task.id, "a", status=Status.MET)  # only "b" left outstanding
+    with pytest.raises(ValueError):
+        await svc.resolve_responsibility(task.id, key, status=status, comment=comment)
+    # 2119: REQ-009.3.3
+    reloaded = await svc.get_task(task.id)
+    assert reloaded.state == "WORKING"
+    assert reloaded.outstanding_responsibilities == [
+        r for r in reloaded.current_entry.responsibilities if r.key == "b"
+    ]
+
+
+async def test_auto_advance_does_not_fire_for_a_user_advanced_state(tmp_path: Path) -> None:
+    svc = await make_gated_service(tmp_path)  # _Gated.Working: advanced_by defaults to USER
+    task = await svc.create_task("r1", "gated")
+    resolved = await svc.resolve_responsibility(task.id, "tests-pass", status=Status.MET)
+    # 2119: REQ-009.1.3
+    assert resolved.state == "WORKING"
+
+
+class _Ambiguous(Workflow):
+    """Agent-advanced with two forward transitions — no derivable `advance` operation."""
+
+    name = "ambiguous"
+
+    class Other(State):
+        label = "OTHER"
+        transitions = ()
+
+    class Working(InitialState):
+        label = "WORKING"
+        advanced_by = Actor.AGENT
+        responsibilities = (Responsibility(key="tests-pass", description="Tests pass"),)
+        transitions = (Complete, "OTHER")
+
+    initial = Working
+
+
+async def test_auto_advance_does_not_fire_without_a_derivable_advance_operation(
+    tmp_path: Path,
+) -> None:
+    svc = TaskService(
+        SqlAlchemyStore(), {"ambiguous": _Ambiguous()}, FilesystemArtifactStore(tmp_path)
+    )
+    await svc.init()
+    await svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
+    task = await svc.create_task("r1", "ambiguous")
+    resolved = await svc.resolve_responsibility(task.id, "tests-pass", status=Status.MET)
+    # 2119: REQ-009.1.4
+    assert resolved.state == "WORKING"
+    # 2119: REQ-009.1.5
+    assert resolved.outstanding_responsibilities == []
+
+
+class _Cascade(Workflow):
+    """An auto-advance into a zero-responsibility, agent-advanced state must not chain
+    into a *second* auto-advance out of that state — only the resolved state's own
+    resolve_responsibility call is ever evaluated."""
+
+    name = "cascade"
+
+    class Middle(State):
+        label = "MIDDLE"
+        advanced_by = Actor.AGENT
+        transitions = (Complete,)
+
+    class Working(InitialState):
+        label = "WORKING"
+        advanced_by = Actor.AGENT
+        responsibilities = (Responsibility(key="tests-pass", description="Tests pass"),)
+        transitions = ("MIDDLE",)
+
+    initial = Working
+
+
+async def test_auto_advance_does_not_cascade_through_a_freshly_entered_state(
+    tmp_path: Path,
+) -> None:
+    svc = TaskService(SqlAlchemyStore(), {"cascade": _Cascade()}, FilesystemArtifactStore(tmp_path))
+    await svc.init()
+    await svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
+    task = await svc.create_task("r1", "cascade")
+    resolved = await svc.resolve_responsibility(task.id, "tests-pass", status=Status.MET)
+    # 2119: REQ-009.3.2
+    assert resolved.state == "MIDDLE"
+
+
+async def test_auto_advance_is_not_evaluated_by_entering_a_qualifying_state_directly(
+    tmp_path: Path,
+) -> None:
+    """``MIDDLE`` (agent-advanced, no responsibilities, one forward transition) satisfies
+    every auto-advance condition on its own — but landing in it via a free `set_state`
+    move (not a `resolve_responsibility` call) must leave it there, proving auto-advance is
+    evaluated only as a direct effect of resolving a responsibility, not of any transition."""
+    svc = TaskService(SqlAlchemyStore(), {"cascade": _Cascade()}, FilesystemArtifactStore(tmp_path))
+    await svc.init()
+    await svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
+    task = await svc.create_task("r1", "cascade")
+    moved = await svc.set_state(task.id, "MIDDLE")
+    # 2119: REQ-009.3.1
+    assert moved.state == "MIDDLE"
 
 
 # -- free state override (the user can move freely) + free operations ----------------

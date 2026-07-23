@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.3.1--7c67e3afe5bc",
+  "requirementId": "REQ-008.3.1",
+  "hash": "7c67e3afe5bc",
+  "verdict": "pass",
+  "summary": "Test now exercises both booleans post-clear (set True then explicitly set False again), reading back via get_task; a hardcoded-True set_blocked would fail the final False assertion, so the previously-flagged gap is closed.",
+  "timestamp": "2026-07-23T10:11:57.334Z"
+}

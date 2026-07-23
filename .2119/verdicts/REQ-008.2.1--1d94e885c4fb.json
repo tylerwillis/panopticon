@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.2.1--1d94e885c4fb",
+  "requirementId": "REQ-008.2.1",
+  "hash": "1d94e885c4fb",
+  "verdict": "pass",
+  "summary": "Covers advance/drop/free-move and cascade-drop, plus a hook that asserts task.blocked is False on entry and re-sets it, directly proving the clear precedes lifecycle effects.",
+  "timestamp": "2026-07-23T10:03:40.432Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.5--6500219e28ec",
+  "requirementId": "REQ-009.1.5",
+  "hash": "6500219e28ec",
+  "verdict": "pass",
+  "summary": "Same _Ambiguous test also asserts outstanding_responsibilities == [] — proving the resolution was still recorded even though the transition correctly did not fire.",
+  "timestamp": "2026-07-23T10:07:56.326Z"
+}
