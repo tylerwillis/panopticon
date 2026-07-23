@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.1.1--74ba638e6b17",
-  "requirementId": "REQ-001.1.1",
-  "hash": "74ba638e6b17",
-  "verdict": "pass",
-  "summary": "Genuinely gated: resolved.state==LANDED fails today (unimplemented), and would fail again if the transition were skipped; LANDED's turn/label differ from WORKING so nothing here is coincidental.",
-  "timestamp": "2026-07-23T08:56:15.485Z"
-}

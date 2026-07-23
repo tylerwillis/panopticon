@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.2.1--7bf3538b316e",
+  "requirementId": "REQ-008.2.1",
+  "hash": "7bf3538b316e",
+  "verdict": "pass",
+  "summary": "Parametrized test (advance/set_state/drop) plus a cascade-drop test and a custom-hook test that asserts task.blocked is False from inside on_transition itself, directly proving the clear happens before the lifecycle hook runs; falsifiable against a reordered implementation.",
+  "timestamp": "2026-07-23T09:17:34.158Z"
+}

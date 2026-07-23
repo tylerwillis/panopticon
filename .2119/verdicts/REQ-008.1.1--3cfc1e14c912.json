@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.1.1--3cfc1e14c912",
+  "requirementId": "REQ-008.1.1",
+  "hash": "3cfc1e14c912",
+  "verdict": "pass",
+  "summary": "Test sets blocked=True then set_turn(AGENT) and asserts both the return value and a reloaded fetch show blocked=False, plus tasks_version bumps by exactly 1 (single _save_task write); catches both 'leaves blocked unchanged' and 'two separate writes' violations.",
+  "timestamp": "2026-07-23T09:17:33.404Z"
+}

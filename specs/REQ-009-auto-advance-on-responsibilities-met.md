@@ -1,4 +1,4 @@
-# REQ-001: Auto-advance on responsibilities met
+# REQ-009: Auto-advance on responsibilities met
 
 ## Overview
 
@@ -24,7 +24,7 @@ an agent-advanced state's work is already done but nothing acts on it.
 
 ## Requirements
 
-### REQ-001.1: Trigger and gating
+### REQ-009.1: Trigger and gating
 
 1. When a `resolve_responsibility` call leaves the task's current state with no
    outstanding (`PENDING`) responsibilities, and that state's `advanced_by` is the
@@ -38,19 +38,19 @@ an agent-advanced state's work is already done but nothing acts on it.
 4. `resolve_responsibility` MUST NOT transition a task out of a state that has no
    available `advance` operation (e.g. more than one forward transition with none
    declared `advance`).
-5. In the case of REQ-001.1.4, the task MUST remain in that state with every
+5. In the case of REQ-009.1.4, the task MUST remain in that state with every
    responsibility resolved.
 
-### REQ-001.2: Parity with an explicit advance
+### REQ-009.2: Parity with an explicit advance
 
-1. A transition performed under REQ-001.1.1 MUST append the same history entry,
+1. A transition performed under REQ-009.1.1 MUST append the same history entry,
    invoke the workflow's `on_transition` hook the same way, and set the task's turn to
    the destination state's `turn_on_enter`, as an explicit `advance` operation would.
 2. The task object returned by the `resolve_responsibility` call MUST reflect the
    post-transition state (the new `state`, the new `turn`, and the new current history
-   entry) when REQ-001.1.1 applies.
+   entry) when REQ-009.1.1 applies.
 
-### REQ-001.3: Scope
+### REQ-009.3: Scope
 
 1. Auto-advance MUST be evaluated only as a direct effect of a `resolve_responsibility`
    call.

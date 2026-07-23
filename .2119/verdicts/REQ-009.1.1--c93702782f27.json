@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.1--c93702782f27",
+  "requirementId": "REQ-009.1.1",
+  "hash": "c93702782f27",
+  "verdict": "pass",
+  "summary": "Real service test drives resolve_responsibility to zero-outstanding on an agent-advanced single-transition state and asserts resolved.state==LANDED (would fail if auto-advance didn't fire); no mocking.",
+  "timestamp": "2026-07-23T09:20:33.276Z"
+}

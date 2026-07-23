@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.2--1aab4e098d1e",
+  "requirementId": "REQ-009.2.2",
+  "hash": "1aab4e098d1e",
+  "verdict": "pass",
+  "summary": "Returned task object's state/turn/history[-1].to_state are all asserted post-call, proving the return value reflects the post-transition task rather than a stale pre-transition copy.",
+  "timestamp": "2026-07-23T09:20:43.472Z"
+}

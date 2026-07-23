@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.3.1--b4a6c0631751",
+  "requirementId": "REQ-009.3.1",
+  "hash": "b4a6c0631751",
+  "verdict": "pass",
+  "summary": "set_state directly lands a qualifying state (MIDDLE); asserts it stays there, proving auto-advance isn't evaluated on transitions other than resolve_responsibility.",
+  "timestamp": "2026-07-23T09:20:43.830Z"
+}

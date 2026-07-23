@@ -905,14 +905,14 @@ async def test_auto_advance_fires_when_last_responsibility_resolved(tmp_path: Pa
     task = await svc.create_task("r1", "auto-advance")  # WORKING, advanced_by=AGENT
     assert task.turn is Actor.USER  # WORKING's turn_on_enter, before any resolve
     resolved = await svc.resolve_responsibility(task.id, "tests-pass", status=Status.MET)
-    # 2119: REQ-001.1.1
+    # 2119: REQ-009.1.1
     assert resolved.state == "LANDED"
-    # 2119: REQ-001.2.1
+    # 2119: REQ-009.2.1
     assert wf.on_transition_calls == [("WORKING", "LANDED")]
     assert [h.to_state for h in resolved.history] == ["WORKING", "LANDED"]
     assert resolved.turn is Actor.AGENT  # LANDED's turn_on_enter — proves it was recomputed
     assert resolved.history[-1].trigger == "advance"  # same trigger an explicit advance records
-    # 2119: REQ-001.2.2
+    # 2119: REQ-009.2.2
     assert resolved.history[-1].to_state == "LANDED"
 
 
@@ -950,7 +950,7 @@ async def test_auto_advance_does_not_fire_with_responsibilities_still_outstandin
     svc = await make_auto_advance_multi_service(tmp_path)
     task = await svc.create_task("r1", "auto-advance-multi")
     resolved = await svc.resolve_responsibility(task.id, "a", status=Status.MET)
-    # 2119: REQ-001.1.2
+    # 2119: REQ-009.1.2
     assert resolved.state == "WORKING"
 
 
@@ -960,7 +960,7 @@ async def test_rejected_resolve_does_not_transition(tmp_path: Path) -> None:
     await svc.resolve_responsibility(task.id, "a", status=Status.MET)
     with pytest.raises(ValueError):
         await svc.resolve_responsibility(task.id, "b", status=Status.FAILED)  # no comment
-    # 2119: REQ-001.3.3
+    # 2119: REQ-009.3.3
     assert (await svc.get_task(task.id)).state == "WORKING"
 
 
@@ -968,7 +968,7 @@ async def test_auto_advance_does_not_fire_for_a_user_advanced_state(tmp_path: Pa
     svc = await make_gated_service(tmp_path)  # _Gated.Working: advanced_by defaults to USER
     task = await svc.create_task("r1", "gated")
     resolved = await svc.resolve_responsibility(task.id, "tests-pass", status=Status.MET)
-    # 2119: REQ-001.1.3
+    # 2119: REQ-009.1.3
     assert resolved.state == "WORKING"
 
 
@@ -1000,9 +1000,9 @@ async def test_auto_advance_does_not_fire_without_a_derivable_advance_operation(
     await svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
     task = await svc.create_task("r1", "ambiguous")
     resolved = await svc.resolve_responsibility(task.id, "tests-pass", status=Status.MET)
-    # 2119: REQ-001.1.4
+    # 2119: REQ-009.1.4
     assert resolved.state == "WORKING"
-    # 2119: REQ-001.1.5
+    # 2119: REQ-009.1.5
     assert resolved.outstanding_responsibilities == []
 
 
@@ -1035,7 +1035,7 @@ async def test_auto_advance_does_not_cascade_through_a_freshly_entered_state(
     await svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
     task = await svc.create_task("r1", "cascade")
     resolved = await svc.resolve_responsibility(task.id, "tests-pass", status=Status.MET)
-    # 2119: REQ-001.3.2
+    # 2119: REQ-009.3.2
     assert resolved.state == "MIDDLE"
 
 
@@ -1051,7 +1051,7 @@ async def test_auto_advance_is_not_evaluated_by_entering_a_qualifying_state_dire
     await svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
     task = await svc.create_task("r1", "cascade")
     moved = await svc.set_state(task.id, "MIDDLE")
-    # 2119: REQ-001.3.1
+    # 2119: REQ-009.3.1
     assert moved.state == "MIDDLE"
 
 

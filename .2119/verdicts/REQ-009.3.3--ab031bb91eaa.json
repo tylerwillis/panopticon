@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.3.3--ab031bb91eaa",
+  "requirementId": "REQ-009.3.3",
+  "hash": "ab031bb91eaa",
+  "verdict": "pass",
+  "summary": "Rejected FAILED-without-comment resolve raises before save/auto-advance check runs (shared early-validation code path); task.state confirmed unchanged. Only one of the three listed rejection reasons is exercised with a post-state check, but all three share the identical pre-mutation guard in models.py, so this is a reasonable proxy.",
+  "timestamp": "2026-07-23T09:20:44.597Z"
+}

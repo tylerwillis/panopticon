@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.3--0debafef8883",
+  "requirementId": "REQ-009.1.3",
+  "hash": "0debafef8883",
+  "verdict": "pass",
+  "summary": "User-advanced (_Gated) state's sole responsibility resolved to MET; asserts state stays WORKING despite an available advance, correctly gating on advanced_by.",
+  "timestamp": "2026-07-23T09:20:34.037Z"
+}

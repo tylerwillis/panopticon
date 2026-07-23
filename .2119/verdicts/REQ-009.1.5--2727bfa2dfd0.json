@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.5--2727bfa2dfd0",
+  "requirementId": "REQ-009.1.5",
+  "hash": "2727bfa2dfd0",
+  "verdict": "pass",
+  "summary": "Same ambiguous-fixture test also asserts outstanding_responsibilities==[], proving the resolution still recorded despite the blocked transition.",
+  "timestamp": "2026-07-23T09:20:34.794Z"
+}

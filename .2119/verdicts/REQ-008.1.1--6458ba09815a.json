@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.1.1--6458ba09815a",
-  "requirementId": "REQ-008.1.1",
-  "hash": "6458ba09815a",
-  "verdict": "pass",
-  "summary": "Real service+store; tasks_version()==before+1 rejects a second-write clear and reload rejects a non-persisted one; the test currently fails against the pre-implementation set_turn, proving it detects violation.",
-  "timestamp": "2026-07-22T06:14:31.344Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.1.2--cc2505730bb4",
+  "requirementId": "REQ-008.1.2",
+  "hash": "cc2505730bb4",
+  "verdict": "pass",
+  "summary": "Test sets blocked=True then set_turn(USER) and asserts blocked remains True on reload; directly rejects the near-violating implementation that unconditionally clears blocked on any turn write.",
+  "timestamp": "2026-07-23T09:17:33.780Z"
+}

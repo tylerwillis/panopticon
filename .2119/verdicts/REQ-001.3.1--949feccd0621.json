@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.3.1--949feccd0621",
-  "requirementId": "REQ-001.3.1",
-  "hash": "949feccd0621",
-  "verdict": "pass",
-  "summary": "test_auto_advance_is_not_evaluated_by_entering_a_qualifying_state_directly enters a fully-qualifying MIDDLE state via set_state (free move, not resolve_responsibility) and asserts it stops there — genuinely isolates 'only resolve_responsibility triggers auto-advance' from 'any transition triggers it', catching an over-broad implementation that hooks auto-advance into the shared _enter path.",
-  "timestamp": "2026-07-23T09:00:47.694Z"
-}

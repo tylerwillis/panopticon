@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-003.2.1--0498c4c5bf65",
+  "requirementId": "REQ-003.2.1",
+  "hash": "0498c4c5bf65",
+  "verdict": "pass",
+  "summary": "Parametrized test exercises all three sentinel-vs-explicit-default combinations against real create_task/get_harness resolution with differing starting_model strings and confirms rejection; would fail under naive string (non-resolved) harness comparison.",
+  "timestamp": "2026-07-23T09:17:21.229Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.12.1--86ca8dd2aefe",
+  "requirementId": "REQ-002.12.1",
+  "hash": "86ca8dd2aefe",
+  "verdict": "pass",
+  "summary": "Test checks 'review' is absent from both list_workflow_infos() and list_workflow_infos_for_repo() menus, still present in workflow_names(), and still creatable end-to-end; genuinely falsifiable, no mocking.",
+  "timestamp": "2026-07-23T09:17:12.936Z"
+}

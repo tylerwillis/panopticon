@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.1.2--82943ac5503d",
-  "requirementId": "REQ-001.1.2",
-  "hash": "82943ac5503d",
-  "verdict": "pass",
-  "summary": "Resolving one of two responsibilities and asserting state stays WORKING (not COMPLETE) directly rejects an eager fire-on-any-resolve implementation; genuine boundary case.",
-  "timestamp": "2026-07-23T08:56:22.858Z"
-}

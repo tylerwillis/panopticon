@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.3.3--8287c4e8f236",
-  "requirementId": "REQ-001.3.3",
-  "hash": "8287c4e8f236",
-  "verdict": "pass",
-  "summary": "Confirms via a fresh get_task (not the pre-raise local var) that a rejected FAILED-without-comment call left the persisted state at WORKING; the three rejection causes share one guarded code path in Task.resolve_responsibility (all raise before any promised[i] mutation), so this representative case is sufficient evidence, though the unknown-key and explicit-PENDING variants aren't separately re-asserted here.",
-  "timestamp": "2026-07-23T08:56:43.384Z"
-}
