@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.4.1--ab18f07c59e2",
+  "requirementId": "REQ-001.4.1",
+  "hash": "ab18f07c59e2",
+  "verdict": "pass",
+  "summary": "Yes-path test deletes a real tmp file (wrong-file counterexample guarded) and proves table refresh via a second registry fetch returning changed content, so stale/local refresh or skipped deletion would fail.",
+  "timestamp": "2026-07-23T18:22:18.171Z"
+}

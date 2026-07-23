@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.5.1--14647cb6231c",
+  "requirementId": "REQ-006.5.1",
+  "hash": "14647cb6231c",
+  "verdict": "pass",
+  "summary": "Both annotated tests drive the real ctrl+r handler with an unmocked notify capture: the parametrized case swaps the client's task list post-load to prove the LATEST snapshot is fetched, and covers the empty list plus all 11 non-down statuses as near-violating counterexamples, asserting exactly 'no down tasks' and no modal; sibling REQ-006 tests confirm the down-present path does not emit it.",
+  "timestamp": "2026-07-23T18:24:21.064Z"
+}

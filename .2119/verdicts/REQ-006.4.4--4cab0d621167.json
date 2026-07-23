@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.4--4cab0d621167",
+  "requirementId": "REQ-006.4.4",
+  "hash": "4cab0d621167",
+  "verdict": "pass",
+  "summary": "Parametrized test mutates service-side status after modal open across all 11 non-down statuses and asserts only the still-down control is released, proving confirmation-time checks gate releases",
+  "timestamp": "2026-07-23T18:24:09.341Z"
+}

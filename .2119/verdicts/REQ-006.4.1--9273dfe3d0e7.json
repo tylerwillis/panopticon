@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.1--9273dfe3d0e7",
+  "requirementId": "REQ-006.4.1",
+  "hash": "9273dfe3d0e7",
+  "verdict": "pass",
+  "summary": "Tests pin exactly one confirmation-time check + release per down task (event sequence, no concurrent releases) and reject release for all 11 non-down statuses via the same release() path the single-respawn test pins.",
+  "timestamp": "2026-07-23T18:24:39.308Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.5.2--bae48292e106",
-  "requirementId": "REQ-006.5.2",
-  "hash": "bae48292e106",
-  "verdict": "pass",
-  "summary": "Behavioral UI tests reject modal opening for empty, mixed non-down, and refreshed latest snapshots, including a push_screen spy that catches transient modal attempts.",
-  "timestamp": "2026-07-22T07:07:13.451Z"
-}

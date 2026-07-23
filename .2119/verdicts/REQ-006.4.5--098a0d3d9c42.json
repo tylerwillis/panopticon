@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.5--098a0d3d9c42",
+  "requirementId": "REQ-006.4.5",
+  "hash": "098a0d3d9c42",
+  "verdict": "pass",
+  "summary": "Parametrized test asserts the complete captured notify stream equals exactly ['respawned 1'] across all 11 non-down recovered statuses, so any task-specific skip notification would fail; release list proves the skip genuinely occurred.",
+  "timestamp": "2026-07-23T18:24:00.388Z"
+}

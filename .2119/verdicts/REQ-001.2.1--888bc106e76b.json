@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.2.1--888bc106e76b",
+  "requirementId": "REQ-001.2.1",
+  "hash": "888bc106e76b",
+  "verdict": "pass",
+  "summary": "Real-app tests assert both yes/no buttons exist, are labeled, visible, enabled, and each choice is behaviorally verified (cancel preserves file, yes deletes).",
+  "timestamp": "2026-07-23T18:22:09.982Z"
+}
