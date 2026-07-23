@@ -1,0 +1,78 @@
+# REQ-013: Review gate wiring
+
+## Overview
+
+Workflows can opt into deterministic cross-model review by declaring a reviewer launch pair. On a
+transition into their review gate, the task service creates a governed review worker while the
+authoring task waits on an explicit responsibility. A reviewer-creation failure is recorded but
+does not undo the review-gate transition or prevent the user's free-move fallback. In this
+document, entry means a transition into a state, including a free state move; initial task creation
+does not run the transition lifecycle hook.
+
+This wiring preserves the built-in opt-out established by `REQ-002.27` in
+`REQ-002-review-workflow-and-pairing.md`, which requires every built-in workflow to leave its review
+pair unset.
+
+## Requirements
+
+### REQ-013.1: Opt-in review creation
+
+1. If review-task creation succeeds during a transition into a state labelled `REVIEW` in a
+   workflow with a declared review launch pair, exactly one new task using the `review` workflow
+   MUST exist for that transition.
+
+### REQ-013.2: Review governance
+
+1. A review task created on review-gate entry MUST record the authoring task's id as its
+   `governor_task_id`.
+
+### REQ-013.3: Declared launch pair
+
+1. A review task created on review-gate entry MUST record the authoring workflow's declared reviewer
+   launch pair as its harness and starting model.
+
+### REQ-013.4: Authoring responsibility
+
+1. A transition into `REVIEW` in a workflow with a declared review launch pair MUST seed a pending
+   `review-addressed` responsibility on the authoring task's current history entry regardless of
+   whether review-task creation succeeds.
+
+### REQ-013.5: Waiting marker
+
+1. Successful review-task creation SHOULD set the authoring task's blocked marker.
+
+### REQ-013.6: Pairing is opt-in
+
+1. A transition into `REVIEW` in a workflow without a declared review launch pair MUST NOT create
+   a review task.
+
+### REQ-013.7: Failure preserves review entry
+
+1. If review-task creation fails during a transition into `REVIEW`, the authoring task's transition
+   MUST still complete in `REVIEW`.
+
+### REQ-013.8: Failure reason
+
+1. If review-task creation fails during a transition into `REVIEW`, the authoring task's current
+   history note MUST record the creation failure's reason.
+
+### REQ-013.9: Failure fallback
+
+1. Review-task creation failure MUST NOT prevent a subsequent free state move out of the authoring
+   task's `REVIEW` state.
+
+### REQ-013.10: Fresh review round
+
+1. When review-task creation succeeds on a re-entry transition into `REVIEW` in a workflow with a
+   declared review launch pair, that transition MUST create a new review task rather than reuse a
+   task from an earlier review round.
+
+### REQ-013.11: Review-only trigger
+
+1. A transition into a state not labelled `REVIEW` in a workflow with a declared review launch
+   pair MUST NOT create a review task.
+
+### REQ-013.12: Non-paired responsibility
+
+1. A transition into `REVIEW` in a workflow without a declared review launch pair MUST NOT seed a
+   `review-addressed` responsibility.

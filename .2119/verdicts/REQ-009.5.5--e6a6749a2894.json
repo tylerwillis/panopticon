@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.5.5--e6a6749a2894",
+  "requirementId": "REQ-009.5.5",
+  "hash": "e6a6749a2894",
+  "verdict": "pass",
+  "summary": "Free move out of spike COMPLETE to ITERATING, asserted on reload; empirically confirmed COMPLETE is terminal (advance rejected as IllegalTransition), so an implementation forbidding moves out of a terminal source would raise and fail the test.",
+  "timestamp": "2026-07-23T17:57:10.140Z"
+}

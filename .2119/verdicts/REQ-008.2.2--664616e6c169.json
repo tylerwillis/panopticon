@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.2.2--664616e6c169",
+  "requirementId": "REQ-008.2.2",
+  "hash": "664616e6c169",
+  "verdict": "pass",
+  "summary": "Covers declared transition, free move, and drop with resulting blocked=False, plus a hook-raised resulting blocked=True; each asserts tasks_version()==before+1 (one store write) and the persisted value on reload, so a separate blocked write or unpersisted result would fail.",
+  "timestamp": "2026-07-23T17:57:01.699Z"
+}

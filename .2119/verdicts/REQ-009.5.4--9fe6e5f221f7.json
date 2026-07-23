@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.5.4--9fe6e5f221f7",
+  "requirementId": "REQ-009.5.4",
+  "hash": "9fe6e5f221f7",
+  "verdict": "pass",
+  "summary": "Free move PLANNING->MERGING succeeds while plan-written/token-estimated are genuinely PENDING; empirically confirmed advance is rejected with ResponsibilitiesNotMet at that point, so the gate is live and a gated set_state would raise and fail the test.",
+  "timestamp": "2026-07-23T17:57:09.709Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.3.4--bf5f071dad8f",
+  "requirementId": "REQ-010.3.4",
+  "hash": "bf5f071dad8f",
+  "verdict": "pass",
+  "summary": "Asserts blocked=false on the returned task, on reload, and via a single version bump; mutants that skip the clear or clear in a second write both empirically fail.",
+  "timestamp": "2026-07-23T17:57:38.865Z"
+}

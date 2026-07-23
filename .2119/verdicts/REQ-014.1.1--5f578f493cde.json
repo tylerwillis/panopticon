@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.1.1--5f578f493cde",
+  "requirementId": "REQ-014.1.1",
+  "hash": "5f578f493cde",
+  "verdict": "pass",
+  "summary": "Every conjunct has a discriminating counterexample test (PENDING left: 1.2, user-advanced: 1.3, no advance op: 1.4/1.5, non-resolve entry: 3.1/3.2), same-call is pinned by a single version bump plus independent store reload, and both derived and explicitly declared advance shapes fire; a disable-auto-advance mutation fails 4 tests.",
+  "timestamp": "2026-07-23T17:57:50.909Z"
+}

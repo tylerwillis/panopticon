@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-010.3.4--5565ec50d4be",
-  "requirementId": "REQ-010.3.4",
-  "hash": "5565ec50d4be",
-  "verdict": "pass",
-  "summary": "Blocked=True then agent-turn asserts blocked False on the returned and reloaded task; tasks_version == before+1 pins the single-mutation clause (a second write would double-bump the feed).",
-  "timestamp": "2026-07-23T17:38:21.094Z"
-}

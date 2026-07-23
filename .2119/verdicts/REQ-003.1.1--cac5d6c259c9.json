@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-003.1.1--cac5d6c259c9",
-  "requirementId": "REQ-003.1.1",
-  "hash": "cac5d6c259c9",
-  "verdict": "pass",
-  "summary": "Governor-less review creation raises a validation error mentioning 'governor' and persists nothing (list_tasks empty); the with-governor conforming case succeeds in the REQ-003.3 test.",
-  "timestamp": "2026-07-23T17:38:27.436Z"
-}

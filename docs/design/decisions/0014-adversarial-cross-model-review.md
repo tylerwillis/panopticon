@@ -159,8 +159,8 @@ already models:
 **How the verdict gates the author.** The authoring task's `REVIEW` state carries a
 responsibility — `review-addressed` — that the *authoring* agent resolves:
 
-- On entering `REVIEW`, the authoring workflow's `on_transition` lifecycle hook (deterministic,
-  control-plane, no LLM — it only writes DB rows / creates a task) MUST create the governed
+- On a transition into `REVIEW`, the task service's deterministic transition lifecycle effect
+  (control-plane, no LLM — it only writes DB rows / creates a task) MUST create the governed
   review task (§1) with the validated reviewer pair (§2), and SHOULD set the authoring task
   `blocked` after the transition's automatic stale-block clear so the dashboard shows a fresh
   waiting marker for review. A later turn-to-agent write clears that marker presumptively; an

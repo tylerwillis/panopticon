@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.3.1--cb61d8477a47",
-  "requirementId": "REQ-008.3.1",
-  "hash": "cb61d8477a47",
-  "verdict": "pass",
-  "summary": "Parametrized over both automatic clears (agent-turn and state-change); set_blocked(True) afterward is asserted True on the returned task and on reload, so a sticky auto-clear would fail",
-  "timestamp": "2026-07-23T17:38:41.575Z"
-}

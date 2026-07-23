@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-010.3.5--92b98c5b9325",
-  "requirementId": "REQ-010.3.5",
-  "hash": "92b98c5b9325",
-  "verdict": "pass",
-  "summary": "Covers all three change kinds (advance/free-move/drop) clearing blocked, and the ordering clause is probed directly: an on_transition hook asserts blocked is already False when it runs, then raises a fresh block that must survive — a clear-after-effects implementation fails both ways.",
-  "timestamp": "2026-07-23T17:38:28.280Z"
-}

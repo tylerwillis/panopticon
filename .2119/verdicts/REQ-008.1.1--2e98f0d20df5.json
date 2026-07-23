@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.1.1--2e98f0d20df5",
+  "requirementId": "REQ-008.1.1",
+  "hash": "2e98f0d20df5",
+  "verdict": "pass",
+  "summary": "Real-store test seeds blocked=True, flips turn to agent, asserts blocked=False both on the returned task and reloaded from the store, and pins 'same mutation' via tasks_version()==before+1 (store version verifiably bumps once per save, so a second-write clear would fail).",
+  "timestamp": "2026-07-23T17:56:54.866Z"
+}

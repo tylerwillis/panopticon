@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.2.1--83795305f719",
+  "requirementId": "REQ-014.2.1",
+  "hash": "83795305f719",
+  "verdict": "pass",
+  "summary": "All three conjuncts pinned: exact on_transition call list, history entry with trigger=advance + PENDING seeding, and a deliberately discriminating turn fixture (USER-entry source, AGENT-entry destination); skip-turn-recompute mutation fails the test",
+  "timestamp": "2026-07-23T17:57:55.363Z"
+}

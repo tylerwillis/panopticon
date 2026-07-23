@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-010.3.3--ba28132fc72d",
-  "requirementId": "REQ-010.3.3",
-  "hash": "ba28132fc72d",
-  "verdict": "pass",
-  "summary": "Parametrized over initially_blocked True/False, so both a clearing and a spuriously-setting implementation are rejected; blocked is re-read from the store after the user-turn write.",
-  "timestamp": "2026-07-23T17:38:20.714Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.1.1--eb5d38988834",
-  "requirementId": "REQ-008.1.1",
-  "hash": "eb5d38988834",
-  "verdict": "pass",
-  "summary": "From blocked=True, set_turn(AGENT) yields blocked=False on both the returned and reloaded task, and tasks_version advances by exactly 1 — pinning the clear happens in the same single mutation, not a second write.",
-  "timestamp": "2026-07-23T17:38:38.384Z"
-}

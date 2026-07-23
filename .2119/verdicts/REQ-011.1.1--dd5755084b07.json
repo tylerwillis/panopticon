@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-011.1.1--dd5755084b07",
-  "requirementId": "REQ-011.1.1",
-  "hash": "dd5755084b07",
-  "verdict": "pass",
-  "summary": "Exhaustive product over claimed x registered x runner_live x every phase (64 combos) with terminal=True all pinned to '–', plus service-level checks via drop and a workflow-defined custom terminal state.",
-  "timestamp": "2026-07-23T17:38:29.032Z"
-}

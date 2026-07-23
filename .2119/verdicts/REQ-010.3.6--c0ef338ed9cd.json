@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-010.3.6--c0ef338ed9cd",
-  "requirementId": "REQ-010.3.6",
-  "hash": "c0ef338ed9cd",
-  "verdict": "pass",
-  "summary": "After both automatic-clear paths (agent-turn and state change), an explicit set_blocked(True) is asserted on the return value and a store reload, rejecting any sticky-clear implementation.",
-  "timestamp": "2026-07-23T17:38:28.669Z"
-}

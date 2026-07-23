@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-013.6.1--a6456209efdb",
+  "requirementId": "REQ-013.6.1",
+  "hash": "a6456209efdb",
+  "verdict": "pass",
+  "summary": "Both entry modes (advance + free set_state) into REVIEW on a pair-less workflow assert via real list_tasks that no review task exists; paired-positive tests prove non-vacuity, and a mutation forcing creation without a pair fails both tests.",
+  "timestamp": "2026-07-23T17:57:35.780Z"
+}
