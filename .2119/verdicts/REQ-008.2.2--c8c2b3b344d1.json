@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.2.2--c8c2b3b344d1",
+  "requirementId": "REQ-008.2.2",
+  "hash": "c8c2b3b344d1",
+  "verdict": "pass",
+  "summary": "Same tests assert tasks_version() advances by exactly 1 across state change + blocked clear (and a hook's fresh re-block), ruling out a two-save implementation.",
+  "timestamp": "2026-07-23T10:03:41.511Z"
+}

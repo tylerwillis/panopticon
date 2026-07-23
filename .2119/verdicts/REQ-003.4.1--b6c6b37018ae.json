@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-003.4.1--b6c6b37018ae",
-  "requirementId": "REQ-003.4.1",
-  "hash": "b6c6b37018ae",
-  "verdict": "pass",
-  "summary": "Test creates a non-review (spike) task governed by another spike task with equal harness strings on both -- the exact combination that would be rejected for workflow=review -- and asserts success, proving review-specific validation is not applied.",
-  "timestamp": "2026-07-23T09:17:21.935Z"
-}

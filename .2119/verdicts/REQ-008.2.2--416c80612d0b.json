@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.2.2--416c80612d0b",
-  "requirementId": "REQ-008.2.2",
-  "hash": "416c80612d0b",
-  "verdict": "pass",
-  "summary": "Same tests assert tasks_version increments by exactly 1 across the state change and the hook-set fresh block, confirming one persisted mutation covers both the state and blocked fields; would fail if a second store write were used.",
-  "timestamp": "2026-07-23T09:17:34.521Z"
-}

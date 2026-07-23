@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.2.1--13e452d2c624",
-  "requirementId": "REQ-009.2.1",
-  "hash": "13e452d2c624",
-  "verdict": "pass",
-  "summary": "Genuine: the trigger test's destination state (LANDED, turn_on_enter=AGENT) is deliberately chosen to differ from the source's turn (WORKING=USER) so the turn-recomputed assertion can actually discriminate; also checks the hook's real call log (exactly one WORKING->LANDED call), history entry fields (from/to/trigger='advance'), and freshly-seeded PENDING responsibilities on the new entry -- no mocking of the code path under test.",
-  "timestamp": "2026-07-23T09:38:28.685Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.1.2--8abdcb1cb978",
-  "requirementId": "REQ-009.1.2",
-  "hash": "8abdcb1cb978",
-  "verdict": "pass",
-  "summary": "Genuine: two-responsibility workflow resolves only one of two, asserting state stays WORKING while one responsibility is still PENDING -- the exact boundary the requirement names; real service/store, no mocking.",
-  "timestamp": "2026-07-23T09:38:18.374Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.2--273f1a1d69dd",
+  "requirementId": "REQ-009.2.2",
+  "hash": "273f1a1d69dd",
+  "verdict": "pass",
+  "summary": "Assertions on the directly-returned object (state, turn, current history entry) without any intervening reload — matches the described concurrency fix and would fail under the old save-then-refetch bug.",
+  "timestamp": "2026-07-23T10:07:57.092Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-003.1.1--6c32a30857ce",
-  "requirementId": "REQ-003.1.1",
-  "hash": "6c32a30857ce",
-  "verdict": "pass",
-  "summary": "Test creates a review-workflow task with no governor_task_id against the real TaskService and asserts a ValueError('governor') plus no task persisted; direct boundary hit, no mocking.",
-  "timestamp": "2026-07-23T09:17:20.882Z"
-}

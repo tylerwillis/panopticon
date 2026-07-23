@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.1.4--838d9025543e",
-  "requirementId": "REQ-009.1.4",
-  "hash": "838d9025543e",
-  "verdict": "pass",
-  "summary": "Ambiguous fixture (two forward transitions, no derivable advance) resolves its only responsibility; asserts state stays WORKING, matching the requirement's own example.",
-  "timestamp": "2026-07-23T09:20:34.418Z"
-}

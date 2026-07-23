@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.3.3--2aeac5af5aa2",
-  "requirementId": "REQ-009.3.3",
-  "hash": "2aeac5af5aa2",
-  "verdict": "pass",
-  "summary": "Genuine: three parametrized cases each trip a distinct raise branch in Task.resolve_responsibility (PENDING check, FAILED-without-comment check, unknown-key loop); post-reload asserts both state unchanged and outstanding_responsibilities equals the real pre-rejection set, which would catch a partial/silent mutation.",
-  "timestamp": "2026-07-23T09:38:23.438Z"
-}

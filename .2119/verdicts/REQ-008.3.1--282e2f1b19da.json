@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.3.1--282e2f1b19da",
-  "requirementId": "REQ-008.3.1",
-  "hash": "282e2f1b19da",
-  "verdict": "pass",
-  "summary": "Genuine: covers both automatic-clear paths (turn->agent, apply_operation advance) then re-asserts blocked=True on both the returned object and a fresh get_task reload; no mocking, real service.",
-  "timestamp": "2026-07-23T09:38:17.031Z"
-}

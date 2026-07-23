@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-003.1.1--1bc49204be2a",
+  "requirementId": "REQ-003.1.1",
+  "hash": "1bc49204be2a",
+  "verdict": "pass",
+  "summary": "Test asserts create_task('review', no governor) raises ValueError and leaves zero tasks persisted; fails if the governor requirement is removed.",
+  "timestamp": "2026-07-23T10:03:32.408Z"
+}
