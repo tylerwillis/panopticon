@@ -28,6 +28,7 @@ from panopticon.core.models import (
     ContainerStatus,
     LifecyclePhase,
     Repo,
+    Responsibility,
     Skill,
     Status,
     Task,
@@ -137,6 +138,7 @@ class TaskService:
         self._registrations: dict[str, Registration] = {}
         self._runner_registrations: dict[str, RunnerRegistration] = {}
         self._lifecycles: dict[str, ContainerLifecycle] = {}
+        self._transition_locks: dict[str, asyncio.Lock] = {}
         # Ephemeral liveness (registrations, runner liveness, lifecycle phases) lives outside the
         # store, so it doesn't bump the store's version. But the dashboard's change-feed long-poll
         # only wakes on a version change — so a container going live or a phase advancing wouldn't
@@ -561,9 +563,13 @@ class TaskService:
         self, task_id: str, operation: str, *, note: str | None = None
     ) -> Task:
         """Apply a named core operation (advance/drop) — a gated move along the declared graph."""
-        task = await self.get_task(task_id)
-        to_state = self._workflow(task.workflow).resolve_operation(task.state, operation)
-        return await self.request_transition(task_id, to_state, trigger=operation, note=note)
+        async with self._transition_lock(task_id):
+            task = await self.get_task(task_id)
+            wf = self._workflow(task.workflow)
+            to_state = wf.resolve_operation(task.state, operation)
+            return await self._commit_transition(
+                task, wf, to_state, force=False, trigger=operation, note=note
+            )
 
     async def request_transition(
         self,
@@ -573,19 +579,25 @@ class TaskService:
         trigger: str | None = None,
         note: str | None = None,
     ) -> Task:
-        task = await self.get_task(task_id)
-        wf = self._workflow(task.workflow)
-        return await self._commit_transition(
-            task, wf, to_state, force=False, trigger=trigger, note=note
-        )
+        async with self._transition_lock(task_id):
+            task = await self.get_task(task_id)
+            wf = self._workflow(task.workflow)
+            return await self._commit_transition(
+                task, wf, to_state, force=False, trigger=trigger, note=note
+            )
 
     async def set_state(self, task_id: str, to_state: str, *, note: str | None = None) -> Task:
         """The user's free override: move the task to any state, bypassing the graph and the gate."""
-        task = await self.get_task(task_id)
-        wf = self._workflow(task.workflow)
-        return await self._commit_transition(
-            task, wf, to_state, force=True, trigger="set-state", note=note
-        )
+        async with self._transition_lock(task_id):
+            task = await self.get_task(task_id)
+            wf = self._workflow(task.workflow)
+            return await self._commit_transition(
+                task, wf, to_state, force=True, trigger="set-state", note=note
+            )
+
+    def _transition_lock(self, task_id: str) -> asyncio.Lock:
+        """Serialize each task's read-transition-effect-save boundary within this service."""
+        return self._transition_locks.setdefault(task_id, asyncio.Lock())
 
     async def _commit_transition(
         self,
@@ -611,10 +623,50 @@ class TaskService:
         await wf.on_transition(
             task, from_state=from_state, to_state=task.state, artifacts=self._artifacts
         )
+        await self._create_review_task_on_entry(task, wf)
         await self._save_task(task)
         if to_state == Dropped.label:
             await self._cascade_drop_governed(task.id, trigger=trigger, note=note)
         return task
+
+    async def _create_review_task_on_entry(self, task: Task, workflow: Workflow) -> None:
+        """Apply ADR-0014's deterministic review-gate lifecycle effect.
+
+        A workflow opts in by declaring its reviewer launch pair. The ordinary task-creation path
+        remains the single validation boundary for the governed worker, including cross-harness
+        enforcement. A rejected pair is recorded on the authoring transition instead of undoing
+        it, preserving the user's free-move fallback.
+        """
+        if task.state != "REVIEW" or workflow.review_harness is None:
+            return
+
+        responsibilities = task.current_entry.responsibilities
+        if not any(item.key == "review-addressed" for item in responsibilities):
+            responsibilities.append(
+                Responsibility(
+                    key="review-addressed",
+                    description="Address the governed review verdict before advancing.",
+                )
+            )
+
+        try:
+            await self.create_task(
+                task.repo_id,
+                "review",
+                governor_task_id=task.id,
+                harness=workflow.review_harness,
+                starting_model=workflow.review_model,
+            )
+        except Exception as exc:
+            entry = task.current_entry
+            reason = str(exc) or type(exc).__name__
+            failure = f"Review task creation failed: {reason}"
+            task.history[-1] = replace(
+                entry,
+                note=f"{entry.note}\n{failure}" if entry.note else failure,
+            )
+        else:
+            task.blocked = True
 
     async def _cascade_drop_governed(
         self, governor_id: str, *, trigger: str | None, note: str | None

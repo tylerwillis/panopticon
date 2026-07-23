@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.11.1--2e571bad0ff8",
+  "requirementId": "REQ-009.11.1",
+  "hash": "2e571bad0ff8",
+  "verdict": "pass",
+  "summary": "Real service-boundary test covers every non-REVIEW destination in the paired workflow and rejects any created review task.",
+  "timestamp": "2026-07-22T15:10:32.339Z"
+}

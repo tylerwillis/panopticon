@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.4.1--cd685ad025d2",
+  "requirementId": "REQ-009.4.1",
+  "hash": "cd685ad025d2",
+  "verdict": "pass",
+  "summary": "Tests verify the exact pending review-addressed responsibility on the author current entry for operation and free-move REVIEW transitions, across successful creation and validation, disabled-workflow, and persistence failures.",
+  "timestamp": "2026-07-22T15:07:18.297Z"
+}
