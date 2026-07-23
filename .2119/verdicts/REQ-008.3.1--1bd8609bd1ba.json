@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.3.1--1bd8609bd1ba",
+  "requirementId": "REQ-008.3.1",
+  "hash": "1bd8609bd1ba",
+  "verdict": "pass",
+  "summary": "Both automatic-clear kinds (agent-turn, state-change) are parametrized against the real service+store; the intermediate cleared-is-False assertion rules out leftover state and a fresh get_task read-back proves persistence.",
+  "timestamp": "2026-07-23T18:30:23.708Z"
+}

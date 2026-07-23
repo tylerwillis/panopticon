@@ -20,7 +20,7 @@ from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from typing import Any
 
-from panopticon.core.artifacts import ArtifactStore
+from panopticon.core.artifacts import ArtifactStore, validate_segment
 from panopticon.core.dirs import secrets_file_path
 from panopticon.core.layers import LayerStore
 from panopticon.core.models import (
@@ -722,14 +722,22 @@ class TaskService:
     async def set_slug(self, task_id: str, slug: str) -> Task:
         task = await self.get_task(task_id)
         previous = task.slug
+        validate_segment(slug)
+        # Establish the new artifact alias before persisting the task so an invalid or colliding
+        # slug cannot leave the recorded slug changed without its corresponding alias.
+        await self._artifacts.link_slug(task_id, slug)
         task.slug = slug
-        await self._save_task(task)
+        try:
+            await self._save_task(task)
+        except Exception:
+            if previous != slug:
+                await self._artifacts.unlink_slug(slug)
+            raise
         _log.info("task %s: slug → %s", task_id, slug)
         # Expose the task's artifacts under the slug alias; drop a stale one on a re-slug so the
         # tasks/ dir keeps a single live alias per task (the symlinks live on the artifact store).
         if previous is not None and previous != slug:
             await self._artifacts.unlink_slug(previous)
-        await self._artifacts.link_slug(task_id, slug)
         return task
 
     async def set_url(self, task_id: str, url: str) -> Task:

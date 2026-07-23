@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.8.1--50de91283555",
-  "requirementId": "REQ-001.8.1",
-  "hash": "50de91283555",
-  "verdict": "pass",
-  "summary": "Dashboard test requests deletion of a built-in workflow and requires the sole operator notification to state that built-ins cannot be deleted.",
-  "timestamp": "2026-07-22T07:03:02.509Z"
-}

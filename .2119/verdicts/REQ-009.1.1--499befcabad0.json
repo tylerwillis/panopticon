@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.1--499befcabad0",
+  "requirementId": "REQ-009.1.1",
+  "hash": "499befcabad0",
+  "verdict": "pass",
+  "summary": "Closed-pane e asserted inert (no SlugScreen, no set_slug, slug unchanged); open-pane e asserts editor with current slug, pinned service-current over a stale list snapshot",
+  "timestamp": "2026-07-23T18:14:28.710Z"
+}

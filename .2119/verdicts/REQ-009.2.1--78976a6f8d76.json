@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.1--78976a6f8d76",
+  "requirementId": "REQ-009.2.1",
+  "hash": "78976a6f8d76",
+  "verdict": "pass",
+  "summary": "Trim pinned via recorded set_slug value, refresh via independent list_tasks_calls increment + rendered detail/table; real httpx 400 rejection asserts app running with old slug displayed",
+  "timestamp": "2026-07-23T18:14:29.108Z"
+}

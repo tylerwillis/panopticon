@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.2.2--ff5886d241ba",
+  "requirementId": "REQ-008.2.2",
+  "hash": "ff5886d241ba",
+  "verdict": "pass",
+  "summary": "State change and resulting blocked persist at tasks_version before+1 in both the param test and the hook fresh-block test",
+  "timestamp": "2026-07-23T18:16:01.808Z"
+}

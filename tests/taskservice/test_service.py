@@ -16,6 +16,7 @@ from panopticon.core import (
     TerminalState,
     Workflow,
 )
+from panopticon.core.artifacts import InvalidArtifactName
 from panopticon.core.models import Actor, LifecyclePhase, Repo, Responsibility, Status
 from panopticon.core.store import NotFound
 from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
@@ -730,6 +731,53 @@ async def test_set_slug(tmp_path: Path) -> None:
     task = await svc.create_task("r1", "spike")
     await svc.set_slug(task.id, "fix-widget")
     assert (await svc.get_task(task.id)).slug == "fix-widget"
+
+
+async def test_set_slug_rejects_invalid_segment_before_persisting(tmp_path: Path) -> None:
+    svc = await make_service(tmp_path)
+    task = await svc.create_task("r1", "spike")
+    await svc.set_slug(task.id, "fix-widget")
+
+    with pytest.raises(InvalidArtifactName):
+        await svc.set_slug(task.id, "bad/name")
+
+    assert (await svc.get_task(task.id)).slug == "fix-widget"
+    assert (tmp_path / "tasks" / "fix-widget").is_symlink()
+
+
+async def test_set_slug_rejects_another_tasks_alias_without_changes(tmp_path: Path) -> None:
+    svc = await make_service(tmp_path)
+    first = await svc.create_task("r1", "spike")
+    second = await svc.create_task("r1", "spike")
+    await svc.set_slug(first.id, "alpha")
+    await svc.set_slug(second.id, "beta")
+
+    with pytest.raises(InvalidArtifactName):
+        await svc.set_slug(second.id, "alpha")
+
+    assert (await svc.get_task(first.id)).slug == "alpha"
+    assert (await svc.get_task(second.id)).slug == "beta"
+    assert (tmp_path / "tasks" / "alpha").readlink() == Path(first.id)
+    assert (tmp_path / "tasks" / "beta").readlink() == Path(second.id)
+
+
+async def test_set_slug_rolls_back_alias_when_save_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    svc = await make_service(tmp_path)
+    task = await svc.create_task("r1", "spike")
+    await svc.set_slug(task.id, "old-name")
+
+    async def fail_save(_task: object) -> None:
+        raise RuntimeError("save failed")
+
+    monkeypatch.setattr(svc._store, "save_task", fail_save)
+    with pytest.raises(RuntimeError, match="save failed"):
+        await svc.set_slug(task.id, "new-name")
+
+    assert (await svc.get_task(task.id)).slug == "old-name"
+    assert (tmp_path / "tasks" / "old-name").readlink() == Path(task.id)
+    assert not (tmp_path / "tasks" / "new-name").exists()
 
 
 async def test_set_slug_aliases_the_artifacts_dir(tmp_path: Path) -> None:

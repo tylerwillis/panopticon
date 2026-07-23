@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.8.1--8dbf57485cbe",
+  "requirementId": "REQ-001.8.1",
+  "hash": "8dbf57485cbe",
+  "verdict": "pass",
+  "summary": "Spy on app.notify captures a real x-keypress flow; notices cleared post-mount ties the toast to the deletion request, and exact-equality on the message rejects silent refusal, wrong wording, and mount-time or duplicate notifications.",
+  "timestamp": "2026-07-22T17:01:10.804Z"
+}

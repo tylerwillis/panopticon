@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.3.1--7928c97d3ebb",
+  "requirementId": "REQ-009.3.1",
+  "hash": "7928c97d3ebb",
+  "verdict": "pass",
+  "summary": "Types 'discard-me' into the editor then escapes: asserts zero set_slug calls reached the client AND the pane still shows 'fix-widget' — a rename-on-cancel or partial-write implementation fails both; red today pending SlugScreen, so not tautological.",
+  "timestamp": "2026-07-22T14:46:57.393Z"
+}

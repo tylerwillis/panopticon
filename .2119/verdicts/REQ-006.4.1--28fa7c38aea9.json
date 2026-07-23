@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.1--28fa7c38aea9",
+  "requirementId": "REQ-006.4.1",
+  "hash": "28fa7c38aea9",
+  "verdict": "pass",
+  "summary": "Exact events-list equality (check/release per task, once each) rejects double or missing releases; the skip test proves confirmation-time re-check gates the same release call the single-task R binding uses.",
+  "timestamp": "2026-07-22T14:41:33.922Z"
+}

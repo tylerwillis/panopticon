@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-003.4.1--ff9f18496704",
+  "requirementId": "REQ-003.4.1",
+  "hash": "ff9f18496704",
+  "verdict": "pass",
+  "summary": "Non-review task accepted ungoverned and governed-with-equal-harness — the exact condition that rejects review tasks",
+  "timestamp": "2026-07-23T18:16:00.124Z"
+}

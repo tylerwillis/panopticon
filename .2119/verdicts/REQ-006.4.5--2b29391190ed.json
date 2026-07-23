@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.5--2b29391190ed",
+  "requirementId": "REQ-006.4.5",
+  "hash": "2b29391190ed",
+  "verdict": "pass",
+  "summary": "Exact notices == ['respawned 1'] across all 11 recovered-status parametrizations forbids any additional skip notification.",
+  "timestamp": "2026-07-22T14:41:49.976Z"
+}

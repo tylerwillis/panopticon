@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.1.1--7e7fb8f8d450",
+  "requirementId": "REQ-008.1.1",
+  "hash": "7e7fb8f8d450",
+  "verdict": "pass",
+  "summary": "Agent-turn write clears blocked with tasks_version before+1 proving one mutation, verified on reload",
+  "timestamp": "2026-07-23T18:16:00.518Z"
+}

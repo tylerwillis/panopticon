@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.2.1--9c8a585568dc",
+  "requirementId": "REQ-008.2.1",
+  "hash": "9c8a585568dc",
+  "verdict": "pass",
+  "summary": "Declared/free-move/drop/cascade all clear; hook asserts blocked False inside on_transition and a fresh hook-raised block survives",
+  "timestamp": "2026-07-23T18:16:01.397Z"
+}
