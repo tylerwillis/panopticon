@@ -211,7 +211,11 @@ def test_missing_auth_names_the_fix_when_nothing_is_configured(tmp_path: Path) -
 
 # -- argv ----------------------------------------------------------------------------
 
-_BYPASS = ["--dangerously-bypass-approvals-and-sandbox", "--dangerously-bypass-hook-trust"]
+_SESSION_FLAGS = [
+    "--dangerously-bypass-approvals-and-sandbox",
+    "--dangerously-bypass-hook-trust",
+    "--no-alt-screen",
+]
 
 
 def _seed_session(home: Path) -> None:
@@ -220,15 +224,22 @@ def _seed_session(home: Path) -> None:
     (rollouts / "rollout-1.jsonl").write_text("{}")
 
 
+# 2119: REQ-009.1.1
+def test_argv_preserves_scrollback_for_new_and_resumed_sessions(tmp_path: Path) -> None:
+    assert "--no-alt-screen" in HARNESS.argv(_ctx(tmp_path))
+    _seed_session(tmp_path)
+    assert "--no-alt-screen" in HARNESS.argv(_ctx(tmp_path))
+
+
 def test_argv_first_run_bypasses_approvals_and_hook_trust(tmp_path: Path) -> None:
     # The container is the sandbox — same posture as claude --dangerously-skip-permissions; the
     # hook-trust bypass is required or codex stops on an interactive per-hash trust prompt.
-    assert HARNESS.argv(_ctx(tmp_path)) == ["codex", *_BYPASS]
+    assert HARNESS.argv(_ctx(tmp_path)) == ["codex", *_SESSION_FLAGS]
 
 
 def test_argv_first_run_passes_model_then_prompt(tmp_path: Path) -> None:
     argv = HARNESS.argv(_ctx(tmp_path, initial_prompt="start now", starting_model="gpt-5.6-sol"))
-    assert argv == ["codex", *_BYPASS, "--model", "gpt-5.6-sol", "start now"]
+    assert argv == ["codex", *_SESSION_FLAGS, "--model", "gpt-5.6-sol", "start now"]
 
 
 def test_argv_splits_an_effort_suffix_into_a_config_override(tmp_path: Path) -> None:
@@ -236,7 +247,7 @@ def test_argv_splits_an_effort_suffix_into_a_config_override(tmp_path: Path) -> 
     argv = HARNESS.argv(_ctx(tmp_path, starting_model="gpt-5.6-sol:high"))
     assert argv == [
         "codex",
-        *_BYPASS,
+        *_SESSION_FLAGS,
         "--model",
         "gpt-5.6-sol",
         "--config",
@@ -246,13 +257,13 @@ def test_argv_splits_an_effort_suffix_into_a_config_override(tmp_path: Path) -> 
 
 def test_argv_resumes_the_last_session_when_one_is_recorded(tmp_path: Path) -> None:
     _seed_session(tmp_path)
-    assert HARNESS.argv(_ctx(tmp_path)) == ["codex", "resume", "--last", *_BYPASS]
+    assert HARNESS.argv(_ctx(tmp_path)) == ["codex", "resume", "--last", *_SESSION_FLAGS]
 
 
 def test_argv_resume_appends_interrupt_prompt_on_agent_turn(tmp_path: Path) -> None:
     _seed_session(tmp_path)
     argv = HARNESS.argv(_ctx(tmp_path, turn="agent"))
-    assert argv == ["codex", "resume", "--last", *_BYPASS, INTERRUPT_PROMPT]
+    assert argv == ["codex", "resume", "--last", *_SESSION_FLAGS, INTERRUPT_PROMPT]
 
 
 def test_argv_resume_omits_model_and_initial_prompt(tmp_path: Path) -> None:
