@@ -623,12 +623,29 @@ class TaskService:
     async def resolve_responsibility(
         self, task_id: str, key: str, *, status: Status, comment: str | None = None
     ) -> Task:
-        """Record the agent's progress on one promised responsibility (fulfilled in place)."""
+        """Record the agent's progress on one promised responsibility (fulfilled in place).
+
+        If this call clears the state's last outstanding responsibility, and the workflow
+        has the agent (not the user) advance out of it, and the state has a single
+        well-defined `advance` operation, that transition fires immediately — the same
+        transition an explicit `advance` would perform — so the agent need not separately
+        call it (REQ-001). A state left with any responsibility still `PENDING`, a
+        user-advanced state, or a state with no derivable `advance` (e.g. more than one
+        forward transition) is unaffected: this call resolves the responsibility and
+        nothing more.
+        """
         task = await self.get_task(task_id)
         task.resolve_responsibility(key=key, status=status, comment=comment)
         await self._save_task(task)
         _log.debug("task %s: responsibility %s → %s", task_id, key, status)
-        return task
+        if task.outstanding_responsibilities:
+            return task
+        wf = self._workflow(task.workflow)
+        if wf.operations(task.state).get("advance") is None:
+            return task
+        if wf.advanced_by(task.state) is not Actor.AGENT:
+            return task
+        return await self.apply_operation(task_id, "advance")
 
     async def set_slug(self, task_id: str, slug: str) -> Task:
         task = await self.get_task(task_id)
