@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.2.1--4d5179718ecd",
+  "requirementId": "REQ-010.2.1",
+  "hash": "4d5179718ecd",
+  "verdict": "pass",
+  "summary": "Four counted fake harnesses: violation caught both ways — missing discovery times out the all==1 wait, and 12 real cycle keypresses re-assert counts stay exactly 1 (cycle path is synchronous, so re-discovery increments before the press returns); early-close test covers the truncated-opening case.",
+  "timestamp": "2026-07-23T18:06:23.334Z"
+}
