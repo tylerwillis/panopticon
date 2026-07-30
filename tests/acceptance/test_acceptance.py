@@ -135,7 +135,7 @@ def test_runner_spawns_real_container_that_registers_and_loses_liveness(
     container = runner.spawn(task_id)
     composed_image: str | None = None
     try:
-        # 2119: REQ-009.1
+        # 2119: REQ-022.1
         subprocess.run(
             ["docker", "run", "--rm", _IMAGE, "gh", "--version"],
             check=True,
@@ -149,7 +149,7 @@ def test_runner_spawns_real_container_that_registers_and_loses_liveness(
             "acceptance",
             [workflow_layer],
         )
-        # 2119: REQ-009.3
+        # 2119: REQ-022.3
         subprocess.run(
             [
                 "docker",

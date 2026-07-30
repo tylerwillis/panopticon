@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.3.2--452c09059aec",
+  "requirementId": "REQ-012.3.2",
+  "hash": "452c09059aec",
+  "verdict": "pass",
+  "summary": "Explicit model 'custom' replaces the workflow pair's model while the codex pair harness is asserted retained — both conjuncts falsifiable",
+  "timestamp": "2026-07-30T17:06:07.932Z"
+}

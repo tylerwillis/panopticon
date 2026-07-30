@@ -1,4 +1,4 @@
-# REQ-009: GitHub CLI in all task containers
+# REQ-022: GitHub CLI in all task containers
 
 ## Overview
 
@@ -13,18 +13,18 @@ workflows, without requiring each workflow or repository layer to anticipate Git
 
 ## Requirements
 
-### REQ-009.1: Cross-workflow GitHub CLI availability
+### REQ-022.1: Cross-workflow GitHub CLI availability
 
 1. The base task-container image MUST install the `gh` executable so every containerized workflow,
    including Spike, can use its injected GitHub credentials without a workflow- or repository-
    specific image layer.
 
-### REQ-009.2: Single installation tier
+### REQ-022.2: Single installation tier
 
 1. Panopticon-shipped workflow-specific image layers MUST NOT reinstall the `gh` executable
    supplied by the base task-container image.
 
-### REQ-009.3: Composed image availability
+### REQ-022.3: Composed image availability
 
 1. A task-container image composed by Panopticon with a non-empty workflow-specific image layer
    that does not modify the base-provided `gh` executable MUST retain a functioning `gh`

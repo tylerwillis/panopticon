@@ -26,7 +26,7 @@ def _build_args(command: list[str]) -> list[str]:
     return [command[index + 1] for index, item in enumerate(command) if item == "--build-arg"]
 
 
-# 2119: REQ-009.1
+# 2119: REQ-022.1
 def test_base_image_installs_github_cli() -> None:
     assert re.search(
         r"(?m)^\s*&& apt-get install --yes --no-install-recommends .*\bgh\b.*$",
@@ -34,7 +34,7 @@ def test_base_image_installs_github_cli() -> None:
     )
 
 
-# 2119: REQ-009.1
+# 2119: REQ-022.1
 def test_documented_make_build_applies_the_base_fingerprint() -> None:
     makefile = (Path(__file__).parents[2] / "Makefile").read_text()
     assert "--build-arg PANOPTICON_BASE_FINGERPRINT=" in makefile
@@ -44,7 +44,7 @@ def test_documented_make_build_applies_the_base_fingerprint() -> None:
     )
 
 
-# 2119: REQ-009.2
+# 2119: REQ-022.2
 def test_panopticon_shipped_workflow_layers_do_not_reinstall_github_cli(tmp_path: Path) -> None:
     workflows = discover_workflows(_home_workflows=tmp_path / "no-home-workflows")
     offenders = [
@@ -119,7 +119,7 @@ def test_build_base_if_missing_skips_build_when_fingerprint_matches() -> None:
     assert rec.calls[0][1] is False  # check=False so a missing or stale image does not raise
 
 
-# 2119: REQ-009.1
+# 2119: REQ-022.1
 def test_build_base_if_missing_rebuilds_when_fingerprint_is_stale() -> None:
     rec = _MultiRecorder("pre-gh-base-fingerprint")
     result = ImageBuilder(base="panopticon-base", run=rec).build_base_if_missing()
