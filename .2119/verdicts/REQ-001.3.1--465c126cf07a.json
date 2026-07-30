@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.3.1--465c126cf07a",
+  "requirementId": "REQ-001.3.1",
+  "hash": "465c126cf07a",
+  "verdict": "pass",
+  "summary": "Parametrized over both no-click and Escape; asserts dialog dismissed back to WorkflowsScreen and the real tmp file's content intact (delete-on-cancel would raise).",
+  "timestamp": "2026-07-22T15:42:41.581Z"
+}

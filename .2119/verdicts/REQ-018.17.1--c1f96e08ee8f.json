@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.17.1--c1f96e08ee8f",
+  "requirementId": "REQ-018.17.1",
+  "hash": "c1f96e08ee8f",
+  "verdict": "pass",
+  "summary": "Both model and effort cover empty and nonempty candidate lists with no highlight; Enter leaves the modal open and creates nothing.",
+  "timestamp": "2026-07-30T16:50:24.778Z"
+}

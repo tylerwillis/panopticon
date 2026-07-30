@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.4--f582bc9dc6ac",
+  "requirementId": "REQ-006.4.4",
+  "hash": "f582bc9dc6ac",
+  "verdict": "pass",
+  "summary": "Service-side recovery only observable via confirmation-time get_task; released==[still_down] rejects a release for the recovered task across all 11 non-down statuses",
+  "timestamp": "2026-07-22T17:08:12.521Z"
+}

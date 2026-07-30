@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.4.1--3d10b06e72aa",
+  "requirementId": "REQ-001.4.1",
+  "hash": "3d10b06e72aa",
+  "verdict": "pass",
+  "summary": "Yes-click removes the real selected file only (sibling untouched), re-queries the service (list_calls==2) and renders the second call's changed payload, proving refresh-from-registry not a cached repaint.",
+  "timestamp": "2026-07-22T15:42:42.117Z"
+}

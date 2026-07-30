@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.5.1--6ca17dd46387",
+  "requirementId": "REQ-006.5.1",
+  "hash": "6ca17dd46387",
+  "verdict": "pass",
+  "summary": "Exact 'no down tasks' notice asserted for empty snapshot and every non-down status; sibling test proves a down task opens the modal instead",
+  "timestamp": "2026-07-22T17:08:13.348Z"
+}
