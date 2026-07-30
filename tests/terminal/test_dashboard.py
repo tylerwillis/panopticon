@@ -4310,3 +4310,43 @@ async def test_workflow_picker_still_fits_a_short_terminal(tmp_path: Path) -> No
         box = app.screen.query_one("#workflow-choice-box")
         assert box.region.y >= 0
         assert box.region.y + box.region.height <= app.screen.size.height
+
+
+async def test_workflows_screen_survives_two_workflows_sharing_one_file(tmp_path) -> None:
+    # Regression: rows were keyed by source PATH, so a module defining two workflows
+    # (e.g. an operator's spec_2119.py) raised DataTable.DuplicateKey and crashed the
+    # whole dashboard on `w`. Rows are now keyed by workflow name (unique by
+    # construction — discovery rejects duplicate names).
+    shared = tmp_path / "spec_2119.py"
+    shared.write_text("# two workflows, one module")
+    pair = [
+        {"name": "2119-auto", "when_to_use": "auto", "path": str(shared), "built_in": False},
+        {"name": "2119-human", "when_to_use": "human", "path": str(shared), "built_in": False},
+    ]
+    app = Dashboard(_FakeClient([], workflows=pair))  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("w")  # crashed here before the fix
+        await pilot.pause()
+        table = app.screen.query_one("#workflows", DataTable)
+        assert table.row_count == 2  # both workflows listed, one row each
+
+
+async def test_deleting_a_shared_file_workflow_names_every_sibling(tmp_path) -> None:
+    # Deleting a workflow removes its FILE, which may define several workflows — the
+    # confirmation must name all of them, not just the highlighted row.
+    shared = tmp_path / "spec_2119.py"
+    shared.write_text("# two workflows, one module")
+    pair = [
+        {"name": "2119-auto", "when_to_use": "auto", "path": str(shared), "built_in": False},
+        {"name": "2119-human", "when_to_use": "human", "path": str(shared), "built_in": False},
+    ]
+    app = Dashboard(_FakeClient([], workflows=pair))  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("w")
+        await pilot.press("x")
+        await pilot.pause()
+        box = app.screen.query_one("#delete-workflow-box")
+        prompt = " ".join(str(label.render()) for label in box.query(Label))
+        assert "2119-auto" in prompt and "2119-human" in prompt

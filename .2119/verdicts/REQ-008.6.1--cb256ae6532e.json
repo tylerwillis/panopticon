@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.6.1--cb256ae6532e",
-  "requirementId": "REQ-008.6.1",
-  "hash": "cb256ae6532e",
-  "verdict": "pass",
-  "summary": "Node probe executes the shipped extension's real input-event handler with a promise-gated fetch and errors if the handler settles before the request resolves (dropping the await fails it); sibling tests in the same file pin the request as PUT turn=agent to the task-service /turn endpoint and that bootstrap ships this exact source.",
-  "timestamp": "2026-07-22T06:20:36.138Z"
-}

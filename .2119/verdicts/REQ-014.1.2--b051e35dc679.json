@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.1.2--b051e35dc679",
+  "requirementId": "REQ-014.1.2",
+  "hash": "b051e35dc679",
+  "verdict": "pass",
+  "summary": "The two-responsibility fixture otherwise fully qualifies for auto-advance (agent-advanced, single transition), so the partial resolve isolates exactly the outstanding-PENDING conjunct; a skip-the-outstanding-check mutation fails the test.",
+  "timestamp": "2026-07-23T17:57:51.329Z"
+}

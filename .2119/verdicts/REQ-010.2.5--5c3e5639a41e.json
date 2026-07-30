@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.2.5--5c3e5639a41e",
+  "requirementId": "REQ-010.2.5",
+  "hash": "5c3e5639a41e",
+  "verdict": "pass",
+  "summary": "Five non-list values incl. the falsy traps (null, false, 0, {}, string) run through real hook.main and must leave the turn untouched with exit 0 (calls==[] excludes both flipping and crashing); the empty-list boundary is separately pinned to flip, so a naive truthiness check fails.",
+  "timestamp": "2026-07-23T18:25:51.829Z"
+}

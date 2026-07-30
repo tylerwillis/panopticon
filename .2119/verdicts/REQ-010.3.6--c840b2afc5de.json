@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.3.6--c840b2afc5de",
+  "requirementId": "REQ-010.3.6",
+  "hash": "c840b2afc5de",
+  "verdict": "pass",
+  "summary": "Tests both automatic-clear paths then persists an explicit True AND a subsequent False with reloads; a hardcoded-True set_blocked mutant empirically fails both params.",
+  "timestamp": "2026-07-23T17:57:45.732Z"
+}

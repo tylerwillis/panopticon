@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-013.7.1--83cf996ef593",
+  "requirementId": "REQ-013.7.1",
+  "hash": "83cf996ef593",
+  "verdict": "pass",
+  "summary": "Three real failure modes (same-harness rejection, disabled review workflow, injected store failure) each assert REVIEW on both the returned and independently reloaded task with no raises-wrapper; a make-failure-fatal mutation fails all three.",
+  "timestamp": "2026-07-23T17:57:36.183Z"
+}

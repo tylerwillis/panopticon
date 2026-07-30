@@ -28,6 +28,7 @@ from panopticon.core.models import (
     ContainerStatus,
     LifecyclePhase,
     Repo,
+    Responsibility,
     Skill,
     Status,
     Task,
@@ -36,7 +37,7 @@ from panopticon.core.models import (
 from panopticon.core.provisioning import PROVISION_SKILL
 from panopticon.core.state import TERMINAL_LABELS, Dropped
 from panopticon.core.store import NotFound, Store
-from panopticon.core.workflow import Workflow
+from panopticon.core.workflow import InvalidWorkflow, Workflow
 from panopticon.harnesses import HARNESSES, get_harness
 
 _log = logging.getLogger(__name__)
@@ -137,6 +138,7 @@ class TaskService:
         self._registrations: dict[str, Registration] = {}
         self._runner_registrations: dict[str, RunnerRegistration] = {}
         self._lifecycles: dict[str, ContainerLifecycle] = {}
+        self._transition_locks: dict[str, asyncio.Lock] = {}
         # Ephemeral liveness (registrations, runner liveness, lifecycle phases) lives outside the
         # store, so it doesn't bump the store's version. But the dashboard's change-feed long-poll
         # only wakes on a version change — so a container going live or a phase advancing wouldn't
@@ -154,6 +156,7 @@ class TaskService:
     async def create_repo(self, repo: Repo) -> Repo:
         await self._validate_env_file(repo.env_file)
         self._validate_harness_name(repo.default_harness)
+        self._validate_repo_harness_model(repo)
         await self._validate_credential_dir(repo.credential_dir)
         await self._store.create_repo(repo)
         return repo
@@ -187,6 +190,12 @@ class TaskService:
             get_harness(harness)
         except KeyError as exc:
             raise ValueError(str(exc.args[0])) from exc
+
+    @staticmethod
+    def _validate_repo_harness_model(repo: Repo) -> None:
+        """Reject a repo model that has no harness to define its vocabulary."""
+        if repo.default_model is not None and repo.default_harness is None:
+            raise ValueError("default_model requires default_harness")
 
     async def _validate_env_file(self, env_file: str | None) -> None:
         """Reject a repo whose secrets-file reference points at a missing file.
@@ -236,6 +245,8 @@ class TaskService:
             )  # so an unrelated patch never fails on it
         if "default_harness" in changes:
             self._validate_harness_name(updated.default_harness)
+        if "default_harness" in changes or "default_model" in changes:
+            self._validate_repo_harness_model(updated)
         if "credential_dir" in changes:
             await self._validate_credential_dir(updated.credential_dir)
         await self._store.update_repo(updated)
@@ -356,6 +367,18 @@ class TaskService:
         except KeyError:
             raise UnknownWorkflow(f"unknown workflow {name!r}") from None
 
+    def _task_is_terminal(self, task: Task) -> bool:
+        """Classify a task through its workflow, with built-in labels as a legacy fallback."""
+        workflow = self._workflows.get(task.workflow)
+        if workflow is None:
+            return task.state in TERMINAL_LABELS
+        try:
+            return workflow.is_terminal(task.state)
+        except InvalidWorkflow:
+            # Persisted state labels can outlive workflow-code changes. Keep those tasks
+            # listable and operable so an operator can recover them with a free state move.
+            return task.state in TERMINAL_LABELS
+
     # -- tasks --------------------------------------------------------------------
 
     async def _save_task(self, task: Task) -> None:
@@ -403,16 +426,18 @@ class TaskService:
         now = self._clock()
         task = wf.start_task(self._id(), repo_id, at=now, memo=memo, initial_prompt=initial_prompt)
         # Defaults travel as an atomic harness/model pair: workflow beats repo beats the app's
-        # empty pair. A task may override either half, but changing the harness discards a model
-        # scoped to the losing harness.
+        # harness-only default. A task may override either half, but changing the harness discards
+        # a model scoped to the losing harness. Materialize the app default so later registry
+        # changes cannot reroute an existing task.
         pair_harness, pair_model = (
             (wf.default_harness, wf.default_model)
             if wf.default_harness is not None
             else (repo.default_harness, repo.default_model)
         )
-        task.harness = harness if harness is not None else pair_harness
+        selected_harness = pair_harness or get_harness(None).name
+        task.harness = harness if harness is not None else selected_harness
         task.starting_model = starting_model
-        if starting_model is None and (harness is None or harness == pair_harness):
+        if starting_model is None and (harness is None or harness == selected_harness):
             task.starting_model = pair_model
         if workflow_name == "review" and (
             governor is None or get_harness(task.harness).name == get_harness(governor.harness).name
@@ -492,7 +517,7 @@ class TaskService:
         tasks = await self._store.list_tasks_summary()
         if terminal is None:
             return tasks
-        return [t for t in tasks if (t.state in TERMINAL_LABELS) == terminal]
+        return [t for t in tasks if self._task_is_terminal(t) == terminal]
 
     async def _tasks_snapshot(self, *, terminal: bool | None = None) -> tuple[int, list[Task]]:
         """Read the version before the query so the reported version is a lower bound.
@@ -561,9 +586,13 @@ class TaskService:
         self, task_id: str, operation: str, *, note: str | None = None
     ) -> Task:
         """Apply a named core operation (advance/drop) — a gated move along the declared graph."""
-        task = await self.get_task(task_id)
-        to_state = self._workflow(task.workflow).resolve_operation(task.state, operation)
-        return await self.request_transition(task_id, to_state, trigger=operation, note=note)
+        async with self._transition_lock(task_id):
+            task = await self.get_task(task_id)
+            wf = self._workflow(task.workflow)
+            to_state = wf.resolve_operation(task.state, operation)
+            return await self._commit_transition(
+                task, wf, to_state, force=False, trigger=operation, note=note
+            )
 
     async def request_transition(
         self,
@@ -573,19 +602,25 @@ class TaskService:
         trigger: str | None = None,
         note: str | None = None,
     ) -> Task:
-        task = await self.get_task(task_id)
-        wf = self._workflow(task.workflow)
-        return await self._commit_transition(
-            task, wf, to_state, force=False, trigger=trigger, note=note
-        )
+        async with self._transition_lock(task_id):
+            task = await self.get_task(task_id)
+            wf = self._workflow(task.workflow)
+            return await self._commit_transition(
+                task, wf, to_state, force=False, trigger=trigger, note=note
+            )
 
     async def set_state(self, task_id: str, to_state: str, *, note: str | None = None) -> Task:
         """The user's free override: move the task to any state, bypassing the graph and the gate."""
-        task = await self.get_task(task_id)
-        wf = self._workflow(task.workflow)
-        return await self._commit_transition(
-            task, wf, to_state, force=True, trigger="set-state", note=note
-        )
+        async with self._transition_lock(task_id):
+            task = await self.get_task(task_id)
+            wf = self._workflow(task.workflow)
+            return await self._commit_transition(
+                task, wf, to_state, force=True, trigger="set-state", note=note
+            )
+
+    def _transition_lock(self, task_id: str) -> asyncio.Lock:
+        """Serialize each task's read-transition-effect-save boundary within this service."""
+        return self._transition_locks.setdefault(task_id, asyncio.Lock())
 
     async def _commit_transition(
         self,
@@ -611,10 +646,50 @@ class TaskService:
         await wf.on_transition(
             task, from_state=from_state, to_state=task.state, artifacts=self._artifacts
         )
+        await self._create_review_task_on_entry(task, wf)
         await self._save_task(task)
         if to_state == Dropped.label:
             await self._cascade_drop_governed(task.id, trigger=trigger, note=note)
         return task
+
+    async def _create_review_task_on_entry(self, task: Task, workflow: Workflow) -> None:
+        """Apply ADR-0014's deterministic review-gate lifecycle effect.
+
+        A workflow opts in by declaring its reviewer launch pair. The ordinary task-creation path
+        remains the single validation boundary for the governed worker, including cross-harness
+        enforcement. A rejected pair is recorded on the authoring transition instead of undoing
+        it, preserving the user's free-move fallback.
+        """
+        if task.state != "REVIEW" or workflow.review_harness is None:
+            return
+
+        responsibilities = task.current_entry.responsibilities
+        if not any(item.key == "review-addressed" for item in responsibilities):
+            responsibilities.append(
+                Responsibility(
+                    key="review-addressed",
+                    description="Address the governed review verdict before advancing.",
+                )
+            )
+
+        try:
+            await self.create_task(
+                task.repo_id,
+                "review",
+                governor_task_id=task.id,
+                harness=workflow.review_harness,
+                starting_model=workflow.review_model,
+            )
+        except Exception as exc:
+            entry = task.current_entry
+            reason = str(exc) or type(exc).__name__
+            failure = f"Review task creation failed: {reason}"
+            task.history[-1] = replace(
+                entry,
+                note=f"{entry.note}\n{failure}" if entry.note else failure,
+            )
+        else:
+            task.blocked = True
 
     async def _cascade_drop_governed(
         self, governor_id: str, *, trigger: str | None, note: str | None
@@ -625,7 +700,7 @@ class TaskService:
         runs this, so nested governor chains cascade without an explicit outer loop."""
         count = 0
         for child in await self._store.list_tasks_summary():
-            if child.governor_task_id == governor_id and child.state not in TERMINAL_LABELS:
+            if child.governor_task_id == governor_id and not self._task_is_terminal(child):
                 await self.request_transition(
                     child.id, Dropped.label, trigger="cascade-drop", note=note
                 )
@@ -636,12 +711,36 @@ class TaskService:
     async def resolve_responsibility(
         self, task_id: str, key: str, *, status: Status, comment: str | None = None
     ) -> Task:
-        """Record the agent's progress on one promised responsibility (fulfilled in place)."""
+        """Record the agent's progress on one promised responsibility (fulfilled in place).
+
+        If this call clears the state's last outstanding responsibility, and the workflow
+        has the agent (not the user) advance out of it, and the state has a single
+        well-defined `advance` operation, that transition fires immediately — the same
+        transition an explicit `advance` would perform — so the agent need not separately
+        call it (REQ-009). A state left with any responsibility still `PENDING`, a
+        user-advanced state, or a state with no derivable `advance` (e.g. more than one
+        forward transition) is unaffected: this call resolves the responsibility and
+        nothing more.
+
+        The eligibility check and the transition run against the *same* in-memory task,
+        persisted in one `_commit_transition` save — not a separate save followed by a
+        re-fetch (which would let a concurrent mutation land in between and have the
+        transition act on a state it was never checked against).
+        """
         task = await self.get_task(task_id)
         task.resolve_responsibility(key=key, status=status, comment=comment)
-        await self._save_task(task)
         _log.debug("task %s: responsibility %s → %s", task_id, key, status)
-        return task
+        if task.outstanding_responsibilities:
+            await self._save_task(task)
+            return task
+        wf = self._workflow(task.workflow)
+        advance_dest = wf.operations(task.state).get("advance")
+        if advance_dest is None or wf.advanced_by(task.state) is not Actor.AGENT:
+            await self._save_task(task)
+            return task
+        return await self._commit_transition(
+            task, wf, advance_dest, force=False, trigger="advance", note=None
+        )
 
     async def set_slug(self, task_id: str, slug: str) -> Task:
         task = await self.get_task(task_id)
@@ -871,7 +970,7 @@ class TaskService:
         fold the reported phase together with registration presence + runner liveness."""
         lifecycle = self._lifecycles.get(task.id)
         return compose_container_status(
-            terminal=task.state in TERMINAL_LABELS,
+            terminal=self._task_is_terminal(task),
             claimed=task.claimed_by is not None,
             registered=bool(self.registrations(task.id)),
             runner_live=task.claimed_by in self.live_runners(),
@@ -935,7 +1034,7 @@ class TaskService:
         a deliberate action until spawn-dedup exists."""
         reclaimed = []
         for task in await self._store.list_tasks():
-            if task.claimed_by == runner_id and task.state not in TERMINAL_LABELS:
+            if task.claimed_by == runner_id and not self._task_is_terminal(task):
                 task.claimed_by = None
                 self.clear_lifecycle(task.id)  # the dead runner's phase is stale; start clean
                 await self._save_container_state(task)

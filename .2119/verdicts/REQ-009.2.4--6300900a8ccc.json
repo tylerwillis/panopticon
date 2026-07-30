@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.4--6300900a8ccc",
+  "requirementId": "REQ-009.2.4",
+  "hash": "6300900a8ccc",
+  "verdict": "pass",
+  "summary": "Prior finding fixed: Bad.A is now an InitialState and the raise is matched on the op-target message ('jump'...not one of its transitions), so the workflow is invalid only for the off-graph op; removing the op-target check makes the test fail (verified by mutation).",
+  "timestamp": "2026-07-23T17:45:23.187Z"
+}

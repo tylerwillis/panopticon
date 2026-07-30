@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-003.2.1--0a2ec67c9ec2",
+  "requirementId": "REQ-003.2.1",
+  "hash": "0a2ec67c9ec2",
+  "verdict": "pass",
+  "summary": "Parametrized cases exercise both sentinel/explicit-default directions (app default and repo default) with differing starting models, confirming rejection is keyed on registry-resolved harness identity, not raw string or model equality.",
+  "timestamp": "2026-07-23T10:03:33.928Z"
+}

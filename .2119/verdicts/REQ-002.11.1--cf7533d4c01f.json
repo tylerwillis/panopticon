@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.11.1--cf7533d4c01f",
-  "requirementId": "REQ-002.11.1",
-  "hash": "cf7533d4c01f",
-  "verdict": "pass",
-  "summary": "Real subclass with unregistered review_harness 'cursor' is rejected by validate_registration (the exact hook service/discovery registration invokes); sibling test accepts the registered-harness counterpart",
-  "timestamp": "2026-07-22T06:08:18.409Z"
-}

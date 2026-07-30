@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-003.2.1--96886b6bfff2",
-  "requirementId": "REQ-003.2.1",
-  "hash": "96886b6bfff2",
-  "verdict": "pass",
-  "summary": "Parametrized cases cover explicit-vs-unset-sentinel resolving to the same harness (both directions) and resolution through a repo default_harness, with deliberately differing starting-model strings; each must raise and persist nothing, so raw-string comparison or model-based excusal would fail the test.",
-  "timestamp": "2026-07-22T06:13:17.683Z"
-}

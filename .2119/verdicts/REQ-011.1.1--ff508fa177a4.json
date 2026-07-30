@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-011.1.1--ff508fa177a4",
+  "requirementId": "REQ-011.1.1",
+  "hash": "ff508fa177a4",
+  "verdict": "pass",
+  "summary": "Exhaustive product over claim/registration/runner-liveness/all phases asserts en-dash for terminal, plus a service-level workflow-defined-terminal check; a registration-outranks-terminal mutant fails 32 grid cases.",
+  "timestamp": "2026-07-23T17:57:46.152Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-013.2.1--d2e2bffe80b6",
+  "requirementId": "REQ-013.2.1",
+  "hash": "d2e2bffe80b6",
+  "verdict": "pass",
+  "summary": "Success, free-move, concurrent, and re-entry tests all assert governor_task_id equals the real author id from the live service; a wrong-governor mutation fails 8 tests.",
+  "timestamp": "2026-07-23T17:56:47.343Z"
+}

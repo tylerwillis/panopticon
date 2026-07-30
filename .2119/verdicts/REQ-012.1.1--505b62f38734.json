@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.1.1--505b62f38734",
+  "requirementId": "REQ-012.1.1",
+  "hash": "505b62f38734",
+  "verdict": "pass",
+  "summary": "Both nearest violations (default_model without default_harness, and the reverse) are rejected via the real validate_registration used at registration; both-unset workflows validate cleanly elsewhere in the same file.",
+  "timestamp": "2026-07-23T17:39:00.600Z"
+}

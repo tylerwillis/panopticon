@@ -122,7 +122,9 @@ class TaskOut(BaseModel):
     starting_model: str | None = (
         None  # the model seeded at creation from the workflow's default_model
     )
-    harness: str | None = None  # which agent-CLI harness runs the container (None = claude)
+    harness: str | None = (
+        None  # concrete for new tasks; None only on legacy rows (resolves to the app default)
+    )
     governor_task_id: str | None = (
         None  # the task that oversees this one, or None for ungoverned tasks
     )

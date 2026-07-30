@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.3--0f3eba6d0325",
+  "requirementId": "REQ-009.2.3",
+  "hash": "0f3eba6d0325",
+  "verdict": "pass",
+  "summary": "Both boundaries constructed (OnlyDrop: zero forward edges; Branching: two), no declared advance, exact dict equality to {drop: DROPPED}; a mutant deriving advance from multiple edges fails the assertion (verified by mutation).",
+  "timestamp": "2026-07-23T17:45:22.814Z"
+}

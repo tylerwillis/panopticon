@@ -100,12 +100,21 @@ EXTENSION_FILE = "turn.ts"
 TURN_EXTENSION = """\
 export default function (pi) {
   const url = `${process.env.PANOPTICON_SERVICE_URL}/tasks/${process.env.PANOPTICON_TASK_ID}/turn`;
-  const setTurn = (turn) =>
-    fetch(url, {
-      method: "PUT",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ turn }),
-    }).catch(() => {});
+  const setTurn = async (turn) => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 2000);
+    try {
+      await fetch(url, {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ turn }),
+        signal: controller.signal,
+      });
+    } catch {
+    } finally {
+      clearTimeout(timeout);
+    }
+  };
 
   pi.on("agent_end", () => setTurn("user"));
   pi.on("input", () => setTurn("agent"));

@@ -37,6 +37,10 @@ CREDENTIALS_MOUNT = "/panopticon/credentials"
 #: Command both CLI hook formats invoke to update the task's turn through the control plane.
 HOOK_COMMAND = "python -m panopticon.container.hook"
 
+#: Whole-command backstop for injected hooks. The callback's own shorter HTTP timeout should fire
+#: first; this keeps a future callback regression from restoring either CLI's 600-second default.
+HOOK_TIMEOUT_SECONDS = 3
+
 
 def task_id_note(task_id: str) -> str:
     """Guidance shared by every rendered skill for calling the task-scoped MCP tools."""

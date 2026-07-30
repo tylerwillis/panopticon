@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.2--0592c8c3e657",
+  "requirementId": "REQ-009.2.2",
+  "hash": "0592c8c3e657",
+  "verdict": "pass",
+  "summary": "Exact-dict equality on operations('PLAN')/operations('WORKING') pins both that advance is derived and its precise target; the zero/multiple complement is independently rejected under REQ-009.2.3; no mocks — real Workflow resolution.",
+  "timestamp": "2026-07-23T17:39:49.717Z"
+}

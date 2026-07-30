@@ -1713,13 +1713,16 @@ class WorkflowsScreen(_TableScreen):
         table = self.query_one("#workflows", DataTable)
         table.clear()
         workflows = self._client.list_workflow_files()
-        self._workflows = {str(workflow["path"]): workflow for workflow in workflows}
-        for workflow in workflows:
+        # Key rows (and the lookup dict) by workflow NAME, not source path: names are unique
+        # by construction (discovery rejects duplicates), but one module may define several
+        # workflows — keying by path made the second row a DuplicateKey crash.
+        self._workflows = {str(workflow["name"]): workflow for workflow in workflows}
+        for workflow in self._workflows.values():
             table.add_row(
                 workflow["name"],
                 "built-in (edit with care)" if workflow["built_in"] else "operator",
                 workflow["when_to_use"],
-                key=str(workflow["path"]),
+                key=str(workflow["name"]),
             )
 
     def _open(self, path: Path) -> None:
@@ -1731,7 +1734,9 @@ class WorkflowsScreen(_TableScreen):
         self._refresh()
 
     def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
-        self._open(Path(str(event.row_key.value)))
+        workflow = self._workflows.get(str(event.row_key.value))
+        if workflow is not None:
+            self._open(Path(str(workflow["path"])))
 
     def action_new_workflow(self) -> None:
         def create(name: str | None) -> None:
@@ -1747,13 +1752,17 @@ class WorkflowsScreen(_TableScreen):
         self.app.push_screen(NewWorkflowScreen(), create)
 
     def action_delete_workflow(self) -> None:
-        path = self._current
-        if path is None:
+        name = self._current
+        if name is None:
             return
-        workflow = self._workflows[path]
+        workflow = self._workflows[name]
         if workflow["built_in"]:
             self.notify("Built-in workflows cannot be deleted.", severity="warning")
             return
+        path = str(workflow["path"])
+        # Deleting removes the FILE — which may define several workflows. Name every
+        # workflow the deletion takes with it so the confirmation is honest.
+        siblings = [str(w["name"]) for w in self._workflows.values() if str(w["path"]) == path]
 
         def delete(confirmed: bool | None) -> None:
             if not confirmed:
@@ -1765,7 +1774,7 @@ class WorkflowsScreen(_TableScreen):
                 return
             self._refresh()
 
-        self.app.push_screen(DeleteWorkflowScreen(str(workflow["name"])), delete)
+        self.app.push_screen(DeleteWorkflowScreen(", ".join(siblings)), delete)
 
 
 class ReposScreen(_TableScreen):

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-003.3.1--4837d086c2bb",
+  "requirementId": "REQ-003.3.1",
+  "hash": "4837d086c2bb",
+  "verdict": "pass",
+  "summary": "Positive-path test creates a review task with a differing resolved harness but identical starting_model and asserts success, ruling out an implementation that mistakenly gates on model equality.",
+  "timestamp": "2026-07-23T10:03:35.362Z"
+}

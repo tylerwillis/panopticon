@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.1.4--abe3da4f3a41",
+  "requirementId": "REQ-014.1.4",
+  "hash": "abe3da4f3a41",
+  "verdict": "pass",
+  "summary": "Ambiguous fixture is agent-advanced and fully resolved with two undeclared forward transitions (the requirement's named shape); paired contrast test proves a declared advance among two transitions does fire; mutation inventing an advance is caught",
+  "timestamp": "2026-07-23T17:57:49.251Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.2.1--ae249b234b60",
+  "requirementId": "REQ-010.2.1",
+  "hash": "ae249b234b60",
+  "verdict": "pass",
+  "summary": "null/non-object/statusless/numeric/dict/unknown-string entries all assert no turn flip (treated as live); empirical probe confirmed near-miss statuses ('complete', 'completedX') also stay live via the same code path, rejecting over-broad terminal matching.",
+  "timestamp": "2026-07-23T18:24:35.782Z"
+}
