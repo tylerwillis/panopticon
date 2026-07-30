@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.5.1--1ceae62fa36c",
+  "requirementId": "REQ-018.5.1",
+  "hash": "1ceae62fa36c",
+  "verdict": "pass",
+  "summary": "Types custom/model and maximum (absent from claude's fable/opus/sonnet + empty efforts) via real keys and asserts the create call received custom/model:maximum — a control that rejected or clipped non-suggested text would change fake.created and fail.",
+  "timestamp": "2026-07-30T18:28:15.058Z"
+}

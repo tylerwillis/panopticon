@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.2.1--325b7616f97e",
+  "requirementId": "REQ-019.2.1",
+  "hash": "325b7616f97e",
+  "verdict": "pass",
+  "summary": "Counts real discovery calls on 4 instrumented harnesses: the wait-for requires every registered harness to reach exactly 1 (rejecting lazy/partial discovery), then 12 cycles must leave counts at 1 (rejecting per-cycle rediscovery); companion tests hold the once-only bound across early close and discovery failures.",
+  "timestamp": "2026-07-30T18:28:47.208Z"
+}

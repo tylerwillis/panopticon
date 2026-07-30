@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.10.1--814426a0ef82",
+  "requirementId": "REQ-018.10.1",
+  "hash": "814426a0ef82",
+  "verdict": "pass",
+  "summary": "Real-keypress pilot test: arrows verify highlighted index 1, Enter asserts corresponding Input.value equals that candidate (parametrized model/effort, index 0 differs), and no-submit is explicit — modal still MemoScreen and fake.created==[] (an enter-bubble submit would create a task even with empty memo, dashboard.py:2716)",
+  "timestamp": "2026-07-30T18:28:31.073Z"
+}

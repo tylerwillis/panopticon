@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.3.1--a9d75e4c8e99",
+  "requirementId": "REQ-001.3.1",
+  "hash": "a9d75e4c8e99",
+  "verdict": "pass",
+  "summary": "Parametrized over both no-click and Escape: each must land back on WorkflowsScreen with the real tmp_path file's content intact — a deleting cancel or a stuck dialog fails",
+  "timestamp": "2026-07-30T18:26:17.278Z"
+}

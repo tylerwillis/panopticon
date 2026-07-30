@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.2--ebe75a439ad0",
+  "requirementId": "REQ-006.4.2",
+  "hash": "ebe75a439ad0",
+  "verdict": "pass",
+  "summary": "Service order is reversed from display order, display order independently asserted from rendered text, event log must match it, and max_active_releases==1 with a forced-overlap sleep rejects concurrent processing.",
+  "timestamp": "2026-07-30T18:26:47.562Z"
+}
