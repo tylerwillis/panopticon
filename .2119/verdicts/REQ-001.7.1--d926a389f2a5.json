@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.7.1--d926a389f2a5",
+  "requirementId": "REQ-001.7.1",
+  "hash": "d926a389f2a5",
+  "verdict": "pass",
+  "summary": "Style tuple (56/auto/round accent border/surface bg) captured live from the real new-workflow dialog, asserted absolutely, compared by equality to the delete dialog, plus region-math centering — every conjunct has a failing counterexample",
+  "timestamp": "2026-07-30T18:30:34.616Z"
+}

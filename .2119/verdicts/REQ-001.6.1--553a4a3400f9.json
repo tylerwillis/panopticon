@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.6.1--553a4a3400f9",
+  "requirementId": "REQ-001.6.1",
+  "hash": "553a4a3400f9",
+  "verdict": "pass",
+  "summary": "Dialog opened via real key presses; exact full-message equality on all Labels rejects any dialog lacking the removes-file/loaded-until-restart disclosure",
+  "timestamp": "2026-07-30T18:30:30.781Z"
+}

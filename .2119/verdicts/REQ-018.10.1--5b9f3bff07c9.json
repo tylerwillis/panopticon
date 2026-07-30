@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.10.1--5b9f3bff07c9",
+  "requirementId": "REQ-018.10.1",
+  "hash": "5b9f3bff07c9",
+  "verdict": "pass",
+  "summary": "Real key-driven test highlights candidate via arrows, Enter sets field to that exact candidate (luna/xhigh), modal stays open, fake.created empty rejects submission; parametrized over model and effort",
+  "timestamp": "2026-07-30T18:31:05.639Z"
+}

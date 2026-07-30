@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.19.1--47fcd74ee8de",
-  "requirementId": "REQ-018.19.1",
-  "hash": "47fcd74ee8de",
-  "verdict": "pass",
-  "summary": "The modal cycles exactly the registered harness set and wraps, with a focused selector unit test confirming forward registered-only cycling.",
-  "timestamp": "2026-07-30T16:50:25.633Z"
-}

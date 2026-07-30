@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.17.1--3c201447f632",
+  "requirementId": "REQ-018.17.1",
+  "hash": "3c201447f632",
+  "verdict": "pass",
+  "summary": "Both no-highlight shapes covered: empty filtered list and non-empty list with highlighted None (asserted from real state); Enter leaves MemoScreen open and created empty, parametrized over model and effort",
+  "timestamp": "2026-07-30T18:31:12.646Z"
+}

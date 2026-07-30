@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.5--8f73eaf59776",
+  "requirementId": "REQ-006.4.5",
+  "hash": "8f73eaf59776",
+  "verdict": "pass",
+  "summary": "exact notices == ['respawned 1'] with the notify surface fully captured rejects any per-task skip notification",
+  "timestamp": "2026-07-30T18:31:04.395Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.7.1--83bc0f795e2b",
+  "requirementId": "REQ-008.7.1",
+  "hash": "83bc0f795e2b",
+  "verdict": "pass",
+  "summary": "Fake client raises on unversioned list_tasks and mutates the snapshot atomically at the cursor-seed read; a dashboard rendering a torn, stale, or unversioned startup snapshot shows turn=user instead of agent and fails, with no later change signal to rescue a discarded seed.",
+  "timestamp": "2026-07-30T18:28:20.662Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.1--7fbb32957289",
+  "requirementId": "REQ-006.4.1",
+  "hash": "7fbb32957289",
+  "verdict": "pass",
+  "summary": "Full event-list equality pins exactly one check-then-release per down task (double or missed release fails); the parametrized skip test mutates service state post-modal so only a confirmation-time get_task observes recovery, proving check timing and rejecting release of a recovered task across all 11 non-down statuses.",
+  "timestamp": "2026-07-30T18:27:20.827Z"
+}

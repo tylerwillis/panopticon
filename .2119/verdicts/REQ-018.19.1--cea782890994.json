@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.19.1--cea782890994",
+  "requirementId": "REQ-018.19.1",
+  "hash": "cea782890994",
+  "verdict": "pass",
+  "summary": "Integrated test cycles the selection-only control via real Enter presses and asserts the seen set equals the panopticon.harnesses registry exactly (extra or missing names break set equality) with wrap-around; unit test pins widget cycling",
+  "timestamp": "2026-07-30T18:31:21.254Z"
+}

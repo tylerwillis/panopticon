@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.2.1--5e4041e1f7c1",
+  "requirementId": "REQ-006.2.1",
+  "hash": "5e4041e1f7c1",
+  "verdict": "pass",
+  "summary": "Exact splitlines equality on the rendered modal rejects both omissions and inclusions (live and the near-miss failed status); a second test flips the snapshot to one newly-down task pre-invocation, failing a stale-snapshot implementation.",
+  "timestamp": "2026-07-30T18:27:04.286Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.4--930bcccc0285",
+  "requirementId": "REQ-006.4.4",
+  "hash": "930bcccc0285",
+  "verdict": "pass",
+  "summary": "service-side mutation after modal open across all 11 non-down statuses; released contains only the still-down task while got_tasks proves the recovered task was checked",
+  "timestamp": "2026-07-30T18:31:03.999Z"
+}

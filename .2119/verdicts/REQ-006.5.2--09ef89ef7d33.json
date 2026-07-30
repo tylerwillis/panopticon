@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.5.2--09ef89ef7d33",
+  "requirementId": "REQ-006.5.2",
+  "hash": "09ef89ef7d33",
+  "verdict": "pass",
+  "summary": "no-modal proven by screen_stack==1 on an unpatched app and an intercepted push_screen asserting opened == []",
+  "timestamp": "2026-07-30T18:31:05.211Z"
+}

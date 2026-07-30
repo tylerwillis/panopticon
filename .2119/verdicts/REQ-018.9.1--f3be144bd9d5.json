@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.9.1--f3be144bd9d5",
+  "requirementId": "REQ-018.9.1",
+  "hash": "f3be144bd9d5",
+  "verdict": "pass",
+  "summary": "Asserts the rendered #memo-box region width == 64 with controls visible and with each candidate list open (list visibility asserted first) in an 80-col test terminal — a widened modal fails",
+  "timestamp": "2026-07-30T18:31:06.341Z"
+}

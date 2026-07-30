@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.16.1--bcfca6299b8b",
+  "requirementId": "REQ-018.16.1",
+  "hash": "bcfca6299b8b",
+  "verdict": "pass",
+  "summary": "Enter on the focused (asserted) selector cycles claude->codex with fake.created empty mid-test, then a real submit carries the cycled harness; non-cycling or submit-on-enter both fail",
+  "timestamp": "2026-07-30T18:31:09.398Z"
+}

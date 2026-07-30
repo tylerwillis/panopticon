@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.14.1--cfe6a80d648b",
+  "requirementId": "REQ-018.14.1",
+  "hash": "cfe6a80d648b",
+  "verdict": "pass",
+  "summary": "Exact create tuple asserts the task exists with memo=='fix' and initial_prompt=None, so delivering the memo as the prompt (the nearest violation) fails the equality",
+  "timestamp": "2026-07-30T18:26:40.694Z"
+}

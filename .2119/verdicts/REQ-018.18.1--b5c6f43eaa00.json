@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.18.1--b5c6f43eaa00",
+  "requirementId": "REQ-018.18.1",
+  "hash": "b5c6f43eaa00",
+  "verdict": "pass",
+  "summary": "Repo default terra:high would leak through if retained: tests assert cleared inputs and starting_model None on submit after harness change; mixed test pins the untouched boundary (touched model survives while untouched effort clears)",
+  "timestamp": "2026-07-30T18:31:17.487Z"
+}

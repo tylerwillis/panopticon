@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.8.1--b6370e3bfcb7",
+  "requirementId": "REQ-018.8.1",
+  "hash": "b6370e3bfcb7",
+  "verdict": "pass",
+  "summary": "Parametrized escape from harness/model/effort with candidate-list visibility asserted before the press, then screen-closed + no task created; memo-editor case covered by the draft round-trip",
+  "timestamp": "2026-07-30T18:31:05.883Z"
+}

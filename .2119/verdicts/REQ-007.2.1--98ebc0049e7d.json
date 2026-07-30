@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.2.1--98ebc0049e7d",
+  "requirementId": "REQ-007.2.1",
+  "hash": "98ebc0049e7d",
+  "verdict": "pass",
+  "summary": "Real pilot run opens the pane (display block, width>0) and asserts rendered.plain ends with newline+exact hint text plus a dim span covering exactly the hint range — missing, misworded, non-trailing, or non-dim hints all fail.",
+  "timestamp": "2026-07-30T18:28:11.171Z"
+}

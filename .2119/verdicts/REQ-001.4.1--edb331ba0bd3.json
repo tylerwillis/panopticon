@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.4.1--edb331ba0bd3",
+  "requirementId": "REQ-001.4.1",
+  "hash": "edb331ba0bd3",
+  "verdict": "pass",
+  "summary": "Asserts real file removal, non-selected file untouched, a second list_workflow_files call, and the table rendering that second call's changed content — local row-pruning without re-fetch would fail",
+  "timestamp": "2026-07-30T18:26:08.713Z"
+}

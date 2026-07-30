@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.9.1--9eb0a4cb4e5a",
-  "requirementId": "REQ-018.9.1",
-  "hash": "9eb0a4cb4e5a",
-  "verdict": "pass",
-  "summary": "Tests assert the exact 64-column boundary with all launch controls visible and separately with each model and effort candidate list visible, rejecting any 63/65-column or list-induced width change.",
-  "timestamp": "2026-07-30T16:57:22.581Z"
-}

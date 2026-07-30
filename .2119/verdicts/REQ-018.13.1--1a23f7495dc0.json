@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.13.1--1a23f7495dc0",
+  "requirementId": "REQ-018.13.1",
+  "hash": "1a23f7495dc0",
+  "verdict": "pass",
+  "summary": "Real key events drive the memo and Enter; the exact create tuple asserts initial_prompt=='fix' alongside the memo, so a memo-only (prompt=None) submission fails",
+  "timestamp": "2026-07-30T18:26:37.229Z"
+}

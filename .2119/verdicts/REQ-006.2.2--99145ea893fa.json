@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.2.2--99145ea893fa",
+  "requirementId": "REQ-006.2.2",
+  "hash": "99145ea893fa",
+  "verdict": "pass",
+  "summary": "Exact line equality covers every conjunct with a boundary counterexample: 8-char ID prefix, dash for unset slug, whitespace normalization (newline/runs/padding), the exactly-60-char memo without ellipsis, normalization-before-truncation at char 60, and no memo segment when memo is None.",
+  "timestamp": "2026-07-30T18:27:09.370Z"
+}
