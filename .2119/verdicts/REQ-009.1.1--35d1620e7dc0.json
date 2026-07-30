@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.1--35d1620e7dc0",
+  "requirementId": "REQ-009.1.1",
+  "hash": "35d1620e7dc0",
+  "verdict": "pass",
+  "summary": "Two fixtures (auto-derived single-edge and explicitly-declared advance amid two edges) genuinely trigger the transition in the same resolve_responsibility call; negative boundaries (partial resolve, user-advanced, ambiguous) are covered by sibling requirements, and _resolve_operations confirms the explicit-declared-op fixture exercises real distinguishing logic, not luck.",
+  "timestamp": "2026-07-23T10:07:54.718Z"
+}

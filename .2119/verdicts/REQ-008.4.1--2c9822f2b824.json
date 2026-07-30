@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.4.1--2c9822f2b824",
+  "requirementId": "REQ-008.4.1",
+  "hash": "2c9822f2b824",
+  "verdict": "pass",
+  "summary": "Claude's native UserPromptSubmit wiring targets the agent hook, and a gated write proves the hook cannot exit before that agent-turn write completes.",
+  "timestamp": "2026-07-22T18:01:03.671Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.6.1--a5c231cb4e61",
+  "requirementId": "REQ-008.6.1",
+  "hash": "a5c231cb4e61",
+  "verdict": "pass",
+  "summary": "The Node probe rejects an input handler that settles before its promise-gated request completes; sibling tests pin that awaited request as the shipped task-service PUT with turn=agent.",
+  "timestamp": "2026-07-22T17:15:41.984Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.5.1--3f87437d3428",
+  "requirementId": "REQ-008.5.1",
+  "hash": "3f87437d3428",
+  "verdict": "pass",
+  "summary": "Gated-client threading test proves hook.main blocks until set_turn completes (thread.is_alive while write pending, rejects fire-and-forget); config test pins UserPromptSubmit to the exact blocking command; fake replaces transport only, not ordering.",
+  "timestamp": "2026-07-22T14:39:59.977Z"
+}

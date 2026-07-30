@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.1--5ff628200970",
+  "requirementId": "REQ-009.2.1",
+  "hash": "5ff628200970",
+  "verdict": "pass",
+  "summary": "Checks on_transition_calls, appended history (from/to/trigger='advance'/freshly-seeded PENDING responsibilities) and the recomputed turn (LANDED=AGENT vs WORKING's seeded USER) — a real, discriminating parity check, not tautological.",
+  "timestamp": "2026-07-23T10:07:56.730Z"
+}

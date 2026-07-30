@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.1.2--118fbf1efce0",
+  "requirementId": "REQ-006.1.2",
+  "hash": "118fbf1efce0",
+  "verdict": "pass",
+  "summary": "Test opens the real HelpScreen and asserts the rendered lines containing 'Ctrl+R' equal exactly ['Ctrl+R Respawn all down tasks'], sourced from the real Hotkey/HOTKEYS table wired to action_respawn_all_down; genuine and falsifiable.",
+  "timestamp": "2026-07-23T09:17:25.224Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.1.1--448bf8963128",
+  "requirementId": "REQ-008.1.1",
+  "hash": "448bf8963128",
+  "verdict": "pass",
+  "summary": "Version-counter check (before+1) proves the blocked clear and turn write land in one save, not two, plus a fresh get_task confirms persistence.",
+  "timestamp": "2026-07-23T10:03:37.880Z"
+}

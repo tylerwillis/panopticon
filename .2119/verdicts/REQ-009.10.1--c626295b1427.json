@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.10.1--c626295b1427",
+  "requirementId": "REQ-009.10.1",
+  "hash": "c626295b1427",
+  "verdict": "pass",
+  "summary": "Controlled paired-workflow re-entries require three review workers with three distinct IDs, so reusing any earlier-round task fails the test.",
+  "timestamp": "2026-07-22T15:10:06.064Z"
+}

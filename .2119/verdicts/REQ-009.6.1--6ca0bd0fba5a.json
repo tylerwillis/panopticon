@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.6.1--6ca0bd0fba5a",
+  "requirementId": "REQ-009.6.1",
+  "hash": "6ca0bd0fba5a",
+  "verdict": "pass",
+  "summary": "Real TaskService tests cover both declared advance and free-move entry into REVIEW for an unpaired workflow; either path creating even one additional review task breaks the exact task-list assertion.",
+  "timestamp": "2026-07-22T15:07:53.461Z"
+}

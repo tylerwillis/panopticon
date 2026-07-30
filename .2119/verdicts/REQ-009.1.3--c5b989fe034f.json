@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.3--c5b989fe034f",
+  "requirementId": "REQ-009.1.3",
+  "hash": "c5b989fe034f",
+  "verdict": "pass",
+  "summary": "_Gated (advanced_by=USER, single responsibility) resolves its only/last responsibility to MET and asserts no transition — the maximal near-miss case (fully resolved) that would trip an actor-gating bug.",
+  "timestamp": "2026-07-23T10:07:55.519Z"
+}

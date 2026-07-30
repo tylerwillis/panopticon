@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.3.1--7f5f6638616b",
+  "requirementId": "REQ-009.3.1",
+  "hash": "7f5f6638616b",
+  "verdict": "pass",
+  "summary": "All ten table mappings are tied to rendered harness wiring and executed callback/extension behavior; the live-background Stop case rejects any turn write.",
+  "timestamp": "2026-07-22T18:01:43.490Z"
+}

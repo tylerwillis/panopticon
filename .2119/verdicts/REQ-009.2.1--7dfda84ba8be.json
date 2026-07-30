@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.1--7dfda84ba8be",
+  "requirementId": "REQ-009.2.1",
+  "hash": "7dfda84ba8be",
+  "verdict": "pass",
+  "summary": "Review-gate entry creates exactly one new review task and rejects a missing or wrong governor_task_id by asserting it equals the authoring task id.",
+  "timestamp": "2026-07-22T15:05:01.460Z"
+}
