@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.7.1--03fe910d0659",
+  "requirementId": "REQ-018.7.1",
+  "hash": "03fe910d0659",
+  "verdict": "pass",
+  "summary": "Tests reject stale untouched harness/model/effort values after repo, workflow, and app default changes, while focus-only and mixed touched/untouched harness-change cases exercise the touch boundary.",
+  "timestamp": "2026-07-30T17:03:14.330Z"
+}

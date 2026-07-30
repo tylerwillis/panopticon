@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.2--ba4cfba57270",
+  "requirementId": "REQ-006.4.2",
+  "hash": "ba4cfba57270",
+  "verdict": "pass",
+  "summary": "Displayed order asserted from the rendered modal (service order reversed), events pinned in that order, and a sleep-instrumented max_active_releases == 1 rejects concurrent processing.",
+  "timestamp": "2026-07-22T14:41:37.451Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.4.1--1ba2eea99480",
+  "requirementId": "REQ-018.4.1",
+  "hash": "1ba2eea99480",
+  "verdict": "pass",
+  "summary": "Both candidate lists verify Down and Up change the highlight among the two filtered results.",
+  "timestamp": "2026-07-30T16:50:19.181Z"
+}

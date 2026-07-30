@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.12.1--a006973638da",
+  "requirementId": "REQ-002.12.1",
+  "hash": "a006973638da",
+  "verdict": "pass",
+  "summary": "Review remains registered and creatable while absent from both operator-menu endpoints.",
+  "timestamp": "2026-07-30T16:15:07.423Z"
+}

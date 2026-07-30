@@ -2,7 +2,7 @@
   "reviewId": "REQ-002.12.1--7e92ec8da422",
   "requirementId": "REQ-002.12.1",
   "hash": "7e92ec8da422",
-  "verdict": "pass",
-  "summary": "Test checks 'review' is registered yet absent from both list_workflow_infos and list_workflow_infos_for_repo while still creatable via create_task; genuinely fails if hidden flag is dropped.",
-  "timestamp": "2026-07-23T10:03:31.378Z"
+  "verdict": "fail",
+  "summary": "Evidence file contains no test annotated REQ-002.12.1, so hiding review from operator workflow menus is not behaviorally verified.",
+  "timestamp": "2026-07-30T17:02:58.269Z"
 }

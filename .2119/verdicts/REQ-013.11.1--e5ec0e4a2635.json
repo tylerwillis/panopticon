@@ -3,6 +3,6 @@
   "requirementId": "REQ-013.11.1",
   "hash": "e5ec0e4a2635",
   "verdict": "pass",
-  "summary": "Parametrized free moves into DRAFT/WORKING/COMPLETE/DROPPED on a paired workflow assert no review task or responsibility appears; a fire-on-any-state mutation fails all four cases.",
-  "timestamp": "2026-07-23T17:56:38.701Z"
+  "summary": "Every non-REVIEW state in the paired test workflow is exercised and each transition is asserted to leave the task list without a review worker.",
+  "timestamp": "2026-07-30T17:03:10.625Z"
 }

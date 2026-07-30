@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.16.1--584ebf921791",
+  "requirementId": "REQ-018.16.1",
+  "hash": "584ebf921791",
+  "verdict": "pass",
+  "summary": "Enter on focused harness advances Claude to the next registered Codex value and explicitly creates no task until later submission.",
+  "timestamp": "2026-07-30T16:50:24.362Z"
+}

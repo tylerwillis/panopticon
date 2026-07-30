@@ -15,7 +15,7 @@ import httpx
 import pytest
 from textual.app import App
 from textual.containers import VerticalScroll
-from textual.widgets import Button, Checkbox, DataTable, Input, Label, Select, Static
+from textual.widgets import Button, Checkbox, DataTable, Input, Label, OptionList, Select, Static
 
 from panopticon.terminal import dashboard
 from panopticon.terminal.dashboard import (
@@ -115,6 +115,7 @@ class _FakeClient:
         self.applied: list[tuple[str, str]] = []
         self.got_tasks: list[str] = []
         self.released: list[str] = []
+        self.set_slugs: list[tuple[str, str]] = []
         self.created_repos: list[dict[str, Any]] = []
         self.updated_repos: list[tuple[str, dict[str, Any]]] = []
         # When set, create_repo/update_repo raise a 400 carrying this detail (mimics the task
@@ -255,6 +256,14 @@ class _FakeClient:
             if t["id"] == task_id:
                 t["claimed_by"] = None
         return {"id": task_id, "claimed_by": None}
+
+    def set_slug(self, task_id: str, slug: str) -> dict[str, Any]:
+        self.set_slugs.append((task_id, slug))
+        for task in self._tasks:
+            if task["id"] == task_id:
+                task["slug"] = slug
+                return task
+        raise KeyError(task_id)
 
 
 def test_render_detail_shows_state_turn_and_history() -> None:
@@ -759,6 +768,7 @@ async def test_pressing_u_with_no_runner_session_does_nothing() -> None:
         assert app.is_running  # reported "none running"; stayed on the dashboard
 
 
+# 2119: REQ-018.13.1
 async def test_pressing_n_creates_a_task_via_repo_workflow_then_memo() -> None:
     fake = _FakeClient(
         [],
@@ -781,6 +791,7 @@ async def test_pressing_n_creates_a_task_via_repo_workflow_then_memo() -> None:
         assert fake.created == [("r1", "spike", "fix", "fix", None, None)]
 
 
+# 2119: REQ-018.8.1
 async def test_new_task_memo_draft_survives_close_and_reopen(tmp_path: Path) -> None:
     fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
     app = Dashboard(fake, draft_file=tmp_path / "new-task-drafts.json")  # type: ignore[arg-type]
@@ -926,6 +937,693 @@ async def test_memo_launch_summary_re_resolves_after_repo_data_loads(tmp_path: P
         assert str(summary.render()) == "codex · (codex default) — set by repo default"
 
 
+def _option_prompts(option_list: OptionList) -> list[str]:
+    return [
+        str(option_list.get_option_at_index(index).prompt)
+        for index in range(option_list.option_count)
+    ]
+
+
+# 2119: REQ-018.1.1
+# 2119: REQ-018.9.1
+async def test_memo_launch_fields_are_labeled_visible_and_stay_within_64_columns() -> None:
+    fake = _FakeClient(
+        [],
+        repos=[
+            {
+                "id": "r1",
+                "name": "r1",
+                "git_url": "",
+                "default_base": "main",
+                "default_harness": "codex",
+                "default_model": "terra:high",
+            }
+        ],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter")
+        await pilot.pause()
+
+        labels = {str(label.content) for label in app.screen.query(".launch-field-label")}
+        harness = app.screen.query_one(dashboard.HarnessSelector)
+        model = app.screen.query_one("#launch-model", Input)
+        effort = app.screen.query_one("#launch-effort", Input)
+        assert isinstance(app.screen.focused, dashboard.MemoTextArea)
+        assert labels == {"harness", "model", "effort"}
+        assert (harness.value, model.value, effort.value) == ("codex", "terra", "high")
+        assert all(widget.region.width > 0 for widget in (harness, model, effort))
+        assert app.screen.query_one("#memo-box").region.width == 64
+
+        await pilot.press("tab", "tab")
+        await pilot.pause()
+        assert app.screen.query_one("#launch-model-options", OptionList).region.width > 0
+        assert app.screen.query_one("#memo-box").region.width == 64
+        await pilot.press("tab")
+        await pilot.pause()
+        assert app.screen.query_one("#launch-effort-options", OptionList).region.width > 0
+        assert app.screen.query_one("#memo-box").region.width == 64
+
+
+# 2119: REQ-018.9.1
+@pytest.mark.parametrize(
+    ("tabs", "options_id"),
+    [
+        (2, "#launch-model-options"),
+        (3, "#launch-effort-options"),
+    ],
+)
+async def test_each_candidate_list_preserves_the_64_column_modal_width(
+    tabs: int, options_id: str
+) -> None:
+    fake = _FakeClient(
+        [],
+        repos=[
+            {
+                "id": "r1",
+                "name": "r1",
+                "git_url": "",
+                "default_base": "main",
+                "default_harness": "codex",
+                "default_model": "terra:high",
+            }
+        ],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter", *("tab" for _ in range(tabs)))
+        await pilot.pause()
+
+        assert app.screen.query_one(options_id, OptionList).region.width > 0
+        assert app.screen.query_one("#memo-box").region.width == 64
+
+
+# 2119: REQ-018.2.1
+async def test_memo_launch_controls_follow_the_documented_tab_order() -> None:
+    fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter")
+        await pilot.pause()
+        assert isinstance(app.screen.focused, dashboard.MemoTextArea)
+        await pilot.press("tab")
+        assert isinstance(app.screen.focused, dashboard.HarnessSelector)
+        await pilot.press("tab")
+        assert app.screen.focused is app.screen.query_one("#launch-model", Input)
+        await pilot.press("tab")
+        assert app.screen.focused is app.screen.query_one("#launch-effort", Input)
+
+
+@pytest.mark.parametrize(
+    ("tabs", "typed", "options_id", "expected"),
+    [
+        (2, "A", "#launch-model-options", ("terra — Terra", "luna — Luna")),
+        (3, "H", "#launch-effort-options", ("high — High", "xhigh — X-high")),
+    ],
+)
+# 2119: REQ-018.3.1
+async def test_typing_filters_the_visible_model_and_effort_candidates(
+    tabs: int,
+    typed: str,
+    options_id: str,
+    expected: tuple[str, ...],
+) -> None:
+    fake = _FakeClient(
+        [],
+        repos=[
+            {
+                "id": "r1",
+                "name": "r1",
+                "git_url": "",
+                "default_base": "main",
+                "default_harness": "codex",
+            }
+        ],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter", *("tab" for _ in range(tabs)))
+        await pilot.press(*typed)
+        await pilot.pause()
+
+        candidates = app.screen.query_one(options_id, OptionList)
+        prompts = _option_prompts(candidates)
+        assert candidates.region.width > 0
+        assert prompts == list(expected)
+
+
+# 2119: REQ-018.4.1
+# 2119: REQ-018.10.1
+@pytest.mark.parametrize(
+    ("tabs", "typed", "input_id", "options_id", "expected"),
+    [
+        (2, "a", "#launch-model", "#launch-model-options", "luna"),
+        (3, "h", "#launch-effort", "#launch-effort-options", "xhigh"),
+    ],
+)
+async def test_arrow_then_enter_selects_a_filtered_candidate_without_submitting(
+    tabs: int,
+    typed: str,
+    input_id: str,
+    options_id: str,
+    expected: str,
+) -> None:
+    fake = _FakeClient(
+        [],
+        repos=[
+            {
+                "id": "r1",
+                "name": "r1",
+                "git_url": "",
+                "default_base": "main",
+                "default_harness": "codex",
+            }
+        ],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter", *("tab" for _ in range(tabs)))
+        await pilot.press(typed)
+        await pilot.pause()
+
+        candidates = app.screen.query_one(options_id, OptionList)
+        assert len(_option_prompts(candidates)) == 2
+        candidates.highlighted = None
+        await pilot.press("down")
+        assert candidates.highlighted == 0
+        await pilot.press("down")
+        assert candidates.highlighted == 1
+        await pilot.press("up")
+        assert candidates.highlighted == 0
+        await pilot.press("down")
+        assert candidates.highlighted == 1
+        await pilot.press("enter")
+        await pilot.pause()
+        assert isinstance(app.screen, dashboard.MemoScreen)
+        assert app.screen.query_one(input_id, Input).value == expected
+        assert fake.created == []
+
+
+# 2119: REQ-018.17.1
+# 2119: REQ-018.20.1
+@pytest.mark.parametrize(
+    ("tabs", "options_id", "typed"),
+    [
+        (2, "#launch-model-options", "not-a-suggested-model"),
+        (3, "#launch-effort-options", "not-a-suggested-effort"),
+    ],
+)
+async def test_no_match_stays_visible_and_enter_does_not_submit(
+    tabs: int, options_id: str, typed: str
+) -> None:
+    fake = _FakeClient(
+        [],
+        repos=[
+            {
+                "id": "r1",
+                "name": "r1",
+                "git_url": "",
+                "default_base": "main",
+                "default_harness": "codex",
+            }
+        ],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter", *("tab" for _ in range(tabs)))
+        await pilot.press(*typed)
+        await pilot.pause()
+
+        candidates = app.screen.query_one(options_id, OptionList)
+        assert candidates.option_count == 0
+        assert candidates.region.width > 0
+        await pilot.press("enter")
+        await pilot.pause()
+        assert isinstance(app.screen, dashboard.MemoScreen)
+        assert fake.created == []
+
+
+# 2119: REQ-018.17.1
+@pytest.mark.parametrize(
+    ("tabs", "options_id"),
+    [
+        (2, "#launch-model-options"),
+        (3, "#launch-effort-options"),
+    ],
+)
+async def test_enter_with_nonempty_candidates_but_no_highlight_does_not_submit(
+    tabs: int, options_id: str
+) -> None:
+    fake = _FakeClient(
+        [],
+        repos=[
+            {
+                "id": "r1",
+                "name": "r1",
+                "git_url": "",
+                "default_base": "main",
+                "default_harness": "codex",
+            }
+        ],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter", *(("tab",) * tabs))
+        await pilot.pause()
+
+        candidates = app.screen.query_one(options_id, OptionList)
+        assert candidates.option_count > 0
+        assert candidates.highlighted is None
+        await pilot.press("enter")
+        await pilot.pause()
+        assert isinstance(app.screen, dashboard.MemoScreen)
+        assert fake.created == []
+
+
+# 2119: REQ-018.6.1
+async def test_harness_cycle_refreshes_dependent_candidate_vocabularies() -> None:
+    fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter", "tab", "tab")
+        await pilot.pause()
+
+        assert _option_prompts(app.screen.query_one("#launch-model-options", OptionList)) == [
+            "fable — Fable 5",
+            "opus — Opus 4.8",
+            "sonnet — Sonnet 5",
+        ]
+        await pilot.press("tab")
+        assert _option_prompts(app.screen.query_one("#launch-effort-options", OptionList)) == []
+
+        await pilot.press("shift+tab", "shift+tab", "enter", "tab")
+        await pilot.pause()
+        assert app.screen.query_one(dashboard.HarnessSelector).value == "codex"
+        assert _option_prompts(app.screen.query_one("#launch-model-options", OptionList)) == [
+            "gpt-5.6-sol — GPT-5.6 Sol",
+            "terra — Terra",
+            "luna — Luna",
+        ]
+        await pilot.press("tab")
+        assert _option_prompts(app.screen.query_one("#launch-effort-options", OptionList)) == [
+            "low — Low",
+            "medium — Medium",
+            "high — High",
+            "xhigh — X-high",
+        ]
+
+
+async def test_candidate_vocabulary_is_cached_while_typing(monkeypatch: Any) -> None:
+    model_calls = 0
+    effort_calls = 0
+    harness = dashboard.HARNESSES["codex"]
+
+    def suggested_models() -> tuple[tuple[str, str], ...]:
+        nonlocal model_calls
+        model_calls += 1
+        return (("gpt", "GPT"),)
+
+    def suggested_efforts(model: str | None = None) -> tuple[tuple[str, str], ...]:
+        nonlocal effort_calls
+        assert model == "gpt"
+        effort_calls += 1
+        return (("high", "High"),)
+
+    monkeypatch.setattr(harness, "suggested_models", suggested_models)
+    monkeypatch.setattr(harness, "suggested_efforts", suggested_efforts)
+    fake = _FakeClient(
+        [],
+        repos=[
+            {
+                "id": "r1",
+                "name": "r1",
+                "git_url": "",
+                "default_base": "main",
+                "default_harness": "codex",
+            }
+        ],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter", "tab", "tab", *"gpt", "tab", *"hi")
+        await pilot.pause()
+
+        assert model_calls == 1
+        assert effort_calls == 1
+
+
+# 2119: REQ-018.7.1
+# 2119: REQ-018.12.1
+async def test_focus_only_keeps_launch_fields_tracking_changed_repo_defaults(
+    tmp_path: Path,
+) -> None:
+    repo = {
+        "id": "r1",
+        "name": "r1",
+        "git_url": "",
+        "default_base": "main",
+        "default_harness": "codex",
+        "default_model": "terra:high",
+    }
+    fake = _FakeClient([], repos=[repo], workflows=[{"name": "spike", "when_to_use": ""}])
+    app = Dashboard(fake, draft_file=tmp_path / "new-task-drafts.json")  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter", "tab", "tab", "tab")
+        await pilot.press("escape")
+        await pilot.pause()
+        repo["default_harness"] = "outfitter"
+        repo["default_model"] = "luna:low"
+        await pilot.press("n", "enter", "enter")
+        await pilot.pause()
+
+        assert app.screen.query_one(dashboard.HarnessSelector).value == "outfitter"
+        assert app.screen.query_one("#launch-model", Input).value == "luna"
+        assert app.screen.query_one("#launch-effort", Input).value == "low"
+        summary = app.screen.query_one("#launch-summary", Static)
+        assert str(summary.render()) == "outfitter · luna:low — set by repo default"
+
+
+# 2119: REQ-018.7.1
+async def test_focus_only_keeps_launch_fields_tracking_changed_workflow_defaults(
+    tmp_path: Path,
+) -> None:
+    workflow = {
+        "name": "spike",
+        "when_to_use": "",
+        "default_harness": "codex",
+        "default_model": "terra:high",
+    }
+    fake = _FakeClient(
+        [],
+        repos=[{"id": "r1", "name": "r1", "git_url": "", "default_base": "main"}],
+        workflows=[workflow],
+    )
+    app = Dashboard(fake, draft_file=tmp_path / "new-task-drafts.json")  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter", "tab", "tab", "tab", "escape")
+        await pilot.pause()
+        workflow["default_harness"] = "outfitter"
+        workflow["default_model"] = "luna:low"
+        await pilot.press("n", "enter", "enter")
+        await pilot.pause()
+
+        harness = app.screen.query_one(dashboard.HarnessSelector)
+        model = app.screen.query_one("#launch-model", Input)
+        effort = app.screen.query_one("#launch-effort", Input)
+        assert (harness.value, model.value, effort.value) == ("outfitter", "luna", "low")
+        summary = app.screen.query_one("#launch-summary", Static)
+        assert str(summary.render()) == "outfitter · luna:low — set by workflow default"
+
+
+# 2119: REQ-018.7.1
+async def test_focus_only_keeps_launch_fields_tracking_changed_app_default(
+    monkeypatch: Any, tmp_path: Path
+) -> None:
+    fake = _FakeClient(
+        [],
+        repos=[{"id": "r1", "name": "r1", "git_url": "", "default_base": "main"}],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake, draft_file=tmp_path / "new-task-drafts.json")  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter", "tab", "tab", "tab", "escape")
+        await pilot.pause()
+        monkeypatch.setattr(dashboard, "DEFAULT_HARNESS", "codex")
+        await pilot.press("n", "enter", "enter")
+        await pilot.pause()
+
+        harness = app.screen.query_one(dashboard.HarnessSelector)
+        model = app.screen.query_one("#launch-model", Input)
+        effort = app.screen.query_one("#launch-effort", Input)
+        assert (harness.value, model.value, effort.value) == ("codex", "", "")
+        summary = app.screen.query_one("#launch-summary", Static)
+        assert str(summary.render()) == "codex · (codex default) — set by app default"
+
+
+# 2119: REQ-018.12.1
+@pytest.mark.parametrize(
+    ("tabs", "keys", "expected"),
+    [
+        (1, ("enter",), "codex · (codex default) — set by this task"),
+        (2, ("x",), "claude · x — set by this task"),
+        (3, ("x",), "claude · (claude default) — set by this task"),
+    ],
+)
+async def test_each_launch_override_updates_the_rendered_summary_source(
+    tabs: int, keys: tuple[str, ...], expected: str
+) -> None:
+    fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter", *("tab" for _ in range(tabs)), *keys)
+        await pilot.pause()
+        summary = app.screen.query_one("#launch-summary", Static)
+        assert str(summary.render()) == expected
+
+
+# 2119: REQ-018.12.1
+# 2119: REQ-018.7.1
+@pytest.mark.parametrize(
+    ("repo", "workflow", "expected_values", "expected_summary"),
+    [
+        (
+            {"id": "r1", "name": "r1", "git_url": "", "default_base": "main"},
+            {"name": "spike", "when_to_use": ""},
+            ("claude", "", ""),
+            "claude · (claude default) — set by app default",
+        ),
+        (
+            {
+                "id": "r1",
+                "name": "r1",
+                "git_url": "",
+                "default_base": "main",
+                "default_harness": "codex",
+                "default_model": "terra:medium",
+            },
+            {
+                "name": "spike",
+                "when_to_use": "",
+                "default_harness": "claude",
+                "default_model": "opus:high",
+            },
+            ("claude", "opus", "high"),
+            "claude · opus:high — set by workflow default",
+        ),
+    ],
+)
+async def test_rendered_launch_summary_names_app_and_workflow_default_sources(
+    repo: dict[str, str],
+    workflow: dict[str, str],
+    expected_values: tuple[str, str, str],
+    expected_summary: str,
+) -> None:
+    fake = _FakeClient([], repos=[repo], workflows=[workflow])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter")
+        await pilot.pause()
+        harness = app.screen.query_one(dashboard.HarnessSelector)
+        model = app.screen.query_one("#launch-model", Input)
+        effort = app.screen.query_one("#launch-effort", Input)
+        assert (harness.value, model.value, effort.value) == expected_values
+        summary = app.screen.query_one("#launch-summary", Static)
+        assert str(summary.render()) == expected_summary
+
+
+# 2119: REQ-018.11.1
+async def test_touched_model_and_effort_survive_a_harness_change() -> None:
+    fake = _FakeClient(
+        [],
+        repos=[
+            {
+                "id": "r1",
+                "name": "r1",
+                "git_url": "",
+                "default_base": "main",
+                "default_harness": "codex",
+            }
+        ],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter", "tab", "tab")
+        await pilot.press(*"custom/model", "tab", *"maximum", "shift+tab", "shift+tab", "enter")
+        await pilot.pause()
+        assert app.screen.query_one("#launch-model", Input).value == "custom/model"
+        assert app.screen.query_one("#launch-effort", Input).value == "maximum"
+
+
+# 2119: REQ-018.11.1
+async def test_candidate_accepted_model_and_effort_survive_a_harness_change() -> None:
+    fake = _FakeClient(
+        [],
+        repos=[
+            {
+                "id": "r1",
+                "name": "r1",
+                "git_url": "",
+                "default_base": "main",
+                "default_harness": "codex",
+            }
+        ],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter", "tab", "tab", "down", "enter")
+        await pilot.press("tab", "down", "enter")
+        model = app.screen.query_one("#launch-model", Input)
+        effort = app.screen.query_one("#launch-effort", Input)
+        accepted = (model.value, effort.value)
+        assert all(accepted)
+
+        await pilot.press("shift+tab", "shift+tab", "enter")
+        await pilot.pause()
+
+        assert app.screen.query_one(dashboard.HarnessSelector).value == "outfitter"
+        assert (model.value, effort.value) == accepted
+
+
+# 2119: REQ-018.11.1
+# 2119: REQ-018.7.1
+async def test_touched_effort_survives_when_untouched_model_clears_on_harness_change() -> None:
+    fake = _FakeClient(
+        [],
+        repos=[
+            {
+                "id": "r1",
+                "name": "r1",
+                "git_url": "",
+                "default_base": "main",
+                "default_harness": "codex",
+                "default_model": "terra:high",
+            }
+        ],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter", "tab", "tab", "tab")
+        await pilot.press("ctrl+shift+a", *"maximum", "shift+tab", "shift+tab", "enter")
+        await pilot.pause()
+
+        assert app.screen.query_one(dashboard.HarnessSelector).value == "outfitter"
+        assert app.screen.query_one("#launch-model", Input).value == ""
+        assert app.screen.query_one("#launch-effort", Input).value == "maximum"
+
+        await pilot.press("tab", *"custom/model", "shift+tab", "shift+tab", "ctrl+s")
+        await pilot.pause()
+        assert fake.created == [("r1", "spike", None, None, "outfitter", "custom/model:maximum")]
+
+
+# 2119: REQ-018.18.1
+async def test_untouched_model_and_effort_clear_after_a_harness_change() -> None:
+    fake = _FakeClient(
+        [],
+        repos=[
+            {
+                "id": "r1",
+                "name": "r1",
+                "git_url": "",
+                "default_base": "main",
+                "default_harness": "codex",
+                "default_model": "terra:high",
+            }
+        ],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter", "tab", "enter")
+        await pilot.pause()
+        assert app.screen.query_one("#launch-model", Input).value == ""
+        assert app.screen.query_one("#launch-effort", Input).value == ""
+
+        await pilot.press("ctrl+s")
+        await pilot.pause()
+        assert fake.created == [("r1", "spike", None, None, "outfitter", None)]
+
+
+# 2119: REQ-018.18.1
+# 2119: REQ-018.7.1
+# 2119: REQ-018.11.1
+async def test_untouched_effort_clears_when_touched_model_survives_harness_change() -> None:
+    fake = _FakeClient(
+        [],
+        repos=[
+            {
+                "id": "r1",
+                "name": "r1",
+                "git_url": "",
+                "default_base": "main",
+                "default_harness": "codex",
+                "default_model": "terra:high",
+            }
+        ],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter", "tab", "tab")
+        await pilot.press("ctrl+shift+a", *"custom/model", "shift+tab", "enter")
+        await pilot.pause()
+
+        assert app.screen.query_one(dashboard.HarnessSelector).value == "outfitter"
+        assert app.screen.query_one("#launch-model", Input).value == "custom/model"
+        assert app.screen.query_one("#launch-effort", Input).value == ""
+
+        await pilot.press("shift+tab", "ctrl+s")
+        await pilot.pause()
+        assert fake.created == [("r1", "spike", None, None, "outfitter", "custom/model")]
+
+
+# 2119: REQ-018.8.1
+@pytest.mark.parametrize("tabs", [1, 2, 3])
+async def test_escape_cancels_from_every_launch_control(tabs: int) -> None:
+    fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter", *("tab" for _ in range(tabs)))
+        await pilot.pause()
+        if tabs == 2:
+            assert app.screen.query_one("#launch-model-options", OptionList).region.width > 0
+        elif tabs == 3:
+            assert app.screen.query_one("#launch-effort-options", OptionList).region.width > 0
+        await pilot.press("escape")
+        await pilot.pause()
+        assert not isinstance(app.screen, dashboard.MemoScreen)
+        assert fake.created == []
+
+
 async def test_enter_submits_while_harness_selector_is_unfocused(tmp_path: Path) -> None:
     fake = _FakeClient(
         [],
@@ -1031,6 +1729,7 @@ async def test_the_enter_hint_reflects_cycle_while_the_harness_selector_is_focus
         assert hint.content == "enter: submit"
 
 
+# 2119: REQ-018.16.1
 async def test_tabbing_to_the_harness_selector_and_cycling_overrides_it_for_this_task() -> None:
     fake = _FakeClient(
         [],
@@ -1059,6 +1758,23 @@ async def test_tabbing_to_the_harness_selector_and_cycling_overrides_it_for_this
         await pilot.press("enter")  # submit
         await pilot.pause()
         assert fake.created == [("r1", "spike", None, None, "codex", None)]
+
+
+# 2119: REQ-018.19.1
+async def test_memo_harness_selector_cycles_exactly_the_registered_harnesses() -> None:
+    fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "enter", "enter", "tab")
+        selector = app.screen.query_one(dashboard.HarnessSelector)
+        initial = selector.value
+        seen: set[str] = set()
+        for _ in dashboard.HARNESSES:
+            seen.add(selector.value)
+            await pilot.press("enter")
+        assert seen == set(dashboard.HARNESSES)
+        assert selector.value == initial
 
 
 def test_launch_resolution_and_provenance_for_every_source() -> None:
@@ -1103,6 +1819,7 @@ def test_touched_launch_fields_survive_workflow_reselection() -> None:
     )
 
 
+# 2119: REQ-018.5.1
 async def test_free_text_model_and_effort_are_composed_for_create() -> None:
     fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
     app = Dashboard(fake)  # type: ignore[arg-type]
@@ -1117,6 +1834,7 @@ async def test_free_text_model_and_effort_are_composed_for_create() -> None:
     assert fake.created == [("r1", "spike", None, None, None, "custom/model:maximum")]
 
 
+# 2119: REQ-018.14.1
 async def test_memo_ctrl_s_sets_the_memo_without_submitting() -> None:
     # ctrl+s records the memo but does NOT deliver it as an initial prompt (unsent paste).
     fake = _FakeClient(
@@ -1140,6 +1858,7 @@ async def test_memo_ctrl_s_sets_the_memo_without_submitting() -> None:
         assert fake.created == [("r1", "spike", "fix", None, None, None)]
 
 
+# 2119: REQ-018.15.1
 async def test_memo_ctrl_g_opens_editor_and_updates_textarea(monkeypatch: Any) -> None:
     # Ctrl-G should open $EDITOR and replace the TextArea's text with the returned content.
     monkeypatch.setattr(dashboard, "_edit_with_editor", lambda text: f"edited:{text}")
@@ -1278,6 +1997,117 @@ async def test_pressing_y_with_no_slug_warns(monkeypatch: Any) -> None:
         await pilot.pause()
         assert copied == []
         assert app.is_running
+
+
+# 2119: REQ-017.1.1
+async def test_pressing_e_edits_slug_only_while_detail_is_open() -> None:
+    fake = _FakeClient([_TASK.copy()])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("e")
+        await pilot.pause()
+        assert not isinstance(app.screen, dashboard.SlugScreen)
+        assert fake.set_slugs == []
+        assert fake.get_task("task-abcdef0123")["slug"] == "fix-widget"
+
+        await pilot.press("d")
+        await pilot.press("e")
+        await pilot.pause()
+        assert isinstance(app.screen, dashboard.SlugScreen)
+        assert app.screen.query_one(Input).value == "fix-widget"
+
+
+# 2119: REQ-017.1.1
+async def test_slug_editor_uses_current_service_value_over_stale_list_snapshot() -> None:
+    class DivergentClient(_FakeClient):
+        def get_task(self, task_id: str) -> dict[str, Any]:
+            task = super().get_task(task_id)
+            return {**task, "slug": "service-current"}
+
+    app = Dashboard(DivergentClient([{**_TASK, "slug": "stale-summary"}]))  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("d")
+        await pilot.press("e")
+        await pilot.pause()
+        assert app.screen.query_one(Input).value == "service-current"
+
+
+# 2119: REQ-017.2.1
+async def test_submitting_slug_editor_renames_highlighted_task_and_refreshes() -> None:
+    other = {**_TASK, "id": "task-other456789", "slug": "leave-alone"}
+    fake = _FakeClient([_TASK.copy(), other])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("d")
+        await pilot.press("e")
+        await pilot.pause()
+        calls_before_submit = fake.list_tasks_calls
+        editor = app.screen.query_one(Input)
+        editor.value = "  better-widget-name  "
+        await pilot.press("enter")
+        await pilot.pause()
+
+        assert fake.set_slugs == [("task-abcdef0123", "better-widget-name")]
+        assert fake.list_tasks_calls > calls_before_submit
+        assert "better-widget-name" in str(app.query_one("#detail", Static).render())
+        assert "better-widget-name" in str(app.query_one("#tasks", DataTable).get_row_at(0))
+        assert fake._tasks[1]["slug"] == "leave-alone"
+
+
+# 2119: REQ-017.2.1
+async def test_rejected_slug_keeps_dashboard_running_and_existing_slug_visible() -> None:
+    class RejectingClient(_FakeClient):
+        def set_slug(self, task_id: str, slug: str) -> dict[str, Any]:
+            request = httpx.Request("PUT", f"http://service/tasks/{task_id}/slug")
+            response = httpx.Response(
+                400, request=request, json={"detail": "invalid artifact segment"}
+            )
+            raise httpx.HTTPStatusError("bad slug", request=request, response=response)
+
+    app = Dashboard(RejectingClient([_TASK.copy()]))  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("d")
+        await pilot.press("e")
+        await pilot.pause()
+        app.screen.query_one(Input).value = "bad/name"
+        await pilot.press("enter")
+        await pilot.pause()
+
+        assert app.is_running
+        assert "fix-widget" in str(app.query_one("#detail", Static).render())
+
+
+# 2119: REQ-017.3.1
+async def test_cancelling_slug_editor_does_not_rename_task() -> None:
+    fake = _FakeClient([_TASK.copy()])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("d")
+        await pilot.press("e")
+        await pilot.pause()
+        app.screen.query_one(Input).value = "discard-me"
+        await pilot.press("escape")
+        await pilot.pause()
+
+        assert fake.set_slugs == []
+        assert "fix-widget" in str(app.query_one("#detail", Static).render())
+
+
+# 2119: REQ-017.4.1
+async def test_detail_pane_shows_edit_slug_key_hint() -> None:
+    app = Dashboard(_FakeClient([_TASK.copy()]))  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("d")
+        await pilot.pause()
+        rendered: Any = app.query_one("#detail", Static).render()
+        assert str(rendered).splitlines()[-2] == "e: edit slug"
+        assert rendered.spans[-2].style.dim is True
 
 
 async def test_pressing_shift_y_copies_the_id(monkeypatch: Any) -> None:
@@ -1864,6 +2694,7 @@ def test_harness_selector_initial_tracks_the_resolved_fallback_not_the_raw_effec
     assert sel.initial == sel.value == "claude"
 
 
+# 2119: REQ-018.19.1
 def test_harness_selector_cycles_forward_and_wraps() -> None:
     from panopticon.terminal.dashboard import HarnessSelector
 
@@ -3430,6 +4261,7 @@ def test_footer_shows_only_the_essential_keys() -> None:
         "a",
         "s",
         "u",
+        "e",
         "y",
         "Y",
         "c",

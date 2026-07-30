@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.3.1--f8b15f9a31df",
+  "requirementId": "REQ-007.3.1",
+  "hash": "f8b15f9a31df",
+  "verdict": "pass",
+  "summary": "Asserts hint not in render_detail(_TASK) (stronger than the forbidden line-equality) on a fixture meeting the hint-free-fields precondition; paired with the 007.1.1 test pinning copied text == render_detail, a render_detail that appended the hint line would fail directly.",
+  "timestamp": "2026-07-22T14:46:22.101Z"
+}

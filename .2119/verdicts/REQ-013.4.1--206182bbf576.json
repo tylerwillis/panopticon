@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-013.4.1--206182bbf576",
+  "requirementId": "REQ-013.4.1",
+  "hash": "206182bbf576",
+  "verdict": "pass",
+  "summary": "Actual open detail render pins the trailing dim e: edit slug hint.",
+  "timestamp": "2026-07-30T16:15:19.264Z"
+}

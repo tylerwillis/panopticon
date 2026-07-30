@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.1.1--c92477e09307",
+  "requirementId": "REQ-006.1.1",
+  "hash": "c92477e09307",
+  "verdict": "pass",
+  "summary": "Real ctrl+r keypress via Textual pilot asserts BulkRespawnScreen opens with the correct down-task set, exercising the genuine BINDINGS-to-action_respawn_all_down dispatch; an unbound, mis-bound, or removed Ctrl+R fails the isinstance assertion.",
+  "timestamp": "2026-07-22T17:07:49.636Z"
+}

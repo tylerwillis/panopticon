@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.1.4--e7b02b76666e",
+  "requirementId": "REQ-010.1.4",
+  "hash": "e7b02b76666e",
+  "verdict": "pass",
+  "summary": "Ambiguous forward transitions without advance leave the state unchanged.",
+  "timestamp": "2026-07-30T16:15:13.650Z"
+}

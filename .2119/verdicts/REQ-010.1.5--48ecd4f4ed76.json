@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.1.5--48ecd4f4ed76",
+  "requirementId": "REQ-010.1.5",
+  "hash": "48ecd4f4ed76",
+  "verdict": "pass",
+  "summary": "Ambiguous state remains while every responsibility is resolved.",
+  "timestamp": "2026-07-30T16:15:14.060Z"
+}

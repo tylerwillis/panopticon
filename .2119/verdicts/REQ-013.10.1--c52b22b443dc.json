@@ -3,6 +3,6 @@
   "requirementId": "REQ-013.10.1",
   "hash": "c52b22b443dc",
   "verdict": "pass",
-  "summary": "Re-entry test drives 3 REVIEW entries (advance + free move) through the real service and asserts 3 distinct governed review tasks; a reuse mutation is killed by it alone.",
-  "timestamp": "2026-07-23T17:56:38.298Z"
+  "summary": "Three successive REVIEW entries are exercised and asserted to produce three distinct governed review-task IDs, rejecting reuse from an earlier round.",
+  "timestamp": "2026-07-30T17:03:10.169Z"
 }

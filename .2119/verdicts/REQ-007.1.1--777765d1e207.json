@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.1.1--777765d1e207",
+  "requirementId": "REQ-007.1.1",
+  "hash": "777765d1e207",
+  "verdict": "pass",
+  "summary": "Three real-pilot tests observe both write seams (Textual copy_to_clipboard + module _clipboard_copy) receiving exactly render_detail(task): terminal-only, host-only, abort-after-terminal-failure, and copy-of-wrong-highlighted-task implementations all fail; mocks sit only at the two write endpoints the requirement names.",
+  "timestamp": "2026-07-22T14:46:09.620Z"
+}

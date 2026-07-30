@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.2.2--666669e1d28d",
-  "requirementId": "REQ-006.2.2",
-  "hash": "666669e1d28d",
-  "verdict": "pass",
-  "summary": "Exact modal-line assertions cover 8-character IDs, slug fallback, whitespace normalization, 60-character truncation, and both ellipsis boundaries.",
-  "timestamp": "2026-07-22T07:07:06.341Z"
-}

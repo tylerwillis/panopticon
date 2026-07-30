@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.1.1--f13e4a39524d",
+  "requirementId": "REQ-006.1.1",
+  "hash": "f13e4a39524d",
+  "verdict": "pass",
+  "summary": "A real pilot.press('ctrl+r') must land on BulkRespawnScreen with the correct down-task listing; a removed or rebound binding fails the isinstance and content asserts.",
+  "timestamp": "2026-07-22T14:39:27.492Z"
+}
