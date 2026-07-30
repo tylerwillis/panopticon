@@ -103,6 +103,13 @@ def discover_workflows(
                         cls.__name__,
                     )
                     continue
+                source = inspect.getsourcefile(cls)
+                if source is not None and cls.__module__.startswith(_EXT_PREFIX):
+                    raise ValueError(
+                        f"external workflow file {source}: duplicate workflow name "
+                        f"{workflow.name!r}; remove this external workflow file before restarting "
+                        "Panopticon"
+                    )
                 raise ValueError(
                     f"duplicate workflow name {workflow.name!r} (from {cls.__module__}.{cls.__name__})"
                 )
