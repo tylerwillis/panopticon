@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.8.1--a3c0a5b4b69f",
+  "requirementId": "REQ-017.8.1",
+  "hash": "a3c0a5b4b69f",
+  "verdict": "pass",
+  "summary": "Presented suggesters asserted equal to exactly the selected harness's discovered values (target-model-1, effort keyed to it); wrong-harness data fails",
+  "timestamp": "2026-07-30T16:35:36.861Z"
+}

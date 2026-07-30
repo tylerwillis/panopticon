@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.5.1--9ff11a4e7a23",
+  "requirementId": "REQ-017.5.1",
+  "hash": "9ff11a4e7a23",
+  "verdict": "pass",
+  "summary": "20ms-delay harnesses make any synchronous re-discovery exceed the measured <10ms bound; content asserts prevent fast-but-empty cheating",
+  "timestamp": "2026-07-30T16:35:35.199Z"
+}

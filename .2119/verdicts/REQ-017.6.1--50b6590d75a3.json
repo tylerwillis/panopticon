@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.6.1--50b6590d75a3",
+  "requirementId": "REQ-017.6.1",
+  "hash": "50b6590d75a3",
+  "verdict": "pass",
+  "summary": "notify is captured and asserted empty after an in-flight failing discovery completes post-close; an unhandled worker error would also crash run_test",
+  "timestamp": "2026-07-30T16:35:35.620Z"
+}

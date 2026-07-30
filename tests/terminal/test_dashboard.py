@@ -1854,7 +1854,7 @@ async def test_memo_harness_selector_cycles_exactly_the_registered_harnesses() -
         assert selector.value == initial
 
 
-# 2119: REQ-010.1.1
+# 2119: REQ-017.1.1
 async def test_memo_accepts_input_while_harness_suggestions_are_discovered(
     monkeypatch: Any,
 ) -> None:
@@ -1880,7 +1880,7 @@ async def test_memo_accepts_input_while_harness_suggestions_are_discovered(
             timer.cancel()
 
 
-# 2119: REQ-010.2.1
+# 2119: REQ-017.2.1
 async def test_memo_discovers_each_harness_suggestions_once_per_open(
     monkeypatch: Any,
 ) -> None:
@@ -1900,7 +1900,7 @@ async def test_memo_discovers_each_harness_suggestions_once_per_open(
         assert all(h.model_calls == h.effort_calls == 1 for h in harnesses.values())
 
 
-# 2119: REQ-010.2.1
+# 2119: REQ-017.2.1
 async def test_memo_finishes_each_harness_discovery_after_early_close(
     monkeypatch: Any,
 ) -> None:
@@ -1928,7 +1928,7 @@ async def test_memo_finishes_each_harness_discovery_after_early_close(
         release.set()
 
 
-# 2119: REQ-010.3.1
+# 2119: REQ-017.3.1
 async def test_memo_suggestion_cache_is_fresh_for_each_open(monkeypatch: Any) -> None:
     claude = _SuggestionHarness("claude")
     monkeypatch.setattr(dashboard, "HARNESSES", {"claude": claude})
@@ -1948,8 +1948,8 @@ async def test_memo_suggestion_cache_is_fresh_for_each_open(monkeypatch: Any) ->
         await _wait_for_suggestion(pilot, second_effort_input, "claude-empty-effort-2")
 
 
-# 2119: REQ-010.4.1
-# 2119: REQ-010.8.1
+# 2119: REQ-017.4.1
+# 2119: REQ-017.8.1
 async def test_early_cycle_discovers_once_and_presents_the_selected_harness_suggestions(
     monkeypatch: Any,
 ) -> None:
@@ -1984,7 +1984,7 @@ async def test_early_cycle_discovers_once_and_presents_the_selected_harness_sugg
             timer.cancel()
 
 
-# 2119: REQ-010.4.1
+# 2119: REQ-017.4.1
 async def test_early_cycle_discovers_an_unstarted_harness_before_returning(
     monkeypatch: Any,
 ) -> None:
@@ -2015,7 +2015,7 @@ async def test_early_cycle_discovers_an_unstarted_harness_before_returning(
         release.set()
 
 
-# 2119: REQ-010.5.1
+# 2119: REQ-017.5.1
 async def test_cached_harness_cycles_finish_under_ten_milliseconds(monkeypatch: Any) -> None:
     harnesses = {name: _SuggestionHarness(name, delay=0.02) for name in ("claude", "codex", "pi")}
     monkeypatch.setattr(dashboard, "HARNESSES", harnesses)
@@ -2047,8 +2047,8 @@ async def test_cached_harness_cycles_finish_under_ten_milliseconds(monkeypatch: 
             assert await effort.suggester.get_suggestion("") == f"{name}-empty-effort-1"
 
 
-# 2119: REQ-010.2.1
-# 2119: REQ-010.6.1
+# 2119: REQ-017.2.1
+# 2119: REQ-017.6.1
 async def test_closing_memo_suppresses_an_in_flight_discovery_failure(monkeypatch: Any) -> None:
     release = threading.Event()
     slow = _SuggestionHarness("slow", release=release, fail_models=True)
@@ -2084,7 +2084,7 @@ async def test_closing_memo_suppresses_an_in_flight_discovery_failure(monkeypatc
         assert notices == []
 
 
-# 2119: REQ-010.2.1
+# 2119: REQ-017.2.1
 async def test_discovery_failures_keep_the_successful_half_and_cycle_safely(
     monkeypatch: Any,
 ) -> None:
@@ -2124,7 +2124,7 @@ async def test_discovery_failures_keep_the_successful_half_and_cycle_safely(
         assert all(h.model_calls == h.effort_calls == 1 for h in harnesses.values())
 
 
-# 2119: REQ-010.7.1
+# 2119: REQ-017.7.1
 async def test_in_flight_discovery_does_not_update_widgets_after_memo_closes(
     monkeypatch: Any,
 ) -> None:
