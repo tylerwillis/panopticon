@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-003.4.1--15cd60feedcf",
-  "requirementId": "REQ-003.4.1",
-  "hash": "15cd60feedcf",
-  "verdict": "pass",
-  "summary": "Equal-harness governance validation does not leak to non-review workflows.",
-  "timestamp": "2026-07-30T16:15:09.119Z"
-}

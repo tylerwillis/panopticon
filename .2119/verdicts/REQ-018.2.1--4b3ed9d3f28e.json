@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.2.1--4b3ed9d3f28e",
-  "requirementId": "REQ-018.2.1",
-  "hash": "4b3ed9d3f28e",
-  "verdict": "pass",
-  "summary": "Pilot navigation verifies each forward Tab target from memo through harness, model, then effort.",
-  "timestamp": "2026-07-30T16:50:18.342Z"
-}

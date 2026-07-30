@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.7.1--6a4376ec92d0",
-  "requirementId": "REQ-017.7.1",
-  "hash": "6a4376ec92d0",
-  "verdict": "pass",
-  "summary": "Full widget-state tuple incl. suggester identity snapshotted pre-close and asserted unchanged after the in-flight discovery is released",
-  "timestamp": "2026-07-30T16:35:36.446Z"
-}

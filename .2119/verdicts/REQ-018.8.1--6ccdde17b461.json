@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.8.1--6ccdde17b461",
+  "requirementId": "REQ-018.8.1",
+  "hash": "6ccdde17b461",
+  "verdict": "pass",
+  "summary": "Parametrized over harness/model/effort focus with the candidate list asserted visible (region.width>0) before a single escape, then asserts the MemoScreen is gone and nothing created; the draft-survives test covers editor focus — a list-dismiss-first escape would fail.",
+  "timestamp": "2026-07-30T18:28:29.427Z"
+}

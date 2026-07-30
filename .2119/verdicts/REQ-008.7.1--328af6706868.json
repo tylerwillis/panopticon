@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.7.1--328af6706868",
+  "requirementId": "REQ-008.7.1",
+  "hash": "328af6706868",
+  "verdict": "pass",
+  "summary": "Fake raises on unversioned list_tasks and mutates the world at the seed read, so empty-at-startup, discarded-seed-snapshot (with an explicit no-rescue pause), and separate-fetch renders all fail the rendered turn-cell assertion; only the REST client is faked.",
+  "timestamp": "2026-07-30T18:28:09.654Z"
+}

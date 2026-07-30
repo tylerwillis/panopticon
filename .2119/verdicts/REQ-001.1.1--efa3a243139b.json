@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.1.1--efa3a243139b",
+  "requirementId": "REQ-001.1.1",
+  "hash": "efa3a243139b",
+  "verdict": "pass",
+  "summary": "x on the real WorkflowsScreen opens the delete dialog naming exactly the highlighted operator row (first by default, second after down); an unbound x or wrong-target dialog fails the screen/label assertions",
+  "timestamp": "2026-07-30T18:26:11.091Z"
+}

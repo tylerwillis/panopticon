@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.2.1--df673490bfe5",
-  "requirementId": "REQ-012.2.1",
-  "hash": "df673490bfe5",
-  "verdict": "pass",
-  "summary": "Real subprocess and extension tests swallow connection, status, protocol, malformed, and timeout failures.",
-  "timestamp": "2026-07-30T16:15:17.228Z"
-}

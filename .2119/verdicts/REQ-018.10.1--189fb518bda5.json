@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.10.1--189fb518bda5",
-  "requirementId": "REQ-018.10.1",
-  "hash": "189fb518bda5",
-  "verdict": "pass",
-  "summary": "For model and effort, Enter on a highlighted filtered candidate updates the corresponding field and leaves the memo open without creation.",
-  "timestamp": "2026-07-30T16:50:21.791Z"
-}

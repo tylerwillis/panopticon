@@ -1025,8 +1025,11 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
                 models = tuple(harness.suggested_models())
             except Exception:
                 models = ()
+            effort_model = self._suggestion_models[harness_name]
+            if not effort_model and models:
+                effort_model = models[0][0]
             try:
-                efforts = tuple(harness.suggested_efforts(self._suggestion_models[harness_name]))
+                efforts = tuple(harness.suggested_efforts(effort_model))
             except Exception:
                 efforts = ()
             result = _HarnessSuggestions(models, efforts)

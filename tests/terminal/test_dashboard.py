@@ -279,12 +279,14 @@ class _SuggestionHarness:
         release: threading.Event | None = None,
         fail_models: bool = False,
         fail_efforts: bool = False,
+        multiple: bool = False,
     ) -> None:
         self.name = name
         self.delay = delay
         self.release = release
         self.fail_models = fail_models
         self.fail_efforts = fail_efforts
+        self.multiple = multiple
         self.field_label = f"{name} model"
         self.started = threading.Event()
         self.model_calls = 0
@@ -301,7 +303,10 @@ class _SuggestionHarness:
             time.sleep(self.delay)
         if self.fail_models:
             raise RuntimeError(f"{self.name} discovery failed")
-        return ((f"{self.name}-model-{call}", f"{self.name} model {call}"),)
+        suggestions = [(f"{self.name}-model-{call}", f"{self.name} model {call}")]
+        if self.multiple:
+            suggestions.append((f"{self.name}-alternate-{call}", f"{self.name} alternate {call}"))
+        return tuple(suggestions)
 
     def suggested_efforts(self, model: str | None = None) -> tuple[tuple[str, str], ...]:
         self.effort_calls += 1
@@ -312,7 +317,10 @@ class _SuggestionHarness:
         if self.fail_efforts:
             raise RuntimeError(f"{self.name} effort discovery failed")
         model_tag = "none" if model is None else model or "empty"
-        return ((f"{self.name}-{model_tag}-effort-{call}", f"{self.name} effort {call}"),)
+        suggestions = [(f"{self.name}-{model_tag}-effort-{call}", f"{self.name} effort {call}")]
+        if self.multiple:
+            suggestions.append((f"{self.name}-alternate-effort-{call}", f"{self.name} alt effort"))
+        return tuple(suggestions)
 
 
 async def _open_memo(pilot: Any) -> None:
@@ -329,16 +337,17 @@ async def _wait_for(pilot: Any, predicate: Any) -> None:
     raise AssertionError("condition did not become true")
 
 
-async def _wait_for_suggestion(
-    pilot: Any, input_widget: Input, expected: str
-) -> dashboard.SuggestFromList:
+async def _wait_for_suggestion(pilot: Any, input_widget: Input, expected: str) -> OptionList:
+    field = "model" if input_widget.id == "launch-model" else "effort"
+    options = input_widget.screen.query_one(f"#launch-{field}-options", OptionList)
+    input_widget.focus()
     for _ in range(100):
-        suggester = input_widget.suggester
-        if (
-            isinstance(suggester, dashboard.SuggestFromList)
-            and await suggester.get_suggestion("") == expected
+        screen = input_widget.screen
+        prompts = _option_prompts(options)
+        if expected in screen._candidate_values[field] and any(
+            prompt == expected or prompt.startswith(f"{expected} — ") for prompt in prompts
         ):
-            return suggester
+            return options
         await pilot.pause(0.01)
     raise AssertionError(f"suggestion {expected!r} did not become available")
 
@@ -1854,7 +1863,7 @@ async def test_memo_harness_selector_cycles_exactly_the_registered_harnesses() -
         assert selector.value == initial
 
 
-# 2119: REQ-017.1.1
+# 2119: REQ-019.1.1
 async def test_memo_accepts_input_while_harness_suggestions_are_discovered(
     monkeypatch: Any,
 ) -> None:
@@ -1880,7 +1889,7 @@ async def test_memo_accepts_input_while_harness_suggestions_are_discovered(
             timer.cancel()
 
 
-# 2119: REQ-017.2.1
+# 2119: REQ-019.2.1
 async def test_memo_discovers_each_harness_suggestions_once_per_open(
     monkeypatch: Any,
 ) -> None:
@@ -1900,7 +1909,7 @@ async def test_memo_discovers_each_harness_suggestions_once_per_open(
         assert all(h.model_calls == h.effort_calls == 1 for h in harnesses.values())
 
 
-# 2119: REQ-017.2.1
+# 2119: REQ-019.2.1
 async def test_memo_finishes_each_harness_discovery_after_early_close(
     monkeypatch: Any,
 ) -> None:
@@ -1928,7 +1937,7 @@ async def test_memo_finishes_each_harness_discovery_after_early_close(
         release.set()
 
 
-# 2119: REQ-017.3.1
+# 2119: REQ-019.3.1
 async def test_memo_suggestion_cache_is_fresh_for_each_open(monkeypatch: Any) -> None:
     claude = _SuggestionHarness("claude")
     monkeypatch.setattr(dashboard, "HARNESSES", {"claude": claude})
@@ -1939,22 +1948,22 @@ async def test_memo_suggestion_cache_is_fresh_for_each_open(monkeypatch: Any) ->
         first_model = app.screen.query_one("#launch-model", Input)
         first_effort_input = app.screen.query_one("#launch-effort", Input)
         await _wait_for_suggestion(pilot, first_model, "claude-model-1")
-        await _wait_for_suggestion(pilot, first_effort_input, "claude-empty-effort-1")
+        await _wait_for_suggestion(pilot, first_effort_input, "claude-claude-model-1-effort-1")
         await pilot.press("escape")
         await _open_memo(pilot)
         second_model = app.screen.query_one("#launch-model", Input)
         second_effort_input = app.screen.query_one("#launch-effort", Input)
         await _wait_for_suggestion(pilot, second_model, "claude-model-2")
-        await _wait_for_suggestion(pilot, second_effort_input, "claude-empty-effort-2")
+        await _wait_for_suggestion(pilot, second_effort_input, "claude-claude-model-2-effort-2")
 
 
-# 2119: REQ-017.4.1
-# 2119: REQ-017.8.1
+# 2119: REQ-019.4.1
+# 2119: REQ-019.8.1
 async def test_early_cycle_discovers_once_and_presents_the_selected_harness_suggestions(
     monkeypatch: Any,
 ) -> None:
     release = threading.Event()
-    target = _SuggestionHarness("target", release=release)
+    target = _SuggestionHarness("target", release=release, multiple=True)
     harnesses = {"claude": _SuggestionHarness("claude"), "target": target}
     monkeypatch.setattr(dashboard, "HARNESSES", harnesses)
     fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
@@ -1970,21 +1979,29 @@ async def test_early_cycle_discovers_once_and_presents_the_selected_harness_sugg
             timer = threading.Timer(0.1, release.set)
             timer.start()
             await pilot.press("enter")
-            model = app.screen.query_one("#launch-model", Input).suggester
-            effort = app.screen.query_one("#launch-effort", Input).suggester
-            assert isinstance(model, dashboard.SuggestFromList)
-            assert isinstance(effort, dashboard.SuggestFromList)
-            assert model._suggestions == ["target-model-1"]
-            assert effort._suggestions == ["target-empty-effort-1"]
+            model = app.screen.query_one("#launch-model", Input)
+            model.focus()
+            await pilot.pause()
+            assert _option_prompts(app.screen.query_one("#launch-model-options", OptionList)) == [
+                "target-model-1 — target model 1",
+                "target-alternate-1 — target alternate 1",
+            ]
+            effort = app.screen.query_one("#launch-effort", Input)
+            effort.focus()
+            await pilot.pause()
+            assert _option_prompts(app.screen.query_one("#launch-effort-options", OptionList)) == [
+                "target-target-model-1-effort-1 — target effort 1",
+                "target-alternate-effort-1 — target alt effort",
+            ]
             assert target.model_calls == target.effort_calls == 1
-            assert target.effort_models == [""]
+            assert target.effort_models == ["target-model-1"]
     finally:
         release.set()
         if timer is not None:
             timer.cancel()
 
 
-# 2119: REQ-017.4.1
+# 2119: REQ-019.4.1
 async def test_early_cycle_discovers_an_unstarted_harness_before_returning(
     monkeypatch: Any,
 ) -> None:
@@ -2004,18 +2021,24 @@ async def test_early_cycle_discovers_an_unstarted_harness_before_returning(
             assert "target" not in screen._suggestion_cache
             assert "target" not in screen._suggestion_pending
             await pilot.press("enter")
-            model = screen.query_one("#launch-model", Input).suggester
-            effort = screen.query_one("#launch-effort", Input).suggester
-            assert isinstance(model, dashboard.SuggestFromList)
-            assert isinstance(effort, dashboard.SuggestFromList)
-            assert model._suggestions == ["target-model-1"]
-            assert effort._suggestions == ["target-empty-effort-1"]
+            model = screen.query_one("#launch-model", Input)
+            model.focus()
+            await pilot.pause()
+            assert _option_prompts(screen.query_one("#launch-model-options", OptionList)) == [
+                "target-model-1 — target model 1"
+            ]
+            effort = screen.query_one("#launch-effort", Input)
+            effort.focus()
+            await pilot.pause()
+            assert _option_prompts(screen.query_one("#launch-effort-options", OptionList)) == [
+                "target-target-model-1-effort-1 — target effort 1"
+            ]
             assert target.model_calls == target.effort_calls == 1
     finally:
         release.set()
 
 
-# 2119: REQ-017.5.1
+# 2119: REQ-019.5.1
 async def test_cached_harness_cycles_finish_under_ten_milliseconds(monkeypatch: Any) -> None:
     harnesses = {name: _SuggestionHarness(name, delay=0.02) for name in ("claude", "codex", "pi")}
     monkeypatch.setattr(dashboard, "HARNESSES", harnesses)
@@ -2041,14 +2064,20 @@ async def test_cached_harness_cycles_finish_under_ten_milliseconds(monkeypatch: 
             assert screen._selection.harness == name
             assert name in str(summary.render())
             assert model.placeholder == f"{name} model"
-            assert isinstance(model.suggester, dashboard.SuggestFromList)
-            assert isinstance(effort.suggester, dashboard.SuggestFromList)
-            assert await model.suggester.get_suggestion("") == f"{name}-model-1"
-            assert await effort.suggester.get_suggestion("") == f"{name}-empty-effort-1"
+            model.focus()
+            await pilot.pause()
+            assert _option_prompts(screen.query_one("#launch-model-options", OptionList)) == [
+                f"{name}-model-1 — {name} model 1"
+            ]
+            effort.focus()
+            await pilot.pause()
+            assert _option_prompts(screen.query_one("#launch-effort-options", OptionList)) == [
+                f"{name}-{name}-model-1-effort-1 — {name} effort 1"
+            ]
 
 
-# 2119: REQ-017.2.1
-# 2119: REQ-017.6.1
+# 2119: REQ-019.2.1
+# 2119: REQ-019.6.1
 async def test_closing_memo_suppresses_an_in_flight_discovery_failure(monkeypatch: Any) -> None:
     release = threading.Event()
     slow = _SuggestionHarness("slow", release=release, fail_models=True)
@@ -2084,7 +2113,7 @@ async def test_closing_memo_suppresses_an_in_flight_discovery_failure(monkeypatc
         assert notices == []
 
 
-# 2119: REQ-017.2.1
+# 2119: REQ-019.2.1
 async def test_discovery_failures_keep_the_successful_half_and_cycle_safely(
     monkeypatch: Any,
 ) -> None:
@@ -2106,25 +2135,32 @@ async def test_discovery_failures_keep_the_successful_half_and_cycle_safely(
         selector.focus()
 
         await pilot.press("enter")
-        model = app.screen.query_one("#launch-model", Input).suggester
-        effort = app.screen.query_one("#launch-effort", Input).suggester
-        assert isinstance(model, dashboard.SuggestFromList)
-        assert isinstance(effort, dashboard.SuggestFromList)
-        assert model._suggestions == ["effort-broken-model-1"]
-        assert effort._suggestions == []
+        model = app.screen.query_one("#launch-model", Input)
+        model.focus()
+        await pilot.pause()
+        assert _option_prompts(app.screen.query_one("#launch-model-options", OptionList)) == [
+            "effort-broken-model-1 — effort-broken model 1"
+        ]
+        effort = app.screen.query_one("#launch-effort", Input)
+        effort.focus()
+        await pilot.pause()
+        assert _option_prompts(app.screen.query_one("#launch-effort-options", OptionList)) == []
 
+        selector.focus()
         await pilot.press("enter")
-        model = app.screen.query_one("#launch-model", Input).suggester
-        effort = app.screen.query_one("#launch-effort", Input).suggester
-        assert isinstance(model, dashboard.SuggestFromList)
-        assert isinstance(effort, dashboard.SuggestFromList)
-        assert model._suggestions == []
-        assert effort._suggestions == ["model-broken-empty-effort-1"]
+        model.focus()
+        await pilot.pause()
+        assert _option_prompts(app.screen.query_one("#launch-model-options", OptionList)) == []
+        effort.focus()
+        await pilot.pause()
+        assert _option_prompts(app.screen.query_one("#launch-effort-options", OptionList)) == [
+            "model-broken-empty-effort-1 — model-broken effort 1"
+        ]
         assert app.is_running
         assert all(h.model_calls == h.effort_calls == 1 for h in harnesses.values())
 
 
-# 2119: REQ-017.7.1
+# 2119: REQ-019.7.1
 async def test_in_flight_discovery_does_not_update_widgets_after_memo_closes(
     monkeypatch: Any,
 ) -> None:

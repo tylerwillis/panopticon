@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.7.1--8c172b27d0a3",
+  "requirementId": "REQ-018.7.1",
+  "hash": "8c172b27d0a3",
+  "verdict": "pass",
+  "summary": "Covers the nearest violation directly: fields are focused (tab) but not edited, defaults then change, and repo/workflow/app-default variants each assert the reopened fields and summary show the NEW default — focus-marks-touched or frozen values fail; harness-change tests add within-modal tracking.",
+  "timestamp": "2026-07-30T18:28:24.295Z"
+}

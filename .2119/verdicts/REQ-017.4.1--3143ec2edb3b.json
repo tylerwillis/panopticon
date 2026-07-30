@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.4.1--3143ec2edb3b",
-  "requirementId": "REQ-017.4.1",
-  "hash": "3143ec2edb3b",
-  "verdict": "pass",
-  "summary": "Cycling to a blocked/unstarted harness must return with that harness's suggesters populated (and discovered exactly once); empty suggesters fail",
-  "timestamp": "2026-07-30T16:35:34.775Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.20.1--d6e6e6d6e00f",
-  "requirementId": "REQ-018.20.1",
-  "hash": "d6e6e6d6e00f",
-  "verdict": "pass",
-  "summary": "No-match tests for model and effort require zero candidates while the candidate-list region remains visible.",
-  "timestamp": "2026-07-30T16:50:26.053Z"
-}

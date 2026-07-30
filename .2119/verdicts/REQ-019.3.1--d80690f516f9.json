@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.3.1--d80690f516f9",
+  "requirementId": "REQ-019.3.1",
+  "hash": "d80690f516f9",
+  "verdict": "pass",
+  "summary": "Second modal opening must render call-2 suggestions from a call-counting fake harness in the real OptionList widgets; a reused first-open cache or discovery skipped on reopen times out _wait_for_suggestion and fails, for both model and model-tied effort fields.",
+  "timestamp": "2026-07-30T18:26:21.748Z"
+}
