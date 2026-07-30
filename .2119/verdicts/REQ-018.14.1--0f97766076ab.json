@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.14.1--0f97766076ab",
-  "requirementId": "REQ-018.14.1",
-  "hash": "0f97766076ab",
-  "verdict": "pass",
-  "summary": "Ctrl+S is observed creating with the memo while the initial-prompt argument remains absent.",
-  "timestamp": "2026-07-30T16:50:23.485Z"
-}

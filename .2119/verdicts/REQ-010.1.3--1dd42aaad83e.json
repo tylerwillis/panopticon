@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-010.1.3--1dd42aaad83e",
-  "requirementId": "REQ-010.1.3",
-  "hash": "1dd42aaad83e",
-  "verdict": "pass",
-  "summary": "Otherwise-qualifying user-advanced state does not auto-advance.",
-  "timestamp": "2026-07-30T16:15:13.245Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.2.1--8a10e69a5dd6",
+  "requirementId": "REQ-017.2.1",
+  "hash": "8a10e69a5dd6",
+  "verdict": "pass",
+  "summary": "Pilot-driven tests exercise the real modal: exact set_slug tuple pins trimmed value + correct task id (sibling untouched), list_tasks_calls counter + rebuilt DataTable/detail render pin the refresh, and a real HTTPStatusError from set_slug pins is_running + old slug still displayed on rejection.",
+  "timestamp": "2026-07-30T18:27:33.692Z"
+}

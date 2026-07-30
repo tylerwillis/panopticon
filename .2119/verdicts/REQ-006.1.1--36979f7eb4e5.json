@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.1.1--36979f7eb4e5",
+  "requirementId": "REQ-006.1.1",
+  "hash": "36979f7eb4e5",
+  "verdict": "pass",
+  "summary": "Real ctrl+r press through the app must land on BulkRespawnScreen listing the down tasks — an unbound key or a single-respawn binding fails the isinstance/content assertions",
+  "timestamp": "2026-07-30T18:26:35.174Z"
+}

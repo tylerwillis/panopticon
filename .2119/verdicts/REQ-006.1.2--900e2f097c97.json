@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.1.2--900e2f097c97",
-  "requirementId": "REQ-006.1.2",
-  "hash": "900e2f097c97",
-  "verdict": "pass",
-  "summary": "Help test requires the exact Ctrl+R bulk-respawn action line, rejecting a wrong key, scope, or action.",
-  "timestamp": "2026-07-30T16:50:17.484Z"
-}

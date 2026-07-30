@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.3.1--a9f26ae2fb00",
-  "requirementId": "REQ-017.3.1",
-  "hash": "a9f26ae2fb00",
-  "verdict": "pass",
-  "summary": "After editing the value and cancelling, the test asserts no set-slug call occurred and the original highlighted slug remains displayed.",
-  "timestamp": "2026-07-30T17:03:12.321Z"
-}

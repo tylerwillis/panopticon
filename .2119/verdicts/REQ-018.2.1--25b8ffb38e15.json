@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.2.1--25b8ffb38e15",
+  "requirementId": "REQ-018.2.1",
+  "hash": "25b8ffb38e15",
+  "verdict": "pass",
+  "summary": "Test asserts real Textual focus (app.screen.focused) starting at MemoTextArea then after each single tab: HarnessSelector, #launch-model, #launch-effort — any swap, skip, or inserted stop fails; only the REST client is faked.",
+  "timestamp": "2026-07-30T18:27:14.496Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-010.2.1--d6282c16f530",
-  "requirementId": "REQ-010.2.1",
-  "hash": "d6282c16f530",
-  "verdict": "pass",
-  "summary": "Auto transition matches explicit advance hook, history, trigger, seeding, and turn behavior.",
-  "timestamp": "2026-07-30T16:15:14.460Z"
-}

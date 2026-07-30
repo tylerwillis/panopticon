@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.3--ea0ebf9f4124",
+  "requirementId": "REQ-006.4.3",
+  "hash": "ea0ebf9f4124",
+  "verdict": "pass",
+  "summary": "N tracks actual releases not listed count (2 listed / 1 released asserts 'respawned 1'), zero-release case asserts 'respawned 0', and a separate test verifies the real app._notifications surface so the notify monkeypatch is not theater.",
+  "timestamp": "2026-07-30T18:26:48.012Z"
+}

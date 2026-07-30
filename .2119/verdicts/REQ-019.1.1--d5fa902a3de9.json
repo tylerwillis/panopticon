@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.1.1--d5fa902a3de9",
+  "requirementId": "REQ-019.1.1",
+  "hash": "d5fa902a3de9",
+  "verdict": "pass",
+  "summary": "Blocks discovery on an Event, opens the modal, and proves mount+focus+input (typed 'x' lands in the memo) while discovery is verifiably still blocked (release unset); a synchronously-blocking open would hang until the 5s backstop sets release and then fail 'assert not release.is_set()'.",
+  "timestamp": "2026-07-30T18:28:42.259Z"
+}

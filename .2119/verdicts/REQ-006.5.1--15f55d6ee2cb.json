@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.5.1--15f55d6ee2cb",
+  "requirementId": "REQ-006.5.1",
+  "hash": "15f55d6ee2cb",
+  "verdict": "pass",
+  "summary": "No-down snapshot including the near-miss 'failed' asserts notices == ['no down tasks']; the parametrized variant swaps a down snapshot for empty/each non-down status pre-invoke, proving the latest-snapshot boundary.",
+  "timestamp": "2026-07-30T18:26:58.347Z"
+}

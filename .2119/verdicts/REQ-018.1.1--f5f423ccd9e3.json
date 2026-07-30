@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.1.1--f5f423ccd9e3",
-  "requirementId": "REQ-018.1.1",
-  "hash": "f5f423ccd9e3",
-  "verdict": "pass",
-  "summary": "Initial modal test verifies memo focus plus visible labeled harness/model/effort controls carrying resolved current values.",
-  "timestamp": "2026-07-30T16:50:17.916Z"
-}

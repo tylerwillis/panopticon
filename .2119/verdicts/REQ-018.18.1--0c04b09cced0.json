@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.18.1--0c04b09cced0",
-  "requirementId": "REQ-018.18.1",
-  "hash": "0c04b09cced0",
-  "verdict": "pass",
-  "summary": "Tests reject retaining either untouched inherited value, verify an untouched effort clears beside a touched model, and prove submission delegates model/effort to the new harness.",
-  "timestamp": "2026-07-30T17:00:05.933Z"
-}

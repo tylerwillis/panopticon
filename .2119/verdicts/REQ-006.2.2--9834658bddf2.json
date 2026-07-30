@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.2.2--9834658bddf2",
+  "requirementId": "REQ-006.2.2",
+  "hash": "9834658bddf2",
+  "verdict": "pass",
+  "summary": "Hard-coded expected lines cover 8-char ID prefix, dash for null slug, whitespace normalization, exactly-60 memo without ellipsis, 61-char truncation with ellipsis, and absent memo — every boundary has a rejecting counterexample.",
+  "timestamp": "2026-07-30T18:26:36.567Z"
+}
