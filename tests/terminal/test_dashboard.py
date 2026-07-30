@@ -2445,7 +2445,8 @@ async def test_pressing_y_with_no_slug_warns(monkeypatch: Any) -> None:
 
 # 2119: REQ-017.1.1
 async def test_pressing_e_edits_slug_only_while_detail_is_open() -> None:
-    fake = _FakeClient([_TASK.copy()])
+    other = {**_TASK, "id": "task-other456789", "slug": "other-widget"}
+    fake = _FakeClient([_TASK.copy(), other])
     app = Dashboard(fake)  # type: ignore[arg-type]
     async with app.run_test() as pilot:
         await pilot.pause()
@@ -2456,10 +2457,11 @@ async def test_pressing_e_edits_slug_only_while_detail_is_open() -> None:
         assert fake.get_task("task-abcdef0123")["slug"] == "fix-widget"
 
         await pilot.press("d")
+        await pilot.press("j")
         await pilot.press("e")
         await pilot.pause()
         assert isinstance(app.screen, dashboard.SlugScreen)
-        assert app.screen.query_one(Input).value == "fix-widget"
+        assert app.screen.query_one(Input).value == "other-widget"
 
 
 # 2119: REQ-017.1.1

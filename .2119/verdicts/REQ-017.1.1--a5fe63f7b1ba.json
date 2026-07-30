@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.1.1--a5fe63f7b1ba",
-  "requirementId": "REQ-017.1.1",
-  "hash": "a5fe63f7b1ba",
-  "verdict": "pass",
-  "summary": "Real pilot-driven tests: closed-pane 'e' rejected on three channels (no SlugScreen, no set_slug call, slug unchanged); open-pane 'e' asserts the modal's Input holds the current slug, and a divergent-client test rejects stale list-snapshot initialization.",
-  "timestamp": "2026-07-30T18:27:49.936Z"
-}

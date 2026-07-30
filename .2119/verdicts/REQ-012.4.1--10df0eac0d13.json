@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.4.1--10df0eac0d13",
+  "requirementId": "REQ-012.4.1",
+  "hash": "10df0eac0d13",
+  "verdict": "pass",
+  "summary": "Exotic model string with space and colon round-trips verbatim to the task; any validation or effort-parsing fails the equality",
+  "timestamp": "2026-07-30T17:06:09.197Z"
+}
