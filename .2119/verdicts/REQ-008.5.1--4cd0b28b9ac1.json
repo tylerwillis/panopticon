@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.5.1--4cd0b28b9ac1",
+  "requirementId": "REQ-008.5.1",
+  "hash": "4cd0b28b9ac1",
+  "verdict": "pass",
+  "summary": "Codex config uses the blocking shared hook and gated-thread test proves the turn write completes before exit.",
+  "timestamp": "2026-07-30T16:15:12.043Z"
+}

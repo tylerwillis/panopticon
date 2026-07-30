@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.1.2--3cef9bd327f0",
-  "requirementId": "REQ-009.1.2",
-  "hash": "3cef9bd327f0",
-  "verdict": "pass",
-  "summary": "auto-advance-multi resolves only one of two responsibilities and asserts the state is unchanged — a real check that would fail if partial resolution incorrectly fired the transition.",
-  "timestamp": "2026-07-23T10:07:55.101Z"
-}

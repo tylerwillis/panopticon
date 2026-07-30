@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-013.2.1--186c7c5966eb",
+  "requirementId": "REQ-013.2.1",
+  "hash": "186c7c5966eb",
+  "verdict": "pass",
+  "summary": "Padded submit is trimmed and refreshes detail/table; rejected 400 leaves old slug and app running.",
+  "timestamp": "2026-07-30T16:15:18.451Z"
+}

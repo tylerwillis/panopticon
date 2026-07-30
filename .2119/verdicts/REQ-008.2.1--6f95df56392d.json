@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.2.1--6f95df56392d",
+  "requirementId": "REQ-008.2.1",
+  "hash": "6f95df56392d",
+  "verdict": "pass",
+  "summary": "All state-change paths clear blocked before lifecycle effects, including cascade.",
+  "timestamp": "2026-07-30T16:15:10.801Z"
+}
