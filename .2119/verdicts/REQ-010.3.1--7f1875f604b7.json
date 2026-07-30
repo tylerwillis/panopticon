@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.3.1--7f1875f604b7",
+  "requirementId": "REQ-010.3.1",
+  "hash": "7f1875f604b7",
+  "verdict": "pass",
+  "summary": "set_state into a fully-qualifying agent-advanced state asserts it stays put, and a separate test proves create_task never evaluates auto-advance — the nearest violating triggers are rejected",
+  "timestamp": "2026-07-30T16:28:57.869Z"
+}

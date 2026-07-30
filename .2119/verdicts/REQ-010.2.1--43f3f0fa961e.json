@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.2.1--43f3f0fa961e",
+  "requirementId": "REQ-010.2.1",
+  "hash": "43f3f0fa961e",
+  "verdict": "pass",
+  "summary": "Auto-advance test pins on_transition call args, appended history entry with trigger 'advance', destination turn_on_enter recomputed, fresh PENDING seeding, and store-reload — the full explicit-advance parity, not just the state label",
+  "timestamp": "2026-07-30T16:29:01.983Z"
+}

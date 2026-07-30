@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.3.3--cc0a6ac12db8",
+  "requirementId": "REQ-010.3.3",
+  "hash": "cc0a6ac12db8",
+  "verdict": "pass",
+  "summary": "All three enumerated rejection shapes (unknown key, PENDING, FAILED sans comment) parametrized with only one responsibility left so a buggy transition would fire; state and outstanding set reloaded from the store",
+  "timestamp": "2026-07-30T16:28:58.659Z"
+}

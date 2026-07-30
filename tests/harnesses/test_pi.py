@@ -164,8 +164,8 @@ await pending;
     subprocess.run(["node", "--input-type=module", "--eval", probe], check=True)
 
 
-# 2119: REQ-009.1.1
-# 2119: REQ-009.2.1
+# 2119: REQ-012.1.1
+# 2119: REQ-012.2.1
 def test_turn_signal_handlers_bound_requests_and_fail_open() -> None:
     source = TURN_EXTENSION.replace("export default function", "const extension = function")
     probe = (
@@ -201,7 +201,7 @@ if (elapsed >= 3000) throw new Error(`handlers blocked for ${elapsed}ms`);
     assert completed.stdout == "" and completed.stderr == ""
 
 
-# 2119: REQ-009.2.1
+# 2119: REQ-012.2.1
 def test_turn_signal_handlers_do_not_surface_network_or_status_failures() -> None:
     source = TURN_EXTENSION.replace("export default function", "const extension = function")
     probe = (

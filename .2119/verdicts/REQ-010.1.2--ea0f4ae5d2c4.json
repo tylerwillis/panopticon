@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.1.2--ea0f4ae5d2c4",
+  "requirementId": "REQ-010.1.2",
+  "hash": "ea0f4ae5d2c4",
+  "verdict": "pass",
+  "summary": "Partial resolve on a two-responsibility agent-advanced state asserts the task stays WORKING — would fail if auto-advance fired with a PENDING responsibility outstanding",
+  "timestamp": "2026-07-30T16:29:00.383Z"
+}

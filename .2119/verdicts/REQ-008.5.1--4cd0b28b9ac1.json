@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.5.1--4cd0b28b9ac1",
+  "requirementId": "REQ-008.5.1",
+  "hash": "4cd0b28b9ac1",
+  "verdict": "pass",
+  "summary": "test_codex.py pins UserPromptSubmit wired as a blocking command hook to the shared callback, and test_hooks.py's gated-client thread test proves hook.main cannot return while set_turn is pending (an async write would trip thread.is_alive assertions)",
+  "timestamp": "2026-07-30T16:28:47.946Z"
+}

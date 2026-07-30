@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.1.1--f307b8dd4dd6",
+  "requirementId": "REQ-010.1.1",
+  "hash": "f307b8dd4dd6",
+  "verdict": "pass",
+  "summary": "Auto-advance verified end-to-end against the real service for both the derived and explicitly-declared advance operation, with store-reload; negative fixtures vary each qualifying conjunct (pending resp., user-advanced, ambiguous) and reject them",
+  "timestamp": "2026-07-30T16:28:59.978Z"
+}

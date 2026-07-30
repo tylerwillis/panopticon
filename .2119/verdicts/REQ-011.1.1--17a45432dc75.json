@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-011.1.1--17a45432dc75",
+  "requirementId": "REQ-011.1.1",
+  "hash": "17a45432dc75",
+  "verdict": "pass",
+  "summary": "Asserts --no-alt-screen in the launch argv for both the first-run and resume code paths — the argv IS the harness contract in this LLM-free suite, and dropping the flag on either path fails",
+  "timestamp": "2026-07-30T16:29:09.034Z"
+}

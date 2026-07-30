@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.1.1--6ca8187161df",
+  "requirementId": "REQ-012.1.1",
+  "hash": "6ca8187161df",
+  "verdict": "pass",
+  "summary": "Real hook subprocess measured under 3s against a black-holed service and cumulative 1.1s-per-request slow server with rc 0; pi handlers require an abort signal and settle within the bound or the node probe times out; plus the rendered timeout=3 backstop for claude+codex",
+  "timestamp": "2026-07-30T16:29:09.421Z"
+}

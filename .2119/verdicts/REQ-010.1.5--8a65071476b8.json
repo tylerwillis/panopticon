@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.1.5--8a65071476b8",
+  "requirementId": "REQ-010.1.5",
+  "hash": "8a65071476b8",
+  "verdict": "pass",
+  "summary": "Same no-advance test also asserts outstanding_responsibilities == [] — the resolve itself took effect and persisted even though no transition occurred",
+  "timestamp": "2026-07-30T16:29:01.584Z"
+}

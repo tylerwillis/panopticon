@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.2.2--beb98dd7672c",
+  "requirementId": "REQ-010.2.2",
+  "hash": "beb98dd7672c",
+  "verdict": "pass",
+  "summary": "Returned object's state/turn/current-entry all asserted on the resolve_responsibility return value; LANDED's turn_on_enter=AGENT differs from the prior USER turn so a stale pre-transition object would fail",
+  "timestamp": "2026-07-30T16:28:57.467Z"
+}

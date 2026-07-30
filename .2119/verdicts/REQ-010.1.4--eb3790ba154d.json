@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.1.4--eb3790ba154d",
+  "requirementId": "REQ-010.1.4",
+  "hash": "eb3790ba154d",
+  "verdict": "pass",
+  "summary": "_Ambiguous (agent-advanced, two forward transitions, no declared advance) stays WORKING after full resolution, while the explicit-op fixture shows a declared advance does fire — the boundary is pinned from both sides",
+  "timestamp": "2026-07-30T16:29:01.193Z"
+}

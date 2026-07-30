@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.3.1--44548bfb53f6",
-  "requirementId": "REQ-009.3.1",
-  "hash": "44548bfb53f6",
-  "verdict": "pass",
-  "summary": "set_state into MIDDLE (a state that structurally qualifies for auto-advance) is asserted to stay put, proving auto-advance evaluation is scoped to resolve_responsibility calls only.",
-  "timestamp": "2026-07-23T10:07:57.497Z"
-}

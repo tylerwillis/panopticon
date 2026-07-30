@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.3.1--e49b5acaab98",
+  "requirementId": "REQ-012.3.1",
+  "hash": "e49b5acaab98",
+  "verdict": "pass",
+  "summary": "All ten table rows exercised behaviorally: claude Stop/UserPromptSubmit via real subprocess against a live server, AskUserQuestion pre/post and Stop-with-live-background (no set_turn call = unchanged) via the shared callback, codex pinned to the identical tested commands, pi agent_end/input driven in node with URL/method/turn asserted",
+  "timestamp": "2026-07-30T16:29:10.203Z"
+}

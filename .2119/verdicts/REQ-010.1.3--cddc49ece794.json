@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.1.3--cddc49ece794",
+  "requirementId": "REQ-010.1.3",
+  "hash": "cddc49ece794",
+  "verdict": "pass",
+  "summary": "_Gated differs from the firing fixture only in advanced_by (defaults USER); resolving its last responsibility asserts no transition — the nearest violating input is rejected",
+  "timestamp": "2026-07-30T16:29:00.785Z"
+}

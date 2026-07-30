@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.2.1--df673490bfe5",
+  "requirementId": "REQ-012.2.1",
+  "hash": "df673490bfe5",
+  "verdict": "pass",
+  "summary": "Connection/timeout/protocol/status/malformed-body and mid-callback stall failures all covered, each asserting exit 0 with empty stderr (nothing surfaced) via the real subprocess or injected failing client; pi network+503 failures resolve cleanly",
+  "timestamp": "2026-07-30T16:29:09.807Z"
+}
