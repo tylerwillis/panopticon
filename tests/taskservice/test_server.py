@@ -49,6 +49,7 @@ def test_build_app_serves_default_wiring(tmp_path: Path) -> None:
     assert {w["name"] for w in client.get("/workflows").json()} == {
         "spike",
         "2119-auto-spec",
+        "2119-auto-sol",
         "2119-human-spec",
         "github-peer-reviewed",
         "github-self-reviewed",
