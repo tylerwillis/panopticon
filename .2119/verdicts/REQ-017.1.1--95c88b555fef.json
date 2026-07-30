@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.1.1--95c88b555fef",
+  "requirementId": "REQ-017.1.1",
+  "hash": "95c88b555fef",
+  "verdict": "pass",
+  "summary": "The tests distinguish closed versus open details, assert no closed-pane rename effect, and verify the editor initializes from the current service slug rather than a stale snapshot.",
+  "timestamp": "2026-07-30T17:03:11.473Z"
+}

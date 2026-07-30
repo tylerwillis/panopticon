@@ -619,6 +619,41 @@ class ChoiceScreen(_OptionListModal[str]):
         self.dismiss(str(event.option.prompt))
 
 
+class SlugScreen(ModalScreen[str | None]):
+    """Edit one task's slug, returning a non-empty value or ``None`` on cancel."""
+
+    CSS = """
+    SlugScreen { align: center middle; }
+    #slug-box { width: 56; height: auto; padding: 1 2; border: round $accent; background: $surface; }
+    #slug-box Input { margin-bottom: 1; }
+    #slug-hint { color: $text-muted; }
+    """
+    BINDINGS = [("escape", "cancel", "Cancel")]
+
+    def __init__(self, slug: str) -> None:
+        super().__init__()
+        self._slug = slug
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="slug-box"):
+            yield Label("Edit task slug")
+            yield Input(self._slug, id="slug-input")
+            yield Label("Enter: save · Esc: cancel", id="slug-hint")
+
+    def on_mount(self) -> None:
+        slug_input = self.query_one(Input)
+        slug_input.focus()
+        slug_input.cursor_position = len(slug_input.value)
+
+    def on_input_submitted(self, event: Input.Submitted) -> None:
+        slug = event.value.strip()
+        if slug:
+            self.dismiss(slug)
+
+    def action_cancel(self) -> None:
+        self.dismiss(None)
+
+
 def _bulk_respawn_line(task: JsonObj) -> str:
     """One compact, single-line task summary for the bulk-respawn confirmation."""
     task_id = str(task["id"])[:8]
@@ -1998,6 +2033,7 @@ HOTKEYS: tuple[Hotkey, ...] = (
     Hotkey("a", "artifacts", "Artifacts", "List the task's artifacts", show=False),
     Hotkey("s", "service", "Service", "Switch to the task-service session", show=False),
     Hotkey("u", "runner", "Runner", "Switch to the session-service (runner) session", show=False),
+    Hotkey("e", "edit_slug", "Edit slug", "Edit the highlighted task's slug", show=False),
     Hotkey("y", "copy_slug", "Copy slug", "Copy the task's slug to the clipboard", show=False),
     Hotkey("Y", "copy_id", "Copy id", "Copy the task's id to the clipboard", show=False),
     Hotkey(
@@ -2407,6 +2443,7 @@ class Dashboard(App[None]):
         detail = Text(render_detail(task)) if task else Text("no tasks")
         if task:
             detail.append("\n")
+            detail.append("e: edit slug\n", style="dim")
             detail.append("c: copy details  y: copy slug  Y: copy id", style="dim")
         self.query_one("#detail", Static).update(detail)
 
@@ -2625,6 +2662,32 @@ class Dashboard(App[None]):
             return
         self._copy_to_clipboard(slug)
         self.notify(f"copied slug: {slug}")
+
+    def action_edit_slug(self) -> None:
+        """`e`: edit the highlighted task's slug while its details pane is open."""
+        if not self._detail_visible or self._current is None:
+            return
+        task_id = self._current
+        task: JsonObj | None
+        try:
+            task = self._client.get_task(task_id)
+        except httpx.HTTPError:
+            task = self._tasks.get(task_id)
+        if task is None:
+            return
+
+        def rename(slug: str | None) -> None:
+            if slug is None:
+                return
+            try:
+                self._client.set_slug(task_id, slug)
+            except httpx.HTTPStatusError as exc:
+                self.notify(f"Can't rename task: {_detail(exc)}", severity="error")
+            except httpx.RequestError as exc:
+                self.notify(f"Can't rename task: {exc}", severity="error")
+            self.action_refresh()
+
+        self.push_screen(SlugScreen(str(task.get("slug") or "")), rename)
 
     def action_copy_id(self) -> None:
         """`Y`: copy the highlighted task's id to the clipboard (the internal identifier)."""

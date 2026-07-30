@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.2.1--02616ec590be",
-  "requirementId": "REQ-006.2.1",
-  "hash": "02616ec590be",
-  "verdict": "pass",
-  "summary": "Behavioral UI tests open the modal at the one-down/latest-snapshot boundary, include all three down tasks, and exclude adjacent live and failed tasks.",
-  "timestamp": "2026-07-22T06:50:50.340Z"
-}

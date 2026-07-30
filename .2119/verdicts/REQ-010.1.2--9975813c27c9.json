@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.1.2--9975813c27c9",
+  "requirementId": "REQ-010.1.2",
+  "hash": "9975813c27c9",
+  "verdict": "pass",
+  "summary": "Partial resolution with another pending responsibility leaves the state unchanged.",
+  "timestamp": "2026-07-30T16:15:12.849Z"
+}

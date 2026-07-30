@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.3.1--f5db920dd94e",
+  "requirementId": "REQ-010.3.1",
+  "hash": "f5db920dd94e",
+  "verdict": "pass",
+  "summary": "Entering a qualifying state via set_state does not independently auto-advance.",
+  "timestamp": "2026-07-30T16:15:15.262Z"
+}

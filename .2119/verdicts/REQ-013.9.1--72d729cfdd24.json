@@ -3,6 +3,6 @@
   "requirementId": "REQ-013.9.1",
   "hash": "72d729cfdd24",
   "verdict": "pass",
-  "summary": "After each of three real creation failures a real set_state out of REVIEW is performed and re-read, plus a parametrized test covering all four destinations; a refuse-free-move-after-failure mutation fails 7 tests.",
-  "timestamp": "2026-07-23T17:57:42.877Z"
+  "summary": "After genuine review-task creation failure, tests exercise free moves from REVIEW to every workflow state and require each destination to persist.",
+  "timestamp": "2026-07-30T17:02:56.038Z"
 }

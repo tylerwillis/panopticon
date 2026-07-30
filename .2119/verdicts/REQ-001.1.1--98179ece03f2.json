@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.1.1--98179ece03f2",
+  "requirementId": "REQ-001.1.1",
+  "hash": "98179ece03f2",
+  "verdict": "pass",
+  "summary": "Real ctrl-key/pilot-driven tests open the dialog via 'x' and prove highlighted-row targeting (message names 'second', excludes 'first'); rebinding or mistargeting fails.",
+  "timestamp": "2026-07-22T14:38:50.196Z"
+}

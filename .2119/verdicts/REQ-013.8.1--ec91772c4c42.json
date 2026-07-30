@@ -3,6 +3,6 @@
   "requirementId": "REQ-013.8.1",
   "hash": "ec91772c4c42",
   "verdict": "pass",
-  "summary": "Notes are asserted per failure mode with the specific reason (exact injected store-error message, 'harness must differ', 'not enabled'), not just a generic prefix; a drop-the-note-recording mutation fails all three tests.",
-  "timestamp": "2026-07-23T17:57:42.446Z"
+  "summary": "Validation, disabled-workflow, and injected persistence failures verify the current REVIEW history note contains the corresponding failure reason, including an exact injected reason.",
+  "timestamp": "2026-07-30T17:02:56.038Z"
 }

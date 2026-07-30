@@ -194,14 +194,20 @@ async def test_create_review_task_with_different_harness_is_accepted(
 # 2119: REQ-003.4.1
 async def test_create_non_review_tasks_are_unaffected_by_review_validation(tmp_path: Path) -> None:
     svc = await make_service(tmp_path)
-    ungoverned = await svc.create_task("r1", "spike", harness="claude")
+    ungoverned = await svc.create_task("r1", "spike", harness="codex")
 
-    governed = await svc.create_task(
+    governed_different_harness = await svc.create_task(
         "r1", "spike", governor_task_id=ungoverned.id, harness="claude"
     )
+    governed_same_harness = await svc.create_task(
+        "r1", "spike", governor_task_id=ungoverned.id, harness="codex"
+    )
 
-    assert governed.governor_task_id == ungoverned.id
-    assert governed.harness == ungoverned.harness
+    assert governed_different_harness.governor_task_id == ungoverned.id
+    assert governed_different_harness.harness == "claude"
+    assert governed_different_harness.harness != ungoverned.harness
+    assert governed_same_harness.governor_task_id == ungoverned.id
+    assert governed_same_harness.harness == ungoverned.harness
 
 
 async def test_create_task_opt_in_workflow_not_enabled_is_rejected(tmp_path: Path) -> None:
@@ -239,7 +245,7 @@ async def test_list_workflow_infos_for_repo_shows_opt_in_and_filters(tmp_path: P
     assert all("opt_in" in w for w in infos)
 
 
-# 2119: REQ-002.12
+# 2119: REQ-002.12.1
 async def test_hidden_workflow_absent_from_both_menus_but_still_creatable(tmp_path: Path) -> None:
     svc = await make_service(tmp_path)
     # Hidden workflows are excluded from the repo-form menu (all workflows) and the

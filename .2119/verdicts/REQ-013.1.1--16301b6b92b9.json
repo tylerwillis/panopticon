@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-013.1.1--16301b6b92b9",
+  "requirementId": "REQ-013.1.1",
+  "hash": "16301b6b92b9",
+  "verdict": "pass",
+  "summary": "Closed-pane e is inert; open-pane editor uses the fresh current service slug.",
+  "timestamp": "2026-07-30T16:15:18.041Z"
+}

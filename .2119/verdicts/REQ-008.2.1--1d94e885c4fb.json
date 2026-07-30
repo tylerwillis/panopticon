@@ -3,6 +3,6 @@
   "requirementId": "REQ-008.2.1",
   "hash": "1d94e885c4fb",
   "verdict": "pass",
-  "summary": "Covers advance/drop/free-move and cascade-drop, plus a hook that asserts task.blocked is False on entry and re-sets it, directly proving the clear precedes lifecycle effects.",
-  "timestamp": "2026-07-23T10:03:40.432Z"
+  "summary": "Tests cover declared transitions, free moves, drops and cascades, and a lifecycle hook proves the stale marker is cleared before effects can raise a fresh block.",
+  "timestamp": "2026-07-30T17:02:58.276Z"
 }

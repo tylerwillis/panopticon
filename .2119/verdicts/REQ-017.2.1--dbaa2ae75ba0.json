@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.2.1--dbaa2ae75ba0",
+  "requirementId": "REQ-017.2.1",
+  "hash": "dbaa2ae75ba0",
+  "verdict": "fail",
+  "summary": "The accepted-submit test has only one task, so it cannot reject renaming a non-highlighted task; the requirement's highlighted-task target is not genuinely verified.",
+  "timestamp": "2026-07-30T17:03:11.890Z"
+}

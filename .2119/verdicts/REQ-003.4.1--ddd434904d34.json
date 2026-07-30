@@ -2,7 +2,7 @@
   "reviewId": "REQ-003.4.1--ddd434904d34",
   "requirementId": "REQ-003.4.1",
   "hash": "ddd434904d34",
-  "verdict": "pass",
-  "summary": "Non-review governed task with an equal harness to its governor is created without error, the exact scenario that would be rejected if the workflow-name gate were missing.",
-  "timestamp": "2026-07-23T10:03:36.785Z"
+  "verdict": "fail",
+  "summary": "The test covers governed and ungoverned non-review creation only with equal claude harnesses, not the requirement's regardless-of-recorded-harness-strings boundary.",
+  "timestamp": "2026-07-30T17:02:58.277Z"
 }
