@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.2.2--758538170b28",
+  "requirementId": "REQ-014.2.2",
+  "hash": "758538170b28",
+  "verdict": "pass",
+  "summary": "Asserts state, turn, and current history entry on the returned object plus an independent store reload; a stale-pre-transition-return mutation fails the test",
+  "timestamp": "2026-07-23T17:58:01.301Z"
+}

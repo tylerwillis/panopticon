@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.1.2--8df12153be4b",
-  "requirementId": "REQ-008.1.2",
-  "hash": "8df12153be4b",
-  "verdict": "pass",
-  "summary": "Sets blocked=True then flips turn to user and confirms it stays True end-to-end, directly rejecting an implementation that clears blocked on any turn write.",
-  "timestamp": "2026-07-23T10:03:38.996Z"
-}

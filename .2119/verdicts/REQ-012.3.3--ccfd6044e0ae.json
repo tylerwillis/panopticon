@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.3.3--ccfd6044e0ae",
+  "requirementId": "REQ-012.3.3",
+  "hash": "ccfd6044e0ae",
+  "verdict": "pass",
+  "summary": "test_explicit_task_harness_drops_losing_pair_model asserts explicit claude vs the non-null codex/gpt-5.6-sol:high workflow pair with no task model yields (claude, None); retaining the losing model fails, and the equals-harness boundary is rejected by the complementary REQ-012.3.4 test",
+  "timestamp": "2026-07-23T18:16:01.938Z"
+}

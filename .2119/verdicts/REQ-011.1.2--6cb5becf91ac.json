@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-011.1.2--6cb5becf91ac",
+  "requirementId": "REQ-011.1.2",
+  "hash": "6cb5becf91ac",
+  "verdict": "pass",
+  "summary": "Exhaustive product over registered x runner_live x every phase (incl. the stale-registration counterexample registered=True) with claimed=False, non-terminal, all pinned to 'queued'.",
+  "timestamp": "2026-07-23T17:38:36.809Z"
+}

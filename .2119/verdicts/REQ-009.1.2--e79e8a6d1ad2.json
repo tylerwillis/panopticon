@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.2--e79e8a6d1ad2",
+  "requirementId": "REQ-009.1.2",
+  "hash": "e79e8a6d1ad2",
+  "verdict": "pass",
+  "summary": "DROPPED->WORKING raises IllegalTransition; terminal states uniformly declare no transitions, so the rejected counterexample is representative of every departure attempt",
+  "timestamp": "2026-07-23T17:38:42.341Z"
+}

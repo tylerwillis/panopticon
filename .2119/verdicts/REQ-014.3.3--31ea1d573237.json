@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.3.3--31ea1d573237",
+  "requirementId": "REQ-014.3.3",
+  "hash": "31ea1d573237",
+  "verdict": "pass",
+  "summary": "Parametrized over all three enumerated rejection causes (unknown key, PENDING, FAILED without comment), each staged so only one responsibility remains — verified empirically that the same call with a comment auto-advances to COMPLETE, so each case is one attribute from a firing transition; the test reloads from the store and asserts state and outstanding responsibilities are unchanged, with no mocks.",
+  "timestamp": "2026-07-23T17:55:59.817Z"
+}

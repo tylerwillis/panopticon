@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.2.4--e9f07ae0579e",
+  "requirementId": "REQ-010.2.4",
+  "hash": "e9f07ae0579e",
+  "verdict": "pass",
+  "summary": "Real hook.main run for both absent-field ({}) and empty-list payloads asserts the turn flips to user (set_turn called), which flips to no-call if either were treated as live; neighboring REQ-010.1.2/2.5 tests reject the nearest violating inputs (live entry, non-list value).",
+  "timestamp": "2026-07-23T18:25:51.411Z"
+}

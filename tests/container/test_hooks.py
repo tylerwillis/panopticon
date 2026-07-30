@@ -34,7 +34,7 @@ def test_settings_wire_stop_to_user_and_prompt_to_agent() -> None:
     assert s["hooks"]["UserPromptSubmit"][0]["hooks"][0]["command"].endswith("hook agent prompt")
 
 
-# 2119: REQ-009.1.1
+# 2119: REQ-016.1.1
 def test_every_command_turn_hook_has_a_three_second_backstop() -> None:
     claude_hooks = settings()["hooks"]
     for entries in claude_hooks.values():
@@ -142,8 +142,8 @@ def _control_plane_error(kind: str) -> httpx.HTTPError:
     return httpx.HTTPStatusError(_CONTROL_PLANE_SENTINEL, request=request, response=response)
 
 
-# 2119: REQ-009.1.1
-# 2119: REQ-009.2.1
+# 2119: REQ-016.1.1
+# 2119: REQ-016.2.1
 @pytest.mark.parametrize(
     ("argv", "payload"),
     [
@@ -207,7 +207,7 @@ def test_hook_returns_success_within_bound_against_a_blackholed_service(
     assert completed.stdout == "" and completed.stderr == ""
 
 
-# 2119: REQ-009.2.1
+# 2119: REQ-016.2.1
 @pytest.mark.parametrize(
     ("argv", "payload", "successful_requests", "expected_stdout"),
     [
@@ -288,8 +288,8 @@ def test_hook_fails_open_when_a_later_control_plane_request_stalls(
     assert completed.stdout == expected_stdout and completed.stderr == ""
 
 
-# 2119: REQ-009.1.1
-# 2119: REQ-009.2.1
+# 2119: REQ-016.1.1
+# 2119: REQ-016.2.1
 def test_hook_whole_callback_deadline_bounds_cumulative_slow_responses() -> None:
     request_count = 0
 
@@ -354,7 +354,7 @@ def test_hook_whole_callback_deadline_bounds_cumulative_slow_responses() -> None
     assert completed.stdout == "" and completed.stderr == ""
 
 
-# 2119: REQ-009.2.1
+# 2119: REQ-016.2.1
 @pytest.mark.parametrize(
     ("argv", "malformed_request", "malformed_body", "expected_stdout"),
     [
@@ -424,7 +424,7 @@ def test_hook_fails_open_on_malformed_control_plane_responses(
     assert completed.stdout == expected_stdout and completed.stderr == ""
 
 
-# 2119: REQ-009.2.1
+# 2119: REQ-016.2.1
 @pytest.mark.parametrize(
     ("argv", "operation", "failure", "payload"),
     [
@@ -456,7 +456,7 @@ def test_every_shared_callback_path_fails_open_on_control_plane_errors(
     assert captured.err == ""
 
 
-# 2119: REQ-009.3.1
+# 2119: REQ-016.3.1
 def test_every_injected_turn_hook_preserves_its_event_mapping(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -780,6 +780,7 @@ def _stop(client: _FakeClient, payload: str) -> int:
         '{"background_tasks": [{"id": "t"}]}',  # no status → treated as live (conservative)
     ],
 )
+# 2119: REQ-010.1.2
 def test_stop_does_not_flip_while_a_background_task_is_live(
     monkeypatch: pytest.MonkeyPatch, payload: str
 ) -> None:
@@ -788,6 +789,28 @@ def test_stop_does_not_flip_while_a_background_task_is_live(
     client = _FakeClient(slug="fix-widget")
     assert _stop(client, payload) == 0
     assert client.calls == []  # turn left on the agent — set_turn not called
+
+
+@pytest.mark.parametrize(
+    "entry",
+    [
+        "null",
+        '"not-an-object"',
+        "{}",
+        '{"status": 7}',
+        '{"status": {}}',
+        '{"status": "unknown"}',
+    ],
+)
+# 2119: REQ-010.2.1
+def test_malformed_or_unknown_background_status_is_treated_as_live(
+    monkeypatch: pytest.MonkeyPatch, entry: str
+) -> None:
+    monkeypatch.setenv("PANOPTICON_SERVICE_URL", "http://svc")
+    monkeypatch.setenv("PANOPTICON_TASK_ID", "t1")
+    client = _FakeClient(slug="fix-widget")
+    assert _stop(client, f'{{"background_tasks": [{entry}]}}') == 0
+    assert client.calls == []
 
 
 @pytest.mark.parametrize(
@@ -801,9 +824,9 @@ def test_stop_does_not_flip_while_a_background_task_is_live(
         '{"background_tasks": []}',  # field present, nothing running
         '{"background_tasks": [{"id": "t", "status": "completed"}]}',  # only terminal entries
         '{"background_tasks": [{"id": "t", "status": "FAILED"}]}',  # terminal, case-insensitive
-        '{"background_tasks": "oops"}',  # field present but wrong type → degrade, flip
     ],
 )
+# 2119: REQ-010.1.1
 def test_stop_flips_to_user_when_no_live_background_task(
     monkeypatch: pytest.MonkeyPatch, payload: str
 ) -> None:
@@ -812,6 +835,58 @@ def test_stop_flips_to_user_when_no_live_background_task(
     client = _FakeClient(slug="fix-widget")
     assert _stop(client, payload) == 0
     assert client.calls == [("t1", "user")]  # degrades to the original turn flip
+
+
+@pytest.mark.parametrize(
+    "status",
+    ["completed", "FAILED", " cancelled ", "CANCELED", "error"],
+)
+# 2119: REQ-010.2.2
+def test_known_terminal_background_statuses_are_not_live(
+    monkeypatch: pytest.MonkeyPatch, status: str
+) -> None:
+    monkeypatch.setenv("PANOPTICON_SERVICE_URL", "http://svc")
+    monkeypatch.setenv("PANOPTICON_TASK_ID", "t1")
+    client = _FakeClient(slug="fix-widget")
+    payload = json.dumps({"background_tasks": [{"id": "t", "status": status}]})
+    assert _stop(client, payload) == 0
+    assert client.calls == [("t1", "user")]
+
+
+@pytest.mark.parametrize(
+    "payload",
+    ["{}", '{"background_tasks": []}'],
+)
+# 2119: REQ-010.2.4
+def test_absent_or_empty_background_collection_reports_no_live_work(
+    monkeypatch: pytest.MonkeyPatch, payload: str
+) -> None:
+    monkeypatch.setenv("PANOPTICON_SERVICE_URL", "http://svc")
+    monkeypatch.setenv("PANOPTICON_TASK_ID", "t1")
+    client = _FakeClient(slug="fix-widget")
+    assert _stop(client, payload) == 0
+    assert client.calls == [("t1", "user")]
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        '{"background_tasks": "not-a-list"}',
+        '{"background_tasks": null}',
+        '{"background_tasks": false}',
+        '{"background_tasks": 0}',
+        '{"background_tasks": {}}',
+    ],
+)
+# 2119: REQ-010.2.5
+def test_non_list_background_collection_is_treated_as_live(
+    monkeypatch: pytest.MonkeyPatch, payload: str
+) -> None:
+    monkeypatch.setenv("PANOPTICON_SERVICE_URL", "http://svc")
+    monkeypatch.setenv("PANOPTICON_TASK_ID", "t1")
+    client = _FakeClient(slug="fix-widget")
+    assert _stop(client, payload) == 0
+    assert client.calls == []
 
 
 def test_background_task_does_not_suppress_the_askuserquestion_flip(
@@ -827,6 +902,7 @@ def test_background_task_does_not_suppress_the_askuserquestion_flip(
     assert client.calls == [("t1", "user")]
 
 
+# 2119: REQ-010.1.3
 # 2119: REQ-008.4.1
 # 2119: REQ-008.5.1
 def test_user_prompt_submit_unaffected_by_background_tasks(

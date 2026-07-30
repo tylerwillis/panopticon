@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-013.9.1--72d729cfdd24",
+  "requirementId": "REQ-013.9.1",
+  "hash": "72d729cfdd24",
+  "verdict": "pass",
+  "summary": "After each of three real creation failures a real set_state out of REVIEW is performed and re-read, plus a parametrized test covering all four destinations; a refuse-free-move-after-failure mutation fails 7 tests.",
+  "timestamp": "2026-07-23T17:57:42.877Z"
+}

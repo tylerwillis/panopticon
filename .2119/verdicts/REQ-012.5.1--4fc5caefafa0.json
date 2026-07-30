@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.5.1--4fc5caefafa0",
+  "requirementId": "REQ-012.5.1",
+  "hash": "4fc5caefafa0",
+  "verdict": "pass",
+  "summary": "All three routes into model-without-harness are 400 (create model-only, patch model onto null-harness repo, clear harness while model remains) with a 200 positive control for harness+model together",
+  "timestamp": "2026-07-23T18:16:26.117Z"
+}

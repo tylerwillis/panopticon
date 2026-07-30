@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-013.3.1--aad30fcf31e7",
+  "requirementId": "REQ-013.3.1",
+  "hash": "aad30fcf31e7",
+  "verdict": "pass",
+  "summary": "Two workflows declare distinct pairs (codex/gpt-5.6-sol:high, pi/openai-gpt-5), both differing from the author's claude/claude-fable-5, so copying or hardcoding fails; a hardcoded-pair mutation is killed by all three annotated tests.",
+  "timestamp": "2026-07-23T17:56:47.767Z"
+}

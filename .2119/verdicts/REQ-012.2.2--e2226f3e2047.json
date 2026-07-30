@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.2.2--e2226f3e2047",
+  "requirementId": "REQ-012.2.2",
+  "hash": "e2226f3e2047",
+  "verdict": "pass",
+  "summary": "test_repo_launch_pair_beats_app_defaults uses the pair-less spike workflow with repo codex/gpt-5.6-sol:medium against the claude app default; an app-default-wins violation yields (claude, None) and fails; Spike verifiably declares no pair",
+  "timestamp": "2026-07-23T18:15:49.565Z"
+}

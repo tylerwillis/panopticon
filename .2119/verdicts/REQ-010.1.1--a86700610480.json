@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.1.1--a86700610480",
+  "requirementId": "REQ-010.1.1",
+  "hash": "a86700610480",
+  "verdict": "pass",
+  "summary": "Eight no-live payload shapes (absent field, empty list, blank/unparseable stdin, terminal-only entries incl. case variant) each assert exactly one set_turn('user') through the real Stop path; a suppressed or wrong-direction flip fails the calls assertion.",
+  "timestamp": "2026-07-23T18:24:25.769Z"
+}

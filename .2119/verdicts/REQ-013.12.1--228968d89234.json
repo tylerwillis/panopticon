@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-013.12.1--228968d89234",
+  "requirementId": "REQ-013.12.1",
+  "hash": "228968d89234",
+  "verdict": "pass",
+  "summary": "Unpaired advance and free-move entries into REVIEW both assert responsibilities == [] (stronger than mere review-addressed absence); a seed-when-unpaired mutation is killed by both.",
+  "timestamp": "2026-07-23T17:56:46.936Z"
+}

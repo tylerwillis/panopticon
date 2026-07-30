@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.4.3--21c07dcda333",
+  "requirementId": "REQ-012.4.3",
+  "hash": "21c07dcda333",
+  "verdict": "pass",
+  "summary": "Task created under DEFAULT_HARNESS=claude still reads claude after the default flips to codex, with a control assertion proving the flip takes effect (later task = codex) via the real get_harness lookup — a null-sentinel or read-time implementation fails",
+  "timestamp": "2026-07-23T18:16:25.727Z"
+}

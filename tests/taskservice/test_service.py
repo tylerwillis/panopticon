@@ -360,6 +360,7 @@ async def test_set_turn_flips_within_a_state(tmp_path: Path) -> None:
 
 
 # 2119: REQ-008.1.1
+# 2119: REQ-010.3.4
 async def test_agent_turn_clears_blocked_in_the_same_write(tmp_path: Path) -> None:
     svc = await make_service(tmp_path)
     task = await svc.create_task("r1", "spike")
@@ -377,18 +378,21 @@ async def test_agent_turn_clears_blocked_in_the_same_write(tmp_path: Path) -> No
 
 
 # 2119: REQ-008.1.2
-async def test_user_turn_preserves_blocked_marker(tmp_path: Path) -> None:
+# 2119: REQ-010.3.3
+@pytest.mark.parametrize("initially_blocked", [False, True])
+async def test_user_turn_preserves_blocked_marker(tmp_path: Path, initially_blocked: bool) -> None:
     svc = await make_service(tmp_path)
     task = await svc.create_task("r1", "spike")
-    await svc.set_blocked(task.id, True)
+    await svc.set_blocked(task.id, initially_blocked)
     await svc.set_turn(task.id, Actor.USER)
     reloaded = await svc.get_task(task.id)
     assert reloaded.turn is Actor.USER
-    assert reloaded.blocked is True
+    assert reloaded.blocked is initially_blocked
 
 
 # 2119: REQ-008.2.1
 # 2119: REQ-008.2.2
+# 2119: REQ-010.3.5
 @pytest.mark.parametrize("change", ["declared-transition", "free-move", "drop"])
 async def test_every_state_change_clears_blocked(tmp_path: Path, change: str) -> None:
     svc = await make_service(tmp_path)
@@ -425,6 +429,7 @@ async def test_cascade_drop_clears_a_governed_tasks_blocked_marker(tmp_path: Pat
 
 # 2119: REQ-008.2.1
 # 2119: REQ-008.2.2
+# 2119: REQ-010.3.5
 async def test_transition_hook_can_raise_a_fresh_block_after_the_stale_one_clears(
     tmp_path: Path,
 ) -> None:
@@ -459,6 +464,7 @@ async def test_transition_hook_can_raise_a_fresh_block_after_the_stale_one_clear
 
 
 # 2119: REQ-008.3.1
+# 2119: REQ-010.3.6
 @pytest.mark.parametrize("automatic_clear", ["agent-turn", "state-change"])
 async def test_agent_can_set_blocked_again_after_automatic_clear(
     tmp_path: Path, automatic_clear: str
@@ -646,6 +652,40 @@ async def test_container_status_is_disconnected_when_the_claiming_runner_is_gone
     assert svc.container_status(await svc.get_task(task.id)).value == "disconnected"
     await svc.apply_operation(task.id, "drop")  # terminal → no container concept
     assert svc.container_status(await svc.get_task(task.id)).value == "–"
+
+
+async def test_workflow_defined_terminal_is_terminal_throughout_the_service(
+    tmp_path: Path,
+) -> None:
+    class CustomTerminal(Workflow):
+        name = "custom-terminal"
+
+        class Active(InitialState):
+            label = "ACTIVE"
+            transitions = ("ARCHIVED",)
+
+        class Archived(TerminalState):
+            label = "ARCHIVED"
+
+        initial = Active
+
+    svc = TaskService(
+        SqlAlchemyStore(),
+        {"custom-terminal": CustomTerminal()},
+        FilesystemArtifactStore(tmp_path),
+    )
+    await svc.init()
+    await svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
+    task = await svc.create_task("r1", "custom-terminal")
+    await svc.claim(task.id, "host-dead")
+    await svc.apply_operation(task.id, "advance")
+    archived = await svc.get_task(task.id)
+
+    # 2119: REQ-011.1.1
+    assert svc.container_status(archived).value == "–"
+    assert [t.id for t in await svc.list_tasks_summary(terminal=True)] == [task.id]
+    assert await svc.reclaim("host-dead") == []
+    assert (await svc.get_task(task.id)).claimed_by == "host-dead"
 
 
 async def test_lifecycle_phase_is_cleared_on_release_and_reclaim(tmp_path: Path) -> None:
@@ -867,7 +907,7 @@ async def test_report_unknown_responsibility_rejected(tmp_path: Path) -> None:
         await svc.resolve_responsibility(task.id, "ghost", status=Status.MET)
 
 
-# -- auto-advance on responsibilities met (REQ-009) ----------------------------------
+# -- auto-advance on responsibilities met (REQ-014) ----------------------------------
 
 
 class _AutoAdvance(Workflow):
@@ -919,9 +959,9 @@ async def test_auto_advance_fires_when_last_responsibility_resolved(tmp_path: Pa
     # committed together) — not the separate resolve-then-reload-then-transition sequence
     # this replaced, which would have bumped the version twice.
     assert svc.tasks_version() == before + 1
-    # 2119: REQ-009.1.1
+    # 2119: REQ-014.1.1
     assert resolved.state == "LANDED"
-    # 2119: REQ-009.2.1
+    # 2119: REQ-014.2.1
     assert wf.on_transition_calls == [("WORKING", "LANDED")]
     assert [h.to_state for h in resolved.history] == ["WORKING", "LANDED"]
     assert resolved.history[-1].from_state == "WORKING"
@@ -930,7 +970,7 @@ async def test_auto_advance_fires_when_last_responsibility_resolved(tmp_path: Pa
     # LANDED's own responsibility is freshly seeded PENDING, exactly as an explicit advance
     # would seed it — not skipped because this transition happened to be auto-fired.
     assert [r.status for r in resolved.history[-1].responsibilities] == [Status.PENDING]
-    # 2119: REQ-009.2.2
+    # 2119: REQ-014.2.2
     assert resolved.history[-1].to_state == "LANDED"
     # The transition is genuinely persisted, not just reflected on the returned in-memory
     # object — reload from the store independently of what resolve_responsibility returned.
@@ -959,7 +999,7 @@ async def test_auto_advance_fires_on_a_failed_with_comment_last_responsibility(
 class _AutoAdvanceExplicitOp(Workflow):
     """Agent-advanced with two forward transitions, but `advance` is explicitly declared
     (disambiguating which of the two is the happy path) — the "available advance operation"
-    clause of REQ-009.1.1 must also cover this declared case, not just the auto-derived
+    clause of REQ-014.1.1 must also cover this declared case, not just the auto-derived
     single-edge shape every other fixture here uses."""
 
     name = "auto-advance-explicit-op"
@@ -993,7 +1033,7 @@ async def test_auto_advance_fires_with_an_explicitly_declared_advance_operation(
     await svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
     task = await svc.create_task("r1", "auto-advance-explicit-op")
     resolved = await svc.resolve_responsibility(task.id, "tests-pass", status=Status.MET)
-    # 2119: REQ-009.1.1
+    # 2119: REQ-014.1.1
     assert resolved.state == "LANDED"
 
 
@@ -1097,7 +1137,7 @@ async def test_auto_advance_does_not_fire_with_responsibilities_still_outstandin
     svc = await make_auto_advance_multi_service(tmp_path)
     task = await svc.create_task("r1", "auto-advance-multi")
     resolved = await svc.resolve_responsibility(task.id, "a", status=Status.MET)
-    # 2119: REQ-009.1.2
+    # 2119: REQ-014.1.2
     assert resolved.state == "WORKING"
 
 
@@ -1117,7 +1157,7 @@ async def test_rejected_resolve_does_not_transition(
     await svc.resolve_responsibility(task.id, "a", status=Status.MET)  # only "b" left outstanding
     with pytest.raises(ValueError):
         await svc.resolve_responsibility(task.id, key, status=status, comment=comment)
-    # 2119: REQ-009.3.3
+    # 2119: REQ-014.3.3
     reloaded = await svc.get_task(task.id)
     assert reloaded.state == "WORKING"
     assert reloaded.outstanding_responsibilities == [
@@ -1129,7 +1169,7 @@ async def test_auto_advance_does_not_fire_for_a_user_advanced_state(tmp_path: Pa
     svc = await make_gated_service(tmp_path)  # _Gated.Working: advanced_by defaults to USER
     task = await svc.create_task("r1", "gated")
     resolved = await svc.resolve_responsibility(task.id, "tests-pass", status=Status.MET)
-    # 2119: REQ-009.1.3
+    # 2119: REQ-014.1.3
     assert resolved.state == "WORKING"
 
 
@@ -1161,9 +1201,9 @@ async def test_auto_advance_does_not_fire_without_a_derivable_advance_operation(
     await svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
     task = await svc.create_task("r1", "ambiguous")
     resolved = await svc.resolve_responsibility(task.id, "tests-pass", status=Status.MET)
-    # 2119: REQ-009.1.4
+    # 2119: REQ-014.1.4
     assert resolved.state == "WORKING"
-    # 2119: REQ-009.1.5
+    # 2119: REQ-014.1.5
     assert resolved.outstanding_responsibilities == []
 
 
@@ -1196,7 +1236,7 @@ async def test_auto_advance_does_not_cascade_through_a_freshly_entered_state(
     await svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
     task = await svc.create_task("r1", "cascade")
     resolved = await svc.resolve_responsibility(task.id, "tests-pass", status=Status.MET)
-    # 2119: REQ-009.3.2
+    # 2119: REQ-014.3.2
     assert resolved.state == "MIDDLE"
 
 
@@ -1212,7 +1252,7 @@ async def test_auto_advance_is_not_evaluated_by_entering_a_qualifying_state_dire
     await svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
     task = await svc.create_task("r1", "cascade")
     moved = await svc.set_state(task.id, "MIDDLE")
-    # 2119: REQ-009.3.1
+    # 2119: REQ-014.3.1
     assert moved.state == "MIDDLE"
 
 
@@ -1223,6 +1263,7 @@ async def test_set_state_is_a_free_move_off_graph_and_ungated(tmp_path: Path) ->
     svc = await make_service(tmp_path)
     task = await svc.create_task("r1", "github-peer-reviewed")  # PLANNING, plan-written unmet
     # Skip straight to MERGING — not a legal transition, and the gate is unmet — yet it succeeds.
+    # 2119: REQ-009.5.4
     moved = await svc.set_state(task.id, "MERGING")
     assert moved.state == "MERGING"
     assert (await svc.get_task(task.id)).history[-1].trigger == "set-state"
@@ -1232,6 +1273,7 @@ async def test_set_state_can_reopen_a_terminal_task(tmp_path: Path) -> None:
     svc = await make_service(tmp_path)
     task = await svc.create_task("r1", "spike")
     await svc.request_transition(task.id, "COMPLETE")  # terminal
+    # 2119: REQ-009.5.5
     await svc.set_state(task.id, "ITERATING")  # the user can move even out of a terminal
     assert (await svc.get_task(task.id)).state == "ITERATING"
 
