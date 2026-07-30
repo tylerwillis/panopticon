@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.3.1--b50add624109",
-  "requirementId": "REQ-017.3.1",
-  "hash": "b50add624109",
-  "verdict": "pass",
-  "summary": "Editor is given a typed value (discard-me) before escape, so cancel-submits-anyway fails both the empty set_slugs assertion and the still-displayed original slug.",
-  "timestamp": "2026-07-30T18:30:50.900Z"
-}

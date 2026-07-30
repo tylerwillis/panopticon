@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.8.1--cd351613b4da",
-  "requirementId": "REQ-001.8.1",
-  "hash": "cd351613b4da",
-  "verdict": "pass",
-  "summary": "Real x-press on a built-in; notify captured (not stubbed logic), cleared post-mount so only the deletion request can emit, list equality pins exactly one notification with the cannot-be-deleted message",
-  "timestamp": "2026-07-30T18:30:38.202Z"
-}

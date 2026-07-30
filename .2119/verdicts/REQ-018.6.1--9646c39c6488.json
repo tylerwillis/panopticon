@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.6.1--9646c39c6488",
-  "requirementId": "REQ-018.6.1",
-  "hash": "9646c39c6488",
-  "verdict": "pass",
-  "summary": "Asserts claude's exact vocab (incl. empty efforts) before and codex's exact vocab after a real harness cycle, so a stale cached vocabulary fails on exact equality",
-  "timestamp": "2026-07-30T18:26:52.017Z"
-}

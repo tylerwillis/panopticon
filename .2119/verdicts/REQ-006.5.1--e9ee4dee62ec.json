@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.5.1--e9ee4dee62ec",
-  "requirementId": "REQ-006.5.1",
-  "hash": "e9ee4dee62ec",
-  "verdict": "pass",
-  "summary": "exact 'no down tasks' asserted for failed-only near-miss, all 11 non-down statuses, empty list, and a stale-vs-latest snapshot swap before Ctrl+R",
-  "timestamp": "2026-07-30T18:31:04.790Z"
-}

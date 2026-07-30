@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.3.1--ebcbb5608ab6",
-  "requirementId": "REQ-001.3.1",
-  "hash": "ebcbb5608ab6",
-  "verdict": "pass",
-  "summary": "Parametrized over both no-click and Escape; asserts dialog dismissed and the real tmp file's content intact on disk",
-  "timestamp": "2026-07-30T18:26:08.299Z"
-}

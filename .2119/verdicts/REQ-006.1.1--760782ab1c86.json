@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.1.1--760782ab1c86",
-  "requirementId": "REQ-006.1.1",
-  "hash": "760782ab1c86",
-  "verdict": "pass",
-  "summary": "ctrl+r pressed through the Textual pilot's real binding dispatch; asserts BulkRespawnScreen opens with the down-task list — a removed or remapped binding fails the isinstance assertion",
-  "timestamp": "2026-07-30T18:30:42.042Z"
-}

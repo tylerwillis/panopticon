@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.3.1--3804f8a6c3a8",
-  "requirementId": "REQ-006.3.1",
-  "hash": "3804f8a6c3a8",
-  "verdict": "pass",
-  "summary": "Real Escape press on the real modal; asserts screen_stack length 1 (dismissal) and released == [] at the sole client seam — both failure directions (escape releasing, escape not dismissing) are rejected.",
-  "timestamp": "2026-07-30T18:27:14.551Z"
-}

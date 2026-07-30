@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.11.1--67c54804579b",
-  "requirementId": "REQ-018.11.1",
-  "hash": "67c54804579b",
-  "verdict": "pass",
-  "summary": "Four tests pin touched free-text and candidate-accepted values surviving an asserted harness change, with mixed touched/untouched cases proving per-field tracking and a non-empty guard preventing tautology",
-  "timestamp": "2026-07-30T18:26:28.546Z"
-}

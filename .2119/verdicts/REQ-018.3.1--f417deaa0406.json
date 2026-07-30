@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.3.1--f417deaa0406",
-  "requirementId": "REQ-018.3.1",
-  "hash": "f417deaa0406",
-  "verdict": "pass",
-  "summary": "Uppercase typed vs lowercase vocab pins case-insensitivity, mid-word 'a'/'h' pins containment over prefix, exact list equality pins all-and-only against the real codex vocabulary for both controls",
-  "timestamp": "2026-07-30T18:26:50.734Z"
-}

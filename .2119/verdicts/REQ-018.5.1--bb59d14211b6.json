@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.5.1--bb59d14211b6",
-  "requirementId": "REQ-018.5.1",
-  "hash": "bb59d14211b6",
-  "verdict": "pass",
-  "summary": "custom/model and maximum are absent from claude's suggestions and the created-task tuple asserts the composed custom/model:maximum end-to-end at the client boundary",
-  "timestamp": "2026-07-30T18:26:51.594Z"
-}

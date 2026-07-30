@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.4.1--71efea375dc6",
-  "requirementId": "REQ-017.4.1",
-  "hash": "71efea375dc6",
-  "verdict": "pass",
-  "summary": "Requirement constrains displayed text; test exact-matches 'e: edit slug' at the trailing position of a real detail-pane render with a task shown, plus its dim styling — not keyword theater.",
-  "timestamp": "2026-07-30T18:30:52.321Z"
-}

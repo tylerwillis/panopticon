@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.5.1--34a440628c63",
-  "requirementId": "REQ-001.5.1",
-  "hash": "34a440628c63",
-  "verdict": "pass",
-  "summary": "Built-in 'x' leaves app on WorkflowsScreen (no dialog screen pushed) with the real file intact; notices.clear() before the press rules out mount-time notification tautology",
-  "timestamp": "2026-07-30T18:26:09.193Z"
-}

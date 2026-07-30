@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.2.1--4d0f1ea69464",
-  "requirementId": "REQ-017.2.1",
-  "hash": "4d0f1ea69464",
-  "verdict": "pass",
-  "summary": "Fake records set_slug verbatim so the asserted trimmed value proves dashboard-side trimming; refresh proven via list_tasks_calls increase plus re-rendered detail/table; sibling task untouched; 400-rejection test keeps old slug displayed and app running.",
-  "timestamp": "2026-07-30T18:30:48.572Z"
-}

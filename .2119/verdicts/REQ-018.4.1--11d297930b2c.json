@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.4.1--11d297930b2c",
-  "requirementId": "REQ-018.4.1",
-  "hash": "11d297930b2c",
-  "verdict": "pass",
-  "summary": "Real up/down keypresses asserted to move highlight 0-1-0-1, and enter yielding luna/xhigh (filtered index 1, not unfiltered index 1 terra/medium) proves navigation is through the filtered list",
-  "timestamp": "2026-07-30T18:26:51.171Z"
-}

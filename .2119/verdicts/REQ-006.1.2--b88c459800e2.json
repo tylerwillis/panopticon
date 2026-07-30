@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.1.2--b88c459800e2",
-  "requirementId": "REQ-006.1.2",
-  "hash": "b88c459800e2",
-  "verdict": "pass",
-  "summary": "Asserts the rendered help-screen lines containing Ctrl+R are exactly ['Ctrl+R Respawn all down tasks'] — omission, rewording, or duplicate entries all fail; checks the rendered surface, not an internal keymap",
-  "timestamp": "2026-07-30T18:30:45.566Z"
-}

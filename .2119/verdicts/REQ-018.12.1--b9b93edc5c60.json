@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.12.1--b9b93edc5c60",
-  "requirementId": "REQ-018.12.1",
-  "hash": "b9b93edc5c60",
-  "verdict": "pass",
-  "summary": "Exact-render asserts cover 'this task' after all three override kinds plus winning workflow/repo/app default sources, including workflow beating a repo that also declares defaults",
-  "timestamp": "2026-07-30T18:26:32.642Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.1.1--f90ad24a8ac9",
-  "requirementId": "REQ-018.1.1",
-  "hash": "f90ad24a8ac9",
-  "verdict": "pass",
-  "summary": "With focus asserted still on the memo editor (pre-tab), test checks exact label set, nontrivial current values (codex/terra/high from repo default), and nonzero rendered regions — reveal-on-focus or blank-until-focus implementations fail.",
-  "timestamp": "2026-07-30T18:30:54.122Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-007.1.1--b3ea3074b8c7",
-  "requirementId": "REQ-007.1.1",
-  "hash": "b3ea3074b8c7",
-  "verdict": "pass",
-  "summary": "Three behavioral tests: both leaf paths (Textual OSC-52 copy_to_clipboard + subprocess _clipboard_copy) asserted with exact render_detail text, highlighted-task selection via cursor move, and host path still attempted when the terminal path raises — terminal-only, host-only, wrong-text, wrong-task, and abort-on-failure impls all fail.",
-  "timestamp": "2026-07-30T18:28:07.118Z"
-}

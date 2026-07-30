@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.1.1--0b826d89397f",
-  "requirementId": "REQ-017.1.1",
-  "hash": "0b826d89397f",
-  "verdict": "pass",
-  "summary": "Both conjuncts pinned: e with pane closed asserts no SlugScreen/no set_slug/slug unchanged; with pane open on a moved highlight the editor seeds from that task's service-current slug (divergent-client test rejects stale-snapshot seeding).",
-  "timestamp": "2026-07-30T18:30:43.469Z"
-}

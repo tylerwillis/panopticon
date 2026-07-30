@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.20.1--655050c10660",
-  "requirementId": "REQ-018.20.1",
-  "hash": "655050c10660",
-  "verdict": "pass",
-  "summary": "option_count==0 plus region.width>0 after a non-matching string on both controls rejects both hide-on-empty and show-all-on-empty",
-  "timestamp": "2026-07-30T18:26:52.505Z"
-}

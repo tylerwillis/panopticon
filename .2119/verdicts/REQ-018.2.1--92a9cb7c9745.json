@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.2.1--92a9cb7c9745",
-  "requirementId": "REQ-018.2.1",
-  "hash": "92a9cb7c9745",
-  "verdict": "pass",
-  "summary": "Real key presses assert the actual focused widget after each tab (memo→harness→model→effort); any reorder fails an isinstance/identity assert, only the REST client is faked",
-  "timestamp": "2026-07-30T18:30:58.787Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-007.3.1--1310a26fc9d0",
-  "requirementId": "REQ-007.3.1",
-  "hash": "1310a26fc9d0",
-  "verdict": "pass",
-  "summary": "Asserts the hint is absent from render_detail(_TASK) both as substring and as an exact line (splitlines), with a task whose fields lack the hint — a render_detail that appended the hint line fails; the substring check is stronger than the requirement demands.",
-  "timestamp": "2026-07-30T18:28:15.229Z"
-}

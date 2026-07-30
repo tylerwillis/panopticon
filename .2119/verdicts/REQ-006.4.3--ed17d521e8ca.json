@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.4.3--ed17d521e8ca",
-  "requirementId": "REQ-006.4.3",
-  "hash": "ed17d521e8ca",
-  "verdict": "pass",
-  "summary": "respawned N verified at N=0/1/2 with N counting real releases not candidates, exact single-notification equality, plus an unmocked app._notifications check",
-  "timestamp": "2026-07-30T18:31:03.576Z"
-}
