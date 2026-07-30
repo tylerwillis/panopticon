@@ -1289,7 +1289,7 @@ async def test_pressing_y_with_no_slug_warns(monkeypatch: Any) -> None:
         assert app.is_running
 
 
-# 2119: REQ-009.1.1
+# 2119: REQ-013.1.1
 async def test_pressing_e_edits_slug_only_while_detail_is_open() -> None:
     fake = _FakeClient([_TASK.copy()])
     app = Dashboard(fake)  # type: ignore[arg-type]
@@ -1308,7 +1308,7 @@ async def test_pressing_e_edits_slug_only_while_detail_is_open() -> None:
         assert app.screen.query_one(Input).value == "fix-widget"
 
 
-# 2119: REQ-009.1.1
+# 2119: REQ-013.1.1
 async def test_slug_editor_uses_current_service_value_over_stale_list_snapshot() -> None:
     class DivergentClient(_FakeClient):
         def get_task(self, task_id: str) -> dict[str, Any]:
@@ -1324,7 +1324,7 @@ async def test_slug_editor_uses_current_service_value_over_stale_list_snapshot()
         assert app.screen.query_one(Input).value == "service-current"
 
 
-# 2119: REQ-009.2.1
+# 2119: REQ-013.2.1
 async def test_submitting_slug_editor_renames_highlighted_task_and_refreshes() -> None:
     fake = _FakeClient([_TASK.copy()])
     app = Dashboard(fake)  # type: ignore[arg-type]
@@ -1345,7 +1345,7 @@ async def test_submitting_slug_editor_renames_highlighted_task_and_refreshes() -
         assert "better-widget-name" in str(app.query_one("#tasks", DataTable).get_row_at(0))
 
 
-# 2119: REQ-009.2.1
+# 2119: REQ-013.2.1
 async def test_rejected_slug_keeps_dashboard_running_and_existing_slug_visible() -> None:
     class RejectingClient(_FakeClient):
         def set_slug(self, task_id: str, slug: str) -> dict[str, Any]:
@@ -1369,7 +1369,7 @@ async def test_rejected_slug_keeps_dashboard_running_and_existing_slug_visible()
         assert "fix-widget" in str(app.query_one("#detail", Static).render())
 
 
-# 2119: REQ-009.3.1
+# 2119: REQ-013.3.1
 async def test_cancelling_slug_editor_does_not_rename_task() -> None:
     fake = _FakeClient([_TASK.copy()])
     app = Dashboard(fake)  # type: ignore[arg-type]
@@ -1386,7 +1386,7 @@ async def test_cancelling_slug_editor_does_not_rename_task() -> None:
         assert "fix-widget" in str(app.query_one("#detail", Static).render())
 
 
-# 2119: REQ-009.4.1
+# 2119: REQ-013.4.1
 async def test_detail_pane_shows_edit_slug_key_hint() -> None:
     app = Dashboard(_FakeClient([_TASK.copy()]))  # type: ignore[arg-type]
     async with app.run_test() as pilot:
