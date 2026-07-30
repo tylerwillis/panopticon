@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.12.1--ba33cb4ca9c9",
+  "requirementId": "REQ-018.12.1",
+  "hash": "ba33cb4ca9c9",
+  "verdict": "pass",
+  "summary": "Exact rendered-summary assertions reject extra source labels, cover harness/model/effort overrides as this task, and cover winning app, repo, and workflow defaults.",
+  "timestamp": "2026-07-30T16:53:46.981Z"
+}

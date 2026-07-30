@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.3.1--15542298b36f",
+  "requirementId": "REQ-018.3.1",
+  "hash": "15542298b36f",
+  "verdict": "pass",
+  "summary": "Both fields are tested with uppercase containment filters and exact candidate sets, rejecting case-sensitive, missing, or extra results.",
+  "timestamp": "2026-07-30T16:50:18.765Z"
+}

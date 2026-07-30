@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.11.1--28ad73a7692f",
+  "requirementId": "REQ-018.11.1",
+  "hash": "28ad73a7692f",
+  "verdict": "pass",
+  "summary": "Tests change harnesses and require exact preservation of typed and candidate-accepted model/effort values, including independently touched model-only and effort-only cases.",
+  "timestamp": "2026-07-30T17:03:14.788Z"
+}
