@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-013.11.1--e5ec0e4a2635",
+  "requirementId": "REQ-013.11.1",
+  "hash": "e5ec0e4a2635",
+  "verdict": "pass",
+  "summary": "Every non-REVIEW state in the paired test workflow is exercised and each transition is asserted to leave the task list without a review worker.",
+  "timestamp": "2026-07-30T17:03:10.625Z"
+}

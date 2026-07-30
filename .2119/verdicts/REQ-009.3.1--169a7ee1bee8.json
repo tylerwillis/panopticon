@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.3.1--169a7ee1bee8",
-  "requirementId": "REQ-009.3.1",
-  "hash": "169a7ee1bee8",
-  "verdict": "pass",
-  "summary": "Entry tests create exactly one fresh review task and verify both declared launch-pair fields; a distinct alternate pair rejects inheritance and hard-coding.",
-  "timestamp": "2026-07-22T15:09:08.342Z"
-}

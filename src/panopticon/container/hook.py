@@ -111,9 +111,11 @@ def _has_live_background_task(payload: dict[str, Any]) -> bool:
     and background **agents** (``subagent``/``workflow``/``teammate``/``cloud_session``/``mcp_task``)
     alike. They all re-invoke the agent on completion without a UserPromptSubmit, so the turn must
     stay on the agent for all of them."""
-    tasks = payload.get("background_tasks")
-    if not isinstance(tasks, list):
+    if "background_tasks" not in payload:
         return False
+    tasks = payload["background_tasks"]
+    if not isinstance(tasks, list):
+        return True
     for task in tasks:
         if not isinstance(task, dict):
             return True  # unrecognised shape → assume live (don't hand the turn back prematurely)

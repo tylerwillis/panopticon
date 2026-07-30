@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-013.6.1--a6456209efdb",
+  "requirementId": "REQ-013.6.1",
+  "hash": "a6456209efdb",
+  "verdict": "pass",
+  "summary": "Both declared transition and free move into REVIEW for an unpaired workflow assert that the author remains the only task, rejecting any review-task creation.",
+  "timestamp": "2026-07-30T17:02:56.035Z"
+}

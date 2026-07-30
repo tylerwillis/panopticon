@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.4.2--f296c0ac91e3",
+  "requirementId": "REQ-009.4.2",
+  "hash": "f296c0ac91e3",
+  "verdict": "pass",
+  "summary": "test_leaving_gated_state_requires_all_resolved rejects departure via real ResponsibilitiesNotMet both with zero resolved and with one-of-two resolved, covering the 'any pending' boundary; no mocks",
+  "timestamp": "2026-07-23T17:39:08.190Z"
+}

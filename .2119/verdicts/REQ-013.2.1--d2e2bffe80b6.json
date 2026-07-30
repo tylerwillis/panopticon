@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-013.2.1--d2e2bffe80b6",
+  "requirementId": "REQ-013.2.1",
+  "hash": "d2e2bffe80b6",
+  "verdict": "pass",
+  "summary": "Real task-service transition verifies the sole newly created review task records the author task id as governor_task_id.",
+  "timestamp": "2026-07-30T17:02:56.040Z"
+}

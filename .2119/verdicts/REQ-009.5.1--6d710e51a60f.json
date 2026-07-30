@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.5.1--6d710e51a60f",
+  "requirementId": "REQ-009.5.1",
+  "hash": "6d710e51a60f",
+  "verdict": "pass",
+  "summary": "force_transition WORKING->PLAN is backward and outside WORKING's declared edges (only COMPLETE/DROPPED); graph enforcement would raise IllegalTransition and fail the test",
+  "timestamp": "2026-07-23T17:39:18.895Z"
+}

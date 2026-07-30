@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-013.4.1--16e7c1b1fd54",
+  "requirementId": "REQ-013.4.1",
+  "hash": "16e7c1b1fd54",
+  "verdict": "pass",
+  "summary": "Success, free-move entry, validation failure, disabled workflow, and persistence failure cases all require exactly one pending review-addressed responsibility on the current REVIEW entry.",
+  "timestamp": "2026-07-30T17:02:56.035Z"
+}

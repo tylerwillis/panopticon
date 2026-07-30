@@ -29,7 +29,7 @@ class _AlternatePairedAuthoring(Workflow):
     initial = Draft
 
 
-# 2119: REQ-009.3.1
+# 2119: REQ-013.3.1
 async def test_review_worker_uses_an_alternate_declared_launch_pair(tmp_path: Path) -> None:
     ids: Iterator[str] = iter(("author", "reviewer"))
     times: Iterator[str] = iter(f"t{i}" for i in range(1, 10))

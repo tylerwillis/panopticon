@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.12.1--773cbf268526",
+  "requirementId": "REQ-002.12.1",
+  "hash": "773cbf268526",
+  "verdict": "pass",
+  "summary": "The registered and directly creatable review workflow is explicitly absent from both operator-facing workflow menu APIs, while visible workflows remain present.",
+  "timestamp": "2026-07-30T17:04:55.840Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-015.1.1--642a00fb98a9",
+  "requirementId": "REQ-015.1.1",
+  "hash": "642a00fb98a9",
+  "verdict": "pass",
+  "summary": "Asserts --no-alt-screen in argv on both the first-run and resume paths (the two session shapes), and the exact-argv tests pin it via _SESSION_FLAGS in every launch variant; the argv seam is this repo's observable for harness behavior (no real CLIs in tests), so dropping the flag on either path fails.",
+  "timestamp": "2026-07-23T18:26:00.782Z"
+}

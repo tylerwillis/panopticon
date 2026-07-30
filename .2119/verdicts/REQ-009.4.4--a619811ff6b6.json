@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.4.4--a619811ff6b6",
+  "requirementId": "REQ-009.4.4",
+  "hash": "a619811ff6b6",
+  "verdict": "pass",
+  "summary": "test_failed_with_comment_allows_transition resolves one responsibility MET and one FAILED-with-comment then asserts the real transition succeeds; the not-all-resolved rejection is pinned by the REQ-009.4.2 test",
+  "timestamp": "2026-07-23T17:39:11.981Z"
+}
