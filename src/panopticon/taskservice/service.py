@@ -20,6 +20,7 @@ from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from typing import Any
 
+from panopticon.core.artifact_skills import ARTIFACT_SKILL
 from panopticon.core.artifacts import ArtifactStore
 from panopticon.core.dirs import secrets_file_path
 from panopticon.core.layers import LayerStore
@@ -541,10 +542,9 @@ class TaskService:
         return self._workflow(task.workflow).operations(task.state)
 
     async def skills(self, task_id: str) -> list[Skill]:
-        """The in-container skills for a task: the agnostic `provision` skill (every task names
-        itself to get a branch, ADR 0011) followed by the active workflow's own skills."""
+        """The universal core skills followed by the active workflow's own skills."""
         task = await self.get_task(task_id)
-        return [PROVISION_SKILL, *self._workflow(task.workflow).skills()]
+        return [PROVISION_SKILL, ARTIFACT_SKILL, *self._workflow(task.workflow).skills()]
 
     async def briefing(self, task_id: str) -> str:
         """A short briefing on the task's current phase (state + responsibilities + how it advances),
