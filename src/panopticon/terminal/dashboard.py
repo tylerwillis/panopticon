@@ -37,9 +37,10 @@ keys return while the filter stays applied; `Esc` **clears** it (from typing or 
 filter is applied in ``action_refresh``, so a change-feed refresh preserves it across rebuilds.
 
 `Enter` on a **governing task** (one with governed children) **collapses** its sub-tasks into a
-single dim placeholder row (its slug cell renders ``...``); pressing `Enter` again **expands** them.
-Arrow keys skip the ensemble row (it is not a real task). Expanding or collapsing does not affect the task service — it is pure
-display state local to the dashboard.
+single dim summary row (``▸ N child tasks — enter to expand``); pressing `Enter` again
+**expands** them. Governor slugs carry a matching ``▸``/``▾`` disclosure marker. Arrow keys skip
+the ensemble row (it is not a real task). Expanding or collapsing does not affect the task service
+— it is pure display state local to the dashboard.
 
 The `container` column shows each task's container status: `live` (an active registration), `down`
 (was up, container gone — respawn with `R`), `starting` (claimed, no registration yet — its
@@ -168,9 +169,11 @@ def _short_tokens(n: int | None) -> str:
 
 
 # Row-key prefix for ensemble placeholder rows. When the operator collapses a governing task
-# (Enter on a governor), its governed children are replaced by one dim placeholder row (its slug
-# cell renders ``...``) whose key is ``f"{_ENSEMBLE_KEY_PREFIX}{governor_id}"``. Keyboard navigation skips these rows
-# (_VimDataTable steps the cursor straight past them) and ``on_data_table_row_selected`` ignores them.
+# (Enter on a governor), its governed children are replaced by one dim summary row whose slug cell
+# reports the direct-child count and Enter affordance. Its key is
+# ``f"{_ENSEMBLE_KEY_PREFIX}{governor_id}"``. Keyboard navigation skips these rows
+# (_VimDataTable steps the cursor straight past them) and ``on_data_table_row_selected`` ignores
+# them.
 _ENSEMBLE_KEY_PREFIX = "__ensemble__"
 
 
@@ -2445,7 +2448,7 @@ class Dashboard(App[None]):
         # boundary — not based on individual task state (a terminal governed task can live
         # in the active section when its governor is still active).
         # While a search is active, expand every ensemble so collapsed children are
-        # searchable — otherwise a `└─ ...` placeholder hides them from the filter. We
+        # searchable — otherwise the summary row hides them from the filter. We
         # pass an empty collapsed set (not mutating self._collapsed), so the operator's
         # collapse state is restored as soon as the query is cleared.
         collapsed_for_display = set() if self._query else self._collapsed
@@ -2476,7 +2479,9 @@ class Dashboard(App[None]):
         def _add_row(task: JsonObj, prefix: str) -> None:
             if task.get("_ensemble"):
                 gov_id = task["_governor_id"]
-                slug_cell = Text(f"{prefix}...", style="dim")
+                count = task["_count"]
+                noun = "child task" if count == 1 else "child tasks"
+                slug_cell = _dim(f"{prefix}▸ {count} {noun} — enter to expand")
                 runner_blank = (Text(""),) if self._multi_runner else ()
                 table.add_row(
                     Text(""),
@@ -2495,7 +2500,10 @@ class Dashboard(App[None]):
                     Text(task.get("runner_host") or "") if self._multi_runner else None
                 )
                 repo_cell: Text | str = _repo_cell(task, self._repo_names)
-                slug_cell_real = _slug_cell(task, prefix)
+                disclosure = ""
+                if task["id"] in self._governors:
+                    disclosure = "▸ " if task["id"] in collapsed_for_display else "▾ "
+                slug_cell_real = _slug_cell(task, prefix + disclosure)
                 if task["state"] in TERMINAL_LABELS:
                     state_cell = _dim(state_cell)
                     turn_cell = _dim(turn_cell)
@@ -2537,9 +2545,9 @@ class Dashboard(App[None]):
         """`Enter` on a governing task collapses or expands its **ensemble** of governed children.
 
         Pressing Enter on a task that has governed children toggles its collapsed state: a
-        collapsed governor's sub-tasks are replaced by a single dim ensemble placeholder row (its
-        slug cell renders ``...``); pressing Enter again restores the full tree.  Enter on a
-        non-governor (or on a sentinel row) is a no-op."""
+        collapsed governor's sub-tasks are replaced by a single dim ensemble summary row; pressing
+        Enter again restores the full tree. Enter on a non-governor (or on a sentinel row) is a
+        no-op."""
         key = event.row_key.value
         if not isinstance(key, str):
             return
