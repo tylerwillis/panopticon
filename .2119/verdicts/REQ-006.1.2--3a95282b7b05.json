@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.1.2--3a95282b7b05",
+  "requirementId": "REQ-006.1.2",
+  "hash": "3a95282b7b05",
+  "verdict": "pass",
+  "summary": "Help screen rendered via real keypress; Ctrl+R lines must equal exactly ['Ctrl+R Respawn all down tasks'] — omission, wrong wording, or duplicates all fail",
+  "timestamp": "2026-07-30T18:40:10.692Z"
+}

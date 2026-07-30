@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.2.1--98ebc0049e7d",
+  "requirementId": "REQ-007.2.1",
+  "hash": "98ebc0049e7d",
+  "verdict": "pass",
+  "summary": "test_detail_pane_shows_copy_key_hint_without_changing_copyable_detail asserts the real Textual-rendered Rich Text ends with exactly '\\nc: copy details  y: copy slug  Y: copy id' and that this exact span is fully dim (start==hint_start, end==len(plain), style.dim); mutation-tested by temporarily changing style to bold, altering spacing, and appending trailing content after the hint — all three were correctly rejected by the test, then reverted with no residual diff.",
+  "timestamp": "2026-07-30T18:19:01.904Z"
+}

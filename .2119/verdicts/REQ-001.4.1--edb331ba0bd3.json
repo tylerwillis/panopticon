@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.4.1--edb331ba0bd3",
+  "requirementId": "REQ-001.4.1",
+  "hash": "edb331ba0bd3",
+  "verdict": "pass",
+  "summary": "test_workflow_delete_confirmation_yes_removes_file_and_refreshes_loaded_registry uses a real tmp-dir file (unlink verified via path.exists()) and a monkeypatched list_workflow_files returning different content per call, then asserts the table shows the second call's data and list_calls==2 — both conjuncts fail-checked by mutation (skip unlink; skip re-query/local row removal).",
+  "timestamp": "2026-07-30T18:19:36.692Z"
+}

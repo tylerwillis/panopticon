@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.5.1--bb59d14211b6",
+  "requirementId": "REQ-018.5.1",
+  "hash": "bb59d14211b6",
+  "verdict": "pass",
+  "summary": "test_free_text_model_and_effort_are_composed_for_create drives real keystrokes (custom/model, maximum - absent from claude's suggestion sets) into the actual model/effort Input widgets and asserts the exact composed starting_model reaches create_task; on_input_changed/launch_field_changed apply no suggestion-membership check, so this is genuine behavioral coverage, not tautology or keyword theater.",
+  "timestamp": "2026-07-30T18:28:03.216Z"
+}

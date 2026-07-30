@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.3.1--ad174917b219",
+  "requirementId": "REQ-019.3.1",
+  "hash": "ad174917b219",
+  "verdict": "pass",
+  "summary": "Real Enter keypresses drive a three-press expand/collapse/expand cycle on rendered table rows; a second dashboard over the same fake client proves expansion doesn't leak; empty applied/released/set_slugs records (plain fake, no Mock) prove no task-service writes.",
+  "timestamp": "2026-07-30T18:42:51.083Z"
+}

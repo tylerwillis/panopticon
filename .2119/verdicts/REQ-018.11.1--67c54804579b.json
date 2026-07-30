@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.11.1--67c54804579b",
+  "requirementId": "REQ-018.11.1",
+  "hash": "67c54804579b",
+  "verdict": "pass",
+  "summary": "Genuine: real Textual app+pilot tests cycle the harness selector after typing/accepting model+effort, confirming touched values (and only touched ones) survive; violation-injection confirms all 4 tests reject an unconditional-clear regression. Note: 2 of the 4 tests showed intermittent timing flakiness under CPU load (~30-40%), traced to pilot key-press draining rather than the production logic.",
+  "timestamp": "2026-07-30T18:32:18.055Z"
+}

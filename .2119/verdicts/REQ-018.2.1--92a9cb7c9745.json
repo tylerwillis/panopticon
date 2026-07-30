@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.2.1--92a9cb7c9745",
+  "requirementId": "REQ-018.2.1",
+  "hash": "92a9cb7c9745",
+  "verdict": "pass",
+  "summary": "test_memo_launch_controls_follow_the_documented_tab_order drives the real Textual pilot through three tab presses and asserts widget identity at each stop (memo -> HarnessSelector -> #launch-model -> #launch-effort); mutation-tested by swapping harness/model compose order, which correctly fails the test.",
+  "timestamp": "2026-07-30T18:22:43.239Z"
+}

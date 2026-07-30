@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.5.1--1a44e5faf3e3",
+  "requirementId": "REQ-019.5.1",
+  "hash": "1a44e5faf3e3",
+  "verdict": "pass",
+  "summary": "Ensemble-containing help lines must equal exactly ['Enter Collapse/expand the ensemble of governed tasks under the cursor'] — omission or attributing the toggle to another key fails",
+  "timestamp": "2026-07-30T18:40:27.023Z"
+}

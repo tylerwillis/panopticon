@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.1--7fbb32957289",
+  "requirementId": "REQ-006.4.1",
+  "hash": "7fbb32957289",
+  "verdict": "pass",
+  "summary": "Ordered events-list equality pins one check plus exactly one release per down task (a duplicate or missing release breaks the equality), matching the release() observable the single-task R test pins.",
+  "timestamp": "2026-07-30T18:19:24.819Z"
+}

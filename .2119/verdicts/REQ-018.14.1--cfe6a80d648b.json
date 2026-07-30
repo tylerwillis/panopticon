@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.14.1--cfe6a80d648b",
+  "requirementId": "REQ-018.14.1",
+  "hash": "cfe6a80d648b",
+  "verdict": "pass",
+  "summary": "test_memo_ctrl_s_sets_the_memo_without_submitting drives the real MemoTextArea/MemoScreen ctrl+s path (only the REST client is faked) and asserts create_task's memo='fix'/initial_prompt=None; production code only passes initial_prompt when submit=True (Enter), and the real client only puts initial_prompt in the POST body when non-None, so a violation delivering the memo as initial_prompt would flip index 3 from None to 'fix' and fail the test.",
+  "timestamp": "2026-07-30T18:24:21.295Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.2.1--4d0f1ea69464",
+  "requirementId": "REQ-017.2.1",
+  "hash": "4d0f1ea69464",
+  "verdict": "pass",
+  "summary": "Two tests directly verify both conjuncts: accept-path pins exact trimmed value sent to the service, refresh-call count, and that only the highlighted task's displayed slug changes; reject-path (real httpx.HTTPStatusError, matching the real client's raise_for_status contract) confirms the original slug stays displayed and the app keeps running; no tautology or over-mocking found.",
+  "timestamp": "2026-07-30T18:23:54.510Z"
+}

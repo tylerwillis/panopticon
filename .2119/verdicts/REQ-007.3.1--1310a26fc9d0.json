@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.3.1--1310a26fc9d0",
+  "requirementId": "REQ-007.3.1",
+  "hash": "1310a26fc9d0",
+  "verdict": "pass",
+  "summary": "render_detail() never emits the copy-key hint line itself (it's appended separately by _update_detail at dashboard.py:2574); test_dashboard.py's REQ-007.3.1 assertions call the real render_detail(_TASK) and reject the hint both as substring and as an exact splitlines() entry, correctly catching a regression that inlines the hint into the pure renderer.",
+  "timestamp": "2026-07-30T18:19:00.489Z"
+}

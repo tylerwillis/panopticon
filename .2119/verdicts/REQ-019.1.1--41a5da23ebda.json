@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.1.1--41a5da23ebda",
+  "requirementId": "REQ-019.1.1",
+  "hash": "41a5da23ebda",
+  "verdict": "pass",
+  "summary": "Pinned summary text '└─ ▸ 2 child tasks — enter to expand' with a grandchild fixture rejects descendant-count (3 vs 2); children asserted hidden, single sentinel row present, all spans dim",
+  "timestamp": "2026-07-30T18:40:20.836Z"
+}

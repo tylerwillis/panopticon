@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.10.1--5b9f3bff07c9",
+  "requirementId": "REQ-018.10.1",
+  "hash": "5b9f3bff07c9",
+  "verdict": "pass",
+  "summary": "test_arrow_then_enter_selects_a_filtered_candidate_without_submitting exercises real Input/OptionList key routing (arrow-driven highlight, Enter via _LaunchInput.on_key -> accept_launch_candidate) and asserts both the field takes the highlighted candidate's value and the memo is not submitted (screen stays MemoScreen, fake.created empty); covers both model and effort fields, correctly excludes the no-highlight case (REQ-018.17).",
+  "timestamp": "2026-07-30T18:23:46.197Z"
+}

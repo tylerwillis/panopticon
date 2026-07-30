@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.5--8f73eaf59776",
+  "requirementId": "REQ-006.4.5",
+  "hash": "8f73eaf59776",
+  "verdict": "pass",
+  "summary": "Exact notices == ['respawned 1'] equality on the captured notify surface means any task-specific skip notification would break the assertion.",
+  "timestamp": "2026-07-30T18:19:35.292Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.18.1--b5c6f43eaa00",
+  "requirementId": "REQ-018.18.1",
+  "hash": "b5c6f43eaa00",
+  "verdict": "pass",
+  "summary": "Two dashboard tests genuinely verify the clear-on-harness-change contract via real Textual key-press flows: mutation-testing confirmed a failure to clear untouched model/effort is caught, and over-clearing a touched model/effort (into REQ-018.11 territory) is also caught, including that the created-task payload omits the stale override so the new harness's own default governs.",
+  "timestamp": "2026-07-30T18:24:36.638Z"
+}

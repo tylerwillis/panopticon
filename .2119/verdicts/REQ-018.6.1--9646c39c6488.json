@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.6.1--9646c39c6488",
+  "requirementId": "REQ-018.6.1",
+  "hash": "9646c39c6488",
+  "verdict": "pass",
+  "summary": "test_harness_cycle_refreshes_dependent_candidate_vocabularies drives real UI (tab to harness, Enter to cycle claude->codex, tab into model/effort) and asserts the OptionList prompts against the production ClaudeHarness/CodexHarness suggested_models/suggested_efforts values, rejecting stale-model, stale-effort, and wrong-harness-vocabulary counterexamples; no mocking of the harness registry.",
+  "timestamp": "2026-07-30T18:23:59.566Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.9.1--f3be144bd9d5",
+  "requirementId": "REQ-018.9.1",
+  "hash": "f3be144bd9d5",
+  "verdict": "pass",
+  "summary": "Mutating #memo-box's CSS width (64→70) fails all three width assertions—baseline and both open candidate-list states—via real Textual layout (Region), confirming genuine, non-mocked verification.",
+  "timestamp": "2026-07-30T18:24:46.183Z"
+}

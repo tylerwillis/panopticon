@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.3.1--3804f8a6c3a8",
+  "requirementId": "REQ-006.3.1",
+  "hash": "3804f8a6c3a8",
+  "verdict": "pass",
+  "summary": "Escape test asserts screen_stack collapses to 1 (dismissed) and fake.released stays empty, so a release-on-cancel or stuck modal both fail.",
+  "timestamp": "2026-07-30T18:19:24.400Z"
+}

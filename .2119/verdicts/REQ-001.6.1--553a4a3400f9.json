@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.6.1--553a4a3400f9",
+  "requirementId": "REQ-001.6.1",
+  "hash": "553a4a3400f9",
+  "verdict": "pass",
+  "summary": "test_workflows_screen_x_opens_honest_confirmation_for_highlighted_operator_file drives the real DeleteWorkflowScreen via app.run_test()/pilot.press and asserts exact equality of the rendered Label text against both required facts (file removal + workflow stays loaded until restart); a dialog omitting either fact would fail the equality check, and no mock bypasses the dialog's compose().",
+  "timestamp": "2026-07-30T18:19:15.949Z"
+}

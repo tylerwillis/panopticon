@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.7.1--1f3ee0b79de0",
+  "requirementId": "REQ-018.7.1",
+  "hash": "1f3ee0b79de0",
+  "verdict": "pass",
+  "summary": "Focus-only vs. touched is correctly distinguished, and repo/workflow/app-default changes are picked up fresh on modal reopen via real resolve_launch_selection/get_repo calls (client faked, logic real); all three default sources and the touch/focus boundary are genuinely exercised.",
+  "timestamp": "2026-07-30T18:28:34.294Z"
+}

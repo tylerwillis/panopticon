@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.8.1--cd351613b4da",
+  "requirementId": "REQ-001.8.1",
+  "hash": "cd351613b4da",
+  "verdict": "pass",
+  "summary": "test_workflows_screen_refuses_builtin_deletion_with_notification drives the real x-key deletion path on a built_in workflow and asserts app.notify was called with the exact 'Built-in workflows cannot be deleted.' message, plus that the file and screen are untouched — a silent-ignore or unnotified rejection would fail the notices assertion.",
+  "timestamp": "2026-07-30T18:19:18.811Z"
+}

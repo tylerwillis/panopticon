@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.3--ed17d521e8ca",
+  "requirementId": "REQ-006.4.3",
+  "hash": "ed17d521e8ca",
+  "verdict": "pass",
+  "summary": "notices equality pins the single-line 'respawned N'; the all-recovered case yields 'respawned 0' proving N counts releases not candidates, and a second test verifies the real app._notifications surface unmocked.",
+  "timestamp": "2026-07-30T18:19:30.465Z"
+}
