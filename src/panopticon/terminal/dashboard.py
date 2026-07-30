@@ -184,15 +184,16 @@ def _dim(cell: Text | str) -> Text:
     return t
 
 
-def _slug_cell(task: JsonObj, prefix: str = "") -> Text:
+def _slug_cell(task: JsonObj, prefix: str = "", disclosure: str = "") -> Text:
     """The ``slug[memo]`` column: the slug followed by the task's memo in brackets.
 
     Bare slug when there's no memo; bare ``[memo]`` (no leading dash) when there's a
     memo but no slug; ``-`` only when neither is set.
 
     ``prefix`` is a tree-connector string (e.g. ``"├─ "``, ``"│  └─ "``) prepended
-    for governed tasks to show their relationship to the governor visually.  It is
-    rendered dim so it doesn't compete with the task name.
+    for governed tasks to show their relationship to the governor visually. It is rendered dim so
+    it doesn't compete with the task name. ``disclosure`` is the active-weight collapse marker
+    (``"▸ "`` or ``"▾ "``) shown immediately before a governor's slug.
 
     Returned as a Rich ``Text`` (like :func:`_turn_cell`), **not** a markup string: Textual renders
     bare ``str`` cells through console markup, which swallows the ``[…]`` — so a plain string would
@@ -202,6 +203,8 @@ def _slug_cell(task: JsonObj, prefix: str = "") -> Text:
     text = Text()
     if prefix:
         text.append(prefix, style="dim")
+    if disclosure:
+        text.append(disclosure)
     if memo:
         first_line = memo.splitlines()[0] if memo else memo
         text.append(f"{slug}[{first_line}]")
@@ -2503,7 +2506,7 @@ class Dashboard(App[None]):
                 disclosure = ""
                 if task["id"] in self._governors:
                     disclosure = "▸ " if task["id"] in collapsed_for_display else "▾ "
-                slug_cell_real = _slug_cell(task, prefix + disclosure)
+                slug_cell_real = _slug_cell(task, prefix, disclosure)
                 if task["state"] in TERMINAL_LABELS:
                     state_cell = _dim(state_cell)
                     turn_cell = _dim(turn_cell)
