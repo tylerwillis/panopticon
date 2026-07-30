@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.9.1--569d838b4dce",
+  "requirementId": "REQ-009.9.1",
+  "hash": "569d838b4dce",
+  "verdict": "pass",
+  "summary": "For every built-in name, real discovery must fail and exactly identify the external file plus removal remediation.",
+  "timestamp": "2026-07-30T18:27:07.722Z"
+}

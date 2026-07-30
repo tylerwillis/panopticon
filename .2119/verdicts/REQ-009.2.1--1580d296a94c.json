@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.2.1--1580d296a94c",
+  "requirementId": "REQ-009.2.1",
+  "hash": "1580d296a94c",
+  "verdict": "pass",
+  "summary": "Exact rendered instructions require both put_artifact MCP and REST PUT mechanisms, so omission or substitution fails.",
+  "timestamp": "2026-07-23T18:18:19.552Z"
+}

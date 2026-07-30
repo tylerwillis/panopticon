@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.10.1--c051f2314663",
+  "requirementId": "REQ-009.10.1",
+  "hash": "c051f2314663",
+  "verdict": "pass",
+  "summary": "Exact rendered guidance rejects treating artifacts as replacements for either the pull request or dedicated external task URL.",
+  "timestamp": "2026-07-23T18:18:19.552Z"
+}
