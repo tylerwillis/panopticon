@@ -188,6 +188,13 @@ class TaskServiceClient:
     def set_url(self, task_id: str, url: str) -> JsonObj:
         return cast(JsonObj, self._json(self._http.put(f"/tasks/{task_id}/url", json={"url": url})))
 
+    def set_snooze(self, task_id: str, until: str | None) -> JsonObj:
+        """Record or clear the operator-owned dashboard snooze deadline."""
+        return cast(
+            JsonObj,
+            self._json(self._http.put(f"/tasks/{task_id}/snooze", json={"until": until})),
+        )
+
     def set_tokens_used(self, task_id: str, tokens_used: int) -> JsonObj:
         """Record cumulative tokens used by claude in this container (the Stop hook reports it)."""
         return cast(
