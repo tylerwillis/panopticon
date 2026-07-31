@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.2.1--fc7d1a070736",
-  "requirementId": "REQ-006.2.1",
-  "hash": "fc7d1a070736",
-  "verdict": "pass",
-  "summary": "Modal test mixes live/failed with 6 down tasks and asserts exact rendered lines (every+only); a second test mutates the service list pre-invoke proving the latest snapshot at the one-down boundary.",
-  "timestamp": "2026-07-30T18:26:36.124Z"
-}

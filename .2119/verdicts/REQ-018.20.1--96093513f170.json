@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.20.1--96093513f170",
+  "requirementId": "REQ-018.20.1",
+  "hash": "96093513f170",
+  "verdict": "pass",
+  "summary": "test_no_match_stays_visible_and_enter_does_not_submit parametrizes both model and effort lists, types a no-match string through real key events, and asserts option_count==0 (empty, not stale) plus region.width>0 (still laid out) - a display:none hide or a stale-candidate list would each fail an assertion.",
+  "timestamp": "2026-07-31T00:55:48.217Z"
+}

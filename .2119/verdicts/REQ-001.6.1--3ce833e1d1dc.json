@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.6.1--3ce833e1d1dc",
-  "requirementId": "REQ-001.6.1",
-  "hash": "3ce833e1d1dc",
-  "verdict": "pass",
-  "summary": "Exact-equality assertion on the dialog's rendered labels pins the full explanation (file removed; workflow stays loaded until service restart) — any weakened or missing wording fails",
-  "timestamp": "2026-07-30T18:26:24.927Z"
-}

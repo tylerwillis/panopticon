@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.6.1--1295a1aaac77",
-  "requirementId": "REQ-018.6.1",
-  "hash": "1295a1aaac77",
-  "verdict": "pass",
-  "summary": "Asserts exact claude vocab (fable/opus/sonnet, empty efforts) before the cycle and exact codex vocab (gpt-5.6-sol/terra/luna + four efforts) after, against the real registered harnesses — stale or unrefreshed lists fail the second equality.",
-  "timestamp": "2026-07-30T18:28:19.790Z"
-}

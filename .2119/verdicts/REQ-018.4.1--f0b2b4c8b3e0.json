@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.4.1--f0b2b4c8b3e0",
-  "requirementId": "REQ-018.4.1",
-  "hash": "f0b2b4c8b3e0",
-  "verdict": "pass",
-  "summary": "Down/Up presses drive highlighted None->0->1->0->1 and Enter yields luna/xhigh — index 1 of the filtered list, not of the unfiltered vocab (which would give terra/medium) — so unfiltered navigation or dead arrows both fail.",
-  "timestamp": "2026-07-30T18:28:09.783Z"
-}

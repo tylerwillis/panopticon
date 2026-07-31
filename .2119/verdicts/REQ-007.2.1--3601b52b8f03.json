@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-007.2.1--3601b52b8f03",
-  "requirementId": "REQ-007.2.1",
-  "hash": "3601b52b8f03",
-  "verdict": "pass",
-  "summary": "Real-app test opens the pane via 'd' (display block, width>0) and asserts the pane's rendered plain text endswith '\\n'+exact hint (trailing line, exact double-spaced text) plus an exact-range span with style.dim=True (verified non-vacuous: Textual Content spans carry Style dataclasses with dim from the rich style); missing/reworded/misplaced/undim hint all fail; fake covers only the data client, rendering is real.",
-  "timestamp": "2026-07-30T18:26:53.364Z"
-}

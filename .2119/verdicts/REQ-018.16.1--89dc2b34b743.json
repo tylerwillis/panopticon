@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.16.1--89dc2b34b743",
-  "requirementId": "REQ-018.16.1",
-  "hash": "89dc2b34b743",
-  "verdict": "pass",
-  "summary": "Real Textual pilot test: with focus asserted on HarnessSelector, Enter yields value=='codex' (the actual next entry in the real HARNESSES registry) and fake.created==[] — the same press+pause channel that later observably records the submit, so cycle-and-submit, no-op, and wrong-target violations would all fail.",
-  "timestamp": "2026-07-30T18:27:06.122Z"
-}

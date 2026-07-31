@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.15.1--1b44a0022ad5",
-  "requirementId": "REQ-018.15.1",
-  "hash": "1b44a0022ad5",
-  "verdict": "pass",
-  "summary": "Real ctrl+g keypress through the modal; stub returns 'edited:{text}' so exact-equality on the submitted memo rejects append/prepend/ignore/wrong-input; submit reads the actual TextArea text, only the editor-process wrapper is stubbed.",
-  "timestamp": "2026-07-30T18:26:52.222Z"
-}

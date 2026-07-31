@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.3.1--9d4905b00e90",
+  "requirementId": "REQ-023.3.1",
+  "hash": "9d4905b00e90",
+  "verdict": "pass",
+  "summary": "Real-keypress alternation, fresh-session locality, all fake-client mutation logs empty, and active-search Enter keeps matching governed rows revealed",
+  "timestamp": "2026-07-31T01:17:25.291Z"
+}

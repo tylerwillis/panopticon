@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.9.1--2e7e8a1061f6",
-  "requirementId": "REQ-018.9.1",
-  "hash": "2e7e8a1061f6",
-  "verdict": "pass",
-  "summary": "Measures the rendered #memo-box region == 64 at open and again with each candidate list open (list visibility asserted via region.width>0, real since the box toggles CSS display) — any widening or narrowing while lists are available fails the equality.",
-  "timestamp": "2026-07-30T18:28:34.007Z"
-}

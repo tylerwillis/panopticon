@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.7.1--f089b72efd78",
-  "requirementId": "REQ-019.7.1",
-  "hash": "f089b72efd78",
-  "verdict": "pass",
-  "summary": "Discovery is genuinely held in-flight across Escape (thread blocked on an Event, released only post-close) and a 9-field widget snapshot (memo text, selector, summary, model/effort value+placeholder+suggester) re-read after 100ms rejects post-close writes to the closed modal's inputs; residual gap: the candidate OptionLists are not snapshotted.",
-  "timestamp": "2026-07-30T18:30:42.732Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.17.1--294e21be71eb",
-  "requirementId": "REQ-018.17.1",
-  "hash": "294e21be71eb",
-  "verdict": "pass",
-  "summary": "Both parametrized tests press Enter in the real model AND effort controls with highlighted=None (asserted precondition, both empty-list and populated-list variants) and verify app.screen is still MemoScreen with no task created; a sibling test proves a real submit pops the screen under the same press/pause pattern, so the assertion is falsifiable.",
-  "timestamp": "2026-07-30T18:27:12.701Z"
-}

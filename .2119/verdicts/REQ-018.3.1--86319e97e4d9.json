@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.3.1--86319e97e4d9",
-  "requirementId": "REQ-018.3.1",
-  "hash": "86319e97e4d9",
-  "verdict": "pass",
-  "summary": "Real codex vocab, no mocks: capital single-char input proves case-insensitive substring (not prefix) match; exact list equality rejects both dropped matches (all) and leaked non-matches like gpt-5.6-sol/medium (only); both model and effort parametrized.",
-  "timestamp": "2026-07-30T18:28:05.641Z"
-}

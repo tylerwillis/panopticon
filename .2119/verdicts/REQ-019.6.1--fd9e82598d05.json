@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.6.1--fd9e82598d05",
-  "requirementId": "REQ-019.6.1",
-  "hash": "fd9e82598d05",
-  "verdict": "pass",
-  "summary": "Test creates the real race (harness blocks on an Event, escape closes modal before release, discovery provably completes after close) and asserts no operator-visible error on both actual surfaces: app.notify recorder stays empty and the app survives (a crash via unhandled worker error would fail is_running, the calls==1 wait, and run_test exit).",
-  "timestamp": "2026-07-30T18:27:28.313Z"
-}

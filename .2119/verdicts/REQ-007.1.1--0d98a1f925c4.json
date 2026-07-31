@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-007.1.1--0d98a1f925c4",
-  "requirementId": "REQ-007.1.1",
-  "hash": "0d98a1f925c4",
-  "verdict": "pass",
-  "summary": "Real 'c' keypress via Textual pilot reaches both write endpoints (Textual OSC-52 copy_to_clipboard + module _clipboard_copy) asserted equal to production render_detail(task); a two-task + j-navigation test pins the highlighted task, and a terminal-raise test proves the host attempt survives — single-path, wrong-task, and wrong-text impls all rejected.",
-  "timestamp": "2026-07-30T18:26:23.262Z"
-}

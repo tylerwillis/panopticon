@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.2.1--3d16ec20d69b",
+  "requirementId": "REQ-019.2.1",
+  "hash": "3d16ec20d69b",
+  "verdict": "pass",
+  "summary": "Counters live on the real harness API the modal calls; tests reject re-discovery across 3 full cycle loops (==1 chained assert), never-discovered harnesses incl. one never cycled to (wait-for timeout), and in-flight double-start on early cycle; per-open scope not conflated with reopening.",
+  "timestamp": "2026-07-31T00:55:49.105Z"
+}

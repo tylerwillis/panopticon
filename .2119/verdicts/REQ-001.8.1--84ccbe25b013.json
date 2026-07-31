@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.8.1--84ccbe25b013",
-  "requirementId": "REQ-001.8.1",
-  "hash": "84ccbe25b013",
-  "verdict": "pass",
-  "summary": "notify is captured and cleared after screen mount, then x must emit exactly ['Built-in workflows cannot be deleted.'] — silence, mount-time noise, or a different message fails",
-  "timestamp": "2026-07-30T18:26:31.069Z"
-}

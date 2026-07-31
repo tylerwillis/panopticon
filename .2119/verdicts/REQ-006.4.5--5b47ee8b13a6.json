@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.4.5--5b47ee8b13a6",
-  "requirementId": "REQ-006.4.5",
-  "hash": "5b47ee8b13a6",
-  "verdict": "pass",
-  "summary": "notices == ['respawned 1'] exact equality on a captured notify seam rejects any task-specific skip notification across all 11 non-down statuses.",
-  "timestamp": "2026-07-30T18:26:52.978Z"
-}

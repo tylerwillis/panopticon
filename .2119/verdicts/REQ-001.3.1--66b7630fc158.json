@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.3.1--66b7630fc158",
+  "requirementId": "REQ-001.3.1",
+  "hash": "66b7630fc158",
+  "verdict": "pass",
+  "summary": "Parametrized over no-click and Escape; each asserts dismissal back to WorkflowsScreen and re-reads the real file from disk unchanged",
+  "timestamp": "2026-07-31T00:55:28.904Z"
+}

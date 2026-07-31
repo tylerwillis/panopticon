@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.5.1--fa94bdd19ce0",
+  "requirementId": "REQ-006.5.1",
+  "hash": "fa94bdd19ce0",
+  "verdict": "pass",
+  "summary": "no-down notice asserted with live/failed/queued tasks and parametrized over every non-down latest snapshot where the stale snapshot had a down task.",
+  "timestamp": "2026-07-31T00:55:35.921Z"
+}

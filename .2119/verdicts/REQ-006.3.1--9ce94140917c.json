@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.3.1--9ce94140917c",
-  "requirementId": "REQ-006.3.1",
-  "hash": "9ce94140917c",
-  "verdict": "pass",
-  "summary": "Escape test asserts both conjuncts: screen_stack back to 1 (dismissed) and released == [] at the client seam (no claim-release request).",
-  "timestamp": "2026-07-30T18:26:41.495Z"
-}
