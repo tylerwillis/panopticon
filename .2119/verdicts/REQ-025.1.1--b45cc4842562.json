@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.1.1--b45cc4842562",
+  "requirementId": "REQ-025.1.1",
+  "hash": "b45cc4842562",
+  "verdict": "pass",
+  "summary": "Tests reject omission or misformatting of the combined slug [memo] label and verify it reaches local, remote, and dashboard attach paths.",
+  "timestamp": "2026-07-31T05:59:55.471Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.2.1--26c9f8b8a1f7",
+  "requirementId": "REQ-025.2.1",
+  "hash": "26c9f8b8a1f7",
+  "verdict": "pass",
+  "summary": "Exact argv assertion covers tmux's # introducer forms and proves every supplied label character is escaped for literal display.",
+  "timestamp": "2026-07-31T05:57:54.831Z"
+}

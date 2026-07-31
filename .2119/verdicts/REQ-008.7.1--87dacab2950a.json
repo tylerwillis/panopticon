@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.7.1--87dacab2950a",
+  "requirementId": "REQ-008.7.1",
+  "hash": "87dacab2950a",
+  "verdict": "pass",
+  "summary": "The startup test rejects unversioned or discarded seed snapshots and verifies both rendering of the returned snapshot and long-poll continuation from its paired cursor.",
+  "timestamp": "2026-07-31T05:54:46.612Z"
+}

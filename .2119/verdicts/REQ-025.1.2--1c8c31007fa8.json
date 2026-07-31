@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.1.2--1c8c31007fa8",
+  "requirementId": "REQ-025.1.2",
+  "hash": "1c8c31007fa8",
+  "verdict": "pass",
+  "summary": "The memo-absent boundary is exercised and the exact slug is verified as the emitted local tmux status-left value.",
+  "timestamp": "2026-07-31T05:59:55.879Z"
+}

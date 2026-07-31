@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.2.5--6f24a8dae86a",
+  "requirementId": "REQ-025.2.5",
+  "hash": "6f24a8dae86a",
+  "verdict": "pass",
+  "summary": "Two minimally over-limit labels must match exact shortened outputs whose final code point is U+2026, rejecting omission or substitute suffixes.",
+  "timestamp": "2026-07-31T06:00:12.980Z"
+}
