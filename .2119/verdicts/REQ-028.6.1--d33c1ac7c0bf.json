@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.6.1--d33c1ac7c0bf",
+  "requirementId": "REQ-028.6.1",
+  "hash": "d33c1ac7c0bf",
+  "verdict": "pass",
+  "summary": "Test uses real discover_workflows()/responsibilities() (no mocks), asserts exact key+description for url-recorded specifically under BUILDING across all 3 built-in workflows, and would fail (KeyError or mismatch) if the responsibility were removed, moved to another state, or reworded.",
+  "timestamp": "2026-07-31T23:54:36.665Z"
+}

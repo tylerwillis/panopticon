@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.1.1--a0238c60452a",
+  "requirementId": "REQ-028.1.1",
+  "hash": "a0238c60452a",
+  "verdict": "pass",
+  "summary": "test_every_task_exposes_the_core_artifact_skill genuinely verifies 'artifacts' is prepended to every workflow's skills (zero-skill, multi-skill, and all built-in workflows) via real TaskService/store; collision tests confirm workflows cannot override or suppress the reserved name.",
+  "timestamp": "2026-07-31T23:54:23.980Z"
+}

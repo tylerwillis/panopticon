@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.12.1--32548aee1fd9",
+  "requirementId": "REQ-028.12.1",
+  "hash": "32548aee1fd9",
+  "verdict": "pass",
+  "summary": "Genuine: full-string equality vs independently-authored golden constants covers all three conjuncts (codex --dangerously-bypass-approvals-and-sandbox, read-only prompts, git status --porcelain check) across all 3 workflows/both review paths; would fail on omission of any. Minor tautology in the unused _honesty_reviewer_cmd() getter check doesn't undermine coverage.",
+  "timestamp": "2026-07-31T23:55:22.736Z"
+}

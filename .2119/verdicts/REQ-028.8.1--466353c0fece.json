@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.8.1--466353c0fece",
+  "requirementId": "REQ-028.8.1",
+  "hash": "466353c0fece",
+  "verdict": "pass",
+  "summary": "Test genuinely exercises real workflow classes (no mocking): confirms all built-ins route test-honesty review to Sol, and that auto-sol exposes only dual-review-sol (Sol-only) while human/auto-spec expose only dual-review (Fable+Sol), with divergent instruction text and skill-name presence/absence as rejection surfaces.",
+  "timestamp": "2026-07-31T23:54:36.881Z"
+}

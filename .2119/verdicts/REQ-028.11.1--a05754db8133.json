@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.11.1--a05754db8133",
+  "requirementId": "REQ-028.11.1",
+  "hash": "a05754db8133",
+  "verdict": "pass",
+  "summary": "Exact-text assertion against the live-computed artifact skill instructions covers all three conjuncts (durable-document definition, publish-any-document-type direction, GitHub-URL exception with correct a/p hotkey mapping) and would fail on any drift, e.g. swapped hotkeys or a dropped exception clause.",
+  "timestamp": "2026-07-31T23:54:14.336Z"
+}

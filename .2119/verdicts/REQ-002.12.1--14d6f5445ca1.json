@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.12.1--14d6f5445ca1",
+  "requirementId": "REQ-002.12.1",
+  "hash": "14d6f5445ca1",
+  "verdict": "pass",
+  "summary": "Test uses the real TaskService/Review workflow (no mocking) and asserts 'review' is absent from both list_workflow_infos() and list_workflow_infos_for_repo() (the two operator menus) while remaining registered and creatable; flipping Review.hidden would fail the assertions, a genuine counterexample.",
+  "timestamp": "2026-07-31T23:13:15.575Z"
+}
