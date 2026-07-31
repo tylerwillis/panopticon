@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-011.1.3--f8465a3a11e0",
+  "requirementId": "REQ-011.1.3",
+  "hash": "f8465a3a11e0",
+  "verdict": "pass",
+  "summary": "exhaustive 16-case product over liveness/phase with an open registration asserts 'live' from the real composer",
+  "timestamp": "2026-07-31T00:11:53.199Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.1.1--9e7e6879da7d",
+  "requirementId": "REQ-017.1.1",
+  "hash": "9e7e6879da7d",
+  "verdict": "pass",
+  "summary": "Real-pilot tests cover all three conjuncts: pane-closed 'e' asserts no SlugScreen/no set_slug/slug unchanged; pane-open 'e' asserts SlugScreen with the highlighted task's slug; a divergent-client test rejects stale-snapshot initialization.",
+  "timestamp": "2026-07-31T00:10:48.283Z"
+}

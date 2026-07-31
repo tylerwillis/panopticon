@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.3.2--d1525d646609",
+  "requirementId": "REQ-012.3.2",
+  "hash": "d1525d646609",
+  "verdict": "pass",
+  "summary": "Explicit starting_model=custom replaces the tuned workflow's gpt-5.6-sol:high while the assertion also pins the workflow's codex harness as retained — each conjunct's violation fails the tuple assert.",
+  "timestamp": "2026-07-31T00:12:23.806Z"
+}

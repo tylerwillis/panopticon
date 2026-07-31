@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.3.4--a6529eff690f",
-  "requirementId": "REQ-012.3.4",
-  "hash": "a6529eff690f",
-  "verdict": "pass",
-  "summary": "Explicit codex equal to the pair's harness must keep gpt-5.6-sol:high; a discarded pair model fails",
-  "timestamp": "2026-07-30T17:06:08.783Z"
-}

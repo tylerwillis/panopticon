@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.2.4--6cc0d9f5ef3a",
-  "requirementId": "REQ-012.2.4",
-  "hash": "6cc0d9f5ef3a",
-  "verdict": "pass",
-  "summary": "Monkeypatched app default (codex) must surface concretely on the created task; hardcoded or null harness fails, durability covered by the 012.4.3 companion test",
-  "timestamp": "2026-07-30T17:06:07.020Z"
-}

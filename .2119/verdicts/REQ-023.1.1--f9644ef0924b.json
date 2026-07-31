@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.1.1--f9644ef0924b",
+  "requirementId": "REQ-023.1.1",
+  "hash": "f9644ef0924b",
+  "verdict": "pass",
+  "summary": "Real spawnable_tasks() (unmocked Lister) + exact-list assertion; task j (deps=[terminal g, non-terminal e]) proves the 'at least one non-terminal dep' semantics reject a mixed set (rules out an all()-style bug), and the test is empirically red against the current spawner.py, which ignores dependencies entirely — confirming it genuinely catches the violation.",
+  "timestamp": "2026-07-31T00:28:17.955Z"
+}

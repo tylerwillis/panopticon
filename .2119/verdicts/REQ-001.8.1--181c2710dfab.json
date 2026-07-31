@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.8.1--181c2710dfab",
+  "requirementId": "REQ-001.8.1",
+  "hash": "181c2710dfab",
+  "verdict": "pass",
+  "summary": "Captured notify calls are cleared after screen mount, so the exact 'Built-in workflows cannot be deleted.' toast is provably emitted by the x-press itself",
+  "timestamp": "2026-07-31T00:11:11.074Z"
+}

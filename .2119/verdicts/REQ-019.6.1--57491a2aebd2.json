@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.6.1--57491a2aebd2",
+  "requirementId": "REQ-019.6.1",
+  "hash": "57491a2aebd2",
+  "verdict": "pass",
+  "summary": "Real in-flight failure after close: asserts app alive, modal gone, zero notifications; removing the discovery try/except with a crashing worker makes it fail (verified by mutation).",
+  "timestamp": "2026-07-31T00:22:03.261Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.6.1--492533dc6088",
+  "requirementId": "REQ-018.6.1",
+  "hash": "492533dc6088",
+  "verdict": "pass",
+  "summary": "Exact before/after vocabulary equality (claude 3 models/0 efforts -> codex 3 models/4 efforts) against the real registry; stale or wrong-harness vocabularies fail",
+  "timestamp": "2026-07-31T00:16:31.339Z"
+}

@@ -20,6 +20,7 @@ def _compose(
     registered: bool = False,
     runner_live: bool = True,
     phase: LifecyclePhase | None = None,
+    dependencies_blocking: bool = False,
 ) -> str:
     return compose_container_status(
         terminal=terminal,
@@ -27,6 +28,7 @@ def _compose(
         registered=registered,
         runner_live=runner_live,
         phase=phase,
+        dependencies_blocking=dependencies_blocking,
     ).value
 
 
@@ -83,6 +85,28 @@ def test_terminal_task_has_no_container_status() -> None:
 def test_unclaimed_non_terminal_is_queued() -> None:
     assert _compose(claimed=False) == "queued"
     assert _compose(claimed=False, runner_live=False) == "queued"
+
+
+# 2119: REQ-023.2.1
+# 2119: REQ-023.2.2
+def test_dependency_gate_precedes_queued_but_not_terminal() -> None:
+    assert _compose(claimed=False, dependencies_blocking=True) == "gated"
+    assert _compose(claimed=False, dependencies_blocking=False) == "queued"
+    assert _compose(terminal=True, claimed=False, dependencies_blocking=True) == "–"
+
+
+# 2119: REQ-023.2.4
+def test_container_status_composer_accepts_dependency_facts_without_service_access() -> None:
+    facts = {
+        "terminal": False,
+        "claimed": False,
+        "registered": False,
+        "runner_live": False,
+        "phase": None,
+        "dependencies_blocking": True,
+    }
+    assert compose_container_status(**facts) is ContainerStatus.GATED
+    assert facts["dependencies_blocking"] is True
 
 
 @pytest.mark.parametrize(

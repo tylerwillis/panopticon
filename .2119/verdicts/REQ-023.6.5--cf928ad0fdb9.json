@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.6.5--cf928ad0fdb9",
+  "requirementId": "REQ-023.6.5",
+  "hash": "cf928ad0fdb9",
+  "verdict": "pass",
+  "summary": "API test asserts the PUT turn=agent response itself carries attention=False (GET-confirmed); hook test pins UserPromptSubmit issues exactly one set_turn('agent') call so a separate clear mutation fails; pi tests pin the extension's input event to the same PUT /turn write.",
+  "timestamp": "2026-07-31T01:02:17.839Z"
+}

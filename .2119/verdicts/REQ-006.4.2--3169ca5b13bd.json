@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.2--3169ca5b13bd",
+  "requirementId": "REQ-006.4.2",
+  "hash": "3169ca5b13bd",
+  "verdict": "pass",
+  "summary": "Service order reversed from display order, exact check/release interleaving asserted, and a sleep+max_active_releases==1 probe rejects concurrent processing",
+  "timestamp": "2026-07-31T00:11:33.222Z"
+}

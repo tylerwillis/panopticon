@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.1.1--25ee8245f304",
+  "requirementId": "REQ-006.1.1",
+  "hash": "25ee8245f304",
+  "verdict": "pass",
+  "summary": "Pressing ctrl+r in the pilot must land on BulkRespawnScreen with the down set rendered — an unbound or misbound key fails the isinstance assertion",
+  "timestamp": "2026-07-31T00:11:11.499Z"
+}

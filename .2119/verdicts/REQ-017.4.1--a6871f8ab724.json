@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.4.1--a6871f8ab724",
+  "requirementId": "REQ-017.4.1",
+  "hash": "a6871f8ab724",
+  "verdict": "pass",
+  "summary": "test_detail_pane_shows_edit_slug_key_hint drives the real Dashboard (only HTTP faked), opens the pane on a real task via 'd', and asserts the actual rendered #detail output's trailing line equals 'e: edit slug' -- removal of the hint, an unopened pane, or a taskless pane would each fail it",
+  "timestamp": "2026-07-31T00:10:57.589Z"
+}

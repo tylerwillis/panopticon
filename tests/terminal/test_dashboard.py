@@ -441,6 +441,289 @@ def test_turn_cell_color_codes_like_cloude_cade() -> None:
     assert blocked.plain == "agent ⚠" and blocked.style == "red"
 
 
+# 2119: REQ-023.3.1
+# 2119: REQ-023.3.2
+# 2119: REQ-023.3.3
+# 2119: REQ-023.3.4
+# 2119: REQ-023.3.5
+# 2119: REQ-023.6.1
+# 2119: REQ-023.6.8
+async def test_dependency_held_cells_details_and_pre_spawn_row_are_honest() -> None:
+    live = {
+        **_TASK,
+        "id": "a-live-dependent",
+        "slug": "synthesize-live",
+        "turn": "user",
+        "attention": False,
+        "container_status": "live",
+        "depends_on_task_ids": ["c-active", "d-complete", "e-dropped"],
+    }
+    gated = {
+        **_TASK,
+        "id": "b-gated-dependent",
+        "slug": "synthesize-new",
+        "turn": "user",
+        "attention": False,
+        "claimed_by": None,
+        "container_status": "gated",
+        "depends_on_task_ids": ["c-active", "d-complete", "e-dropped"],
+    }
+    dropped_only = {
+        **_TASK,
+        "id": "aa-dropped-only-dependent",
+        "slug": "replace-missing-auditor",
+        "turn": "user",
+        "attention": False,
+        "container_status": "gated",
+        "depends_on_task_ids": ["e-dropped"],
+    }
+    escalated = {
+        **_TASK,
+        "id": "ab-escalated-dependent",
+        "slug": "needs-user-while-waiting",
+        "turn": "user",
+        "attention": True,
+        "container_status": "gated",
+        "depends_on_task_ids": ["c-active"],
+    }
+    blocked_wait = {
+        **_TASK,
+        "id": "ac-blocked-dependent",
+        "slug": "blocked-while-waiting",
+        "turn": "user",
+        "blocked": True,
+        "attention": False,
+        "container_status": "gated",
+        "depends_on_task_ids": ["c-active"],
+    }
+    blocked_attention_wait = {
+        **_TASK,
+        "id": "ad-blocked-attention-dependent",
+        "slug": "blocked-and-escalated",
+        "turn": "user",
+        "blocked": True,
+        "attention": True,
+        "container_status": "gated",
+        "depends_on_task_ids": ["c-active"],
+    }
+    no_wait_tasks = [
+        {
+            **_TASK,
+            "id": "f-no-wait-unset",
+            "slug": "ordinary-user-turn",
+            "turn": "user",
+        },
+        {
+            **_TASK,
+            "id": "g-no-wait-cleared",
+            "slug": "ordinary-cleared",
+            "turn": "user",
+            "attention": False,
+        },
+        {
+            **_TASK,
+            "id": "h-no-wait-set",
+            "slug": "ordinary-escalated",
+            "turn": "user",
+            "attention": True,
+        },
+    ]
+    dependencies = [
+        {
+            **_TASK,
+            "id": "c-active",
+            "slug": "auditor-active",
+            "state": "ITERATING",
+            "governor_task_id": "a-live-dependent",
+        },
+        {**_TASK, "id": "d-complete", "slug": "auditor-done", "state": "COMPLETE"},
+        {**_TASK, "id": "e-dropped", "slug": "auditor-missing", "state": "DROPPED"},
+    ]
+    fake = _FakeClient(
+        [
+            live,
+            dropped_only,
+            escalated,
+            blocked_wait,
+            blocked_attention_wait,
+            gated,
+            *dependencies,
+            *no_wait_tasks,
+        ]
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        table = app.query_one("#tasks", DataTable)
+
+        assert "b-gated-dependent" in {str(key.value) for key in table.rows}
+        expected_turns = {
+            "a-live-dependent": "held 1",
+            "b-gated-dependent": "held",
+        }
+        for task_id, expected in expected_turns.items():
+            turn_cell = table.get_row(task_id)[1]
+            assert turn_cell.plain == expected
+            assert str(turn_cell.style) == "dim"
+            assert "yellow" not in str(turn_cell.style) and "orange" not in str(turn_cell.style)
+
+        attention_rows = [
+            "aa-dropped-only-dependent",
+            "ab-escalated-dependent",
+            *(task["id"] for task in no_wait_tasks),
+        ]
+        for task_id in attention_rows:
+            turn_cell = table.get_row(task_id)[1]
+            assert turn_cell.plain == "user"
+            assert str(turn_cell.style) == "yellow"
+
+        for task_id in ("ac-blocked-dependent", "ad-blocked-attention-dependent"):
+            blocked_turn = table.get_row(task_id)[1]
+            assert blocked_turn.plain == "user ⚠"
+            assert str(blocked_turn.style) == "red"
+
+        await pilot.press("d")
+        await pilot.pause()
+        detail = str(app.query_one("#detail", Static).render())
+        assert "waiting on 2/3" in detail
+        assert "auditor-active ITERATING" in detail
+        assert "auditor-done COMPLETE" in detail
+        assert "auditor-missing DROPPED" in detail
+        assert "edit dependencies or drop the dependent" in detail
+
+    assert live["turn"] == "user" and gated["turn"] == "user" and dropped_only["turn"] == "user"
+
+
+# 2119: REQ-023.5.1
+# 2119: REQ-023.5.2
+# 2119: REQ-023.5.3
+# 2119: REQ-023.6.1
+# 2119: REQ-023.6.8
+async def test_governor_held_cell_tracks_active_children_and_reverts_when_they_finish() -> None:
+    waiting_governor = {
+        **_TASK,
+        "id": "a-waiting-governor",
+        "slug": "audit-governor",
+        "turn": "user",
+        "attention": False,
+        "container_status": "live",
+    }
+    active_child = {
+        **_TASK,
+        "id": "b-active-child",
+        "slug": "security-auditor",
+        "state": "ITERATING",
+        "governor_task_id": "a-waiting-governor",
+    }
+    second_active_child = {
+        **_TASK,
+        "id": "bb-second-active-child",
+        "slug": "performance-auditor",
+        "state": "WORKING",
+        "governor_task_id": "a-waiting-governor",
+    }
+    finished_child = {
+        **_TASK,
+        "id": "c-finished-child",
+        "slug": "docs-auditor",
+        "state": "COMPLETE",
+        "governor_task_id": "a-waiting-governor",
+    }
+    finished_governor = {
+        **_TASK,
+        "id": "d-finished-governor",
+        "slug": "done-governor",
+        "turn": "user",
+        "attention": False,
+        "container_status": "live",
+    }
+    only_finished_child = {
+        **_TASK,
+        "id": "e-only-finished-child",
+        "slug": "finished-auditor",
+        "state": "COMPLETE",
+        "governor_task_id": "d-finished-governor",
+    }
+    escalated_governor = {
+        **_TASK,
+        "id": "f-escalated-governor",
+        "slug": "question-from-governor",
+        "turn": "user",
+        "attention": True,
+        "container_status": "live",
+    }
+    escalated_child = {
+        **_TASK,
+        "id": "g-escalated-child",
+        "slug": "still-running-auditor",
+        "state": "ITERATING",
+        "governor_task_id": "f-escalated-governor",
+    }
+    blocked_governor = {
+        **_TASK,
+        "id": "h-blocked-governor",
+        "slug": "blocked-governor",
+        "turn": "user",
+        "blocked": True,
+        "attention": False,
+        "container_status": "live",
+    }
+    blocked_governor_child = {
+        **_TASK,
+        "id": "i-blocked-governor-child",
+        "slug": "blocked-governor-auditor",
+        "state": "ITERATING",
+        "governor_task_id": "h-blocked-governor",
+    }
+    app = Dashboard(
+        _FakeClient(
+            [
+                waiting_governor,
+                active_child,
+                second_active_child,
+                finished_child,
+                finished_governor,
+                only_finished_child,
+                escalated_governor,
+                escalated_child,
+                blocked_governor,
+                blocked_governor_child,
+            ]
+        )
+    )  # type: ignore[arg-type]
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        table = app.query_one("#tasks", DataTable)
+
+        waiting_turn = table.get_row("a-waiting-governor")[1]
+        assert waiting_turn.plain == "held 2"
+        assert str(waiting_turn.style) == "dim"
+        assert "yellow" not in str(waiting_turn.style) and "orange" not in str(waiting_turn.style)
+
+        finished_turn = table.get_row("d-finished-governor")[1]
+        assert finished_turn.plain == "user"
+        assert str(finished_turn.style) == "yellow"
+
+        escalated_turn = table.get_row("f-escalated-governor")[1]
+        assert escalated_turn.plain == "user"
+        assert str(escalated_turn.style) == "yellow"
+
+        blocked_turn = table.get_row("h-blocked-governor")[1]
+        assert blocked_turn.plain == "user ⚠"
+        assert str(blocked_turn.style) == "red"
+
+        await pilot.press("d")
+        await pilot.pause()
+        detail = str(app.query_one("#detail", Static).render())
+        assert "security-auditor ITERATING" in detail
+        assert "performance-auditor WORKING" in detail
+        assert "docs-auditor COMPLETE" not in detail
+        assert "still-running-auditor ITERATING" not in detail
+        assert "blocked-governor-auditor ITERATING" not in detail
+
+
 async def test_dashboard_mounts_lists_tasks_and_shows_detail() -> None:
     app = Dashboard(_FakeClient([_TASK]))  # type: ignore[arg-type]
     async with app.run_test() as pilot:
@@ -2188,7 +2471,7 @@ async def test_in_flight_discovery_does_not_update_widgets_after_memo_closes(
                 "name": "r1",
                 "git_url": "",
                 "default_base": "main",
-                "default_harness": "slow",
+                "default_harness": "claude",
             }
         ],
         workflows=[{"name": "spike", "when_to_use": ""}],
@@ -2203,6 +2486,16 @@ async def test_in_flight_discovery_does_not_update_widgets_after_memo_closes(
         summary = closed_screen.query_one("#launch-summary", Static)
         model = closed_screen.query_one("#launch-model", Input)
         effort = closed_screen.query_one("#launch-effort", Input)
+        model.focus()
+        await pilot.pause()
+        # Keep the launch input focused, but make the blocked discovery's harness the selected
+        # one without cycling through `_suggestions_for` (which would synchronously wait on the
+        # deliberately blocked background call and deadlock the Pilot).
+        closed_screen._selection = dashboard.LaunchSelection("slow", "", "", "repo default")
+        model_options = closed_screen.query_one("#launch-model-options", OptionList)
+        effort_options = closed_screen.query_one("#launch-effort-options", OptionList)
+        model_candidates = closed_screen.query_one("#launch-model-candidates")
+        effort_candidates = closed_screen.query_one("#launch-effort-candidates")
         before = (
             memo.text,
             selector.value,
@@ -2213,10 +2506,15 @@ async def test_in_flight_discovery_does_not_update_widgets_after_memo_closes(
             effort.value,
             effort.placeholder,
             effort.suggester,
+            _option_prompts(model_options),
+            _option_prompts(effort_options),
+            frozenset(model_candidates.classes),
+            frozenset(effort_candidates.classes),
         )
         await pilot.press("escape")
+        assert not isinstance(app.screen, dashboard.MemoScreen)
         release.set()
-        await pilot.pause(0.1)
+        await _wait_for(pilot, lambda: slow.model_calls == slow.effort_calls == 1)
         assert (
             memo.text,
             selector.value,
@@ -2227,6 +2525,10 @@ async def test_in_flight_discovery_does_not_update_widgets_after_memo_closes(
             effort.value,
             effort.placeholder,
             effort.suggester,
+            _option_prompts(model_options),
+            _option_prompts(effort_options),
+            frozenset(model_candidates.classes),
+            frozenset(effort_candidates.classes),
         ) == before
 
 

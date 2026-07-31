@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.2.1--c5f9a3ac221c",
+  "requirementId": "REQ-007.2.1",
+  "hash": "c5f9a3ac221c",
+  "verdict": "pass",
+  "summary": "asserts the displayed pane's plain text ends with the exact hint line and a dim span covers precisely that range — wrong text, non-trailing, or non-dim all fail",
+  "timestamp": "2026-07-31T00:11:42.071Z"
+}

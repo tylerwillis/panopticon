@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.1.3--c36db424cbb1",
+  "requirementId": "REQ-023.1.3",
+  "hash": "c36db424cbb1",
+  "verdict": "pass",
+  "summary": "End-to-end test over real service/store/spawnable_tasks/spawn_one asserts pre-completion exclusion, next-pass eligibility, real claim recording, and the configured initial_prompt threaded to the Runner seam; currently red (TDD), proving violation sensitivity.",
+  "timestamp": "2026-07-31T00:40:47.305Z"
+}

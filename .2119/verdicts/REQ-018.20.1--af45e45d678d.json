@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.20.1--af45e45d678d",
+  "requirementId": "REQ-018.20.1",
+  "hash": "af45e45d678d",
+  "verdict": "pass",
+  "summary": "Non-matching text asserts option_count==0 while region.width>0 (hidden widget has zero region), parametrized over model and effort",
+  "timestamp": "2026-07-31T00:15:57.653Z"
+}

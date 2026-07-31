@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.5.1--a7e19de2d820",
+  "requirementId": "REQ-023.5.1",
+  "hash": "a7e19de2d820",
+  "verdict": "pass",
+  "summary": "Governor with 2 non-terminal + 1 COMPLETE child asserted 'held 2' style exactly 'dim' (counting the terminal child would fail); all-terminal-children and attention=True governors render yellow 'user', blocked renders red",
+  "timestamp": "2026-07-31T01:01:34.933Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.2.1--e238bf832838",
+  "requirementId": "REQ-012.2.1",
+  "hash": "e238bf832838",
+  "verdict": "pass",
+  "summary": "End-to-end over REST: the tuned workflow pair (codex/gpt-5.6-sol:high) wins over a conflicting non-null repo pair (claude/opus:low); a repo-wins violation would yield (claude, opus:low) and fail.",
+  "timestamp": "2026-07-31T00:12:16.177Z"
+}

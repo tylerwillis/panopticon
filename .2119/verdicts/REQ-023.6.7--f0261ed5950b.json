@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.6.7--f0261ed5950b",
+  "requirementId": "REQ-023.6.7",
+  "hash": "f0261ed5950b",
+  "verdict": "pass",
+  "summary": "Test extracts the set_attention line from the real spawn-task skill instructions and requires 'before asking the user' plus the non-terminal-child condition; a missing or reordered instruction fails via StopIteration or the asserts.",
+  "timestamp": "2026-07-31T00:55:47.217Z"
+}

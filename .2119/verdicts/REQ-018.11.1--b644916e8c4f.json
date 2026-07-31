@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.11.1--b644916e8c4f",
+  "requirementId": "REQ-018.11.1",
+  "hash": "b644916e8c4f",
+  "verdict": "pass",
+  "summary": "Four Pilot tests genuinely type/accept model+effort values, cycle the harness (asserted to land on outfitter), and assert the touched values survive, including mixed touched/untouched contrast cases",
+  "timestamp": "2026-07-31T00:11:29.527Z"
+}

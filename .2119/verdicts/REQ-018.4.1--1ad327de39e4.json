@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.4.1--1ad327de39e4",
+  "requirementId": "REQ-018.4.1",
+  "hash": "1ad327de39e4",
+  "verdict": "pass",
+  "summary": "Real Up/Down presses move OptionList.highlighted through a filtered list; Enter yielding luna/xhigh (index 1 of the filtered, not unfiltered, list) rejects unfiltered-navigation",
+  "timestamp": "2026-07-31T00:16:25.258Z"
+}

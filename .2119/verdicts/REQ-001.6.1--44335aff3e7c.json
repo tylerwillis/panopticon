@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.6.1--44335aff3e7c",
+  "requirementId": "REQ-001.6.1",
+  "hash": "44335aff3e7c",
+  "verdict": "pass",
+  "summary": "Full-equality assertion on the dialog's rendered labels pins the file-removed-but-loaded-until-restart disclosure; any omission or paraphrase fails",
+  "timestamp": "2026-07-31T00:11:02.861Z"
+}

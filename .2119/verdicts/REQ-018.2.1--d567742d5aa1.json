@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.2.1--d567742d5aa1",
+  "requirementId": "REQ-018.2.1",
+  "hash": "d567742d5aa1",
+  "verdict": "pass",
+  "summary": "Focus identity asserted after each tab: MemoTextArea->HarnessSelector->#launch-model->#launch-effort; any reordering fails",
+  "timestamp": "2026-07-31T00:15:57.254Z"
+}

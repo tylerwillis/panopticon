@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.3--e24ebca0130e",
+  "requirementId": "REQ-006.4.3",
+  "hash": "e24ebca0130e",
+  "verdict": "pass",
+  "summary": "'respawned N' verified at N=2, N=1, and N=0-with-one-listed (N counts releases, not listed tasks), plus once through the un-mocked notification surface",
+  "timestamp": "2026-07-31T00:11:33.640Z"
+}

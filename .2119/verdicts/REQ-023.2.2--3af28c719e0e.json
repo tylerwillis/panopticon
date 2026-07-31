@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.2.2--3af28c719e0e",
+  "requirementId": "REQ-023.2.2",
+  "hash": "3af28c719e0e",
+  "verdict": "pass",
+  "summary": "All three precedence relations asserted: blocking unclaimed→gated (not queued), non-blocking→queued, terminal+blocking→'–'; either wrong ordering fails an assert.",
+  "timestamp": "2026-07-31T00:22:19.814Z"
+}

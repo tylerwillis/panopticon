@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.2.1--63604fdacc02",
+  "requirementId": "REQ-023.2.1",
+  "hash": "63604fdacc02",
+  "verdict": "pass",
+  "summary": "Composer asserted gated for non-terminal unclaimed blocking input with the blocking=False→queued negative; dep-facts derivation is REQ-023.2.3's obligation per the spec's own factoring, so the boolean input is the unit's real contract.",
+  "timestamp": "2026-07-31T00:22:19.387Z"
+}

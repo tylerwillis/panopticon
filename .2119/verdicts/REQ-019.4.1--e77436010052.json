@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.4.1--e77436010052",
+  "requirementId": "REQ-019.4.1",
+  "hash": "e77436010052",
+  "verdict": "pass",
+  "summary": "Cycling to a blocked harness presents its suggestions with model_calls==1 (cycle consumed the in-flight discovery); the unstarted-harness variant blocks the background worker so only the cycle path could supply the presented options",
+  "timestamp": "2026-07-31T00:16:48.345Z"
+}

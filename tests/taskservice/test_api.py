@@ -10,7 +10,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from panopticon.core.models import Repo, Responsibility
-from panopticon.core.state import Complete, InitialState
+from panopticon.core.state import Complete, InitialState, TerminalState
 from panopticon.core.workflow import Workflow
 from panopticon.taskservice.api import create_app
 from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
@@ -42,6 +42,19 @@ class _TunedWorkflow(Workflow):
         transitions = (Complete,)
 
     initial = Working
+
+
+class _ArchivedWorkflow(Workflow):
+    name = "archived"
+
+    class Active(InitialState):
+        label = "ACTIVE"
+        transitions = ("ARCHIVED",)
+
+    class Archived(TerminalState):
+        label = "ARCHIVED"
+
+    initial = Active
 
 
 @pytest.fixture
@@ -276,6 +289,93 @@ def test_create_and_get_task(client: TestClient) -> None:
     assert body["memo"] is None  # none given at creation
     assert body["provisioned"] is False  # no branch yet (computed Task.provisioned)
     assert [h["to_state"] for h in body["history"]] == ["ITERATING"]
+
+
+# 2119: REQ-023.2.3
+def test_task_responses_keep_dropped_dependencies_gated(client: TestClient) -> None:
+    dependency_id = _new_task(client)
+    dependent = client.post(
+        "/tasks",
+        json={
+            "repo_id": "r1",
+            "workflow": "spike",
+            "depends_on_task_ids": [dependency_id],
+        },
+    )
+    assert dependent.status_code == 201, dependent.text
+    dependent_id = dependent.json()["id"]
+    assert dependent.json()["container_status"] == "gated"
+
+    dropped = client.post(f"/tasks/{dependency_id}/operations/drop")
+    assert dropped.status_code == 200, dropped.text
+    assert dropped.json()["state"] == "DROPPED"
+    assert client.get(f"/tasks/{dependent_id}").json()["container_status"] == "gated"
+
+
+# 2119: REQ-023.2.3
+def test_task_responses_use_workflow_terminality_for_dependency_readiness(tmp_path: Path) -> None:
+    service = TaskService(
+        SqlAlchemyStore(),
+        {"archived": _ArchivedWorkflow()},
+        FilesystemArtifactStore(tmp_path),
+    )
+    asyncio.run(service.init())
+    asyncio.run(service.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git")))
+    with TestClient(create_app(service)) as custom_client:
+        dependency = custom_client.post(
+            "/tasks", json={"repo_id": "r1", "workflow": "archived"}
+        ).json()
+        dependent = custom_client.post(
+            "/tasks",
+            json={
+                "repo_id": "r1",
+                "workflow": "archived",
+                "depends_on_task_ids": [dependency["id"]],
+            },
+        ).json()
+        assert dependent["container_status"] == "gated"
+
+        archived = custom_client.post(f"/tasks/{dependency['id']}/operations/advance")
+        assert archived.status_code == 200, archived.text
+        assert archived.json()["state"] == "ARCHIVED"
+        assert custom_client.get(f"/tasks/{dependent['id']}").json()["container_status"] == "queued"
+
+
+# 2119: REQ-023.4.1
+# 2119: REQ-023.4.2
+# 2119: REQ-023.4.3
+def test_set_dependencies_rejects_indirect_cycle_actionably_and_atomically(
+    client: TestClient,
+) -> None:
+    task_a = _new_task(client)
+    task_b = _new_task(client)
+    task_c = _new_task(client)
+    prior_dependency = _new_task(client)
+
+    direct = client.put(f"/tasks/{task_a}/dependencies", json={"dep_ids": [task_a]})
+    assert direct.status_code == 400
+    assert "cycle" in direct.json()["detail"].lower()
+
+    assert (
+        client.put(f"/tasks/{task_a}/dependencies", json={"dep_ids": [task_b]}).status_code == 200
+    )
+    assert (
+        client.put(f"/tasks/{task_b}/dependencies", json={"dep_ids": [task_c]}).status_code == 200
+    )
+    assert (
+        client.put(
+            f"/tasks/{task_c}/dependencies", json={"dep_ids": [prior_dependency]}
+        ).status_code
+        == 200
+    )
+
+    rejected = client.put(f"/tasks/{task_c}/dependencies", json={"dep_ids": [task_a]})
+    assert rejected.status_code == 400
+    detail = rejected.json()["detail"].lower()
+    assert "cycle" in detail
+    assert all(task_id.lower() in detail for task_id in (task_a, task_b, task_c))
+    assert "edit" in detail and "dependenc" in detail
+    assert client.get(f"/tasks/{task_c}").json()["depends_on_task_ids"] == [prior_dependency]
 
 
 def test_create_task_records_the_memo(client: TestClient) -> None:
@@ -712,6 +812,44 @@ def test_set_turn_and_blocked(client: TestClient) -> None:
     blocked = client.put(f"/tasks/{task_id}/blocked", json={"blocked": True})
     assert blocked.json()["blocked"] is True
     assert blocked.json()["turn"] == "user"  # flip-independent: the block left the turn alone
+
+
+# 2119: REQ-023.6.2
+# 2119: REQ-023.6.3
+# 2119: REQ-023.6.4
+# 2119: REQ-023.6.5
+def test_attention_marker_is_orthogonal_and_clears_on_user_prompt_handoff(
+    client: TestClient,
+) -> None:
+    task_id = _new_task(client)
+    assert client.put(f"/tasks/{task_id}/turn", json={"turn": "agent"}).status_code == 200
+    assert client.put(f"/tasks/{task_id}/blocked", json={"blocked": True}).status_code == 200
+
+    marked = client.put(f"/tasks/{task_id}/attention", json={"attention": True})
+    assert marked.status_code == 200, marked.text
+    assert marked.json()["attention"] is True
+    assert marked.json()["turn"] == "agent"
+    assert marked.json()["blocked"] is True
+    assert client.get(f"/tasks/{task_id}").json()["attention"] is True
+
+    cleared = client.put(f"/tasks/{task_id}/attention", json={"attention": False})
+    assert cleared.json()["attention"] is False
+    assert cleared.json()["turn"] == "agent"
+    assert cleared.json()["blocked"] is True
+    assert client.put(f"/tasks/{task_id}/attention", json={"attention": True}).status_code == 200
+
+    unblocked = client.put(f"/tasks/{task_id}/blocked", json={"blocked": False})
+    assert unblocked.json()["attention"] is True
+    reblocked = client.put(f"/tasks/{task_id}/blocked", json={"blocked": True})
+    assert reblocked.json()["attention"] is True
+    still_user = client.put(f"/tasks/{task_id}/turn", json={"turn": "user"})
+    assert still_user.json()["attention"] is True
+    assert still_user.json()["turn"] == "user"
+
+    prompted = client.put(f"/tasks/{task_id}/turn", json={"turn": "agent"})
+    assert prompted.json()["attention"] is False
+    assert prompted.json()["blocked"] is False
+    assert client.get(f"/tasks/{task_id}").json()["attention"] is False
 
 
 def test_claim_release_over_rest(client: TestClient) -> None:

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.3.5--01d505b64a5d",
+  "requirementId": "REQ-023.3.5",
+  "hash": "01d505b64a5d",
+  "verdict": "pass",
+  "summary": "Line 540's table.rows check on the explicitly unclaimed (claimed_by:None) 'gated' fixture genuinely exercises the real, unfiltered row-build loop in dashboard.py (no container_status/claimed_by filtering exists), so a regression hiding gated/pre-claim tasks would be caught; only the row-presence conjunct is covered here, other assertions in the same function (turn-cell 'held' text) belong to REQ-023.3.1/023.5 and currently fail, which is out of scope for this row-visibility requirement.",
+  "timestamp": "2026-07-31T00:56:06.887Z"
+}

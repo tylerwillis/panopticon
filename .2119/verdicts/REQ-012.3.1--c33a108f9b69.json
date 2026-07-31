@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.3.1--c33a108f9b69",
-  "requirementId": "REQ-012.3.1",
-  "hash": "c33a108f9b69",
-  "verdict": "pass",
-  "summary": "Explicit codex asserted to replace both the app default and a non-null repo default; chain win fails the harness assertion",
-  "timestamp": "2026-07-30T17:06:07.493Z"
-}

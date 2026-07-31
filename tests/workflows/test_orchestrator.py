@@ -50,6 +50,14 @@ def test_exposes_spawn_task_and_review_task_skills() -> None:
     assert all(s.description and s.instructions for s in WF.skills())
 
 
+# 2119: REQ-023.6.7
+def test_spawn_task_skill_explains_attention_escalation_during_child_waits() -> None:
+    spawn = next(skill for skill in WF.skills() if skill.name == "spawn-task")
+    line = next(line.strip() for line in spawn.instructions.splitlines() if "set_attention" in line)
+    assert "before asking the user" in line.lower()
+    assert "non-terminal" in line.lower() and "child" in line.lower()
+
+
 def test_carries_no_forge_plumbing() -> None:
     assert WF.image_layer() == ""  # works purely through MCP — no workflow image layer
     assert tuple(WF.tools()) == ()

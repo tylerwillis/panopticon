@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.12.1--a6e10b82186d",
+  "requirementId": "REQ-018.12.1",
+  "hash": "a6e10b82186d",
+  "verdict": "pass",
+  "summary": "All three winning sources (app/repo/workflow incl. workflow-beats-repo precedence) and three override kinds -> 'this task' are asserted as exact rendered #launch-summary strings driven by real key presses; exact equality guarantees a single label.",
+  "timestamp": "2026-07-31T00:11:55.431Z"
+}

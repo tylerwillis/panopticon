@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.3.3--1190949eb951",
-  "requirementId": "REQ-012.3.3",
-  "hash": "1190949eb951",
-  "verdict": "pass",
-  "summary": "Explicit claude vs the pair's codex with no task model must yield model None; a retained losing model fails",
-  "timestamp": "2026-07-30T17:06:08.352Z"
-}

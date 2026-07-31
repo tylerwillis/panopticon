@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.3.3--39acafe70c0d",
+  "requirementId": "REQ-023.3.3",
+  "hash": "39acafe70c0d",
+  "verdict": "pass",
+  "summary": "Asserts 'waiting on 2/3' (rejects a blocking count that excludes DROPPED) plus every dependency's slug and state including the non-blocking COMPLETE one",
+  "timestamp": "2026-07-31T00:16:22.380Z"
+}

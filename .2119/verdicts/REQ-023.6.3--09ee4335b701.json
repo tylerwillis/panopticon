@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.6.3--09ee4335b701",
+  "requirementId": "REQ-023.6.3",
+  "hash": "09ee4335b701",
+  "verdict": "pass",
+  "summary": "With attention=True, both blocked=False and blocked=True writes must return attention True over REST — either direction clearing the marker fails the test.",
+  "timestamp": "2026-07-31T01:02:16.927Z"
+}

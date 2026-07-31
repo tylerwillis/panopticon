@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.4.1--4d703a2e15f3",
+  "requirementId": "REQ-001.4.1",
+  "hash": "4d703a2e15f3",
+  "verdict": "pass",
+  "summary": "Yes-click deletes the real selected file (sibling untouched), and a second list_workflow_files call returning a changed description must land in the table — proving refresh re-queries the registry rather than editing a cache",
+  "timestamp": "2026-07-31T00:11:01.995Z"
+}

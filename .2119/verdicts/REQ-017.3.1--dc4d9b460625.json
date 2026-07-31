@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.3.1--dc4d9b460625",
+  "requirementId": "REQ-017.3.1",
+  "hash": "dc4d9b460625",
+  "verdict": "pass",
+  "summary": "test_cancelling_slug_editor_does_not_rename_task types 'discard-me' into the real editor, cancels via escape, and asserts both zero set_slug calls on the recording fake and the original slug still rendered — a spurious rename on cancel would fail both assertions",
+  "timestamp": "2026-07-31T00:10:39.596Z"
+}

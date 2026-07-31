@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.2.3--885ea22df04a",
+  "requirementId": "REQ-023.2.3",
+  "hash": "885ea22df04a",
+  "verdict": "pass",
+  "summary": "Both tests re-fetch after real state changes: a custom ARCHIVED-terminal workflow rejects hardcoded-COMPLETE readiness, and drop→still-gated rejects treating DROPPED terminality as satisfying",
+  "timestamp": "2026-07-31T00:16:12.524Z"
+}

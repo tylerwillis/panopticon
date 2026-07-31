@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.3.1--232b4a381d8e",
+  "requirementId": "REQ-006.3.1",
+  "hash": "232b4a381d8e",
+  "verdict": "pass",
+  "summary": "Escape asserted to pop the modal (screen_stack==1) AND released==[] against a spy client, so a release on cancel would fail",
+  "timestamp": "2026-07-31T00:11:32.392Z"
+}

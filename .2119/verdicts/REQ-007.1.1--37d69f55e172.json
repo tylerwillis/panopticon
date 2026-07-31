@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.1.1--37d69f55e172",
+  "requirementId": "REQ-007.1.1",
+  "hash": "37d69f55e172",
+  "verdict": "pass",
+  "summary": "test_pressing_c_attempts_both_clipboard_paths pins both the OSC-52 terminal write and the host _clipboard_copy receiving render_detail text; companions cover host-after-terminal-failure and highlighted-task (j then c) selection",
+  "timestamp": "2026-07-31T00:11:41.661Z"
+}

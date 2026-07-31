@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-016.1.1--9d221c77b673",
+  "requirementId": "REQ-016.1.1",
+  "hash": "9d221c77b673",
+  "verdict": "pass",
+  "summary": "Real-subprocess hooks against a blackholed/slow control plane assert elapsed<3s across all argv variants (TimeoutExpired backstop catches a missing deadline); cumulative-slow test distinguishes a whole-callback deadline from per-request timeouts; pi probe hangs Node unless handlers abort within 3s.",
+  "timestamp": "2026-07-31T01:01:55.282Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.4--7b8fee1bcee2",
+  "requirementId": "REQ-006.4.4",
+  "hash": "7b8fee1bcee2",
+  "verdict": "pass",
+  "summary": "Parametrized over all 11 non-down statuses: recovered task is get_task-checked but exact released-list equality proves no release for it",
+  "timestamp": "2026-07-31T00:11:34.054Z"
+}

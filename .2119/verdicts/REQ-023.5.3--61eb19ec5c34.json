@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.5.3--61eb19ec5c34",
+  "requirementId": "REQ-023.5.3",
+  "hash": "61eb19ec5c34",
+  "verdict": "pass",
+  "summary": "Detail pane asserts BOTH non-terminal children's slug+state present, with negatives (terminal child and other governors' children absent) blocking a dump-all pane from passing by substring accident",
+  "timestamp": "2026-07-31T01:01:35.384Z"
+}

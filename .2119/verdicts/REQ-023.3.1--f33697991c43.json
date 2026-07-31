@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.3.1--f33697991c43",
+  "requirementId": "REQ-023.3.1",
+  "hash": "f33697991c43",
+  "verdict": "pass",
+  "summary": "Held cell asserted plain=='held' (or 'held N' with governor) and style exactly 'dim'; counterexamples rejected: DROPPED-only dep, attention=True, and no-wait tasks all render yellow 'user', blocked renders red; live-status task forces dependency-fact derivation",
+  "timestamp": "2026-07-31T01:01:28.398Z"
+}

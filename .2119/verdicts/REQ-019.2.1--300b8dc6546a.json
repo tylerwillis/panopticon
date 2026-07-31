@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.2.1--300b8dc6546a",
+  "requirementId": "REQ-019.2.1",
+  "hash": "300b8dc6546a",
+  "verdict": "pass",
+  "summary": "Counting fakes: all registered harnesses reach exactly one model+effort discovery before cycling (rejects lazy), and 12 cycles plus failure/early-close variants leave counts at exactly 1 (rejects re-discovery)",
+  "timestamp": "2026-07-31T00:16:43.197Z"
+}

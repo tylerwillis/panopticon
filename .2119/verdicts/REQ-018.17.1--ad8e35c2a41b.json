@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.17.1--ad8e35c2a41b",
+  "requirementId": "REQ-018.17.1",
+  "hash": "ad8e35c2a41b",
+  "verdict": "pass",
+  "summary": "Both no-candidate variants (empty list; nonempty with highlighted=None) assert MemoScreen stays open and created==[], for model and effort",
+  "timestamp": "2026-07-31T00:15:50.182Z"
+}

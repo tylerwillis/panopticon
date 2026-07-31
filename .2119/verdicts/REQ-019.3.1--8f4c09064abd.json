@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.3.1--8f4c09064abd",
+  "requirementId": "REQ-019.3.1",
+  "hash": "8f4c09064abd",
+  "verdict": "pass",
+  "summary": "Call-numbered fake suggestions: the second open must render claude-model-2 in the visible OptionList; a cross-open cache would keep presenting -1 and time out the wait",
+  "timestamp": "2026-07-31T00:16:47.937Z"
+}

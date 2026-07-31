@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.7.1--a73145a867b0",
+  "requirementId": "REQ-008.7.1",
+  "hash": "a73145a867b0",
+  "verdict": "pass",
+  "summary": "fake raises on unversioned list_tasks and no later change rescues a discarded seed, so the agent-turn row proves the versioned seed snapshot itself rendered",
+  "timestamp": "2026-07-31T00:11:42.925Z"
+}

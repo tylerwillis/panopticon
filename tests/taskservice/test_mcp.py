@@ -50,7 +50,8 @@ async def test_tools_are_exposed_and_drive_the_task(tmp_path: Path) -> None:
     task = await svc.create_task("r1", "spike")
     async with connect(build_mcp_server(svc)) as s:
         await s.initialize()
-        names = {t.name for t in (await s.list_tools()).tools}
+        tools = {t.name: t for t in (await s.list_tools()).tools}
+        names = set(tools)
         assert {
             "get_task",
             "set_slug",
@@ -60,9 +61,18 @@ async def test_tools_are_exposed_and_drive_the_task(tmp_path: Path) -> None:
             "resolve_responsibility",
             "set_turn",
             "set_blocked",
+            "set_attention",
             "put_artifact",
             "list_artifacts",
         } <= names
+        # 2119: REQ-023.6.6
+        attention_description = (tools["set_attention"].description or "").lower()
+        assert "escalat" in attention_description
+        assert "cannot suppress" in attention_description
+        marked = await s.call_tool("set_attention", {"task_id": task.id, "attention": True})
+        assert marked.isError is False
+        assert marked.structuredContent is not None
+        assert marked.structuredContent["attention"] is True
         result = await s.call_tool("apply_operation", {"task_id": task.id, "operation": "advance"})
         assert result.isError is False
         assert result.structuredContent is not None

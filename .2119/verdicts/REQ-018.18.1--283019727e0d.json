@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.18.1--283019727e0d",
+  "requirementId": "REQ-018.18.1",
+  "hash": "283019727e0d",
+  "verdict": "pass",
+  "summary": "Fields pre-populated from repo default terra:high (proven by 7.1 tests) clear to '' after cycling, and ctrl+s sends no starting_model; mixed touched/untouched case covered",
+  "timestamp": "2026-07-31T00:15:50.585Z"
+}

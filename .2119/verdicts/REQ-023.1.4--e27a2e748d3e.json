@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.1.4--e27a2e748d3e",
+  "requirementId": "REQ-023.1.4",
+  "hash": "e27a2e748d3e",
+  "verdict": "pass",
+  "summary": "test_spawnable_tasks_filters_claims_terminals_and_dependency_gates exercises the real spawnable_tasks against a fake lister, asserting dependency-free tasks with an empty depends_on_task_ids ('a') and an absent key ('e') stay eligible, while a dependency-free-but-claimed task ('b') and dependency-free-but-terminal task ('c') stay excluded (old semantics preserved, not broadened); the assertion currently fails against the unmodified spawner.py (no gating logic yet), empirically confirming it would catch a REQ-023.1.4 violation.",
+  "timestamp": "2026-07-31T00:27:43.574Z"
+}

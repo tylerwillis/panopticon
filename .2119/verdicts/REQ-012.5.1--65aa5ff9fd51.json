@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.5.1--65aa5ff9fd51",
-  "requirementId": "REQ-012.5.1",
-  "hash": "65aa5ff9fd51",
-  "verdict": "pass",
-  "summary": "Null-harness+model rejected on create, patch, and harness-clear paths; the paired config accepted proves non-blanket rejection",
-  "timestamp": "2026-07-30T17:06:10.483Z"
-}

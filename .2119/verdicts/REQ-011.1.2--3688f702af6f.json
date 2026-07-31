@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-011.1.2--3688f702af6f",
+  "requirementId": "REQ-011.1.2",
+  "hash": "3688f702af6f",
+  "verdict": "pass",
+  "summary": "exhaustive 32-case product over registration/liveness/phase with claimed=False asserts 'queued' from the real composer",
+  "timestamp": "2026-07-31T00:11:52.770Z"
+}

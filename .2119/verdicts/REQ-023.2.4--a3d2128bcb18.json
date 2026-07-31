@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.2.4--a3d2128bcb18",
+  "requirementId": "REQ-023.2.4",
+  "hash": "a3d2128bcb18",
+  "verdict": "pass",
+  "summary": "Composer invoked with only its six supplied facts in a no-service/no-store unit context derives GATED, rejecting any external-state dependence (the facts-dict non-mutation assert is inert but harmless)",
+  "timestamp": "2026-07-31T00:16:12.933Z"
+}
