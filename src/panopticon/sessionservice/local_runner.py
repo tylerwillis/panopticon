@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import os
 import subprocess
+import tempfile
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Protocol
@@ -20,6 +21,7 @@ from typing import Protocol
 from panopticon.core.dirs import secrets_file_path
 from panopticon.core.models import LifecyclePhase
 from panopticon.harnesses import CREDENTIALS_MOUNT
+from panopticon.sessionservice.prefill import DEFAULT_TIMEOUT, prefill_pane
 from panopticon.sessionservice.runner import Runner
 
 #: Default composed image (base layer, ADR 0005); built in a later PR of this slice.
@@ -310,6 +312,27 @@ class LocalRunner(Runner):
         session = session_name(task_id)
         sessions = self._run(self._tmux("list-sessions", "-F", "#{session_name}"), check=False)
         return session in sessions.splitlines()
+
+    def submit_prompt(self, task_id: str, prompt: str) -> bool:
+        """Wait for the task's input box, bracketed-paste ``prompt``, and submit it once."""
+        fd, prompt_file = tempfile.mkstemp(
+            prefix=f"panopticon-stage-entry-{task_id}-", suffix=".txt"
+        )
+        with os.fdopen(fd, "w") as handle:
+            handle.write(prompt)
+        try:
+            timeout = float(os.environ.get("PANOPTICON_PREFILL_TIMEOUT", DEFAULT_TIMEOUT))
+        except ValueError:
+            timeout = DEFAULT_TIMEOUT
+        prefix = ["tmux", *(["-L", self._tmux_socket] if self._tmux_socket else [])]
+        return prefill_pane(
+            session_name(task_id),
+            prompt_file,
+            run=self._run,
+            prefix=prefix,
+            timeout=timeout,
+            submit=True,
+        )
 
     def delete_workspace_contents(self, path: str) -> None:
         """Delete all files inside ``path`` by running a throwaway root Docker container.

@@ -29,6 +29,7 @@ import threading
 import time
 from collections.abc import Callable
 from pathlib import Path
+from typing import Protocol
 
 import httpx
 
@@ -43,8 +44,13 @@ from panopticon.sessionservice.local_runner import DEFAULT_IMAGE, LocalRunner
 from panopticon.sessionservice.provisioner import Provisioner
 from panopticon.sessionservice.shell_runner import ShellRunner
 from panopticon.sessionservice.spawner import Spawner, spawnable_tasks
+from panopticon.sessionservice.stage_entry_wake import StageEntryWaker
 
 _log = logging.getLogger(__name__)
+
+
+class EntryWaker(Protocol):
+    def wake(self, task: JsonObj) -> None: ...
 
 
 class HostDaemon:
@@ -56,12 +62,14 @@ class HostDaemon:
         spawner: Spawner,
         provisioner: Provisioner,
         *,
+        waker: EntryWaker | None = None,
         sleep: Callable[[float], None] = time.sleep,
         interval: float = 2.0,
     ) -> None:
         self._client = client
         self._spawner = spawner
         self._provisioner = provisioner
+        self._waker = waker
         self._sleep = sleep
         self._interval = interval
 
@@ -82,6 +90,14 @@ class HostDaemon:
                 self._spawner.mark_healing(task)
             except Exception:  # best-effort visibility — never let it stall the respawn pass below
                 _log.warning("flagging heal failed for task %s", task.get("id"), exc_info=True)
+        if self._waker is not None:
+            for task in tasks:
+                try:
+                    self._waker.wake(task)
+                except Exception:
+                    _log.warning(
+                        "stage-entry wake failed for task %s", task.get("id"), exc_info=True
+                    )
         for task in tasks:
             try:
                 if task["id"] in spawnable_ids:
@@ -193,7 +209,15 @@ def run_host(
         makedirs=makedirs,
     )
     provisioner = Provisioner(client, clones_root=tasks_root, git=git, executions=executions)
-    HostDaemon(client, spawner, provisioner, interval=interval, sleep=sleep).run(until=until)
+    waker = StageEntryWaker(client, runner, runner_id=runner_id)
+    HostDaemon(
+        client,
+        spawner,
+        provisioner,
+        waker=waker,
+        interval=interval,
+        sleep=sleep,
+    ).run(until=until)
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
