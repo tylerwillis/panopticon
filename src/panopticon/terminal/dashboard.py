@@ -110,6 +110,7 @@ from panopticon.core.state import TERMINAL_LABELS
 from panopticon.harnesses import DEFAULT_HARNESS, HARNESSES
 from panopticon.sessionservice.local_runner import session_name
 from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
+from panopticon.terminal.attach import task_context_label
 from panopticon.terminal.setup_repo_task import create_setup_repo_task
 
 
@@ -2382,7 +2383,7 @@ class Dashboard(App[None]):
         self,
         client: TaskServiceClient,
         *,
-        on_switch: Callable[[str, str | None], None] | None = None,
+        on_switch: Callable[[str, str | None, str], None] | None = None,
         on_service: Callable[[], bool] | None = None,
         on_runner: Callable[[], bool] | None = None,
         artifacts_root: str | Path = ARTIFACTS_DIR,
@@ -2862,12 +2863,12 @@ class Dashboard(App[None]):
             )
             return
         task = self._tasks.get(self._current)
-        status = task.get("container_status") if task else None
-        if status not in _ATTACHABLE_STATUSES:
+        if task is None or task.get("container_status") not in _ATTACHABLE_STATUSES:
             self.notify("No running session for this task.", severity="warning")
             return
-        runner_host = task.get("runner_host") if task else None
-        self._on_switch(session_name(self._current), runner_host)
+        runner_host = task.get("runner_host")
+        session = session_name(self._current)
+        self._on_switch(session, runner_host, task_context_label(task, session))
 
     def action_open_url(self) -> None:
         """`p`: open the highlighted task's `url` in the browser (cloude-cade's `p` "open PR").
@@ -3098,7 +3099,7 @@ class Dashboard(App[None]):
 def run(
     client: TaskServiceClient,
     *,
-    on_switch: Callable[[str, str | None], None] | None = None,
+    on_switch: Callable[[str, str | None, str], None] | None = None,
     on_service: Callable[[], bool] | None = None,
     on_runner: Callable[[], bool] | None = None,
     artifacts_root: str | Path = ARTIFACTS_DIR,

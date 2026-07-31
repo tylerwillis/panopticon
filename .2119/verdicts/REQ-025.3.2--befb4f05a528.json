@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.3.2--befb4f05a528",
+  "requirementId": "REQ-025.3.2",
+  "hash": "befb4f05a528",
+  "verdict": "pass",
+  "summary": "Tests compare local label delivery with the exact safely quoted remote command and cover the supervisor handoff.",
+  "timestamp": "2026-07-31T05:57:51.133Z"
+}
