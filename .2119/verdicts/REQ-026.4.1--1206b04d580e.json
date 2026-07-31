@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.4.1--1206b04d580e",
+  "requirementId": "REQ-026.4.1",
+  "hash": "1206b04d580e",
+  "verdict": "pass",
+  "summary": "All built-ins have exactly one SPECIFYING responsibility publishing the spec for human review.",
+  "timestamp": "2026-07-31T07:16:26.462Z"
+}

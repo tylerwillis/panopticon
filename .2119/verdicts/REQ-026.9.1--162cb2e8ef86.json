@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.9.1--162cb2e8ef86",
+  "requirementId": "REQ-026.9.1",
+  "hash": "162cb2e8ef86",
+  "verdict": "pass",
+  "summary": "The actual configured home workflow directory rejects every built-in duplicate with exact remediation.",
+  "timestamp": "2026-07-31T07:16:28.627Z"
+}

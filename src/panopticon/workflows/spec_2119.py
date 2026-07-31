@@ -156,15 +156,19 @@ code later.
 2. Write the next append-only `specs/REQ-NNN-<slug>.md` and run `npx rfc2119 lint`.
 3. Annotate a genuine test for every MUST/SHALL requirement.
 4. Run fresh-context test-honesty reviews with
-   `codex exec --sandbox workspace-write -m gpt-5.6-sol` and record every verdict.
+   `codex exec --dangerously-bypass-approvals-and-sandbox -m gpt-5.6-sol`.
+   The reviewer prompt must forbid edits. After each reviewer run, you MUST verify
+   `git status --porcelain` is unchanged, then record every verdict.
 5. Stop only after `npx rfc2119 check` exits 0.
 
 Also publish the specification as a task artifact for the operator to review."""
 
 _FABLE_SOL_REVIEW_INSTRUCTIONS = """Run two independent fresh-context reviews of the final
-diff: Fable 5 through the Claude CLI and Sol 5.6 through the Codex CLI. Each review covers
-correctness, simplicity, scope, and spec/test honesty. Post both final review reports as labeled
-PR comments.
+diff: Fable 5 through the Claude CLI and Sol 5.6 with
+`codex exec --dangerously-bypass-approvals-and-sandbox -m gpt-5.6-sol`. Each review covers
+correctness, simplicity, scope, and spec/test honesty. Reviewer prompts must forbid edits. After
+each reviewer run, you MUST verify `git status --porcelain` is unchanged. Post both final review
+reports as labeled PR comments.
 
 Triage every finding against the code. Accept or reject each finding with a reason, implement every
 accepted fix, and re-run the TESTING gates. If a MUST-FIX was accepted, run one fresh review round;
@@ -173,8 +177,10 @@ never exceed two rounds. Post the final triage as a PR comment.
 Also publish the final review outputs and triage summary as task artifacts."""
 
 _SOL_ONLY_REVIEW_INSTRUCTIONS = """Run two independent fresh-context Sol 5.6 reviews of the
-final diff through the Codex CLI. Each review covers correctness, simplicity, scope, and spec/test
-honesty. Post both final review reports as labeled PR comments.
+final diff with `codex exec --dangerously-bypass-approvals-and-sandbox -m gpt-5.6-sol`. Each review
+covers correctness, simplicity, scope, and spec/test honesty. Reviewer prompts must forbid edits.
+After each reviewer run, you MUST verify `git status --porcelain` is unchanged. Post both final
+review reports as labeled PR comments.
 
 Triage every finding against the code. Accept or reject each finding with a reason, implement every
 accepted fix, and re-run the TESTING gates. If a MUST-FIX was accepted, run one fresh review round;
@@ -190,7 +196,10 @@ class _Spec2119Workflow(GithubForgeWorkflow):
     fable_reviews: ClassVar[bool] = True
 
     def _honesty_reviewer_cmd(self) -> str:
-        return "codex exec --sandbox workspace-write -m gpt-5.6-sol"
+        return (
+            "codex exec --dangerously-bypass-approvals-and-sandbox "
+            "-m gpt-5.6-sol"
+        )
 
     def _spec_skill(self) -> Skill:
         return Skill(

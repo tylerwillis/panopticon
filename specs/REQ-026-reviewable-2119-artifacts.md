@@ -69,3 +69,9 @@ pull request and its dedicated task URL.
 review, direct the agent to publish anything it wants the user to review as an artifact regardless
 of document type, and identify GitHub URLs as the substantial exception that belongs in the task's
 external URL field for the dashboard `p` hotkey instead of the artifact list opened by `a`.
+
+### REQ-026.12: Container-level reviewer isolation
+
+1. Every built-in 2119 skill that invokes Codex for test-honesty or final review MUST use
+`codex exec --dangerously-bypass-approvals-and-sandbox`, keep reviewer prompts read-only, and
+require verification that `git status --porcelain` is unchanged after each reviewer run.

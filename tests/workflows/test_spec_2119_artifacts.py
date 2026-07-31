@@ -68,9 +68,11 @@ EXPECTED_SOL_REVIEWING_RESPONSIBILITIES = (
     ),
 )
 EXPECTED_FABLE_SOL_REVIEW_INSTRUCTIONS = """Run two independent fresh-context reviews of the final
-diff: Fable 5 through the Claude CLI and Sol 5.6 through the Codex CLI. Each review covers
-correctness, simplicity, scope, and spec/test honesty. Post both final review reports as labeled
-PR comments.
+diff: Fable 5 through the Claude CLI and Sol 5.6 with
+`codex exec --dangerously-bypass-approvals-and-sandbox -m gpt-5.6-sol`. Each review covers
+correctness, simplicity, scope, and spec/test honesty. Reviewer prompts must forbid edits. After
+each reviewer run, you MUST verify `git status --porcelain` is unchanged. Post both final review
+reports as labeled PR comments.
 
 Triage every finding against the code. Accept or reject each finding with a reason, implement every
 accepted fix, and re-run the TESTING gates. If a MUST-FIX was accepted, run one fresh review round;
@@ -78,8 +80,10 @@ never exceed two rounds. Post the final triage as a PR comment.
 
 Also publish the final review outputs and triage summary as task artifacts."""
 EXPECTED_SOL_ONLY_REVIEW_INSTRUCTIONS = """Run two independent fresh-context Sol 5.6 reviews of the
-final diff through the Codex CLI. Each review covers correctness, simplicity, scope, and spec/test
-honesty. Post both final review reports as labeled PR comments.
+final diff with `codex exec --dangerously-bypass-approvals-and-sandbox -m gpt-5.6-sol`. Each review
+covers correctness, simplicity, scope, and spec/test honesty. Reviewer prompts must forbid edits.
+After each reviewer run, you MUST verify `git status --porcelain` is unchanged. Post both final
+review reports as labeled PR comments.
 
 Triage every finding against the code. Accept or reject each finding with a reason, implement every
 accepted fix, and re-run the TESTING gates. If a MUST-FIX was accepted, run one fresh review round;
@@ -93,7 +97,9 @@ code later.
 2. Write the next append-only `specs/REQ-NNN-<slug>.md` and run `npx rfc2119 lint`.
 3. Annotate a genuine test for every MUST/SHALL requirement.
 4. Run fresh-context test-honesty reviews with
-   `codex exec --sandbox workspace-write -m gpt-5.6-sol` and record every verdict.
+   `codex exec --dangerously-bypass-approvals-and-sandbox -m gpt-5.6-sol`.
+   The reviewer prompt must forbid edits. After each reviewer run, you MUST verify
+   `git status --porcelain` is unchanged, then record every verdict.
 5. Stop only after `npx rfc2119 check` exits 0.
 
 Also publish the specification as a task artifact for the operator to review."""
@@ -148,6 +154,10 @@ async def test_every_task_exposes_the_core_artifact_skill(tmp_path: Path) -> Non
         )
     )
     governor = await service.create_task("r1", "spike")
+    assert [skill.name for skill in await service.skills(governor.id)] == [
+        "provision",
+        "artifacts",
+    ]
     for workflow_name, workflow in workflows.items():
         expected = ["provision", "artifacts", *(skill.name for skill in workflow.skills())]
         for _ in range(2):
@@ -258,6 +268,7 @@ def test_specifying_has_one_artifact_responsibility() -> None:
 
 def test_2119_skills_publish_spec_and_review_material() -> None:
     # 2119: REQ-026.5.1
+    # 2119: REQ-026.12.1
     registry = discover_workflows(_home_workflows=Path("/nonexistent"))
     builtins = [workflow for name, workflow in registry.items() if name.startswith("2119-")]
 
@@ -301,12 +312,13 @@ def test_discovers_all_three_builtin_2119_workflows() -> None:
 
 def test_auto_sol_uses_sol_for_both_review_layers() -> None:
     # 2119: REQ-026.8.1
+    # 2119: REQ-026.12.1
     registry = discover_workflows(_home_workflows=Path("/nonexistent"))
     builtins = [workflow for name, workflow in registry.items() if name.startswith("2119-")]
     assert {workflow.name for workflow in builtins} == set(WORKFLOW_NAMES)
     for workflow in builtins:
         assert workflow._honesty_reviewer_cmd() == (
-            "codex exec --sandbox workspace-write -m gpt-5.6-sol"
+            "codex exec --dangerously-bypass-approvals-and-sandbox -m gpt-5.6-sol"
         )
         assert _skill(workflow, "spec-2119").instructions == EXPECTED_SOL_SPEC_INSTRUCTIONS
 
@@ -339,6 +351,32 @@ def test_auto_sol_uses_sol_for_both_review_layers() -> None:
         )
 
 
+def test_codex_reviewers_use_container_isolation_and_verify_clean_tree() -> None:
+    # 2119: REQ-026.12.1
+    registry = discover_workflows(_home_workflows=Path("/nonexistent"))
+    builtins = [workflow for name, workflow in registry.items() if name.startswith("2119-")]
+
+    assert {workflow.name for workflow in builtins} == set(WORKFLOW_NAMES)
+    for workflow in builtins:
+        expected_review = (
+            ("dual-review", EXPECTED_FABLE_SOL_REVIEW_INSTRUCTIONS)
+            if type(workflow).fable_reviews
+            else ("dual-review-sol", EXPECTED_SOL_ONLY_REVIEW_INSTRUCTIONS)
+        )
+        skills = workflow.skills()
+        assert [skill.name for skill in skills] == [
+            "open-pr",
+            "babysit-ci",
+            "babysit-merge",
+            "spec-2119",
+            expected_review[0],
+        ]
+        assert [(skill.name, skill.instructions) for skill in skills[-2:]] == [
+            ("spec-2119", EXPECTED_SOL_SPEC_INSTRUCTIONS),
+            expected_review,
+        ]
+
+
 def test_2119_open_pr_and_reviewer_cli_match_the_workflow_contract() -> None:
     for name in WORKFLOW_NAMES:
         workflow = _workflow(name)
@@ -348,11 +386,19 @@ def test_2119_open_pr_and_reviewer_cli_match_the_workflow_contract() -> None:
         assert workflow.image_layer() == CodexHarness().image_layer()
 
 
-def test_duplicate_error_identifies_external_file_and_remediation(tmp_path: Path) -> None:
+def test_duplicate_error_identifies_external_file_and_remediation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     # 2119: REQ-026.9.1
     builtin_names = discover_workflows(_home_workflows=tmp_path / "absent").keys()
+    home_workflows = tmp_path / "workflows"
+    home_workflows.mkdir()
+    monkeypatch.setattr(
+        "panopticon.workflows.discovery.user_config_dir",
+        lambda: tmp_path,
+    )
     for index, workflow_name in enumerate(builtin_names):
-        external = tmp_path / f"spec_2119_{index}.py"
+        external = home_workflows / f"spec_2119_{index}.py"
         external.write_text(
             "from panopticon.core.state import Complete, InitialState\n"
             "from panopticon.core.workflow import Workflow\n"
@@ -365,12 +411,12 @@ def test_duplicate_error_identifies_external_file_and_remediation(tmp_path: Path
         )
 
         with pytest.raises(ValueError) as exc_info:
-            discover_workflows(_home_workflows=tmp_path)
+            discover_workflows()
 
         assert str(exc_info.value) == (
             f"external workflow file {external}: duplicate workflow name "
             f"{workflow_name!r}; remove this external workflow file before restarting Panopticon"
         )
         with pytest.raises(ValueError, match="remove this external workflow file"):
-            discover_workflows(_home_workflows=tmp_path, _skip_duplicates=True)
+            discover_workflows(_skip_duplicates=True)
         external.unlink()
