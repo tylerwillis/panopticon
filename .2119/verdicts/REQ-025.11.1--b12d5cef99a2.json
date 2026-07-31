@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.11.1--b12d5cef99a2",
-  "requirementId": "REQ-025.11.1",
-  "hash": "b12d5cef99a2",
-  "verdict": "pass",
-  "summary": "Exact delivered-skill text defines artifacts broadly and pins the GitHub URL p-hotkey exception to artifact review.",
-  "timestamp": "2026-07-31T05:54:39.472Z"
-}

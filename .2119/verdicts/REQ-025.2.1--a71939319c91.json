@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.2.1--a71939319c91",
+  "requirementId": "REQ-025.2.1",
+  "hash": "a71939319c91",
+  "verdict": "pass",
+  "summary": "The service-level core artifacts skill is asserted by exact instructions, rejecting omission or misidentification of either the put_artifact MCP tool or REST PUT /tasks/{task_id}/artifacts/{name} mechanism.",
+  "timestamp": "2026-07-31T06:33:27.731Z"
+}

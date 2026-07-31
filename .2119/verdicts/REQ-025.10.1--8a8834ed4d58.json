@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.10.1--8a8834ed4d58",
+  "requirementId": "REQ-025.10.1",
+  "hash": "8a8834ed4d58",
+  "verdict": "pass",
+  "summary": "Exact rendered-guidance assertion independently requires artifacts to complement both the pull request and dedicated task URL and not replace either.",
+  "timestamp": "2026-07-31T06:33:38.614Z"
+}

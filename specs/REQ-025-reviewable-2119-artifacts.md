@@ -48,9 +48,9 @@ built-in workflows when no external workflow directory is present.
 
 ### REQ-025.8: Sol-only automatic workflow
 
-1. The `2119-auto-sol` workflow MUST direct both test-honesty review and final change review to use
-Sol only, while `2119-human-spec` and `2119-auto-spec` use Fable for test-honesty review and Fable
-plus Sol for final change review.
+1. Every built-in 2119 workflow MUST direct test-honesty review to Sol, while
+`2119-human-spec` and `2119-auto-spec` use Fable plus Sol for final change review and
+`2119-auto-sol` uses Sol only for final change review.
 
 ### REQ-025.9: Actionable duplicate migration failure
 

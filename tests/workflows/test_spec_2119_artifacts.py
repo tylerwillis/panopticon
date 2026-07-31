@@ -92,25 +92,14 @@ accepted fix, and re-run the TESTING gates. If a MUST-FIX was accepted, run one 
 never exceed two rounds. Post the final triage as a PR comment.
 
 Also publish the final review outputs and triage summary as task artifacts."""
-EXPECTED_FABLE_SPEC_INSTRUCTIONS = """The spec is the contract: requirements first, tests second,
-code later.
-
-1. If `.2119.yml` is missing, check for an open adoption PR before running `npx rfc2119 init`.
-2. Write the next append-only `specs/REQ-NNN-<slug>.md` and run `npx rfc2119 lint`.
-3. Annotate a genuine test for every MUST/SHALL requirement.
-4. Run fresh-context test-honesty reviews with `claude --print --model claude-fable-5` and record
-   every verdict.
-5. Stop only after `npx rfc2119 check` exits 0.
-
-Also publish the specification as a task artifact for the operator to review."""
 EXPECTED_SOL_SPEC_INSTRUCTIONS = """The spec is the contract: requirements first, tests second,
 code later.
 
 1. If `.2119.yml` is missing, check for an open adoption PR before running `npx rfc2119 init`.
 2. Write the next append-only `specs/REQ-NNN-<slug>.md` and run `npx rfc2119 lint`.
 3. Annotate a genuine test for every MUST/SHALL requirement.
-4. Run fresh-context test-honesty reviews with `codex exec --sandbox read-only -m gpt-5.6-sol
-   -c model_reasoning_effort="high" -` and record every verdict.
+4. Run fresh-context test-honesty reviews with
+   `codex exec --sandbox workspace-write -m gpt-5.6-sol` and record every verdict.
 5. Stop only after `npx rfc2119 check` exits 0.
 
 Also publish the specification as a task artifact for the operator to review."""
@@ -152,29 +141,36 @@ async def test_every_task_exposes_the_core_artifact_skill(tmp_path: Path) -> Non
         def skills(self) -> tuple[Skill, ...]:
             return (Skill("workflow-skill", "Workflow skill.", "Do workflow work."),)
 
-    service = TaskService(
-        SqlAlchemyStore(),
-        {"skill-less": SkillLess(), "skilled": Skilled()},
-        FilesystemArtifactStore(tmp_path),
-    )
+    workflows = discover_workflows(_home_workflows=Path("/nonexistent"))
+    workflows.update({"skill-less": SkillLess(), "skilled": Skilled()})
+    service = TaskService(SqlAlchemyStore(), workflows, FilesystemArtifactStore(tmp_path))
     await service.init()
-    await service.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
-    skill_less_task = await service.create_task("r1", "skill-less")
-    skilled_task = await service.create_task("r1", "skilled")
-
-    assert [skill.name for skill in await service.skills(skill_less_task.id)] == [
-        "provision",
-        "artifacts",
-    ]
-    assert [skill.name for skill in await service.skills(skilled_task.id)] == [
-        "provision",
-        "artifacts",
-        "workflow-skill",
-    ]
+    await service.create_repo(
+        Repo(
+            id="r1",
+            name="acme/widgets",
+            git_url="https://x/r1.git",
+            enabled_workflows=list(workflows),
+        )
+    )
+    governor = await service.create_task("r1", "spike")
+    for workflow_name, workflow in workflows.items():
+        expected = ["provision", "artifacts", *(skill.name for skill in workflow.skills())]
+        for _ in range(2):
+            governor_id = governor.id if workflow_name == "review" else None
+            harness = "codex" if workflow_name == "review" else None
+            task = await service.create_task(
+                "r1",
+                workflow_name,
+                governor_task_id=governor_id,
+                harness=harness,
+            )
+            assert [skill.name for skill in await service.skills(task.id)] == expected
 
 
 @pytest.mark.asyncio
 async def test_artifact_skill_explains_both_write_mechanisms(tmp_path: Path) -> None:
+    # 2119: REQ-025.1.1
     # 2119: REQ-025.2.1
     # 2119: REQ-025.3.1
     # 2119: REQ-025.10.1
@@ -266,24 +262,33 @@ def test_specifying_has_one_artifact_responsibility() -> None:
         )
 
 
-@pytest.mark.parametrize("workflow_name", WORKFLOW_NAMES)
-def test_2119_skills_publish_spec_and_review_material(workflow_name: str) -> None:
+def test_2119_skills_publish_spec_and_review_material() -> None:
     # 2119: REQ-025.5.1
-    workflow = _workflow(workflow_name)
-    spec_instructions = _skill(workflow, "spec-2119").instructions.lower()
-    review_skill = next(skill for skill in workflow.skills() if "review" in skill.name)
-    review_instructions = review_skill.instructions.lower()
+    registry = discover_workflows(_home_workflows=Path("/nonexistent"))
+    builtins = [workflow for name, workflow in registry.items() if name.startswith("2119-")]
 
-    assert spec_instructions.count(SPEC_SKILL_ARTIFACT_SENTENCE.lower()) == 1
-    assert review_instructions.count(REVIEW_SKILL_ARTIFACT_SENTENCE.lower()) == 1
+    assert {workflow.name for workflow in builtins} == set(WORKFLOW_NAMES)
+    for workflow in builtins:
+        spec_instructions = _skill(workflow, "spec-2119").instructions.lower()
+        review_skills = [skill for skill in workflow.skills() if "review" in skill.name]
+
+        assert spec_instructions.count(SPEC_SKILL_ARTIFACT_SENTENCE.lower()) == 1
+        assert review_skills
+        for review_skill in review_skills:
+            assert (
+                review_skill.instructions.lower().count(REVIEW_SKILL_ARTIFACT_SENTENCE.lower()) == 1
+            )
 
 
-@pytest.mark.parametrize("workflow_name", WORKFLOW_NAMES)
-def test_building_retains_the_external_pr_url_responsibility(workflow_name: str) -> None:
+def test_building_retains_the_external_pr_url_responsibility() -> None:
     # 2119: REQ-025.6.1
-    descriptions = _responsibility_descriptions(_workflow(workflow_name), "BUILDING")
+    registry = discover_workflows(_home_workflows=Path("/nonexistent"))
+    builtins = [workflow for name, workflow in registry.items() if name.startswith("2119-")]
 
-    assert descriptions["url-recorded"] == EXPECTED_URL_RESPONSIBILITY
+    assert {workflow.name for workflow in builtins} == set(WORKFLOW_NAMES)
+    for workflow in builtins:
+        descriptions = _responsibility_descriptions(workflow, "BUILDING")
+        assert descriptions["url-recorded"] == EXPECTED_URL_RESPONSIBILITY
 
 
 def test_discovers_all_three_builtin_2119_workflows() -> None:
@@ -301,7 +306,7 @@ def test_auto_sol_uses_sol_for_both_review_layers() -> None:
 
     assert type(auto_sol).fable_reviews is False
     assert auto_sol._honesty_reviewer_cmd() == (
-        'codex exec --sandbox read-only -m gpt-5.6-sol -c model_reasoning_effort="high" -'
+        "codex exec --sandbox workspace-write -m gpt-5.6-sol"
     )
     assert auto_sol_spec == EXPECTED_SOL_SPEC_INSTRUCTIONS.lower()
     assert auto_sol_review.instructions == EXPECTED_SOL_ONLY_REVIEW_INSTRUCTIONS
@@ -315,8 +320,10 @@ def test_auto_sol_uses_sol_for_both_review_layers() -> None:
     for name in ("2119-human-spec", "2119-auto-spec"):
         workflow = _workflow(name)
         assert type(workflow).fable_reviews is True
-        assert workflow._honesty_reviewer_cmd() == "claude --print --model claude-fable-5"
-        assert _skill(workflow, "spec-2119").instructions == EXPECTED_FABLE_SPEC_INSTRUCTIONS
+        assert workflow._honesty_reviewer_cmd() == (
+            "codex exec --sandbox workspace-write -m gpt-5.6-sol"
+        )
+        assert _skill(workflow, "spec-2119").instructions == EXPECTED_SOL_SPEC_INSTRUCTIONS
         assert (
             _skill(workflow, "dual-review").instructions == EXPECTED_FABLE_SOL_REVIEW_INSTRUCTIONS
         )

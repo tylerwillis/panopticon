@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.9.1--7f6169fc7fdc",
-  "requirementId": "REQ-025.9.1",
-  "hash": "7f6169fc7fdc",
-  "verdict": "pass",
-  "summary": "Real home workflow files trigger real discovery; exact errors pin file identity and remove-remediation even in live-rescan mode.",
-  "timestamp": "2026-07-31T06:10:01.661Z"
-}

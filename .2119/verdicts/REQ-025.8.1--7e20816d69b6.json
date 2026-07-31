@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.8.1--7e20816d69b6",
-  "requirementId": "REQ-025.8.1",
-  "hash": "7e20816d69b6",
-  "verdict": "pass",
-  "summary": "Exact instructions, reviewer commands, responsibility tuples, and review-skill lists prove Sol-only versus Fable-plus-Sol routing.",
-  "timestamp": "2026-07-31T05:54:38.138Z"
-}

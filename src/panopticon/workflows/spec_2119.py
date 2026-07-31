@@ -149,26 +149,14 @@ class _Merging(State):
     transitions = (Complete,)
 
 
-_FABLE_SPEC_INSTRUCTIONS = """The spec is the contract: requirements first, tests second,
-code later.
-
-1. If `.2119.yml` is missing, check for an open adoption PR before running `npx rfc2119 init`.
-2. Write the next append-only `specs/REQ-NNN-<slug>.md` and run `npx rfc2119 lint`.
-3. Annotate a genuine test for every MUST/SHALL requirement.
-4. Run fresh-context test-honesty reviews with `claude --print --model claude-fable-5` and record
-   every verdict.
-5. Stop only after `npx rfc2119 check` exits 0.
-
-Also publish the specification as a task artifact for the operator to review."""
-
 _SOL_SPEC_INSTRUCTIONS = """The spec is the contract: requirements first, tests second,
 code later.
 
 1. If `.2119.yml` is missing, check for an open adoption PR before running `npx rfc2119 init`.
 2. Write the next append-only `specs/REQ-NNN-<slug>.md` and run `npx rfc2119 lint`.
 3. Annotate a genuine test for every MUST/SHALL requirement.
-4. Run fresh-context test-honesty reviews with `codex exec --sandbox read-only -m gpt-5.6-sol
-   -c model_reasoning_effort="high" -` and record every verdict.
+4. Run fresh-context test-honesty reviews with
+   `codex exec --sandbox workspace-write -m gpt-5.6-sol` and record every verdict.
 5. Stop only after `npx rfc2119 check` exits 0.
 
 Also publish the specification as a task artifact for the operator to review."""
@@ -198,19 +186,17 @@ Also publish the final review outputs and triage summary as task artifacts."""
 class _Spec2119Workflow(GithubForgeWorkflow):
     """Shared forge skills for the 2119 workflow family."""
 
+    #: Whether stage-4 adversarial review uses Fable plus Sol; test honesty always uses Sol.
     fable_reviews: ClassVar[bool] = True
 
     def _honesty_reviewer_cmd(self) -> str:
-        if self.fable_reviews:
-            return "claude --print --model claude-fable-5"
-        return 'codex exec --sandbox read-only -m gpt-5.6-sol -c model_reasoning_effort="high" -'
+        return "codex exec --sandbox workspace-write -m gpt-5.6-sol"
 
     def _spec_skill(self) -> Skill:
-        instructions = _FABLE_SPEC_INSTRUCTIONS if self.fable_reviews else _SOL_SPEC_INSTRUCTIONS
         return Skill(
             "spec-2119",
             "Stage 1: write the RFC 2119 spec + annotated tests, get the tests judged.",
-            instructions,
+            _SOL_SPEC_INSTRUCTIONS,
         )
 
     def _review_skill(self) -> Skill:

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.4.1--1d22c83d9437",
-  "requirementId": "REQ-025.4.1",
-  "hash": "1d22c83d9437",
-  "verdict": "pass",
-  "summary": "Exact SPECIFYING responsibility tuples across all built-in 2119 workflows reject missing, duplicate, weakened, or misplaced artifact obligations.",
-  "timestamp": "2026-07-31T05:54:36.305Z"
-}
