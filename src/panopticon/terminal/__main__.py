@@ -11,6 +11,8 @@ the same optional task argument. `panopticon dashboard` runs the dashboard once 
 via the bundled Alembic config. `panopticon quickstart` registers panopticon itself as a repo
 (idempotent) then starts everything. `panopticon doctor` checks that the host has the
 prerequisites (git, docker + a running daemon, tmux, claude, Python 3.11+) those flows need.
+`panopticon start`/`panopticon host` each preflight the Docker daemon before starting sessions
+(REQ-027) — refusing with an actionable message rather than spawning every task into a crash loop.
 """
 
 from __future__ import annotations
@@ -147,6 +149,13 @@ def main(
 
         return doctor.report(doctor.run_checks())
     elif args.command == "host":
+        from panopticon.sessionservice import docker_daemon
+
+        # Fail fast on an unreachable Docker daemon (REQ-027.1) rather than spawning every task
+        # into a crash loop — e.g. after a host reboot, before OrbStack/Docker Desktop is back up.
+        if (message := docker_daemon.preflight_message("host")) is not None:
+            print(message)
+            return 1
         _run_migrate()
         _start_sessions()
         return 0
@@ -235,6 +244,14 @@ def main(
         )
     else:  # "start", "console", or no subcommand (no subcommand → alias for "start")
         if args.command in (None, "start"):  # "console" assumes services are already running
+            from panopticon.sessionservice import docker_daemon
+
+            # Fail fast on an unreachable Docker daemon (REQ-027.1) rather than spawning every
+            # task into a crash loop — e.g. after a host reboot, before OrbStack/Docker Desktop is
+            # back up.
+            if (message := docker_daemon.preflight_message("start")) is not None:
+                print(message)
+                return 1
             _run_migrate()
             _start_sessions()
         from panopticon.terminal.console import run_console_local

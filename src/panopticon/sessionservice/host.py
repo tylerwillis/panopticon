@@ -36,6 +36,7 @@ import httpx
 from panopticon.client import JsonObj, TaskServiceClient
 from panopticon.core.dirs import CLONE_CACHE_DIR, TASKS_DIR
 from panopticon.core.git import GitClones
+from panopticon.sessionservice import docker_daemon
 from panopticon.sessionservice._migration import migrate_session_dirs
 from panopticon.sessionservice.clones import CloneCache
 from panopticon.sessionservice.executions import WorkflowExecutions
@@ -193,8 +194,12 @@ def run_host(
     interval: float = 2.0,
     until: Callable[[], bool] | None = None,
     sleep: Callable[[float], None] = time.sleep,
+    daemon_reachable: Callable[[], bool] = docker_daemon.daemon_reachable,
 ) -> None:
-    """Wire the spawner + provisioner over a shared per-task-clone root and run the host loop."""
+    """Wire the spawner + provisioner over a shared per-task-clone root and run the host loop.
+
+    ``daemon_reachable`` (REQ-027.3) is the real Docker-daemon liveness probe by default; tests
+    inject a fake so they don't shell out."""
     executions = WorkflowExecutions(client)  # one shared "how is this workflow run" cache for both
     spawner = Spawner(
         client,
@@ -207,6 +212,7 @@ def run_host(
         git=git,
         images=images,
         makedirs=makedirs,
+        daemon_reachable=daemon_reachable,  # REQ-027.3: defer, don't crash-loop, when unreachable
     )
     provisioner = Provisioner(client, clones_root=tasks_root, git=git, executions=executions)
     waker = StageEntryWaker(client, runner, runner_id=runner_id)
@@ -255,6 +261,14 @@ def build_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def preflight_or_exit() -> None:
+    """Refuse to start this daemon when the Docker daemon is unreachable (REQ-027.2) — called
+    first by :func:`main`, before anything is provisioned, so a process that starts with Docker
+    down fails loud instead of looping into a spawn failure for every task."""
+    if (message := docker_daemon.preflight_message("host")) is not None:
+        raise SystemExit(message)
+
+
 def main(
     argv: list[str] | None = None, *, client: TaskServiceClient | None = None
 ) -> None:  # pragma: no cover - thin wiring + endless loop
@@ -262,6 +276,7 @@ def main(
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
     )
+    preflight_or_exit()
     migrate_session_dirs(CLONE_CACHE_DIR, TASKS_DIR)
     client = client or TaskServiceClient(httpx.Client(base_url=args.service_url))
     runner = LocalRunner(args.container_service_url, image=args.image, runner_id=args.runner_id)

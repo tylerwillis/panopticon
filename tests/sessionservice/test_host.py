@@ -7,6 +7,7 @@ from __future__ import annotations
 import asyncio
 from collections.abc import Callable, Generator
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import httpx
 import pytest
@@ -20,6 +21,7 @@ from panopticon.sessionservice.host import (
     HostDaemon,
     build_arg_parser,
     hold_runner_liveness,
+    preflight_or_exit,
     run_host,
 )
 from panopticon.taskservice.api import create_app
@@ -451,6 +453,66 @@ def test_build_arg_parser_host_flag_overrides_env(monkeypatch: pytest.MonkeyPatc
     assert args.host == "other.example.com"
 
 
+def test_preflight_or_exit_raises_with_the_actionable_message_when_docker_is_down(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # 2119: REQ-027.2.1
+    # 2119: REQ-027.2.2
+    monkeypatch.setattr(
+        "panopticon.sessionservice.host.docker_daemon.preflight_message",
+        lambda command: f"Docker daemon unreachable — fix it, then rerun `panopticon {command}`.",
+    )
+    with pytest.raises(SystemExit, match="Docker daemon unreachable"):
+        preflight_or_exit()
+
+
+def test_preflight_or_exit_is_a_no_op_when_docker_is_reachable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # 2119: REQ-027.2.1
+    monkeypatch.setattr(
+        "panopticon.sessionservice.host.docker_daemon.preflight_message", lambda command: None
+    )
+    preflight_or_exit()  # does not raise
+
+
+def test_main_exits_before_migrating_or_building_anything_when_docker_is_unreachable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # The daemon process itself (not just the extracted helper) must refuse before touching the
+    # DB or building its runners — proving the wiring, not just `preflight_or_exit` in isolation.
+    # 2119: REQ-027.2.1
+    from panopticon.sessionservice import host as host_module
+
+    monkeypatch.setattr(
+        host_module.docker_daemon,
+        "preflight_message",
+        lambda command: f"Docker daemon unreachable — fix it, then rerun `panopticon {command}`.",
+    )
+    mock_migrate = MagicMock()
+    monkeypatch.setattr(host_module, "migrate_session_dirs", mock_migrate)
+    with pytest.raises(SystemExit, match="Docker daemon unreachable"):
+        host_module.main([])
+    mock_migrate.assert_not_called()
+
+
+def test_main_proceeds_to_migrate_and_build_runners_when_docker_is_reachable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # 2119: REQ-027.2.1
+    from panopticon.sessionservice import host as host_module
+
+    monkeypatch.setattr(host_module.docker_daemon, "preflight_message", lambda command: None)
+    mock_migrate = MagicMock()
+    monkeypatch.setattr(host_module, "migrate_session_dirs", mock_migrate)
+    monkeypatch.setattr(host_module, "LocalRunner", MagicMock())
+    monkeypatch.setattr(host_module, "ShellRunner", MagicMock())
+    monkeypatch.setattr(host_module.threading, "Thread", MagicMock())
+    monkeypatch.setattr(host_module, "run_host", MagicMock())
+    host_module.main([], client=MagicMock())  # a client bypasses building a real TaskServiceClient
+    mock_migrate.assert_called_once_with(host_module.CLONE_CACHE_DIR, host_module.TASKS_DIR)
+
+
 def test_run_host_spawns_then_provisions_end_to_end(tmp_path: Path) -> None:
     service = TaskService(SqlAlchemyStore(), {"spike": Spike()}, FilesystemArtifactStore(tmp_path))
     asyncio.run(service.init())
@@ -484,6 +546,7 @@ def test_run_host_spawns_then_provisions_end_to_end(tmp_path: Path) -> None:
             images=_FakeImageBuilder(),
             makedirs=lambda _p: None,
             sleep=lambda _s: None,
+            daemon_reachable=lambda: True,  # no real Docker in tests
         )
 
         # Pass 1: fresh task → claimed + spawned; no slug yet → not provisioned.
