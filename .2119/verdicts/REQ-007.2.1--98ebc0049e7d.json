@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.2.1--98ebc0049e7d",
+  "requirementId": "REQ-007.2.1",
+  "hash": "98ebc0049e7d",
+  "verdict": "pass",
+  "summary": "Pilot test renders the real detail pane and rejects every nearby violation: missing/non-trailing/shared-line/non-dim/mistyped hint all fail via endswith(\\n+hint) plus an exact-range dim span check; only HTTP data is faked.",
+  "timestamp": "2026-07-30T23:49:09.923Z"
+}

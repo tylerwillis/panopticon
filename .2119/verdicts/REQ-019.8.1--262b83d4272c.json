@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.8.1--262b83d4272c",
+  "requirementId": "REQ-019.8.1",
+  "hash": "262b83d4272c",
+  "verdict": "pass",
+  "summary": "test_auto_sol_uses_sol_for_both_review_layers pins full instruction text (hardcoded, not imported) for all three workflows' spec + review skills, rejecting Fable leaking into auto-sol and Sol missing from human/auto-spec dual review; skill-name picker cannot mis-select",
+  "timestamp": "2026-07-31T00:09:24.021Z"
+}

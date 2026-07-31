@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.14.1--cfe6a80d648b",
+  "requirementId": "REQ-018.14.1",
+  "hash": "cfe6a80d648b",
+  "verdict": "pass",
+  "summary": "Pilot-driven test presses ctrl+s after typing a memo and asserts create_task was called with memo='fix' and initial_prompt=None via strict tuple equality; the Enter counterpart (REQ-018.13.1) proves the same seam records initial_prompt='fix', so delivering the memo as the initial prompt, skipping the memo, or not creating at all would each fail the assertion.",
+  "timestamp": "2026-07-30T23:51:34.321Z"
+}

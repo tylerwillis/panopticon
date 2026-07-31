@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.11.1--fb121d74a862",
+  "requirementId": "REQ-019.11.1",
+  "hash": "fb121d74a862",
+  "verdict": "pass",
+  "summary": "Exact-equality assertion on the real service-served skill text covers all three conjuncts (durable-document definition, publish-regardless-of-type directive, GitHub-URL/p-hotkey exception) and demonstrably fails today against the pre-implementation text lacking them; no mocks, no tautology.",
+  "timestamp": "2026-07-31T00:09:22.340Z"
+}

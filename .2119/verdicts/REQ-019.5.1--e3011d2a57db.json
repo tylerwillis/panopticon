@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.5.1--e3011d2a57db",
+  "requirementId": "REQ-019.5.1",
+  "hash": "e3011d2a57db",
+  "verdict": "pass",
+  "summary": "Parametrized over all three built-in 2119 workflows, the test asserts the exact spec-artifact and review-outputs-plus-triage-summary instruction sentences each appear in independently-defined literals in spec-2119 and the uniquely-named review skill; removing either sentence or dropping the triage-summary conjunct fails the match, and REQ-019.8.1's verbatim instruction pins corroborate.",
+  "timestamp": "2026-07-31T00:08:52.952Z"
+}

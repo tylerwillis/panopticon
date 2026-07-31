@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.6.1--6562f8ed27f2",
+  "requirementId": "REQ-019.6.1",
+  "hash": "6562f8ed27f2",
+  "verdict": "pass",
+  "summary": "Test queries real discovered workflows (no mocks) for all three built-in 2119 workflows' BUILDING responsibilities and exact-matches the url-recorded description referencing the external URL field; mutation checks confirm both removal and rewording (dropping the field reference) fail all parametrized cases.",
+  "timestamp": "2026-07-31T00:09:15.069Z"
+}

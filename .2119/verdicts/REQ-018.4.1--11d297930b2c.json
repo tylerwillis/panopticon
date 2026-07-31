@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.4.1--11d297930b2c",
+  "requirementId": "REQ-018.4.1",
+  "hash": "11d297930b2c",
+  "verdict": "pass",
+  "summary": "Real pilot-driven test: Down/Up presses assert highlight index transitions (None->0->1, 1->0) on the filtered OptionList (2 of 3/4 suggestions), and the accepted value luna/xhigh would expose navigation over the unfiltered vocabulary; only the REST client is faked.",
+  "timestamp": "2026-07-30T23:51:33.578Z"
+}

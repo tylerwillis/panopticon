@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.2.1--92a9cb7c9745",
+  "requirementId": "REQ-018.2.1",
+  "hash": "92a9cb7c9745",
+  "verdict": "pass",
+  "summary": "Test tabs through the live Textual modal asserting real focused widgets memo->harness->model->effort per press; any skipped, swapped, or interposed control breaks a consecutive focus assertion; only the REST client is faked.",
+  "timestamp": "2026-07-30T23:51:01.207Z"
+}

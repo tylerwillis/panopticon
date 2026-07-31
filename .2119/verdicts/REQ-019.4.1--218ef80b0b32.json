@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.4.1--218ef80b0b32",
+  "requirementId": "REQ-019.4.1",
+  "hash": "218ef80b0b32",
+  "verdict": "pass",
+  "summary": "Exact-tuple assertion over real discovery pins all three 2119 workflows' SPECIFYING responsibilities verbatim, rejecting zero/duplicate artifact responsibilities, wrong-state placement, and weakened publication wording.",
+  "timestamp": "2026-07-31T00:08:35.229Z"
+}

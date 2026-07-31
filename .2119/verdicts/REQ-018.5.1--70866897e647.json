@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.5.1--70866897e647",
-  "requirementId": "REQ-018.5.1",
-  "hash": "70866897e647",
-  "verdict": "pass",
-  "summary": "Absent model and effort vocabulary values are entered through the controls and observed in the create request.",
-  "timestamp": "2026-07-30T16:50:19.626Z"
-}

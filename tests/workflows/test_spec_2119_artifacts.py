@@ -16,12 +16,16 @@ from panopticon.workflows.discovery import discover_workflows
 
 WORKFLOW_NAMES = ("2119-human-spec", "2119-auto-spec", "2119-auto-sol")
 EXPECTED_ARTIFACT_INSTRUCTIONS = (
-    "Publish reviewer-readable work that is not the pull request itself as a task artifact. "
+    "An artifact is a durable task document that the user can review. Publish anything you want "
+    "the user to review as an artifact, regardless of document type. Examples include a "
+    "specification or spec summary, review outputs, a triage summary, and stage or gate reports, "
+    "but these examples are not exhaustive. "
     "Use the `put_artifact` MCP tool, or send the artifact bytes with "
     "`PUT /tasks/{task_id}/artifacts/{name}` over REST. The operator opens published artifacts "
-    "from the dashboard with the `a` hotkey. Good candidates include a specification or spec "
-    "summary, review outputs, a triage summary, and stage or gate reports. Artifacts complement "
-    "the pull request and its dedicated external task URL; they do not replace either one."
+    "from the dashboard with the `a` hotkey. Artifacts complement the pull request and its "
+    "dedicated external task URL; they do not replace either one. The substantial exception is "
+    "GitHub URLs: record those in the task's external URL field so the dashboard `p` hotkey opens "
+    "them, rather than publishing them as artifacts."
 )
 EXPECTED_SPEC_ARTIFACT_RESPONSIBILITY = (
     "Publish the specification as a task artifact so the user can review it with the dashboard "
@@ -49,6 +53,18 @@ EXPECTED_SPECIFYING_RESPONSIBILITIES = (
 )
 EXPECTED_URL_RESPONSIBILITY = (
     "Record the PR URL in the task's external URL field with the `set_url` MCP tool."
+)
+EXPECTED_SOL_REVIEWING_RESPONSIBILITIES = (
+    (
+        "reviews-recorded-sol",
+        "Both independent Sol 5.6 reviews ran against the final diff and are posted as PR comments.",
+    ),
+    (
+        "findings-triaged",
+        "Every review finding is explicitly accepted or rejected with a reason; accepted fixes "
+        "are implemented with gates re-run; a fresh re-review round ran if any must-fix was "
+        "accepted (2 rounds max); the triage summary is a PR comment.",
+    ),
 )
 SPEC_SKILL_ARTIFACT_SENTENCE = (
     "Also publish the specification as a task artifact for the operator to review."
@@ -113,7 +129,7 @@ def _responsibility_descriptions(workflow: Workflow, state: str) -> dict[str, st
 
 @pytest.mark.asyncio
 async def test_every_task_exposes_the_core_artifact_skill(tmp_path: Path) -> None:
-    # 2119: REQ-009.1.1
+    # 2119: REQ-019.1.1
     class SkillLess(Workflow):
         name = "skill-less"
 
@@ -158,9 +174,10 @@ async def test_every_task_exposes_the_core_artifact_skill(tmp_path: Path) -> Non
 
 @pytest.mark.asyncio
 async def test_artifact_skill_explains_both_write_mechanisms(tmp_path: Path) -> None:
-    # 2119: REQ-009.2.1
-    # 2119: REQ-009.3.1
-    # 2119: REQ-009.10.1
+    # 2119: REQ-019.2.1
+    # 2119: REQ-019.3.1
+    # 2119: REQ-019.10.1
+    # 2119: REQ-019.11.1
     service = TaskService(
         SqlAlchemyStore(),
         {"spike": discover_workflows(_home_workflows=Path("/nonexistent"))["spike"]},
@@ -177,7 +194,7 @@ async def test_artifact_skill_explains_both_write_mechanisms(tmp_path: Path) -> 
 
 
 def test_specifying_has_one_artifact_responsibility() -> None:
-    # 2119: REQ-009.4.1
+    # 2119: REQ-019.4.1
     registry = discover_workflows(_home_workflows=Path("/nonexistent"))
     builtins = [workflow for name, workflow in registry.items() if name.startswith("2119-")]
 
@@ -191,7 +208,7 @@ def test_specifying_has_one_artifact_responsibility() -> None:
 
 @pytest.mark.parametrize("workflow_name", WORKFLOW_NAMES)
 def test_2119_skills_publish_spec_and_review_material(workflow_name: str) -> None:
-    # 2119: REQ-009.5.1
+    # 2119: REQ-019.5.1
     workflow = _workflow(workflow_name)
     spec_instructions = _skill(workflow, "spec-2119").instructions.lower()
     review_skill = next(skill for skill in workflow.skills() if "review" in skill.name)
@@ -203,21 +220,21 @@ def test_2119_skills_publish_spec_and_review_material(workflow_name: str) -> Non
 
 @pytest.mark.parametrize("workflow_name", WORKFLOW_NAMES)
 def test_building_retains_the_external_pr_url_responsibility(workflow_name: str) -> None:
-    # 2119: REQ-009.6.1
+    # 2119: REQ-019.6.1
     descriptions = _responsibility_descriptions(_workflow(workflow_name), "BUILDING")
 
     assert descriptions["url-recorded"] == EXPECTED_URL_RESPONSIBILITY
 
 
 def test_discovers_all_three_builtin_2119_workflows() -> None:
-    # 2119: REQ-009.7.1
+    # 2119: REQ-019.7.1
     registry = discover_workflows(_home_workflows=Path("/nonexistent"))
 
     assert set(WORKFLOW_NAMES) <= set(registry)
 
 
 def test_auto_sol_uses_sol_for_both_review_layers() -> None:
-    # 2119: REQ-009.8.1
+    # 2119: REQ-019.8.1
     auto_sol = _workflow("2119-auto-sol")
     auto_sol_spec = _skill(auto_sol, "spec-2119").instructions.lower()
     auto_sol_review = next(skill for skill in auto_sol.skills() if "review" in skill.name)
@@ -228,6 +245,9 @@ def test_auto_sol_uses_sol_for_both_review_layers() -> None:
     )
     assert auto_sol_spec == EXPECTED_SOL_SPEC_INSTRUCTIONS.lower()
     assert auto_sol_review.instructions == EXPECTED_SOL_ONLY_REVIEW_INSTRUCTIONS
+    assert tuple(
+        (item.key, item.description) for item in auto_sol.responsibilities("REVIEWING")
+    ) == EXPECTED_SOL_REVIEWING_RESPONSIBILITIES
     for name in ("2119-human-spec", "2119-auto-spec"):
         workflow = _workflow(name)
         assert type(workflow).fable_reviews is True
@@ -239,7 +259,7 @@ def test_auto_sol_uses_sol_for_both_review_layers() -> None:
 
 
 def test_duplicate_error_identifies_external_file_and_remediation(tmp_path: Path) -> None:
-    # 2119: REQ-009.9.1
+    # 2119: REQ-019.9.1
     builtin_names = discover_workflows(_home_workflows=tmp_path / "absent").keys()
     for index, workflow_name in enumerate(builtin_names):
         external = tmp_path / f"spec_2119_{index}.py"

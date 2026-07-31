@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.3--ed17d521e8ca",
+  "requirementId": "REQ-006.4.3",
+  "hash": "ed17d521e8ca",
+  "verdict": "pass",
+  "summary": "Exact-string notices assertions pin 'respawned N' at N=0/1/2 driven by real key presses, ordered events prove the report follows all releases, N tracks released claims (not listed tasks) via a recovered-candidate case, and an unmocked test verifies the real app._notifications surface; minor unrejected gap: no back-to-back-confirmations test for a cumulative counter.",
+  "timestamp": "2026-07-30T23:49:22.814Z"
+}

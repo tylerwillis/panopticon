@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.6.1--553a4a3400f9",
+  "requirementId": "REQ-001.6.1",
+  "hash": "553a4a3400f9",
+  "verdict": "pass",
+  "summary": "Exact-equality assertion on the live modal's rendered Label text verifies both conjuncts (file removed; workflow stays loaded until service restart), so any omission, contradiction, or dilution of the disclosure fails; no over-mocking - the real Textual dialog is driven via pilot key presses.",
+  "timestamp": "2026-07-30T23:44:58.380Z"
+}

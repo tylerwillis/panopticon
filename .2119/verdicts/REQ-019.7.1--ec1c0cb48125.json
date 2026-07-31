@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.7.1--ec1c0cb48125",
+  "requirementId": "REQ-019.7.1",
+  "hash": "ec1c0cb48125",
+  "verdict": "pass",
+  "summary": "test_discovers_all_three_builtin_2119_workflows calls the real discover_workflows with the external dir pointed at a nonexistent path (and path=None), so all three 2119 names can only come from the unmocked built-in package scan; the subset assertion fails if any one name is missing or if registration depended on an external directory",
+  "timestamp": "2026-07-31T00:08:44.213Z"
+}

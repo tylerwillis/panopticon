@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.5.1--a4b644b590ab",
-  "requirementId": "REQ-009.5.1",
-  "hash": "a4b644b590ab",
-  "verdict": "pass",
-  "summary": "Every built-in workflow's spec and review skill must contain exactly the required task-artifact publication instruction.",
-  "timestamp": "2026-07-23T18:18:19.566Z"
-}

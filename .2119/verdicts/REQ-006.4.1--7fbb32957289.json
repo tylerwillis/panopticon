@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.1--7fbb32957289",
+  "requirementId": "REQ-006.4.1",
+  "hash": "7fbb32957289",
+  "verdict": "pass",
+  "summary": "Exact-sequence assertions on a recording fake client reject missed, duplicate, and stale-snapshot releases; the 11-status skip parametrization pins the confirmation-time gate, with real key-driven dashboard code unmocked.",
+  "timestamp": "2026-07-30T23:49:28.746Z"
+}

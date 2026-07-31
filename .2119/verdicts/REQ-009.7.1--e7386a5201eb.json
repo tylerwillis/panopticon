@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.7.1--e7386a5201eb",
-  "requirementId": "REQ-009.7.1",
-  "hash": "e7386a5201eb",
-  "verdict": "pass",
-  "summary": "Discovery with an absent external directory is exercised and omission of any named built-in workflow fails.",
-  "timestamp": "2026-07-23T18:18:19.552Z"
-}

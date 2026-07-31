@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.4.1--edb331ba0bd3",
+  "requirementId": "REQ-001.4.1",
+  "hash": "edb331ba0bd3",
+  "verdict": "pass",
+  "summary": "Test deletes a real tmp file via the yes button on the second (down-selected) row, asserting the selected file is unlinked, the sibling file survives, and the table re-fetches from the client (call count 2 plus a post-delete-only description string), so a wrong-file delete, no-delete, or local cache-filtered refresh would each fail.",
+  "timestamp": "2026-07-30T23:45:02.201Z"
+}

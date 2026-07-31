@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.2.1--4d0f1ea69464",
+  "requirementId": "REQ-017.2.1",
+  "hash": "4d0f1ea69464",
+  "verdict": "pass",
+  "summary": "Both branches behaviorally verified: exact-equality set_slug call pins trimmed value + highlighted task id (second task untouched), refresh proven via rebuild count plus new slug in live detail/table renders; rejection path raises real httpx 400 and asserts app running with old slug still displayed.",
+  "timestamp": "2026-07-30T23:50:17.991Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.12.1--ad0407598f29",
-  "requirementId": "REQ-002.12.1",
-  "hash": "ad0407598f29",
-  "verdict": "pass",
-  "summary": "Exercises both operator menu APIs and rejects review appearing in either while preserving governor-backed creation.",
-  "timestamp": "2026-07-30T18:27:06.645Z"
-}

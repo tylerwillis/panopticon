@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.9.1--0e7f9883e9f7",
+  "requirementId": "REQ-019.9.1",
+  "hash": "0e7f9883e9f7",
+  "verdict": "pass",
+  "summary": "Test writes real duplicate external files for every built-in name, runs real discovery, and pins the exact error string containing the external file path and the remove-the-copy remediation; a generic duplicate error or missing path/remediation would fail the exact-equality assertion.",
+  "timestamp": "2026-07-31T00:08:46.712Z"
+}

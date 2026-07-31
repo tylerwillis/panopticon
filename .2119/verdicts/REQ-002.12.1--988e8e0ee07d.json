@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.12.1--988e8e0ee07d",
+  "requirementId": "REQ-002.12.1",
+  "hash": "988e8e0ee07d",
+  "verdict": "pass",
+  "summary": "Real-service test asserts review is registered yet absent from both menu endpoints the dashboard consumes, with a non-hidden control and a creatability check; unhiding Review flips the assertion (mutation-verified).",
+  "timestamp": "2026-07-30T23:46:04.589Z"
+}

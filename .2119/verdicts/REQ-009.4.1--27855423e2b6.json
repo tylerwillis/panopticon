@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.4.1--27855423e2b6",
-  "requirementId": "REQ-009.4.1",
-  "hash": "27855423e2b6",
-  "verdict": "pass",
-  "summary": "All three built-in 2119 workflows are checked against an exact responsibility list, rejecting zero, duplicate, or misdescribed artifact responsibilities.",
-  "timestamp": "2026-07-23T18:18:19.573Z"
-}

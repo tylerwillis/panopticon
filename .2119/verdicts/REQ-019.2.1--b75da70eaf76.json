@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.2.1--b75da70eaf76",
+  "requirementId": "REQ-019.2.1",
+  "hash": "b75da70eaf76",
+  "verdict": "pass",
+  "summary": "Exact-equality pin of the full artifacts-skill instructions, fetched through the real TaskService/discovery stack (no mocks), names both the put_artifact MCP tool and the REST PUT /tasks/{task_id}/artifacts/{name} path — dropping or altering either mechanism fails the assertion.",
+  "timestamp": "2026-07-31T00:08:37.923Z"
+}

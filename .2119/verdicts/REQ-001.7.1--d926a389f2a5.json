@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.7.1--d926a389f2a5",
+  "requirementId": "REQ-001.7.1",
+  "hash": "d926a389f2a5",
+  "verdict": "pass",
+  "summary": "Real Textual render (no UI mocks) pins the delete box's region.width==56, height auto, round accent border and surface background against both the live theme values and the actual new-workflow dialog's rendered styles, plus centering via region x/y arithmetic; any violated conjunct (wrong width/border/color/background/off-center or drift between dialogs) fails.",
+  "timestamp": "2026-07-30T23:45:06.487Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.3.1--f417deaa0406",
+  "requirementId": "REQ-018.3.1",
+  "hash": "f417deaa0406",
+  "verdict": "pass",
+  "summary": "Pilot-driven test types uppercase mid-string chars into both fields against the real codex vocabulary and asserts exact visible-candidate equality, rejecting unfiltered (gpt-5.6-sol/low/medium excluded), case-sensitive, and prefix-only counterexamples",
+  "timestamp": "2026-07-30T23:49:48.830Z"
+}

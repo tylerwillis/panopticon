@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.8.1--e3dc76f85b1e",
-  "requirementId": "REQ-009.8.1",
-  "hash": "e3dc76f85b1e",
-  "verdict": "pass",
-  "summary": "Pins test-honesty and final-review directions for auto-sol and both Fable-based workflows, including each Sol-only and Fable-plus-Sol boundary.",
-  "timestamp": "2026-07-30T18:27:07.374Z"
-}

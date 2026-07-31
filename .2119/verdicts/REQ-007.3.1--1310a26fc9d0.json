@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.3.1--1310a26fc9d0",
+  "requirementId": "REQ-007.3.1",
+  "hash": "1310a26fc9d0",
+  "verdict": "pass",
+  "summary": "Test calls the real render_detail on a hint-free fixture and asserts the exact hint absent both as substring and as a whole line, while the same test proves that exact literal is the pane-appended hint and the copy path uses render_detail — a hint line added by render_detail would fail both assertions.",
+  "timestamp": "2026-07-30T23:49:11.017Z"
+}

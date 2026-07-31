@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.1.1--17277e112626",
-  "requirementId": "REQ-009.1.1",
-  "hash": "17277e112626",
-  "verdict": "pass",
-  "summary": "Real service composition adds the core artifacts skill for tasks in workflows both without and with workflow-specific skills.",
-  "timestamp": "2026-07-30T18:27:07.003Z"
-}

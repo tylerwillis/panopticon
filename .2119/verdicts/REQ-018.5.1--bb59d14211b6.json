@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.5.1--bb59d14211b6",
+  "requirementId": "REQ-018.5.1",
+  "hash": "bb59d14211b6",
+  "verdict": "pass",
+  "summary": "Real TUI keypress test types model 'custom/model' and effort 'maximum' (absent from claude's static suggestions: fable/opus/sonnet, no efforts) and asserts create_task receives 'custom/model:maximum'; only the REST client is faked, so a suggestion-restricted control or a filtering submit path would fail the assertion.",
+  "timestamp": "2026-07-30T23:51:24.200Z"
+}

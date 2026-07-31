@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.1.1--78247df9663b",
+  "requirementId": "REQ-017.1.1",
+  "hash": "78247df9663b",
+  "verdict": "pass",
+  "summary": "Real Textual pilot key-presses cover all three conjuncts: e before d asserts no SlugScreen/no set_slug/slug unchanged (closed-pane rejection), e after d asserts SlugScreen opens with Input=fix-widget, and a DivergentClient test proves the editor seeds from the current service value over a stale list snapshot; only the HTTP client is faked.",
+  "timestamp": "2026-07-30T23:49:23.779Z"
+}
