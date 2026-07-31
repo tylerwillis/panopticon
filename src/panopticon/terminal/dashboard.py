@@ -20,7 +20,8 @@ a down task (releases its claim so the host runner re-spawns it), `Ctrl+R` confi
 all tasks the service reports as down, `p` opens the task's `url` in the browser (cloude-cade's
 `p` "open PR"), `g` opens the **repo config screen** (list / create / edit
 repos — and it **opens automatically on start when no repos are configured**, the first-run
-nudge to add one), `s` switches to the task-service session, and `a` opens a modal listing the task's
+nudge to add one), `e` snoozes a task for twelve hours, `E` snoozes it indefinitely, `v` edits its
+slug from the detail pane, `s` switches to the task-service session, and `a` opens a modal listing the task's
 artifacts — Enter opens the selected
 one with the host's default handler (`xdg-open`/`open`) by fetching it over REST to a temp file, `e`
 opens the on-disk file in place when the dashboard shares the artifact store, `y` **copies the
@@ -192,13 +193,13 @@ def _dim(cell: Text | str) -> Text:
     return t
 
 
-def _snooze_label(task: JsonObj, now: datetime) -> str | None:
-    """Return the active snooze label at ``now``; expired or invalid facts are inactive."""
+def _snooze_remaining(task: JsonObj, now: datetime) -> float | None:
+    """Return active seconds remaining; infinity represents the reserved sticky deadline."""
     raw = task.get("snoozed_until")
     if not isinstance(raw, str):
         return None
     if raw == _INDEFINITE_SNOOZE_UNTIL:
-        return "snoozed"
+        return float("inf")
     try:
         deadline = datetime.fromisoformat(raw)
     except ValueError:
@@ -210,6 +211,16 @@ def _snooze_label(task: JsonObj, now: datetime) -> str | None:
     seconds = (deadline - now).total_seconds()
     if seconds <= 0:
         return None
+    return seconds
+
+
+def _snooze_label(task: JsonObj, now: datetime) -> str | None:
+    """Return the active snooze label at ``now``; expired or invalid facts are inactive."""
+    seconds = _snooze_remaining(task, now)
+    if seconds is None:
+        return None
+    if seconds == float("inf"):
+        return "snoozed"
     if seconds < 60:
         remaining = "<1m"
     elif seconds < 3600:
@@ -221,19 +232,8 @@ def _snooze_label(task: JsonObj, now: datetime) -> str | None:
 
 def _snooze_refresh_delay(task: JsonObj, now: datetime) -> float | None:
     """Seconds until a finite snooze's displayed duration changes or expires."""
-    raw = task.get("snoozed_until")
-    if not isinstance(raw, str) or raw == _INDEFINITE_SNOOZE_UNTIL:
-        return None
-    try:
-        deadline = datetime.fromisoformat(raw)
-    except ValueError:
-        return None
-    if deadline.tzinfo is None:
-        deadline = deadline.replace(tzinfo=UTC)
-    if now.tzinfo is None:
-        now = now.replace(tzinfo=UTC)
-    seconds = (deadline - now).total_seconds()
-    if seconds <= 0:
+    seconds = _snooze_remaining(task, now)
+    if seconds is None or seconds == float("inf"):
         return None
     if seconds < 60:
         return seconds
@@ -242,8 +242,21 @@ def _snooze_refresh_delay(task: JsonObj, now: datetime) -> float | None:
 
 
 def _snooze_is_pierced(task: JsonObj) -> bool:
-    """An agent attention escalation or blocked marker outranks an operator snooze."""
-    return bool(task.get("blocked") or (task.get("attention") and task.get("turn") == "user"))
+    """Only an agent attention escalation outranks an operator snooze."""
+    return bool(task.get("attention"))
+
+
+def _apply_snooze_precedence(task: JsonObj, now: datetime | None, ordinary_turn: Text) -> Text:
+    """Apply attention > snooze > ordinary ordering to any derived turn presentation.
+
+    ``ordinary_turn`` is deliberately supplied by the caller: dependency-gating can pass its
+    dim ``held`` cell through this seam when that concurrent feature lands.
+    """
+    if task.get("attention"):
+        return Text("user", style="dark_orange")
+    if now is not None and (label := _snooze_label(task, now)) is not None:
+        return Text(label, style="dim")
+    return ordinary_turn
 
 
 def _slug_cell(task: JsonObj, prefix: str = "", disclosure: str = "") -> Text:
@@ -417,14 +430,12 @@ def _decorate_wait_facts(tasks: list[JsonObj]) -> None:
         ]
 
 
-# Turn-column precedence: attention orange > snoozed > held > normal.
+# Turn-column precedence: attention orange > snoozed > held/gated > normal. Blocked is an ordinary
+# presentation for this ordering, so an operator snooze mutes it unless the agent escalates.
 def _turn_cell(task: JsonObj, now: datetime | None = None) -> Text:
     if task.get("blocked"):
         ordinary = Text(f"{task['turn']} ⚠", style="red")
     else:
-        ordinary = Text(
-            task["turn"], style="green" if task["turn"] == "agent" else "dark_orange"
-        )
         dependencies_waiting = any(
             not _task_is_terminal(dependency) for dependency in task.get("_dependency_tasks", [])
         )
@@ -433,11 +444,10 @@ def _turn_cell(task: JsonObj, now: datetime | None = None) -> Text:
         if dependencies_waiting or governor_waiting:
             label = f"held {len(active_children)}" if governor_waiting else "held"
             ordinary = Text(label, style="dim")
-    if task.get("attention"):
-        return Text("user", style="dark_orange")
-    if now is not None and (label := _snooze_label(task, now)) is not None:
-        return Text(label, style="dim")
-    return ordinary
+        else:
+            color = "green" if task["turn"] == "agent" else "dark_orange"
+            ordinary = Text(task["turn"], style=color)
+    return _apply_snooze_precedence(task, now, ordinary)
 
 
 # Container-status colors. The status is composed by the **task service** (folding the session
@@ -2657,12 +2667,12 @@ class Dashboard(App[None]):
     def action_refresh(self) -> None:
         table = self.query_one("#tasks", DataTable)
         selected = self._current  # keep the operator's highlight across the rebuild (feed refresh)
-        table.clear()
         tasks, self._version = self._client.list_tasks_versioned()
         ordered = sorted(tasks, key=_make_sort_key(self._sort_by_updated))
         new_multi_runner = (
             len({r.get("host") for r in self._client.live_runners() if r.get("host")}) > 1
         )
+        table.clear()
         if new_multi_runner != self._multi_runner:
             table.clear(columns=True)  # rows already gone; also clears columns for rebuild
             self._multi_runner = new_multi_runner
@@ -2792,7 +2802,15 @@ class Dashboard(App[None]):
             if (delay := _snooze_refresh_delay(task, now)) is not None
         ]
         if delays:
-            self._snooze_timer = self.set_timer(min(delays), self.action_refresh)
+            self._snooze_timer = self.set_timer(min(delays), self._refresh_snooze_display)
+
+    def _refresh_snooze_display(self) -> None:
+        """Retry a clock-driven redraw after a transient service outage."""
+        self._snooze_timer = None
+        try:
+            self.action_refresh()
+        except httpx.HTTPError:
+            self._snooze_timer = self.set_timer(1.0, self._refresh_snooze_display)
 
     def on_data_table_row_highlighted(self, event: DataTable.RowHighlighted) -> None:
         key = event.row_key.value
@@ -3054,15 +3072,28 @@ class Dashboard(App[None]):
         until = (
             None if _snooze_label(task, now) is not None else (now + _SNOOZE_DURATION).isoformat()
         )
-        self._client.set_snooze(self._current, until)
-        self.action_refresh()
+        if self._set_snooze(self._current, until):
+            self.action_refresh()
 
     def action_snooze_indefinitely(self) -> None:
         """`E`: record the reserved sticky snooze deadline on the highlighted task."""
         if self._current is None:
             return
-        self._client.set_snooze(self._current, _INDEFINITE_SNOOZE_UNTIL)
-        self.action_refresh()
+        if self._set_snooze(self._current, _INDEFINITE_SNOOZE_UNTIL):
+            self.action_refresh()
+
+    def _set_snooze(self, task_id: str, until: str | None) -> bool:
+        """Persist one snooze fact without letting a failed REST write take down the TUI."""
+        try:
+            self._client.set_snooze(task_id, until)
+        except httpx.HTTPStatusError as exc:
+            detail = exc.response.json().get("detail", str(exc))
+            self.notify(f"Can't snooze: {detail}", severity="error")
+            return False
+        except httpx.RequestError as exc:
+            self.notify(f"Can't snooze: {exc}", severity="error")
+            return False
+        return True
 
     def _copy_to_clipboard(self, text: str) -> None:
         """Copy ``text`` to the clipboard two ways, best-effort: an OSC 52 emit (Textual's

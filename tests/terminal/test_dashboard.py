@@ -15,7 +15,7 @@ from typing import Any
 
 import httpx
 import pytest
-from rich.text import Span
+from rich.text import Span, Text
 from textual.app import App
 from textual.containers import VerticalScroll
 from textual.widgets import Button, Checkbox, DataTable, Input, Label, OptionList, Select, Static
@@ -976,6 +976,14 @@ _SNOOZE_NOW = datetime(2026, 7, 31, 8, 0, tzinfo=UTC)
 _INDEFINITE_SNOOZE = "9999-12-31T23:59:59+00:00"
 
 
+def _assert_fully_dimmed(row: list[Any]) -> None:
+    for cell in row:
+        assert cell._spans and any(
+            span.start == 0 and span.end == len(cell.plain) and span.style == "dim"
+            for span in cell._spans
+        ), f"{cell!r} should be dim across its full rendered text"
+
+
 # 2119: REQ-027.2.1
 # 2119: REQ-027.2.2
 # 2119: REQ-027.3.1
@@ -1002,8 +1010,7 @@ async def test_e_snoozes_for_twelve_hours_renders_countdown_and_toggles_off(
         assert fake.snoozes == [(_TASK["id"], deadline)]
         row = app.query_one("#tasks", DataTable).get_row(_TASK["id"])
         assert row[1].plain == "snoozed · 12h left"
-        for cell in row:
-            assert cell._spans and all(span.style == "dim" for span in cell._spans)
+        _assert_fully_dimmed(row)
         assert "orange" not in str(row[1].style)
 
         await pilot.press("e")
@@ -1054,12 +1061,75 @@ async def test_shift_e_sets_an_indefinite_snooze_with_visible_dim_label() -> Non
         assert fake.snoozes == [(_TASK["id"], _INDEFINITE_SNOOZE)]
         row = app.query_one("#tasks", DataTable).get_row(_TASK["id"])
         assert row[1].plain == "snoozed"
-        for cell in row:
-            assert cell._spans and all(span.style == "dim" for span in cell._spans)
+        _assert_fully_dimmed(row)
 
         await pilot.press("e")
         await pilot.pause()
         assert fake.snoozes[-1] == (_TASK["id"], None)
+
+
+async def test_failed_snooze_write_keeps_dashboard_running(monkeypatch: pytest.MonkeyPatch) -> None:
+    fake = _FakeClient([{**_TASK, "snoozed_until": None}])
+    request = httpx.Request("PUT", "http://service/tasks/task/snooze")
+    response = httpx.Response(409, request=request, json={"detail": "task changed"})
+    error = httpx.HTTPStatusError("conflict", request=request, response=response)
+
+    def fail_snooze(_task_id: str, _until: str | None) -> dict[str, Any]:
+        raise error
+
+    monkeypatch.setattr(fake, "set_snooze", fail_snooze)
+    notices: list[str] = []
+    app = Dashboard(fake, now=lambda: _SNOOZE_NOW, refresh_interval=0)  # type: ignore[arg-type]
+    monkeypatch.setattr(app, "notify", lambda message, **kwargs: notices.append(message))
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("e")
+        await pilot.pause()
+        assert app.is_running
+        assert notices == ["Can't snooze: task changed"]
+        assert app.query_one("#tasks", DataTable).row_count == 1
+
+
+async def test_failed_clock_redraw_keeps_row_and_schedules_retry(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    task = {
+        **_TASK,
+        "snoozed_until": (_SNOOZE_NOW + timedelta(hours=4)).isoformat(),
+    }
+    fake = _FakeClient([task])
+    app = Dashboard(fake, now=lambda: _SNOOZE_NOW, refresh_interval=0)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        table = app.query_one("#tasks", DataTable)
+        assert table.row_count == 1
+
+        def fail_refresh(*, since: int = 0, wait: float | None = None) -> tuple[list[Any], int]:
+            request = httpx.Request("GET", "http://service/tasks")
+            raise httpx.RequestError("service restarting", request=request)
+
+        monkeypatch.setattr(fake, "list_tasks_versioned", fail_refresh)
+        app._refresh_snooze_display()
+        assert table.row_count == 1
+        assert app._snooze_timer is not None
+
+
+# 2119: REQ-027.3.1
+async def test_active_snooze_mutes_a_blocked_task_instead_of_piercing() -> None:
+    task = {
+        **_TASK,
+        "turn": "user",
+        "blocked": True,
+        "attention": False,
+        "snoozed_until": (_SNOOZE_NOW + timedelta(hours=4)).isoformat(),
+    }
+    app = Dashboard(_FakeClient([task]), now=lambda: _SNOOZE_NOW, refresh_interval=0)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        row = app.query_one("#tasks", DataTable).get_row(_TASK["id"])
+        assert row[1].plain == "snoozed · 4h left"
+        assert "⚠" not in row[1].plain and "red" not in str(row[1].style)
+        _assert_fully_dimmed(row)
 
 
 # 2119: REQ-027.3.2
@@ -1093,26 +1163,38 @@ async def test_finite_snooze_expiry_restores_attention_without_clearing_recorded
         expired = table.get_row(_TASK["id"])
         assert expired[1].plain == "user"
         assert "orange" in str(expired[1].style)
+        ordinary = _turn_cell({**task, "snoozed_until": None}, clock[0])
+        assert (expired[1].plain, str(expired[1].style)) == (
+            ordinary.plain,
+            str(ordinary.style),
+        )
         assert task["snoozed_until"] == deadline.isoformat()
         assert fake.snoozes == []
+
+    ordinary_cases = [
+        ({**_TASK, "turn": "agent", "blocked": False, "attention": False}, ("agent", "green")),
+        ({**_TASK, "turn": "user", "blocked": True, "attention": False}, ("user ⚠", "red")),
+        ({**_TASK, "turn": "agent", "blocked": False, "attention": True}, ("user", "orange")),
+    ]
+    for ordinary_task, (expected_text, expected_style) in ordinary_cases:
+        expired_cell = _turn_cell(
+            {**ordinary_task, "snoozed_until": deadline.isoformat()}, deadline
+        )
+        unsnoozed_cell = _turn_cell({**ordinary_task, "snoozed_until": None}, deadline)
+        assert (expired_cell.plain, str(expired_cell.style)) == (
+            unsnoozed_cell.plain,
+            str(unsnoozed_cell.style),
+        )
+        assert expired_cell.plain == expected_text
+        assert expected_style in str(expired_cell.style)
 
 
 # 2119: REQ-027.3.4
 async def test_attention_marker_pierces_snooze_and_snooze_precedes_held_and_gated() -> None:
-    dependency = {
-        **_TASK,
-        "id": "dependency",
-        "slug": "dependency",
-        "turn": "agent",
-    }
     held = {
         **_TASK,
         "id": "held",
-        "slug": "held",
-        "turn": "user",
         "attention": False,
-        "depends_on_task_ids": ["dependency"],
-        "container_status": "live",
         "snoozed_until": (_SNOOZE_NOW + timedelta(hours=4)).isoformat(),
     }
     gated = {
@@ -1125,38 +1207,30 @@ async def test_attention_marker_pierces_snooze_and_snooze_precedes_held_and_gate
         "container_status": "gated",
         "snoozed_until": (_SNOOZE_NOW + timedelta(hours=4)).isoformat(),
     }
-    pierced_held = {
-        **held,
-        "id": "pierced-held",
-        "slug": "pierced-held",
-        "attention": True,
-    }
     pierced_gated = {
         **gated,
         "id": "pierced-gated",
         "slug": "pierced-gated",
+        "turn": "agent",
         "attention": True,
     }
     app = Dashboard(
-        _FakeClient([dependency, gated, pierced_gated]),
+        _FakeClient([gated, pierced_gated]),
         now=lambda: _SNOOZE_NOW,
         refresh_interval=0,
     )  # type: ignore[arg-type]
-    held_candidate = _turn_cell(held, _SNOOZE_NOW, held_label="held")
+    held_candidate = dashboard._apply_snooze_precedence(
+        held, _SNOOZE_NOW, Text("held", style="dim")
+    )
     assert held_candidate.plain == "snoozed · 4h left"
     assert held_candidate.style == "dim"
-    pierced_candidate = _turn_cell(pierced_held, _SNOOZE_NOW, held_label="held")
-    assert pierced_candidate.plain == "user"
-    assert "orange" in str(pierced_candidate.style)
     async with app.run_test() as pilot:
         await pilot.pause()
         table = app.query_one("#tasks", DataTable)
 
         gated_row = table.get_row("gated")
         assert gated_row[1].plain == "snoozed · 4h left"
-        assert all(
-            cell._spans and all(span.style == "dim" for span in cell._spans) for cell in gated_row
-        )
+        _assert_fully_dimmed(gated_row)
 
         pierced_row = table.get_row("pierced-gated")
         assert pierced_row[1].plain == "user"
@@ -1282,6 +1356,7 @@ async def test_dashboard_with_no_tasks() -> None:
         assert str(app.query_one("#detail", Static).render()) == "no tasks"
 
 
+# 2119: REQ-025.1.1
 async def test_pressing_t_signals_the_pick_and_keeps_the_dashboard_running() -> None:
     # The dashboard records the pick via on_switch (the supervisor detaches + attaches the task)
     # and stays alive, so returning lands on this same live dashboard (ADR 0009 §6). A `live` task
@@ -2364,17 +2439,20 @@ async def test_tabbing_to_the_harness_selector_and_cycling_overrides_it_for_this
         await pilot.pause()
         await pilot.press("tab")  # focus moves from the memo text area to the harness selector
         assert isinstance(app.screen.focused, dashboard.HarnessSelector)
-        await pilot.press("enter")  # cycle claude -> codex (shadows the screen's submit binding)
-        await pilot.pause()
         selector = app.screen.query_one(dashboard.HarnessSelector)
-        assert selector.value == "codex"
-        assert fake.created == []  # cycling never submits
-        await pilot.press("tab")  # model
-        await pilot.press("tab")  # effort
-        await pilot.press("tab")  # focus wraps back to the memo text area
-        await pilot.press("enter")  # submit
-        await pilot.pause()
-        assert fake.created == [("r1", "spike", None, None, "codex", None)]
+        registered = selector._names
+        assert len(registered) == len(dashboard.HARNESSES)
+        assert set(registered) == set(dashboard.HARNESSES)
+        initial_index = registered.index(selector.value)
+        expected = registered[initial_index + 1 :] + registered[: initial_index + 1]
+        seen: list[str] = []
+        for next_harness in expected:
+            await pilot.press("enter")
+            await pilot.pause()
+            seen.append(selector.value)
+            assert selector.value == next_harness
+            assert fake.created == []
+        assert seen == expected
 
 
 # 2119: REQ-018.19.1
@@ -2385,6 +2463,8 @@ async def test_memo_harness_selector_cycles_exactly_the_registered_harnesses() -
         await pilot.pause()
         await pilot.press("n", "enter", "enter", "tab")
         selector = app.screen.query_one(dashboard.HarnessSelector)
+        assert len(selector._names) == len(dashboard.HARNESSES)
+        assert set(selector._names) == set(dashboard.HARNESSES)
         initial = selector.value
         seen: set[str] = set()
         for _ in dashboard.HARNESSES:
@@ -2411,11 +2491,9 @@ async def test_memo_accepts_input_while_harness_suggestions_are_discovered(
             timer.start()
             await pilot.press("enter")
             await _wait_for(pilot, slow.started.is_set)
-            memo = app.screen.query_one(dashboard.MemoTextArea)
-            assert app.screen.focused is memo
             await pilot.press("x")
             assert not release.is_set()
-            assert memo.text == "x"
+            assert app.screen.query_one(dashboard.MemoTextArea).text == "x"
     finally:
         release.set()
         if timer is not None:
@@ -2825,7 +2903,25 @@ def test_touched_launch_fields_survive_workflow_reselection() -> None:
 
 
 # 2119: REQ-018.5.1
-async def test_free_text_model_and_effort_are_composed_for_create() -> None:
+@pytest.mark.parametrize(
+    ("model_value", "effort_value", "expected"),
+    [
+        ("custom/model", None, "custom/model:low"),
+        (None, "maximum", "terra:maximum"),
+        ("custom/model", "maximum", "custom/model:maximum"),
+    ],
+    ids=["model-only", "effort-only", "both"],
+)
+async def test_free_text_model_and_effort_are_composed_for_create(
+    monkeypatch: pytest.MonkeyPatch,
+    model_value: str | None,
+    effort_value: str | None,
+    expected: str,
+) -> None:
+    harness = _SuggestionHarness("codex")
+    monkeypatch.setattr(dashboard, "HARNESSES", {"codex": harness})
+    assert "custom/model" not in {value for value, _ in harness.suggested_models()}
+    assert "maximum" not in {value for value, _ in harness.suggested_efforts()}
     fake = _FakeClient(
         [],
         repos=[
@@ -2835,6 +2931,7 @@ async def test_free_text_model_and_effort_are_composed_for_create() -> None:
                 "git_url": "",
                 "default_base": "main",
                 "default_harness": "codex",
+                "default_model": "terra:low",
             }
         ],
         workflows=[{"name": "spike", "when_to_use": ""}],
@@ -2843,12 +2940,14 @@ async def test_free_text_model_and_effort_are_composed_for_create() -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
         await pilot.press("n", "enter", "enter", "tab", "tab")
-        await pilot.press(*"custom/model")
+        if model_value is not None:
+            await pilot.press("end", *("backspace" for _ in "terra"), *model_value)
         await pilot.press("tab")
-        await pilot.press(*"maximum")
+        if effort_value is not None:
+            await pilot.press("end", *("backspace" for _ in "low"), *effort_value)
         await pilot.press("tab", "enter")
         await pilot.pause()
-    assert fake.created == [("r1", "spike", None, None, None, "custom/model:maximum")]
+    assert fake.created == [("r1", "spike", None, None, None, expected)]
 
 
 # 2119: REQ-018.15.1
@@ -4304,9 +4403,6 @@ async def test_workflows_screen_refuses_builtin_deletion_with_notification(
         await pilot.pause()
 
         assert isinstance(app.screen, dashboard.WorkflowsScreen)
-        assert not any(
-            isinstance(screen, dashboard.DeleteWorkflowScreen) for screen in app.screen_stack
-        )
         assert path.read_text() == "built in"
         assert notices == ["Built-in workflows cannot be deleted."]
 

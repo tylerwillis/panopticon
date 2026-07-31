@@ -862,7 +862,7 @@ def test_snooze_deadline_round_trips_without_changing_task_signals(client: TestC
     assert moved.status_code == 200
     client.put(f"/tasks/{task_id}/turn", json={"turn": "user"})
     client.put(f"/tasks/{task_id}/blocked", json={"blocked": True})
-    deadline = "2099-08-01T20:30:00+00:00"
+    deadline = "2099-08-01T20:30:00.123456+05:45"
     snoozed = client.put(f"/tasks/{task_id}/snooze", json={"until": deadline})
 
     assert snoozed.status_code == 200
@@ -872,6 +872,18 @@ def test_snooze_deadline_round_trips_without_changing_task_signals(client: TestC
     assert snoozed.json()["blocked"] is True
     assert client.get(f"/tasks/{task_id}").json()["snoozed_until"] == deadline
     assert client.get("/tasks").json()[0]["snoozed_until"] == deadline
+
+
+# 2119: REQ-027.1.1
+# 2119: REQ-027.1.2
+def test_snooze_preserves_a_timezone_naive_iso_timestamp_exactly(client: TestClient) -> None:
+    task_id = _new_task(client)
+    deadline = "2099-08-01T20:30:00.123456"
+    snoozed = client.put(f"/tasks/{task_id}/snooze", json={"until": deadline})
+
+    assert snoozed.status_code == 200
+    assert snoozed.json()["snoozed_until"] == deadline
+    assert client.get(f"/tasks/{task_id}").json()["snoozed_until"] == deadline
 
 
 # 2119: REQ-027.1.2

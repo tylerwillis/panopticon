@@ -317,11 +317,9 @@ class SnoozeIn(BaseModel):
         if value is None:
             return None
         try:
-            parsed = datetime.fromisoformat(value)
+            datetime.fromisoformat(value)
         except ValueError as exc:
             raise ValueError("until must be an ISO-8601 timestamp") from exc
-        if parsed.tzinfo is None:
-            raise ValueError("until must include a timezone")
         return value
 
 
