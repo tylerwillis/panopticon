@@ -50,12 +50,15 @@ def test_exposes_spawn_task_and_review_task_skills() -> None:
     assert all(s.description and s.instructions for s in WF.skills())
 
 
-# 2119: REQ-025.6.7
+# 2119: REQ-026.6.7
 def test_spawn_task_skill_explains_attention_escalation_during_child_waits() -> None:
     spawn = next(skill for skill in WF.skills() if skill.name == "spawn-task")
     line = next(line.strip() for line in spawn.instructions.splitlines() if "set_attention" in line)
-    assert "before asking the user" in line.lower()
-    assert "non-terminal" in line.lower() and "child" in line.lower()
+    assert line == (
+        "If any governed child is non-terminal, call `set_attention` on your own task with "
+        "`attention=true` before asking the user a question; it only escalates attention and "
+        "cannot suppress the ordinary user-turn queue."
+    )
 
 
 def test_carries_no_forge_plumbing() -> None:

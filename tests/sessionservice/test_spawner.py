@@ -1014,9 +1014,9 @@ def test_spawnable_tasks_filters_claims_terminals_and_dependency_gates() -> None
                 },
             ]
 
-    # 2119: REQ-025.1.1
-    # 2119: REQ-025.1.2
-    # 2119: REQ-025.1.4
+    # 2119: REQ-026.1.1
+    # 2119: REQ-026.1.2
+    # 2119: REQ-026.1.4
     assert [t["id"] for t in spawnable_tasks(_Lister())()] == ["a", "e", "f"]  # type: ignore[arg-type]
 
 
@@ -1284,7 +1284,8 @@ def test_spawner_against_the_real_service(tmp_path: Path) -> None:
         assert spawnable_tasks(client)() == []  # now claimed → no longer spawnable
 
 
-# 2119: REQ-025.1.3
+# 2119: REQ-026.1.3
+# 2119: REQ-026.3.5
 def test_next_spawner_pass_starts_dependent_with_initial_prompt_when_last_dep_completes(
     tmp_path: Path,
 ) -> None:
@@ -1295,17 +1296,12 @@ def test_next_spawner_pass_starts_dependent_with_initial_prompt_when_last_dep_co
     )
     with TestClient(create_app(service)) as http:
         client = TaskServiceClient(http)
-        dependency_id = client.create_task("r1", "spike")["id"]
+        first_dependency_id = client.create_task("r1", "spike")["id"]
+        last_dependency_id = client.create_task("r1", "spike")["id"]
         dependent_id = client.create_task(
             "r1", "spike", initial_prompt="synthesize the audit results"
         )["id"]
-        client.set_dependencies(dependent_id, [dependency_id])
-
-        assert dependent_id not in {task["id"] for task in spawnable_tasks(client)()}
-
-        client.request_transition(dependency_id, "COMPLETE", trigger="finish")
-        ready = {task["id"]: task for task in spawnable_tasks(client)()}
-        assert dependent_id in ready
+        client.set_dependencies(dependent_id, [first_dependency_id, last_dependency_id])
 
         runner = _FakeRunner()
         spawner = Spawner(
@@ -1320,6 +1316,27 @@ def test_next_spawner_pass_starts_dependent_with_initial_prompt_when_last_dep_co
             images=_FakeImageBuilder(),  # type: ignore[arg-type]
             makedirs=lambda _p: None,
         )
+
+        gated = client.get_task(dependent_id)
+        assert gated["claimed_by"] is None
+        assert gated["container_status"] == "gated"
+        for task in spawnable_tasks(client)():
+            spawner.spawn_one(task)
+        assert dependent_id not in {spawned["task_id"] for spawned in runner.spawned}
+        gated_after_pass = client.get_task(dependent_id)
+        assert gated_after_pass["claimed_by"] is None
+        assert gated_after_pass["container_status"] == "gated"
+        assert dependent_id in {task["id"] for task in client.list_tasks()}
+
+        assert dependent_id not in {task["id"] for task in spawnable_tasks(client)()}
+
+        client.request_transition(first_dependency_id, "COMPLETE", trigger="finish")
+        assert dependent_id not in {task["id"] for task in spawnable_tasks(client)()}
+
+        client.request_transition(last_dependency_id, "COMPLETE", trigger="finish")
+        ready = {task["id"]: task for task in spawnable_tasks(client)()}
+        assert dependent_id in ready
+
         assert spawner.spawn_one(ready[dependent_id]) == f"panopticon-{dependent_id}"
         assert client.get_task(dependent_id)["claimed_by"] == "host-1"
         assert runner.spawned[-1]["initial_prompt"] == "synthesize the audit results"

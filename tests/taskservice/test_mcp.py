@@ -65,7 +65,7 @@ async def test_tools_are_exposed_and_drive_the_task(tmp_path: Path) -> None:
             "put_artifact",
             "list_artifacts",
         } <= names
-        # 2119: REQ-025.6.6
+        # 2119: REQ-026.6.6
         attention_description = (tools["set_attention"].description or "").lower()
         assert "escalat" in attention_description
         assert "cannot suppress" in attention_description

@@ -129,7 +129,6 @@ def test_bootstrap_removes_a_stale_overview_left_by_an_earlier_bootstrap(tmp_pat
 
 
 # 2119: REQ-008.6.1
-# 2119: REQ-025.6.5
 def test_extension_puts_the_turn_via_the_task_service_rest_api() -> None:
     # Mirrors container/hook.py's contract exactly: PUT .../turn with {"turn": ...}.
     assert "process.env.PANOPTICON_SERVICE_URL" in TURN_EXTENSION
@@ -139,14 +138,12 @@ def test_extension_puts_the_turn_via_the_task_service_rest_api() -> None:
 
 
 # 2119: REQ-008.6.1
-# 2119: REQ-025.6.5
 def test_extension_flips_to_user_on_settle_and_agent_on_input() -> None:
     assert 'pi.on("agent_end", () => setTurn("user"));' in TURN_EXTENSION
     assert 'pi.on("input", () => setTurn("agent"));' in TURN_EXTENSION
 
 
 # 2119: REQ-008.6.1
-# 2119: REQ-025.6.5
 def test_input_handler_waits_for_the_agent_turn_request() -> None:
     source = TURN_EXTENSION.replace("export default function", "const extension = function")
     probe = (

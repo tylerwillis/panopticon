@@ -87,15 +87,16 @@ def test_unclaimed_non_terminal_is_queued() -> None:
     assert _compose(claimed=False, runner_live=False) == "queued"
 
 
-# 2119: REQ-025.2.1
-# 2119: REQ-025.2.2
+# 2119: REQ-026.2.1
+# 2119: REQ-026.2.2
 def test_dependency_gate_precedes_queued_but_not_terminal() -> None:
     assert _compose(claimed=False, dependencies_blocking=True) == "gated"
     assert _compose(claimed=False, dependencies_blocking=False) == "queued"
+    assert _compose(claimed=True, dependencies_blocking=True) == "down"
     assert _compose(terminal=True, claimed=False, dependencies_blocking=True) == "–"
 
 
-# 2119: REQ-025.2.4
+# 2119: REQ-026.2.4
 def test_container_status_composer_is_determined_by_supplied_dependency_fact() -> None:
     base_facts = {
         "terminal": False,

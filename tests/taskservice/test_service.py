@@ -69,8 +69,8 @@ async def _dependency_service(
     return service, store
 
 
-# 2119: REQ-025.1.1
-# 2119: REQ-025.3.5
+# 2119: REQ-026.1.1
+# 2119: REQ-026.3.5
 async def test_create_dependent_publishes_its_gate_in_the_initial_row(tmp_path: Path) -> None:
     service, store = await _dependency_service(tmp_path)
     dependency = await service.create_task("r1", "spike")
@@ -90,8 +90,8 @@ async def test_create_dependent_publishes_its_gate_in_the_initial_row(tmp_path: 
 
 
 @pytest.mark.parametrize("task_count", [2, 3])
-# 2119: REQ-025.4.1
-# 2119: REQ-025.4.3
+# 2119: REQ-026.4.1
+# 2119: REQ-026.4.3
 async def test_concurrent_dependency_updates_cannot_commit_a_cycle(
     tmp_path: Path, task_count: int
 ) -> None:
