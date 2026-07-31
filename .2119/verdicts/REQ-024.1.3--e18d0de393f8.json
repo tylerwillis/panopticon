@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.1.3--e18d0de393f8",
+  "requirementId": "REQ-024.1.3",
+  "hash": "e18d0de393f8",
+  "verdict": "pass",
+  "summary": "Test observes the entry with a down container, then flips it live and re-observes: a deliver-later implementation would fail runner.prompts==[] and the skipped-record assertion; fakes are faithful contract fakes of seams tested elsewhere.",
+  "timestamp": "2026-07-31T05:44:55.903Z"
+}

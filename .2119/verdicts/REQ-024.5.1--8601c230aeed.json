@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.5.1--8601c230aeed",
+  "requirementId": "REQ-024.5.1",
+  "hash": "8601c230aeed",
+  "verdict": "pass",
+  "summary": "REST advance under a forbid-all-subprocess guard proves the task service only records pending->delivered wake facts; injection happens solely via the session-service waker driving an injected runner, and delivery-time recording is asserted through the REST surface.",
+  "timestamp": "2026-07-31T05:32:34.798Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.1.5--20346bab3558",
+  "requirementId": "REQ-024.1.5",
+  "hash": "20346bab3558",
+  "verdict": "pass",
+  "summary": "Opt-out test builds a fully wake-eligible task (live, pending) so only the env var suppresses; a violation would submit and fail runner.prompts==[], and the sibling delivery test proves the same setup without the var does wake, isolating the env as the cause.",
+  "timestamp": "2026-07-31T05:33:18.481Z"
+}

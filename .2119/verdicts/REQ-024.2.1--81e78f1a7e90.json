@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.2.1--81e78f1a7e90",
+  "requirementId": "REQ-024.2.1",
+  "hash": "81e78f1a7e90",
+  "verdict": "pass",
+  "summary": "Real REST round-trip asserts exact first line, state description, responsibility status mutated to met before render (proving currency), and the /do-work skill pointer; submission seam closed by waker tests pinning prompt==briefing verbatim.",
+  "timestamp": "2026-07-31T05:36:25.251Z"
+}

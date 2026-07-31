@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.5.2--0a18c27da5ed",
+  "requirementId": "REQ-024.5.2",
+  "hash": "0a18c27da5ed",
+  "verdict": "pass",
+  "summary": "Per-entry wake_status is asserted over real REST JSON (skipped vs delivered on distinct entries) and re-read through a fresh SqlAlchemyStore over the on-disk SQLite file after closing the first adapter; an unpersisted or per-task-only status would fail both.",
+  "timestamp": "2026-07-31T05:40:54.331Z"
+}

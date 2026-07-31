@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.4.4--6a7fb15837e4",
+  "requirementId": "REQ-024.4.4",
+  "hash": "6a7fb15837e4",
+  "verdict": "pass",
+  "summary": "Real waker driven with a faithful failed-delivery seam (prefill_pane's False failure modes are independently pinned); asserts an attempt occurred yet no delivered record is written and the entry stays pending — recording 'delivered' on failure would fail the test.",
+  "timestamp": "2026-07-31T05:31:06.229Z"
+}

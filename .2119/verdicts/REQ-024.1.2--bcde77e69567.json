@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.1.2--bcde77e69567",
+  "requirementId": "REQ-024.1.2",
+  "hash": "bcde77e69567",
+  "verdict": "pass",
+  "summary": "Initial start_task entry asserted SKIPPED using a fixture initial state (agent-turn, non-terminal) that would derive PENDING if the exclusion were removed; sessionservice waker gates on PENDING, so the eligibility assertion is load-bearing, unmocked, and non-tautological.",
+  "timestamp": "2026-07-31T05:43:35.062Z"
+}
