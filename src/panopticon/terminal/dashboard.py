@@ -288,7 +288,7 @@ def _group_by_governor(
     for task in tasks:
         task_id = task["id"]
         governor_id = task.get("governor_task_id")
-        if governor_id in task_by_id:
+        if isinstance(governor_id, str) and governor_id in task_by_id:
             links[task_id].add(governor_id)
             links[governor_id].add(task_id)
 
