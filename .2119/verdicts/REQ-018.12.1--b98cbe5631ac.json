@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.12.1--b98cbe5631ac",
-  "requirementId": "REQ-018.12.1",
-  "hash": "b98cbe5631ac",
-  "verdict": "pass",
-  "summary": "Exact full-string summary assertions: harness/model/effort overrides each yield 'set by this task'; repo, workflow-beats-repo, and app-default labels covered plus resolver provenance unit test",
-  "timestamp": "2026-07-30T23:53:32.800Z"
-}

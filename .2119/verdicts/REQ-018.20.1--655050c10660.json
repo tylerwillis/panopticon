@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.20.1--655050c10660",
-  "requirementId": "REQ-018.20.1",
-  "hash": "655050c10660",
-  "verdict": "pass",
-  "summary": "test_no_match_stays_visible_and_enter_does_not_submit exercises real filtering logic (unmocked harness suggestions) and asserts both option_count==0 and region.width>0; verified via injected counterexample (hiding the box on empty match) that the test genuinely fails when the requirement is violated.",
-  "timestamp": "2026-07-30T18:30:38.316Z"
-}

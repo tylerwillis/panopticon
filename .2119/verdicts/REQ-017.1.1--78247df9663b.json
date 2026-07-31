@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.1.1--78247df9663b",
-  "requirementId": "REQ-017.1.1",
-  "hash": "78247df9663b",
-  "verdict": "pass",
-  "summary": "Tests exercise real Textual pilot key presses + isinstance checks on SlugScreen and Input.value: (1) e with pane closed asserts no SlugScreen, empty set_slugs, and unchanged get_task slug — rejects both 'no-op' and 'silent rename' violations; (2) e with pane open asserts isinstance(SlugScreen) and Input.value == current slug; (3) a DivergentClient test proves initialization reads live get_task (service-current) rather than the stale list snapshot (stale-summary), rejecting a cached-value violation. Fake client is a genuine in-memory store (set_slug/get_task mutate/read real state), not a behavior-bypassing stub.",
-  "timestamp": "2026-07-30T18:19:39.252Z"
-}

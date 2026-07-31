@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.7.1--4e6f00b98c46",
-  "requirementId": "REQ-008.7.1",
-  "hash": "4e6f00b98c46",
-  "verdict": "pass",
-  "summary": "Unversioned list_tasks raises, seed response is mutated, and the test pins rendered-row content + cursor + single call count — discarded seed, split fetches, and stale renders all fail",
-  "timestamp": "2026-07-30T18:40:11.109Z"
-}

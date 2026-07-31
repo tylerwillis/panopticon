@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.4.2--a3368e649034",
-  "requirementId": "REQ-006.4.2",
-  "hash": "a3368e649034",
-  "verdict": "pass",
-  "summary": "Service order is reversed from display order, the modal text is checked for display order, strict check/release interleaving is asserted, and a sleep-instrumented max_active_releases==1 rejects concurrent processing.",
-  "timestamp": "2026-07-30T18:19:29.999Z"
-}

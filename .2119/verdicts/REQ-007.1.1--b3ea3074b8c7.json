@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-007.1.1--b3ea3074b8c7",
-  "requirementId": "REQ-007.1.1",
-  "hash": "b3ea3074b8c7",
-  "verdict": "pass",
-  "summary": "test_pressing_c_attempts_both_clipboard_paths and test_pressing_c_attempts_host_clipboard_after_terminal_failure mock the two leaf writers (Textual's copy_to_clipboard for OSC52 terminal-forward, and module-level _clipboard_copy for the host binary) rather than the orchestrating _copy_to_clipboard, so they genuinely exercise action_copy_detail's real dispatch; the failure-injection test specifically rejects a fallback-only implementation (host write skipped when terminal succeeds, or terminal exception propagating and aborting the host write) since dashboard.py wraps only the terminal call in contextlib.suppress and calls _clipboard_copy unconditionally after. test_pressing_c_with_detail_open_copies_the_rendered_detail covers 'highlighted' (moves cursor with j before pressing c) and 'rendered detail text' (asserts render_detail(other) exactly) by mocking only the boundary _copy_to_clipboard, a reasonable division of labor across the three annotated tests.",
-  "timestamp": "2026-07-30T18:19:06.227Z"
-}

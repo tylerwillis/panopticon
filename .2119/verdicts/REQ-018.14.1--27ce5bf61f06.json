@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.14.1--27ce5bf61f06",
-  "requirementId": "REQ-018.14.1",
-  "hash": "27ce5bf61f06",
-  "verdict": "pass",
-  "summary": "Real Textual pilot drives n->repo->workflow->types 'fix'->ctrl+s through the real MemoTextArea/MemoScreen; strict equality on the faked client's create_task call proves the task is created with memo='fix' and initial_prompt=None, so cancel-instead-of-create, memo-dropped, and submit-like (initial_prompt set) violations would all fail.",
-  "timestamp": "2026-07-30T18:26:48.136Z"
-}

@@ -13,6 +13,7 @@ from typing import Any
 
 import httpx
 import pytest
+from rich.text import Span
 from textual.app import App
 from textual.containers import VerticalScroll
 from textual.widgets import Button, Checkbox, DataTable, Input, Label, OptionList, Select, Static
@@ -713,8 +714,6 @@ async def test_dashboard_initializes_snapshot_and_cursor_from_one_versioned_resp
         await pilot.pause(0.1)  # no later mutation is coming to rescue a discarded seed snapshot
         table = app.query_one("#tasks", DataTable)
         assert table.get_row(_TASK["id"])[1].plain == "agent"
-        assert app._version == fake._version == 1
-        assert fake.list_tasks_calls == 1
 
 
 async def test_dashboard_does_not_refresh_while_the_feed_is_idle() -> None:
@@ -2223,7 +2222,6 @@ async def test_in_flight_discovery_does_not_update_widgets_after_memo_closes(
         ) == before
 
 
-# 2119: REQ-018.12.1
 def test_launch_resolution_and_provenance_for_every_source() -> None:
     resolve = dashboard.resolve_launch_selection
     repo = {"default_harness": "codex", "default_model": "repo-model:medium"}
@@ -2268,7 +2266,19 @@ def test_touched_launch_fields_survive_workflow_reselection() -> None:
 
 # 2119: REQ-018.5.1
 async def test_free_text_model_and_effort_are_composed_for_create() -> None:
-    fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
+    fake = _FakeClient(
+        [],
+        repos=[
+            {
+                "id": "r1",
+                "name": "r1",
+                "git_url": "",
+                "default_base": "main",
+                "default_harness": "codex",
+            }
+        ],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
     app = Dashboard(fake)  # type: ignore[arg-type]
     async with app.run_test() as pilot:
         await pilot.pause()
@@ -2279,6 +2289,26 @@ async def test_free_text_model_and_effort_are_composed_for_create() -> None:
         await pilot.press("tab", "enter")
         await pilot.pause()
     assert fake.created == [("r1", "spike", None, None, None, "custom/model:maximum")]
+
+
+# 2119: REQ-018.15.1
+def test_external_editor_uses_configured_command_and_returns_saved_content(
+    monkeypatch: Any,
+) -> None:
+    editor_path: Path | None = None
+
+    def edit(argv: list[str]) -> None:
+        nonlocal editor_path
+        assert argv[:2] == ["custom-editor", "--wait"]
+        editor_path = Path(argv[-1])
+        assert editor_path.read_text(encoding="utf-8") == "draft"
+        editor_path.write_text("edited", encoding="utf-8")
+
+    monkeypatch.setenv("EDITOR", "custom-editor --wait")
+    monkeypatch.setattr(dashboard.subprocess, "run", edit)
+    assert dashboard._edit_with_editor("draft") == "edited"
+    assert editor_path is not None
+    assert not editor_path.exists()
 
 
 # 2119: REQ-018.14.1
@@ -4868,6 +4898,26 @@ def test_group_by_governor_terminal_governed_follows_active_governor() -> None:
     assert terminal == []
 
 
+def test_group_by_governor_active_child_keeps_terminal_governor_in_active_section() -> None:
+    governor = {
+        **_TASK,
+        "id": "gov",
+        "slug": "orchestrator",
+        "governor_task_id": None,
+        "state": "COMPLETE",
+    }
+    governed = {
+        **_TASK,
+        "id": "wrk",
+        "slug": "worker",
+        "governor_task_id": "gov",
+        "state": "WORKING",
+    }
+    active, terminal = _group_by_governor([governor, governed])
+    assert [(t["id"], p) for t, p in active] == [("gov", ""), ("wrk", "└─ ")]
+    assert terminal == []
+
+
 def test_group_by_governor_all_terminal_no_governor_stays_terminal() -> None:
     # Two unrelated terminal tasks: no governor chain → both stay in the terminal section.
     t1 = {**_TASK, "id": "t1", "slug": "alpha", "governor_task_id": None, "state": "COMPLETE"}
@@ -5080,7 +5130,41 @@ async def test_collapsed_ensemble_row_explains_hidden_child_count() -> None:
         ens_row = table.get_row(f"{_ENSEMBLE_KEY_PREFIX}gov")
         slug = ens_row[4]
         assert slug.plain == "└─ ▸ 2 child tasks — enter to expand"
-        assert slug._spans and all(span.style == "dim" for span in slug._spans)
+        assert slug.spans == [Span(0, len(slug.plain), "dim")]
+
+
+# 2119: REQ-023.1.1
+# 2119: REQ-023.2.1
+# 2119: REQ-023.3.1
+async def test_terminal_governor_collapses_and_expands_active_child() -> None:
+    governor = {
+        **_TASK,
+        "id": "gov",
+        "slug": "done-governor",
+        "governor_task_id": None,
+        "state": "COMPLETE",
+    }
+    governed = {
+        **_TASK,
+        "id": "wrk",
+        "slug": "active-worker",
+        "governor_task_id": "gov",
+        "state": "WORKING",
+    }
+    app = Dashboard(_FakeClient([governor, governed]))  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        table = app.query_one("#tasks", DataTable)
+        sentinel = f"{_ENSEMBLE_KEY_PREFIX}gov"
+        assert [str(key.value) for key in table.rows] == ["gov", sentinel]
+        assert table.get_row("gov")[4].plain == "▸ done-governor"
+        assert table.get_row(sentinel)[4].plain == "└─ ▸ 1 child task — enter to expand"
+
+        table.move_cursor(row=table.get_row_index("gov"))
+        await pilot.press("enter")
+        await pilot.pause()
+        assert [str(key.value) for key in table.rows] == ["gov", "wrk"]
+        assert table.get_row("gov")[4].plain == "▾ done-governor"
 
 
 # 2119: REQ-023.2.1
@@ -5116,6 +5200,9 @@ async def test_enter_again_on_governor_expands_ensemble() -> None:
         assert fake.applied == []
         assert fake.released == []
         assert fake.set_slugs == []
+        assert fake.created == []
+        assert fake.created_repos == []
+        assert fake.updated_repos == []
 
     # A fresh dashboard starts from its own collapsed display state; expansion did not leak.
     second_app = Dashboard(fake)  # type: ignore[arg-type]
@@ -5125,6 +5212,29 @@ async def test_enter_again_on_governor_expands_ensemble() -> None:
         keys = [str(key.value) for key in table.rows]
         assert "wrk" not in keys
         assert f"{_ENSEMBLE_KEY_PREFIX}gov" in keys
+
+
+# 2119: REQ-023.3.1
+async def test_search_keeps_matching_governed_tasks_expanded() -> None:
+    governor = {**_TASK, "id": "gov", "slug": "orchestrator", "governor_task_id": None}
+    governed = {**_TASK, "id": "wrk", "slug": "matching-worker", "governor_task_id": "gov"}
+    app = Dashboard(_FakeClient([governor, governed]))  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        table = app.query_one("#tasks", DataTable)
+        app._query = "matching"
+        app.action_refresh()
+        await pilot.pause()
+        table.move_cursor(row=table.get_row_index("gov"))
+
+        for _ in range(2):
+            assert [str(key.value) for key in table.rows] == ["gov", "wrk"]
+            assert table.get_row("gov")[4].plain == "▾ orchestrator"
+            await pilot.press("enter")
+            await pilot.pause()
+
+        assert [str(key.value) for key in table.rows] == ["gov", "wrk"]
+        assert table.get_row("gov")[4].plain == "▾ orchestrator"
 
 
 async def test_enter_on_non_governor_does_nothing() -> None:

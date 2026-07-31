@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.1.1--8ef804cf21e6",
-  "requirementId": "REQ-001.1.1",
-  "hash": "8ef804cf21e6",
-  "verdict": "pass",
-  "summary": "Two tests (line 3025, 3101) drive real x-key press through the Textual pilot against the real WorkflowsScreen/DeleteWorkflowScreen; one moves the cursor via 'down' before pressing x (targets 'second'), the other presses x on the default highlight (targets 'first' and asserts 'second' is absent) — genuinely distinguishing highlighted-row targeting, and both assert the screen swaps to a real confirmation dialog with Yes/No buttons and message text. Only the REST client is faked; the key binding, cursor-based row selection, and modal-opening logic run unmocked.",
-  "timestamp": "2026-07-30T18:18:59.157Z"
-}

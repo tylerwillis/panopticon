@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.3.1--b50add624109",
-  "requirementId": "REQ-017.3.1",
-  "hash": "b50add624109",
-  "verdict": "pass",
-  "summary": "test_cancelling_slug_editor_does_not_rename_task types 'discard-me' into the input, presses escape (action_cancel dismisses None, so rename() returns early), then asserts fake.set_slugs == [] (no set_slug RPC reached the fake task service) and the detail pane still renders the original 'fix-widget' slug; since the fake's set_slug is the only path that mutates task slug data, this also proves the underlying task record is untouched. Genuinely rejects the nearest violation (escape leaking the typed-but-uncommitted value through as if it were submitted).",
-  "timestamp": "2026-07-30T18:19:53.906Z"
-}

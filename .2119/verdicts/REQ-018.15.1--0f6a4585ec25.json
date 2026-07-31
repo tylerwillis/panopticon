@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.15.1--0f6a4585ec25",
-  "requirementId": "REQ-018.15.1",
-  "hash": "0f6a4585ec25",
-  "verdict": "pass",
-  "summary": "Genuine end-to-end test: real ctrl+g binding dispatch, real MemoTextArea/modal/create flow; only the external-process boundary (_edit_with_editor) is stubbed, and mutation checks confirm the test rejects both a dropped replacement and an append-instead-of-replace regression.",
-  "timestamp": "2026-07-30T18:25:07.707Z"
-}

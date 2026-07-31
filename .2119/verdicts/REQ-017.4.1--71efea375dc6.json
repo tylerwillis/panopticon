@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.4.1--71efea375dc6",
-  "requirementId": "REQ-017.4.1",
-  "hash": "71efea375dc6",
-  "verdict": "pass",
-  "summary": "test_detail_pane_shows_edit_slug_key_hint drives the real Dashboard via pilot (press 'd' to open the pane), asserting the exact second-to-last rendered line equals 'e: edit slug' with dim styling, consistent with the sibling REQ-007.2 trailing-hint test pattern; catches missing/mislabeled/misplaced/non-dim hint text and requires the pane to actually be opened.",
-  "timestamp": "2026-07-30T18:20:15.273Z"
-}

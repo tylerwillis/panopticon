@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.4.1--11d297930b2c",
-  "requirementId": "REQ-018.4.1",
-  "hash": "11d297930b2c",
-  "verdict": "pass",
-  "summary": "test_arrow_then_enter_selects_a_filtered_candidate_without_submitting drives real Up/Down/Enter key events into the live _LaunchInput/OptionList widgets and asserts highlighted index transitions (None->0->1->0->1) plus the final accepted value, genuinely exercising move_launch_candidate's cycling through only the currently-filtered candidate set with no mocking of the navigation path.",
-  "timestamp": "2026-07-30T18:23:45.300Z"
-}

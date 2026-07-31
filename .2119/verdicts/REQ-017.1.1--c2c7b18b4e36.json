@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.1.1--c2c7b18b4e36",
+  "requirementId": "REQ-017.1.1",
+  "hash": "c2c7b18b4e36",
+  "verdict": "pass",
+  "summary": "Closed-pane e opens no SlugScreen and issues no set_slug; open-pane e on the highlighted second task seeds the editor with that task's slug, and a second test pins service-current over stale-snapshot initialization",
+  "timestamp": "2026-07-31T00:55:38.913Z"
+}

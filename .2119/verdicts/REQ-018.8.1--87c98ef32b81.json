@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.8.1--87c98ef32b81",
+  "requirementId": "REQ-018.8.1",
+  "hash": "87c98ef32b81",
+  "verdict": "pass",
+  "summary": "test_escape_cancels_from_every_launch_control parametrizes focus over selector/model/effort, asserts the candidate OptionList is laid out (width>0) before Escape, then requires the MemoScreen gone and created==[] - rejecting both escape-closes-dropdown-first and escape-submits; draft test covers escape from the memo textarea.",
+  "timestamp": "2026-07-31T00:55:47.326Z"
+}

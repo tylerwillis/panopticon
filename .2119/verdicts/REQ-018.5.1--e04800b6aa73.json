@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.5.1--e04800b6aa73",
+  "requirementId": "REQ-018.5.1",
+  "hash": "e04800b6aa73",
+  "verdict": "pass",
+  "summary": "Types custom/model and maximum into the real codex-suggesting inputs, both absent from codex suggestions, and asserts create received custom/model:maximum; rejection or coercion fails.",
+  "timestamp": "2026-07-31T00:58:48.382Z"
+}

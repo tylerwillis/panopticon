@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.8.1--9e23f85d2173",
+  "requirementId": "REQ-001.8.1",
+  "hash": "9e23f85d2173",
+  "verdict": "pass",
+  "summary": "notify captured and cleared post-mount so only the x press can emit; exact singleton message asserted, rejecting silent refusal or mount-time noise",
+  "timestamp": "2026-07-31T00:55:31.092Z"
+}

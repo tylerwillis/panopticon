@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.13.1--4780f8f3b45d",
-  "requirementId": "REQ-018.13.1",
-  "hash": "4780f8f3b45d",
-  "verdict": "pass",
-  "summary": "Real pilot-driven keypress test: Enter in the focused MemoTextArea drives the real submit path and asserts create_task received initial_prompt='fix' (full-tuple assert distinguishes the ctrl+s set-only near-miss where initial_prompt would be None); fake client mirrors the real client seam exactly.",
-  "timestamp": "2026-07-30T18:26:39.434Z"
-}

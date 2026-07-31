@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.3.1--e02cbba48354",
+  "requirementId": "REQ-023.3.1",
+  "hash": "e02cbba48354",
+  "verdict": "pass",
+  "summary": "Toggle alternation with all six fake-client write channels empty, fresh dashboard starts collapsed (no leak), search keeps matching child revealed",
+  "timestamp": "2026-07-31T00:55:53.056Z"
+}

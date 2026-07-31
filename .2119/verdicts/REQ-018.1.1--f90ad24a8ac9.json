@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.1.1--f90ad24a8ac9",
-  "requirementId": "REQ-018.1.1",
-  "hash": "f90ad24a8ac9",
-  "verdict": "pass",
-  "summary": "test_memo_launch_fields_are_labeled_visible_and_stay_within_64_columns asserts labels=={'harness','model','effort'}, harness/model/effort widgets exist with resolved current values (codex/terra/high from repo default_harness+default_model, via real resolve_launch_selection), all have nonzero region width, and screen.focused is MemoTextArea before any tab press — directly rejecting missing labels, missing controls, stale/blank values, and premature launch-control focus.",
-  "timestamp": "2026-07-30T18:19:46.089Z"
-}

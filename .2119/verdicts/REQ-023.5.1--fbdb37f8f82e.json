@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.5.1--fbdb37f8f82e",
+  "requirementId": "REQ-023.5.1",
+  "hash": "fbdb37f8f82e",
+  "verdict": "pass",
+  "summary": "Test renders the real help screen via a live key press and exact-matches the sole ensemble line 'Enter Collapse/expand the ensemble of governed tasks under the cursor' — wrong key, missing collapse/expand half, or a dropped entry all fail; no mocking of the constrained path.",
+  "timestamp": "2026-07-31T00:55:53.938Z"
+}

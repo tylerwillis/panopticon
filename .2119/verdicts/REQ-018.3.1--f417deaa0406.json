@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.3.1--f417deaa0406",
-  "requirementId": "REQ-018.3.1",
-  "hash": "f417deaa0406",
-  "verdict": "pass",
-  "summary": "Parametrized test drives real CodexHarness suggestion data through Input+OptionList; confirms exact match sets for both model/effort fields and rejects case-sensitive, no-filter, and startswith-only counterexamples.",
-  "timestamp": "2026-07-30T18:23:58.420Z"
-}

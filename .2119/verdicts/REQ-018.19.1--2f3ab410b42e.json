@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.19.1--2f3ab410b42e",
-  "requirementId": "REQ-018.19.1",
-  "hash": "2f3ab410b42e",
-  "verdict": "pass",
-  "summary": "Cycling len(HARNESSES) times must cover exactly the registry set AND wrap to the initial value — dashboard.HARNESSES is the real panopticon.harnesses registry, so extra or missing values both fail",
-  "timestamp": "2026-07-30T18:40:16.325Z"
-}

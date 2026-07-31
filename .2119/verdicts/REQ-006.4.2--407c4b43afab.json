@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.2--407c4b43afab",
+  "requirementId": "REQ-006.4.2",
+  "hash": "407c4b43afab",
+  "verdict": "pass",
+  "summary": "Reversed service order plus event ordering and max_active_releases == 1 (sleep makes overlap observable) each fail out-of-order or concurrent processing.",
+  "timestamp": "2026-07-31T00:55:34.186Z"
+}

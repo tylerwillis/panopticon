@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.8.1--154f1b08dcf0",
+  "requirementId": "REQ-019.8.1",
+  "hash": "154f1b08dcf0",
+  "verdict": "pass",
+  "summary": "Full ordered model+effort option lists (values, descriptions, alternate entry) asserted equal to the fake's returns, effort derived from the discovered model",
+  "timestamp": "2026-07-31T00:55:51.726Z"
+}

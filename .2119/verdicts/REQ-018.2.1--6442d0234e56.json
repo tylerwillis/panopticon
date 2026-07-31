@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.2.1--6442d0234e56",
+  "requirementId": "REQ-018.2.1",
+  "hash": "6442d0234e56",
+  "verdict": "pass",
+  "summary": "Real-pilot focus walk pins memo→harness→model→effort by widget identity; any reorder or skip fails.",
+  "timestamp": "2026-07-31T00:55:41.607Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.2.1--7c4c23ae9b64",
+  "requirementId": "REQ-006.2.1",
+  "hash": "7c4c23ae9b64",
+  "verdict": "pass",
+  "summary": "Exact modal splitlines equality over 6 down + live + failed rejects every/only violations; post-mount snapshot mutation test pins latest-snapshot at the one-down boundary.",
+  "timestamp": "2026-07-31T00:55:32.401Z"
+}

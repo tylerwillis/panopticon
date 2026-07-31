@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.3.1--8a7661e7589d",
-  "requirementId": "REQ-023.3.1",
-  "hash": "8a7661e7589d",
-  "verdict": "pass",
-  "summary": "Enter alternation asserted on row keys/sentinel over three presses; task-service mutation lists empty; session left expanded so a fresh dashboard starting collapsed proves state is session-local",
-  "timestamp": "2026-07-30T23:53:45.097Z"
-}

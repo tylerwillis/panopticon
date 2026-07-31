@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.12.1--04990779778f",
-  "requirementId": "REQ-018.12.1",
-  "hash": "04990779778f",
-  "verdict": "pass",
-  "summary": "Each override kind (harness/model/effort) asserts 'set by this task'; app/repo/workflow sources each asserted via the rendered summary incl. workflow-beats-repo precedence; full-string equality enforces a single label",
-  "timestamp": "2026-07-30T18:40:15.923Z"
-}

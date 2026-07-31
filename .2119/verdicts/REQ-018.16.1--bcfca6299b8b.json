@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.16.1--bcfca6299b8b",
-  "requirementId": "REQ-018.16.1",
-  "hash": "bcfca6299b8b",
-  "verdict": "pass",
-  "summary": "Test asserts real focus, real single-step cycling (claude->codex matching sorted(HARNESSES)), and fake.created==[] post-Enter over an unmocked Textual key-dispatch path; verified by injected counterexamples: disabling the widget's shadowing binding lets Enter fall through and populate fake.created (caught by the ==[] assertion), and a no-op action_cycle leaves value at 'claude' (caught by the =='codex' assertion).",
-  "timestamp": "2026-07-30T18:24:44.187Z"
-}

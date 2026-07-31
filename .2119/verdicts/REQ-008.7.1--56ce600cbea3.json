@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.7.1--56ce600cbea3",
-  "requirementId": "REQ-008.7.1",
-  "hash": "56ce600cbea3",
-  "verdict": "pass",
-  "summary": "Unversioned list_tasks raises; snapshot mutated inside the seed versioned call, rendered row proves that snapshot painted, app cursor==fake cursor, exactly one fetch — stale render or refetch fails",
-  "timestamp": "2026-07-30T23:53:32.360Z"
-}

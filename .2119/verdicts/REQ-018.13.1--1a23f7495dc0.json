@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.13.1--1a23f7495dc0",
-  "requirementId": "REQ-018.13.1",
-  "hash": "1a23f7495dc0",
-  "verdict": "pass",
-  "summary": "Enter-in-memo-editor submission verified: fault-injection removing initial_prompt=stripped fails the primary test, and Ctrl+S / non-memo-editor Enter counterexamples are rejected by dedicated tests distinguishing set-only from submit-as-initial-prompt.",
-  "timestamp": "2026-07-30T18:25:09.691Z"
-}

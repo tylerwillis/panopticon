@@ -274,10 +274,9 @@ def _group_by_governor(
 ) -> tuple[list[tuple[JsonObj, str]], list[tuple[JsonObj, str]]]:
     """Reorder tasks so governed tasks appear immediately after their governor.
 
-    Section (active vs terminal) is determined by the governor chain, not just the task's
-    own state: a task is "active" for placement purposes if it *or any ancestor governor*
-    is non-terminal. This keeps governed tasks nested under their governor in the active
-    section even when the governed task itself has reached a terminal state.
+    Section (active vs terminal) is determined for the whole connected governor tree, not
+    task-by-task: every member stays in the active section while any member is non-terminal.
+    This keeps governed tasks nested under their governor across lifecycle-state differences.
 
     Returns ``(active_section, terminal_section)`` as separate lists so the caller can
     insert the divider at the structural boundary rather than inspecting per-row state.
@@ -285,19 +284,30 @@ def _group_by_governor(
     ``collapsed`` is forwarded to :func:`_group_section`; see its docs for the ensemble
     collapse behaviour."""
     task_by_id = {t["id"]: t for t in tasks}
+    links: dict[str, set[str]] = {task_id: set() for task_id in task_by_id}
+    for task in tasks:
+        task_id = task["id"]
+        governor_id = task.get("governor_task_id")
+        if governor_id in task_by_id:
+            links[task_id].add(governor_id)
+            links[governor_id].add(task_id)
 
-    def section_is_active(task_id: str, visited: set[str]) -> bool:
-        if task_id not in task_by_id or task_id in visited:
-            return False
-        visited.add(task_id)
-        task = task_by_id[task_id]
-        if task["state"] not in TERMINAL_LABELS:
-            return True
-        gov_id = task.get("governor_task_id")
-        return section_is_active(gov_id, visited) if gov_id else False
+    active_ids: set[str] = set()
+    unseen = set(task_by_id)
+    while unseen:
+        component: set[str] = set()
+        pending = [unseen.pop()]
+        while pending:
+            task_id = pending.pop()
+            component.add(task_id)
+            neighbours = links[task_id] - component
+            unseen -= neighbours
+            pending.extend(neighbours)
+        if any(task_by_id[task_id]["state"] not in TERMINAL_LABELS for task_id in component):
+            active_ids.update(component)
 
-    active = [t for t in tasks if section_is_active(t["id"], set())]
-    terminal = [t for t in tasks if not section_is_active(t["id"], set())]
+    active = [t for t in tasks if t["id"] in active_ids]
+    terminal = [t for t in tasks if t["id"] not in active_ids]
     return _group_section(active, collapsed), _group_section(terminal, collapsed)
 
 
@@ -1294,8 +1304,8 @@ class _VimDataTable(DataTable[Any]):
     Vertical movement also **skips ensemble placeholder rows** (keys prefixed with
     ``_ENSEMBLE_KEY_PREFIX``): the cursor steps straight onto the next real row rather than
     landing on the sentinel and bouncing off it, so a collapsed ensemble is never briefly
-    highlighted mid-traversal. Both the arrow keys and ``j``/``k`` route through
-    ``action_cursor_down``/``action_cursor_up``, so overriding those covers every input path."""
+    highlighted mid-traversal. The Up/Down arrows and ``j``/``k`` route through
+    ``action_cursor_down``/``action_cursor_up``, so overriding those covers those stepwise paths."""
 
     BINDINGS = [
         Binding("j", "cursor_down", "Down", show=False),

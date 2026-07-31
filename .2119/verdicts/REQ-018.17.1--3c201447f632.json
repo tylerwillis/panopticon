@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.17.1--3c201447f632",
-  "requirementId": "REQ-018.17.1",
-  "hash": "3c201447f632",
-  "verdict": "pass",
-  "summary": "Both tests (no-match and non-highlighted-nonempty cases) drive the real Textual app/pilot and assert isinstance(app.screen, MemoScreen) plus fake.created==[]; injecting a fault that submits on Enter regardless of highlight state fails all 4 parametrized cases, confirming genuine coverage of both 'without a highlighted candidate' boundary cases.",
-  "timestamp": "2026-07-30T18:24:45.359Z"
-}

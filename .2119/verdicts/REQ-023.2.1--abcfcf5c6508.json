@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.2.1--abcfcf5c6508",
+  "requirementId": "REQ-023.2.1",
+  "hash": "abcfcf5c6508",
+  "verdict": "pass",
+  "summary": "Governor slug asserted ▸ while collapsed and ▾ while expanded after every Enter toggle across three pilot tests",
+  "timestamp": "2026-07-31T00:55:52.615Z"
+}

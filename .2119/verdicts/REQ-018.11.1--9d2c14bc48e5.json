@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.11.1--9d2c14bc48e5",
-  "requirementId": "REQ-018.11.1",
-  "hash": "9d2c14bc48e5",
-  "verdict": "pass",
-  "summary": "Real pilot-driven tests: typed and candidate-accepted model/effort values asserted byte-identical after a verified codex->outfitter cycle, with mixed touched/untouched cases and end-to-end create_task payload checks",
-  "timestamp": "2026-07-30T18:27:10.339Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.1.1--760782ab1c86",
-  "requirementId": "REQ-006.1.1",
-  "hash": "760782ab1c86",
-  "verdict": "pass",
-  "summary": "test_bulk_respawn_binding_lists_only_down_tasks_for_confirmation presses the real 'ctrl+r' key via pilot.press and asserts BulkRespawnScreen opens with the down-task list; verified the test fails when the binding is moved to a different key, so it genuinely pins Ctrl+R -> bulk-respawn.",
-  "timestamp": "2026-07-30T18:19:41.615Z"
-}

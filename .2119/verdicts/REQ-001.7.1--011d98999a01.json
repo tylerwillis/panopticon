@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.7.1--011d98999a01",
-  "requirementId": "REQ-001.7.1",
-  "hash": "011d98999a01",
-  "verdict": "pass",
-  "summary": "Style tuple is measured live from the new-workflow box, pinned to (56, auto, round accent border, surface bg), asserted equal on the delete box, and centering verified by region x/y arithmetic — each conjunct fails independently",
-  "timestamp": "2026-07-30T18:26:29.145Z"
-}

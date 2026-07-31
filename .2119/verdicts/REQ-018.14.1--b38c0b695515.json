@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.14.1--b38c0b695515",
+  "requirementId": "REQ-018.14.1",
+  "hash": "b38c0b695515",
+  "verdict": "pass",
+  "summary": "ctrl+s pins created memo='fix' with initial_prompt=None; delivering, dropping the memo, or not creating all fail.",
+  "timestamp": "2026-07-31T00:55:43.347Z"
+}

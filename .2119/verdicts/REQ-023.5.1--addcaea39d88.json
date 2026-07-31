@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.5.1--addcaea39d88",
-  "requirementId": "REQ-023.5.1",
-  "hash": "addcaea39d88",
-  "verdict": "pass",
-  "summary": "Help screen filtered to exactly one 'ensemble' line asserted equal to 'Enter Collapse/expand the ensemble of governed tasks under the cursor' — missing entry or wrong key fails",
-  "timestamp": "2026-07-30T23:53:45.953Z"
-}

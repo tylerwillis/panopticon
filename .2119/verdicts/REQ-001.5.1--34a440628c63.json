@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.5.1--34a440628c63",
-  "requirementId": "REQ-001.5.1",
-  "hash": "34a440628c63",
-  "verdict": "pass",
-  "summary": "test_workflows_screen_refuses_builtin_deletion_with_notification (tests/terminal/test_dashboard.py:3213) asserts app.screen stays WorkflowsScreen and the real tmp_path file content is unchanged after pressing 'x' on a built_in workflow; the sibling test at line 3129 confirms the pilot harness genuinely renders DeleteWorkflowScreen for non-built-in deletions (requiring an explicit dismiss), so the isinstance check is a real behavioral discriminator, not vacuous — a bug that moved the built_in guard into the confirm callback (still opening the dialog) would fail the screen assertion.",
-  "timestamp": "2026-07-30T18:19:18.921Z"
-}

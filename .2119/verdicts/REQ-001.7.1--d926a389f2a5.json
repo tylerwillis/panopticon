@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.7.1--d926a389f2a5",
-  "requirementId": "REQ-001.7.1",
-  "hash": "d926a389f2a5",
-  "verdict": "pass",
-  "summary": "test_workflows_screen_x_opens_honest_confirmation_for_highlighted_operator_file drives real key presses to render both dialogs and asserts equal region.width/styles.width(56)/styles.height(auto)/border(round,accent hex)/background(surface hex) plus actual centered region.x/y — genuinely rejects a 55-col, off-center, differently-bordered, or non-auto-height panel.",
-  "timestamp": "2026-07-30T18:19:49.422Z"
-}

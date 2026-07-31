@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.5.1--e9ee4dee62ec",
-  "requirementId": "REQ-006.5.1",
-  "hash": "e9ee4dee62ec",
-  "verdict": "pass",
-  "summary": "Covers a mixed live/failed/queued snapshot plus a parametrized sweep of the empty list and every non-down status with the snapshot swapped after load, so failed-counted-as-down or stale-snapshot behavior fails.",
-  "timestamp": "2026-07-30T18:19:40.726Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.2.2--99145ea893fa",
-  "requirementId": "REQ-006.2.2",
-  "hash": "99145ea893fa",
-  "verdict": "pass",
-  "summary": "Exact rendered-line equality covers 8-char ID truncation, null-slug em-dash, >60/exactly-60 ellipsis boundary, normalize-before-truncate, padded and absent memos; sanity-run confirms 61-char memo gains the ellipsis and 60 does not.",
-  "timestamp": "2026-07-30T18:19:19.006Z"
-}

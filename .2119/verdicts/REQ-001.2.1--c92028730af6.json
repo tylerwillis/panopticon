@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.2.1--c92028730af6",
-  "requirementId": "REQ-001.2.1",
-  "hash": "c92028730af6",
-  "verdict": "pass",
-  "summary": "test_workflows_screen_x_opens_honest_confirmation_for_highlighted_operator_file asserts real Button widgets #delete-workflow-yes/#delete-workflow-no exist, are labeled yes/no, displayed and enabled; the cancel and confirm tests behaviorally exercise both choices (no leaves the file, yes deletes it) via real Textual pilot clicks against the actual DeleteWorkflowScreen, so a missing/disabled/mislabeled/swapped choice would fail these tests.",
-  "timestamp": "2026-07-30T18:19:05.865Z"
-}

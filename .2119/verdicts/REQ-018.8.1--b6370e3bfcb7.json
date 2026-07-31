@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.8.1--b6370e3bfcb7",
-  "requirementId": "REQ-018.8.1",
-  "hash": "b6370e3bfcb7",
-  "verdict": "pass",
-  "summary": "test_escape_cancels_from_every_launch_control drives real focus (harness/model/effort) with candidate lists genuinely open (asserted via OptionList region width) and confirms escape always closes MemoScreen with no task created; static read of MemoScreen/HarnessSelector/_LaunchInput/MemoTextArea confirms no widget intercepts escape, so it unconditionally bubbles to the unconditional screen-level action_cancel.",
-  "timestamp": "2026-07-30T18:24:37.850Z"
-}

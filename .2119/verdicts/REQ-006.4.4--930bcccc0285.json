@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.4.4--930bcccc0285",
-  "requirementId": "REQ-006.4.4",
-  "hash": "930bcccc0285",
-  "verdict": "pass",
-  "summary": "Parametrized over all 11 non-down statuses: got_tasks proves the confirmation-time check ran while released excludes the recovered task, so releasing regardless of status fails every variant.",
-  "timestamp": "2026-07-30T18:19:34.852Z"
-}
