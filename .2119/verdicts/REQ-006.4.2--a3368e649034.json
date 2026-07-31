@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.2--a3368e649034",
+  "requirementId": "REQ-006.4.2",
+  "hash": "a3368e649034",
+  "verdict": "pass",
+  "summary": "test_bulk_respawn_confirmation_releases_each_down_task_once_in_order reverses service order vs rendered modal order and pins the strict check/release event sequence plus a max-concurrent-release probe; mutations to reversed-order and batched-checks processing both fail it",
+  "timestamp": "2026-07-30T23:49:30.213Z"
+}

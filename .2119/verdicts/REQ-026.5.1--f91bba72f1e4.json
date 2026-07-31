@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.5.1--f91bba72f1e4",
+  "requirementId": "REQ-026.5.1",
+  "hash": "f91bba72f1e4",
+  "verdict": "pass",
+  "summary": "Genuine coverage: all three enumerated built-in 2119 workflows require exact spec-artifact instructions and exact final-review-output plus triage-artifact instructions; omission or alteration fails.",
+  "timestamp": "2026-07-31T06:46:44.951Z"
+}

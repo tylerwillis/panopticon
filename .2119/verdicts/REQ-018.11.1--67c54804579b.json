@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.11.1--67c54804579b",
+  "requirementId": "REQ-018.11.1",
+  "hash": "67c54804579b",
+  "verdict": "pass",
+  "summary": "Four end-to-end pilot-driven tests preserve typed and candidate-accepted model/effort across a confirmed codex->outfitter harness change, with mixed touched/untouched cases proving focus alone does not count and survival reaches task creation",
+  "timestamp": "2026-07-30T23:50:07.161Z"
+}

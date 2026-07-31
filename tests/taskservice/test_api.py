@@ -665,15 +665,26 @@ def test_created_tasks_keep_launch_values_after_defaults_change(
         workflow_task = tuned_client.post(
             "/tasks", json={"repo_id": "r1", "workflow": "tuned"}
         ).json()
-        tuned_client.patch(
+        explicit_task = tuned_client.post(
+            "/tasks",
+            json={
+                "repo_id": "r1",
+                "workflow": "spike",
+                "harness": "codex",
+                "starting_model": "explicit",
+            },
+        ).json()
+        update = tuned_client.patch(
             "/repos/r1",
             json={"default_harness": "codex", "default_model": "replacement"},
         )
+        assert update.status_code == 200
         monkeypatch.setattr(_TunedWorkflow, "default_harness", "claude")
         monkeypatch.setattr(_TunedWorkflow, "default_model", "replacement")
 
         persisted_repo_task = tuned_client.get(f"/tasks/{repo_task['id']}").json()
         persisted_workflow_task = tuned_client.get(f"/tasks/{workflow_task['id']}").json()
+        persisted_explicit_task = tuned_client.get(f"/tasks/{explicit_task['id']}").json()
 
     assert (persisted_repo_task["harness"], persisted_repo_task["starting_model"]) == (
         "claude",
@@ -682,6 +693,10 @@ def test_created_tasks_keep_launch_values_after_defaults_change(
     assert (persisted_workflow_task["harness"], persisted_workflow_task["starting_model"]) == (
         "codex",
         "gpt-5.6-sol:high",
+    )
+    assert (persisted_explicit_task["harness"], persisted_explicit_task["starting_model"]) == (
+        "codex",
+        "explicit",
     )
 
 
@@ -782,12 +797,12 @@ def test_list_states(client: TestClient) -> None:
     }
 
 
-def test_list_skills_is_just_provision_for_a_forgeless_workflow(client: TestClient) -> None:
+def test_list_skills_has_core_skills_for_a_forgeless_workflow(client: TestClient) -> None:
     task_id = _new_task(client)
     resp = client.get(f"/tasks/{task_id}/skills")
     assert resp.status_code == 200
-    # spike has no forge skills, but every task gets the agnostic `provision` skill (ADR 0011).
-    assert [s["name"] for s in resp.json()] == ["provision"]
+    # spike has no workflow skills, but every task gets the core skills.
+    assert [s["name"] for s in resp.json()] == ["provision", "artifacts"]
 
 
 def test_briefing_describes_the_current_phase(client: TestClient) -> None:

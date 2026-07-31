@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.1.2--b88c459800e2",
+  "requirementId": "REQ-006.1.2",
+  "hash": "b88c459800e2",
+  "verdict": "pass",
+  "summary": "test_help_screen_documents_bulk_respawn_binding renders the real HelpScreen via Textual pilot and asserts the lines containing Ctrl+R equal exactly ['Ctrl+R Respawn all down tasks'] — fails if the key is missing, misdescribed, or duplicated; only the task client is faked, which the help surface does not use",
+  "timestamp": "2026-07-30T23:48:31.867Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.18.1--b5c6f43eaa00",
+  "requirementId": "REQ-018.18.1",
+  "hash": "b5c6f43eaa00",
+  "verdict": "pass",
+  "summary": "Real pilot-driven UI tests: harness change clears prefilled terra/high to empty (prefill pinned separately), touched model survives while untouched effort clears, and submission carries model=None so the new harness's defaults apply",
+  "timestamp": "2026-07-30T23:50:49.505Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.9.1--fce025a071f5",
+  "requirementId": "REQ-026.9.1",
+  "hash": "fce025a071f5",
+  "verdict": "pass",
+  "summary": "Real discovery rejects every built-in-name duplicate, and exact error assertions require the external file path, duplicate name, and instruction to remove that external copy.",
+  "timestamp": "2026-07-31T06:46:20.380Z"
+}

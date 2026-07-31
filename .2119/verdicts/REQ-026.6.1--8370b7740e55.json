@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.6.1--8370b7740e55",
+  "requirementId": "REQ-026.6.1",
+  "hash": "8370b7740e55",
+  "verdict": "pass",
+  "summary": "All three discovered built-in 2119 workflows must expose BUILDING/url-recorded with exact PR-to-external-URL instructions; omission, wrong state, or artifact/non-external destination fails.",
+  "timestamp": "2026-07-31T06:45:55.706Z"
+}

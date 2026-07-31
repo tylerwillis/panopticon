@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.1.1--b3ea3074b8c7",
+  "requirementId": "REQ-007.1.1",
+  "hash": "b3ea3074b8c7",
+  "verdict": "pass",
+  "summary": "Three tests drive a real 'c' key press through binding dispatch and mock only the two named delivery seams (OSC52 copy_to_clipboard, host _clipboard_copy): both-paths payload equality, host-write-survives-terminal-failure, and highlighted-task render_detail payload each reject the nearest violation.",
+  "timestamp": "2026-07-30T23:49:13.054Z"
+}

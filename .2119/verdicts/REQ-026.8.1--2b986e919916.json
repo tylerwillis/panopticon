@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.8.1--2b986e919916",
+  "requirementId": "REQ-026.8.1",
+  "hash": "2b986e919916",
+  "verdict": "pass",
+  "summary": "Tests enumerate every built-in 2119 workflow and reject non-Sol honesty directives, Sol-only human/auto final review, or any Fable participation in auto-sol final review.",
+  "timestamp": "2026-07-31T06:45:56.304Z"
+}

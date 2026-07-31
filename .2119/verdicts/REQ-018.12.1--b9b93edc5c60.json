@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.12.1--b9b93edc5c60",
+  "requirementId": "REQ-018.12.1",
+  "hash": "b9b93edc5c60",
+  "verdict": "pass",
+  "summary": "Pilot-driven tests assert the exact rendered summary string for all four sources: each control override yields 'this task' (parametrized harness/model/effort), workflow-beats-repo precedence rejects the repo-default near-miss, and repo/app default branches are pinned; label computed in dashboard.py, fake stubs only REST data.",
+  "timestamp": "2026-07-30T23:49:47.970Z"
+}

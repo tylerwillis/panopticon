@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.5.1--8a4f3646adba",
+  "requirementId": "REQ-026.5.1",
+  "hash": "8a4f3646adba",
+  "verdict": "pass",
+  "summary": "Exact skill instructions require spec, final review outputs, and triage summary artifacts in every built-in.",
+  "timestamp": "2026-07-31T07:16:26.878Z"
+}

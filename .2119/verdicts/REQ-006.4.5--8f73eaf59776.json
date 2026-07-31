@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.5--8f73eaf59776",
+  "requirementId": "REQ-006.4.5",
+  "hash": "8f73eaf59776",
+  "verdict": "pass",
+  "summary": "Exact-equality assertion on all recorded notify() calls (notices == ['respawned 1']) across all 11 non-down statuses proves a genuinely listed-then-skipped task yields no task-specific notification; recorder patch observes the real notification seam, skip proven via got_tasks vs released.",
+  "timestamp": "2026-07-30T23:49:13.713Z"
+}

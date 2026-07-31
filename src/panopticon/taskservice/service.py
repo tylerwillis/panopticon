@@ -20,6 +20,7 @@ from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from typing import Any
 
+from panopticon.core.artifact_skills import ARTIFACT_SKILL
 from panopticon.core.artifacts import ArtifactStore, validate_segment
 from panopticon.core.dirs import secrets_file_path
 from panopticon.core.layers import LayerStore
@@ -49,6 +50,21 @@ def _utc_now_iso() -> str:
 
 def _uuid_hex() -> str:
     return uuid.uuid4().hex
+
+
+def _validate_agent_surface(workflow: Workflow) -> None:
+    workflow.validate_registration(HARNESSES)
+    surface_names = {PROVISION_SKILL.name, ARTIFACT_SKILL.name}
+    for skill in workflow.skills():
+        if skill.name in surface_names:
+            raise InvalidWorkflow(f"{workflow.name!r}: duplicate agent surface name {skill.name!r}")
+        surface_names.add(skill.name)
+    for label in workflow.labels():
+        for operation in workflow.operations(label):
+            if operation in surface_names:
+                raise InvalidWorkflow(
+                    f"{workflow.name!r}: duplicate agent surface name {operation!r}"
+                )
 
 
 class UnknownWorkflow(Exception):
@@ -157,7 +173,7 @@ class TaskService:
         self._store = store
         self._workflows = dict(workflows)
         for workflow in self._workflows.values():
-            workflow.validate_registration(HARNESSES)
+            _validate_agent_surface(workflow)
         self._artifacts = artifacts
         self._layers = layers
         self._workflow_discovery = workflow_discovery
@@ -312,7 +328,7 @@ class TaskService:
                 # Additive only: in-flight tasks retain their loaded workflow. Edits and renames
                 # intentionally require a service restart rather than replacing/removing it here.
                 continue
-            workflow.validate_registration(HARNESSES)
+            _validate_agent_surface(workflow)
             self._workflows[name] = workflow
 
     async def workflow_names(self) -> list[str]:
@@ -599,10 +615,9 @@ class TaskService:
         return self._workflow(task.workflow).operations(task.state)
 
     async def skills(self, task_id: str) -> list[Skill]:
-        """The in-container skills for a task: the agnostic `provision` skill (every task names
-        itself to get a branch, ADR 0011) followed by the active workflow's own skills."""
+        """The universal core skills followed by the active workflow's own skills."""
         task = await self.get_task(task_id)
-        return [PROVISION_SKILL, *self._workflow(task.workflow).skills()]
+        return [PROVISION_SKILL, ARTIFACT_SKILL, *self._workflow(task.workflow).skills()]
 
     async def briefing(self, task_id: str) -> str:
         """A short briefing on the task's current phase (state + responsibilities + how it advances),

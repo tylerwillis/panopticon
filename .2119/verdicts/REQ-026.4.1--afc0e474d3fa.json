@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.4.1--afc0e474d3fa",
+  "requirementId": "REQ-026.4.1",
+  "hash": "afc0e474d3fa",
+  "verdict": "pass",
+  "summary": "Exact built-in workflow set and full SPECIFYING responsibility tuples reject missing, duplicate, misplaced, or weakened spec-artifact-for-human-review obligations.",
+  "timestamp": "2026-07-31T06:46:07.725Z"
+}

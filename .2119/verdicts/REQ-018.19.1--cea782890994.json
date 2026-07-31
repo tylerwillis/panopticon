@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.19.1--cea782890994",
+  "requirementId": "REQ-018.19.1",
+  "hash": "cea782890994",
+  "verdict": "pass",
+  "summary": "Integration test cycles the real memo modal through every Enter-reachable value and asserts the set equals the HARNESSES registry with exact wrap after len(HARNESSES) presses — rejecting superset (wrap fails), substitution (set fails), and stale-unknown defaults (fallback tests); unit test pins in-list cycling.",
+  "timestamp": "2026-07-30T23:50:56.543Z"
+}

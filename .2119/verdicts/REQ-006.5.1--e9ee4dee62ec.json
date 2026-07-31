@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.5.1--e9ee4dee62ec",
+  "requirementId": "REQ-006.5.1",
+  "hash": "e9ee4dee62ec",
+  "verdict": "pass",
+  "summary": "Tests drive real ctrl+r action with all 11 non-down statuses (incl. near-down failed/disconnected) plus a stale-vs-latest snapshot swap, asserting exact 'no down tasks' notice via a notify spy; fake replaces only the REST client, decision logic runs for real.",
+  "timestamp": "2026-07-30T23:49:04.544Z"
+}
