@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.6.6--ad4caf1b453e",
+  "requirementId": "REQ-026.6.6",
+  "hash": "ad4caf1b453e",
+  "verdict": "pass",
+  "summary": "The MCP integration test verifies set_attention is exposed, can escalate the marker, and has an exact description stating that clearing cannot suppress the ordinary user-turn queue.",
+  "timestamp": "2026-07-31T07:25:20.816Z"
+}

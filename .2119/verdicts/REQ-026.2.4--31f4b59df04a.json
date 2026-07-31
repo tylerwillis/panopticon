@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.2.4--31f4b59df04a",
+  "requirementId": "REQ-026.2.4",
+  "hash": "31f4b59df04a",
+  "verdict": "pass",
+  "summary": "Back-to-back calls identical except the supplied dependencies_blocking flag must yield GATED vs QUEUED, so hidden-source gating (constant across both calls) fails; the file-wide six-scalar-fact call shape leaves no store/clock/task-id seam.",
+  "timestamp": "2026-07-31T06:27:29.758Z"
+}

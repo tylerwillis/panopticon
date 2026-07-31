@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.2.2--dc0e662dd89e",
+  "requirementId": "REQ-014.2.2",
+  "hash": "dc0e662dd89e",
+  "verdict": "pass",
+  "summary": "The object returned directly from resolve_responsibility is checked for the destination state, destination turn, and new current history entry, with an independent reload also proving persistence.",
+  "timestamp": "2026-07-31T07:32:46.189Z"
+}

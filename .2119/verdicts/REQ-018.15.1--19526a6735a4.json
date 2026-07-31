@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.15.1--19526a6735a4",
-  "requirementId": "REQ-018.15.1",
-  "hash": "19526a6735a4",
-  "verdict": "pass",
-  "summary": "Helper test pins $EDITOR argv and returns the editor's saved file content; ctrl+g test edits 'hi'->'edited:hi' and the submitted-memo assert rejects append or no-op.",
-  "timestamp": "2026-07-31T00:58:47.941Z"
-}

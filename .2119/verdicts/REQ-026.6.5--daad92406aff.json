@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.6.5--daad92406aff",
+  "requirementId": "REQ-026.6.5",
+  "hash": "daad92406aff",
+  "verdict": "pass",
+  "summary": "The REST test starts with attention set, performs the turn-to-agent write, and verifies attention is cleared in the returned and reloaded task with exactly one version increment.",
+  "timestamp": "2026-07-31T07:25:20.401Z"
+}

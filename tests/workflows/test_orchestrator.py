@@ -50,6 +50,23 @@ def test_exposes_spawn_task_and_review_task_skills() -> None:
     assert all(s.description and s.instructions for s in WF.skills())
 
 
+# 2119: REQ-026.6.7
+def test_spawn_task_skill_explains_attention_escalation_during_child_waits() -> None:
+    spawn = next(skill for skill in WF.skills() if skill.name == "spawn-task")
+    line = next(line.strip() for line in spawn.instructions.splitlines() if "set_attention" in line)
+    assert line == (
+        "If any governed child is non-terminal, call `set_attention` on your own task with "
+        "`attention=true` before asking the user a question; it only escalates attention and "
+        "cannot suppress the ordinary user-turn queue."
+    )
+
+
+def test_spawn_task_skill_records_dependencies_during_creation() -> None:
+    spawn = next(skill for skill in WF.skills() if skill.name == "spawn-task")
+    assert "`depends_on_task_ids=[...]` when prerequisites exist" in spawn.instructions
+    assert "initial published row is gated before a spawner can observe it" in spawn.instructions
+
+
 def test_carries_no_forge_plumbing() -> None:
     assert WF.image_layer() == ""  # works purely through MCP — no workflow image layer
     assert tuple(WF.tools()) == ()

@@ -480,12 +480,37 @@ class Spawner:
         return self._images.build(harness.name, workflow, repo["id"], layers, verbose=True)
 
 
-def spawnable_tasks(client: TaskServiceClient) -> Callable[[], list[JsonObj]]:
-    """This host's spawn candidates: unclaimed, non-terminal tasks (the runner claims-then-spawns).
+def spawnable_tasks(
+    client: TaskServiceClient, snapshot: list[JsonObj] | None = None
+) -> Callable[[], list[JsonObj]]:
+    """This host's ready spawn candidates (the runner claims-then-spawns).
 
-    For M1 (single host) that's every such task the service knows; scoping to this runner's own
-    assignments is an M5 refinement.
+    Dependencies are evaluated from one task-list snapshot each pass. A dependency clears the gate
+    only when its workflow reports terminal and its state is not ``DROPPED``; the service-projected
+    ``terminal`` fact handles custom terminal states without teaching the runner workflow graphs.
     """
-    return lambda: [
-        t for t in client.list_tasks() if not t["claimed_by"] and t["state"] not in TERMINAL_LABELS
-    ]
+
+    def ready() -> list[JsonObj]:
+        tasks = client.list_tasks() if snapshot is None else snapshot
+        by_id = {task["id"]: task for task in tasks}
+
+        def is_terminal(task: JsonObj) -> bool:
+            return bool(task.get("terminal", task["state"] in TERMINAL_LABELS))
+
+        def dependency_blocks(dep_id: str) -> bool:
+            dependency = by_id.get(dep_id)
+            return (
+                dependency is None
+                or dependency["state"] == "DROPPED"
+                or not is_terminal(dependency)
+            )
+
+        return [
+            task
+            for task in tasks
+            if not task["claimed_by"]
+            and not is_terminal(task)
+            and not any(dependency_blocks(dep_id) for dep_id in task.get("depends_on_task_ids", []))
+        ]
+
+    return ready

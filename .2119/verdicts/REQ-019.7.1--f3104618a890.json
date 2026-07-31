@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.7.1--f3104618a890",
-  "requirementId": "REQ-019.7.1",
-  "hash": "f3104618a890",
-  "verdict": "pass",
-  "summary": "Nine-property widget snapshot (values/placeholders/suggesters/summary/selector/memo) asserted unchanged after the in-flight discovery completes post-close",
-  "timestamp": "2026-07-31T00:55:51.286Z"
-}

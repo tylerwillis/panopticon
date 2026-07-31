@@ -227,6 +227,15 @@ class TaskServiceClient:
             self._json(self._http.put(f"/tasks/{task_id}/blocked", json={"blocked": blocked})),
         )
 
+    def set_attention(self, task_id: str, attention: bool) -> JsonObj:
+        """Set/clear the escalation-only attention marker."""
+        return cast(
+            JsonObj,
+            self._json(
+                self._http.put(f"/tasks/{task_id}/attention", json={"attention": attention})
+            ),
+        )
+
     def set_governor(self, task_id: str, governor_task_id: str | None) -> JsonObj:
         """Set or clear the governor task (the task that oversees this one)."""
         return cast(

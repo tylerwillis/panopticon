@@ -46,6 +46,7 @@ are **computed** from the others and are marked as such.
 | `state` | The current state label (e.g. `PLANNING`, `ITERATING`). Comes from the workflow. |
 | `turn` | Who holds the ball right now — `user` or `agent`. Flips back and forth *within* a state. |
 | `blocked` | A deliberate "waiting on something" marker the agent sets. A turn-to-agent write clears it. Every state change clears the old state's marker before lifecycle effects, which may raise a fresh block for the new state. A turn-to-user write preserves it, and the agent may set it again if still stuck. |
+| `attention` | An escalation-only marker the agent sets when a provable dependency or governed-child wait still needs operator attention. A turn-to-agent write clears it; it never suppresses the ordinary user-turn queue. |
 | `history` | Append-only log of every state entry, each carrying the responsibilities promised on entering that state and how they were resolved. |
 | `outstanding_responsibilities` | *(computed)* The promises on the current state still unresolved. Empty means the task may advance. |
 
@@ -75,7 +76,7 @@ See [Provisioning](#provisioning) below.
 | `url` | An external URL for the task — usually its pull request. Set via the `set_url` tool; the dashboard's `p` hotkey opens it. |
 | `token_estimate` | The agent's forecast of total cost-weighted tokens, set once during planning. |
 | `tokens_used` | Cumulative cost-weighted tokens actually consumed (input-equivalent units: cache-reads ≈0.1×, output ≈5×), reported each turn. |
-| `depends_on_task_ids` | Tasks that should reach a terminal state before this one begins. **Tracking only** — the state machine does not enforce it. |
+| `depends_on_task_ids` | Tasks that must reach a successful terminal state before the session service may claim and spawn this task. `DROPPED` remains blocking because the prerequisite work is missing; the state machine itself does not enforce dependencies. |
 | `governor_task_id` | The task that *governs* (oversees) this one, set by an orchestrator on the tasks it creates. `None` for ungoverned tasks. |
 | `created_at` / `updated_at` | ISO-8601 timestamps: `created_at` stamped once, `updated_at` on every mutation. The state machine itself is clock-free — the task service passes timestamps in. |
 

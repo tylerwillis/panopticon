@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.5.5--507f084d598d",
+  "requirementId": "REQ-009.5.5",
+  "hash": "507f084d598d",
+  "verdict": "pass",
+  "summary": "The test reaches terminal COMPLETE, then proves a free move to existing ITERATING succeeds and persists.",
+  "timestamp": "2026-07-31T07:32:41.821Z"
+}

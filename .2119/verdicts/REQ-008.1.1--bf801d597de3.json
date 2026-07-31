@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.1.1--bf801d597de3",
+  "requirementId": "REQ-008.1.1",
+  "hash": "bf801d597de3",
+  "verdict": "pass",
+  "summary": "Starting from blocked=true, the test verifies one versioned turn mutation returns and persists turn=agent with blocked=false.",
+  "timestamp": "2026-07-31T07:32:39.207Z"
+}

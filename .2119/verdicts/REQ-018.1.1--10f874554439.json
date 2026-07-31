@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.1.1--10f874554439",
-  "requirementId": "REQ-018.1.1",
-  "hash": "10f874554439",
-  "verdict": "pass",
-  "summary": "With focus asserted still on MemoTextArea (before any launch control has focus): labels {harness,model,effort}, repo-derived current values codex/terra/high from 'terra:high', and nonzero widths — hidden, unlabeled, or unpopulated controls fail",
-  "timestamp": "2026-07-31T00:55:40.712Z"
-}

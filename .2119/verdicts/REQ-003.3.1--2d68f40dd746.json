@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-003.3.1--2d68f40dd746",
+  "requirementId": "REQ-003.3.1",
+  "hash": "2d68f40dd746",
+  "verdict": "pass",
+  "summary": "The test accepts review creation for differing resolved harnesses in both explicit and repo-default forms while holding the recorded starting-model strings equal.",
+  "timestamp": "2026-07-31T07:32:38.771Z"
+}

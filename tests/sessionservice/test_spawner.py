@@ -967,16 +967,69 @@ def test_spawn_one_skips_when_another_runner_wins_the_claim() -> None:
     assert runner.spawned == []  # 409 → no spawn
 
 
-def test_spawnable_tasks_filters_unclaimed_non_terminal() -> None:
+def test_spawnable_tasks_filters_claims_terminals_and_dependency_gates() -> None:
     class _Lister:
         def list_tasks(self) -> list[JsonObj]:
             return [
-                {"id": "a", "state": "ITERATING", "claimed_by": None},  # spawnable
+                {
+                    "id": "a",
+                    "state": "ITERATING",
+                    "claimed_by": None,
+                    "depends_on_task_ids": [],
+                },
                 {"id": "b", "state": "ITERATING", "claimed_by": "host-1"},  # already claimed
                 {"id": "c", "state": "COMPLETE", "claimed_by": None},  # terminal
+                {
+                    "id": "d",
+                    "state": "ITERATING",
+                    "claimed_by": None,
+                    "depends_on_task_ids": ["e"],
+                },
+                {"id": "e", "state": "ITERATING", "claimed_by": None},
+                {
+                    "id": "f",
+                    "state": "ITERATING",
+                    "claimed_by": None,
+                    "depends_on_task_ids": ["g"],
+                },
+                {"id": "g", "state": "COMPLETE", "claimed_by": None},
+                {
+                    "id": "h",
+                    "state": "ITERATING",
+                    "claimed_by": None,
+                    "depends_on_task_ids": ["i"],
+                },
+                {"id": "i", "state": "DROPPED", "claimed_by": None},
+                {
+                    "id": "j",
+                    "state": "ITERATING",
+                    "claimed_by": None,
+                    "depends_on_task_ids": ["g", "e"],
+                },
+                {
+                    "id": "k",
+                    "state": "ITERATING",
+                    "claimed_by": None,
+                    "depends_on_task_ids": ["g", "i"],
+                },
+                {
+                    "id": "l",
+                    "state": "ARCHIVED",
+                    "terminal": True,
+                    "claimed_by": None,
+                },
+                {
+                    "id": "m",
+                    "state": "ITERATING",
+                    "claimed_by": None,
+                    "depends_on_task_ids": ["l"],
+                },
             ]
 
-    assert [t["id"] for t in spawnable_tasks(_Lister())()] == ["a"]  # type: ignore[arg-type]
+    # 2119: REQ-026.1.1
+    # 2119: REQ-026.1.2
+    # 2119: REQ-026.1.4
+    assert [t["id"] for t in spawnable_tasks(_Lister())()] == ["a", "e", "f", "m"]  # type: ignore[arg-type]
 
 
 def test_spawn_runs_repo_hook_with_correct_args() -> None:
@@ -1241,3 +1294,61 @@ def test_spawner_against_the_real_service(tmp_path: Path) -> None:
         assert spawner.spawn_one(task) == f"panopticon-{task_id}"
         assert client.get_task(task_id)["claimed_by"] == "host-1"  # claim recorded on the service
         assert spawnable_tasks(client)() == []  # now claimed → no longer spawnable
+
+
+# 2119: REQ-026.1.3
+# 2119: REQ-026.3.5
+def test_next_spawner_pass_starts_dependent_with_initial_prompt_when_last_dep_completes(
+    tmp_path: Path,
+) -> None:
+    service = TaskService(SqlAlchemyStore(), {"spike": Spike()}, FilesystemArtifactStore(tmp_path))
+    asyncio.run(service.init())
+    asyncio.run(
+        service.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://forge/r1.git"))
+    )
+    with TestClient(create_app(service)) as http:
+        client = TaskServiceClient(http)
+        first_dependency_id = client.create_task("r1", "spike")["id"]
+        last_dependency_id = client.create_task("r1", "spike")["id"]
+        dependent_id = client.create_task(
+            "r1", "spike", initial_prompt="synthesize the audit results"
+        )["id"]
+        client.set_dependencies(dependent_id, [first_dependency_id, last_dependency_id])
+
+        runner = _FakeRunner()
+        spawner = Spawner(
+            client,
+            runner,
+            runner_id="host-1",  # type: ignore[arg-type]
+            cache=CloneCache(
+                "/cache", run=_no_op_run, exists=lambda _p: True, makedirs=lambda _p: None
+            ),
+            tasks_root="/tasks",
+            git=GitClones(run=_no_op_run),
+            images=_FakeImageBuilder(),  # type: ignore[arg-type]
+            makedirs=lambda _p: None,
+        )
+
+        gated = client.get_task(dependent_id)
+        assert gated["claimed_by"] is None
+        assert gated["container_status"] == "gated"
+        for task in spawnable_tasks(client)():
+            spawner.spawn_one(task)
+        assert dependent_id not in {spawned["task_id"] for spawned in runner.spawned}
+        gated_after_pass = client.get_task(dependent_id)
+        assert gated_after_pass["claimed_by"] is None
+        assert gated_after_pass["container_status"] == "gated"
+        assert dependent_id in {task["id"] for task in client.list_tasks()}
+
+        assert dependent_id not in {task["id"] for task in spawnable_tasks(client)()}
+
+        client.request_transition(first_dependency_id, "COMPLETE", trigger="finish")
+        assert dependent_id not in {task["id"] for task in spawnable_tasks(client)()}
+
+        client.request_transition(last_dependency_id, "COMPLETE", trigger="finish")
+        ready = {task["id"]: task for task in spawnable_tasks(client)()}
+        assert dependent_id in ready
+
+        assert spawner.spawn_one(ready[dependent_id]) == f"panopticon-{dependent_id}"
+        assert client.get_task(dependent_id)["claimed_by"] == "host-1"
+        assert runner.spawned[-1]["initial_prompt"] == "synthesize the audit results"

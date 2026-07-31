@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.5.2--d35f3a3a72fd",
-  "requirementId": "REQ-006.5.2",
-  "hash": "d35f3a3a72fd",
-  "verdict": "pass",
-  "summary": "Empty push_screen spy plus screen_stack == 1 rejects any modal open across every non-down latest snapshot, including the stale-down case.",
-  "timestamp": "2026-07-31T00:55:36.669Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.2.1--284b6a0b820e",
+  "requirementId": "REQ-023.2.1",
+  "hash": "284b6a0b820e",
+  "verdict": "pass",
+  "summary": "Real Enter-key toggles with exact '▸ '/'▾ ' slug-prefix equality across collapse-expand-collapse plus an independent nested-governor toggle; rejects reversed, suffixed, non-updating, and non-governor-row markers",
+  "timestamp": "2026-07-31T05:46:15.460Z"
+}

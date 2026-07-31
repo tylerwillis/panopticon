@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-003.1.1--f237a98bba7e",
+  "requirementId": "REQ-003.1.1",
+  "hash": "f237a98bba7e",
+  "verdict": "pass",
+  "summary": "The test creates an exact review workflow without a governor, requires a governor-related ValueError, and verifies that no task was persisted.",
+  "timestamp": "2026-07-31T07:32:37.862Z"
+}

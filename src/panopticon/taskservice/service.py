@@ -59,9 +59,37 @@ class AlreadyClaimed(Exception):
     """Raised when a task is claimed by a different runner than the one claiming."""
 
 
+class NotReady(Exception):
+    """Raised when an unclaimed task is no longer eligible to be claimed."""
+
+
 class NotAuthorized(Exception):
     """Raised when a task attempts an operation its workflow isn't permitted (e.g. a
     non-orchestration workflow trying to create other tasks)."""
+
+
+def _dependency_cycle(graph: Mapping[str, list[str]], start: str) -> list[str] | None:
+    """Return the first deterministic dependency cycle reachable from ``start``, if any."""
+    path: list[str] = []
+    positions: dict[str, int] = {}
+    visited: set[str] = set()
+
+    def visit(task_id: str) -> list[str] | None:
+        if task_id in positions:
+            return [*path[positions[task_id] :], task_id]
+        if task_id in visited:
+            return None
+        positions[task_id] = len(path)
+        path.append(task_id)
+        for dep_id in graph.get(task_id, []):
+            if cycle := visit(dep_id):
+                return cycle
+        path.pop()
+        positions.pop(task_id)
+        visited.add(task_id)
+        return None
+
+    return visit(start)
 
 
 @dataclass
@@ -139,6 +167,7 @@ class TaskService:
         self._runner_registrations: dict[str, RunnerRegistration] = {}
         self._lifecycles: dict[str, ContainerLifecycle] = {}
         self._transition_locks: dict[str, asyncio.Lock] = {}
+        self._dependency_lock = asyncio.Lock()
         # Ephemeral liveness (registrations, runner liveness, lifecycle phases) lives outside the
         # store, so it doesn't bump the store's version. But the dashboard's change-feed long-poll
         # only wakes on a version change — so a container going live or a phase advancing wouldn't
@@ -446,12 +475,16 @@ class TaskService:
         task.governor_task_id = governor_task_id
         task.created_at = now
         task.updated_at = now  # creation time = first mutation
-        await self._store.create_task(task)
+        if depends_on_task_ids:
+            async with self._dependency_lock:
+                await self._validate_dependencies(task.id, depends_on_task_ids)
+                task.depends_on_task_ids = list(depends_on_task_ids)
+                await self._store.create_task(task)
+        else:
+            await self._store.create_task(task)
         _log.info("task %s: created (workflow=%s, repo=%s)", task.id, workflow_name, repo_id)
         for name, content in (artifacts or {}).items():
             await self.put_artifact(task.id, name, content.encode())
-        if depends_on_task_ids:
-            task = await self.set_dependencies(task.id, depends_on_task_ids)
         return task
 
     async def _require_orchestrator(self, actor_task_id: str) -> Task:
@@ -587,12 +620,14 @@ class TaskService:
     ) -> Task:
         """Apply a named core operation (advance/drop) — a gated move along the declared graph."""
         async with self._transition_lock(task_id):
-            task = await self.get_task(task_id)
-            wf = self._workflow(task.workflow)
-            to_state = wf.resolve_operation(task.state, operation)
-            return await self._commit_transition(
-                task, wf, to_state, force=False, trigger=operation, note=note
-            )
+            async with self._dependency_lock:
+                task = await self.get_task(task_id)
+                wf = self._workflow(task.workflow)
+                to_state = wf.resolve_operation(task.state, operation)
+                task = await self._commit_transition(
+                    task, wf, to_state, force=False, trigger=operation, note=note
+                )
+            return await self._cascade_after_transition(task, trigger=operation, note=note)
 
     async def request_transition(
         self,
@@ -603,20 +638,24 @@ class TaskService:
         note: str | None = None,
     ) -> Task:
         async with self._transition_lock(task_id):
-            task = await self.get_task(task_id)
-            wf = self._workflow(task.workflow)
-            return await self._commit_transition(
-                task, wf, to_state, force=False, trigger=trigger, note=note
-            )
+            async with self._dependency_lock:
+                task = await self.get_task(task_id)
+                wf = self._workflow(task.workflow)
+                task = await self._commit_transition(
+                    task, wf, to_state, force=False, trigger=trigger, note=note
+                )
+            return await self._cascade_after_transition(task, trigger=trigger, note=note)
 
     async def set_state(self, task_id: str, to_state: str, *, note: str | None = None) -> Task:
         """The user's free override: move the task to any state, bypassing the graph and the gate."""
         async with self._transition_lock(task_id):
-            task = await self.get_task(task_id)
-            wf = self._workflow(task.workflow)
-            return await self._commit_transition(
-                task, wf, to_state, force=True, trigger="set-state", note=note
-            )
+            async with self._dependency_lock:
+                task = await self.get_task(task_id)
+                wf = self._workflow(task.workflow)
+                task = await self._commit_transition(
+                    task, wf, to_state, force=True, trigger="set-state", note=note
+                )
+            return await self._cascade_after_transition(task, trigger="set-state", note=note)
 
     def _transition_lock(self, task_id: str) -> asyncio.Lock:
         """Serialize each task's read-transition-effect-save boundary within this service."""
@@ -648,7 +687,13 @@ class TaskService:
         )
         await self._create_review_task_on_entry(task, wf)
         await self._save_task(task)
-        if to_state == Dropped.label:
+        return task
+
+    async def _cascade_after_transition(
+        self, task: Task, *, trigger: str | None, note: str | None
+    ) -> Task:
+        """Cascade a governor drop after releasing the dependency graph lock."""
+        if task.state == Dropped.label:
             await self._cascade_drop_governed(task.id, trigger=trigger, note=note)
         return task
 
@@ -727,20 +772,23 @@ class TaskService:
         re-fetch (which would let a concurrent mutation land in between and have the
         transition act on a state it was never checked against).
         """
-        task = await self.get_task(task_id)
-        task.resolve_responsibility(key=key, status=status, comment=comment)
-        _log.debug("task %s: responsibility %s → %s", task_id, key, status)
-        if task.outstanding_responsibilities:
-            await self._save_task(task)
-            return task
-        wf = self._workflow(task.workflow)
-        advance_dest = wf.operations(task.state).get("advance")
-        if advance_dest is None or wf.advanced_by(task.state) is not Actor.AGENT:
-            await self._save_task(task)
-            return task
-        return await self._commit_transition(
-            task, wf, advance_dest, force=False, trigger="advance", note=None
-        )
+        async with self._transition_lock(task_id):
+            async with self._dependency_lock:
+                task = await self.get_task(task_id)
+                task.resolve_responsibility(key=key, status=status, comment=comment)
+                _log.debug("task %s: responsibility %s → %s", task_id, key, status)
+                if task.outstanding_responsibilities:
+                    await self._save_task(task)
+                    return task
+                wf = self._workflow(task.workflow)
+                advance_dest = wf.operations(task.state).get("advance")
+                if advance_dest is None or wf.advanced_by(task.state) is not Actor.AGENT:
+                    await self._save_task(task)
+                    return task
+                task = await self._commit_transition(
+                    task, wf, advance_dest, force=False, trigger="advance", note=None
+                )
+            return await self._cascade_after_transition(task, trigger="advance", note=None)
 
     async def set_slug(self, task_id: str, slug: str) -> Task:
         task = await self.get_task(task_id)
@@ -798,6 +846,7 @@ class TaskService:
         task.turn = turn
         if turn is Actor.AGENT:
             task.blocked = False
+            task.attention = False
         await self._save_task(task)
         return task
 
@@ -807,6 +856,14 @@ class TaskService:
         task.blocked = blocked
         await self._save_task(task)
         _log.debug("task %s: blocked=%s", task_id, blocked)
+        return task
+
+    async def set_attention(self, task_id: str, attention: bool) -> Task:
+        """Set or clear the escalation-only attention marker without changing turn or blocked."""
+        task = await self.get_task(task_id)
+        task.attention = attention
+        await self._save_task(task)
+        _log.debug("task %s: attention=%s", task_id, attention)
         return task
 
     async def set_governor(self, task_id: str, governor_task_id: str | None) -> Task:
@@ -829,15 +886,61 @@ class TaskService:
         empty list clears all dependencies. This is a plain recorded fact — the state machine
         does not enforce the constraint.
         """
-        if task_id in dep_ids:
-            raise ValueError(f"task {task_id!r} cannot depend on itself")
-        task = await self.get_task(task_id)
+        async with self._dependency_lock:
+            task = await self.get_task(task_id)
+            await self._validate_dependencies(task_id, dep_ids)
+            task.depends_on_task_ids = list(dep_ids)
+            await self._save_task(task)
+        return task
+
+    async def _validate_dependencies(self, task_id: str, dep_ids: list[str]) -> None:
+        """Validate one proposed graph write while the caller holds ``_dependency_lock``."""
         for dep_id in dep_ids:
             if await self._store.get_task(dep_id) is None:
                 raise NotFound(f"dependency task {dep_id!r} does not exist")
-        task.depends_on_task_ids = list(dep_ids)
-        await self._save_task(task)
-        return task
+        graph = {
+            candidate.id: list(candidate.depends_on_task_ids)
+            for candidate in await self._store.list_tasks_summary()
+        }
+        graph[task_id] = list(dep_ids)
+        if cycle := _dependency_cycle(graph, task_id):
+            rendered = " -> ".join(cycle)
+            raise ValueError(
+                f"dependency cycle detected: {rendered}; edit the dependency set to break the cycle"
+            )
+
+    async def dependency_tasks(self, task: Task) -> list[Task]:
+        """Resolve a task's dependency rows in recorded order."""
+        dependencies: list[Task] = []
+        for dep_id in task.depends_on_task_ids:
+            dependency = await self._store.get_task(dep_id)
+            if dependency is not None:
+                dependencies.append(dependency)
+        return dependencies
+
+    async def dependencies_blocking(self, task: Task) -> bool:
+        """Whether dependency facts prevent an unspawned task from becoming ready."""
+        dependencies = await self.dependency_tasks(task)
+        return len(dependencies) != len(task.depends_on_task_ids) or any(
+            self.dependency_blocks(dependency) for dependency in dependencies
+        )
+
+    def dependencies_blocking_in_snapshot(
+        self, task: Task, tasks_by_id: Mapping[str, Task]
+    ) -> bool:
+        """Derive readiness from one already-read task snapshot, without additional store I/O."""
+        return any(
+            (dependency := tasks_by_id.get(dep_id)) is None or self.dependency_blocks(dependency)
+            for dep_id in task.depends_on_task_ids
+        )
+
+    def dependency_blocks(self, dependency: Task) -> bool:
+        """Whether one dependency is still required or ended without supplying its work."""
+        return dependency.state == Dropped.label or not self._task_is_terminal(dependency)
+
+    def task_is_terminal(self, task: Task) -> bool:
+        """Public workflow-aware terminality projection for API consumers."""
+        return self._task_is_terminal(task)
 
     # -- claim (a runner owns the task; the spawn gate, ADR 0008) --------------------------
 
@@ -845,17 +948,26 @@ class TaskService:
         """Claim an unclaimed task for ``runner_id`` (a session service claims before spawning).
 
         Compare-and-set: succeeds if the task is unclaimed (idempotent if this runner already holds
-        it); raises :class:`AlreadyClaimed` if a different runner does. The store is the single
-        writer, so the check-and-set is serialized.
+        it); raises :class:`AlreadyClaimed` if a different runner does, or :class:`NotReady` if the
+        current workflow/dependency facts no longer permit a new claim. Dependency writes and
+        terminality-changing transitions share the same lock, so readiness cannot change between
+        this check and the persisted claim.
         """
-        task = await self.get_task(task_id)
-        if task.claimed_by not in (None, runner_id):
-            raise AlreadyClaimed(f"task {task_id!r} is already claimed by {task.claimed_by!r}")
-        task.claimed_by = runner_id
-        self.clear_lifecycle(
-            task_id
-        )  # drop any stale phase from a prior owner; this spawn re-reports
-        await self._save_container_state(task)
+        async with self._dependency_lock:
+            task = await self.get_task(task_id)
+            if task.claimed_by not in (None, runner_id):
+                raise AlreadyClaimed(f"task {task_id!r} is already claimed by {task.claimed_by!r}")
+            if task.claimed_by is None and (
+                self._task_is_terminal(task) or await self.dependencies_blocking(task)
+            ):
+                raise NotReady(
+                    f"task {task_id!r} is not ready to claim; refresh dependency and state facts"
+                )
+            task.claimed_by = runner_id
+            self.clear_lifecycle(
+                task_id
+            )  # drop any stale phase from a prior owner; this spawn re-reports
+            await self._save_container_state(task)
         _log.info("task %s: claimed by runner %s", task_id, runner_id)
         return task
 
@@ -973,12 +1085,15 @@ class TaskService:
         """The task's latest reported spawn phase, or ``None`` if none is current."""
         return self._lifecycles.get(task_id)
 
-    def container_status(self, task: Task) -> ContainerStatus:
+    def container_status(
+        self, task: Task, *, dependencies_blocking: bool = False
+    ) -> ContainerStatus:
         """The task's composed container-lifecycle status (the single string the dashboard shows):
         fold the reported phase together with registration presence + runner liveness."""
         lifecycle = self._lifecycles.get(task.id)
         return compose_container_status(
             terminal=self._task_is_terminal(task),
+            dependencies_blocking=dependencies_blocking,
             claimed=task.claimed_by is not None,
             registered=bool(self.registrations(task.id)),
             runner_live=task.claimed_by in self.live_runners(),

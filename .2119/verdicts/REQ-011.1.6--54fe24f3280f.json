@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-011.1.6--54fe24f3280f",
+  "requirementId": "REQ-011.1.6",
+  "hash": "54fe24f3280f",
+  "verdict": "pass",
+  "summary": "the exact claimed/live-runner/unregistered/no-phase cell asserts 'down' from the real composer",
+  "timestamp": "2026-07-31T00:11:54.510Z"
+}

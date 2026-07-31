@@ -134,6 +134,7 @@ class _TaskRow(_Base):
     state: Mapped[str]
     turn: Mapped[str]
     blocked: Mapped[bool] = mapped_column(default=False)
+    attention: Mapped[bool] = mapped_column(default=False)
     memo: Mapped[str | None] = mapped_column(default=None)
     initial_prompt: Mapped[str | None] = mapped_column(default=None)
     slug: Mapped[str | None]
@@ -164,6 +165,7 @@ class _TaskRow(_Base):
             state=self.state,
             turn=Actor(self.turn),
             blocked=self.blocked,
+            attention=self.attention,
             memo=self.memo,
             initial_prompt=self.initial_prompt,
             slug=self.slug,
@@ -191,6 +193,7 @@ class _TaskRow(_Base):
             state=task.state,
             turn=task.turn.value,
             blocked=task.blocked,
+            attention=task.attention,
             memo=task.memo,
             initial_prompt=task.initial_prompt,
             slug=task.slug,
@@ -406,6 +409,7 @@ class SqlAlchemyStore(Store):
             row.state = task.state
             row.turn = task.turn.value
             row.blocked = task.blocked
+            row.attention = task.attention
             row.slug = task.slug
             row.url = task.url
             row.branch = task.branch

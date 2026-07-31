@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-003.2.1--a2ac67ca197a",
+  "requirementId": "REQ-003.2.1",
+  "hash": "a2ac67ca197a",
+  "verdict": "pass",
+  "summary": "The parameterized test rejects equal registry-resolved harnesses across explicit, default-sentinel, and repo-default combinations while deliberately using different starting-model strings and confirming no review task persists.",
+  "timestamp": "2026-07-31T07:32:38.311Z"
+}

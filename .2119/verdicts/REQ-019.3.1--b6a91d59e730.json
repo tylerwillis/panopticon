@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.3.1--b6a91d59e730",
-  "requirementId": "REQ-019.3.1",
-  "hash": "b6a91d59e730",
-  "verdict": "pass",
-  "summary": "Call-counting fake means a cache retained across opens keeps showing call-1 values; the second open's wait for call-2 model+effort suggestions times out and fails",
-  "timestamp": "2026-07-31T00:55:49.548Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.12.1--335363c58b23",
-  "requirementId": "REQ-018.12.1",
-  "hash": "335363c58b23",
-  "verdict": "pass",
-  "summary": "Exact rendered-string asserts cover 'this task' after each of the three overrides plus repo/app/workflow-wins default sources; wrong or doubled labels fail.",
-  "timestamp": "2026-07-31T00:55:42.484Z"
-}

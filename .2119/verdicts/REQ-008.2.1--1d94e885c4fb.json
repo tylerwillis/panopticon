@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.2.1--1d94e885c4fb",
-  "requirementId": "REQ-008.2.1",
-  "hash": "1d94e885c4fb",
-  "verdict": "pass",
-  "summary": "Tests cover declared transitions, free moves, drops and cascades, and a lifecycle hook proves the stale marker is cleared before effects can raise a fresh block.",
-  "timestamp": "2026-07-30T17:02:58.276Z"
-}

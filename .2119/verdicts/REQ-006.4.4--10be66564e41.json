@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.4.4--10be66564e41",
-  "requirementId": "REQ-006.4.4",
-  "hash": "10be66564e41",
-  "verdict": "pass",
-  "summary": "Parametrized over all eleven non-down statuses; got_tasks proves the check ran while released excludes the recovered task.",
-  "timestamp": "2026-07-31T00:55:35.060Z"
-}

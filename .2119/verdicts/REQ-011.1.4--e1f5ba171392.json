@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-011.1.4--e1f5ba171392",
+  "requirementId": "REQ-011.1.4",
+  "hash": "e1f5ba171392",
+  "verdict": "pass",
+  "summary": "all 8 phase inputs (None + every LifecyclePhase) with a dead runner assert 'disconnected' from the real composer",
+  "timestamp": "2026-07-31T00:11:53.630Z"
+}

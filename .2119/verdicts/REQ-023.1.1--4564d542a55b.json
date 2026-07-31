@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.1.1--4564d542a55b",
+  "requirementId": "REQ-023.1.1",
+  "hash": "4564d542a55b",
+  "verdict": "pass",
+  "summary": "Exact row-key list rejects visible children or a second summary row; slug-cell text pins connector->marker order, direct-child count (grandchild excluded), and the enter-to-expand instruction; Span equality pins dim; a refresh test proves the count is current",
+  "timestamp": "2026-07-31T06:01:47.722Z"
+}

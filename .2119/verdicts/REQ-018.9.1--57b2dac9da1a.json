@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.9.1--57b2dac9da1a",
+  "requirementId": "REQ-018.9.1",
+  "hash": "57b2dac9da1a",
+  "verdict": "pass",
+  "summary": "memo-box width == 64 asserted with controls visible and with each candidate list open (list width > 0)",
+  "timestamp": "2026-07-31T05:42:36.806Z"
+}

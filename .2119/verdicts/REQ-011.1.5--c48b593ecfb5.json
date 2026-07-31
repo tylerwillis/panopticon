@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-011.1.5--c48b593ecfb5",
+  "requirementId": "REQ-011.1.5",
+  "hash": "c48b593ecfb5",
+  "verdict": "pass",
+  "summary": "each of the 7 phases is pinned to a literal expected status string (not a computed phase.value), with the enum's value set pinned by a companion test against drift",
+  "timestamp": "2026-07-31T00:11:54.082Z"
+}

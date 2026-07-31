@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.3.6--b0e956b19653",
+  "requirementId": "REQ-010.3.6",
+  "hash": "b0e956b19653",
+  "verdict": "pass",
+  "summary": "Following both agent-turn and state-change clears, tests verify explicit true and false blocked updates through returned and independently reloaded values.",
+  "timestamp": "2026-07-31T07:32:43.609Z"
+}

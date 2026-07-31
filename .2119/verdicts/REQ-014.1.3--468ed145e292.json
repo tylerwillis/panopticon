@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.1.3--468ed145e292",
+  "requirementId": "REQ-014.1.3",
+  "hash": "468ed145e292",
+  "verdict": "pass",
+  "summary": "A user-advanced state is verified to remain WORKING after both partial and complete responsibility resolution, covering the nearest forbidden transitions.",
+  "timestamp": "2026-07-31T07:33:20.054Z"
+}

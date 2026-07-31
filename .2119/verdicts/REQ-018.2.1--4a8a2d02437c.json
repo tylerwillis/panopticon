@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.2.1--4a8a2d02437c",
+  "requirementId": "REQ-018.2.1",
+  "hash": "4a8a2d02437c",
+  "verdict": "pass",
+  "summary": "Asserts memo-editor start focus then steps tab-by-tab: HarnessSelector, #launch-model, #launch-effort via the real focus chain — any reorder or skip fails a specific assert.",
+  "timestamp": "2026-07-31T05:37:23.173Z"
+}

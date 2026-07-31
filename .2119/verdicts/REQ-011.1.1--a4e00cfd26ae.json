@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-011.1.1--a4e00cfd26ae",
+  "requirementId": "REQ-011.1.1",
+  "hash": "a4e00cfd26ae",
+  "verdict": "pass",
+  "summary": "Exhaustive parameterization covers every claim, registration, runner-liveness, and lifecycle-phase combination with terminal=true and rejects any result other than –.",
+  "timestamp": "2026-07-31T07:32:44.020Z"
+}

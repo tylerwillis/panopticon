@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.11.1--fb8e1011eab7",
-  "requirementId": "REQ-018.11.1",
-  "hash": "fb8e1011eab7",
-  "verdict": "pass",
-  "summary": "Typed and candidate-accepted touch paths both re-asserted after a confirmed harness change, incl. a post-change create carrying custom/model:maximum; clear-on-change regressions fail.",
-  "timestamp": "2026-07-31T00:55:42.052Z"
-}

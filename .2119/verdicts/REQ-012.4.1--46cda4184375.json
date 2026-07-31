@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.4.1--46cda4184375",
+  "requirementId": "REQ-012.4.1",
+  "hash": "46cda4184375",
+  "verdict": "pass",
+  "summary": "Arbitrary model string 'operator-owned vocabulary:maximum' (space + effort-like suffix) is accepted by the API, read back verbatim, and flows verbatim to the created task's starting_model; vocabulary validation or effort parsing would fail it.",
+  "timestamp": "2026-07-31T00:12:36.066Z"
+}

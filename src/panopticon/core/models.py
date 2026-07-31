@@ -64,6 +64,7 @@ class ContainerStatus(str, Enum):
     """
 
     NONE = "–"  # terminal task — no container concept
+    GATED = "gated"  # unclaimed, non-terminal — dependencies are not ready
     QUEUED = "queued"  # unclaimed, non-terminal — waiting for a runner to claim it
     HEALING = "healing"  # claimed, container gone, the runner is self-healing it (orphan respawn)
     CLAIMING = "claiming"
@@ -80,6 +81,7 @@ class ContainerStatus(str, Enum):
 def compose_container_status(
     *,
     terminal: bool,
+    dependencies_blocking: bool = False,
     claimed: bool,
     registered: bool,
     runner_live: bool,
@@ -96,6 +98,8 @@ def compose_container_status(
     """
     if terminal:
         return ContainerStatus.NONE
+    if not claimed and dependencies_blocking:
+        return ContainerStatus.GATED
     if not claimed:
         return ContainerStatus.QUEUED
     if registered:
@@ -258,6 +262,9 @@ class Task:
     #: A deliberate "waiting on something" marker the agent sets. A turn-to-agent write or state
     #: change clears it; a turn-to-user write preserves it, and the agent may set it again.
     blocked: bool = False
+    #: An escalation-only marker agents set when they need operator attention despite a
+    #: control-plane-verifiable upstream wait. It never suppresses the ordinary turn queue.
+    attention: bool = False
     #: A brief, one-line reminder of what the task is, collected when the task is created (shown
     #: in the dashboard's task summary) — a human label of *intent*, not a full description (that
     #: lives in the task's plan artifact). Distinct from the ``slug`` (a short identifier the

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.18.1--a93fed594d5f",
+  "requirementId": "REQ-018.18.1",
+  "hash": "a93fed594d5f",
+  "verdict": "pass",
+  "summary": "Untouched inputs assert '' after codex->outfitter despite repo default terra:high; ctrl+s records starting_model=None; mixed case pins untouched-clears/touched-survives.",
+  "timestamp": "2026-07-31T05:37:26.952Z"
+}

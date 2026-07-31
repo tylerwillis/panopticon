@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.6.1--bc7071a26893",
-  "requirementId": "REQ-019.6.1",
-  "hash": "bc7071a26893",
-  "verdict": "pass",
-  "summary": "fail_models harness errors after close; intercepted notify asserted empty, app running, memo screen gone — any surfaced worker error fails",
-  "timestamp": "2026-07-31T00:55:50.854Z"
-}

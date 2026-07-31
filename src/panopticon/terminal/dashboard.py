@@ -334,12 +334,43 @@ def _matches(task: JsonObj, query: str) -> bool:
     return query.lower() in haystack
 
 
+def _task_is_terminal(task: JsonObj) -> bool:
+    """Use the service's workflow-derived fact, with legacy labels for older/fake clients."""
+    return bool(task.get("terminal", task.get("state") in TERMINAL_LABELS))
+
+
+def _decorate_wait_facts(tasks: list[JsonObj]) -> None:
+    """Attach relationship facts from one dashboard snapshot for rendering and detail display."""
+    by_id = {task["id"]: task for task in tasks}
+    children: dict[str, list[JsonObj]] = {}
+    for task in tasks:
+        if governor_id := task.get("governor_task_id"):
+            children.setdefault(governor_id, []).append(task)
+    for task in tasks:
+        task["_dependency_tasks"] = [
+            dependency
+            for dep_id in task.get("depends_on_task_ids", [])
+            if (dependency := by_id.get(dep_id)) is not None
+        ]
+        task["_active_children"] = [
+            child for child in children.get(task["id"], []) if not _task_is_terminal(child)
+        ]
+
+
 # Turn-column colors, matching cloude-cade's dashboard ball tags: agent=green,
 # user=yellow, blocked=red. Blocked takes precedence (cloude-cade draws it as its own
 # red tag); here it keeps the turn value but appends ⚠ and colors the whole cell red.
 def _turn_cell(task: JsonObj) -> Text:
     if task.get("blocked"):
         return Text(f"{task['turn']} ⚠", style="red")
+    dependencies_waiting = any(
+        not _task_is_terminal(dependency) for dependency in task.get("_dependency_tasks", [])
+    )
+    active_children = task.get("_active_children", [])
+    governor_waiting = task["turn"] == "user" and bool(active_children)
+    if not task.get("attention") and (dependencies_waiting or governor_waiting):
+        label = f"held {len(active_children)}" if governor_waiting else "held"
+        return Text(label, style="dim")
     color = "green" if task["turn"] == "agent" else "yellow"
     return Text(task["turn"], style=color)
 
@@ -351,6 +382,7 @@ def _turn_cell(task: JsonObj) -> Text:
 # (down/failed/disconnected); the em-dash (terminal task) is dimmed.
 _STATUS_COLORS = {
     "live": "green",
+    "gated": "dim",
     "queued": "yellow",
     "healing": "cyan",
     "claiming": "yellow",
@@ -412,6 +444,28 @@ def render_detail(task: JsonObj) -> str:
         used = _short_tokens(task.get("tokens_used"))
         est = _short_tokens(task.get("token_estimate"))
         lines += ["", f"tokens (wt): {used} used / {est} est"]
+    dependencies = task.get("_dependency_tasks", [])
+    if dependencies:
+        blocking = [
+            dependency
+            for dependency in dependencies
+            if dependency.get("state") == "DROPPED" or not _task_is_terminal(dependency)
+        ]
+        states = ", ".join(
+            f"{dependency.get('slug') or dependency['id']} {dependency['state']}"
+            for dependency in dependencies
+        )
+        lines += ["", f"waiting on {len(blocking)}/{len(dependencies)}: {states}"]
+        if any(dependency.get("state") == "DROPPED" for dependency in dependencies):
+            lines.append(
+                "operator action: edit dependencies or drop the dependent; dropped work is missing"
+            )
+    active_children = task.get("_active_children", [])
+    if active_children:
+        states = ", ".join(
+            f"{child.get('slug') or child['id']} {child['state']}" for child in active_children
+        )
+        lines += ["", f"active governed children ({len(active_children)}): {states}"]
     lines += ["", "history:"]
     for entry in task.get("history") or []:
         line = f"  {entry['from_state'] or '∅'} → {entry['to_state']}"
@@ -2403,6 +2457,7 @@ class Dashboard(App[None]):
         )
         self._version = 0  # the change-feed cursor (X-Tasks-Version) the worker long-polls against
         self._tasks: dict[str, JsonObj] = {}
+        self._task_snapshot: dict[str, JsonObj] = {}
         self._repo_names: dict[str, str] = {}  # repo id → name; populated by _load_repo_names
         self._current: str | None = None
         self._query: str = ""  # active search filter ("" → no filter); see action_search
@@ -2541,6 +2596,8 @@ class Dashboard(App[None]):
         # Inject repo_name so _matches can search on it without a separate lookup per task.
         for task in ordered:
             task["repo_name"] = self._repo_names.get(str(task.get("repo_id") or ""), "")
+        _decorate_wait_facts(ordered)
+        self._task_snapshot = {task["id"]: task for task in ordered}
         # Governor IDs: the set of task IDs that have at least one governed child in the full
         # snapshot. Computed from ``ordered`` (pre-collapse, pre-filter) so collapsing a governor
         # doesn't remove it from the set and prevent a second Enter from re-expanding it.
@@ -2683,6 +2740,10 @@ class Dashboard(App[None]):
                 task = self._tasks.get(
                     task_id
                 )  # fall back to summary when the service is unreachable
+            snapshot = self._task_snapshot.get(task_id)
+            if task is not None and snapshot is not None:
+                task["_dependency_tasks"] = snapshot.get("_dependency_tasks", [])
+                task["_active_children"] = snapshot.get("_active_children", [])
         # wrap in Text so the pane renders literally — never parse task content as console markup
         # (a "[" in e.g. a docker-command lifecycle_detail would otherwise crash the whole dashboard)
         detail = Text(render_detail(task)) if task else Text("no tasks")

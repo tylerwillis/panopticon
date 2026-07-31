@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-003.4.1--62762bf4eed6",
-  "requirementId": "REQ-003.4.1",
-  "hash": "62762bf4eed6",
-  "verdict": "pass",
-  "summary": "The test creates a non-review workflow both without a governor and with one using same and different recorded harness strings, and successful returned tasks reject either review-only validation being applied.",
-  "timestamp": "2026-07-30T17:05:27.427Z"
-}

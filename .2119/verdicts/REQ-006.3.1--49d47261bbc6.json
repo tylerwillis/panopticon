@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.3.1--49d47261bbc6",
+  "requirementId": "REQ-006.3.1",
+  "hash": "49d47261bbc6",
+  "verdict": "pass",
+  "summary": "Real escape keypress on an open modal over a claimed down task asserts dismissal and released==[]",
+  "timestamp": "2026-07-31T05:36:08.587Z"
+}

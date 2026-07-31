@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.6.7--10018207d6f0",
+  "requirementId": "REQ-026.6.7",
+  "hash": "10018207d6f0",
+  "verdict": "pass",
+  "summary": "The test requires the spawn-task instructions to contain the exact conditional sequence: non-terminal governed child, set attention=true on self, then ask the user.",
+  "timestamp": "2026-07-31T07:21:50.063Z"
+}

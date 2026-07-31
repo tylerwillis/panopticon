@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.1.4--8d3b58383b2a",
+  "requirementId": "REQ-014.1.4",
+  "hash": "8d3b58383b2a",
+  "verdict": "pass",
+  "summary": "An agent-advanced state with two forward transitions and no declared advance operation resolves its responsibility yet is required to remain in the original state.",
+  "timestamp": "2026-07-31T07:32:45.283Z"
+}

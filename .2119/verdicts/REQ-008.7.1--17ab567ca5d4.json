@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.7.1--17ab567ca5d4",
+  "requirementId": "REQ-008.7.1",
+  "hash": "17ab567ca5d4",
+  "verdict": "pass",
+  "summary": "Startup test forbids unversioned list_tasks(), checks the rendered row against the seeding list_tasks_versioned() snapshot, and asserts the first long-poll uses since=1 (that call's returned version) rather than a default cursor.",
+  "timestamp": "2026-07-31T06:28:37.260Z"
+}

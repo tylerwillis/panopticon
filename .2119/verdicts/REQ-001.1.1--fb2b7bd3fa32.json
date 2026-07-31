@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.1.1--fb2b7bd3fa32",
-  "requirementId": "REQ-001.1.1",
-  "hash": "fb2b7bd3fa32",
-  "verdict": "pass",
-  "summary": "Two pilot tests prove x opens the delete confirmation for the cursor row (down+x names 'second'; bare x names 'first', excludes 'second'); unbound key or delete-without-dialog fails the screen/widget asserts",
-  "timestamp": "2026-07-31T00:55:28.017Z"
-}

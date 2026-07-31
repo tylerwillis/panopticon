@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.2.4--be779e552651",
+  "requirementId": "REQ-012.2.4",
+  "hash": "be779e552651",
+  "verdict": "pass",
+  "summary": "Monkeypatching DEFAULT_HARNESS to codex proves the concrete app-default name (not a hardcoded claude) is recorded and read back on the task; the derive-at-read counterexample is rejected by the sibling REQ-012.4.3 test in the same file.",
+  "timestamp": "2026-07-31T00:12:22.935Z"
+}

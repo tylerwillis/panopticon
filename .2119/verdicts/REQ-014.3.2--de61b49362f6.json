@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.3.2--de61b49362f6",
+  "requirementId": "REQ-014.3.2",
+  "hash": "de61b49362f6",
+  "verdict": "pass",
+  "summary": "Tests enter qualifying zero-responsibility states through auto-advance, free moves, declared transitions, explicit transitions, drops, and cascades and verify no second transition occurs.",
+  "timestamp": "2026-07-31T07:32:47.063Z"
+}

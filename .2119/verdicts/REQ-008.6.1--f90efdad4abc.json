@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.6.1--f90efdad4abc",
+  "requirementId": "REQ-008.6.1",
+  "hash": "f90efdad4abc",
+  "verdict": "pass",
+  "summary": "The runtime Node probe invokes Pi's native input handler and rejects settlement before the turn-to-agent fetch completes.",
+  "timestamp": "2026-07-31T06:38:13.696Z"
+}

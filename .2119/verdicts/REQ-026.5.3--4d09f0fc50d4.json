@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.5.3--4d09f0fc50d4",
+  "requirementId": "REQ-026.5.3",
+  "hash": "4d09f0fc50d4",
+  "verdict": "pass",
+  "summary": "test_governor_held_cell_tracks_active_children_and_reverts_when_they_finish renders the real detail pane for a governor with TWO non-terminal children (distinct slugs+states) and asserts both 'security-auditor ITERATING' and 'performance-auditor WORKING' appear while COMPLETE and other governors' children do not",
+  "timestamp": "2026-07-31T06:27:34.274Z"
+}

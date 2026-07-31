@@ -45,6 +45,8 @@ you want to spawn. Throughout, your *own* task id is shown below; the new task h
      spawn so it starts by reading the plan you wrote rather than re-planning
    - `artifacts={"plan.md": "<full markdown plan>"}` — write the plan **inside this call** so
      it exists before the spawner can ever pick up the task; the spawner finds it present
+   - `depends_on_task_ids=[...]` when prerequisites exist — record them **inside this call** so
+     the initial published row is gated before a spawner can observe it
    Record the **new task's id** from the result.
 3. **Name it.** `set_slug` on the new id with a short kebab-case slug.
 4. **Estimate its cost.** `set_token_estimate` on the new id with your forecast of the total
@@ -58,6 +60,7 @@ approves it by advancing it to ITERATING. When its container starts, the agent s
 "review your plan" prefilled in its input box; `plan.md` is guaranteed to already exist
 because it was written inside step 2. When you have spawned everything the request calls
 for, hand back to the user — they mark this orchestrator task COMPLETE when satisfied.
+If any governed child is non-terminal, call `set_attention` on your own task with `attention=true` before asking the user a question; it only escalates attention and cannot suppress the ordinary user-turn queue.
 """
 
 

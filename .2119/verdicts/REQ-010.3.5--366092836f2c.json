@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.3.5--366092836f2c",
+  "requirementId": "REQ-010.3.5",
+  "hash": "366092836f2c",
+  "verdict": "pass",
+  "summary": "Tests cover declared transition, free move, drop, and cascade drop, while lifecycle hooks assert the stale marker is false before raising a fresh block.",
+  "timestamp": "2026-07-31T07:32:43.152Z"
+}

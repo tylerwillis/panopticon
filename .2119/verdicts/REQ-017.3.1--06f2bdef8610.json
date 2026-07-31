@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.3.1--06f2bdef8610",
-  "requirementId": "REQ-017.3.1",
-  "hash": "06f2bdef8610",
-  "verdict": "pass",
-  "summary": "Types discard-me then escape: fake.set_slugs == [] and original slug still renders — a submitting or mutating cancel fails both assertions",
-  "timestamp": "2026-07-31T00:55:39.776Z"
-}

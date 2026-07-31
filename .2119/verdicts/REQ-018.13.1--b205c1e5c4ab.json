@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.13.1--b205c1e5c4ab",
-  "requirementId": "REQ-018.13.1",
-  "hash": "b205c1e5c4ab",
-  "verdict": "pass",
-  "summary": "Enter-submit pins created memo AND initial_prompt='fix' at the client boundary; no-delivery or no-submit regressions fail.",
-  "timestamp": "2026-07-31T00:55:42.907Z"
-}

@@ -484,6 +484,7 @@ def _fully_populated_task() -> Task:
         state="WORKING",
         turn=Actor.AGENT,
         blocked=True,
+        attention=True,
         memo="make the widget green",
         initial_prompt="review your plan",
         slug="fix-the-widget",

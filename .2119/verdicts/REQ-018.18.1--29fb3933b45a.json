@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.18.1--29fb3933b45a",
-  "requirementId": "REQ-018.18.1",
-  "hash": "29fb3933b45a",
-  "verdict": "pass",
-  "summary": "Untouched inputs asserted empty post-change and create sends starting_model=None (new harness defaults), incl. the mixed touched-model/untouched-effort case.",
-  "timestamp": "2026-07-31T00:55:44.694Z"
-}

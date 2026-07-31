@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.9.1--2e175a869837",
-  "requirementId": "REQ-018.9.1",
-  "hash": "2e175a869837",
-  "verdict": "pass",
-  "summary": "Rendered-layout verification: tests drive the real modal via key presses and assert #memo-box region.width == 64 at mount with labeled controls present and again with each candidate list open (OptionList region.width > 0 guards the display:none state), so widening in any covered state or a CSS/render mismatch fails.",
-  "timestamp": "2026-07-31T00:55:47.768Z"
-}

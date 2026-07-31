@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.11.1--a93e4f378676",
+  "requirementId": "REQ-018.11.1",
+  "hash": "a93e4f378676",
+  "verdict": "pass",
+  "summary": "Typed and candidate-accepted values survive an asserted codex->outfitter cycle, incl. mixed touched/untouched and end-to-end ctrl+s composing custom/model:maximum.",
+  "timestamp": "2026-07-31T05:37:23.621Z"
+}

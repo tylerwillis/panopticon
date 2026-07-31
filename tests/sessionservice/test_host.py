@@ -95,6 +95,20 @@ class _FakeClient:
         return self._tasks, since
 
 
+def _host_task(
+    task_id: str,
+    *,
+    state: str = "ITERATING",
+    depends_on: list[str] | None = None,
+) -> JsonObj:
+    return {
+        "id": task_id,
+        "state": state,
+        "claimed_by": None,
+        "depends_on_task_ids": depends_on or [],
+    }
+
+
 def test_tick_isolates_a_failing_task_from_the_others() -> None:
     seen: list[str] = []
 
@@ -121,8 +135,52 @@ def test_tick_isolates_a_failing_task_from_the_others() -> None:
             return None
 
     daemon = HostDaemon(_FakeClient([]), _Spawner(), _Provisioner())  # type: ignore[arg-type]
-    daemon.tick([{"id": "t1"}, {"id": "t2"}])
+    daemon.tick([_host_task("t1"), _host_task("t2")])
     assert seen == ["t1", "t2"]  # t1's error is logged + skipped; t2 still processed
+
+
+def test_tick_spawns_only_dependency_ready_tasks_on_each_current_snapshot() -> None:
+    spawned: list[str] = []
+
+    class _Spawner:
+        def mark_healing(self, task: JsonObj) -> None:
+            return None
+
+        def spawn_one(self, task: JsonObj) -> None:
+            spawned.append(task["id"])
+
+        def reconcile(self, task: JsonObj) -> None:
+            return None
+
+        def heal(self, task: JsonObj) -> None:
+            return None
+
+        def cleanup(self, task: JsonObj) -> None:
+            return None
+
+    class _Provisioner:
+        def provision(self, task: JsonObj) -> None:
+            return None
+
+    active = _host_task("active")
+    dropped = _host_task("dropped", state="DROPPED")
+    complete = _host_task("complete", state="COMPLETE")
+    waits_active = _host_task("waits-active", depends_on=["active"])
+    waits_dropped = _host_task("waits-dropped", depends_on=["dropped"])
+    waits_complete = _host_task("waits-complete", depends_on=["complete"])
+    tasks = [active, dropped, complete, waits_active, waits_dropped, waits_complete]
+    daemon = HostDaemon(_FakeClient([]), _Spawner(), _Provisioner())  # type: ignore[arg-type]
+
+    # 2119: REQ-026.1.1
+    # 2119: REQ-026.1.2
+    daemon.tick(tasks)
+    assert spawned == ["active", "waits-complete"]
+
+    # 2119: REQ-026.1.3
+    active["state"] = "COMPLETE"
+    spawned.clear()
+    daemon.tick(tasks)
+    assert spawned == ["waits-active", "waits-complete"]
 
 
 def test_tick_heals_each_task_in_the_snapshot() -> None:
@@ -149,7 +207,9 @@ def test_tick_heals_each_task_in_the_snapshot() -> None:
         def provision(self, task: JsonObj) -> None:
             return None
 
-    HostDaemon(_FakeClient([]), _Spawner(), _Provisioner()).tick([{"id": "t1"}, {"id": "t2"}])  # type: ignore[arg-type]
+    HostDaemon(_FakeClient([]), _Spawner(), _Provisioner()).tick(  # type: ignore[arg-type]
+        [_host_task("t1"), _host_task("t2")]
+    )
     assert healed == ["t1", "t2"]
 
 
@@ -179,7 +239,9 @@ def test_tick_flags_every_orphan_healing_before_any_respawn() -> None:
         def provision(self, task: JsonObj) -> None:
             return None
 
-    HostDaemon(_FakeClient([]), _Spawner(), _Provisioner()).tick([{"id": "t1"}, {"id": "t2"}])  # type: ignore[arg-type]
+    HostDaemon(_FakeClient([]), _Spawner(), _Provisioner()).tick(  # type: ignore[arg-type]
+        [_host_task("t1"), _host_task("t2")]
+    )
     assert events == ["mark:t1", "mark:t2", "heal:t1", "heal:t2"]  # all marks precede any respawn
 
 
@@ -263,7 +325,9 @@ def test_run_blocks_on_the_change_feed_and_feeds_the_version_back() -> None:
             self, *, since: int = 0, wait: float | None = None
         ) -> tuple[list[JsonObj], int]:
             sinces.append(since)
-            return [{"id": f"t{len(sinces)}"}], len(sinces)  # a fresh snapshot + a bumped version
+            return [_host_task(f"t{len(sinces)}")], len(
+                sinces
+            )  # a fresh snapshot + a bumped version
 
     spawner = _Spawner()
     daemon = HostDaemon(_FeedClient(), spawner, _Provisioner())  # type: ignore[arg-type]
@@ -461,5 +525,7 @@ def test_tick_cleans_up_each_task() -> None:
         def provision(self, task: JsonObj) -> None:
             return None
 
-    HostDaemon(_FakeClient([]), _Spawner(), _Provisioner()).tick([{"id": "t1"}, {"id": "t2"}])  # type: ignore[arg-type]
+    HostDaemon(_FakeClient([]), _Spawner(), _Provisioner()).tick(  # type: ignore[arg-type]
+        [_host_task("t1"), _host_task("t2")]
+    )
     assert cleaned == ["t1", "t2"]

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-003.4.1--372acb664311",
+  "requirementId": "REQ-003.4.1",
+  "hash": "372acb664311",
+  "verdict": "pass",
+  "summary": "Exercises non-review creation with and without governors across registered workflows and every recorded governor/child harness pairing, including equal, unequal, and default harnesses.",
+  "timestamp": "2026-07-31T07:33:19.593Z"
+}

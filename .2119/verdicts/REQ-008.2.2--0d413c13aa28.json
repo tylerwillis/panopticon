@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.2.2--0d413c13aa28",
+  "requirementId": "REQ-008.2.2",
+  "hash": "0d413c13aa28",
+  "verdict": "pass",
+  "summary": "Declared, free, drop, and cascade transitions verify persisted state-plus-blocked outcomes, lifecycle re-blocking, and a single version bump per task mutation.",
+  "timestamp": "2026-07-31T07:32:40.476Z"
+}

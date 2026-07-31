@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.1.1--d9a0ff60b023",
+  "requirementId": "REQ-026.1.1",
+  "hash": "d9a0ff60b023",
+  "verdict": "pass",
+  "summary": "Spawner and host tests use unclaimed non-terminal dependents with active dependencies, including mixed dependency sets, and verify they are absent from candidates and never spawned; claim also rechecks stale candidates.",
+  "timestamp": "2026-07-31T07:32:47.885Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.2.1--7c9401c24820",
+  "requirementId": "REQ-008.2.1",
+  "hash": "7c9401c24820",
+  "verdict": "pass",
+  "summary": "Tests cover declared transitions, free moves, direct and cascaded drops, and use a lifecycle hook to prove the stale block is cleared before effects may raise a fresh block.",
+  "timestamp": "2026-07-31T07:32:40.049Z"
+}
