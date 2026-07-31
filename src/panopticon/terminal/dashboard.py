@@ -2544,6 +2544,7 @@ class Dashboard(App[None]):
         self._version = 0  # the change-feed cursor (X-Tasks-Version) the worker long-polls against
         self._tasks: dict[str, JsonObj] = {}
         self._task_snapshot: dict[str, JsonObj] = {}
+        self._runner_snapshot: list[JsonObj] = []
         self._repo_names: dict[str, str] = {}  # repo id → name; populated by _load_repo_names
         self._current: str | None = None
         self._query: str = ""  # active search filter ("" → no filter); see action_search
@@ -2665,13 +2666,20 @@ class Dashboard(App[None]):
         return self._artifact_tmp.name
 
     def action_refresh(self) -> None:
+        """Fetch the latest service snapshot, then paint it using the display clock."""
+        tasks, self._version = self._client.list_tasks_versioned()
+        self._task_snapshot = {task["id"]: task for task in tasks}
+        self._runner_snapshot = self._client.live_runners()
+        self._render_task_snapshot()
+
+    def _render_task_snapshot(self) -> None:
+        """Paint cached service facts; clock-only snooze changes need no network request."""
         table = self.query_one("#tasks", DataTable)
         selected = self._current  # keep the operator's highlight across the rebuild (feed refresh)
-        tasks, self._version = self._client.list_tasks_versioned()
-        ordered = sorted(tasks, key=_make_sort_key(self._sort_by_updated))
-        new_multi_runner = (
-            len({r.get("host") for r in self._client.live_runners() if r.get("host")}) > 1
+        ordered = sorted(
+            self._task_snapshot.values(), key=_make_sort_key(self._sort_by_updated)
         )
+        new_multi_runner = len({r.get("host") for r in self._runner_snapshot if r.get("host")}) > 1
         table.clear()
         if new_multi_runner != self._multi_runner:
             table.clear(columns=True)  # rows already gone; also clears columns for rebuild
@@ -2687,7 +2695,6 @@ class Dashboard(App[None]):
         for task in ordered:
             task["repo_name"] = self._repo_names.get(str(task.get("repo_id") or ""), "")
         _decorate_wait_facts(ordered)
-        self._task_snapshot = {task["id"]: task for task in ordered}
         # Governor IDs: the set of task IDs that have at least one governed child in the full
         # snapshot. Computed from ``ordered`` (pre-collapse, pre-filter) so collapsing a governor
         # doesn't remove it from the set and prevent a second Enter from re-expanding it.
@@ -2805,12 +2812,9 @@ class Dashboard(App[None]):
             self._snooze_timer = self.set_timer(min(delays), self._refresh_snooze_display)
 
     def _refresh_snooze_display(self) -> None:
-        """Retry a clock-driven redraw after a transient service outage."""
+        """Redraw cached task facts after the display clock crosses a countdown boundary."""
         self._snooze_timer = None
-        try:
-            self.action_refresh()
-        except httpx.HTTPError:
-            self._snooze_timer = self.set_timer(1.0, self._refresh_snooze_display)
+        self._render_task_snapshot()
 
     def on_data_table_row_highlighted(self, event: DataTable.RowHighlighted) -> None:
         key = event.row_key.value

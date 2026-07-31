@@ -320,6 +320,8 @@ class SnoozeIn(BaseModel):
             datetime.fromisoformat(value)
         except ValueError as exc:
             raise ValueError("until must be an ISO-8601 timestamp") from exc
+        if len(value) <= 10:
+            raise ValueError("until must include a time")
         return value
 
 

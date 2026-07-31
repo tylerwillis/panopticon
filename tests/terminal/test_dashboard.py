@@ -1090,28 +1090,39 @@ async def test_failed_snooze_write_keeps_dashboard_running(monkeypatch: pytest.M
         assert app.query_one("#tasks", DataTable).row_count == 1
 
 
-async def test_failed_clock_redraw_keeps_row_and_schedules_retry(
+# 2119: REQ-027.3.2
+# 2119: REQ-027.3.3
+async def test_clock_timer_expires_from_cached_snapshot_without_service(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    clock = [_SNOOZE_NOW]
+    deadline = _SNOOZE_NOW + timedelta(milliseconds=50)
     task = {
         **_TASK,
-        "snoozed_until": (_SNOOZE_NOW + timedelta(hours=4)).isoformat(),
+        "turn": "user",
+        "attention": False,
+        "snoozed_until": deadline.isoformat(),
     }
     fake = _FakeClient([task])
-    app = Dashboard(fake, now=lambda: _SNOOZE_NOW, refresh_interval=0)  # type: ignore[arg-type]
+    app = Dashboard(fake, now=lambda: clock[0], refresh_interval=0)  # type: ignore[arg-type]
     async with app.run_test() as pilot:
         await pilot.pause()
         table = app.query_one("#tasks", DataTable)
-        assert table.row_count == 1
+        assert table.get_row(_TASK["id"])[1].plain == "snoozed · <1m left"
 
         def fail_refresh(*, since: int = 0, wait: float | None = None) -> tuple[list[Any], int]:
             request = httpx.Request("GET", "http://service/tasks")
             raise httpx.RequestError("service restarting", request=request)
 
         monkeypatch.setattr(fake, "list_tasks_versioned", fail_refresh)
-        app._refresh_snooze_display()
-        assert table.row_count == 1
-        assert app._snooze_timer is not None
+        clock[0] = deadline
+        await pilot.pause(0.1)
+
+        expired = table.get_row(_TASK["id"])
+        assert expired[1].plain == "user"
+        assert "orange" in str(expired[1].style)
+        assert task["snoozed_until"] == deadline.isoformat()
+        assert fake.snoozes == []
 
 
 # 2119: REQ-027.3.1

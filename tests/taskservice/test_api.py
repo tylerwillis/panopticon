@@ -911,9 +911,10 @@ def test_snooze_null_clears_and_service_does_not_expire_deadlines(client: TestCl
 
 
 # 2119: REQ-027.1.1
-def test_snooze_rejects_a_non_timestamp_value(client: TestClient) -> None:
+@pytest.mark.parametrize("invalid", ["not-a-timestamp", "2099-08-01"])
+def test_snooze_rejects_a_non_timestamp_value(client: TestClient, invalid: str) -> None:
     task_id = _new_task(client)
-    rejected = client.put(f"/tasks/{task_id}/snooze", json={"until": "not-a-timestamp"})
+    rejected = client.put(f"/tasks/{task_id}/snooze", json={"until": invalid})
     assert rejected.status_code == 422
     assert client.get(f"/tasks/{task_id}").json()["snoozed_until"] is None
 
