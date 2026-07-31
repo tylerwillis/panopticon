@@ -2,14 +2,19 @@
 
 Facts pinned against codex-cli 0.144.4: the config keys come from its published config schema;
 the api-key ``auth.json`` shape is what ``codex login --with-api-key`` writes; ``codex resume``
-takes ``--last``, the bypass flags, and a positional prompt.
+takes an explicit session id (scanned from the newest interactive rollout — see REQ-027, not
+``--last``, which reviewer ``codex exec`` rollouts sharing the same ``CODEX_HOME`` can poison),
+the bypass flags, and a positional prompt.
 """
 
 from __future__ import annotations
 
 import json
+import os
 import tomllib
 from pathlib import Path
+
+import pytest
 
 from panopticon.core.models import Skill
 from panopticon.harnesses import INTERRUPT_PROMPT, BootstrapContext, LaunchContext
@@ -223,10 +228,28 @@ _SESSION_FLAGS = [
 ]
 
 
+def _seed_rollout(
+    home: Path, session_id: str, originator: str, *, mtime: float, name: str = "rollout.jsonl"
+) -> Path:
+    """A rollout file with a codex-shaped ``session_meta`` first line — the interactive TUI and
+    ``codex exec`` (what the dual-review/test-honesty skills dispatch reviewers with, INSIDE the
+    task's own container/CODEX_HOME) write the same record shape, differing only in
+    ``payload.originator``."""
+    rollouts = home / ".codex" / "sessions" / "2026" / "07" / "31"
+    rollouts.mkdir(parents=True, exist_ok=True)
+    path = rollouts / name
+    meta = {
+        "timestamp": "2026-07-31T00:00:00Z",
+        "type": "session_meta",
+        "payload": {"id": session_id, "originator": originator},
+    }
+    path.write_text(json.dumps(meta) + "\n")
+    os.utime(path, (mtime, mtime))
+    return path
+
+
 def _seed_session(home: Path) -> None:
-    rollouts = home / ".codex" / "sessions" / "2026" / "07" / "15"
-    rollouts.mkdir(parents=True)
-    (rollouts / "rollout-1.jsonl").write_text("{}")
+    _seed_rollout(home, "interactive-1", "codex-tui", mtime=100)
 
 
 # 2119: REQ-015.1.1
@@ -260,21 +283,158 @@ def test_argv_splits_an_effort_suffix_into_a_config_override(tmp_path: Path) -> 
     ]
 
 
-def test_argv_resumes_the_last_session_when_one_is_recorded(tmp_path: Path) -> None:
+# 2119: REQ-027.1.1
+def test_argv_resumes_the_recorded_interactive_session_by_id(tmp_path: Path) -> None:
     _seed_session(tmp_path)
-    assert HARNESS.argv(_ctx(tmp_path)) == ["codex", "resume", "--last", *_SESSION_FLAGS]
+    assert HARNESS.argv(_ctx(tmp_path)) == ["codex", "resume", "interactive-1", *_SESSION_FLAGS]
 
 
+# 2119: REQ-027.5.2
 def test_argv_resume_appends_interrupt_prompt_on_agent_turn(tmp_path: Path) -> None:
     _seed_session(tmp_path)
     argv = HARNESS.argv(_ctx(tmp_path, turn="agent"))
-    assert argv == ["codex", "resume", "--last", *_SESSION_FLAGS, INTERRUPT_PROMPT]
+    assert argv == ["codex", "resume", "interactive-1", *_SESSION_FLAGS, INTERRUPT_PROMPT]
 
 
 def test_argv_resume_omits_model_and_initial_prompt(tmp_path: Path) -> None:
     _seed_session(tmp_path)
     argv = HARNESS.argv(_ctx(tmp_path, initial_prompt="start now", starting_model="gpt-5.6-sol"))
     assert "--model" not in argv and "start now" not in argv
+
+
+# 2119: REQ-027.1.1
+# 2119: REQ-027.1.3
+def test_argv_resume_picks_interactive_over_a_newer_exec_rollout(tmp_path: Path) -> None:
+    # The exact live failure mode: a reviewer's `codex exec` rollout, dispatched by the
+    # dual-review/test-honesty skills INSIDE this same task container, lands newer than the
+    # task's own interactive session but must never be resumed.
+    _seed_rollout(tmp_path, "interactive-1", "codex-tui", mtime=100)
+    _seed_rollout(tmp_path, "reviewer-1", "codex_exec", mtime=200, name="reviewer.jsonl")
+    assert HARNESS.argv(_ctx(tmp_path)) == ["codex", "resume", "interactive-1", *_SESSION_FLAGS]
+
+
+# 2119: REQ-027.1.2
+def test_argv_resume_picks_the_newest_of_several_interactive_sessions(tmp_path: Path) -> None:
+    # Filename order, on-disk creation order, AND mtime order are deliberately all different, so
+    # selecting by name/glob order or creation order rather than genuine recency (the recorded
+    # mtime, set explicitly via os.utime below, independent of write order) would pick wrong:
+    # "newer" is created FIRST on disk and sorts FIRST alphabetically, yet its mtime is set later.
+    _seed_rollout(tmp_path, "newer", "codex-tui", mtime=200, name="a-created-first.jsonl")
+    _seed_rollout(tmp_path, "older", "codex-tui", mtime=100, name="z-created-second.jsonl")
+    assert HARNESS.argv(_ctx(tmp_path)) == ["codex", "resume", "newer", *_SESSION_FLAGS]
+
+
+# 2119: REQ-027.2.1
+def test_argv_resume_stays_fresh_when_no_rollouts_recorded(tmp_path: Path) -> None:
+    assert HARNESS.argv(_ctx(tmp_path)) == ["codex", *_SESSION_FLAGS]
+
+
+# 2119: REQ-027.2.2
+def test_argv_resume_falls_back_to_fresh_when_every_rollout_is_exec(tmp_path: Path) -> None:
+    _seed_rollout(tmp_path, "reviewer-1", "codex_exec", mtime=100, name="a.jsonl")
+    _seed_rollout(tmp_path, "reviewer-2", "exec", mtime=200, name="b.jsonl")
+    assert HARNESS.argv(_ctx(tmp_path)) == ["codex", *_SESSION_FLAGS]
+
+
+# 2119: REQ-027.3.1
+def test_argv_resume_skips_malformed_rollouts_but_still_finds_the_interactive_one(
+    tmp_path: Path,
+) -> None:
+    rollouts = tmp_path / ".codex" / "sessions"
+    rollouts.mkdir(parents=True)
+    (rollouts / "empty.jsonl").write_text("")
+    (rollouts / "not-json.jsonl").write_text("not json at all\n")
+    (rollouts / "no-originator.jsonl").write_text(json.dumps({"type": "session_meta"}) + "\n")
+    for name in ("empty.jsonl", "not-json.jsonl", "no-originator.jsonl"):
+        os.utime(rollouts / name, (300, 300))  # newer than the interactive rollout below
+    _seed_rollout(tmp_path, "interactive-1", "codex-tui", mtime=100)
+    assert HARNESS.argv(_ctx(tmp_path)) == ["codex", "resume", "interactive-1", *_SESSION_FLAGS]
+
+
+# 2119: REQ-027.3.1
+# 2119: REQ-027.2.2
+def test_argv_resume_treats_all_malformed_rollouts_as_fresh(tmp_path: Path) -> None:
+    rollouts = tmp_path / ".codex" / "sessions"
+    rollouts.mkdir(parents=True)
+    (rollouts / "empty.jsonl").write_text("")
+    (rollouts / "not-json.jsonl").write_text("{{{not json\n")
+    assert HARNESS.argv(_ctx(tmp_path)) == ["codex", *_SESSION_FLAGS]
+
+
+class _FirstLineOnly:
+    """Wraps an open rollout file so any read reaching past its first line raises — a naive
+    ``path.read_text()``/``readlines()`` whole-file slurp fails immediately, so a passing test
+    proves the scan never consumed more than the first line, not merely that it tolerated
+    trailing garbage."""
+
+    def __init__(self, fh: object, limit: int) -> None:
+        self._fh = fh
+        self._limit = limit
+        self._consumed = 0
+
+    def _account(self, chunk: str) -> str:
+        self._consumed += len(chunk)
+        if self._consumed > self._limit:
+            raise AssertionError("read past a rollout's first line")
+        return chunk
+
+    def readline(self, *a: object, **kw: object) -> str:
+        return self._account(self._fh.readline(*a, **kw))  # type: ignore[attr-defined]
+
+    def read(self, *a: object, **kw: object) -> str:
+        return self._account(self._fh.read(*a, **kw))  # type: ignore[attr-defined]
+
+    def readlines(self, *a: object, **kw: object) -> list[str]:
+        lines = self._fh.readlines(*a, **kw)  # type: ignore[attr-defined]
+        self._account("".join(lines))
+        return lines
+
+    def __iter__(self) -> _FirstLineOnly:
+        return self
+
+    def __next__(self) -> str:
+        return self._account(next(self._fh))  # type: ignore[arg-type]
+
+    def __enter__(self) -> _FirstLineOnly:
+        return self
+
+    def __exit__(self, *exc: object) -> None:
+        self._fh.close()  # type: ignore[attr-defined]
+
+    def __getattr__(self, name: str) -> object:
+        return getattr(self._fh, name)
+
+
+# 2119: REQ-027.4.1
+def test_argv_resume_reads_only_the_first_line_of_each_rollout(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # The scan must stay cheap: only the first line is read, never the file's full contents. A
+    # rollout whose second line is large unparseable garbage — a naive full-file read/parse would
+    # both blow the read budget below AND raise on the garbage — proves both properties in one
+    # test: correctness despite trailing junk, and that the junk was never actually read.
+    path = _seed_rollout(tmp_path, "interactive-1", "codex-tui", mtime=100)
+    first_line = path.read_text().splitlines(keepends=True)[0]
+    with path.open("a") as f:
+        f.write("{{{ this is not valid json and must never be parsed\n" * 5000)
+
+    real_open = Path.open
+
+    def limited_open(self: Path, *args: object, **kwargs: object) -> object:
+        fh = real_open(self, *args, **kwargs)  # type: ignore[arg-type]
+        if self == path:
+            return _FirstLineOnly(fh, limit=len(first_line))
+        return fh
+
+    monkeypatch.setattr(Path, "open", limited_open)  # type: ignore[attr-defined]
+    assert HARNESS.argv(_ctx(tmp_path)) == ["codex", "resume", "interactive-1", *_SESSION_FLAGS]
+
+
+# 2119: REQ-027.5.1
+def test_argv_resume_session_flags_unchanged(tmp_path: Path) -> None:
+    _seed_session(tmp_path)
+    argv = HARNESS.argv(_ctx(tmp_path))
+    assert argv[3:] == _SESSION_FLAGS
 
 
 # -- image layer + env ----------------------------------------------------------------
