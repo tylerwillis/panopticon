@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.8.1--cd351613b4da",
-  "requirementId": "REQ-001.8.1",
-  "hash": "cd351613b4da",
-  "verdict": "pass",
-  "summary": "Test drives the real x binding on a built_in workflow, clears mount-time notices, and asserts exactly one 'Built-in workflows cannot be deleted.' notification; sibling non-built-in tests reject the refusal-for-operator-workflows counterexample via the confirmation modal.",
-  "timestamp": "2026-07-30T23:45:10.328Z"
-}

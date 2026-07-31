@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.5.2--09ef89ef7d33",
-  "requirementId": "REQ-006.5.2",
-  "hash": "09ef89ef7d33",
-  "verdict": "pass",
-  "summary": "Both tests drive real ctrl+r through the Textual pilot and assert screen_stack stays 1 plus a push_screen spy stays empty; the parametrized case seeds a stale down task then swaps the service snapshot to every non-down status (incl. failed/disconnected), so stale-snapshot or failed-as-down violations open a modal and fail.",
-  "timestamp": "2026-07-30T23:49:15.957Z"
-}

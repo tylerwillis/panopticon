@@ -489,6 +489,7 @@ def _fully_populated_task() -> Task:
         initial_prompt="review your plan",
         slug="fix-the-widget",
         url="https://github.com/acme/widgets/pull/7",
+        snoozed_until="2099-08-01T20:30:00+00:00",
         branch="panopticon/fix-the-widget",
         clone="/clones/t-full",
         claimed_by="local",

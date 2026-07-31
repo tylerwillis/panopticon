@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.10.1--ae19382f3060",
+  "requirementId": "REQ-028.10.1",
+  "hash": "ae19382f3060",
+  "verdict": "pass",
+  "summary": "Sol: exact guidance rejects treating artifacts as replacements for the PR or task URL.",
+  "timestamp": "2026-07-31T23:19:30.600Z"
+}

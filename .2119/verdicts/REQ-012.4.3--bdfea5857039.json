@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.4.3--bdfea5857039",
-  "requirementId": "REQ-012.4.3",
-  "hash": "bdfea5857039",
-  "verdict": "pass",
-  "summary": "test_materialized_app_default_survives_later_default_changes creates a task under app-default claude, flips DEFAULT_HARNESS to codex, and proves the original task still reads claude while a new task reads codex — the exact lazy-resolution counterexample fails it, and the second assertion proves the patch is effective",
-  "timestamp": "2026-07-31T00:10:46.625Z"
-}

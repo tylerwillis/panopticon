@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.6.4--4a70c6d05ef4",
-  "requirementId": "REQ-026.6.4",
-  "hash": "4a70c6d05ef4",
-  "verdict": "pass",
-  "summary": "Tagged test toggles attention deliberately then PUTs turn=user via the real REST stack and asserts attention is still True in the response; a turn-to-user write that cleared it would fail",
-  "timestamp": "2026-07-31T06:27:36.004Z"
-}

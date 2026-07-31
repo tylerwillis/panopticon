@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.4.1--3510e93e330a",
+  "requirementId": "REQ-023.4.1",
+  "hash": "3510e93e330a",
+  "verdict": "pass",
+  "summary": "Sol: Tests exercise both Down and Up across a summary and reject landing on the sentinel, including the boundary where the summary is the final table row.",
+  "timestamp": "2026-07-31T23:18:26.453Z"
+}

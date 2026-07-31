@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.18.1--ec91b8f7942b",
+  "requirementId": "REQ-018.18.1",
+  "hash": "ec91b8f7942b",
+  "verdict": "pass",
+  "summary": "Sol: Tests verify both untouched values clear on harness change, independently distinguish a touched model from untouched effort, and confirm submission delegates defaults via an absent model override.",
+  "timestamp": "2026-07-31T23:18:20.251Z"
+}

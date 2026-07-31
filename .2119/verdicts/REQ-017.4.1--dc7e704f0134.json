@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.4.1--dc7e704f0134",
-  "requirementId": "REQ-017.4.1",
-  "hash": "dc7e704f0134",
-  "verdict": "pass",
-  "summary": "Penultimate line must equal 'e: edit slug' and be dim via real render; missing/undim hint fails (stricter than the MUST)",
-  "timestamp": "2026-07-31T06:16:46.021Z"
-}

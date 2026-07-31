@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.4.1--cf5b95ae2f5f",
+  "requirementId": "REQ-019.4.1",
+  "hash": "cf5b95ae2f5f",
+  "verdict": "pass",
+  "summary": "Sol: Both pending and not-yet-started discovery cases require the selected harness’s model and effort suggestions to be populated before the cycle action returns.",
+  "timestamp": "2026-07-31T23:18:23.027Z"
+}

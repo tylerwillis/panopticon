@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.3.1--9a77ba88da67",
+  "requirementId": "REQ-018.3.1",
+  "hash": "9a77ba88da67",
+  "verdict": "pass",
+  "summary": "Sol: Exact candidate lists for uppercase filters on both fields verify visibility, case-insensitive containment, inclusion of all matches, and exclusion of nonmatches.",
+  "timestamp": "2026-07-31T23:18:13.186Z"
+}

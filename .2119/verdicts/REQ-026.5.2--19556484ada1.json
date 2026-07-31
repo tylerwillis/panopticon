@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.5.2--19556484ada1",
+  "requirementId": "REQ-026.5.2",
+  "hash": "19556484ada1",
+  "verdict": "pass",
+  "summary": "All-terminal children preserve normal user/orange and agent/green stored-turn renderings.",
+  "timestamp": "2026-07-31T23:24:08.828Z"
+}

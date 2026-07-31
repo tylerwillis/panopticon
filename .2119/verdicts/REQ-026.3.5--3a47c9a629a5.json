@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.3.5--3a47c9a629a5",
+  "requirementId": "REQ-026.3.5",
+  "hash": "3a47c9a629a5",
+  "verdict": "pass",
+  "summary": "An unclaimed gated task remains in the nonterminal API result and is asserted present as a dashboard row.",
+  "timestamp": "2026-07-31T23:24:08.359Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.1.1--760782ab1c86",
-  "requirementId": "REQ-006.1.1",
-  "hash": "760782ab1c86",
-  "verdict": "pass",
-  "summary": "pilot.press('ctrl+r') exercises the real HOTKEYS-derived binding and asserts BulkRespawnScreen becomes the active screen; removing or rebinding Ctrl+R fails the isinstance/content assertions, only the HTTP client is faked",
-  "timestamp": "2026-07-30T23:45:30.437Z"
-}

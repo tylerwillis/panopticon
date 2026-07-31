@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.2.1--8e133b8f60c8",
+  "requirementId": "REQ-017.2.1",
+  "hash": "8e133b8f60c8",
+  "verdict": "pass",
+  "summary": "Sol: Tests verify trimming, highlighted-task isolation, service submission, refreshed list/detail displays, and preservation of the displayed slug after rejection.",
+  "timestamp": "2026-07-31T23:18:10.755Z"
+}

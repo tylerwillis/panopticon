@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.1.1--2a9543c37175",
+  "requirementId": "REQ-025.1.1",
+  "hash": "2a9543c37175",
+  "verdict": "pass",
+  "summary": "Sol: Local and remote attach tests verify `status-left` receives exactly `slug [memo]`; near violations such as omitted/reversed text, missing brackets or spacing, and writing a different tmux option would fail.",
+  "timestamp": "2026-07-31T23:18:27.903Z"
+}

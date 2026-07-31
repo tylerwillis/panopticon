@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.4.1--9ec36d54dc6b",
-  "requirementId": "REQ-019.4.1",
-  "hash": "9ec36d54dc6b",
-  "verdict": "pass",
-  "summary": "Two Pilot tests discriminate genuinely: one blocks in-flight discovery and asserts suggestions synchronously with the cycle keypress; the other blocks the discovery queue forever so target suggestions can only appear via the cycle itself; both assert rendered model+effort OptionList contents.",
-  "timestamp": "2026-07-31T06:05:51.010Z"
-}

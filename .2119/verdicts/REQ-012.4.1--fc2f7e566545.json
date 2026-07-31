@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.4.1--fc2f7e566545",
+  "requirementId": "REQ-012.4.1",
+  "hash": "fc2f7e566545",
+  "verdict": "pass",
+  "summary": "Repository-, workflow-, and task-selected opaque strings are accepted and preserved exactly without delimiter parsing.",
+  "timestamp": "2026-07-31T23:25:46.513Z"
+}

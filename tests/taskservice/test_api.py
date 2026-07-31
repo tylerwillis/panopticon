@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from panopticon.core.models import Repo, Responsibility
+from panopticon.core.models import Actor, Repo, Responsibility, Task
 from panopticon.core.state import Complete, InitialState, TerminalState
 from panopticon.core.workflow import Workflow
 from panopticon.taskservice.api import create_app
@@ -293,6 +293,7 @@ def test_create_and_get_task(client: TestClient) -> None:
 
 # 2119: REQ-026.2.1
 # 2119: REQ-026.2.3
+# 2119: REQ-026.3.2
 # 2119: REQ-026.3.5
 def test_task_responses_keep_dropped_dependencies_gated(client: TestClient) -> None:
     dependency_id = _new_task(client)
@@ -306,6 +307,8 @@ def test_task_responses_keep_dropped_dependencies_gated(client: TestClient) -> N
     )
     assert dependent.status_code == 201, dependent.text
     dependent_id = dependent.json()["id"]
+    assert dependent.json()["turn"] == "user"
+    assert {actor.value for actor in Actor} == {"agent", "user"}
     assert dependent.json()["container_status"] == "gated"
     listed = client.get("/tasks", params={"terminal": "false"}).json()
     listed_dependent = next(task for task in listed if task["id"] == dependent_id)
@@ -315,7 +318,9 @@ def test_task_responses_keep_dropped_dependencies_gated(client: TestClient) -> N
     dropped = client.post(f"/tasks/{dependency_id}/operations/drop")
     assert dropped.status_code == 200, dropped.text
     assert dropped.json()["state"] == "DROPPED"
-    assert client.get(f"/tasks/{dependent_id}").json()["container_status"] == "gated"
+    persisted = client.get(f"/tasks/{dependent_id}").json()
+    assert persisted["container_status"] == "gated"
+    assert persisted["turn"] == "user"
 
 
 # 2119: REQ-026.2.1
@@ -487,6 +492,54 @@ def test_repo_default_model_is_opaque_and_patchable(client: TestClient) -> None:
     # 2119: REQ-012.4.1
     task = client.post("/tasks", json={"repo_id": "r1", "workflow": "spike"}).json()
     assert task["starting_model"] == value
+
+
+# 2119: REQ-012.4.1
+def test_every_model_selection_source_preserves_opaque_vocabulary(tmp_path: Path) -> None:
+    class OpaqueWorkflow(Workflow):
+        name = "opaque"
+        default_harness = "codex"
+        default_model = "workflow/model::effort=warp"
+
+        class Working(InitialState):
+            label = "WORKING"
+            transitions = (Complete,)
+
+        initial = Working
+
+    service = TaskService(
+        SqlAlchemyStore(),
+        {"spike": Spike(), "opaque": OpaqueWorkflow()},
+        FilesystemArtifactStore(tmp_path),
+    )
+    asyncio.run(service.init())
+    asyncio.run(
+        service.create_repo(
+            Repo(
+                id="r1",
+                name="acme/widgets",
+                git_url="https://x/r1.git",
+                default_harness="claude",
+                default_model="repo vocab / no parsing ???",
+            )
+        )
+    )
+    with TestClient(create_app(service)) as opaque_client:
+        repo_task = opaque_client.post("/tasks", json={"repo_id": "r1", "workflow": "spike"})
+        workflow_task = opaque_client.post("/tasks", json={"repo_id": "r1", "workflow": "opaque"})
+        explicit_task = opaque_client.post(
+            "/tasks",
+            json={
+                "repo_id": "r1",
+                "workflow": "spike",
+                "starting_model": "explicit|model:effort:extra",
+            },
+        )
+
+    assert repo_task.status_code == workflow_task.status_code == explicit_task.status_code == 201
+    assert repo_task.json()["starting_model"] == "repo vocab / no parsing ???"
+    assert workflow_task.json()["starting_model"] == "workflow/model::effort=warp"
+    assert explicit_task.json()["starting_model"] == "explicit|model:effort:extra"
 
 
 # 2119: REQ-012.2.4
@@ -837,6 +890,86 @@ def test_set_slug(client: TestClient) -> None:
     resp = client.put(f"/tasks/{task_id}/slug", json={"slug": "fix-widget"})
     assert resp.status_code == 200
     assert resp.json()["slug"] == "fix-widget"
+
+
+# 2119: REQ-027.1.1
+# 2119: REQ-027.1.2
+# 2119: REQ-027.1.3
+def test_snooze_deadline_round_trips_without_changing_task_signals(client: TestClient) -> None:
+    assert (
+        Task(
+            id="default-snooze",
+            repo_id="r1",
+            workflow="spike",
+            state="SPIKING",
+            turn=Actor.AGENT,
+        ).snoozed_until
+        is None
+    )
+    task_id = _new_task(client)
+    created = client.get(f"/tasks/{task_id}").json()
+    assert created["snoozed_until"] is None
+    assert client.get("/tasks").json()[0]["snoozed_until"] is None
+
+    moved = client.put(f"/tasks/{task_id}/state", json={"state": "COMPLETE"})
+    assert moved.status_code == 200
+    client.put(f"/tasks/{task_id}/turn", json={"turn": "user"})
+    client.put(f"/tasks/{task_id}/blocked", json={"blocked": True})
+    deadline = "2099-08-01T20:30:00.123456+05:45"
+    snoozed = client.put(f"/tasks/{task_id}/snooze", json={"until": deadline})
+
+    assert snoozed.status_code == 200
+    assert snoozed.json()["snoozed_until"] == deadline
+    assert snoozed.json()["state"] == "COMPLETE"
+    assert snoozed.json()["turn"] == "user"
+    assert snoozed.json()["blocked"] is True
+    assert client.get(f"/tasks/{task_id}").json()["snoozed_until"] == deadline
+    assert client.get("/tasks").json()[0]["snoozed_until"] == deadline
+
+
+# 2119: REQ-027.1.1
+# 2119: REQ-027.1.2
+def test_snooze_preserves_a_timezone_naive_iso_timestamp_exactly(client: TestClient) -> None:
+    task_id = _new_task(client)
+    deadline = "2099-08-01T20:30:00.123456"
+    snoozed = client.put(f"/tasks/{task_id}/snooze", json={"until": deadline})
+
+    assert snoozed.status_code == 200
+    assert snoozed.json()["snoozed_until"] == deadline
+    assert client.get(f"/tasks/{task_id}").json()["snoozed_until"] == deadline
+
+
+# 2119: REQ-027.1.2
+# 2119: REQ-027.1.3
+def test_snooze_null_clears_and_service_does_not_expire_deadlines(client: TestClient) -> None:
+    task_id = _new_task(client)
+    already_past = "2000-01-01T00:00:00+00:00"
+
+    moved = client.put(f"/tasks/{task_id}/state", json={"state": "COMPLETE"})
+    assert moved.status_code == 200
+    recorded = client.put(f"/tasks/{task_id}/snooze", json={"until": already_past})
+    assert recorded.status_code == 200
+    assert recorded.json()["snoozed_until"] == already_past
+    assert client.get(f"/tasks/{task_id}").json()["snoozed_until"] == already_past
+
+    client.put(f"/tasks/{task_id}/turn", json={"turn": "user"})
+    client.put(f"/tasks/{task_id}/blocked", json={"blocked": True})
+    cleared = client.put(f"/tasks/{task_id}/snooze", json={"until": None})
+    assert cleared.status_code == 200
+    assert cleared.json()["snoozed_until"] is None
+    assert cleared.json()["state"] == "COMPLETE"
+    assert cleared.json()["turn"] == "user"
+    assert cleared.json()["blocked"] is True
+    assert client.get(f"/tasks/{task_id}").json()["snoozed_until"] is None
+
+
+# 2119: REQ-027.1.1
+@pytest.mark.parametrize("invalid", ["not-a-timestamp", "2099-08-01"])
+def test_snooze_rejects_a_non_timestamp_value(client: TestClient, invalid: str) -> None:
+    task_id = _new_task(client)
+    rejected = client.put(f"/tasks/{task_id}/snooze", json={"until": invalid})
+    assert rejected.status_code == 422
+    assert client.get(f"/tasks/{task_id}").json()["snoozed_until"] is None
 
 
 def test_set_turn_and_blocked(client: TestClient) -> None:

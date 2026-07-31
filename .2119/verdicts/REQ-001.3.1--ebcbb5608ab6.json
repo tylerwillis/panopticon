@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.3.1--ebcbb5608ab6",
-  "requirementId": "REQ-001.3.1",
-  "hash": "ebcbb5608ab6",
-  "verdict": "pass",
-  "summary": "Parametrized no-click/Escape test uses a real tmp file and the unmocked unlink path: dismissal is proven by app.screen reverting to WorkflowsScreen (a stuck dialog fails isinstance; a missing dialog fails via NoMatches on the no-button or Escape popping WorkflowsScreen), and non-deletion by path.read_text(); the sibling yes-path test proves the same file genuinely gets deleted when confirmed.",
-  "timestamp": "2026-07-30T23:45:08.949Z"
-}

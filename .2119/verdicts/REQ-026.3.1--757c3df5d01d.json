@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.3.1--757c3df5d01d",
-  "requirementId": "REQ-026.3.1",
-  "hash": "757c3df5d01d",
-  "verdict": "pass",
-  "summary": "Service-level exact-output test rejects omission of the dashboard a hotkey, reviewer-readable non-PR guidance, or any required example category.",
-  "timestamp": "2026-07-31T06:46:30.611Z"
-}

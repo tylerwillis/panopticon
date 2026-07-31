@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.4.2--8991884c798a",
+  "requirementId": "REQ-012.4.2",
+  "hash": "8991884c798a",
+  "verdict": "pass",
+  "summary": "Sol: The test creates repository-derived, workflow-derived, and explicit tasks, mutates both default sources, and reads all tasks back to reject retroactive launch-value changes.",
+  "timestamp": "2026-07-31T23:18:08.829Z"
+}

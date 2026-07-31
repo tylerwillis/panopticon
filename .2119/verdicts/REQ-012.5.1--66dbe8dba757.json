@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.5.1--66dbe8dba757",
-  "requirementId": "REQ-012.5.1",
-  "hash": "66dbe8dba757",
-  "verdict": "pass",
-  "summary": "test_repo_model_requires_an_explicit_repo_harness rejects model-without-harness at create, at patch, and via clearing the harness, and accepts the same model once a harness is set, isolating the combination as the cause",
-  "timestamp": "2026-07-31T00:10:31.065Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.3.1--bbafc55c63b9",
-  "requirementId": "REQ-026.3.1",
-  "hash": "bbafc55c63b9",
-  "verdict": "pass",
-  "summary": "The exact core instructions cover the a hotkey and all required reviewer-readable examples.",
-  "timestamp": "2026-07-31T07:16:26.035Z"
-}

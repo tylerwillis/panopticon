@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.2.2--e1226383f631",
-  "requirementId": "REQ-012.2.2",
-  "hash": "e1226383f631",
-  "verdict": "pass",
-  "summary": "Repo pair codex/gpt-5.6-sol:medium beats the claude/None app default under a pairless workflow; an app-default-wins violation would yield (claude, None) and fail both assertions.",
-  "timestamp": "2026-07-31T00:12:16.606Z"
-}

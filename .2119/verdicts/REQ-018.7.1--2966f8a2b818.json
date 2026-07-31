@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.7.1--2966f8a2b818",
-  "requirementId": "REQ-018.7.1",
-  "hash": "2966f8a2b818",
-  "verdict": "pass",
-  "summary": "Focus-only touch, mutate repo/workflow/app default, reopen: new defaults must appear — rejects focus-marks-touched and snapshotted defaults",
-  "timestamp": "2026-07-31T05:42:35.914Z"
-}

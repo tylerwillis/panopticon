@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.7.1--fd6b4917cbef",
+  "requirementId": "REQ-008.7.1",
+  "hash": "fd6b4917cbef",
+  "verdict": "pass",
+  "summary": "Sol: Test rejects unversioned or discarded startup snapshots by requiring the returned “agent” task to render, and rejects cursor desynchronization by requiring the first long poll to begin at the same returned version 1.",
+  "timestamp": "2026-07-31T23:18:04.980Z"
+}

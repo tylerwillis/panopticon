@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.6.1--c49959be933e",
-  "requirementId": "REQ-001.6.1",
-  "hash": "c49959be933e",
-  "verdict": "pass",
-  "summary": "Exact-equality on the dialog's rendered text pins the removes-file + loaded-until-restart explanation",
-  "timestamp": "2026-07-31T05:37:20.805Z"
-}

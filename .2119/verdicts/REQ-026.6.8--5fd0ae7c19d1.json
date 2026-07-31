@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.6.8--5fd0ae7c19d1",
+  "requirementId": "REQ-026.6.8",
+  "hash": "5fd0ae7c19d1",
+  "verdict": "pass",
+  "summary": "Blocked red wins across dependency waits, governed-child waits, and attention-marked waits.",
+  "timestamp": "2026-07-31T23:24:09.297Z"
+}

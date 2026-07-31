@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.5.1--84dfdba67923",
+  "requirementId": "REQ-023.5.1",
+  "hash": "84dfdba67923",
+  "verdict": "pass",
+  "summary": "Sol: The rendered help test requires one ensemble instruction containing Enter plus both collapse and expand, rejecting omission or misidentification of any required control or action.",
+  "timestamp": "2026-07-31T23:18:26.938Z"
+}

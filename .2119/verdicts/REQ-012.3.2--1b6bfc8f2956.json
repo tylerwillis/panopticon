@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.3.2--1b6bfc8f2956",
+  "requirementId": "REQ-012.3.2",
+  "hash": "1b6bfc8f2956",
+  "verdict": "pass",
+  "summary": "Sol: The test supplies only an explicit model over a workflow-selected pair and jointly asserts replacement of the model and retention of the selected harness.",
+  "timestamp": "2026-07-31T23:18:07.380Z"
+}

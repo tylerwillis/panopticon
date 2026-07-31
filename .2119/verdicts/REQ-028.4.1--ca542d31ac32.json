@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.4.1--ca542d31ac32",
+  "requirementId": "REQ-028.4.1",
+  "hash": "ca542d31ac32",
+  "verdict": "pass",
+  "summary": "Sol: all three built-ins are checked against the complete SPECIFYING responsibility tuple.",
+  "timestamp": "2026-07-31T23:19:27.756Z"
+}

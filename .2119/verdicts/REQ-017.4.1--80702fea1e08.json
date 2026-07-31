@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.4.1--80702fea1e08",
+  "requirementId": "REQ-017.4.1",
+  "hash": "80702fea1e08",
+  "verdict": "pass",
+  "summary": "Sol: The test opens details for a task and requires the exact dimmed `v: edit slug` text at the trailing hint position.",
+  "timestamp": "2026-07-31T23:18:11.694Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.3.1--b50add624109",
-  "requirementId": "REQ-017.3.1",
-  "hash": "b50add624109",
-  "verdict": "pass",
-  "summary": "Test edits the editor to a differing pending value then escapes, asserting zero set_slug calls on a call-recording client fake and the original slug still rendered; save-on-cancel, wrong-task, and escape-unbound counterexamples all fail it (a lingering modal breaks the #detail query).",
-  "timestamp": "2026-07-30T23:49:38.269Z"
-}

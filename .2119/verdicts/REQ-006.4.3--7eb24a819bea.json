@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.4.3--7eb24a819bea",
-  "requirementId": "REQ-006.4.3",
-  "hash": "7eb24a819bea",
-  "verdict": "pass",
-  "summary": "Asserted at N=2, N=1-with-skip, and N=0 when the sole candidate recovered (rejects counting candidates); verified through the real notification surface",
-  "timestamp": "2026-07-31T05:36:09.975Z"
-}

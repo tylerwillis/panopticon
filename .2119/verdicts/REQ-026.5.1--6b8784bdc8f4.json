@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.5.1--6b8784bdc8f4",
+  "requirementId": "REQ-026.5.1",
+  "hash": "6b8784bdc8f4",
+  "verdict": "pass",
+  "summary": "Sol: The test covers user turn, two non-terminal children, terminal-child exclusion, no attention, exact count, dim styling, and attention/blocked boundary overrides.",
+  "timestamp": "2026-07-31T23:18:32.680Z"
+}

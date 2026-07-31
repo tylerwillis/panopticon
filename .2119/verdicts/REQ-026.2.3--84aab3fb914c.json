@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.2.3--84aab3fb914c",
+  "requirementId": "REQ-026.2.3",
+  "hash": "84aab3fb914c",
+  "verdict": "pass",
+  "summary": "Sol: API tests exercise current-state changes, DROPPED handling, custom workflow terminality, and both individual and list response projections.",
+  "timestamp": "2026-07-31T23:18:28.852Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.17.1--3c201447f632",
-  "requirementId": "REQ-018.17.1",
-  "hash": "3c201447f632",
-  "verdict": "pass",
-  "summary": "Both no-highlight variants (empty list and populated-but-unhighlighted, precondition-asserted) press Enter on real model/effort widgets via the Textual pilot and assert the MemoScreen modal is still on the screen stack plus no task creation; only the REST client is faked, so a submit-or-close-on-Enter implementation would fail.",
-  "timestamp": "2026-07-30T23:51:51.362Z"
-}

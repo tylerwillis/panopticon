@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.6.8--55e388874bd2",
-  "requirementId": "REQ-026.6.8",
-  "hash": "55e388874bd2",
-  "verdict": "pass",
-  "summary": "Dashboard tests require red blocked rendering during dependency waits both with and without attention and during governed-child waits, rejecting wait or escalation styling overriding blocked.",
-  "timestamp": "2026-07-31T07:21:50.532Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.3.1--d536d5e28a09",
-  "requirementId": "REQ-023.3.1",
-  "hash": "d536d5e28a09",
-  "verdict": "pass",
-  "summary": "Three real Enter presses prove alternation, a second Dashboard on the same fake client proves session-local state, empty fake-client write lists prove no task-service mutation, and an active search still reveals a collapsed governor's matching child",
-  "timestamp": "2026-07-31T05:46:15.913Z"
-}

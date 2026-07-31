@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.6.5--4782dc4d82ab",
+  "requirementId": "REQ-026.6.5",
+  "hash": "4782dc4d82ab",
+  "verdict": "pass",
+  "summary": "Sol: one turn-to-agent API mutation must clear and persist both attention and blocked while incrementing the version once.",
+  "timestamp": "2026-07-31T23:18:43.172Z"
+}

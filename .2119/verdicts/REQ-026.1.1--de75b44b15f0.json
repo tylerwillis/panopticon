@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.1.1--de75b44b15f0",
-  "requirementId": "REQ-026.1.1",
-  "hash": "de75b44b15f0",
-  "verdict": "pass",
-  "summary": "All task shapes, including governor and governed tasks, expose the core artifacts skill alongside workflow-specific skills.",
-  "timestamp": "2026-07-31T07:16:25.149Z"
-}

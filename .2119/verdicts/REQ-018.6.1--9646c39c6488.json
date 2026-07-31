@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.6.1--9646c39c6488",
-  "requirementId": "REQ-018.6.1",
-  "hash": "9646c39c6488",
-  "verdict": "pass",
-  "summary": "Test cycles claude->codex via the real pilot UI and asserts the rendered model list flips from claude's exact vocabulary (fable/opus/sonnet) to codex's (gpt-5.6-sol/terra/luna) and the effort list from empty to codex's low/medium/high/xhigh, matching the real harness registry — a stale, missing, or wrong-harness refresh of either vocabulary fails an exact-list assertion.",
-  "timestamp": "2026-07-30T23:51:12.060Z"
-}

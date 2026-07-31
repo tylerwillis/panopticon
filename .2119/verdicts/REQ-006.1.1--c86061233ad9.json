@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.1.1--c86061233ad9",
-  "requirementId": "REQ-006.1.1",
-  "hash": "c86061233ad9",
-  "verdict": "pass",
-  "summary": "Real pilot.press('ctrl+r') must land on BulkRespawnScreen with the down-task list rendered",
-  "timestamp": "2026-07-31T05:37:22.282Z"
-}

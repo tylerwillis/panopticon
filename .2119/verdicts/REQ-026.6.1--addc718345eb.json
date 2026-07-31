@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.6.1--addc718345eb",
+  "requirementId": "REQ-026.6.1",
+  "hash": "addc718345eb",
+  "verdict": "pass",
+  "summary": "Sol: Tests cover dependency and governed-child proof, false and true attention markers during waits, terminal-only non-waits, and all marker variants without a provable wait.",
+  "timestamp": "2026-07-31T23:18:33.620Z"
+}

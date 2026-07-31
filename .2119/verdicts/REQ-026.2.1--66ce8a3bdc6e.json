@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.2.1--66ce8a3bdc6e",
+  "requirementId": "REQ-026.2.1",
+  "hash": "66ce8a3bdc6e",
+  "verdict": "pass",
+  "summary": "Sol: Tests reject terminal, claimed, and dependency-ready boundary cases while verifying active and DROPPED dependencies gate an unclaimed non-terminal task.",
+  "timestamp": "2026-07-31T23:18:28.381Z"
+}

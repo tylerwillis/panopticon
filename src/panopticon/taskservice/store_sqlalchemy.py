@@ -139,6 +139,7 @@ class _TaskRow(_Base):
     initial_prompt: Mapped[str | None] = mapped_column(default=None)
     slug: Mapped[str | None]
     url: Mapped[str | None] = mapped_column(default=None)
+    snoozed_until: Mapped[str | None] = mapped_column(default=None)
     branch: Mapped[str | None] = mapped_column(default=None)
     clone: Mapped[str | None] = mapped_column(default=None)
     claimed_by: Mapped[str | None] = mapped_column(default=None)
@@ -170,6 +171,7 @@ class _TaskRow(_Base):
             initial_prompt=self.initial_prompt,
             slug=self.slug,
             url=self.url,
+            snoozed_until=self.snoozed_until,
             branch=self.branch,
             clone=self.clone,
             claimed_by=self.claimed_by,
@@ -198,6 +200,7 @@ class _TaskRow(_Base):
             initial_prompt=task.initial_prompt,
             slug=task.slug,
             url=task.url,
+            snoozed_until=task.snoozed_until,
             branch=task.branch,
             clone=task.clone,
             claimed_by=task.claimed_by,
@@ -412,6 +415,7 @@ class SqlAlchemyStore(Store):
             row.attention = task.attention
             row.slug = task.slug
             row.url = task.url
+            row.snoozed_until = task.snoozed_until
             row.branch = task.branch
             row.clone = task.clone
             row.claimed_by = task.claimed_by

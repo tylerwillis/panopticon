@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.3.2--3a14b762681d",
+  "requirementId": "REQ-026.3.2",
+  "hash": "3a14b762681d",
+  "verdict": "pass",
+  "summary": "Gated API round-trips retain stored turns, dashboard inputs remain unchanged, and Actor stays agent/user only.",
+  "timestamp": "2026-07-31T23:24:07.909Z"
+}

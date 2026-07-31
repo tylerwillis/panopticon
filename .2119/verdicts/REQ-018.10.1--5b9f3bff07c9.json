@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.10.1--5b9f3bff07c9",
-  "requirementId": "REQ-018.10.1",
-  "hash": "5b9f3bff07c9",
-  "verdict": "pass",
-  "summary": "Enter with candidate at index 1 must rewrite the field from the typed filter text to that exact candidate (wrong/first candidate would fail), and non-submission is verified via both the still-open MemoScreen and the fake client's empty create_task log; only the REST transport is faked.",
-  "timestamp": "2026-07-30T23:51:24.195Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.1.1--63ae774b3873",
-  "requirementId": "REQ-026.1.1",
-  "hash": "63ae774b3873",
-  "verdict": "pass",
-  "summary": "Service-level tests cover multiple tasks for every discovered workflow plus skill-less and skilled workflows, require the core artifacts skill alongside workflow skills, and reject collisions that would replace it.",
-  "timestamp": "2026-07-31T06:46:31.959Z"
-}

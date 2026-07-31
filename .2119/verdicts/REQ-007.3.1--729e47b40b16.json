@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-007.3.1--729e47b40b16",
-  "requirementId": "REQ-007.3.1",
-  "hash": "729e47b40b16",
-  "verdict": "pass",
-  "summary": "Asserts hint absent from render_detail(_TASK) as substring and as a line; fixture fields lack the hint so an appended line would fail",
-  "timestamp": "2026-07-31T06:16:45.564Z"
-}

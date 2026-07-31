@@ -119,7 +119,7 @@ def _responsibility_descriptions(workflow: Workflow, state: str) -> dict[str, st
 
 @pytest.mark.asyncio
 async def test_every_task_exposes_the_core_artifact_skill(tmp_path: Path) -> None:
-    # 2119: REQ-026.1.1
+    # 2119: REQ-028.1.1
     class SkillLess(Workflow):
         name = "skill-less"
 
@@ -174,11 +174,11 @@ async def test_every_task_exposes_the_core_artifact_skill(tmp_path: Path) -> Non
 
 @pytest.mark.asyncio
 async def test_artifact_skill_explains_both_write_mechanisms(tmp_path: Path) -> None:
-    # 2119: REQ-026.1.1
-    # 2119: REQ-026.2.1
-    # 2119: REQ-026.3.1
-    # 2119: REQ-026.10.1
-    # 2119: REQ-026.11.1
+    # 2119: REQ-028.1.1
+    # 2119: REQ-028.2.1
+    # 2119: REQ-028.3.1
+    # 2119: REQ-028.10.1
+    # 2119: REQ-028.11.1
     service = TaskService(
         SqlAlchemyStore(),
         {"spike": discover_workflows(_home_workflows=Path("/nonexistent"))["spike"]},
@@ -195,7 +195,7 @@ async def test_artifact_skill_explains_both_write_mechanisms(tmp_path: Path) -> 
 
 
 def test_reserved_artifact_surface_cannot_be_overwritten(tmp_path: Path) -> None:
-    # 2119: REQ-026.1.1
+    # 2119: REQ-028.1.1
     class SkillCollision(Workflow):
         name = "skill-collision"
 
@@ -229,7 +229,7 @@ def test_reserved_artifact_surface_cannot_be_overwritten(tmp_path: Path) -> None
 
 @pytest.mark.asyncio
 async def test_reserved_artifact_surface_cannot_be_added_by_rescan(tmp_path: Path) -> None:
-    # 2119: REQ-026.1.1
+    # 2119: REQ-028.1.1
     class SkillCollision(Workflow):
         name = "rescan-skill-collision"
 
@@ -254,7 +254,7 @@ async def test_reserved_artifact_surface_cannot_be_added_by_rescan(tmp_path: Pat
 
 
 def test_specifying_has_one_artifact_responsibility() -> None:
-    # 2119: REQ-026.4.1
+    # 2119: REQ-028.4.1
     registry = discover_workflows(_home_workflows=Path("/nonexistent"))
     builtins = [workflow for name, workflow in registry.items() if name.startswith("2119-")]
 
@@ -267,8 +267,8 @@ def test_specifying_has_one_artifact_responsibility() -> None:
 
 
 def test_2119_skills_publish_spec_and_review_material() -> None:
-    # 2119: REQ-026.5.1
-    # 2119: REQ-026.12.1
+    # 2119: REQ-028.5.1
+    # 2119: REQ-028.12.1
     registry = discover_workflows(_home_workflows=Path("/nonexistent"))
     builtins = [workflow for name, workflow in registry.items() if name.startswith("2119-")]
 
@@ -289,7 +289,7 @@ def test_2119_skills_publish_spec_and_review_material() -> None:
 
 
 def test_building_retains_the_external_pr_url_responsibility() -> None:
-    # 2119: REQ-026.6.1
+    # 2119: REQ-028.6.1
     registry = discover_workflows(_home_workflows=Path("/nonexistent"))
     builtins = [workflow for name, workflow in registry.items() if name.startswith("2119-")]
 
@@ -300,7 +300,7 @@ def test_building_retains_the_external_pr_url_responsibility() -> None:
 
 
 def test_discovers_all_three_builtin_2119_workflows() -> None:
-    # 2119: REQ-026.7.1
+    # 2119: REQ-028.7.1
     registry = discover_workflows(_home_workflows=Path("/nonexistent"))
 
     assert {name: type(registry[name]).__name__ for name in WORKFLOW_NAMES} == {
@@ -311,8 +311,8 @@ def test_discovers_all_three_builtin_2119_workflows() -> None:
 
 
 def test_auto_sol_uses_sol_for_both_review_layers() -> None:
-    # 2119: REQ-026.8.1
-    # 2119: REQ-026.12.1
+    # 2119: REQ-028.8.1
+    # 2119: REQ-028.12.1
     registry = discover_workflows(_home_workflows=Path("/nonexistent"))
     builtins = [workflow for name, workflow in registry.items() if name.startswith("2119-")]
     assert {workflow.name for workflow in builtins} == set(WORKFLOW_NAMES)
@@ -352,7 +352,7 @@ def test_auto_sol_uses_sol_for_both_review_layers() -> None:
 
 
 def test_codex_reviewers_use_container_isolation_and_verify_clean_tree() -> None:
-    # 2119: REQ-026.12.1
+    # 2119: REQ-028.12.1
     registry = discover_workflows(_home_workflows=Path("/nonexistent"))
     builtins = [workflow for name, workflow in registry.items() if name.startswith("2119-")]
 
@@ -389,7 +389,7 @@ def test_2119_open_pr_and_reviewer_cli_match_the_workflow_contract() -> None:
 def test_duplicate_error_identifies_external_file_and_remediation(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # 2119: REQ-026.9.1
+    # 2119: REQ-028.9.1
     builtin_names = discover_workflows(_home_workflows=tmp_path / "absent").keys()
     home_workflows = tmp_path / "workflows"
     home_workflows.mkdir()

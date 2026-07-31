@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.1.2--38ce4c947417",
+  "requirementId": "REQ-006.1.2",
+  "hash": "38ce4c947417",
+  "verdict": "pass",
+  "summary": "Sol: The help surface is opened and its rendered output must contain exactly the Ctrl+R bulk-respawn description.",
+  "timestamp": "2026-07-31T23:17:59.603Z"
+}

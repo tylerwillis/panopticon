@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.3.3--7fee3bfab351",
+  "requirementId": "REQ-012.3.3",
+  "hash": "7fee3bfab351",
+  "verdict": "pass",
+  "summary": "Sol: The test uses a differing explicit harness, a non-null workflow pair, and no task model, then rejects the nearest violation by requiring the losing model to become null.",
+  "timestamp": "2026-07-31T23:18:07.876Z"
+}
