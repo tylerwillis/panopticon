@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.1.2--dd5e41afdbad",
+  "requirementId": "REQ-026.1.2",
+  "hash": "dd5e41afdbad",
+  "verdict": "pass",
+  "summary": "Both spawnable_tasks and HostDaemon.tick exclude a DROPPED-dep task while including an otherwise-identical COMPLETE-dep task in the same assertion, isolating the DROPPED-vs-other-terminal distinction.",
+  "timestamp": "2026-07-31T06:28:38.524Z"
+}

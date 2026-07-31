@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.6.1--4d448f57d5ba",
-  "requirementId": "REQ-008.6.1",
-  "hash": "4d448f57d5ba",
-  "verdict": "pass",
-  "summary": "Node probe executes the real extension and fails if the input handler's promise settles before the controlled turn-write fetch resolves (fire-and-forget rejected); source pins cover the PUT target and turn=agent mapping.",
-  "timestamp": "2026-07-31T01:01:50.876Z"
-}

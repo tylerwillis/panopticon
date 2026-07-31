@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.6.8--cbed1e24ba79",
-  "requirementId": "REQ-025.6.8",
-  "hash": "cbed1e24ba79",
-  "verdict": "pass",
-  "summary": "Rendered-table tests pin red 'user ⚠' for blocked tasks under a dependency wait, a dependency wait with attention set, and a non-terminal governed child",
-  "timestamp": "2026-07-31T06:17:18.553Z"
-}

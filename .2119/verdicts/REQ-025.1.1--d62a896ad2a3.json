@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.1.1--d62a896ad2a3",
-  "requirementId": "REQ-025.1.1",
-  "hash": "d62a896ad2a3",
-  "verdict": "pass",
-  "summary": "Exact-list truth table excludes non-terminal dep and at-least-one mixed case; host.py:79 proves tick uses this filter; service test pins the gate in the initial row",
-  "timestamp": "2026-07-31T06:16:46.896Z"
-}

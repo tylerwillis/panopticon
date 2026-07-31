@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.7.1--3f71de3ddcdf",
-  "requirementId": "REQ-008.7.1",
-  "hash": "3f71de3ddcdf",
-  "verdict": "pass",
-  "summary": "Fake mutates turn user->agent only inside the single seed list_tasks_versioned(wait=None) call, raises on unversioned list_tasks; initial render must already show agent, so split-fetch or lazy-render fails",
-  "timestamp": "2026-07-31T05:39:33.355Z"
-}

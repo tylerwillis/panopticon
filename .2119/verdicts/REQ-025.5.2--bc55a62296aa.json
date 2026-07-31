@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.5.2--bc55a62296aa",
-  "requirementId": "REQ-025.5.2",
-  "hash": "bc55a62296aa",
-  "verdict": "pass",
-  "summary": "finished_governor (turn=user, sole COMPLETE child) asserts plain 'user' + yellow style — would fail if held/dim leaked; mixed-child boundary (COMPLETE among 2 active) asserts 'held 2' not normal; gap: no all-DROPPED-children governor case",
-  "timestamp": "2026-07-31T06:16:54.214Z"
-}

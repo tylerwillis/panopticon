@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.6.4--70e9491136af",
-  "requirementId": "REQ-025.6.4",
-  "hash": "70e9491136af",
-  "verdict": "pass",
-  "summary": "PUT turn=user with the marker set asserts attention stays True, rejecting the clear-on-turn-flip counterexample mirroring the mandated turn-to-agent clear",
-  "timestamp": "2026-07-31T06:17:16.724Z"
-}

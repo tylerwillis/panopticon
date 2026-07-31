@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.5.1--7b2bac0891f6",
-  "requirementId": "REQ-008.5.1",
-  "hash": "7b2bac0891f6",
-  "verdict": "pass",
-  "summary": "Codex config test pins the native UserPromptSubmit hook to the exact command 'python -m panopticon.container.hook agent prompt' via structural TOML equality, and the gated-client test blocks set_turn mid-write and asserts hook.main has not returned while the write is pending, then that it wrote ('t1','agent') — rewired, wrong-actor, and fire-and-forget implementations all fail.",
-  "timestamp": "2026-07-31T00:52:01.893Z"
-}

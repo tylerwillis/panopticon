@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.5.1--99fd982efed6",
+  "requirementId": "REQ-026.5.1",
+  "hash": "99fd982efed6",
+  "verdict": "pass",
+  "summary": "test_governor_held_cell_tracks_active_children_and_reverts_when_they_finish renders a real Dashboard (only the data client faked) and asserts the actual DataTable cell: a turn=user governor with 2 non-terminal + 1 COMPLETE child shows exactly 'held 2' with style dim and no yellow/orange; the all-terminal governor reverts to yellow 'user'; the attention=True governor renders yellow 'user'",
+  "timestamp": "2026-07-31T06:27:33.357Z"
+}

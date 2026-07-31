@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.6.6--d456debbf53a",
-  "requirementId": "REQ-025.6.6",
-  "hash": "d456debbf53a",
-  "verdict": "pass",
-  "summary": "set_attention listed and driven against the real MCP server; description asserted to carry escalation framing plus the explicit 'cannot suppress' disclaimer — the right observable for a description-content requirement",
-  "timestamp": "2026-07-31T06:17:17.682Z"
-}

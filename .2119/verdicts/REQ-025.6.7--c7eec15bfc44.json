@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.6.7--c7eec15bfc44",
-  "requirementId": "REQ-025.6.7",
-  "hash": "c7eec15bfc44",
-  "verdict": "pass",
-  "summary": "Reads the real spawn-task skill instructions; a missing set_attention line, wrong ordering, or missing non-terminal-child condition each fail the test",
-  "timestamp": "2026-07-31T06:17:18.116Z"
-}

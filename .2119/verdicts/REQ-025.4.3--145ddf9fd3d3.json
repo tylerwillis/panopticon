@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.4.3--145ddf9fd3d3",
-  "requirementId": "REQ-025.4.3",
-  "hash": "145ddf9fd3d3",
-  "verdict": "pass",
-  "summary": "API test records a non-empty prior dep set on task_c, triggers an indirect-cycle 400, then asserts read-back equals exactly the prior set — catching clear-on-reject, apply-then-error, and merge variants; real store, no mocks.",
-  "timestamp": "2026-07-31T06:16:53.389Z"
-}

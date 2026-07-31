@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.3.3--015bc29d4686",
+  "requirementId": "REQ-026.3.3",
+  "hash": "015bc29d4686",
+  "verdict": "pass",
+  "summary": "Pilot-run detail asserts 'waiting on 2/3' (blocking 2 != total 3, so a missing/wrong count fails) plus per-dep slug+state pairs incl. the non-blocking COMPLETE dep — omitting terminal deps, id-only rows, or a dropped state all break a substring; computed by real dashboard code from raw task dicts.",
+  "timestamp": "2026-07-31T06:27:31.155Z"
+}

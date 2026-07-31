@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.3.3--5af694afabee",
-  "requirementId": "REQ-025.3.3",
-  "hash": "5af694afabee",
-  "verdict": "pass",
-  "summary": "Detail-pane test drives the real dashboard with a mixed dependency set (ITERATING + COMPLETE + DROPPED) and pins the distinct counts ('waiting on 2/3') plus each dependency's slug-adjacent state, so wrong counts, an omitted dependency, or slug-without-state all fail.",
-  "timestamp": "2026-07-31T06:16:51.214Z"
-}

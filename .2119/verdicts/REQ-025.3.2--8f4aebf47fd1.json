@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.3.2--8f4aebf47fd1",
-  "requirementId": "REQ-025.3.2",
-  "hash": "8f4aebf47fd1",
-  "verdict": "pass",
-  "summary": "Held rendering proven first (dim held/held-1 cells incl. an agent-turn task), then post-teardown asserts the very dicts the fake serves still hold turn=user/agent — in-place mutation caught; dashboard/client expose no turn-write method, so a write-back would AttributeError the pilot run.",
-  "timestamp": "2026-07-31T06:16:50.790Z"
-}

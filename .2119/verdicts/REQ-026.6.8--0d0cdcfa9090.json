@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.6.8--0d0cdcfa9090",
+  "requirementId": "REQ-026.6.8",
+  "hash": "0d0cdcfa9090",
+  "verdict": "pass",
+  "summary": "Tagged dashboard tests render through the real _turn_cell path and assert the exact red 'user' cell for blocked tasks under dependency wait, dependency wait plus attention, and governed-child wait; demoting the blocked precedence check flips exact assertions",
+  "timestamp": "2026-07-31T06:27:38.018Z"
+}

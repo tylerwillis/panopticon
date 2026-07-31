@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.6.2--18a37fa7b99e",
-  "requirementId": "REQ-025.6.2",
-  "hash": "18a37fa7b99e",
-  "verdict": "pass",
-  "summary": "Real-stack API test sets and clears attention with turn/blocked pinned unchanged and a GET reread proving both booleans persist",
-  "timestamp": "2026-07-31T06:17:15.914Z"
-}

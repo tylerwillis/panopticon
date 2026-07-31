@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.2.2--32e770240b3c",
+  "requirementId": "REQ-026.2.2",
+  "hash": "32e770240b3c",
+  "verdict": "pass",
+  "summary": "Direct composer assertions reject queued for an unclaimed dependency-gated task and reject gated when the same task is terminal.",
+  "timestamp": "2026-07-31T06:38:14.540Z"
+}

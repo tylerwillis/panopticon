@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.6.6--7aa635852649",
+  "requirementId": "REQ-026.6.6",
+  "hash": "7aa635852649",
+  "verdict": "pass",
+  "summary": "Tagged test asserts set_attention is exposed, functionally mutates state, and its description carries escalation-only framing plus the explicit 'cannot suppress' disclaimer; no sibling MCP tool carries an unchecked suppression claim",
+  "timestamp": "2026-07-31T06:27:36.882Z"
+}

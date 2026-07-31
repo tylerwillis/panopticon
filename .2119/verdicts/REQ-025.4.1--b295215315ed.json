@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.4.1--b295215315ed",
-  "requirementId": "REQ-025.4.1",
-  "hash": "b295215315ed",
-  "verdict": "pass",
-  "summary": "Real-service tests reject self-cycle A->A (400), indirect A->B->C->A (400, cycle named, prior deps intact), and a racy direct 2-cycle plus 3-cycle via concurrent set_dependencies (exactly one ValueError); no mocks on the validation path.",
-  "timestamp": "2026-07-31T06:16:52.505Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.2.3--694c4ebeb94a",
-  "requirementId": "REQ-025.2.3",
-  "hash": "694c4ebeb94a",
-  "verdict": "pass",
-  "summary": "REST tests prove live derivation: dependency advancing to a custom ARCHIVED terminal flips dependent gated->queued (single GET and list), defeating stale snapshots and hardcoded terminal-label lists; a real drop keeps DROPPED gating.",
-  "timestamp": "2026-07-31T06:16:49.532Z"
-}

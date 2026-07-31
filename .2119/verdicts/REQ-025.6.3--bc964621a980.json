@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.6.3--bc964621a980",
-  "requirementId": "REQ-025.6.3",
-  "hash": "bc964621a980",
-  "verdict": "pass",
-  "summary": "Blocked writes exercised in both directions under attention=False and attention=True (full 2x2), each asserting the marker unchanged over the real REST stack",
-  "timestamp": "2026-07-31T06:17:16.328Z"
-}

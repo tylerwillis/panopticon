@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.6.1--fee6144c71bd",
-  "requirementId": "REQ-025.6.1",
-  "hash": "fee6144c71bd",
-  "verdict": "pass",
-  "summary": "Dashboard pilot tests derive held from raw dep/child state rows (not gated status or a precomputed flag) and reject every nearest violation: no-wait turn=user renders yellow for marker unset/False/True, DROPPED-only dep and all-terminal children stay yellow, marker inside a proven wait escalates back to yellow, proven waits render exactly dim held/held N.",
-  "timestamp": "2026-07-31T06:16:55.088Z"
-}

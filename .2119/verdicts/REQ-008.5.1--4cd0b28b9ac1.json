@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.5.1--4cd0b28b9ac1",
+  "requirementId": "REQ-008.5.1",
+  "hash": "4cd0b28b9ac1",
+  "verdict": "pass",
+  "summary": "Codex wiring targets native UserPromptSubmit, and the shared callback test rejects hook exit while the turn-to-agent write remains pending.",
+  "timestamp": "2026-07-31T06:38:13.252Z"
+}

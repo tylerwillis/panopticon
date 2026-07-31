@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.1.2--53cd7e62ec25",
-  "requirementId": "REQ-025.1.2",
-  "hash": "53cd7e62ec25",
-  "verdict": "pass",
-  "summary": "DROPPED dep and COMPLETE+DROPPED mix excluded by exact-list equality in unit + host tick tests; second pass shows DROPPED never unlocks while COMPLETE does",
-  "timestamp": "2026-07-31T06:16:47.328Z"
-}
