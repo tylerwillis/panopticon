@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-007.3.1--a91fff00c2f3",
-  "requirementId": "REQ-007.3.1",
-  "hash": "a91fff00c2f3",
-  "verdict": "pass",
-  "summary": "Hint asserted absent from render_detail(_TASK) as substring and among splitlines, on a fixture whose fields lack the hint, while the pane separately shows it — baking the hint into copyable text fails",
-  "timestamp": "2026-07-31T00:55:38.002Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.4.1--da9effd9058f",
-  "requirementId": "REQ-017.4.1",
-  "hash": "da9effd9058f",
-  "verdict": "pass",
-  "summary": "Second-to-last rendered line asserted exactly 'e: edit slug' with dim span — absence, rewording, misplacement, or non-dim styling each fail",
-  "timestamp": "2026-07-31T00:55:40.267Z"
-}

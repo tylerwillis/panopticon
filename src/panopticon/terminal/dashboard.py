@@ -778,7 +778,7 @@ class MemoTextArea(TextArea):
     async def _on_key(self, event: events.Key) -> None:
         if event.key == "enter":
             event.prevent_default()
-            event.stop()  # don't let Enter bubble to the screen's enter binding
+            event.stop()
             self.screen.action_submit()  # type: ignore[attr-defined]
         elif event.key == "ctrl+s":
             event.prevent_default()
@@ -875,11 +875,9 @@ class HarnessSelector(Static, can_focus=True):
     Reachable via Tab (Textual's default ``Screen`` tab→``app.focus_next`` chain, which skips
     the non-focusable hint ``Label``s); while focused, **Enter cycles** through the registered
     harnesses (:data:`panopticon.harnesses.HARNESSES`, wrapping around) to override the task's
-    harness for this creation only — the widget-level binding shadows the screen's Enter→submit
-    while focused, so Enter here never accidentally creates the task. Tab away (back to the memo
-    text area) and press Enter there to submit. The label always renders the value that will be
-    sent, starting from the effective harness (the selected repo's ``default_harness``, falling
-    back to ``claude``)."""
+    harness for this creation only. Tab away (back to the memo text area) and press Enter there to
+    submit. The label always renders the value that will be sent, starting from the effective
+    harness (the selected repo's ``default_harness``, falling back to ``claude``)."""
 
     BINDINGS = [Binding("enter", "cycle", "Next harness", show=False)]
 
@@ -950,6 +948,10 @@ class _LaunchInput(Input):
         await super()._on_key(event)
 
 
+class _CandidateOptionList(OptionList, can_focus=False):
+    """Display-only launch candidates; the adjacent input owns navigation and acceptance."""
+
+
 class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]"]):
     """Memo prompt for task creation.
 
@@ -987,7 +989,6 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
         ("escape", "cancel", "Cancel"),
         ("ctrl+g", "edit_in_editor", "Edit"),
         ("ctrl+s", "set_only", "Set"),
-        ("enter", "submit", "Create"),
     ]
 
     def __init__(
@@ -1102,10 +1103,9 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
                         id="launch-model",
                     )
                 with Vertical(id="launch-model-candidates", classes="launch-candidate-box"):
-                    model_options = OptionList(
+                    model_options = _CandidateOptionList(
                         id="launch-model-options", classes="launch-candidates"
                     )
-                    model_options.can_focus = False
                     yield model_options
                     yield Label("no matches", classes="launch-empty")
                 with Horizontal(classes="launch-field"):
@@ -1116,10 +1116,9 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
                         id="launch-effort",
                     )
                 with Vertical(id="launch-effort-candidates", classes="launch-candidate-box"):
-                    effort_options = OptionList(
+                    effort_options = _CandidateOptionList(
                         id="launch-effort-options", classes="launch-candidates"
                     )
-                    effort_options.can_focus = False
                     yield effort_options
                     yield Label("no matches", classes="launch-empty")
                 yield Static(self._selection.summary, id="launch-summary")
@@ -1139,8 +1138,7 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
         self._launch_events_ready = True
 
     def on_descendant_focus(self, event: events.DescendantFocus) -> None:
-        # The harness selector shadows enter→submit with enter→cycle while it's focused; keep
-        # the hint truthful rather than always reading "enter: submit".
+        # Keep the hint truthful for each focus-specific Enter action.
         if isinstance(event.widget, HarnessSelector):
             self.query_one("#enter-hint", Label).update("enter: cycle harness")
         elif isinstance(event.widget, _LaunchInput):
@@ -1289,12 +1287,14 @@ def _repo_name_from_git_url(url: str) -> str:
 
 class SpaceCheckbox(Checkbox, inherit_bindings=False):
     """A :class:`Checkbox` that toggles on **Space only** (Textual's default binds ``enter,space``).
-    Dropping Enter lets the key bubble up to the screen, so Enter saves the form even while the
-    checkbox holds focus — the form's Space-toggles / Enter-saves contract. ``inherit_bindings=False``
-    keeps the base ``enter,space`` toggle binding from being merged back in; ``ToggleButton`` is
-    its only source, so re-declaring ``space`` is the whole keymap."""
+    Enter targets the containing screen's submit action, so it saves the repo form without also
+    mapping to the checkbox's toggle action. ``inherit_bindings=False`` keeps the base
+    ``enter,space`` toggle binding from being merged back in."""
 
-    BINDINGS = [Binding("space", "toggle_button", "Toggle", show=False)]
+    BINDINGS = [
+        Binding("space", "toggle_button", "Toggle", show=False),
+        Binding("enter", "screen.submit", "Submit", show=False),
+    ]
 
 
 class _VimDataTable(DataTable[Any]):
@@ -1621,9 +1621,9 @@ class RepoFormScreen(ModalScreen["dict[str, Any] | None"]):
     privileged docker) and **workflows** (a per-workflow opt-in/opt-out checklist). Both tabs'
     values are collected on save — submitting from either tab captures everything.
 
-    **Space toggles checkboxes; Enter saves the form** from any field. The :class:`SpaceCheckbox`
-    subclass drops the default ``enter`` binding so Enter always bubbles up to the screen's save
-    action rather than toggling.
+    **Space toggles checkboxes; Enter saves the form** from text inputs and checkboxes. Controls
+    with their own focus-specific Enter behavior, such as selects and the harness picker, retain
+    that behavior.
 
     The **git URL leads** create mode: blank ``id`` and ``name`` auto-fill from it on blur and
     at submit; ``default_base`` defaults to ``main``. Edit mode leaves existing values untouched.
@@ -1646,12 +1646,8 @@ class RepoFormScreen(ModalScreen["dict[str, Any] | None"]):
     #pane-general EnvFileField #env-file-input { margin-bottom: 0; }
     #pane-general HookFileField #hook-file-input { margin-bottom: 0; }
     """
-    # Enter saves from any field. Text Inputs consume Enter via their own submit binding (posting
-    # Input.Submitted → on_input_submitted), so this screen binding only fires for fields that
-    # don't — SpaceCheckboxes and the read-only id Label — and never double-saves.
     BINDINGS = [
         ("escape", "cancel", "Cancel"),
-        ("enter", "submit", "Save"),
         ("ctrl+s", "submit", "Save"),
     ]
 
@@ -2252,8 +2248,22 @@ HOTKEYS: tuple[Hotkey, ...] = (
     Hotkey("s", "service", "Service", "Switch to the task-service session", show=False),
     Hotkey("u", "runner", "Runner", "Switch to the session-service (runner) session", show=False),
     Hotkey("e", "edit_slug", "Edit slug", "Edit the highlighted task's slug", show=False),
-    Hotkey("y", "copy_slug", "Copy slug", "Copy the task's slug to the clipboard", show=False),
-    Hotkey("Y", "copy_id", "Copy id", "Copy the task's id to the clipboard", show=False),
+    Hotkey(
+        "y",
+        "copy_slug",
+        "Copy slug",
+        "Copy the task's slug to the clipboard",
+        show=False,
+        display="y",
+    ),
+    Hotkey(
+        "Y",
+        "copy_id",
+        "Copy id",
+        "Copy the task's id to the clipboard",
+        show=False,
+        display="Shift+Y",
+    ),
     Hotkey(
         "c",
         "copy_detail",
@@ -2272,6 +2282,15 @@ HOTKEYS: tuple[Hotkey, ...] = (
     Hotkey("question_mark", "help", "Help", "This help screen", display="?"),
     Hotkey("q", "quit", "Quit", "Quit"),
 )
+
+
+def _hotkey_hint(*actions: str) -> str:
+    """Format action hints from the authoritative dashboard hotkey table."""
+    by_action = {hotkey.action: hotkey for hotkey in HOTKEYS}
+    return "  ".join(
+        f"{by_action[action].display or by_action[action].key}: {by_action[action].label.lower()}"
+        for action in actions
+    )
 
 
 class _StatusFooter(Footer):
@@ -2669,7 +2688,7 @@ class Dashboard(App[None]):
         if task:
             detail.append("\n")
             detail.append("e: edit slug\n", style="dim")
-            detail.append("c: copy details  y: copy slug  Y: copy id", style="dim")
+            detail.append(_hotkey_hint("copy_detail", "copy_slug", "copy_id"), style="dim")
         self.query_one("#detail", Static).update(detail)
 
     def action_new_task(self) -> None:

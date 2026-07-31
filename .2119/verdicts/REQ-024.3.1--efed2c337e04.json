@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.3.1--efed2c337e04",
+  "requirementId": "REQ-024.3.1",
+  "hash": "efed2c337e04",
+  "verdict": "pass",
+  "summary": "A screen binding y and Y to different actions must pass the check; case-collapsing normalization would merge them into one two-target chord and raise, failing the test",
+  "timestamp": "2026-07-31T05:28:56.957Z"
+}
