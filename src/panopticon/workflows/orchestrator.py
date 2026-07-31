@@ -58,6 +58,7 @@ approves it by advancing it to ITERATING. When its container starts, the agent s
 "review your plan" prefilled in its input box; `plan.md` is guaranteed to already exist
 because it was written inside step 2. When you have spawned everything the request calls
 for, hand back to the user — they mark this orchestrator task COMPLETE when satisfied.
+If any governed child is non-terminal, call `set_attention` on your own task with `attention=true` before asking the user a question; it only escalates attention and cannot suppress the ordinary user-turn queue.
 """
 
 
