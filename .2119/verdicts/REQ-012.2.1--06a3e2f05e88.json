@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.2.1--06a3e2f05e88",
+  "requirementId": "REQ-012.2.1",
+  "hash": "06a3e2f05e88",
+  "verdict": "pass",
+  "summary": "Workflow pair (codex/gpt-5.6-sol:high) asserted to beat a non-null repo pair (claude/opus:low) with no task override; fails if repo defaults won",
+  "timestamp": "2026-07-30T17:06:06.162Z"
+}

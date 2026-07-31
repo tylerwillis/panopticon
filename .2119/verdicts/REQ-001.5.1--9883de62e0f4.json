@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.5.1--9883de62e0f4",
+  "requirementId": "REQ-001.5.1",
+  "hash": "9883de62e0f4",
+  "verdict": "pass",
+  "summary": "x on a built_in row must leave the app on WorkflowsScreen (no dialog pushed) with the real file's content intact — either an opened dialog or an immediate unlink fails",
+  "timestamp": "2026-07-30T18:26:23.267Z"
+}

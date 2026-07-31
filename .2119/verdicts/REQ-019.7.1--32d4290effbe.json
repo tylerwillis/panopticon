@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.7.1--32d4290effbe",
+  "requirementId": "REQ-019.7.1",
+  "hash": "32d4290effbe",
+  "verdict": "pass",
+  "summary": "Event-gated in-flight discovery released only after escape; full widget snapshot (values, placeholders, suggesters, summary) re-asserted unchanged — any post-close write flips a suggester/placeholder and fails",
+  "timestamp": "2026-07-30T23:53:38.693Z"
+}

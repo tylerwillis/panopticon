@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-003.2.1--7eedbb99900d",
-  "requirementId": "REQ-003.2.1",
-  "hash": "7eedbb99900d",
-  "verdict": "pass",
-  "summary": "Resolved equal harness cases reject across explicit, sentinel, and repo-default boundaries.",
-  "timestamp": "2026-07-30T16:15:08.262Z"
-}

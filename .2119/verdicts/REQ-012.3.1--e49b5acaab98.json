@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.3.1--e49b5acaab98",
-  "requirementId": "REQ-012.3.1",
-  "hash": "e49b5acaab98",
-  "verdict": "pass",
-  "summary": "All ten turn-signal table rows are exercised through rendered commands or extension code.",
-  "timestamp": "2026-07-30T16:15:17.631Z"
-}

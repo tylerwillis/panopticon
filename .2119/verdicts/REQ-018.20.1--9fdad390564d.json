@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.20.1--9fdad390564d",
+  "requirementId": "REQ-018.20.1",
+  "hash": "9fdad390564d",
+  "verdict": "pass",
+  "summary": "Types a fully non-matching string, asserts option_count == 0 AND region.width > 0 — since the candidate box hides via CSS display:none, a list that closes on zero matches has a zero-width region and fails; both model and effort parametrized, and Enter afterward provably doesn't submit.",
+  "timestamp": "2026-07-30T18:28:38.139Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.2.2--47c59c72f88e",
+  "requirementId": "REQ-012.2.2",
+  "hash": "47c59c72f88e",
+  "verdict": "pass",
+  "summary": "Repo pair codex/gpt-5.6-sol:medium asserted over the claude app default on a pairless workflow; app-default win fails the tuple assertion",
+  "timestamp": "2026-07-30T17:06:06.581Z"
+}

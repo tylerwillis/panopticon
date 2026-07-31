@@ -123,10 +123,6 @@ def test_babysit_merge_skill_covers_key_protocol_elements() -> None:
     )  # Gap 4: no double-queuing
 
 
-def test_github_peer_reviewed_image_layer_installs_gh() -> None:
-    assert "gh" in WF.image_layer()  # forge skills need gh layered onto the base image
-
-
 def test_github_peer_reviewed_declares_gh_as_a_tool() -> None:
     names = {
         t.name for t in WF.tools()

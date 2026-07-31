@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.12.1--a406298476d5",
+  "requirementId": "REQ-018.12.1",
+  "hash": "a406298476d5",
+  "verdict": "pass",
+  "summary": "Override cases (harness cycle, model, effort) each assert 'set by this task' via real key events, and untouched cases pin exact summaries for workflow-over-repo, repo-over-app, and app-default wins against the real rendered widget",
+  "timestamp": "2026-07-30T18:26:23.889Z"
+}

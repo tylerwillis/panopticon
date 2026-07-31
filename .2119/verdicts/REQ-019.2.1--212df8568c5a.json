@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.2.1--212df8568c5a",
-  "requirementId": "REQ-019.2.1",
-  "hash": "212df8568c5a",
-  "verdict": "pass",
-  "summary": "Real keypress toggle asserts ▸ collapsed → ▾ expanded → ▸ collapsed by equality on the governor slug cell — static, swapped, or missing markers all fail",
-  "timestamp": "2026-07-30T18:40:21.237Z"
-}

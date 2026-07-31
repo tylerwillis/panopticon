@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.3.1--1453efebfe72",
+  "requirementId": "REQ-007.3.1",
+  "hash": "1453efebfe72",
+  "verdict": "pass",
+  "summary": "Test calls the real imported render_detail on a hint-free fixture and asserts the hint is absent both as substring and as an exact line (splitlines); the same test pins the live pane text ends with the hint, so the tested hint string cannot go stale.",
+  "timestamp": "2026-07-30T18:26:10.397Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-003.1.1--5e7e1a514478",
-  "requirementId": "REQ-003.1.1",
-  "hash": "5e7e1a514478",
-  "verdict": "pass",
-  "summary": "Governor-less review rejects with governor error and persists no task.",
-  "timestamp": "2026-07-30T16:15:07.833Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.4.2--12d7e100f201",
+  "requirementId": "REQ-012.4.2",
+  "hash": "12d7e100f201",
+  "verdict": "pass",
+  "summary": "Repo- and workflow-derived tasks re-read after both default sources mutate; lazy resolution returns replacement values and fails",
+  "timestamp": "2026-07-30T17:06:09.628Z"
+}

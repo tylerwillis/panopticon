@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.8.1--3ab62764201e",
-  "requirementId": "REQ-018.8.1",
-  "hash": "3ab62764201e",
-  "verdict": "pass",
-  "summary": "Escape is exercised from memo and all three launch controls, including visible model and effort candidate lists, with no task created.",
-  "timestamp": "2026-07-30T16:50:20.934Z"
-}

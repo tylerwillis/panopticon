@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.4.1--e193b971128f",
-  "requirementId": "REQ-019.4.1",
-  "hash": "e193b971128f",
-  "verdict": "pass",
-  "summary": "Arrow keys are pressed over a sentinel placed between two real rows and the landing row identity is asserted both directions — landing on (or stopping at) the sentinel fails; sibling tests cover j/k, mid-traversal, and sentinel-as-last-row.",
-  "timestamp": "2026-07-30T18:32:29.207Z"
-}

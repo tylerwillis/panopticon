@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.4.1--ed238a70ef0c",
+  "requirementId": "REQ-017.4.1",
+  "hash": "ed238a70ef0c",
+  "verdict": "pass",
+  "summary": "test_detail_pane_shows_edit_slug_key_hint opens the pane via real 'd' keypress and asserts exact line equality on the rendered #detail widget: splitlines()[-2] == 'e: edit slug' plus dim span — pins presence, trailing position, and hint styling; deletion or relocation of the text fails the test",
+  "timestamp": "2026-07-30T18:26:40.856Z"
+}

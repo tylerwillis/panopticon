@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.1.1--457c84889bd5",
+  "requirementId": "REQ-023.1.1",
+  "hash": "457c84889bd5",
+  "verdict": "pass",
+  "summary": "Real-render test pins exact literal '└─ ▸ 2 child tasks — enter to expand' in the slug column with all-dim spans; grandchild fixture rejects descendant-count (3 vs 2), children asserted absent; mutations (▸→▾, dim→plain) both fail the test.",
+  "timestamp": "2026-07-30T23:56:22.378Z"
+}

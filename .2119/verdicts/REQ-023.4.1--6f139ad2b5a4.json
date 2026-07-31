@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.4.1--6f139ad2b5a4",
+  "requirementId": "REQ-023.4.1",
+  "hash": "6f139ad2b5a4",
+  "verdict": "pass",
+  "summary": "Arrow down from governor must land on the real row past the sentinel and arrow up back on governor — landing on the sentinel fails; siblings cover j/k, mid-traversal, and sentinel-as-last-row",
+  "timestamp": "2026-07-30T23:53:45.538Z"
+}

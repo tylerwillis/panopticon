@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.4--baecfc893a64",
+  "requirementId": "REQ-006.4.4",
+  "hash": "baecfc893a64",
+  "verdict": "pass",
+  "summary": "Parametrized over all 11 non-down statuses: the recovered task is checked (got_tasks) but released == [still_down] only, so any release of a non-down task fails exact equality.",
+  "timestamp": "2026-07-30T18:26:52.574Z"
+}

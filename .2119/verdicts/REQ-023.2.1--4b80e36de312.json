@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.2.1--4b80e36de312",
+  "requirementId": "REQ-023.2.1",
+  "hash": "4b80e36de312",
+  "verdict": "pass",
+  "summary": "Exact '▸ orchestrator'/'▾ orchestrator' plain-text asserted across collapse→expand→collapse toggles; swapped or non-updating markers fail",
+  "timestamp": "2026-07-30T23:53:39.562Z"
+}

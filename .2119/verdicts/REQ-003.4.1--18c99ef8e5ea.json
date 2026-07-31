@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-003.4.1--18c99ef8e5ea",
-  "requirementId": "REQ-003.4.1",
-  "hash": "18c99ef8e5ea",
-  "verdict": "fail",
-  "summary": "Coverage omits the nearest harness-inequality counterexample: a governed non-review task whose recorded harness equals its governor's, so an erroneous same-harness rejection could pass.",
-  "timestamp": "2026-07-30T17:04:55.837Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.1.2--dd758597c3b7",
-  "requirementId": "REQ-006.1.2",
-  "hash": "dd758597c3b7",
-  "verdict": "pass",
-  "summary": "Pilot-driven help screen pins the exact Ctrl+R respawn-all documentation.",
-  "timestamp": "2026-07-30T16:15:09.537Z"
-}
