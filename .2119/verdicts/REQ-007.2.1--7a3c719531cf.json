@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-007.2.1--7a3c719531cf",
-  "requirementId": "REQ-007.2.1",
-  "hash": "7a3c719531cf",
-  "verdict": "pass",
-  "summary": "Real d-press test asserts rendered.plain ends with newline + the exact hint and a span covering precisely the hint range is dim — missing, reworded, non-trailing, or non-dim hints each fail",
-  "timestamp": "2026-07-31T00:55:37.560Z"
-}

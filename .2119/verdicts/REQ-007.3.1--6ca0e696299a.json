@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-007.3.1--6ca0e696299a",
-  "requirementId": "REQ-007.3.1",
-  "hash": "6ca0e696299a",
-  "verdict": "pass",
-  "summary": "Asserts the hint is absent from real render_detail(_TASK) both as a substring and as an exact line on a fixture whose fields lack the hint, so any implementation adding the hint line to the copyable text fails; paired pane assertions prove the hint lives only in the widget layer.",
-  "timestamp": "2026-07-31T05:19:38.053Z"
-}

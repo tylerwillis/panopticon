@@ -145,13 +145,13 @@ def _assert_unique_bindings(contexts: list[_BindingContext]) -> None:
         raise AssertionError("keybinding collisions:\n" + "\n".join(collisions))
 
 
-# 2119: REQ-023.1.1
-# 2119: REQ-023.2.1
+# 2119: REQ-024.1.1
+# 2119: REQ-024.2.1
 def test_every_dashboard_binding_context_has_unique_action_targets() -> None:
     _assert_unique_bindings(_discover_contexts(dashboard))
 
 
-# 2119: REQ-023.4.1
+# 2119: REQ-024.4.1
 def test_context_registry_discovers_every_dashboard_screen_without_an_inventory() -> None:
     expected = {
         candidate
@@ -168,7 +168,7 @@ class _CaseSensitiveScreen(ModalScreen[None]):
     BINDINGS = [("y", "copy_slug", ""), ("Y", "copy_id", "")]
 
 
-# 2119: REQ-023.3.1
+# 2119: REQ-024.3.1
 def test_lower_and_uppercase_letters_are_distinct_chords() -> None:
     _assert_unique_bindings(_contexts_for_screen(_CaseSensitiveScreen))
 
@@ -189,10 +189,10 @@ class _InheritedConflictScreen(ModalScreen[None]):
         yield _NestedConflictContainer()
 
 
-# 2119: REQ-023.2.1
-# 2119: REQ-023.4.1
-# 2119: REQ-023.5.1
-# 2119: REQ-023.6.1
+# 2119: REQ-024.2.1
+# 2119: REQ-024.4.1
+# 2119: REQ-024.5.1
+# 2119: REQ-024.6.1
 def test_deliberate_inherited_widget_conflict_fails_with_actionable_diagnostic(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.4.1--dc592e94a44a",
+  "requirementId": "REQ-017.4.1",
+  "hash": "dc592e94a44a",
+  "verdict": "pass",
+  "summary": "Penultimate rendered line must equal e: edit slug exactly with a dim span on the real pane, so removal, relabeling, or relocation each fail",
+  "timestamp": "2026-07-31T05:28:55.615Z"
+}

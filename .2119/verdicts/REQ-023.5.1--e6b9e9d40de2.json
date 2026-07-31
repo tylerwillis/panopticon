@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.5.1--e6b9e9d40de2",
-  "requirementId": "REQ-023.5.1",
-  "hash": "e6b9e9d40de2",
-  "verdict": "pass",
-  "summary": "pytest.raises around the shared checker on a genuine one-chord-two-targets context; a checker that swallows collisions fails the test",
-  "timestamp": "2026-07-31T05:09:38.478Z"
-}

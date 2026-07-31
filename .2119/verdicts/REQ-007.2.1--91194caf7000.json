@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.2.1--91194caf7000",
+  "requirementId": "REQ-007.2.1",
+  "hash": "91194caf7000",
+  "verdict": "pass",
+  "summary": "Pilot test opens the real pane, asserts visibility, exact trailing hint via endswith, and a dim span covering precisely the hint - wrong wording, placement, or styling each fail",
+  "timestamp": "2026-07-31T05:28:54.752Z"
+}

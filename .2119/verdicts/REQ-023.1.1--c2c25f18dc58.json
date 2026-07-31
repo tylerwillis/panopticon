@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.1.1--c2c25f18dc58",
-  "requirementId": "REQ-023.1.1",
-  "hash": "c2c25f18dc58",
-  "verdict": "pass",
-  "summary": "Checker sweeps discovered real dashboard contexts and the deliberate-conflict fixture proves the same assert path fails on a same-context two-target chord, while cross-screen escape reuse passing shows per-context scoping",
-  "timestamp": "2026-07-31T05:09:36.780Z"
-}

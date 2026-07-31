@@ -2589,7 +2589,7 @@ async def test_detail_pane_shows_edit_slug_key_hint() -> None:
         assert rendered.spans[-2].style.dim is True
 
 
-# 2119: REQ-023.7.1
+# 2119: REQ-024.7.1
 async def test_copy_chord_hints_match_case_sensitive_dashboard_bindings() -> None:
     copy_hotkeys = {
         hotkey.action: hotkey

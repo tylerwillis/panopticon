@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.1.1--7acafd4c6adc",
+  "requirementId": "REQ-024.1.1",
+  "hash": "7acafd4c6adc",
+  "verdict": "pass",
+  "summary": "Sweeps Textual's real merged bindings over module-discovered contexts; non-vacuity proven by the deliberate-conflict test, and the project-chord scope matches REQ-024.2's stated participation condition",
+  "timestamp": "2026-07-31T05:28:56.059Z"
+}

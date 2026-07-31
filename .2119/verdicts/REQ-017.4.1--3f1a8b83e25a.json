@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.4.1--3f1a8b83e25a",
-  "requirementId": "REQ-017.4.1",
-  "hash": "3f1a8b83e25a",
-  "verdict": "pass",
-  "summary": "Pilot opens the real details pane with d and asserts the trailing hint line equals 'e: edit slug' exactly; a dropped, reworded, or relocated hint fails",
-  "timestamp": "2026-07-31T04:59:09.382Z"
-}

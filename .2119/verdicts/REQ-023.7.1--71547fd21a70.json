@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.7.1--71547fd21a70",
-  "requirementId": "REQ-023.7.1",
-  "hash": "71547fd21a70",
-  "verdict": "pass",
-  "summary": "Renders the open details pane with an exact Shift+Y line and the help screen with case-sensitive substrings for both labels, so a bare Y or Shift+y on either surface fails",
-  "timestamp": "2026-07-31T04:59:12.404Z"
-}
