@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.11.1--2b72d3dbd338",
+  "requirementId": "REQ-024.11.1",
+  "hash": "2b72d3dbd338",
+  "verdict": "pass",
+  "summary": "Exact-equality pin on the core artifacts skill text fetched through the real TaskService (no mocks); the pinned text contains all three conjuncts, so any violating rewording fails the test",
+  "timestamp": "2026-07-31T05:15:10.184Z"
+}

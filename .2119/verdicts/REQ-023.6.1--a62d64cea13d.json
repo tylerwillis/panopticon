@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.6.1--a62d64cea13d",
-  "requirementId": "REQ-023.6.1",
-  "hash": "a62d64cea13d",
-  "verdict": "pass",
-  "summary": "Parametrized test over all 3 built-in 2119 workflows genuinely checks the BUILDING state's url-recorded responsibility via real discover_workflows/Workflow.responsibilities (no mocking); confirmed by mutation testing that removing the responsibility (KeyError) or altering its description to a different mechanism both fail the test.",
-  "timestamp": "2026-07-31T04:42:10.304Z"
-}

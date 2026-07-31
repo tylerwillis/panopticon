@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.4.1--2e6730201992",
-  "requirementId": "REQ-023.4.1",
-  "hash": "2e6730201992",
-  "verdict": "pass",
-  "summary": "Exact-tuple equality on discover_workflows(...).responsibilities('SPECIFYING') for all three real 2119 built-ins pins spec-artifact as the sole artifact responsibility, independently-authored expected text; catches removal, duplication, wrong-state placement, or weakened wording.",
-  "timestamp": "2026-07-31T04:41:42.061Z"
-}

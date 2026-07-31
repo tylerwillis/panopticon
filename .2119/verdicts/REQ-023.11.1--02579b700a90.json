@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.11.1--02579b700a90",
-  "requirementId": "REQ-023.11.1",
-  "hash": "02579b700a90",
-  "verdict": "pass",
-  "summary": "test_artifact_skill_explains_both_write_mechanisms asserts full-text equality of the real ARTIFACT_SKILL.instructions (fetched via TaskService.skills(), no mocks) against an independently-authored expected string containing all three conjuncts: 'An artifact is a durable task document that the user can review', 'Publish anything you want the user to review as an artifact, regardless of document type', and the GitHub-URL exception routed to the external URL field / p hotkey rather than the a-hotkey artifact list; dropping or inverting any clause breaks the exact match, so each boundary case is genuinely rejected.",
-  "timestamp": "2026-07-31T04:42:33.722Z"
-}

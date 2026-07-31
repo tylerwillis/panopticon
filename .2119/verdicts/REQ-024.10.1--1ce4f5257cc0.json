@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.10.1--1ce4f5257cc0",
+  "requirementId": "REQ-024.10.1",
+  "hash": "1ce4f5257cc0",
+  "verdict": "pass",
+  "summary": "Pinned skill sentence states artifacts complement and do not replace the pull request and its dedicated external task URL, under full-text equality",
+  "timestamp": "2026-07-31T05:15:09.779Z"
+}

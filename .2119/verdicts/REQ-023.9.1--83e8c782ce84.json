@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.9.1--83e8c782ce84",
-  "requirementId": "REQ-023.9.1",
-  "hash": "83e8c782ce84",
-  "verdict": "pass",
-  "summary": "test_duplicate_error_identifies_external_file_and_remediation exercises the real discover_workflows/importlib path (no mocks) for each built-in name, and asserts an exact ValueError message that must both name the actual external file path and direct removal — violating any conjunct (no raise, missing path, missing remove directive) breaks the exact-match assertion.",
-  "timestamp": "2026-07-31T04:41:52.456Z"
-}

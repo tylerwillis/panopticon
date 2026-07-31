@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.2.1--e151605b80c8",
-  "requirementId": "REQ-023.2.1",
-  "hash": "e151605b80c8",
-  "verdict": "pass",
-  "summary": "test_artifact_skill_explains_both_write_mechanisms exercises the real TaskService/ARTIFACT_SKILL (no mocks) and asserts the artifacts skill's instructions text exactly equals wording naming both put_artifact MCP tool and PUT /tasks/{task_id}/artifacts/{name} REST; dropping either mechanism from src/panopticon/core/artifact_skills.py would break the exact-string equality, so the test genuinely rejects the boundary violations.",
-  "timestamp": "2026-07-31T04:41:14.641Z"
-}

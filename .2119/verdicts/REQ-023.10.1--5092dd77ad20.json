@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.10.1--5092dd77ad20",
-  "requirementId": "REQ-023.10.1",
-  "hash": "5092dd77ad20",
-  "verdict": "pass",
-  "summary": "Exact full-text equality check against the live ARTIFACT_SKILL.instructions (fetched via real TaskService.skills(), no mocks) includes the literal clause 'Artifacts complement the pull request and its dedicated external task URL; they do not replace either one' -- any edit that drops or inverts the complementarity framing breaks the exact match, so the test genuinely fails on the requirement's violating cases.",
-  "timestamp": "2026-07-31T04:42:02.696Z"
-}

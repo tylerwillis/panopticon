@@ -129,7 +129,7 @@ def _responsibility_descriptions(workflow: Workflow, state: str) -> dict[str, st
 
 @pytest.mark.asyncio
 async def test_every_task_exposes_the_core_artifact_skill(tmp_path: Path) -> None:
-    # 2119: REQ-023.1.1
+    # 2119: REQ-024.1.1
     class SkillLess(Workflow):
         name = "skill-less"
 
@@ -174,10 +174,10 @@ async def test_every_task_exposes_the_core_artifact_skill(tmp_path: Path) -> Non
 
 @pytest.mark.asyncio
 async def test_artifact_skill_explains_both_write_mechanisms(tmp_path: Path) -> None:
-    # 2119: REQ-023.2.1
-    # 2119: REQ-023.3.1
-    # 2119: REQ-023.10.1
-    # 2119: REQ-023.11.1
+    # 2119: REQ-024.2.1
+    # 2119: REQ-024.3.1
+    # 2119: REQ-024.10.1
+    # 2119: REQ-024.11.1
     service = TaskService(
         SqlAlchemyStore(),
         {"spike": discover_workflows(_home_workflows=Path("/nonexistent"))["spike"]},
@@ -194,7 +194,7 @@ async def test_artifact_skill_explains_both_write_mechanisms(tmp_path: Path) -> 
 
 
 def test_specifying_has_one_artifact_responsibility() -> None:
-    # 2119: REQ-023.4.1
+    # 2119: REQ-024.4.1
     registry = discover_workflows(_home_workflows=Path("/nonexistent"))
     builtins = [workflow for name, workflow in registry.items() if name.startswith("2119-")]
 
@@ -208,7 +208,7 @@ def test_specifying_has_one_artifact_responsibility() -> None:
 
 @pytest.mark.parametrize("workflow_name", WORKFLOW_NAMES)
 def test_2119_skills_publish_spec_and_review_material(workflow_name: str) -> None:
-    # 2119: REQ-023.5.1
+    # 2119: REQ-024.5.1
     workflow = _workflow(workflow_name)
     spec_instructions = _skill(workflow, "spec-2119").instructions.lower()
     review_skill = next(skill for skill in workflow.skills() if "review" in skill.name)
@@ -220,21 +220,21 @@ def test_2119_skills_publish_spec_and_review_material(workflow_name: str) -> Non
 
 @pytest.mark.parametrize("workflow_name", WORKFLOW_NAMES)
 def test_building_retains_the_external_pr_url_responsibility(workflow_name: str) -> None:
-    # 2119: REQ-023.6.1
+    # 2119: REQ-024.6.1
     descriptions = _responsibility_descriptions(_workflow(workflow_name), "BUILDING")
 
     assert descriptions["url-recorded"] == EXPECTED_URL_RESPONSIBILITY
 
 
 def test_discovers_all_three_builtin_2119_workflows() -> None:
-    # 2119: REQ-023.7.1
+    # 2119: REQ-024.7.1
     registry = discover_workflows(_home_workflows=Path("/nonexistent"))
 
     assert set(WORKFLOW_NAMES) <= set(registry)
 
 
 def test_auto_sol_uses_sol_for_both_review_layers() -> None:
-    # 2119: REQ-023.8.1
+    # 2119: REQ-024.8.1
     auto_sol = _workflow("2119-auto-sol")
     auto_sol_spec = _skill(auto_sol, "spec-2119").instructions.lower()
     auto_sol_review = next(skill for skill in auto_sol.skills() if "review" in skill.name)
@@ -260,7 +260,7 @@ def test_auto_sol_uses_sol_for_both_review_layers() -> None:
 
 
 def test_duplicate_error_identifies_external_file_and_remediation(tmp_path: Path) -> None:
-    # 2119: REQ-023.9.1
+    # 2119: REQ-024.9.1
     builtin_names = discover_workflows(_home_workflows=tmp_path / "absent").keys()
     for index, workflow_name in enumerate(builtin_names):
         external = tmp_path / f"spec_2119_{index}.py"
