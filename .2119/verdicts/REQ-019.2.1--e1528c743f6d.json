@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.2.1--e1528c743f6d",
-  "requirementId": "REQ-019.2.1",
-  "hash": "e1528c743f6d",
-  "verdict": "pass",
-  "summary": "Real-path Pilot tests count actual fake-harness discovery invocations: 12 cycles over 4 registered harnesses leave every counter at exactly 1, a never-visited harness at 0 would fail the _wait_for, and failed discoveries are proven not to retry on re-cycle.",
-  "timestamp": "2026-07-31T05:26:38.462Z"
-}

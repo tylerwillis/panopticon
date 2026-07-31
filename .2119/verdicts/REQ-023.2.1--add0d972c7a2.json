@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.2.1--add0d972c7a2",
+  "requirementId": "REQ-023.2.1",
+  "hash": "add0d972c7a2",
+  "verdict": "pass",
+  "summary": "Exact-equality slug assertions on real Dashboard rows pin ▸ while collapsed, ▾ after Enter-expand, and ▸ again after re-collapse (incl. nested and terminal governors); wrong glyph, missing/suffixed marker, or stale marker on either toggle direction all fail.",
+  "timestamp": "2026-07-31T05:54:49.767Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.6.1--02d51d8b55c1",
+  "requirementId": "REQ-019.6.1",
+  "hash": "02d51d8b55c1",
+  "verdict": "pass",
+  "summary": "test_closing_memo_suppresses_an_in_flight_discovery_failure drives a real Textual app/worker and asserts no notify() and no crash after a blocked, then-failing, discovery completes post-close",
+  "timestamp": "2026-07-31T05:55:13.354Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.2.1--0f5b5b8a1fe6",
+  "requirementId": "REQ-007.2.1",
+  "hash": "0f5b5b8a1fe6",
+  "verdict": "pass",
+  "summary": "endswith('\\n'+hint) pins exact trailing line; span check pins dim styling over exactly the hint range in the open pane",
+  "timestamp": "2026-07-31T05:51:30.874Z"
+}

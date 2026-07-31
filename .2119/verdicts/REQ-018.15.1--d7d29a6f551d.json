@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.15.1--d7d29a6f551d",
+  "requirementId": "REQ-018.15.1",
+  "hash": "d7d29a6f551d",
+  "verdict": "pass",
+  "summary": "Unit test pins $EDITOR parsing, temp-file seeding, and saved-content return; pilot test proves Ctrl+G replaces (append would yield 'hiedited:hi' and fail)",
+  "timestamp": "2026-07-31T05:51:55.857Z"
+}

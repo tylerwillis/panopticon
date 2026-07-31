@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.1.2--9d7639dee171",
-  "requirementId": "REQ-006.1.2",
-  "hash": "9d7639dee171",
-  "verdict": "pass",
-  "summary": "Rendered help's Ctrl+R lines asserted exactly ['Ctrl+R Respawn all down tasks'] — missing or mislabeled entry fails; help text is the observable.",
-  "timestamp": "2026-07-31T05:24:58.167Z"
-}

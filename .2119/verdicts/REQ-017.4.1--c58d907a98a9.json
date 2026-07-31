@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.4.1--c58d907a98a9",
+  "requirementId": "REQ-017.4.1",
+  "hash": "c58d907a98a9",
+  "verdict": "pass",
+  "summary": "Asserts 'v: edit slug' is the exact penultimate trailing-hint line with a dim span in the open pane",
+  "timestamp": "2026-07-31T05:51:42.816Z"
+}

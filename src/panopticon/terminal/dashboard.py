@@ -1201,8 +1201,8 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
         """Install prefetched suggestions only while this modal remains selected and mounted."""
         if not self.is_attached or self._selection.harness != harness_name:
             return
-        if isinstance(self.focused, _LaunchInput):
-            self._refresh_candidates(self._field_for_input(self.focused))
+        self._refresh_candidates("model")
+        self._refresh_candidates("effort")
 
     def compose(self) -> ComposeResult:
         with Vertical(id="memo-box"):

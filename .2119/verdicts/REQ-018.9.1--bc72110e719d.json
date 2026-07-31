@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.9.1--bc72110e719d",
+  "requirementId": "REQ-018.9.1",
+  "hash": "bc72110e719d",
+  "verdict": "pass",
+  "summary": "Genuine: tests measure real rendered #memo-box region.width == 64 (80-col terminal) with controls present and each candidate list confirmed visible (OptionList width > 0); a CSS 64->60 mutation probe flips the measured width, so the assertion bites; the tree's planted 'VIOLATION' model-value mutation leaves width at 64 and is REQ-018.1.1/018.7 scope, caught there.",
+  "timestamp": "2026-07-31T05:57:20.140Z"
+}

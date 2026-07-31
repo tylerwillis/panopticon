@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.2.1--130ba5497e78",
-  "requirementId": "REQ-023.2.1",
-  "hash": "130ba5497e78",
-  "verdict": "pass",
-  "summary": "Real Dashboard driven via Textual pilot Enter presses; exact-string cell assertions pin ▸ before the slug while collapsed, ▾ while expanded, across a full collapse→expand→collapse round-trip (test_enter_again_on_governor_expands_ensemble) and for a nested governor with tree prefix; only the HTTP client is faked.",
-  "timestamp": "2026-07-31T05:27:16.009Z"
-}

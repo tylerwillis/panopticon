@@ -839,9 +839,9 @@ def test_set_slug(client: TestClient) -> None:
     assert resp.json()["slug"] == "fix-widget"
 
 
-# 2119: REQ-024.1.1
-# 2119: REQ-024.1.2
-# 2119: REQ-024.1.3
+# 2119: REQ-025.1.1
+# 2119: REQ-025.1.2
+# 2119: REQ-025.1.3
 def test_snooze_deadline_round_trips_without_changing_task_signals(client: TestClient) -> None:
     task_id = _new_task(client)
     created = client.get(f"/tasks/{task_id}").json()
@@ -863,8 +863,8 @@ def test_snooze_deadline_round_trips_without_changing_task_signals(client: TestC
     assert client.get("/tasks").json()[0]["snoozed_until"] == deadline
 
 
-# 2119: REQ-024.1.2
-# 2119: REQ-024.1.3
+# 2119: REQ-025.1.2
+# 2119: REQ-025.1.3
 def test_snooze_null_clears_and_service_does_not_expire_deadlines(client: TestClient) -> None:
     task_id = _new_task(client)
     already_past = "2000-01-01T00:00:00+00:00"

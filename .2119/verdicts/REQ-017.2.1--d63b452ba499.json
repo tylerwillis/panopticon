@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.2.1--d63b452ba499",
-  "requirementId": "REQ-017.2.1",
-  "hash": "d63b452ba499",
-  "verdict": "pass",
-  "summary": "Padded submit asserts trimmed value recorded for the right task, refresh call count grows, new slug rendered, sibling untouched; 400 path asserts app running with old slug shown",
-  "timestamp": "2026-07-31T05:26:17.051Z"
-}

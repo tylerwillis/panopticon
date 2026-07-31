@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.4.1--51a618e5643c",
+  "requirementId": "REQ-019.4.1",
+  "hash": "51a618e5643c",
+  "verdict": "pass",
+  "summary": "Both tests use a release+timer gate to force real blocking, confirming the modal's cycle to an in-progress or not-yet-started harness only returns after that harness's exact model/effort suggestions are cached and displayed, correctly rejecting stale/empty-suggestion or premature-return violations.",
+  "timestamp": "2026-07-31T05:55:03.034Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.4.1--03e824b029ee",
+  "requirementId": "REQ-018.4.1",
+  "hash": "03e824b029ee",
+  "verdict": "pass",
+  "summary": "Test walks the highlight down/down/up/down asserting each index, and Enter lands on the filtered index-1 candidate (luna) — navigating the unfiltered list would select terra and fail.",
+  "timestamp": "2026-07-31T05:54:44.750Z"
+}

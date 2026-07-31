@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.10.1--e03547554278",
+  "requirementId": "REQ-018.10.1",
+  "hash": "e03547554278",
+  "verdict": "pass",
+  "summary": "Highlights candidate index 1 (not first/default), enter updates the field to it while screen stays MemoScreen and fake.created stays empty (no memo submit)",
+  "timestamp": "2026-07-31T05:51:43.769Z"
+}

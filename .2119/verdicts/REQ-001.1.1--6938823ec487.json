@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.1.1--6938823ec487",
+  "requirementId": "REQ-001.1.1",
+  "hash": "6938823ec487",
+  "verdict": "pass",
+  "summary": "Real Textual key dispatch (no dashboard mocking): x on an operator row pushes a modal with enabled yes/no buttons and the delete message; two-row tests pin the target to the highlighted row (row 0 vs after down), and the built-in test proves x refuses to open the dialog.",
+  "timestamp": "2026-07-31T05:50:16.979Z"
+}

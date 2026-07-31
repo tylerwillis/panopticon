@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.4.3--4b706692d2f0",
-  "requirementId": "REQ-006.4.3",
-  "hash": "4b706692d2f0",
-  "verdict": "pass",
-  "summary": "Exact notices equality pins 'respawned 2' (N = releases), 'respawned 0' when every candidate recovers, and 'respawned 1' with one skip — so counting listed tasks instead of released claims fails; a separate test asserts the message lands in app._notifications, so a monkeypatch-only notify stand-in can't fake the surface.",
-  "timestamp": "2026-07-31T05:25:13.390Z"
-}

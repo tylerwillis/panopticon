@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.5.2--f6e452afcdd2",
+  "requirementId": "REQ-006.5.2",
+  "hash": "f6e452afcdd2",
+  "verdict": "pass",
+  "summary": "No-modal asserted two ways: screen_stack stays 1 and a push_screen spy records zero opens, across the empty list and every non-down status.",
+  "timestamp": "2026-07-31T05:51:03.319Z"
+}

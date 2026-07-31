@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.4.4--a782c73dcf8d",
-  "requirementId": "REQ-006.4.4",
-  "hash": "a782c73dcf8d",
-  "verdict": "pass",
-  "summary": "Parametrized over all 11 non-down statuses: the service-side task flips after the modal opens (so only a confirmation-time get_task can see it), got_tasks proves the check ran, and released == [still_down] alone rejects any release of the recovered task; the all-recovered test pins released == [].",
-  "timestamp": "2026-07-31T05:25:17.746Z"
-}

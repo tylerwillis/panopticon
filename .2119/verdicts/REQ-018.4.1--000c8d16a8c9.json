@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.4.1--000c8d16a8c9",
-  "requirementId": "REQ-018.4.1",
-  "hash": "000c8d16a8c9",
-  "verdict": "pass",
-  "summary": "Asserts highlight index after each up/down over the 2 filtered candidates and enter selects the second filtered item (luna/xhigh), which an unfiltered traversal would fail",
-  "timestamp": "2026-07-31T05:27:43.035Z"
-}

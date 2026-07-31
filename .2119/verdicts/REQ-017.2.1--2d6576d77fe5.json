@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.2.1--2d6576d77fe5",
+  "requirementId": "REQ-017.2.1",
+  "hash": "2d6576d77fe5",
+  "verdict": "pass",
+  "summary": "Exact tuple asserts trimmed value (rejects untrimmed), refresh proven via list_tasks_calls delta + re-rendered detail/table, sibling task untouched; 400-raising client covers rejected branch keeping slug and app alive",
+  "timestamp": "2026-07-31T05:51:41.877Z"
+}

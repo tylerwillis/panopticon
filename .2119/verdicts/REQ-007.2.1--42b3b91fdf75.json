@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-007.2.1--42b3b91fdf75",
-  "requirementId": "REQ-007.2.1",
-  "hash": "42b3b91fdf75",
-  "verdict": "pass",
-  "summary": "Real render asserts the exact hint as the final line (endswith newline+hint) with a dim span spanning it, pane visibly open",
-  "timestamp": "2026-07-31T05:26:06.810Z"
-}

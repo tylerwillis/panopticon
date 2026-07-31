@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.2.1--026344b9ffbc",
+  "requirementId": "REQ-019.2.1",
+  "hash": "026344b9ffbc",
+  "verdict": "pass",
+  "summary": "Fake harnesses count real discovery calls through the modal's genuine cache/worker path: 3 full cycles plus failure, early-close, and observably-verified cycling all pin model+effort discovery at exactly 1 per registered harness (incl. non-default 'outfitter') per opening.",
+  "timestamp": "2026-07-31T05:55:19.854Z"
+}

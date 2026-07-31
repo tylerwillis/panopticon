@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.5.1--852a1635277b",
-  "requirementId": "REQ-006.5.1",
-  "hash": "852a1635277b",
-  "verdict": "pass",
-  "summary": "notices == ['no down tasks'] by exact equality for a live/failed/queued snapshot, and parametrized over the empty list plus every non-down status with the initial snapshot containing a down task — so a stale-snapshot implementation opens the modal instead and fails.",
-  "timestamp": "2026-07-31T05:25:26.370Z"
-}

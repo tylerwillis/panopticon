@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.16.1--39fa8a19e9a1",
-  "requirementId": "REQ-018.16.1",
-  "hash": "39fa8a19e9a1",
-  "verdict": "pass",
-  "summary": "Asserts harness focus, the cycled claude->codex value, created==[] mid-modal, and the override in the final create payload",
-  "timestamp": "2026-07-31T05:24:58.044Z"
-}

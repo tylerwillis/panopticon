@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.13.1--3518ed309245",
-  "requirementId": "REQ-018.13.1",
-  "hash": "3518ed309245",
-  "verdict": "pass",
-  "summary": "Enter after typing yields create_task with memo AND initial_prompt both 'fix'; a None initial_prompt or no create would fail",
-  "timestamp": "2026-07-31T05:24:49.454Z"
-}

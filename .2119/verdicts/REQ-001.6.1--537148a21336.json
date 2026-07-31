@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.6.1--537148a21336",
+  "requirementId": "REQ-001.6.1",
+  "hash": "537148a21336",
+  "verdict": "pass",
+  "summary": "Live-pilot test presses w/x, confirms the modal screen replaced WorkflowsScreen, and exact-matches the joined Label contents of the rendered dialog to text conveying both file removal and until-restart retention; a retention-free 'delete?' dialog or an undisplayed dialog fails.",
+  "timestamp": "2026-07-31T05:50:44.540Z"
+}

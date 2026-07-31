@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.2.1--b19d5e99de90",
+  "requirementId": "REQ-006.2.1",
+  "hash": "b19d5e99de90",
+  "verdict": "pass",
+  "summary": "Exact-equality modal-line assertion over 6 down + live + failed fixtures rejects any omission or non-down inclusion; a second test mutates the service list pre-invocation to pin the latest-snapshot boundary at exactly one down task.",
+  "timestamp": "2026-07-31T05:50:44.291Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.2.2--dbe0f02e2795",
-  "requirementId": "REQ-006.2.2",
-  "hash": "dbe0f02e2795",
-  "verdict": "pass",
-  "summary": "Exact rendered-line equality pins every conjunct with boundary counterexamples: 8-char id prefix, slug None → –, exactly-60-char memo shown without … (the 'only when more remains' boundary), 58a+'   bc' proving normalize-then-truncate with …, newline/multi-space collapse, trailing-pad strip, and memo-absent omitting the segment.",
-  "timestamp": "2026-07-31T05:24:55.507Z"
-}

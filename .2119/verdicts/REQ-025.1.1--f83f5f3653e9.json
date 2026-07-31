@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.1.1--f83f5f3653e9",
+  "requirementId": "REQ-025.1.1",
+  "hash": "f83f5f3653e9",
+  "verdict": "pass",
+  "summary": "test_snooze_deadline_round_trips (tests/taskservice/test_api.py:706) hits the real service/store/app: initial GET asserts snoozed_until is None, and after PUT both GET /tasks/{id} (TaskOut) and GET /tasks (TaskSummaryOut) must equal the exact ISO-8601 string — missing field, non-null default, or reformatted value all fail.",
+  "timestamp": "2026-07-31T05:56:08.912Z"
+}

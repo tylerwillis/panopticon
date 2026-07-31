@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.2.3--f10c4931eeaf",
+  "requirementId": "REQ-025.2.3",
+  "hash": "f10c4931eeaf",
+  "verdict": "pass",
+  "summary": "Real Textual E-press asserts the exact reserved literal 9999-12-31T23:59:59+00:00 (redeclared in-test, not imported) reaches the client seam, and the keymap test rejects duplicate or missing e/E HOTKEYS entries",
+  "timestamp": "2026-07-31T05:56:48.705Z"
+}

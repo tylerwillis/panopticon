@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.7.1--11330566deea",
-  "requirementId": "REQ-001.7.1",
-  "hash": "11330566deea",
-  "verdict": "pass",
-  "summary": "Pins the new-workflow reference's absolute values (56 cols, auto height, round accent border, surface bg) before asserting the delete dialog matches, plus arithmetic centering checks — no both-wrong tautology.",
-  "timestamp": "2026-07-31T05:24:51.914Z"
-}

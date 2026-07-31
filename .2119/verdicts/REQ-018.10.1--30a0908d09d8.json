@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.10.1--30a0908d09d8",
-  "requirementId": "REQ-018.10.1",
-  "hash": "30a0908d09d8",
-  "verdict": "pass",
-  "summary": "Real pilot-driven test selects the arrow-highlighted (second) candidate, asserts the field equals it, the modal stays open, and no create_task call fires",
-  "timestamp": "2026-07-31T05:24:48.120Z"
-}

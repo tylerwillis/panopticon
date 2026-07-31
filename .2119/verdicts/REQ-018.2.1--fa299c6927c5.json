@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.2.1--fa299c6927c5",
+  "requirementId": "REQ-018.2.1",
+  "hash": "fa299c6927c5",
+  "verdict": "pass",
+  "summary": "Identity assertions on the focused widget after each real Tab pin the exact memo->harness->model->effort order; any reordering fails",
+  "timestamp": "2026-07-31T05:52:02.762Z"
+}

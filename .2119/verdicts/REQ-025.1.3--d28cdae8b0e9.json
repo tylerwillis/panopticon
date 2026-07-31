@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.1.3--d28cdae8b0e9",
+  "requirementId": "REQ-025.1.3",
+  "hash": "d28cdae8b0e9",
+  "verdict": "pass",
+  "summary": "Real-stack REST tests preserve both a past (2000-01-01) and future (2099-08-01) deadline verbatim through PUT response, GET, and list reads, rejecting clock-based rejection, clamping, or expiry by the service.",
+  "timestamp": "2026-07-31T05:56:11.674Z"
+}

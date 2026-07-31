@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.1.1--c334a3179592",
+  "requirementId": "REQ-017.1.1",
+  "hash": "c334a3179592",
+  "verdict": "pass",
+  "summary": "Closed-pane v asserted to open no editor and record no set_slug; open-pane v on second task initializes editor from fresh get_task (divergent client rejects stale-snapshot init)",
+  "timestamp": "2026-07-31T05:51:41.430Z"
+}

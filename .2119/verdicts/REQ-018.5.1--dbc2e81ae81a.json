@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.5.1--dbc2e81ae81a",
+  "requirementId": "REQ-018.5.1",
+  "hash": "dbc2e81ae81a",
+  "verdict": "pass",
+  "summary": "custom/model and maximum are absent from codex's suggestion vocabularies and the test asserts they reach create_task as starting_model 'custom/model:maximum' — a suggestion-constrained control would fail.",
+  "timestamp": "2026-07-31T05:54:51.422Z"
+}

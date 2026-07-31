@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.1.1--9363c1ebb5e0",
-  "requirementId": "REQ-024.1.1",
-  "hash": "9363c1ebb5e0",
-  "verdict": "pass",
-  "summary": "Asserts initial null on the detail GET, then exact ISO string on detail GET and the list GET after a snooze write; a missing field, non-null default, or normalized value fails (test is honestly red pre-implementation).",
-  "timestamp": "2026-07-31T05:30:31.259Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.1.1--8708ae0b5676",
+  "requirementId": "REQ-019.1.1",
+  "hash": "8708ae0b5676",
+  "verdict": "pass",
+  "summary": "Discovery is parked on an event while the modal must mount, focus, and accept 'x' with release still unset; a synchronous implementation deadlocks until the 5s backstop releases and then fails 'assert not release.is_set()'.",
+  "timestamp": "2026-07-31T05:55:05.103Z"
+}

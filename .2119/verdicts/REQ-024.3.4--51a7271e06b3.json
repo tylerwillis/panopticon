@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.3.4--51a7271e06b3",
-  "requirementId": "REQ-024.3.4",
-  "hash": "51a7271e06b3",
-  "verdict": "pass",
-  "summary": "Held+gated+snoozed fixture with attention off must render exact snoozed text (rejects either precedence inversion); identical fixture with attention on must render user/orange/undimmed (rejects a snooze-dimmed attention row)",
-  "timestamp": "2026-07-31T05:29:07.972Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.3.1--44e7beb03da5",
+  "requirementId": "REQ-025.3.1",
+  "hash": "44e7beb03da5",
+  "verdict": "pass",
+  "summary": "Pilot tests render through the real Dashboard/DataTable with an injected clock (fake stubs HTTP only): exact-equality asserts pin 'snoozed · 12h left' at exactly 12h and 'snoozed' for the reserved 9999 deadline, every row cell is checked for non-empty all-dim spans, and the exactly-4h 'snoozed · 4h left' boundary is asserted in the same file (line 759); un-snoozed rejection via toggle-off restoring 'user'/orange.",
+  "timestamp": "2026-07-31T05:57:12.999Z"
+}

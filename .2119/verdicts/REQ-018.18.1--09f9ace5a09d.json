@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.18.1--09f9ace5a09d",
+  "requirementId": "REQ-018.18.1",
+  "hash": "09f9ace5a09d",
+  "verdict": "pass",
+  "summary": "Untouched fields showing repo defaults terra/high must clear to '' after the cycle and Ctrl+S records starting_model=None; mixed case clears only the untouched half",
+  "timestamp": "2026-07-31T05:52:02.338Z"
+}

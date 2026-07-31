@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.3.3--5b45b42bc1ee",
-  "requirementId": "REQ-024.3.3",
-  "hash": "5b45b42bc1ee",
-  "verdict": "pass",
-  "summary": "Mutable injected clock flips render from snoozed to ordinary with wall time constant, and exact isoformat write assertions (injected now+12h) reject any real-clock path for both writes and comparisons",
-  "timestamp": "2026-07-31T05:29:06.469Z"
-}

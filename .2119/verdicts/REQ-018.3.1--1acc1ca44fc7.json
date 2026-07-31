@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.3.1--1acc1ca44fc7",
-  "requirementId": "REQ-018.3.1",
-  "hash": "1acc1ca44fc7",
-  "verdict": "pass",
-  "summary": "Uppercase typed vs lowercase codex vocab with exact list equality rejects case-sensitive, prefix-only, and over-inclusive filters for both model and effort",
-  "timestamp": "2026-07-31T05:27:42.586Z"
-}

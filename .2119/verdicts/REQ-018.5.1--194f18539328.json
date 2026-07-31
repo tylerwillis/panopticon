@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.5.1--194f18539328",
-  "requirementId": "REQ-018.5.1",
-  "hash": "194f18539328",
-  "verdict": "pass",
-  "summary": "Free-text custom/model + maximum absent from codex suggestions reach the create call as custom/model:maximum, proving accept and submit end-to-end",
-  "timestamp": "2026-07-31T05:27:43.484Z"
-}

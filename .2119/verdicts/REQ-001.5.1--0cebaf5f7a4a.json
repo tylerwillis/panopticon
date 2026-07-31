@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.5.1--0cebaf5f7a4a",
-  "requirementId": "REQ-001.5.1",
-  "hash": "0cebaf5f7a4a",
-  "verdict": "pass",
-  "summary": "x on a built_in row leaves the screen unchanged (no dialog) and the real file's content intact.",
-  "timestamp": "2026-07-31T05:24:45.831Z"
-}

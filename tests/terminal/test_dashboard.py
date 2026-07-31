@@ -975,10 +975,10 @@ _SNOOZE_NOW = datetime(2026, 7, 31, 8, 0, tzinfo=UTC)
 _INDEFINITE_SNOOZE = "9999-12-31T23:59:59+00:00"
 
 
-# 2119: REQ-024.2.1
-# 2119: REQ-024.2.2
-# 2119: REQ-024.3.1
-# 2119: REQ-024.3.3
+# 2119: REQ-025.2.1
+# 2119: REQ-025.2.2
+# 2119: REQ-025.3.1
+# 2119: REQ-025.3.3
 async def test_e_snoozes_for_twelve_hours_renders_countdown_and_toggles_off() -> None:
     task = {
         **_TASK,
@@ -1009,8 +1009,8 @@ async def test_e_snoozes_for_twelve_hours_renders_countdown_and_toggles_off() ->
         assert "orange" in str(restored[1].style)
 
 
-# 2119: REQ-024.2.1
-# 2119: REQ-024.3.3
+# 2119: REQ-025.2.1
+# 2119: REQ-025.3.3
 async def test_e_replaces_an_expired_deadline_with_a_new_twelve_hour_snooze() -> None:
     task = {
         **_TASK,
@@ -1029,9 +1029,9 @@ async def test_e_replaces_an_expired_deadline_with_a_new_twelve_hour_snooze() ->
         assert fake.snoozes == [(_TASK["id"], expected)]
 
 
-# 2119: REQ-024.2.3
-# 2119: REQ-024.2.2
-# 2119: REQ-024.3.1
+# 2119: REQ-025.2.3
+# 2119: REQ-025.2.2
+# 2119: REQ-025.3.1
 async def test_shift_e_sets_an_indefinite_snooze_with_visible_dim_label() -> None:
     task = {
         **_TASK,
@@ -1057,8 +1057,8 @@ async def test_shift_e_sets_an_indefinite_snooze_with_visible_dim_label() -> Non
         assert fake.snoozes[-1] == (_TASK["id"], None)
 
 
-# 2119: REQ-024.3.2
-# 2119: REQ-024.3.3
+# 2119: REQ-025.3.2
+# 2119: REQ-025.3.3
 async def test_finite_snooze_expiry_restores_attention_without_clearing_recorded_fact() -> None:
     clock = [_SNOOZE_NOW]
     deadline = _SNOOZE_NOW + timedelta(hours=4)
@@ -1085,7 +1085,7 @@ async def test_finite_snooze_expiry_restores_attention_without_clearing_recorded
         assert fake.snoozes == []
 
 
-# 2119: REQ-024.3.4
+# 2119: REQ-025.3.4
 async def test_attention_marker_pierces_snooze_and_snooze_precedes_held() -> None:
     dependency = {
         **_TASK,
@@ -1114,6 +1114,12 @@ async def test_attention_marker_pierces_snooze_and_snooze_precedes_held() -> Non
         now=lambda: _SNOOZE_NOW,
         refresh_interval=0,
     )  # type: ignore[arg-type]
+    held_candidate = _turn_cell(snoozed, _SNOOZE_NOW, held_label="held")
+    assert held_candidate.plain == "snoozed · 4h left"
+    assert held_candidate.style == "dim"
+    pierced_candidate = _turn_cell(pierced, _SNOOZE_NOW, held_label="held")
+    assert pierced_candidate.plain == "user"
+    assert "orange" in str(pierced_candidate.style)
     async with app.run_test() as pilot:
         await pilot.pause()
         table = app.query_one("#tasks", DataTable)
@@ -5321,7 +5327,7 @@ def test_bindings_and_help_derive_from_the_single_hotkey_table() -> None:
         assert hotkey.action == "quit" or hasattr(Dashboard, f"action_{hotkey.action}")
 
 
-# 2119: REQ-024.2.3
+# 2119: REQ-025.2.3
 def test_task_snooze_keybindings_are_unique() -> None:
     keys = [hotkey.key for hotkey in dashboard.HOTKEYS]
     assert len(keys) == len(set(keys))

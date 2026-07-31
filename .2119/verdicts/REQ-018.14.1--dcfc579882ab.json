@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.14.1--dcfc579882ab",
+  "requirementId": "REQ-018.14.1",
+  "hash": "dcfc579882ab",
+  "verdict": "pass",
+  "summary": "Ctrl+S asserts memo='fix' with initial_prompt=None in the create call, rejecting both no-create and deliver-as-prompt violations",
+  "timestamp": "2026-07-31T05:51:55.425Z"
+}

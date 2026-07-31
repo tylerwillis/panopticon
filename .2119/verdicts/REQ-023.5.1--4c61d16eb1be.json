@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.5.1--4c61d16eb1be",
-  "requirementId": "REQ-023.5.1",
-  "hash": "4c61d16eb1be",
-  "verdict": "pass",
-  "summary": "Opens the real help screen via '?' and asserts exactly one ensemble line containing Enter, collapse, and expand — a missing line, wrong key, or half-documented toggle each fails.",
-  "timestamp": "2026-07-31T05:30:22.372Z"
-}

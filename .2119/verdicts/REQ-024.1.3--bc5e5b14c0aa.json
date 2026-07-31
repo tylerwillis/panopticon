@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.1.3--bc5e5b14c0aa",
-  "requirementId": "REQ-024.1.3",
-  "hash": "bc5e5b14c0aa",
-  "verdict": "pass",
-  "summary": "Both a 2099 (future) and 2000 (past) deadline are recorded with 200 and read back verbatim on fresh GETs, so a service that rejects, nulls, or expires an already-past deadline fails; no clock logic mocked.",
-  "timestamp": "2026-07-31T05:37:52.757Z"
-}

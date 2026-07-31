@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.12.1--0d3a9efda857",
+  "requirementId": "REQ-018.12.1",
+  "hash": "0d3a9efda857",
+  "verdict": "pass",
+  "summary": "Exact rendered-summary assertions cover all three override kinds yielding 'this task' plus repo/workflow/app default sources, including workflow-over-repo precedence",
+  "timestamp": "2026-07-31T05:51:49.134Z"
+}

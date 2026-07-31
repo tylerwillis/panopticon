@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.17.1--43eae45de8f6",
-  "requirementId": "REQ-018.17.1",
-  "hash": "43eae45de8f6",
-  "verdict": "pass",
-  "summary": "Both boundary variants tested for model and effort: empty candidate list, and non-empty list with highlighted None — modal stays open, no create",
-  "timestamp": "2026-07-31T05:24:58.518Z"
-}

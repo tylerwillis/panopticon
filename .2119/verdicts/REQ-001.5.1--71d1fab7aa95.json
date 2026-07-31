@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.5.1--71d1fab7aa95",
+  "requirementId": "REQ-001.5.1",
+  "hash": "71d1fab7aa95",
+  "verdict": "pass",
+  "summary": "test_workflows_screen_refuses_builtin_deletion_with_notification presses x on a built-in row with a real on-disk file: app.screen isinstance WorkflowsScreen rejects a pushed DeleteWorkflowScreen modal, and path.read_text() would raise if the file were unlinked; only the REST client and notify are faked, so both conjuncts are genuinely exercised.",
+  "timestamp": "2026-07-31T05:50:44.202Z"
+}

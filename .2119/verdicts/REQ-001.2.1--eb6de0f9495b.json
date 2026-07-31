@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.2.1--eb6de0f9495b",
+  "requirementId": "REQ-001.2.1",
+  "hash": "eb6de0f9495b",
+  "verdict": "pass",
+  "summary": "Real-UI test asserts both #delete-workflow-yes/-no buttons exist, are labeled 'yes'/'no', displayed and enabled; sibling annotated tests click each and verify cancel-vs-delete effects, so a missing, mislabeled, hidden, or inert choice fails.",
+  "timestamp": "2026-07-31T05:50:14.100Z"
+}

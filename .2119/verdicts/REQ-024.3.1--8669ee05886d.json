@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.3.1--8669ee05886d",
-  "requirementId": "REQ-024.3.1",
-  "hash": "8669ee05886d",
-  "verdict": "pass",
-  "summary": "Exact plain-text equality on the turn cell ('snoozed · 12h left'; indefinite renders bare 'snoozed', so a countdown there fails) plus per-cell all-dim span checks; the exact-4h boundary is rejected at line 759, though annotated under sibling REQ-024.3.2.",
-  "timestamp": "2026-07-31T05:30:47.952Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.1.1--803d8dba675d",
-  "requirementId": "REQ-019.1.1",
-  "hash": "803d8dba675d",
-  "verdict": "pass",
-  "summary": "Event-blocked discovery fake: memo editor accepts a keystroke while discovery is provably in flight; backstop timer trips an assert instead of false-passing, and synchronous discovery fails it",
-  "timestamp": "2026-07-31T05:27:54.508Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.3.1--50798653e062",
+  "requirementId": "REQ-007.3.1",
+  "hash": "50798653e062",
+  "verdict": "pass",
+  "summary": "Asserts hint absent from render_detail output both as substring and as any line, on a task whose fields lack it",
+  "timestamp": "2026-07-31T05:51:31.318Z"
+}

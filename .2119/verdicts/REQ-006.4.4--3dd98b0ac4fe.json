@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.4--3dd98b0ac4fe",
+  "requirementId": "REQ-006.4.4",
+  "hash": "3dd98b0ac4fe",
+  "verdict": "pass",
+  "summary": "Parametrized over all eleven non-down statuses incl. failed/disconnected/en-dash; service object mutated only after the modal opens so only a genuine confirmation-time get_task observes it; released contains only the still-down task.",
+  "timestamp": "2026-07-31T05:50:57.764Z"
+}

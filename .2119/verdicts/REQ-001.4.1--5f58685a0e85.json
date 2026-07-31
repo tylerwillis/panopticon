@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.4.1--5f58685a0e85",
-  "requirementId": "REQ-001.4.1",
-  "hash": "5f58685a0e85",
-  "verdict": "pass",
-  "summary": "Yes-click removes the selected real file via the dashboard's own unlink, leaves the sibling file untouched, and a proven second registry query (list_calls==2) drives the refreshed table content.",
-  "timestamp": "2026-07-31T05:24:45.396Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.6.1--9167328d5daf",
+  "requirementId": "REQ-018.6.1",
+  "hash": "9167328d5daf",
+  "verdict": "pass",
+  "summary": "Test drives a real harness cycle (claude->codex) through the modal and asserts exact before/after model+effort OptionList contents from the real registry; no-refresh and effort-only-stale mutations both fail it.",
+  "timestamp": "2026-07-31T05:54:59.067Z"
+}

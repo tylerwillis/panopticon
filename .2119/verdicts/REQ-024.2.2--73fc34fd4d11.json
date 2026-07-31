@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.2.2--73fc34fd4d11",
-  "requirementId": "REQ-024.2.2",
-  "hash": "73fc34fd4d11",
-  "verdict": "pass",
-  "summary": "Both conjuncts covered: 'e' on an active finite snooze and on an indefinite snooze each records (id, None) through the write-through fake — a re-snooze or no-op instead of a clear fails the None equality.",
-  "timestamp": "2026-07-31T05:30:39.807Z"
-}

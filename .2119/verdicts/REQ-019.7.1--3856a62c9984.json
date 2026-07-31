@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.7.1--3856a62c9984",
+  "requirementId": "REQ-019.7.1",
+  "hash": "3856a62c9984",
+  "verdict": "pass",
+  "summary": "Release-gated discovery is unblocked only after escape; the broad closed-screen widget snapshot (option prompts, placeholders, suggesters, summary) would diverge under any post-close apply, and the fake harness mocks only the discovery seam, not the rendering.",
+  "timestamp": "2026-07-31T06:11:18.183Z"
+}
