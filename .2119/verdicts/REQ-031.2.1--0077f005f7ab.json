@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.2.1--0077f005f7ab",
+  "requirementId": "REQ-031.2.1",
+  "hash": "0077f005f7ab",
+  "verdict": "pass",
+  "summary": "The real docker-info failure path exits main before migration or run_host, while the reachable path proceeds.",
+  "timestamp": "2026-07-31T23:54:24.341Z"
+}

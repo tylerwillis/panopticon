@@ -1,4 +1,4 @@
-"""Docker daemon reachability (REQ-027): the fail-loud preflight for `panopticon start`/`host`
+"""Docker daemon reachability (REQ-031): the fail-loud preflight for `panopticon start`/`host`
 and the per-host session-service daemon, plus the per-tick spawn-loop guard that distinguishes an
 unreachable daemon (environmental, retried automatically once it returns) from a task-specific
 crash — see `panopticon.sessionservice.spawner.Spawner.spawn_one`/`heal`.
@@ -37,7 +37,7 @@ FIX_HINT = "start OrbStack or Docker Desktop (macOS), or `systemctl start docker
 def preflight_message(command: str, *, run: Run = _subprocess_status) -> str | None:
     """``None`` when the Docker daemon is reachable (clear to proceed); otherwise a
     human-readable, actionable refusal message for ``panopticon {command}`` naming the fix —
-    the caller should refuse to start rather than spawn into failure (REQ-027.1/REQ-027.2)."""
+    the caller should refuse to start rather than spawn into failure (REQ-031.1/REQ-031.2)."""
     if daemon_reachable(run):
         return None
     return f"Docker daemon unreachable — {FIX_HINT}, then rerun `panopticon {command}`."

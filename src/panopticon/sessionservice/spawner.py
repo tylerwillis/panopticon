@@ -131,7 +131,7 @@ class Spawner:
         #: task_id → (respawns in the current burst, monotonic time of the last respawn), the
         #: crash-loop guard state for :meth:`heal`.
         self._respawns: dict[str, tuple[int, float]] = {}
-        #: Whether the Docker daemon is currently reachable (REQ-027.3) — checked before claiming/
+        #: Whether the Docker daemon is currently reachable (REQ-031.3) — checked before claiming/
         #: respawning a non-shell task, so an unreachable daemon (environmental) defers the attempt
         #: instead of burning that task's crash-loop budget or reporting it ``failed``. Defaults to
         #: "assume reachable" so callers that don't wire a real check (most tests) are unaffected;
@@ -151,7 +151,7 @@ class Spawner:
         live; a step raising is reported as ``FAILED`` (with the error) before re-raising, so the
         host daemon's per-task isolation still applies but the failure is visible, not silent.
 
-        An unreachable Docker daemon is environmental, not this task's fault (REQ-027.3): a
+        An unreachable Docker daemon is environmental, not this task's fault (REQ-031.3): a
         non-shell task is left unclaimed so a later pass retries once the daemon returns, with no
         claim taken and no ``FAILED`` report. A shell task never touches Docker, so it's unaffected."""
         if task["state"] in TERMINAL_LABELS or task.get("claimed_by"):
@@ -399,7 +399,7 @@ class Spawner:
         :data:`RESPAWN_RESET_SECONDS` resets the budget. Returns the new container id, or ``None`` when
         nothing was done. Per-tick call from the host daemon, so it runs on start and continuously.
 
-        An unreachable Docker daemon is environmental, not this task's fault (REQ-027.3): the
+        An unreachable Docker daemon is environmental, not this task's fault (REQ-031.3): the
         respawn is deferred without touching the crash-loop budget or reporting ``failed``, so the
         task self-recovers with its prior budget intact once the daemon returns — no state for the
         operator to hand-clear. ``_is_orphan`` already excludes shell tasks, which never touch

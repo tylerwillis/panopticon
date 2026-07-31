@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.3.3--73682be09167",
+  "requirementId": "REQ-031.3.3",
+  "hash": "73682be09167",
+  "verdict": "pass",
+  "summary": "Deferred orphan healing asserts no lifecycle phase write, rejecting a failed report.",
+  "timestamp": "2026-07-31T23:54:26.465Z"
+}

@@ -779,7 +779,7 @@ def test_heal_resets_the_respawn_budget_after_a_survivor_window() -> None:
 
 
 def test_spawn_one_defers_a_container_task_without_claiming_when_daemon_is_unreachable() -> None:
-    # 2119: REQ-027.3.1
+    # 2119: REQ-031.3.1
     client, runner = _FakeClient(repo=_REPO), _FakeRunner()
     spawner = _spawner(client, runner, daemon_reachable=lambda: False)
     assert (
@@ -800,7 +800,7 @@ def test_spawn_one_defers_a_container_task_without_claiming_when_daemon_is_unrea
 
 
 def test_spawn_one_resumes_once_the_daemon_is_reachable_again() -> None:
-    # 2119: REQ-027.3.1
+    # 2119: REQ-031.3.1
     client, runner = _FakeClient(repo=_REPO), _FakeRunner()
     reachable = {"ok": False}
     spawner = _spawner(client, runner, daemon_reachable=lambda: reachable["ok"])
@@ -818,7 +818,7 @@ def test_spawn_one_resumes_once_the_daemon_is_reachable_again() -> None:
 
 
 def test_spawn_one_shell_task_ignores_daemon_reachability() -> None:
-    # 2119: REQ-027.3.4
+    # 2119: REQ-031.3.4
     client = _FakeClient(repo={**_REPO, "name": "acme/widget"}, runner_type="shell")
     runner, shell = _FakeRunner(), _FakeShellRunner()
     cid = _shell_spawner(client, runner, shell, daemon_reachable=lambda: False).spawn_one(
@@ -831,8 +831,8 @@ def test_spawn_one_shell_task_ignores_daemon_reachability() -> None:
 def test_heal_defers_an_orphan_without_touching_the_crash_loop_budget_when_daemon_is_unreachable() -> (
     None
 ):
-    # 2119: REQ-027.3.2
-    # 2119: REQ-027.3.3
+    # 2119: REQ-031.3.2
+    # 2119: REQ-031.3.3
     client, runner = _FakeClient(repo=_REPO), _FakeRunner(session=False)
     spawner = _spawner(client, runner, daemon_reachable=lambda: False)
     assert spawner.heal(_orphan()) is None
@@ -847,7 +847,7 @@ def test_heal_shell_task_never_even_consults_daemon_reachability() -> None:
     # return value can't tell "correctly unaffected" apart from "checked it and ignored it" (or a
     # bug that checks it first). Counting calls on the injected probe proves it's never consulted
     # at all for a shell task, not merely that its result doesn't change the outcome.
-    # 2119: REQ-027.3.4
+    # 2119: REQ-031.3.4
     client = _FakeClient(repo={**_REPO, "name": "acme/widget"}, runner_type="shell")
     runner, shell = _FakeRunner(session=False), _FakeShellRunner(session=False)
     calls = {"n": 0}
@@ -867,7 +867,7 @@ def test_heal_shell_task_never_even_consults_daemon_reachability() -> None:
 
 
 def test_heal_resumes_with_its_prior_budget_once_the_daemon_returns() -> None:
-    # 2119: REQ-027.3.5
+    # 2119: REQ-031.3.5
     clock = {"t": 0.0}
     client, runner = _FakeClient(repo=_REPO), _FakeRunner(session=False)
     reachable = {"ok": True}

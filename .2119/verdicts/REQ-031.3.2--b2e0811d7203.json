@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.3.2--b2e0811d7203",
+  "requirementId": "REQ-031.3.2",
+  "hash": "b2e0811d7203",
+  "verdict": "pass",
+  "summary": "Daemon-down orphan healing is asserted to perform no spawn and leave the respawn count at zero.",
+  "timestamp": "2026-07-31T23:54:25.966Z"
+}

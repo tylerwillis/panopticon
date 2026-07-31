@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.3.5--1d1cc1616da8",
-  "requirementId": "REQ-027.3.5",
-  "hash": "1d1cc1616da8",
-  "verdict": "pass",
-  "summary": "The test starts at respawn count 1, performs ten daemon-down deferrals, then verifies recovery respawns once and leaves the exact count at 2.",
-  "timestamp": "2026-07-31T23:31:29.514Z"
-}

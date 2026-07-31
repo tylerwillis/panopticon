@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.1.2--20700d7fe094",
-  "requirementId": "REQ-027.1.2",
-  "hash": "20700d7fe094",
-  "verdict": "pass",
-  "summary": "The host refusal test rejects the nearest unreachable-daemon violation by asserting the bundled task-service/runner session starter and migration are both untouched.",
-  "timestamp": "2026-07-31T23:26:40.762Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.3.5--c639833aadd9",
+  "requirementId": "REQ-031.3.5",
+  "hash": "c639833aadd9",
+  "verdict": "pass",
+  "summary": "A seeded nonzero respawn count survives ten deferred heals and recovery produces exactly the next count.",
+  "timestamp": "2026-07-31T23:54:27.464Z"
+}

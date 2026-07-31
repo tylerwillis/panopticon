@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.3.3--efacdd48eaff",
-  "requirementId": "REQ-027.3.3",
-  "hash": "efacdd48eaff",
-  "verdict": "pass",
-  "summary": "The heal test defers an orphan with Docker unreachable and asserts zero lifecycle reports, so any failed report is rejected.",
-  "timestamp": "2026-07-31T23:34:29.604Z"
-}

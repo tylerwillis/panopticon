@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.1.5--9ce1b1a9546c",
+  "requirementId": "REQ-031.1.5",
+  "hash": "9ce1b1a9546c",
+  "verdict": "pass",
+  "summary": "Reachable-daemon integration tests require start and host to emit the exact detached task-service and runner commands.",
+  "timestamp": "2026-07-31T23:54:23.805Z"
+}

@@ -12,7 +12,7 @@ via the bundled Alembic config. `panopticon quickstart` registers panopticon its
 (idempotent) then starts everything. `panopticon doctor` checks that the host has the
 prerequisites (git, docker + a running daemon, tmux, claude, Python 3.11+) those flows need.
 `panopticon start`/`panopticon host` each preflight the Docker daemon before starting sessions
-(REQ-027) — refusing with an actionable message rather than spawning every task into a crash loop.
+(REQ-031) — refusing with an actionable message rather than spawning every task into a crash loop.
 """
 
 from __future__ import annotations
@@ -151,7 +151,7 @@ def main(
     elif args.command == "host":
         from panopticon.sessionservice import docker_daemon
 
-        # Fail fast on an unreachable Docker daemon (REQ-027.1) rather than spawning every task
+        # Fail fast on an unreachable Docker daemon (REQ-031.1) rather than spawning every task
         # into a crash loop — e.g. after a host reboot, before OrbStack/Docker Desktop is back up.
         if (message := docker_daemon.preflight_message("host")) is not None:
             print(message)
@@ -246,7 +246,7 @@ def main(
         if args.command in (None, "start"):  # "console" assumes services are already running
             from panopticon.sessionservice import docker_daemon
 
-            # Fail fast on an unreachable Docker daemon (REQ-027.1) rather than spawning every
+            # Fail fast on an unreachable Docker daemon (REQ-031.1) rather than spawning every
             # task into a crash loop — e.g. after a host reboot, before OrbStack/Docker Desktop is
             # back up.
             if (message := docker_daemon.preflight_message("start")) is not None:

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.2.2--f75f699e9ef3",
+  "requirementId": "REQ-031.2.2",
+  "hash": "f75f699e9ef3",
+  "verdict": "pass",
+  "summary": "The daemon entry-point test uses the real probe/message chain and requires unreachability plus macOS and Linux fixes.",
+  "timestamp": "2026-07-31T23:54:24.941Z"
+}

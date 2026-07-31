@@ -1,4 +1,4 @@
-# REQ-027: Docker Daemon Preflight & Spawn-Loop Resilience
+# REQ-031: Docker Daemon Preflight & Spawn-Loop Resilience
 
 ## Overview
 
@@ -24,28 +24,28 @@ operator to hand-clear.
 
 ## Requirements
 
-### REQ-027.1: Operator CLI startup preflight
+### REQ-031.1: Operator CLI startup preflight
 
 1. `panopticon start` MUST NOT start the background task-service or runner sessions when the
    Docker daemon is unreachable.
 2. `panopticon host` MUST NOT start the background task-service or runner sessions when the
    Docker daemon is unreachable.
-3. Refusing to start under REQ-027.1.1 or REQ-027.1.2 MUST print a message that states the Docker
+3. Refusing to start under REQ-031.1.1 or REQ-031.1.2 MUST print a message that states the Docker
    daemon is unreachable and names a remediation for both macOS (OrbStack or Docker Desktop) and
    Linux (the system service manager).
-4. Refusing to start under REQ-027.1.1 or REQ-027.1.2 MUST return a non-zero exit status.
+4. Refusing to start under REQ-031.1.1 or REQ-031.1.2 MUST return a non-zero exit status.
 5. `panopticon start` and `panopticon host` MUST start the background task-service and runner
    sessions, as before, when the Docker daemon is reachable.
 
-### REQ-027.2: Session-service host daemon startup preflight
+### REQ-031.2: Session-service host daemon startup preflight
 
 1. The per-host session-service daemon process (`python -m panopticon.sessionservice.host`) MUST
    refuse to begin its spawn/heal loop when the Docker daemon is unreachable at its own startup,
    instead of entering a loop that would fail every spawn attempt.
-2. Refusing to start under REQ-027.2.1 MUST report a message that states the Docker daemon is
+2. Refusing to start under REQ-031.2.1 MUST report a message that states the Docker daemon is
    unreachable and names a remediation for both macOS and Linux.
 
-### REQ-027.3: Spawn loop distinguishes daemon-down from task-specific crashes
+### REQ-031.3: Spawn loop distinguishes daemon-down from task-specific crashes
 
 1. When the Docker daemon is unreachable, `Spawner.spawn_one` MUST defer spawning a task whose
    workflow is not a shell workflow, without claiming it.

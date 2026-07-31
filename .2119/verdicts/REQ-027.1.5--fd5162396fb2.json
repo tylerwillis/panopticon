@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.1.5--fd5162396fb2",
-  "requirementId": "REQ-027.1.5",
-  "hash": "fd5162396fb2",
-  "verdict": "pass",
-  "summary": "With docker info succeeding, both start and host traverse real startup wiring and assert detached service and runner sessions run the correct modules.",
-  "timestamp": "2026-07-31T23:35:54.166Z"
-}

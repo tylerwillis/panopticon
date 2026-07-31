@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.1.1--283043684b46",
-  "requirementId": "REQ-027.1.1",
-  "hash": "283043684b46",
-  "verdict": "pass",
-  "summary": "A failed real docker info probe is asserted to make start return before migration, console, or any tmux session command; either service or runner startup would fail the subprocess call-count assertion.",
-  "timestamp": "2026-07-31T23:34:31.195Z"
-}

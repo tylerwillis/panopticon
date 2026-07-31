@@ -456,8 +456,6 @@ def test_build_arg_parser_host_flag_overrides_env(monkeypatch: pytest.MonkeyPatc
 def test_preflight_or_exit_raises_with_the_actionable_message_when_docker_is_down(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    # 2119: REQ-027.2.1
-    # 2119: REQ-027.2.2
     monkeypatch.setattr(
         "panopticon.sessionservice.host.docker_daemon.preflight_message",
         lambda command: f"Docker daemon unreachable — fix it, then rerun `panopticon {command}`.",
@@ -466,10 +464,30 @@ def test_preflight_or_exit_raises_with_the_actionable_message_when_docker_is_dow
         preflight_or_exit()
 
 
+def test_preflight_or_exit_names_the_real_fix_when_the_real_docker_probe_fails(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Unlike the test above (which stubs `preflight_message` with a canned string), this drives
+    # the real `daemon_reachable` → `preflight_message` chain down to a faked `docker info`
+    # subprocess call, so the SystemExit message is the genuine cross-platform remediation text,
+    # not just a substring an under-specified stub happens to satisfy.
+    # 2119: REQ-031.2.2
+    docker_info_failed = MagicMock(returncode=1)
+    monkeypatch.setattr("subprocess.run", MagicMock(return_value=docker_info_failed))
+    with pytest.raises(SystemExit) as exc_info:
+        preflight_or_exit()
+    message = str(exc_info.value)
+    assert "docker daemon unreachable" in message.lower()
+    # The literal, complete actionable phrase for both platforms — not a loose keyword check, so
+    # a negated or unrelated mention of "OrbStack"/"systemctl" can't slip a test through.
+    assert "start OrbStack or Docker Desktop (macOS)" in message
+    assert "systemctl start docker` (Linux)" in message
+    assert "panopticon host" in message  # names the exact rerun command
+
+
 def test_preflight_or_exit_is_a_no_op_when_docker_is_reachable(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    # 2119: REQ-027.2.1
     monkeypatch.setattr(
         "panopticon.sessionservice.host.docker_daemon.preflight_message", lambda command: None
     )
@@ -481,7 +499,6 @@ def test_main_exits_before_migrating_or_building_anything_when_docker_is_unreach
 ) -> None:
     # The daemon process itself (not just the extracted helper) must refuse before touching the
     # DB or building its runners — proving the wiring, not just `preflight_or_exit` in isolation.
-    # 2119: REQ-027.2.1
     from panopticon.sessionservice import host as host_module
 
     monkeypatch.setattr(
@@ -496,10 +513,34 @@ def test_main_exits_before_migrating_or_building_anything_when_docker_is_unreach
     mock_migrate.assert_not_called()
 
 
+def test_main_exits_via_the_real_docker_probe_when_docker_info_fails(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Unlike the tests above (which mock `preflight_message` itself), this drives the real
+    # `daemon_reachable` → `preflight_message` chain down to a faked `docker info` subprocess call
+    # — proving a genuinely unreachable daemon, not just a stubbed refusal, keeps this daemon
+    # process out of its spawn/heal loop.
+    # 2119: REQ-031.2.1
+    from panopticon.sessionservice import host as host_module
+
+    docker_info_failed = MagicMock(returncode=1)
+    mock_run = MagicMock(return_value=docker_info_failed)
+    monkeypatch.setattr("subprocess.run", mock_run)
+    mock_migrate = MagicMock()
+    monkeypatch.setattr(host_module, "migrate_session_dirs", mock_migrate)
+    mock_run_host = MagicMock()
+    monkeypatch.setattr(host_module, "run_host", mock_run_host)
+    with pytest.raises(SystemExit, match="Docker daemon unreachable"):
+        host_module.main([])
+    mock_run.assert_called_once_with(["docker", "info"], capture_output=True)
+    mock_migrate.assert_not_called()
+    mock_run_host.assert_not_called()  # the spawn/heal loop is never entered
+
+
 def test_main_proceeds_to_migrate_and_build_runners_when_docker_is_reachable(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    # 2119: REQ-027.2.1
+    # 2119: REQ-031.2.1
     from panopticon.sessionservice import host as host_module
 
     monkeypatch.setattr(host_module.docker_daemon, "preflight_message", lambda command: None)

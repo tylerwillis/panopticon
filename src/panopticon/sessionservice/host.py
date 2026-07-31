@@ -198,7 +198,7 @@ def run_host(
 ) -> None:
     """Wire the spawner + provisioner over a shared per-task-clone root and run the host loop.
 
-    ``daemon_reachable`` (REQ-027.3) is the real Docker-daemon liveness probe by default; tests
+    ``daemon_reachable`` (REQ-031.3) is the real Docker-daemon liveness probe by default; tests
     inject a fake so they don't shell out."""
     executions = WorkflowExecutions(client)  # one shared "how is this workflow run" cache for both
     spawner = Spawner(
@@ -212,7 +212,7 @@ def run_host(
         git=git,
         images=images,
         makedirs=makedirs,
-        daemon_reachable=daemon_reachable,  # REQ-027.3: defer, don't crash-loop, when unreachable
+        daemon_reachable=daemon_reachable,  # REQ-031.3: defer, don't crash-loop, when unreachable
     )
     provisioner = Provisioner(client, clones_root=tasks_root, git=git, executions=executions)
     waker = StageEntryWaker(client, runner, runner_id=runner_id)
@@ -262,7 +262,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
 
 
 def preflight_or_exit() -> None:
-    """Refuse to start this daemon when the Docker daemon is unreachable (REQ-027.2) — called
+    """Refuse to start this daemon when the Docker daemon is unreachable (REQ-031.2) — called
     first by :func:`main`, before anything is provisioned, so a process that starts with Docker
     down fails loud instead of looping into a spawn failure for every task."""
     if (message := docker_daemon.preflight_message("host")) is not None:

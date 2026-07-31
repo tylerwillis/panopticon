@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.2.1--8cd4d9367bc0",
-  "requirementId": "REQ-027.2.1",
-  "hash": "8cd4d9367bc0",
-  "verdict": "pass",
-  "summary": "Daemon main wiring is tested to exit before migration when Docker is down and to proceed when reachable, covering the startup boundary before run_host.",
-  "timestamp": "2026-07-31T23:29:37.960Z"
-}
