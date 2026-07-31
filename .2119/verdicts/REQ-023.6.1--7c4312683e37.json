@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.6.1--7c4312683e37",
+  "requirementId": "REQ-023.6.1",
+  "hash": "7c4312683e37",
+  "verdict": "pass",
+  "summary": "Asserts the failure message contains the context name, chord=enter, and both conflicting qualified actions; omitting any one fails a substring assert",
+  "timestamp": "2026-07-31T05:09:38.935Z"
+}

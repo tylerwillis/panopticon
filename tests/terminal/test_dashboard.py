@@ -2589,6 +2589,33 @@ async def test_detail_pane_shows_edit_slug_key_hint() -> None:
         assert rendered.spans[-2].style.dim is True
 
 
+# 2119: REQ-023.7.1
+async def test_copy_chord_hints_match_case_sensitive_dashboard_bindings() -> None:
+    copy_hotkeys = {
+        hotkey.action: hotkey
+        for hotkey in dashboard.HOTKEYS
+        if hotkey.action in {"copy_slug", "copy_id"}
+    }
+    assert copy_hotkeys["copy_slug"].key == "y"
+    assert copy_hotkeys["copy_id"].key == "Y"
+    assert copy_hotkeys["copy_slug"].display == "y"
+    assert copy_hotkeys["copy_id"].display == "Shift+Y"
+
+    app = Dashboard(_FakeClient([_TASK.copy()]))  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("d")
+        await pilot.pause()
+        detail = app.query_one("#detail", Static).render()
+        assert str(detail).splitlines()[-1] == "c: copy details  y: copy slug  Shift+Y: copy id"
+
+        await pilot.press("question_mark")
+        await pilot.pause()
+        help_text = str(app.screen.query_one("#help-keys", Static).render())
+        assert "y     Copy the task's slug to the clipboard" in help_text
+        assert "Shift+Y Copy the task's id to the clipboard" in help_text
+
+
 async def test_pressing_shift_y_copies_the_id(monkeypatch: Any) -> None:
     # `Y` copies the highlighted task's internal id.
     copied: list[str] = []

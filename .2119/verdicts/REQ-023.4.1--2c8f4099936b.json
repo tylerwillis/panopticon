@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.4.1--2c8f4099936b",
+  "requirementId": "REQ-023.4.1",
+  "hash": "2c8f4099936b",
+  "verdict": "pass",
+  "summary": "Fixture module is synthesized at test time so no inventory can contain it, and the conflicting Input sits nested inside a non-focusable container: removing recursive compose discovery leaves only the screen context and the test fails",
+  "timestamp": "2026-07-31T05:09:38.050Z"
+}

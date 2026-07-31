@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.2.1--8b9eb825dfdd",
+  "requirementId": "REQ-023.2.1",
+  "hash": "8b9eb825dfdd",
+  "verdict": "pass",
+  "summary": "Inherited enter-to-submit from Textual Input collides with the screen's Panopticon enter binding only if inherited targets participate; excluding them yields DID-NOT-RAISE so the deliberate test fails",
+  "timestamp": "2026-07-31T05:09:37.202Z"
+}

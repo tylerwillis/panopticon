@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.3.1--8dbd2d1b8821",
+  "requirementId": "REQ-023.3.1",
+  "hash": "8dbd2d1b8821",
+  "verdict": "pass",
+  "summary": "Uses real BindingsMap with y and Y on one screen; case folding would merge both actions under one chord and raise, failing the bare assert call — no mocks stand in for Textual normalization",
+  "timestamp": "2026-07-31T05:09:37.619Z"
+}
