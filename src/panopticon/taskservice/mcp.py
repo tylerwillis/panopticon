@@ -17,7 +17,7 @@ from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
 
 from panopticon.core.artifacts import mcp_uri
-from panopticon.core.models import Actor, Status
+from panopticon.core.models import Actor, Status, Task
 from panopticon.taskservice.api import TaskOut
 from panopticon.taskservice.service import TaskService
 
@@ -27,9 +27,11 @@ _log = logging.getLogger(__name__)
 ARTIFACT_URI = "panopticon://tasks/{task_id}/artifacts/{name}"
 
 
-def _task(task: object) -> dict[str, Any]:
+def _task(service: TaskService, task: Task) -> dict[str, Any]:
     """Serialize a Task the same way the REST API does, so both surfaces agree."""
-    return TaskOut.model_validate(task).model_dump(mode="json")
+    out = TaskOut.model_validate(task)
+    out.terminal = service.task_is_terminal(task)
+    return out.model_dump(mode="json")
 
 
 def build_mcp_server(service: TaskService, *, name: str = "panopticon") -> FastMCP:
@@ -43,37 +45,37 @@ def build_mcp_server(service: TaskService, *, name: str = "panopticon") -> FastM
 
     @mcp.tool(description="Fetch a task: state, turn, blocked, slug, and history.")
     async def get_task(task_id: str) -> dict[str, Any]:
-        return _task(await service.get_task(task_id))
+        return _task(service, await service.get_task(task_id))
 
     @mcp.tool(description="Set the task's human-readable slug.")
     async def set_slug(task_id: str, slug: str) -> dict[str, Any]:
-        return _task(await service.set_slug(task_id, slug))
+        return _task(service, await service.set_slug(task_id, slug))
 
     @mcp.tool(
         description="Record an external URL for the task (e.g. its PR); the dashboard's 'p' hotkey opens it."
     )
     async def set_url(task_id: str, url: str) -> dict[str, Any]:
-        return _task(await service.set_url(task_id, url))
+        return _task(service, await service.set_url(task_id, url))
 
     @mcp.tool(description="Record the cumulative tokens claude in this container has used.")
     async def set_tokens_used(task_id: str, tokens_used: int) -> dict[str, Any]:
-        return _task(await service.set_tokens_used(task_id, tokens_used))
+        return _task(service, await service.set_tokens_used(task_id, tokens_used))
 
     @mcp.tool(
         description="Record an estimate of the total tokens this task will consume (set when planning)."
     )
     async def set_token_estimate(task_id: str, token_estimate: int) -> dict[str, Any]:
-        return _task(await service.set_token_estimate(task_id, token_estimate))
+        return _task(service, await service.set_token_estimate(task_id, token_estimate))
 
     @mcp.tool(description="Apply a named core operation (e.g. 'advance', 'drop').")
     async def apply_operation(task_id: str, operation: str) -> dict[str, Any]:
         _log.debug("mcp apply_operation task=%s operation=%s", task_id, operation)
-        return _task(await service.apply_operation(task_id, operation))
+        return _task(service, await service.apply_operation(task_id, operation))
 
     @mcp.tool(description="Move the task to any state directly (free move; bypasses the gate).")
     async def set_state(task_id: str, state: str) -> dict[str, Any]:
         _log.debug("mcp set_state task=%s state=%s", task_id, state)
-        return _task(await service.set_state(task_id, state))
+        return _task(service, await service.set_state(task_id, state))
 
     @mcp.tool(
         description="Resolve one promised responsibility ('met', or 'failed' with a comment)."
@@ -83,18 +85,19 @@ def build_mcp_server(service: TaskService, *, name: str = "panopticon") -> FastM
     ) -> dict[str, Any]:
         _log.debug("mcp resolve_responsibility task=%s key=%s status=%s", task_id, key, status)
         return _task(
+            service,
             await service.resolve_responsibility(
                 task_id, key, status=Status(status), comment=comment
-            )
+            ),
         )
 
     @mcp.tool(description="Flip who holds the turn: 'user' or 'agent'.")
     async def set_turn(task_id: str, turn: str) -> dict[str, Any]:
-        return _task(await service.set_turn(task_id, Actor(turn)))
+        return _task(service, await service.set_turn(task_id, Actor(turn)))
 
     @mcp.tool(description="Set or clear the deliberate 'blocked' marker explicitly.")
     async def set_blocked(task_id: str, blocked: bool) -> dict[str, Any]:
-        return _task(await service.set_blocked(task_id, blocked))
+        return _task(service, await service.set_blocked(task_id, blocked))
 
     @mcp.tool(
         description=(
@@ -103,7 +106,7 @@ def build_mcp_server(service: TaskService, *, name: str = "panopticon") -> FastM
         )
     )
     async def set_attention(task_id: str, attention: bool) -> dict[str, Any]:
-        return _task(await service.set_attention(task_id, attention))
+        return _task(service, await service.set_attention(task_id, attention))
 
     @mcp.tool(
         description=(
@@ -114,7 +117,7 @@ def build_mcp_server(service: TaskService, *, name: str = "panopticon") -> FastM
     )
     async def set_dependencies(task_id: str, dep_ids: list[str]) -> dict[str, Any]:
         try:
-            return _task(await service.set_dependencies(task_id, dep_ids))
+            return _task(service, await service.set_dependencies(task_id, dep_ids))
         except ValueError as exc:
             raise ValueError(str(exc)) from exc
 
@@ -135,8 +138,10 @@ def build_mcp_server(service: TaskService, *, name: str = "panopticon") -> FastM
             'input, e.g. "review your plan". `artifacts` '
             "(optional) is a name→content map of artifacts to write immediately (e.g. "
             '{"plan.md": "..."}) — written before the call returns so the spawner always '
-            "finds them present. The new task's governor_task_id is set to orchestrator_task_id "
-            "automatically. Returns the new task."
+            "finds them present. `depends_on_task_ids` (optional) records every dependency in "
+            "the initial task row so the task is gated before a spawner can observe it. The new "
+            "task's governor_task_id is set to orchestrator_task_id automatically. Returns the "
+            "new task."
         )
     )
     async def create_task(
@@ -145,16 +150,19 @@ def build_mcp_server(service: TaskService, *, name: str = "panopticon") -> FastM
         memo: str | None = None,
         initial_prompt: str | None = None,
         artifacts: dict[str, str] | None = None,
+        depends_on_task_ids: list[str] | None = None,
     ) -> dict[str, Any]:
         _log.debug("mcp create_task orchestrator=%s workflow=%s", orchestrator_task_id, workflow)
         return _task(
+            service,
             await service.create_task_as(
                 orchestrator_task_id,
                 workflow,
                 memo=memo,
                 initial_prompt=initial_prompt,
                 artifacts=artifacts,
-            )
+                depends_on_task_ids=depends_on_task_ids,
+            ),
         )
 
     @mcp.tool(

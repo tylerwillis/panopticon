@@ -337,6 +337,7 @@ on every PR (the same commands the Makefile wraps).
   Claude's blocking `UserPromptSubmit` command hook runs before prompt processing; its floor is callback process startup plus the synchronous task-service write.
   Codex's blocking `UserPromptSubmit` command hook runs before prompt processing; its floor is callback process startup plus the synchronous task-service write.
   Pi's `input` event runs before prompt processing, and its handler waits for the task-service write.
+  `Task.attention` is an orthogonal escalation-only marker for tasks the dashboard can prove are waiting on dependencies or governed children. It can restore ordinary user-turn attention inside that proven wait but can never suppress attention; the same turn-to-agent user-prompt mutation clears it.
   The user-prompt hook also **nudges toward
   provisioning** (ADR 0011 §3): while the task has no slug it prints the `provision` reminder, which
   claude adds to the agent's context (`core/provisioning.py`).

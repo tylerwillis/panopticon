@@ -45,6 +45,8 @@ you want to spawn. Throughout, your *own* task id is shown below; the new task h
      spawn so it starts by reading the plan you wrote rather than re-planning
    - `artifacts={"plan.md": "<full markdown plan>"}` — write the plan **inside this call** so
      it exists before the spawner can ever pick up the task; the spawner finds it present
+   - `depends_on_task_ids=[...]` when prerequisites exist — record them **inside this call** so
+     the initial published row is gated before a spawner can observe it
    Record the **new task's id** from the result.
 3. **Name it.** `set_slug` on the new id with a short kebab-case slug.
 4. **Estimate its cost.** `set_token_estimate` on the new id with your forecast of the total

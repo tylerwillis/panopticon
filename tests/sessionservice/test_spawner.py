@@ -1012,12 +1012,24 @@ def test_spawnable_tasks_filters_claims_terminals_and_dependency_gates() -> None
                     "claimed_by": None,
                     "depends_on_task_ids": ["g", "i"],
                 },
+                {
+                    "id": "l",
+                    "state": "ARCHIVED",
+                    "terminal": True,
+                    "claimed_by": None,
+                },
+                {
+                    "id": "m",
+                    "state": "ITERATING",
+                    "claimed_by": None,
+                    "depends_on_task_ids": ["l"],
+                },
             ]
 
     # 2119: REQ-026.1.1
     # 2119: REQ-026.1.2
     # 2119: REQ-026.1.4
-    assert [t["id"] for t in spawnable_tasks(_Lister())()] == ["a", "e", "f"]  # type: ignore[arg-type]
+    assert [t["id"] for t in spawnable_tasks(_Lister())()] == ["a", "e", "f", "m"]  # type: ignore[arg-type]
 
 
 def test_spawn_runs_repo_hook_with_correct_args() -> None:

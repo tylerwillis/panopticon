@@ -515,6 +515,14 @@ async def test_dependency_held_cells_details_and_pre_spawn_row_are_honest() -> N
         "container_status": "gated",
         "depends_on_task_ids": ["c-active"],
     }
+    custom_terminal_dependency = {
+        **_TASK,
+        "id": "af-custom-terminal-dependent",
+        "slug": "uses-archived-audit",
+        "turn": "user",
+        "attention": False,
+        "depends_on_task_ids": ["z-archived"],
+    }
     no_wait_tasks = [
         {
             **_TASK,
@@ -547,6 +555,13 @@ async def test_dependency_held_cells_details_and_pre_spawn_row_are_honest() -> N
         },
         {**_TASK, "id": "d-complete", "slug": "auditor-done", "state": "COMPLETE"},
         {**_TASK, "id": "e-dropped", "slug": "auditor-missing", "state": "DROPPED"},
+        {
+            **_TASK,
+            "id": "z-archived",
+            "slug": "auditor-archived",
+            "state": "ARCHIVED",
+            "terminal": True,
+        },
     ]
     fake = _FakeClient(
         [
@@ -556,6 +571,7 @@ async def test_dependency_held_cells_details_and_pre_spawn_row_are_honest() -> N
             blocked_wait,
             blocked_attention_wait,
             agent_wait,
+            custom_terminal_dependency,
             gated,
             *dependencies,
             *no_wait_tasks,
@@ -582,6 +598,7 @@ async def test_dependency_held_cells_details_and_pre_spawn_row_are_honest() -> N
         attention_rows = [
             "aa-dropped-only-dependent",
             "ab-escalated-dependent",
+            "af-custom-terminal-dependent",
             *(task["id"] for task in no_wait_tasks),
         ]
         for task_id in attention_rows:
@@ -658,7 +675,8 @@ async def test_governor_held_cell_tracks_active_children_and_reverts_when_they_f
         **_TASK,
         "id": "e-only-finished-child",
         "slug": "finished-auditor",
-        "state": "COMPLETE",
+        "state": "ARCHIVED",
+        "terminal": True,
         "governor_task_id": "d-finished-governor",
     }
     escalated_governor = {

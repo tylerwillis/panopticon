@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 from collections.abc import Iterator
 from contextlib import suppress
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -20,10 +21,12 @@ from panopticon.core import (
 )
 from panopticon.core.models import Actor, LifecyclePhase, Repo, Responsibility, Status, Task
 from panopticon.core.store import NotFound
+from panopticon.harnesses import HARNESSES
 from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
 from panopticon.taskservice.service import (
     AlreadyClaimed,
     NotAuthorized,
+    NotReady,
     TaskService,
     UnknownWorkflow,
 )
@@ -123,6 +126,10 @@ async def test_concurrent_dependency_updates_cannot_commit_a_cycle(
 
     assert sum(isinstance(result, ValueError) for result in results) == 1
     assert sum(not isinstance(result, Exception) for result in results) == task_count - 1
+    failed_index = next(
+        index for index, result in enumerate(results) if isinstance(result, ValueError)
+    )
+    assert (await service.get_task(tasks[failed_index].id)).depends_on_task_ids == []
 
 
 async def test_create_task_as_orchestrator_is_allowed(tmp_path: Path) -> None:
@@ -203,6 +210,8 @@ async def test_create_review_task_without_governor_is_rejected(tmp_path: Path) -
     [
         (None, "claude", None),
         (None, None, "claude"),
+        (None, "codex", "codex"),
+        (None, None, None),
         ("codex", "codex", None),
     ],
 )
@@ -262,7 +271,9 @@ async def test_create_review_task_with_different_harness_is_accepted(
 # 2119: REQ-003.4.1
 async def test_create_non_review_tasks_are_unaffected_by_review_validation(tmp_path: Path) -> None:
     svc = await make_service(tmp_path)
+    await svc.update_repo("r1", {"enabled_workflows": ["github-peer-reviewed", "setup-repo"]})
     ungoverned = await svc.create_task("r1", "spike", harness="codex")
+    ungoverned_default = await svc.create_task("r1", "spike")
 
     governed_different_harness = await svc.create_task(
         "r1", "spike", governor_task_id=ungoverned.id, harness="claude"
@@ -270,12 +281,48 @@ async def test_create_non_review_tasks_are_unaffected_by_review_validation(tmp_p
     governed_same_harness = await svc.create_task(
         "r1", "spike", governor_task_id=ungoverned.id, harness="codex"
     )
+    governed_default = await svc.create_task("r1", "spike", governor_task_id=ungoverned.id)
+    governed_orchestrator = await svc.create_task(
+        "r1", "orchestrator", governor_task_id=ungoverned.id
+    )
+    governed_peer_reviewed = await svc.create_task(
+        "r1", "github-peer-reviewed", governor_task_id=ungoverned.id
+    )
+    governed_setup_repo = await svc.create_task("r1", "setup-repo", governor_task_id=ungoverned.id)
+    claude_governor = await svc.create_task("r1", "spike")
+    governed_same_as_claude = await svc.create_task(
+        "r1", "spike", governor_task_id=claude_governor.id, harness="claude"
+    )
+    governed_different_from_claude = await svc.create_task(
+        "r1", "spike", governor_task_id=claude_governor.id, harness="codex"
+    )
 
+    assert ungoverned_default.harness == "claude"
     assert governed_different_harness.governor_task_id == ungoverned.id
     assert governed_different_harness.harness == "claude"
     assert governed_different_harness.harness != ungoverned.harness
     assert governed_same_harness.governor_task_id == ungoverned.id
     assert governed_same_harness.harness == ungoverned.harness
+    assert governed_default.governor_task_id == ungoverned.id
+    assert governed_default.harness == "claude"
+    assert governed_orchestrator.governor_task_id == ungoverned.id
+    assert governed_peer_reviewed.governor_task_id == ungoverned.id
+    assert governed_setup_repo.governor_task_id == ungoverned.id
+    assert governed_same_as_claude.harness == claude_governor.harness
+    assert governed_different_from_claude.harness != claude_governor.harness
+
+    for governor_harness in HARNESSES:
+        ungoverned_harness_task = await svc.create_task("r1", "spike", harness=governor_harness)
+        assert ungoverned_harness_task.harness == governor_harness
+        harness_governor = await svc.create_task("r1", "spike", harness=governor_harness)
+        for child_harness in HARNESSES:
+            child = await svc.create_task(
+                "r1",
+                "spike",
+                governor_task_id=harness_governor.id,
+                harness=child_harness,
+            )
+            assert child.harness == child_harness
 
 
 async def test_create_task_opt_in_workflow_not_enabled_is_rejected(tmp_path: Path) -> None:
@@ -504,8 +551,9 @@ async def test_cascade_drop_clears_a_governed_tasks_blocked_marker(tmp_path: Pat
 # 2119: REQ-008.2.1
 # 2119: REQ-008.2.2
 # 2119: REQ-010.3.5
+@pytest.mark.parametrize("change", ["declared-transition", "free-move", "drop", "cascade-drop"])
 async def test_transition_hook_can_raise_a_fresh_block_after_the_stale_one_clears(
-    tmp_path: Path,
+    tmp_path: Path, change: str
 ) -> None:
     class Hooked(Workflow):
         name = "blocked-on-entry"
@@ -525,15 +573,32 @@ async def test_transition_hook_can_raise_a_fresh_block_after_the_stale_one_clear
     )
     await svc.init()
     await svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
-    task = await svc.create_task("r1", "blocked-on-entry")
+    governor = await svc.create_task("r1", "blocked-on-entry") if change == "cascade-drop" else None
+    task = await svc.create_task(
+        "r1",
+        "blocked-on-entry",
+        governor_task_id=governor.id if governor is not None else None,
+    )
     await svc.set_blocked(task.id, True)
     before = svc.tasks_version()
 
-    moved = await svc.apply_operation(task.id, "advance")
+    if change == "declared-transition":
+        moved = await svc.apply_operation(task.id, "advance")
+    elif change == "free-move":
+        moved = await svc.set_state(task.id, "COMPLETE")
+    elif change == "drop":
+        moved = await svc.apply_operation(task.id, "drop")
+    else:
+        assert governor is not None
+        await svc.apply_operation(governor.id, "drop")
+        moved = await svc.get_task(task.id)
 
-    assert moved.state == "COMPLETE"
+    assert moved.state == (
+        "COMPLETE" if change in {"declared-transition", "free-move"} else "DROPPED"
+    )
     assert moved.blocked is True
-    assert svc.tasks_version() == before + 1
+    expected_mutations = 2 if change == "cascade-drop" else 1
+    assert svc.tasks_version() == before + expected_mutations
     assert (await svc.get_task(task.id)).blocked is True
 
 
@@ -586,6 +651,26 @@ async def test_claim_rejects_a_different_runner(tmp_path: Path) -> None:
     with pytest.raises(AlreadyClaimed):
         await svc.claim(task.id, "host-2")
     assert (await svc.get_task(task.id)).claimed_by == "host-1"  # unchanged
+
+
+@pytest.mark.parametrize("blocking_state", ["ITERATING", "DROPPED"])
+# 2119: REQ-026.1.1
+# 2119: REQ-026.1.2
+async def test_claim_rechecks_dependency_facts_after_candidate_selection(
+    tmp_path: Path, blocking_state: str
+) -> None:
+    service, _ = await _dependency_service(tmp_path)
+    dependency = await service.create_task("r1", "spike")
+    await service.request_transition(dependency.id, "COMPLETE", trigger="finish")
+    dependent = await service.create_task("r1", "spike", depends_on_task_ids=[dependency.id])
+    stale_candidate = await service.get_task(dependent.id)
+    assert not await service.dependencies_blocking(stale_candidate)
+
+    await service.set_state(dependency.id, blocking_state)
+
+    with pytest.raises(NotReady, match="not ready to claim"):
+        await service.claim(stale_candidate.id, "host-1")
+    assert (await service.get_task(dependent.id)).claimed_by is None
 
 
 async def test_release_returns_the_task_to_unclaimed(tmp_path: Path) -> None:
@@ -1009,10 +1094,10 @@ class _AutoAdvance(Workflow):
     initial = Working
 
     def __init__(self) -> None:
-        self.on_transition_calls: list[tuple[str | None, str]] = []
+        self.on_transition_calls: list[tuple[Task, str | None, str, object]] = []
 
     async def on_transition(self, task, *, from_state, to_state, artifacts):  # type: ignore[override]
-        self.on_transition_calls.append((from_state, to_state))
+        self.on_transition_calls.append((task, from_state, to_state, artifacts))
 
 
 async def make_auto_advance_service(tmp_path: Path) -> tuple[TaskService, _AutoAdvance]:
@@ -1036,7 +1121,11 @@ async def test_auto_advance_fires_when_last_responsibility_resolved(tmp_path: Pa
     # 2119: REQ-014.1.1
     assert resolved.state == "LANDED"
     # 2119: REQ-014.2.1
-    assert wf.on_transition_calls == [("WORKING", "LANDED")]
+    assert len(wf.on_transition_calls) == 1
+    hook_task, hook_from, hook_to, hook_artifacts = wf.on_transition_calls[0]
+    assert hook_task is resolved
+    assert (hook_from, hook_to) == ("WORKING", "LANDED")
+    assert hook_artifacts is svc._artifacts
     assert [h.to_state for h in resolved.history] == ["WORKING", "LANDED"]
     assert resolved.history[-1].from_state == "WORKING"
     assert resolved.turn is Actor.AGENT  # LANDED's turn_on_enter — proves it was recomputed
@@ -1044,6 +1133,31 @@ async def test_auto_advance_fires_when_last_responsibility_resolved(tmp_path: Pa
     # LANDED's own responsibility is freshly seeded PENDING, exactly as an explicit advance
     # would seed it — not skipped because this transition happened to be auto-fired.
     assert [r.status for r in resolved.history[-1].responsibilities] == [Status.PENDING]
+
+    explicit_wf = _AutoAdvance()
+    explicit = explicit_wf.start_task("explicit-reference", "r1", at=task.created_at or "created")
+    explicit.resolve_responsibility(key="tests-pass", status=Status.MET)
+    explicit_wf.apply_transition(
+        explicit,
+        "LANDED",
+        at=resolved.updated_at or "transitioned",
+        trigger="advance",
+    )
+    await explicit_wf.on_transition(
+        explicit,
+        from_state="WORKING",
+        to_state="LANDED",
+        artifacts=svc._artifacts,
+    )
+    assert [replace(entry, at="normalized") for entry in explicit.history] == [
+        replace(entry, at="normalized") for entry in resolved.history
+    ]
+    explicit_hook_task, explicit_from, explicit_to, explicit_artifacts = (
+        explicit_wf.on_transition_calls[0]
+    )
+    assert explicit_hook_task is explicit
+    assert (explicit_from, explicit_to) == (hook_from, hook_to)
+    assert explicit_artifacts is hook_artifacts
     # 2119: REQ-014.2.2
     assert resolved.history[-1].to_state == "LANDED"
     # The transition is genuinely persisted, not just reflected on the returned in-memory
@@ -1161,6 +1275,7 @@ class _QualifyingInitialState(Workflow):
     initial = Working
 
 
+# 2119: REQ-014.3.1
 async def test_creating_a_task_in_a_qualifying_empty_state_does_not_auto_advance(
     tmp_path: Path,
 ) -> None:
@@ -1239,11 +1354,32 @@ async def test_rejected_resolve_does_not_transition(
     ]
 
 
-async def test_auto_advance_does_not_fire_for_a_user_advanced_state(tmp_path: Path) -> None:
-    svc = await make_gated_service(tmp_path)  # _Gated.Working: advanced_by defaults to USER
-    task = await svc.create_task("r1", "gated")
-    resolved = await svc.resolve_responsibility(task.id, "tests-pass", status=Status.MET)
+async def test_auto_advance_never_fires_for_a_user_advanced_state(tmp_path: Path) -> None:
+    class UserAdvancedMulti(Workflow):
+        name = "user-advanced-multi"
+
+        class Working(InitialState):
+            label = "WORKING"
+            responsibilities = (
+                Responsibility(key="a", description="First"),
+                Responsibility(key="b", description="Second"),
+            )
+            transitions = (Complete,)
+
+        initial = Working
+
+    svc = TaskService(
+        SqlAlchemyStore(),
+        {"user-advanced-multi": UserAdvancedMulti()},
+        FilesystemArtifactStore(tmp_path),
+    )
+    await svc.init()
+    await svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
+    task = await svc.create_task("r1", "user-advanced-multi")
+    partially_resolved = await svc.resolve_responsibility(task.id, "a", status=Status.MET)
     # 2119: REQ-014.1.3
+    assert partially_resolved.state == "WORKING"
+    resolved = await svc.resolve_responsibility(task.id, "b", status=Status.MET)
     assert resolved.state == "WORKING"
 
 
@@ -1259,7 +1395,10 @@ class _Ambiguous(Workflow):
     class Working(InitialState):
         label = "WORKING"
         advanced_by = Actor.AGENT
-        responsibilities = (Responsibility(key="tests-pass", description="Tests pass"),)
+        responsibilities = (
+            Responsibility(key="tests-pass", description="Tests pass"),
+            Responsibility(key="review-done", description="Review done"),
+        )
         transitions = (Complete, "OTHER")
 
     initial = Working
@@ -1274,7 +1413,9 @@ async def test_auto_advance_does_not_fire_without_a_derivable_advance_operation(
     await svc.init()
     await svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
     task = await svc.create_task("r1", "ambiguous")
-    resolved = await svc.resolve_responsibility(task.id, "tests-pass", status=Status.MET)
+    partially_resolved = await svc.resolve_responsibility(task.id, "tests-pass", status=Status.MET)
+    assert partially_resolved.state == "WORKING"
+    resolved = await svc.resolve_responsibility(task.id, "review-done", status=Status.MET)
     # 2119: REQ-014.1.4
     assert resolved.state == "WORKING"
     # 2119: REQ-014.1.5
@@ -1302,6 +1443,23 @@ class _Cascade(Workflow):
     initial = Working
 
 
+class _TransitionEntry(Workflow):
+    """An explicit transition into a state that would qualify for auto-advance."""
+
+    name = "transition-entry"
+
+    class Middle(State):
+        label = "MIDDLE"
+        advanced_by = Actor.AGENT
+        transitions = (Complete,)
+
+    class Start(InitialState):
+        label = "START"
+        transitions = ("MIDDLE",)
+
+    initial = Start
+
+
 async def test_auto_advance_does_not_cascade_through_a_freshly_entered_state(
     tmp_path: Path,
 ) -> None:
@@ -1327,7 +1485,70 @@ async def test_auto_advance_is_not_evaluated_by_entering_a_qualifying_state_dire
     task = await svc.create_task("r1", "cascade")
     moved = await svc.set_state(task.id, "MIDDLE")
     # 2119: REQ-014.3.1
+    # 2119: REQ-014.3.2
     assert moved.state == "MIDDLE"
+
+
+# 2119: REQ-014.3.1
+# 2119: REQ-014.3.2
+@pytest.mark.parametrize("entry_method", ["apply-operation", "request-transition"])
+async def test_explicit_transition_and_turn_write_do_not_chain_auto_advance(
+    tmp_path: Path, entry_method: str
+) -> None:
+    svc = TaskService(
+        SqlAlchemyStore(),
+        {"transition-entry": _TransitionEntry()},
+        FilesystemArtifactStore(tmp_path),
+    )
+    await svc.init()
+    await svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
+    task = await svc.create_task("r1", "transition-entry")
+
+    entered = (
+        await svc.apply_operation(task.id, "advance")
+        if entry_method == "apply-operation"
+        else await svc.request_transition(task.id, "MIDDLE", trigger="explicit")
+    )
+    assert entered.state == "MIDDLE"
+    unchanged = [
+        await svc.set_turn(task.id, Actor.AGENT),
+        await svc.set_blocked(task.id, True),
+        await svc.set_attention(task.id, True),
+        await svc.set_slug(task.id, "still-middle"),
+        await svc.set_url(task.id, "https://example.test/task"),
+        await svc.set_tokens_used(task.id, 1),
+        await svc.set_token_estimate(task.id, 2),
+        await svc.set_governor(task.id, None),
+        await svc.set_dependencies(task.id, []),
+    ]
+    await svc.claim(task.id, "host-1")
+    unchanged.append(await svc.release(task.id))
+    unchanged.append(
+        await svc.record_provisioning(
+            task.id, branch="panopticon/still-middle", clone="/tasks/still-middle"
+        )
+    )
+    assert {result.state for result in unchanged} == {"MIDDLE"}
+
+
+# 2119: REQ-014.3.1
+# 2119: REQ-014.3.2
+async def test_drop_and_cascade_transitions_do_not_evaluate_auto_advance(
+    tmp_path: Path,
+) -> None:
+    svc = TaskService(
+        SqlAlchemyStore(),
+        {"transition-entry": _TransitionEntry()},
+        FilesystemArtifactStore(tmp_path),
+    )
+    await svc.init()
+    await svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
+    governor = await svc.create_task("r1", "transition-entry")
+    child = await svc.create_task("r1", "transition-entry", governor_task_id=governor.id)
+
+    dropped = await svc.apply_operation(governor.id, "drop")
+    assert dropped.state == "DROPPED"
+    assert (await svc.get_task(child.id)).state == "DROPPED"
 
 
 # -- free state override (the user can move freely) + free operations ----------------

@@ -25,6 +25,7 @@ from panopticon.core.workflow import IllegalTransition, InvalidWorkflow, Respons
 from panopticon.taskservice.service import (
     AlreadyClaimed,
     NotAuthorized,
+    NotReady,
     TaskService,
     UnknownWorkflow,
 )
@@ -698,7 +699,7 @@ def create_app(service: TaskService) -> FastAPI:
     async def claim(task_id: str, body: ClaimIn) -> TaskOut:
         try:  # a runner claims an unclaimed task before spawning its container (ADR 0008)
             task = await service.claim(task_id, body.runner_id)
-        except AlreadyClaimed as exc:
+        except (AlreadyClaimed, NotReady) as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
         return await _task_out(task)
 

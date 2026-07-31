@@ -362,9 +362,20 @@ def test_set_dependencies_rejects_indirect_cycle_actionably_and_atomically(
     task_c = _new_task(client)
     prior_dependency = _new_task(client)
 
+    assert (
+        client.put(
+            f"/tasks/{task_a}/dependencies", json={"dep_ids": [prior_dependency]}
+        ).status_code
+        == 200
+    )
     direct = client.put(f"/tasks/{task_a}/dependencies", json={"dep_ids": [task_a]})
     assert direct.status_code == 400
     assert "cycle" in direct.json()["detail"].lower()
+    assert client.get(f"/tasks/{task_a}").json()["depends_on_task_ids"] == [prior_dependency]
+
+    missing = client.put(f"/tasks/{task_a}/dependencies", json={"dep_ids": ["missing-dependency"]})
+    assert missing.status_code == 404
+    assert client.get(f"/tasks/{task_a}").json()["depends_on_task_ids"] == [prior_dependency]
 
     assert (
         client.put(f"/tasks/{task_a}/dependencies", json={"dep_ids": [task_b]}).status_code == 200
@@ -846,6 +857,11 @@ def test_attention_marker_is_orthogonal_and_clears_on_user_prompt_handoff(
     assert cleared.json()["attention"] is False
     assert cleared.json()["turn"] == "agent"
     assert cleared.json()["blocked"] is True
+    user_while_clear = client.put(f"/tasks/{task_id}/turn", json={"turn": "user"})
+    assert user_while_clear.json()["attention"] is False
+    assert user_while_clear.json()["turn"] == "user"
+    agent_while_clear = client.put(f"/tasks/{task_id}/turn", json={"turn": "agent"})
+    assert agent_while_clear.json()["attention"] is False
     unblocked_while_clear = client.put(f"/tasks/{task_id}/blocked", json={"blocked": False})
     assert unblocked_while_clear.json()["attention"] is False
     reblocked_while_clear = client.put(f"/tasks/{task_id}/blocked", json={"blocked": True})
@@ -860,9 +876,12 @@ def test_attention_marker_is_orthogonal_and_clears_on_user_prompt_handoff(
     assert still_user.json()["attention"] is True
     assert still_user.json()["turn"] == "user"
 
+    before_prompt = int(client.get("/tasks").headers["X-Tasks-Version"])
     prompted = client.put(f"/tasks/{task_id}/turn", json={"turn": "agent"})
     assert prompted.json()["attention"] is False
     assert prompted.json()["blocked"] is False
+    after_prompt = int(client.get("/tasks").headers["X-Tasks-Version"])
+    assert after_prompt == before_prompt + 1
     assert client.get(f"/tasks/{task_id}").json()["attention"] is False
 
 

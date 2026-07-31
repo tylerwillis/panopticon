@@ -66,9 +66,11 @@ async def test_tools_are_exposed_and_drive_the_task(tmp_path: Path) -> None:
             "list_artifacts",
         } <= names
         # 2119: REQ-026.6.6
-        attention_description = (tools["set_attention"].description or "").lower()
-        assert "escalat" in attention_description
-        assert "cannot suppress" in attention_description
+        assert tools["set_attention"].description == (
+            "Set or clear the escalation-only attention marker. Setting it forces attention "
+            "inside a proven upstream wait; clearing it cannot suppress the ordinary user-turn "
+            "queue."
+        )
         marked = await s.call_tool("set_attention", {"task_id": task.id, "attention": True})
         assert marked.isError is False
         assert marked.structuredContent is not None
@@ -77,6 +79,8 @@ async def test_tools_are_exposed_and_drive_the_task(tmp_path: Path) -> None:
         assert result.isError is False
         assert result.structuredContent is not None
         assert result.structuredContent["state"] == "COMPLETE"
+        # 2119: REQ-026.2.3
+        assert result.structuredContent["terminal"] is True
     assert (await svc.get_task(task.id)).state == "COMPLETE"  # the tool actually mutated the task
 
 
@@ -253,10 +257,13 @@ async def test_create_task_rejected_for_non_orchestrator(tmp_path: Path) -> None
     assert len(await svc.list_tasks()) == 1  # nothing was created
 
 
-async def test_create_task_with_initial_prompt_and_artifacts(tmp_path: Path) -> None:
-    """create_task with initial_prompt and artifacts writes both atomically."""
+# 2119: REQ-026.1.1
+# 2119: REQ-026.3.5
+async def test_create_task_with_prompt_artifacts_and_dependencies(tmp_path: Path) -> None:
+    """create_task publishes prompt, artifacts, and dependency gate atomically."""
     svc = await _service(tmp_path)
     boss = await svc.create_task("r1", "orchestrator")
+    dependency = await svc.create_task("r1", "spike")
     async with connect(build_mcp_server(svc)) as s:
         await s.initialize()
         result = await s.call_tool(
@@ -267,13 +274,18 @@ async def test_create_task_with_initial_prompt_and_artifacts(tmp_path: Path) -> 
                 "memo": "Add a /healthz endpoint",
                 "initial_prompt": "review your plan",
                 "artifacts": {"plan.md": "# Plan\nDo the thing."},
+                "depends_on_task_ids": [dependency.id],
             },
         )
         assert result.isError is False
         child_id = result.structuredContent["id"]  # type: ignore[index]
+        assert result.structuredContent["depends_on_task_ids"] == [dependency.id]  # type: ignore[index]
 
     child = await svc.get_task(child_id)
     assert child.initial_prompt == "review your plan"
+    assert child.depends_on_task_ids == [dependency.id]
+    assert child.claimed_by is None
+    assert await svc.dependencies_blocking(child)
     # plan.md is present immediately — no separate put_artifact call needed
     assert await svc.get_artifact(child_id, "plan.md") == b"# Plan\nDo the thing."
 

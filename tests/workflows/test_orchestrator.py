@@ -61,6 +61,12 @@ def test_spawn_task_skill_explains_attention_escalation_during_child_waits() -> 
     )
 
 
+def test_spawn_task_skill_records_dependencies_during_creation() -> None:
+    spawn = next(skill for skill in WF.skills() if skill.name == "spawn-task")
+    assert "`depends_on_task_ids=[...]` when prerequisites exist" in spawn.instructions
+    assert "initial published row is gated before a spawner can observe it" in spawn.instructions
+
+
 def test_carries_no_forge_plumbing() -> None:
     assert WF.image_layer() == ""  # works purely through MCP — no workflow image layer
     assert tuple(WF.tools()) == ()
