@@ -1014,9 +1014,9 @@ def test_spawnable_tasks_filters_claims_terminals_and_dependency_gates() -> None
                 },
             ]
 
-    # 2119: REQ-023.1.1
-    # 2119: REQ-023.1.2
-    # 2119: REQ-023.1.4
+    # 2119: REQ-024.1.1
+    # 2119: REQ-024.1.2
+    # 2119: REQ-024.1.4
     assert [t["id"] for t in spawnable_tasks(_Lister())()] == ["a", "e", "f"]  # type: ignore[arg-type]
 
 
@@ -1284,7 +1284,7 @@ def test_spawner_against_the_real_service(tmp_path: Path) -> None:
         assert spawnable_tasks(client)() == []  # now claimed → no longer spawnable
 
 
-# 2119: REQ-023.1.3
+# 2119: REQ-024.1.3
 def test_next_spawner_pass_starts_dependent_with_initial_prompt_when_last_dep_completes(
     tmp_path: Path,
 ) -> None:

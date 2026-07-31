@@ -42,7 +42,7 @@ from panopticon.sessionservice.images import ImageBuilder
 from panopticon.sessionservice.local_runner import DEFAULT_IMAGE, LocalRunner
 from panopticon.sessionservice.provisioner import Provisioner
 from panopticon.sessionservice.shell_runner import ShellRunner
-from panopticon.sessionservice.spawner import Spawner
+from panopticon.sessionservice.spawner import Spawner, spawnable_tasks
 
 _log = logging.getLogger(__name__)
 
@@ -76,6 +76,7 @@ class HostDaemon:
         session), so marking inside it would surface only the orphan currently coming back and leave
         the queued ones reading ``down``; flagging them all up front lets the dashboard show the
         whole batch healing at once, each clearing to ``live`` as its respawn finishes."""
+        spawnable_ids = {task["id"] for task in spawnable_tasks(self._client, snapshot=tasks)()}
         for task in tasks:
             try:
                 self._spawner.mark_healing(task)
@@ -83,7 +84,8 @@ class HostDaemon:
                 _log.warning("flagging heal failed for task %s", task.get("id"), exc_info=True)
         for task in tasks:
             try:
-                self._spawner.spawn_one(task)
+                if task["id"] in spawnable_ids:
+                    self._spawner.spawn_one(task)
                 self._provisioner.provision(task)
                 self._spawner.reconcile(task)
                 self._spawner.heal(task)

@@ -441,13 +441,13 @@ def test_turn_cell_color_codes_like_cloude_cade() -> None:
     assert blocked.plain == "agent ⚠" and blocked.style == "red"
 
 
-# 2119: REQ-023.3.1
-# 2119: REQ-023.3.2
-# 2119: REQ-023.3.3
-# 2119: REQ-023.3.4
-# 2119: REQ-023.3.5
-# 2119: REQ-023.6.1
-# 2119: REQ-023.6.8
+# 2119: REQ-024.3.1
+# 2119: REQ-024.3.2
+# 2119: REQ-024.3.3
+# 2119: REQ-024.3.4
+# 2119: REQ-024.3.5
+# 2119: REQ-024.6.1
+# 2119: REQ-024.6.8
 async def test_dependency_held_cells_details_and_pre_spawn_row_are_honest() -> None:
     live = {
         **_TASK,
@@ -611,11 +611,11 @@ async def test_dependency_held_cells_details_and_pre_spawn_row_are_honest() -> N
     )
 
 
-# 2119: REQ-023.5.1
-# 2119: REQ-023.5.2
-# 2119: REQ-023.5.3
-# 2119: REQ-023.6.1
-# 2119: REQ-023.6.8
+# 2119: REQ-024.5.1
+# 2119: REQ-024.5.2
+# 2119: REQ-024.5.3
+# 2119: REQ-024.6.1
+# 2119: REQ-024.6.8
 async def test_governor_held_cell_tracks_active_children_and_reverts_when_they_finish() -> None:
     waiting_governor = {
         **_TASK,
@@ -1476,10 +1476,10 @@ async def test_typing_filters_the_visible_model_and_effort_candidates(
 # 2119: REQ-018.4.1
 # 2119: REQ-018.10.1
 @pytest.mark.parametrize(
-    ("tabs", "typed", "input_id", "options_id", "expected"),
+    ("tabs", "typed", "input_id", "options_id", "candidate_count", "target_index", "expected"),
     [
-        (2, "a", "#launch-model", "#launch-model-options", "luna"),
-        (3, "h", "#launch-effort", "#launch-effort-options", "xhigh"),
+        (2, "a", "#launch-model", "#launch-model-options", 2, 0, "terra"),
+        (3, "i", "#launch-effort", "#launch-effort-options", 3, 1, "high"),
     ],
 )
 async def test_arrow_then_enter_selects_a_filtered_candidate_without_submitting(
@@ -1487,6 +1487,8 @@ async def test_arrow_then_enter_selects_a_filtered_candidate_without_submitting(
     typed: str,
     input_id: str,
     options_id: str,
+    candidate_count: int,
+    target_index: int,
     expected: str,
 ) -> None:
     fake = _FakeClient(
@@ -1510,7 +1512,7 @@ async def test_arrow_then_enter_selects_a_filtered_candidate_without_submitting(
         await pilot.pause()
 
         candidates = app.screen.query_one(options_id, OptionList)
-        assert len(_option_prompts(candidates)) == 2
+        assert len(_option_prompts(candidates)) == candidate_count
         candidates.highlighted = None
         await pilot.press("down")
         assert candidates.highlighted == 0
@@ -1518,8 +1520,9 @@ async def test_arrow_then_enter_selects_a_filtered_candidate_without_submitting(
         assert candidates.highlighted == 1
         await pilot.press("up")
         assert candidates.highlighted == 0
-        await pilot.press("down")
-        assert candidates.highlighted == 1
+        if target_index:
+            await pilot.press(*("down" for _ in range(target_index)))
+        assert candidates.highlighted == target_index
         await pilot.press("enter")
         await pilot.pause()
         assert isinstance(app.screen, dashboard.MemoScreen)
@@ -2287,6 +2290,17 @@ async def test_early_cycle_discovers_once_and_presents_the_selected_harness_sugg
             timer = threading.Timer(0.1, release.set)
             timer.start()
             await pilot.press("enter")
+            assert "target" in app.screen._suggestion_cache
+            suggestions = app.screen._suggestion_cache["target"]
+            assert [value for value, _ in suggestions.models] == [
+                "target-model-1",
+                "target-alternate-1",
+            ]
+            assert [value for value, _ in suggestions.efforts] == [
+                "target-target-model-1-effort-1",
+                "target-alternate-effort-1",
+            ]
+            assert target.model_calls == target.effort_calls == 1
             model = app.screen.query_one("#launch-model", Input)
             model.focus()
             await pilot.pause()
@@ -2329,6 +2343,11 @@ async def test_early_cycle_discovers_an_unstarted_harness_before_returning(
             assert "target" not in screen._suggestion_cache
             assert "target" not in screen._suggestion_pending
             await pilot.press("enter")
+            assert "target" in screen._suggestion_cache
+            suggestions = screen._suggestion_cache["target"]
+            assert [value for value, _ in suggestions.models] == ["target-model-1"]
+            assert [value for value, _ in suggestions.efforts] == ["target-target-model-1-effort-1"]
+            assert target.model_calls == target.effort_calls == 1
             model = screen.query_one("#launch-model", Input)
             model.focus()
             await pilot.pause()
@@ -5479,7 +5498,7 @@ async def test_collapsed_ensemble_row_explains_hidden_child_count() -> None:
         table = app.query_one("#tasks", DataTable)
         keys = [str(k.value) for k in table.rows]
         # Initial state: governor present, child hidden behind ensemble sentinel.
-        assert "gov" in keys
+        assert keys == ["gov", f"{_ENSEMBLE_KEY_PREFIX}gov"]
         assert all(child["id"] not in keys for child in children)
         assert f"{_ENSEMBLE_KEY_PREFIX}gov" in keys
         # Essential information comes first so normal slug-column truncation degrades gracefully.

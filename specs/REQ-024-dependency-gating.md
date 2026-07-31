@@ -1,4 +1,4 @@
-# REQ-023: Dependency Gating
+# REQ-024: Dependency Gating
 
 ## Overview
 
@@ -28,7 +28,7 @@ ordinary orange queue for tasks without a proven upstream wait never depends on 
 
 ## Requirements
 
-### REQ-023.1: Spawn-on-ready
+### REQ-024.1: Spawn-on-ready
 
 1. An unclaimed non-terminal task with at least one non-terminal dependency MUST be excluded from
    the spawner's candidates.
@@ -39,7 +39,7 @@ ordinary orange queue for tasks without a proven upstream wait never depends on 
    of its configured initial prompt.
 4. A task with no dependencies MUST retain the existing unclaimed non-terminal spawn eligibility.
 
-### REQ-023.2: Composed container status
+### REQ-024.2: Composed container status
 
 1. A non-terminal unclaimed task with at least one non-terminal or `DROPPED` dependency MUST
    compose to the `gated` container status.
@@ -50,11 +50,11 @@ ordinary orange queue for tasks without a proven upstream wait never depends on 
 4. The container-status composer MUST remain a pure function of its supplied task and dependency
    facts.
 
-### REQ-023.3: Held dashboard presentation
+### REQ-024.3: Held dashboard presentation
 
 1. For any task with at least one non-terminal dependency and no attention marker, the dashboard
    turn column MUST render dim `held` text without yellow, orange, or other attention styling, with
-   the `held N` form from REQ-023.5 when the governor rule also applies.
+   the `held N` form from REQ-024.5 when the governor rule also applies.
 2. Held presentation MUST leave the task's persisted `turn` and the `Actor` values governed by
    REQ-010 unchanged.
 3. The dashboard detail pane for a task with dependencies MUST show the number of blocking
@@ -64,14 +64,14 @@ ordinary orange queue for tasks without a proven upstream wait never depends on 
 5. A gated task MUST remain visible as a dashboard task row before any container is claimed or
    spawned.
 
-### REQ-023.4: Dependency graph policy
+### REQ-024.4: Dependency graph policy
 
 1. Setting dependencies MUST reject any proposed direct or indirect cycle in the resulting
    dependency graph.
 2. A cycle rejection MUST identify the cycle and advise the operator to edit the dependency set.
 3. A rejected dependency update MUST leave the task's previously recorded dependencies unchanged.
 
-### REQ-023.5: Governor held presentation
+### REQ-024.5: Governor held presentation
 
 1. A task whose stored turn is `user`, which governs at least one non-terminal child, and which has
    no attention marker MUST render dim `held N` in the dashboard turn column, where `N` is its
@@ -81,7 +81,7 @@ ordinary orange queue for tasks without a proven upstream wait never depends on 
 3. The dashboard detail pane for a governor with non-terminal children MUST list every such child's
    current slug and state.
 
-### REQ-023.6: Attention can only escalate
+### REQ-024.6: Attention can only escalate
 
 1. The dashboard MUST enforce this invariant: THE AGENT CAN ONLY ESCALATE ATTENTION, NEVER
    DE-ESCALATE IT; demotion of a stored `turn=user` task requires control-plane-verifiable facts

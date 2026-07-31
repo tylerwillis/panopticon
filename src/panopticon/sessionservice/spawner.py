@@ -480,7 +480,9 @@ class Spawner:
         return self._images.build(harness.name, workflow, repo["id"], layers, verbose=True)
 
 
-def spawnable_tasks(client: TaskServiceClient) -> Callable[[], list[JsonObj]]:
+def spawnable_tasks(
+    client: TaskServiceClient, snapshot: list[JsonObj] | None = None
+) -> Callable[[], list[JsonObj]]:
     """This host's ready spawn candidates (the runner claims-then-spawns).
 
     Dependencies are evaluated from one task-list snapshot each pass. A dependency clears the gate
@@ -489,7 +491,7 @@ def spawnable_tasks(client: TaskServiceClient) -> Callable[[], list[JsonObj]]:
     """
 
     def ready() -> list[JsonObj]:
-        tasks = client.list_tasks()
+        tasks = client.list_tasks() if snapshot is None else snapshot
         by_id = {task["id"]: task for task in tasks}
 
         def is_terminal(task: JsonObj) -> bool:
