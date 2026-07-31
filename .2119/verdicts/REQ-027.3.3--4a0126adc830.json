@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.3.3--4a0126adc830",
-  "requirementId": "REQ-027.3.3",
-  "hash": "4a0126adc830",
-  "verdict": "pass",
-  "summary": "Sol: Injected clocks determine writes and rendering at active, exact-deadline, and post-deadline boundaries.",
-  "timestamp": "2026-07-31T07:27:14.335Z"
-}

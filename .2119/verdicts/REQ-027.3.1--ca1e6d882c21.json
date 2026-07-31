@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.3.1--ca1e6d882c21",
-  "requirementId": "REQ-027.3.1",
-  "hash": "ca1e6d882c21",
-  "verdict": "pass",
-  "summary": "Sol: Finite twelve-hour and exact four-hour displays, indefinite text, and full-cell dimming are asserted on rendered task rows.",
-  "timestamp": "2026-07-31T07:26:22.399Z"
-}
