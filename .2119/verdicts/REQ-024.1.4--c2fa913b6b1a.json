@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.1.4--c2fa913b6b1a",
-  "requirementId": "REQ-024.1.4",
-  "hash": "c2fa913b6b1a",
-  "verdict": "pass",
-  "summary": "Real Workflow (no mocks) derives wake_status on entry: a non-terminal user-turn state and an agent-turn terminal state each isolate one forbidding condition and assert SKIPPED; sessionservice tests (024.1.3/024.4.2) pin that non-PENDING entries are never submitted, closing the no-wake chain.",
-  "timestamp": "2026-07-31T05:46:35.475Z"
-}

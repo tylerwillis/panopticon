@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.3.1--8c2502f57b26",
+  "requirementId": "REQ-027.3.1",
+  "hash": "8c2502f57b26",
+  "verdict": "pass",
+  "summary": "Tests pin the exact tmux contract through LocalRunner's real prefill path: paste-buffer -p asserted verbatim (rejects non-bracketed paste), load-buffer content read back and matched to the wake text (rejects send-keys delivery), send-keys Enter counted exactly once after the paste (rejects 0 or 2 submits), and the sibling timeout/vanished cases prove nothing is pasted before the ESC[?2004h readiness signal appears.",
+  "timestamp": "2026-07-31T19:38:06.670Z"
+}

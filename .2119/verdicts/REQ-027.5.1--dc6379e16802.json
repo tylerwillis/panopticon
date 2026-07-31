@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.5.1--dc6379e16802",
+  "requirementId": "REQ-027.5.1",
+  "hash": "dc6379e16802",
+  "verdict": "pass",
+  "summary": "Verified against current tree: test_rest_advance_to_live_agent_state_is_runner_delivered_and_recorded monkeypatches subprocess.run to raise, proving the task service's advance/get_task/record_stage_entry_wake REST path never shells to tmux, while wake_status stays 'pending' (no injection) until the session-service-side StageEntryWaker delivers via the fake runner; passes on the current api.py (record_stage_entry_wake correctly awaits _task_out).",
+  "timestamp": "2026-07-31T19:49:16.467Z"
+}

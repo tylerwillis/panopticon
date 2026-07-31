@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.4.3--33eae5e563ad",
-  "requirementId": "REQ-024.4.3",
-  "hash": "33eae5e563ad",
-  "verdict": "pass",
-  "summary": "Real waker re-delivers for a second WORKING entry after the first was recorded delivered, with records pinned to entry indices 1 then 2 — state-label or once-per-task dedup would fail both assertions",
-  "timestamp": "2026-07-31T05:34:16.136Z"
-}

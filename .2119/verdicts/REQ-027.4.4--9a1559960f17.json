@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.4.4--9a1559960f17",
+  "requirementId": "REQ-027.4.4",
+  "hash": "9a1559960f17",
+  "verdict": "pass",
+  "summary": "test_failed_delivery_is_left_pending_for_retry proves the attempt happened (1 prompt) then asserts no record call and wake_status stays pending, so recording delivered (or skipped) on a failed submit fails records==[]; the mocked False return is an honest seam - prefill_pane's False on missing/vanished pane, timeout, and raised tmux errors is pinned by REQ-027.3.2 tests and LocalRunner.submit_prompt passes that bool through",
+  "timestamp": "2026-07-31T19:40:12.107Z"
+}

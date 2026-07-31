@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.4.1--d8ffec64a31b",
-  "requirementId": "REQ-024.4.1",
-  "hash": "d8ffec64a31b",
-  "verdict": "pass",
-  "summary": "Success path pins record_stage_entry_wake('t1',1,'delivered') to the causing entry via the real WakeClient seam; fresh-waker test rejects waker-memory-only tracking, reentry test rejects task-level flags, and store-reload durability is proven for real under REQ-024.5.2's on-disk SQLite reopen.",
-  "timestamp": "2026-07-31T05:31:58.072Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.1.5--700f8528e709",
+  "requirementId": "REQ-027.1.5",
+  "hash": "700f8528e709",
+  "verdict": "pass",
+  "summary": "Opt-out test suppresses a provably-eligible wake (same fixture delivers elsewhere), and the empty-string boundary test rejects over-suppression; env injected via a thin seam over os.environ with real waker logic exercised",
+  "timestamp": "2026-07-31T19:55:01.705Z"
+}

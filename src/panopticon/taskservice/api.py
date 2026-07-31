@@ -667,7 +667,7 @@ def create_app(service: TaskService) -> FastAPI:
             task = await service.record_stage_entry_wake(task_id, entry_index, body.status)
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
-        return _task_out(task)
+        return await _task_out(task)
 
     @app.get("/tasks/{task_id}/workflow-overview")
     async def get_workflow_overview(task_id: str) -> dict[str, str]:

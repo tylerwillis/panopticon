@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.2.2--35df2cbc9ba4",
+  "requirementId": "REQ-027.2.2",
+  "hash": "35df2cbc9ba4",
+  "verdict": "pass",
+  "summary": "Byte-equal repeat renders over the real REST path plus assertions tied to REST-recorded inputs ([met] status, state label, description, skill) genuinely verify deterministic metadata-driven rendering; an LLM call would error in the credential-free test env.",
+  "timestamp": "2026-07-31T19:36:22.606Z"
+}

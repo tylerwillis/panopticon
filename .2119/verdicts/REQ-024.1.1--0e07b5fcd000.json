@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.1.1--0e07b5fcd000",
-  "requirementId": "REQ-024.1.1",
-  "hash": "0e07b5fcd000",
-  "verdict": "pass",
-  "summary": "Behavioral at every layer: core derives PENDING for agent-turn non-terminal entries via both apply_transition and force_transition; the waker rejects the near-misses (other host's claim, non-live container, non-pending entry); REST integration proves a live claimed task's advance and set_state each yield exactly one submitted briefing, with only the tmux seam faked (REQ-024.3's domain).",
-  "timestamp": "2026-07-31T05:42:15.107Z"
-}

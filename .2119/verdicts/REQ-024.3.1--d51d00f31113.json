@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.3.1--d51d00f31113",
-  "requirementId": "REQ-024.3.1",
-  "hash": "d51d00f31113",
-  "verdict": "pass",
-  "summary": "Real prefill_pane/LocalRunner path with fake only at the tmux-CLI seam: readiness must arrive via polled raw log (empty at start), load-buffer content read back, exact paste-buffer -p and single Enter counted with paste<submit order; never-ready/vanished panes rejected in the same file",
-  "timestamp": "2026-07-31T05:41:24.950Z"
-}

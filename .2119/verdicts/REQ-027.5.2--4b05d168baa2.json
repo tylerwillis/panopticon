@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.5.2--4b05d168baa2",
+  "requirementId": "REQ-027.5.2",
+  "hash": "4b05d168baa2",
+  "verdict": "pass",
+  "summary": "Test drives real REST (FastAPI TestClient) + on-disk SQLite reload (fresh SqlAlchemyStore instance after engine dispose) and asserts non-default wake_status values (pending/delivered) survive both paths; mutation-tested by removing the wake_status persistence write and by dropping the REST field, both caused the expected assertion failures.",
+  "timestamp": "2026-07-31T19:49:09.259Z"
+}

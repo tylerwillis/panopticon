@@ -57,7 +57,7 @@ def _prompt(tmp_path: Path, text: str = "You have entered WORKING.\nBuild the fe
 
 
 def test_ready_pane_gets_one_bracketed_paste_and_one_submit(tmp_path: Path) -> None:
-    # 2119: REQ-024.3.1
+    # 2119: REQ-027.3.1
     prompt, raw = _prompt(tmp_path), tmp_path / "raw.log"
     raw.write_bytes(b"")
     tmux = _Tmux(panes=["%1", "%1", "%1"])
@@ -95,7 +95,7 @@ def test_ready_pane_gets_one_bracketed_paste_and_one_submit(tmp_path: Path) -> N
 
 
 def test_local_runner_submits_the_wake_through_its_real_tmux_path() -> None:
-    # 2119: REQ-024.3.1
+    # 2119: REQ-027.3.1
     tmux = _ReadyTmux()
     runner = LocalRunner("http://svc", tmux_socket="wake-test", run=tmux)
     prompt = "You have entered WORKING.\nBuild the feature."
@@ -131,7 +131,7 @@ def test_local_runner_submits_the_wake_through_its_real_tmux_path() -> None:
 def test_unavailable_pane_never_pastes_or_submits(
     tmp_path: Path, panes: list[str], ready: bool
 ) -> None:
-    # 2119: REQ-024.3.2
+    # 2119: REQ-027.3.2
     prompt, raw = _prompt(tmp_path), tmp_path / "raw.log"
     raw.write_bytes(BRACKETED_PASTE_ON if ready else b"")
     tmux = _Tmux(panes=panes)

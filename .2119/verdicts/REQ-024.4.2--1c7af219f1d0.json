@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.4.2--1c7af219f1d0",
-  "requirementId": "REQ-024.4.2",
-  "hash": "1c7af219f1d0",
-  "verdict": "pass",
-  "summary": "Dedup verified at both boundaries: same-waker repeated passes + down/live respawn cycle assert exactly one submission, and a fresh waker instance against a pre-recorded 'delivered' entry asserts zero submissions — killing the in-memory-only-dedup counterexample; companion 4.3/4.4 tests pin per-entry (not per-state) keying and that only successful delivery suppresses retry.",
-  "timestamp": "2026-07-31T05:33:22.566Z"
-}

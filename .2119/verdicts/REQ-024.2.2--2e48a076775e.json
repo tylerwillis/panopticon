@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.2.2--2e48a076775e",
-  "requirementId": "REQ-024.2.2",
-  "hash": "2e48a076775e",
-  "verdict": "pass",
-  "summary": "Double-fetch byte-equality plus exact recorded-metadata content assertions ([met] runtime resolution, state label, description, skill) over the real unmocked REST render path make a nondeterministic or LLM-backed renderer unable to pass",
-  "timestamp": "2026-07-31T05:37:42.606Z"
-}

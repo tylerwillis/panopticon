@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.3.2--5cd263cb4f1e",
-  "requirementId": "REQ-024.3.2",
-  "hash": "5cd263cb4f1e",
-  "verdict": "pass",
-  "summary": "All three failure modes (missing pane with readiness pre-seeded, mid-wait vanish, exhausted timeout) are driven through the real prefill loop and rejected behaviorally — zero paste-buffer/send-keys emitted, False returned, and any raising implementation errors the test; pass-level containment of the False is pinned by the REQ-024.4.4 test plus host.py's per-task try/except.",
-  "timestamp": "2026-07-31T05:44:19.285Z"
-}
