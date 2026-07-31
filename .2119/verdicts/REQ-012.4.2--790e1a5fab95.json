@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.4.2--790e1a5fab95",
+  "requirementId": "REQ-012.4.2",
+  "hash": "790e1a5fab95",
+  "verdict": "pass",
+  "summary": "Annotated test freezes explicit-, workflow-, and repo-derived tasks, really changes repo defaults (PATCH /repos, verified to merge) and workflow defaults (ClassVar flip on the live registry instance), then re-GETs each task asserting pre-change harness/model tuples distinct from the new defaults — read-time re-resolution or non-persistence of any source would fail it; prior explicit-conjunct gap is fixed.",
+  "timestamp": "2026-07-31T05:01:55.747Z"
+}

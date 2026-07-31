@@ -544,15 +544,26 @@ def test_created_tasks_keep_launch_values_after_defaults_change(
         workflow_task = tuned_client.post(
             "/tasks", json={"repo_id": "r1", "workflow": "tuned"}
         ).json()
-        tuned_client.patch(
+        explicit_task = tuned_client.post(
+            "/tasks",
+            json={
+                "repo_id": "r1",
+                "workflow": "spike",
+                "harness": "codex",
+                "starting_model": "explicit",
+            },
+        ).json()
+        update = tuned_client.patch(
             "/repos/r1",
             json={"default_harness": "codex", "default_model": "replacement"},
         )
+        assert update.status_code == 200
         monkeypatch.setattr(_TunedWorkflow, "default_harness", "claude")
         monkeypatch.setattr(_TunedWorkflow, "default_model", "replacement")
 
         persisted_repo_task = tuned_client.get(f"/tasks/{repo_task['id']}").json()
         persisted_workflow_task = tuned_client.get(f"/tasks/{workflow_task['id']}").json()
+        persisted_explicit_task = tuned_client.get(f"/tasks/{explicit_task['id']}").json()
 
     assert (persisted_repo_task["harness"], persisted_repo_task["starting_model"]) == (
         "claude",
@@ -561,6 +572,10 @@ def test_created_tasks_keep_launch_values_after_defaults_change(
     assert (persisted_workflow_task["harness"], persisted_workflow_task["starting_model"]) == (
         "codex",
         "gpt-5.6-sol:high",
+    )
+    assert (persisted_explicit_task["harness"], persisted_explicit_task["starting_model"]) == (
+        "codex",
+        "explicit",
     )
 
 
