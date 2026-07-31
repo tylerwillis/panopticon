@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.13.1--52a8f1735416",
+  "requirementId": "REQ-018.13.1",
+  "hash": "52a8f1735416",
+  "verdict": "pass",
+  "summary": "Enter asserts create_task got memo='fix' AND initial_prompt='fix'; dropping the prompt or not submitting fails the tuple equality.",
+  "timestamp": "2026-07-31T05:37:24.534Z"
+}

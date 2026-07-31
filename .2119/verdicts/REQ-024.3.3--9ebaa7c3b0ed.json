@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.3.3--9ebaa7c3b0ed",
+  "requirementId": "REQ-024.3.3",
+  "hash": "9ebaa7c3b0ed",
+  "verdict": "pass",
+  "summary": "Detail pane asserts 'waiting on 2/3' (blocking vs total distinguished by mixed ITERATING/COMPLETE/DROPPED deps) plus each dep's 'slug STATE' pair including the non-blocking COMPLETE one, through the real depends_on_task_ids join with only the REST client faked.",
+  "timestamp": "2026-07-31T05:48:24.158Z"
+}

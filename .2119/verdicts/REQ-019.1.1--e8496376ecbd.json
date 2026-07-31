@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.1.1--e8496376ecbd",
-  "requirementId": "REQ-019.1.1",
-  "hash": "e8496376ecbd",
-  "verdict": "pass",
-  "summary": "Discovery blocked on an unreleased Event; typed input lands in the mounted focused memo while release is still unset — synchronous blocking could only pass via the 5s backstop, failing 'not release.is_set()'",
-  "timestamp": "2026-07-31T00:16:42.772Z"
-}

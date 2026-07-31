@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.14.1--e7bce90e7106",
+  "requirementId": "REQ-018.14.1",
+  "hash": "e7bce90e7106",
+  "verdict": "pass",
+  "summary": "ctrl+s asserts memo='fix' with initial_prompt=None — delivering the prompt or not creating both fail.",
+  "timestamp": "2026-07-31T05:37:25.084Z"
+}

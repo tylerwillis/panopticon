@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.4.1--769cf39eb57c",
-  "requirementId": "REQ-006.4.1",
-  "hash": "769cf39eb57c",
-  "verdict": "pass",
-  "summary": "Exact event-list equality (check then release per task, once each) rejects duplicates/omissions; released is the same client-request spy the single-task respawn test pins.",
-  "timestamp": "2026-07-31T00:55:33.733Z"
-}

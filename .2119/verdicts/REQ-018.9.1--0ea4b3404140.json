@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.9.1--0ea4b3404140",
-  "requirementId": "REQ-018.9.1",
-  "hash": "0ea4b3404140",
-  "verdict": "pass",
-  "summary": "Real Textual layout asserts memo-box region.width == 64 with controls visible and with each candidate list open (width > 0); any modal width drift fails",
-  "timestamp": "2026-07-31T00:16:37.305Z"
-}

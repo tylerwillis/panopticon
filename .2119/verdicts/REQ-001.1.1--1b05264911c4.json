@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.1.1--1b05264911c4",
-  "requirementId": "REQ-001.1.1",
-  "hash": "1b05264911c4",
-  "verdict": "pass",
-  "summary": "Two pilot-driven tests prove x opens the confirmation for the highlighted operator row (and the right row after cursoring), with wrong-target and no-dialog counterexamples failing",
-  "timestamp": "2026-07-31T00:10:54.743Z"
-}

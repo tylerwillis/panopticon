@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.1.1--b287800dffe6",
+  "requirementId": "REQ-024.1.1",
+  "hash": "b287800dffe6",
+  "verdict": "pass",
+  "summary": "Real spawnable_tasks filter tested with mixed terminal+non-terminal deps excluded (task j), and HostDaemon.tick proven to gate spawn_one on that filter (waits-active never spawned); service test pins the gate published atomically in the initial row",
+  "timestamp": "2026-07-31T06:01:48.228Z"
+}

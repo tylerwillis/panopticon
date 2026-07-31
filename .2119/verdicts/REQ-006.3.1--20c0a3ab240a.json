@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.3.1--20c0a3ab240a",
-  "requirementId": "REQ-006.3.1",
-  "hash": "20c0a3ab240a",
-  "verdict": "pass",
-  "summary": "Escape asserts screen_stack back to 1 and released == [] via real key presses — both conjuncts independently falsifiable.",
-  "timestamp": "2026-07-31T00:55:33.295Z"
-}

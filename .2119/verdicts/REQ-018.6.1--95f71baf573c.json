@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.6.1--95f71baf573c",
-  "requirementId": "REQ-018.6.1",
-  "hash": "95f71baf573c",
-  "verdict": "pass",
-  "summary": "Real-registry pilot test pins claude vocab, cycles to codex in the same modal, and exact-equality asserts both model and effort lists switch to codex disjoint vocabulary (empty to 4 efforts), rejecting stale, partial, or merged refreshes.",
-  "timestamp": "2026-07-31T00:55:46.446Z"
-}

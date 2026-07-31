@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.1.2--3bf43d557a0a",
+  "requirementId": "REQ-006.1.2",
+  "hash": "3bf43d557a0a",
+  "verdict": "pass",
+  "summary": "Help screen rendered via '?' must contain exactly one Ctrl+R line reading 'Respawn all down tasks'",
+  "timestamp": "2026-07-31T05:37:22.732Z"
+}

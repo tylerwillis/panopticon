@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.5.2--32aa82b04322",
-  "requirementId": "REQ-006.5.2",
-  "hash": "32aa82b04322",
-  "verdict": "pass",
-  "summary": "push_screen spy records zero opens and screen_stack stays 1 across empty + all-non-down snapshots; freshness proven by swapping the snapshot after an initial down task",
-  "timestamp": "2026-07-31T00:11:35.356Z"
-}

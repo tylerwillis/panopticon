@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.3.1--de4264ccfab8",
+  "requirementId": "REQ-001.3.1",
+  "hash": "de4264ccfab8",
+  "verdict": "pass",
+  "summary": "Parametrized over clicking no and pressing Escape; asserts dismissal and the real file's content intact",
+  "timestamp": "2026-07-31T05:37:19.457Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.1.4--f58720d6122a",
+  "requirementId": "REQ-024.1.4",
+  "hash": "f58720d6122a",
+  "verdict": "pass",
+  "summary": "spawnable_tasks fixture asserts exact-list equality: dependency-free unclaimed non-terminal tasks (empty deps list and absent key) are included while claimed and terminal dependency-free tasks stay excluded, so any eligibility regression or widening fails the test",
+  "timestamp": "2026-07-31T05:44:13.340Z"
+}

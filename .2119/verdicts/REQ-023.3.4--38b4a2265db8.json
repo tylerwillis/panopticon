@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.3.4--38b4a2265db8",
-  "requirementId": "REQ-023.3.4",
-  "hash": "38b4a2265db8",
-  "verdict": "pass",
-  "summary": "Detail pane with a DROPPED dep must contain 'edit dependencies or drop the dependent' — string presence is the observable outcome for a displayed-guidance requirement, and its absence fails the test",
-  "timestamp": "2026-07-31T00:16:22.815Z"
-}

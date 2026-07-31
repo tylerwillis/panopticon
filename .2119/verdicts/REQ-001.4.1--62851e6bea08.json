@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.4.1--62851e6bea08",
-  "requirementId": "REQ-001.4.1",
-  "hash": "62851e6bea08",
-  "verdict": "pass",
-  "summary": "Real file unlinked, sibling untouched; refresh-from-service proven by list_workflow_files call-count==2 plus the table showing a description only the post-deletion listing returns",
-  "timestamp": "2026-07-31T00:55:29.347Z"
-}

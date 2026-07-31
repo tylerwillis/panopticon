@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.5.1--864f4035819c",
+  "requirementId": "REQ-018.5.1",
+  "hash": "864f4035819c",
+  "verdict": "pass",
+  "summary": "Types custom/model and maximum (absent from codex suggestions); create call carries custom/model:maximum",
+  "timestamp": "2026-07-31T05:42:34.941Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.10.1--508d8b2d2974",
-  "requirementId": "REQ-018.10.1",
-  "hash": "508d8b2d2974",
-  "verdict": "pass",
-  "summary": "Arrows pin highlighted index 1, Enter asserted to set the Input to that candidate (distinct from index 0) while screen stays MemoScreen and fake.created == [] — submitting or non-updating Enter fails; parametrized over model and effort",
-  "timestamp": "2026-07-31T00:55:41.163Z"
-}

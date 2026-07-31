@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.7.1--dccce52464b4",
+  "requirementId": "REQ-001.7.1",
+  "hash": "dccce52464b4",
+  "verdict": "pass",
+  "summary": "Live new-workflow dialog captured as style reference (56/auto/round-accent/surface), tuple-equality on the delete dialog plus centering arithmetic",
+  "timestamp": "2026-07-31T05:37:21.254Z"
+}

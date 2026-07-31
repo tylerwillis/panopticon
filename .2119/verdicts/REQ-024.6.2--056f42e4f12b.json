@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.6.2--056f42e4f12b",
+  "requirementId": "REQ-024.6.2",
+  "hash": "056f42e4f12b",
+  "verdict": "pass",
+  "summary": "Real REST->store round-trip (no mocks): persists attention=True with GET read-back and False on clear; turn and blocked asserted unchanged on both set and clear, rejecting flip-turn, clear-blocked, and ignored-false-write violations.",
+  "timestamp": "2026-07-31T05:49:37.272Z"
+}

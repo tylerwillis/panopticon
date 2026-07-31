@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.2--f441d0805aa6",
+  "requirementId": "REQ-006.4.2",
+  "hash": "f441d0805aa6",
+  "verdict": "pass",
+  "summary": "Service order reversed from display order, event list pins displayed-order processing, and a sleep-based max_active_releases==1 probe rejects concurrency",
+  "timestamp": "2026-07-31T05:36:09.578Z"
+}

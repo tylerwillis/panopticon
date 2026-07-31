@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.6.3--5cd43c0ded4c",
+  "requirementId": "REQ-024.6.3",
+  "hash": "5cd43c0ded4c",
+  "verdict": "pass",
+  "summary": "Prior fail's missing assertion now present: test_api.py:838-845 toggles blocked both ways with attention=False and asserts it stays False, and attention=True survives both blocked writes on each response; real app+store, no mocks, distinct from the turn-to-agent clear",
+  "timestamp": "2026-07-31T06:01:50.012Z"
+}

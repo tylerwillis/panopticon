@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.1.1--b84846ffbf00",
+  "requirementId": "REQ-019.1.1",
+  "hash": "b84846ffbf00",
+  "verdict": "pass",
+  "summary": "Event-blocked discovery: memo accepts a keystroke while discovery is in flight; a synchronous open deadlocks into the backstop and fails release.is_set check",
+  "timestamp": "2026-07-31T05:42:37.667Z"
+}

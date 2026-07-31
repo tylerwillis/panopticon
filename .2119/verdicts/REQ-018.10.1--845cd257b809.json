@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.10.1--845cd257b809",
+  "requirementId": "REQ-018.10.1",
+  "hash": "845cd257b809",
+  "verdict": "pass",
+  "summary": "Real Textual key events: highlight asserted pre-Enter, effort case picks index 1 ('high', not first candidate) proving 'that candidate', per-field value asserted, and fake.created == [] plus still-on-MemoScreen reject submission",
+  "timestamp": "2026-07-31T06:01:46.316Z"
+}

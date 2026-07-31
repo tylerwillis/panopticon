@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.3.1--f80656d94c02",
-  "requirementId": "REQ-018.3.1",
-  "hash": "f80656d94c02",
-  "verdict": "pass",
-  "summary": "Uppercase 'A'/'H' vs lowercase codex vocab proves case-insensitive containment (prefix-only would return []); exact expected lists prove all-and-only (gpt-5.6-sol excluded)",
-  "timestamp": "2026-07-31T00:15:58.075Z"
-}

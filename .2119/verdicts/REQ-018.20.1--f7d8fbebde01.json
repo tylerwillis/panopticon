@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.20.1--f7d8fbebde01",
+  "requirementId": "REQ-018.20.1",
+  "hash": "f7d8fbebde01",
+  "verdict": "pass",
+  "summary": "No-match text: option_count == 0 with region.width > 0 for both fields — hiding the empty list fails the width assertion",
+  "timestamp": "2026-07-31T05:42:37.218Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.3.2--9347acb6019d",
+  "requirementId": "REQ-024.3.2",
+  "hash": "9347acb6019d",
+  "verdict": "pass",
+  "summary": "Held cells verified rendered on shared-by-reference task dicts later asserted to still hold their original Actor turns; an in-place turn rewrite or persisted 'held' value would fail, and the fake client exposes no turn-write path.",
+  "timestamp": "2026-07-31T05:48:23.709Z"
+}

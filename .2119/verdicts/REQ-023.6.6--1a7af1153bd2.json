@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.6.6--1a7af1153bd2",
-  "requirementId": "REQ-023.6.6",
-  "hash": "1a7af1153bd2",
-  "verdict": "pass",
-  "summary": "Description-shaped requirement; the test pins escalation framing plus an explicit 'cannot suppress' disclaimer on the live MCP tool listing and a working escalate call — a realistic suppression-claiming description fails it.",
-  "timestamp": "2026-07-31T00:55:43.743Z"
-}

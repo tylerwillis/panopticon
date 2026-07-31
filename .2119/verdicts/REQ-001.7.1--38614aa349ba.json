@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.7.1--38614aa349ba",
-  "requirementId": "REQ-001.7.1",
-  "hash": "38614aa349ba",
-  "verdict": "pass",
-  "summary": "Test first pins the new-workflow box to 56-col/auto/round-accent/surface (not merely both-wrong equality), then asserts the delete box's style tuple matches and its region.x/y are centered arithmetically",
-  "timestamp": "2026-07-31T00:11:10.623Z"
-}

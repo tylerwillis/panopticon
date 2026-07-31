@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.1.1--496e7db5d077",
+  "requirementId": "REQ-001.1.1",
+  "hash": "496e7db5d077",
+  "verdict": "pass",
+  "summary": "Real pilot 'x' keypress opens a dialog naming exactly the highlighted operator workflow, in default and after-down highlight cases",
+  "timestamp": "2026-07-31T05:37:18.557Z"
+}

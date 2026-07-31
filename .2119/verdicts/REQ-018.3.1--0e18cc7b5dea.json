@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.3.1--0e18cc7b5dea",
+  "requirementId": "REQ-018.3.1",
+  "hash": "0e18cc7b5dea",
+  "verdict": "pass",
+  "summary": "Uppercase A/H typed against the real codex vocab asserts exact filtered lists — rejects case-sensitive, prefix-only, under- and over-filtering",
+  "timestamp": "2026-07-31T05:42:34.016Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.6.1--44cb52618e16",
-  "requirementId": "REQ-023.6.1",
-  "hash": "44cb52618e16",
-  "verdict": "pass",
-  "summary": "Pilot tests reject each boundary: DROPPED-only dep and all-terminal children render attention not held; no-wait turn=user renders yellow for marker absent/False/True (marker cannot demote); marker escalates inside proven dep/child waits; stored turn verified unchanged.",
-  "timestamp": "2026-07-31T01:02:06.663Z"
-}

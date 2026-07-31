@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.10.1--3259b773b4dd",
-  "requirementId": "REQ-018.10.1",
-  "hash": "3259b773b4dd",
-  "verdict": "pass",
-  "summary": "Enter on the second highlighted candidate asserts that exact candidate lands in the matching field, with modal-still-open plus fake.created==[] proving no submission (empty-memo Enter is shown elsewhere to create)",
-  "timestamp": "2026-07-31T00:11:23.922Z"
-}

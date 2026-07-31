@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.7.1--8771f84bbefa",
-  "requirementId": "REQ-019.7.1",
-  "hash": "8771f84bbefa",
-  "verdict": "pass",
-  "summary": "Blocked in-flight discovery straddles a real escape-close; test holds the closed modal's widget refs, forces the blocked harness selected, and snapshot-compares values/placeholders/suggesters/options/classes across completion — a naive apply-on-complete would fail it.",
-  "timestamp": "2026-07-31T01:01:28.999Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.15.1--4775fa685087",
-  "requirementId": "REQ-018.15.1",
-  "hash": "4775fa685087",
-  "verdict": "pass",
-  "summary": "Editor mocked at the subprocess seam only; submitted 'edited:hi' proves invocation with current text and replace-not-append of the editor's returned content",
-  "timestamp": "2026-07-31T00:15:40.239Z"
-}

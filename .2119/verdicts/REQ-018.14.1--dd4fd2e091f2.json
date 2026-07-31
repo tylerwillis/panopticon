@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.14.1--dd4fd2e091f2",
-  "requirementId": "REQ-018.14.1",
-  "hash": "dd4fd2e091f2",
-  "verdict": "pass",
-  "summary": "ctrl+s asserts create_task got memo='fix' with initial_prompt=None — both conjuncts (create-with-memo, no delivery) discriminated",
-  "timestamp": "2026-07-31T00:15:39.814Z"
-}

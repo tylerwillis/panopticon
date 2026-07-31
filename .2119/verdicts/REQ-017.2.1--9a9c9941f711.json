@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.2.1--9a9c9941f711",
-  "requirementId": "REQ-017.2.1",
-  "hash": "9a9c9941f711",
-  "verdict": "pass",
-  "summary": "Padded input asserted trimmed in the set_slug call for the highlighted id, list_tasks_calls increased, new slug in detail+table, sibling untouched; HTTP-400 rejection leaves app running with old slug displayed",
-  "timestamp": "2026-07-31T00:55:39.345Z"
-}

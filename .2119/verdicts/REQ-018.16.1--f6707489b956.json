@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.16.1--f6707489b956",
+  "requirementId": "REQ-018.16.1",
+  "hash": "f6707489b956",
+  "verdict": "pass",
+  "summary": "Enter on focused selector asserts claude->codex (next registered), created==[] (no submit), then a real submit carries harness='codex'.",
+  "timestamp": "2026-07-31T05:37:25.969Z"
+}

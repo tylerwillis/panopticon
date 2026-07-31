@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.5.1--c6dbbfc05c54",
-  "requirementId": "REQ-019.5.1",
-  "hash": "c6dbbfc05c54",
-  "verdict": "pass",
-  "summary": "20ms-delay fakes push any on-cycle rediscovery over the timed <10ms action_cycle bound; fields and per-harness options asserted updated each cycle",
-  "timestamp": "2026-07-31T00:55:50.413Z"
-}

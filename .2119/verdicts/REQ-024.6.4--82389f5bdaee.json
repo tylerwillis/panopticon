@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.6.4--82389f5bdaee",
+  "requirementId": "REQ-024.6.4",
+  "hash": "82389f5bdaee",
+  "verdict": "pass",
+  "summary": "test_api.py:848-850 verifies attention=True (independently confirmed at 847) survives a genuine agent->user turn flip over the real service+store stack, rejecting clear-on-every-turn-write and inverted-guard implementations; 852-853 pin the turn-to-agent contrast.",
+  "timestamp": "2026-07-31T05:49:38.143Z"
+}

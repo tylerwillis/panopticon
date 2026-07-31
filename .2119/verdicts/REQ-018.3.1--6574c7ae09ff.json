@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.3.1--6574c7ae09ff",
-  "requirementId": "REQ-018.3.1",
-  "hash": "6574c7ae09ff",
-  "verdict": "pass",
-  "summary": "Parametrized pilot-driven test types uppercase mid-word needles into both real controls and asserts exact filtered prompt lists from the real codex harness vocabulary, rejecting case-sensitive, prefix-only, missing-match, and extra-match filters.",
-  "timestamp": "2026-07-31T00:55:45.584Z"
-}

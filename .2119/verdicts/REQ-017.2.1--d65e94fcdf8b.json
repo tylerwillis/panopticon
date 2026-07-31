@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.2.1--d65e94fcdf8b",
+  "requirementId": "REQ-017.2.1",
+  "hash": "d65e94fcdf8b",
+  "verdict": "pass",
+  "summary": "Accept path pins trimming, highlighted-task-only scoping, and a genuine refetch (list_tasks_calls increases, new slug rendered); reject path raises real httpx.HTTPStatusError and asserts app.is_running with original slug rendered",
+  "timestamp": "2026-07-31T05:39:34.198Z"
+}

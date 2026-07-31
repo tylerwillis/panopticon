@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.5.1--7aa3b8c4706e",
-  "requirementId": "REQ-018.5.1",
-  "hash": "7aa3b8c4706e",
-  "verdict": "pass",
-  "summary": "Typed custom/model + maximum (absent from claude's suggestions, whose effort list is empty) reach create as custom/model:maximum; a suggestions-only control fails the create assertion",
-  "timestamp": "2026-07-31T00:16:25.690Z"
-}

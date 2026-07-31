@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.4.5--61d998249429",
-  "requirementId": "REQ-006.4.5",
-  "hash": "61d998249429",
-  "verdict": "pass",
-  "summary": "All-recording notify spy with exact notices == ['respawned 1'] equality fails any task-specific skip notification.",
-  "timestamp": "2026-07-31T00:55:35.488Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.8.1--08e241ad2541",
-  "requirementId": "REQ-018.8.1",
-  "hash": "08e241ad2541",
-  "verdict": "pass",
-  "summary": "Escape tested from memo editor and all three launch controls, with candidate-list visibility asserted for model/effort; screen-gone + nothing-created rejects the list-only-dismiss counterexample",
-  "timestamp": "2026-07-31T00:16:36.904Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.3.1--ecba78e7ff6c",
+  "requirementId": "REQ-007.3.1",
+  "hash": "ecba78e7ff6c",
+  "verdict": "pass",
+  "summary": "Real render_detail(_TASK) asserted hint-free as substring and exact line via splitlines(); render_detail is exactly the c-copy clipboard text",
+  "timestamp": "2026-07-31T05:39:32.921Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.2.2--447eed8422f7",
-  "requirementId": "REQ-006.2.2",
-  "hash": "447eed8422f7",
-  "verdict": "pass",
-  "summary": "Exact line equality covers 8-char ID, slug/– fallback, whitespace normalization before truncation, exactly-60 memo without … and 61-char memo with …, and absent-memo omission",
-  "timestamp": "2026-07-31T00:11:31.953Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.2.1--e689208aa7d7",
+  "requirementId": "REQ-007.2.1",
+  "hash": "e689208aa7d7",
+  "verdict": "pass",
+  "summary": "Real pane render asserted: plain text ends with newline+exact hint and a Rich span exactly covering it with style.dim; any wording/spacing/position/dim deviation fails",
+  "timestamp": "2026-07-31T05:39:32.484Z"
+}

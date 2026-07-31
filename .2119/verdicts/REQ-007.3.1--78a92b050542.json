@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-007.3.1--78a92b050542",
-  "requirementId": "REQ-007.3.1",
-  "hash": "78a92b050542",
-  "verdict": "pass",
-  "summary": "asserts the hint is absent from render_detail output and its lines for a hint-free task, so render_detail adding the hint line fails",
-  "timestamp": "2026-07-31T00:11:42.499Z"
-}

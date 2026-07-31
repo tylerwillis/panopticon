@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.2.1--686f0143b068",
-  "requirementId": "REQ-006.2.1",
-  "hash": "686f0143b068",
-  "verdict": "pass",
-  "summary": "Exact splitlines equality over 6 down + live + failed tasks pins 'every and only' (failed rejected); a second test proves confirmation-time snapshot freshness at the one-down boundary",
-  "timestamp": "2026-07-31T00:11:31.517Z"
-}

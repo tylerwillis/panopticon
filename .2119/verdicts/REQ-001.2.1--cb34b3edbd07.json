@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.2.1--cb34b3edbd07",
-  "requirementId": "REQ-001.2.1",
-  "hash": "cb34b3edbd07",
-  "verdict": "pass",
-  "summary": "Dialog test queries both yes/no buttons, asserts labels, visibility and enabled state, and sibling tests click each button to prove the choices function",
-  "timestamp": "2026-07-31T00:10:55.170Z"
-}

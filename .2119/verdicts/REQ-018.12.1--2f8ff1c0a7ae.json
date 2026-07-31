@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.12.1--2f8ff1c0a7ae",
+  "requirementId": "REQ-018.12.1",
+  "hash": "2f8ff1c0a7ae",
+  "verdict": "pass",
+  "summary": "Rendered summary string asserted for all four sources: 'this task' after each override kind, plus repo, workflow (winning over repo), and app default.",
+  "timestamp": "2026-07-31T05:37:24.074Z"
+}

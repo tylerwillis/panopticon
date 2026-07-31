@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.5.1--0ec2323eba00",
-  "requirementId": "REQ-006.5.1",
-  "hash": "0ec2323eba00",
-  "verdict": "pass",
-  "summary": "Parametrized over empty snapshot plus every non-down status (incl. failed): notices exactly ['no down tasks']",
-  "timestamp": "2026-07-31T00:11:34.911Z"
-}

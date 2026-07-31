@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.4.1--a970ad9d9579",
-  "requirementId": "REQ-019.4.1",
-  "hash": "a970ad9d9579",
-  "verdict": "pass",
-  "summary": "Cycling to a blocked or never-started harness must show its exact option lists with exactly one discovery while the prefetch worker is held; empty lists fail",
-  "timestamp": "2026-07-31T00:55:49.982Z"
-}

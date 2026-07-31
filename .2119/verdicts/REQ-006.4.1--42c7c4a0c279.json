@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.4.1--42c7c4a0c279",
-  "requirementId": "REQ-006.4.1",
-  "hash": "42c7c4a0c279",
-  "verdict": "pass",
-  "summary": "Sequenced-spy exact event-list equality proves one check+one release per still-down task (duplicates or omissions break equality); skip-parametrized test covers the mixed case",
-  "timestamp": "2026-07-31T00:11:32.814Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.13.1--7c5e1cbf59de",
-  "requirementId": "REQ-018.13.1",
-  "hash": "7c5e1cbf59de",
-  "verdict": "pass",
-  "summary": "Enter after typing 'fix' asserts create_task got memo AND initial_prompt='fix'; ctrl+s sibling proves the tuple discriminates delivery",
-  "timestamp": "2026-07-31T00:15:39.416Z"
-}

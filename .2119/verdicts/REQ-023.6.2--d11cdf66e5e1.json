@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.6.2--d11cdf66e5e1",
-  "requirementId": "REQ-023.6.2",
-  "hash": "d11cdf66e5e1",
-  "verdict": "pass",
-  "summary": "REST test sets attention True and False against the real service: both responses show turn=agent and blocked=True unchanged, and GET readback proves persistence — a write that flipped turn, cleared blocked, or failed to persist would fail.",
-  "timestamp": "2026-07-31T01:02:16.461Z"
-}

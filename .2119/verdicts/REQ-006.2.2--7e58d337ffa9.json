@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.2.2--7e58d337ffa9",
+  "requirementId": "REQ-006.2.2",
+  "hash": "7e58d337ffa9",
+  "verdict": "pass",
+  "summary": "Exact rendered-line equality covers 8-char ID, dash for null slug, whitespace normalization, and the 60-char ellipsis boundary in both directions incl. normalize-then-truncate",
+  "timestamp": "2026-07-31T05:36:08.149Z"
+}

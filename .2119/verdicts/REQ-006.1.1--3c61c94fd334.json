@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.1.1--3c61c94fd334",
-  "requirementId": "REQ-006.1.1",
-  "hash": "3c61c94fd334",
-  "verdict": "pass",
-  "summary": "ctrl+r press must land on BulkRespawnScreen with its down-task listing content-verified line by line; unbound or misbound key fails",
-  "timestamp": "2026-07-31T00:55:31.525Z"
-}

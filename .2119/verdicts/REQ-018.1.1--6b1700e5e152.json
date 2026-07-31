@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.1.1--6b1700e5e152",
-  "requirementId": "REQ-018.1.1",
-  "hash": "6b1700e5e152",
-  "verdict": "pass",
-  "summary": "test_memo_launch_fields_are_labeled_visible_and_stay_within_64_columns drives the real modal via pilot, asserts label text {harness,model,effort}, resolved values (codex/terra/high from repo defaults the app parses), nonzero rendered widths, all while focus is still on the memo — every conjunct's nearest violation fails",
-  "timestamp": "2026-07-31T00:11:21.652Z"
-}

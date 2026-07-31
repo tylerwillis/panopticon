@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.3.4--39fe3215121c",
+  "requirementId": "REQ-024.3.4",
+  "hash": "39fe3215121c",
+  "verdict": "pass",
+  "summary": "Real Textual pilot opens the detail pane for a task with a DROPPED dep and asserts both the 'auditor-missing DROPPED' line and the 'edit dependencies or drop the dependent' marker, emitted only via the DROPPED conditional; an unmarked DROPPED dep or a marker lacking the remedies would fail.",
+  "timestamp": "2026-07-31T05:48:24.601Z"
+}

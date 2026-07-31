@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.2.3--1b571779c2e1",
+  "requirementId": "REQ-024.2.3",
+  "hash": "1b571779c2e1",
+  "verdict": "pass",
+  "summary": "REST-level tests prove gating recomputes from current dep state (advance-to-ARCHIVED flips gated->queued on next GET, catching stale snapshots), uses per-workflow terminality via custom ARCHIVED terminal (catching hardcoded label lists), and keeps DROPPED deps gated.",
+  "timestamp": "2026-07-31T05:44:14.665Z"
+}

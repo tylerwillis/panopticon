@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.7.1--1204e2e2acb9",
-  "requirementId": "REQ-018.7.1",
-  "hash": "1204e2e2acb9",
-  "verdict": "pass",
-  "summary": "Repo, workflow, and app defaults each mutated after a focus-only tab-through + escape; reopened untouched fields must show the new defaults, killing focus-as-touched and draft-pinning violations",
-  "timestamp": "2026-07-31T00:16:31.745Z"
-}

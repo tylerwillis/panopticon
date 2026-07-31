@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.4.2--36696fb4232b",
-  "requirementId": "REQ-023.4.2",
-  "hash": "36696fb4232b",
-  "verdict": "pass",
-  "summary": "The 400 detail must contain 'cycle', all three cycle-member task ids, and 'edit'+'dependenc' — a generic 'cycle detected' without the members or the advice fails",
-  "timestamp": "2026-07-31T00:16:32.560Z"
-}

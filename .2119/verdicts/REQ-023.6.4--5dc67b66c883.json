@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.6.4--5dc67b66c883",
-  "requirementId": "REQ-023.6.4",
-  "hash": "5dc67b66c883",
-  "verdict": "pass",
-  "summary": "PUT turn=user with attention set asserts the response carries attention True and turn=user — a turn-to-user write that cleared the marker fails.",
-  "timestamp": "2026-07-31T01:02:17.386Z"
-}

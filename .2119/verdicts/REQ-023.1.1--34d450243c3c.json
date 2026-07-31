@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.1.1--34d450243c3c",
-  "requirementId": "REQ-023.1.1",
-  "hash": "34d450243c3c",
-  "verdict": "pass",
-  "summary": "Exact-string sentinel assertions with full dim span, connector, marker, count and instruction; grandchild and refresh fixtures reject descendant or stale counts",
-  "timestamp": "2026-07-31T01:17:24.471Z"
-}

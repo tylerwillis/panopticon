@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.2.1--9f86bc648935",
+  "requirementId": "REQ-006.2.1",
+  "hash": "9f86bc648935",
+  "verdict": "pass",
+  "summary": "Exact line-list equality over a mixed down/live/failed snapshot proves every-and-only; a post-mount snapshot mutation pins latest-snapshot at the one-down boundary",
+  "timestamp": "2026-07-31T05:36:07.704Z"
+}

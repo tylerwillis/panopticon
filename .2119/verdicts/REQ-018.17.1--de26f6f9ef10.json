@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.17.1--de26f6f9ef10",
-  "requirementId": "REQ-018.17.1",
-  "hash": "de26f6f9ef10",
-  "verdict": "pass",
-  "summary": "Both boundary cases (empty candidate list; non-empty with highlighted=None) assert the screen stays MemoScreen with no create after Enter.",
-  "timestamp": "2026-07-31T00:55:44.232Z"
-}

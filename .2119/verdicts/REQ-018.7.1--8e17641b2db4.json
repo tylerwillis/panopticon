@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.7.1--8e17641b2db4",
-  "requirementId": "REQ-018.7.1",
-  "hash": "8e17641b2db4",
-  "verdict": "pass",
-  "summary": "Each default source (repo/workflow/app) is mutated after a focus-only visit and the reopened modal must show the re-derived values plus source label; per-field tests prove touched siblings survive while untouched ones re-track.",
-  "timestamp": "2026-07-31T00:55:46.893Z"
-}

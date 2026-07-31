@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.2.4--212859fc37e4",
+  "requirementId": "REQ-024.2.4",
+  "hash": "212859fc37e4",
+  "verdict": "pass",
+  "summary": "Unmocked composer called with all facts fixed except the supplied dependencies_blocking flag; distinct outputs prove the gate derives from the supplied fact, so store-derived, argument-ignoring, or cached-state violations would fail.",
+  "timestamp": "2026-07-31T05:44:15.112Z"
+}

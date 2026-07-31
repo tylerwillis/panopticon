@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.16.1--e02f909a6b2e",
-  "requirementId": "REQ-018.16.1",
-  "hash": "e02f909a6b2e",
-  "verdict": "pass",
-  "summary": "Enter on focused selector asserts value claude->codex with created==[], then memo-Enter carries the codex override — both conjuncts behavioral",
-  "timestamp": "2026-07-31T00:15:49.771Z"
-}

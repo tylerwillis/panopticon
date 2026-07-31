@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.1--14ef1e340046",
+  "requirementId": "REQ-006.4.1",
+  "hash": "14ef1e340046",
+  "verdict": "pass",
+  "summary": "Exact check/release event-list equality forbids duplicate or missing releases; parametrized skip test proves release is gated on the confirmation-time down check",
+  "timestamp": "2026-07-31T05:36:09.162Z"
+}

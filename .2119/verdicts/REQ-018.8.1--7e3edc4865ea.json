@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.8.1--7e3edc4865ea",
+  "requirementId": "REQ-018.8.1",
+  "hash": "7e3edc4865ea",
+  "verdict": "pass",
+  "summary": "One escape from each launch control (candidate lists asserted visible) must leave MemoScreen — rejects escape-dismisses-list-only",
+  "timestamp": "2026-07-31T05:42:36.383Z"
+}

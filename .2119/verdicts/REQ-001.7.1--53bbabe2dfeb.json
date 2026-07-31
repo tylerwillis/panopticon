@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.7.1--53bbabe2dfeb",
-  "requirementId": "REQ-001.7.1",
-  "hash": "53bbabe2dfeb",
-  "verdict": "pass",
-  "summary": "Reference captured live from #new-workflow-box (pinned 56/auto/round/accent/surface vs theme); delete box tuple-equal to it, centering checked arithmetically on both axes",
-  "timestamp": "2026-07-31T00:55:30.656Z"
-}

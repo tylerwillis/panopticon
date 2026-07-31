@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.2.1--506f6a733f8f",
+  "requirementId": "REQ-024.2.1",
+  "hash": "506f6a733f8f",
+  "verdict": "pass",
+  "summary": "Composer test asserts unclaimed+blocking->gated with real compose_container_status plus both negatives (blocking=False->queued, terminal->-); the dependency-state disjunction is a supplied fact per REQ-024.2.4 and its DROPPED/non-terminal/ARCHIVED branches are pinned under REQ-024.2.3 in test_api.py",
+  "timestamp": "2026-07-31T05:44:13.787Z"
+}

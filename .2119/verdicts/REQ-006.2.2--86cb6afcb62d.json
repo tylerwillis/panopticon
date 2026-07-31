@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.2.2--86cb6afcb62d",
-  "requirementId": "REQ-006.2.2",
-  "hash": "86cb6afcb62d",
-  "verdict": "pass",
-  "summary": "Exact-line equality pins 8-char id, slug None → –, whitespace normalization, exactly-60 memo without ellipsis, normalized-62 → 60+…, and None memo omitting the segment.",
-  "timestamp": "2026-07-31T00:55:32.844Z"
-}

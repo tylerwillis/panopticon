@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.8.1--e0a78ea2c38c",
-  "requirementId": "REQ-019.8.1",
-  "hash": "e0a78ea2c38c",
-  "verdict": "pass",
-  "summary": "Presented option prompts asserted equal (full-list) to per-call-unique discovered suggestions incl. the effort-for-suggested-model chain; substitution, truncation, or re-discovery all break equality.",
-  "timestamp": "2026-07-31T00:22:04.098Z"
-}

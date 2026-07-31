@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.4.1--5dda5e5d5b79",
-  "requirementId": "REQ-018.4.1",
-  "hash": "5dda5e5d5b79",
-  "verdict": "pass",
-  "summary": "Pilot-driven test (test_dashboard.py:1169) presses real Down/Down/Up/Down and asserts highlighted index after each; len==2 plus Enter yielding luna/xhigh (index 1 of the filtered set, not of the 3/4-item full codex vocab) rejects unfiltered navigation; parametrized over model and effort; only the REST client is faked.",
-  "timestamp": "2026-07-31T00:55:46.023Z"
-}

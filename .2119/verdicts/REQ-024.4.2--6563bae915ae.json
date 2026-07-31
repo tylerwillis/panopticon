@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.4.2--6563bae915ae",
+  "requirementId": "REQ-024.4.2",
+  "hash": "6563bae915ae",
+  "verdict": "pass",
+  "summary": "Indirect-cycle test pins the 400 detail via real REST: 'cycle' present, all three cycle-member task IDs present (a bare 'cycle detected' would fail), and 'edit'+'dependenc' advice present; no mocks bypass the detection path.",
+  "timestamp": "2026-07-31T05:48:25.912Z"
+}

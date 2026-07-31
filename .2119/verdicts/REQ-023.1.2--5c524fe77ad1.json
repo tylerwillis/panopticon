@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.1.2--5c524fe77ad1",
-  "requirementId": "REQ-023.1.2",
-  "hash": "5c524fe77ad1",
-  "verdict": "pass",
-  "summary": "spawnable_tasks exact-list assertion excludes both a sole-DROPPED dep (h) and DROPPED-among-terminal deps (k) on unclaimed non-terminal tasks; real filter, fake lister supplies data only",
-  "timestamp": "2026-07-31T01:01:20.839Z"
-}

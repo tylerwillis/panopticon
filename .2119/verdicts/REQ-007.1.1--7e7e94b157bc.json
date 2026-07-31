@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-007.1.1--7e7e94b157bc",
-  "requirementId": "REQ-007.1.1",
-  "hash": "7e7e94b157bc",
-  "verdict": "pass",
-  "summary": "Both clipboard seams (OSC-52 copy_to_clipboard + host _clipboard_copy) each observed receiving render_detail of the highlighted task on c, host still attempted after terminal failure; single-path, wrong-task, or wrong-text implementations fail",
-  "timestamp": "2026-07-31T00:55:37.121Z"
-}

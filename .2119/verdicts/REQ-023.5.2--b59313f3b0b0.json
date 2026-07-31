@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.5.2--b59313f3b0b0",
-  "requirementId": "REQ-023.5.2",
-  "hash": "b59313f3b0b0",
-  "verdict": "pass",
-  "summary": "All-terminal-children governor must render plain 'user' with style 'yellow' (the pinned normal user rendering) — a dim/'held' rendering fails both equalities, and the same test's mixed-children governor rejects the nearest 'all' violation.",
-  "timestamp": "2026-07-31T00:15:06.601Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.2.1--6f55b6858062",
-  "requirementId": "REQ-017.2.1",
-  "hash": "6f55b6858062",
-  "verdict": "pass",
-  "summary": "Pilot-driven tests observe the untrimmed-input->trimmed-service-call boundary via a recording fake, assert a post-submit list refresh by call count plus rendered detail/table text, and prove a raised 400 leaves the app running with the old slug displayed",
-  "timestamp": "2026-07-31T00:10:55.000Z"
-}
