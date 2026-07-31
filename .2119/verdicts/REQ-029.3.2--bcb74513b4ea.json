@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.3.2--bcb74513b4ea",
+  "requirementId": "REQ-029.3.2",
+  "hash": "bcb74513b4ea",
+  "verdict": "pass",
+  "summary": "All three scenarios (missing pane with readiness present, pane vanishing mid-wait, readiness timeout) run real prefill_pane with only tmux stubbed; each must return False with zero paste-buffer/send-keys calls, and any raise would error the test — a pasting or raising implementation fails.",
+  "timestamp": "2026-07-31T23:46:28.688Z"
+}

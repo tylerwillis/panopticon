@@ -65,8 +65,8 @@ def _service(tmp_path: Path, store: SqlAlchemyStore) -> TaskService:
 def test_stage_entry_briefing_contains_recorded_phase_context_and_is_deterministic(
     tmp_path: Path,
 ) -> None:
-    # 2119: REQ-027.2.1
-    # 2119: REQ-027.2.2
+    # 2119: REQ-029.2.1
+    # 2119: REQ-029.2.2
     store = SqlAlchemyStore()
     service = _service(tmp_path, store)
     with TestClient(create_app(service)) as http:
@@ -89,7 +89,7 @@ def test_stage_entry_briefing_contains_recorded_phase_context_and_is_determinist
 def test_live_agent_state_entry_is_submitted_on_the_next_runner_observation(
     tmp_path: Path, entry_path: str
 ) -> None:
-    # 2119: REQ-027.1.1
+    # 2119: REQ-029.1.1
     service = _service(tmp_path, SqlAlchemyStore())
     with TestClient(create_app(service)) as http:
         client = TaskServiceClient(http)
@@ -111,8 +111,9 @@ def test_live_agent_state_entry_is_submitted_on_the_next_runner_observation(
 def test_rest_advance_to_live_agent_state_is_runner_delivered_and_recorded(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # 2119: REQ-027.5.1
-    # 2119: REQ-027.5.2
+    # 2119: REQ-029.4.1
+    # 2119: REQ-029.5.1
+    # 2119: REQ-029.5.2
     database_url = f"sqlite:///{tmp_path / 'stage-entry-wake.db'}"
     store = SqlAlchemyStore(database_url)
     service = _service(tmp_path, store)

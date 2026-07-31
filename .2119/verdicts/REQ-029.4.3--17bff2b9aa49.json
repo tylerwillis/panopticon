@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.4.3--17bff2b9aa49",
+  "requirementId": "REQ-029.4.3",
+  "hash": "17bff2b9aa49",
+  "verdict": "pass",
+  "summary": "Core test proves real Workflow re-entry creates a fresh PENDING entry without touching the earlier DELIVERED one; sessionservice test proves the real StageEntryWaker delivers a second prompt and records it against the new entry index 2 — state- or task-keyed dedup would fail both.",
+  "timestamp": "2026-07-31T23:52:15.778Z"
+}

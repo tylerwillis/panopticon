@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.4.1--088c138212b2",
-  "requirementId": "REQ-027.4.1",
-  "hash": "088c138212b2",
-  "verdict": "pass",
-  "summary": "Success path pins a delivered record at the exact causing entry index (1, and 2 on re-entry into the same state) via the recording API; in-memory-only dedup, wrong-index, and failed-delivery counterexamples all fail tests; store-reload durability is proven by the REQ-027.5.2 integration test.",
-  "timestamp": "2026-07-31T19:34:47.676Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.1.4--ea7dd79d89df",
-  "requirementId": "REQ-027.1.4",
-  "hash": "ea7dd79d89df",
-  "verdict": "pass",
-  "summary": "test_user_turn_and_terminal_entries_are_not_pending exercises the real _enter logic via force_transition, parametrized over an agent-turn terminal state and a non-terminal user-turn state — the two near-violating cases that isolate each disjunct of the MUST NOT clause — and both correctly assert WakeStatus.SKIPPED, with no mocking of the state machine.",
-  "timestamp": "2026-07-31T19:46:25.555Z"
-}

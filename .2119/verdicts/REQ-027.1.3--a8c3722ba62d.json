@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.1.3--a8c3722ba62d",
-  "requirementId": "REQ-027.1.3",
-  "hash": "a8c3722ba62d",
-  "verdict": "pass",
-  "summary": "test_no_live_container_is_skipped_and_not_woken_after_a_later_respawn genuinely exercises the real StageEntryWaker: it records the entry as skipped while down, flips container_status to live, and asserts no prompt/record follows, which would fail if a non-permanent skip (leaving wake_status pending) let a later live observation redeliver.",
-  "timestamp": "2026-07-31T19:46:43.729Z"
-}

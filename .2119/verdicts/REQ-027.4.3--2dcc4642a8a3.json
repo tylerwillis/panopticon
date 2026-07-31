@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.4.3--2dcc4642a8a3",
-  "requirementId": "REQ-027.4.3",
-  "hash": "2dcc4642a8a3",
-  "verdict": "pass",
-  "summary": "Core test proves re-entry yields a fresh PENDING entry even when the earlier same-state entry is DELIVERED (rejects dedupe-by-state); sessionservice test proves a real second prompt is submitted and recorded against the new entry index (t1,2), with only the REST/tmux boundaries stubbed.",
-  "timestamp": "2026-07-31T19:55:58.094Z"
-}

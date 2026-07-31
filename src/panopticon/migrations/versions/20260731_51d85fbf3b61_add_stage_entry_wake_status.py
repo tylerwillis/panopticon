@@ -1,7 +1,7 @@
 """add stage entry wake status
 
 Revision ID: 51d85fbf3b61
-Revises: 2418d77fcee3
+Revises: d51b047f2a8c
 Create Date: 2026-07-31 05:10:15.107274
 """
 
@@ -14,7 +14,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "51d85fbf3b61"
-down_revision: str | None = "2418d77fcee3"
+down_revision: str | None = "d51b047f2a8c"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 

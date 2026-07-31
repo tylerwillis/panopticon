@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.5.2--09feb08e9bca",
+  "requirementId": "REQ-029.5.2",
+  "hash": "09feb08e9bca",
+  "verdict": "pass",
+  "summary": "REST responses assert per-entry wake_status (skipped/pending/delivered), and a fresh SqlAlchemyStore on the same SQLite file re-reads distinct per-entry statuses after close, so lost persistence, per-task collapsing, or missing REST field each fail",
+  "timestamp": "2026-07-31T23:47:28.671Z"
+}

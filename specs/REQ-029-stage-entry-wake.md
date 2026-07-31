@@ -1,4 +1,4 @@
-# REQ-027: Stage-entry wake
+# REQ-029: Stage-entry wake
 
 ## Overview
 
@@ -15,7 +15,7 @@ feature without changing workflow behavior.
 
 ## Requirements
 
-### REQ-027.1: Eligible state entries
+### REQ-029.1: Eligible state entries
 
 1. On its next observation pass, the owning session service MUST submit a stage-entry wake when a
    live task has newly entered a non-terminal state whose `turn_on_enter` is the agent, whether the
@@ -28,7 +28,7 @@ feature without changing workflow behavior.
 5. When the session-service process has `PANOPTICON_NO_STAGE_ENTRY_WAKE` set to a non-empty value,
    it MUST NOT submit stage-entry wakes.
 
-### REQ-027.2: Wake briefing
+### REQ-029.2: Wake briefing
 
 1. A submitted stage-entry wake MUST begin with the line `You have entered <STATE>.` and then
    include that entry's workflow-state description, current responsibility statuses, and a
@@ -36,7 +36,7 @@ feature without changing workflow behavior.
 2. The stage-entry wake text MUST be rendered deterministically from the recorded task and
    workflow metadata without an LLM call.
 
-### REQ-027.3: Tmux delivery
+### REQ-029.3: Tmux delivery
 
 1. The session service MUST wait for the task pane's bracketed-paste readiness signal, load the
    wake text into a tmux buffer, paste it with bracketed-paste mode, and send one Enter key to
@@ -44,7 +44,7 @@ feature without changing workflow behavior.
 2. A missing pane, a pane that disappears, or a readiness timeout MUST leave the entry
    undelivered without failing the host's task-processing pass.
 
-### REQ-027.4: Per-entry delivery tracking
+### REQ-029.4: Per-entry delivery tracking
 
 1. A successful wake submission MUST be recorded durably against the specific history entry that
    caused it.
@@ -54,7 +54,7 @@ feature without changing workflow behavior.
    history entry.
 4. A failed tmux delivery attempt MUST NOT be recorded as successfully delivered.
 
-### REQ-027.5: Control-plane boundary
+### REQ-029.5: Control-plane boundary
 
 1. The task service MUST limit its role to deterministic state-entry and wake-delivery records,
    leaving tmux inspection and input injection to the owning session service.

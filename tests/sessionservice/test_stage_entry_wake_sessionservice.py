@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import pytest
+
 from panopticon.client import JsonObj
+from panopticon.sessionservice import host as host_module
 from panopticon.sessionservice.host import HostDaemon
 from panopticon.sessionservice.stage_entry_wake import StageEntryWaker
 
@@ -69,7 +72,7 @@ class _Runner:
 
 
 def test_no_live_container_is_skipped_and_not_woken_after_a_later_respawn() -> None:
-    # 2119: REQ-027.1.3
+    # 2119: REQ-029.1.3
     task = _task(container_status="down")
     client, runner = _Client(task), _Runner()
     waker = StageEntryWaker(client, runner, runner_id="host-1")
@@ -83,7 +86,7 @@ def test_no_live_container_is_skipped_and_not_woken_after_a_later_respawn() -> N
 
 
 def test_operator_opt_out_suppresses_wakes() -> None:
-    # 2119: REQ-027.1.5
+    # 2119: REQ-029.1.5
     task = _task()
     client, runner = _Client(task), _Runner()
     StageEntryWaker(client, runner, environ={"PANOPTICON_NO_STAGE_ENTRY_WAKE": "1"}).wake(task)
@@ -91,7 +94,7 @@ def test_operator_opt_out_suppresses_wakes() -> None:
 
 
 def test_opt_out_set_to_the_empty_string_does_not_suppress_wakes() -> None:
-    # 2119: REQ-027.1.5
+    # 2119: REQ-029.1.5
     task = _task()
     client, runner = _Client(task), _Runner()
     StageEntryWaker(client, runner, environ={"PANOPTICON_NO_STAGE_ENTRY_WAKE": ""}).wake(task)
@@ -100,7 +103,7 @@ def test_opt_out_set_to_the_empty_string_does_not_suppress_wakes() -> None:
 
 
 def test_runner_does_not_wake_a_task_claimed_by_another_host() -> None:
-    # 2119: REQ-027.1.1
+    # 2119: REQ-029.1.1
     task = _task()
     task["claimed_by"] = "host-2"
     client, runner = _Client(task), _Runner()
@@ -112,8 +115,9 @@ def test_runner_does_not_wake_a_task_claimed_by_another_host() -> None:
 
 
 def test_success_is_recorded_and_repoll_or_respawn_does_not_redeliver() -> None:
-    # 2119: REQ-027.4.1
-    # 2119: REQ-027.4.2
+    # 2119: REQ-029.2.1
+    # 2119: REQ-029.4.1
+    # 2119: REQ-029.4.2
     task = _task()
     client, runner = _Client(task), _Runner()
     waker = StageEntryWaker(client, runner)
@@ -125,12 +129,12 @@ def test_success_is_recorded_and_repoll_or_respawn_does_not_redeliver() -> None:
     task["container_status"] = "live"
     waker.wake(task)
 
-    assert len(runner.prompts) == 1
+    assert runner.prompts == [("t1", "You have entered WORKING.\nDo the phase work. See /do-work.")]
     assert client.records == [("t1", 1, "delivered")]
 
 
 def test_fresh_waker_honors_a_delivery_recorded_by_an_earlier_process() -> None:
-    # 2119: REQ-027.4.2
+    # 2119: REQ-029.4.2
     task = _task(entry=_entry(wake_status="delivered"))
     client, runner = _Client(task), _Runner()
 
@@ -141,7 +145,7 @@ def test_fresh_waker_honors_a_delivery_recorded_by_an_earlier_process() -> None:
 
 
 def test_reentry_into_the_same_state_gets_a_fresh_wake() -> None:
-    # 2119: REQ-027.4.3
+    # 2119: REQ-029.4.3
     task = _task()
     client, runner = _Client(task), _Runner()
     waker = StageEntryWaker(client, runner)
@@ -158,7 +162,7 @@ def test_reentry_into_the_same_state_gets_a_fresh_wake() -> None:
 
 
 def test_failed_delivery_is_left_pending_for_retry() -> None:
-    # 2119: REQ-027.4.4
+    # 2119: REQ-029.4.4
     task = _task()
     client, runner = _Client(task), _Runner(result=False)
     StageEntryWaker(client, runner).wake(task)
@@ -168,7 +172,7 @@ def test_failed_delivery_is_left_pending_for_retry() -> None:
 
 
 def test_host_tick_observes_each_task_for_stage_entry_wake() -> None:
-    # 2119: REQ-027.1.1
+    # 2119: REQ-029.1.1
     seen: list[str] = []
 
     class _Waker:
@@ -214,3 +218,45 @@ def test_host_tick_observes_each_task_for_stage_entry_wake() -> None:
         ]
     )
     assert seen == ["t1", "t2"]
+
+
+def test_run_host_wires_the_stage_entry_waker_into_the_daemon(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # 2119: REQ-029.1.1
+    captured: dict[str, object] = {}
+
+    class _HostDaemon:
+        def __init__(
+            self,
+            client: object,
+            spawner: object,
+            provisioner: object,
+            *,
+            waker: object = None,
+            interval: float,
+            sleep: object,
+        ) -> None:
+            captured["waker"] = waker
+
+        def run(self, *, until: object) -> None:
+            captured["ran"] = True
+
+    monkeypatch.setattr(host_module, "Spawner", lambda *args, **kwargs: object())
+    monkeypatch.setattr(host_module, "Provisioner", lambda *args, **kwargs: object())
+    monkeypatch.setattr(host_module, "HostDaemon", _HostDaemon)
+
+    client, runner = _Client(_task()), _Runner()
+    host_module.run_host(
+        client,  # type: ignore[arg-type]
+        runner,  # type: ignore[arg-type]
+        runner_id="host-1",
+        tasks_root="/tasks",
+        cache=object(),  # type: ignore[arg-type]
+        git=object(),  # type: ignore[arg-type]
+        until=lambda: True,
+        sleep=lambda _seconds: None,
+    )
+
+    assert isinstance(captured["waker"], StageEntryWaker)
+    assert captured["ran"] is True

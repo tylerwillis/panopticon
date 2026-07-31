@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.4.2--60cb7dd68dcd",
+  "requirementId": "REQ-029.4.2",
+  "hash": "60cb7dd68dcd",
+  "verdict": "pass",
+  "summary": "Dedup is verified against the real waker via observable submit_prompt calls: repeated passes plus a down->live respawn cycle after a recorded delivery yield exactly one prompt, and a fresh-process waker seeing wake_status=delivered submits nothing, ruling out in-memory-only dedup.",
+  "timestamp": "2026-07-31T23:52:07.057Z"
+}

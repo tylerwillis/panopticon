@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.1.5--c9a93eb2877a",
+  "requirementId": "REQ-029.1.5",
+  "hash": "c9a93eb2877a",
+  "verdict": "pass",
+  "summary": "Opt-out tested on an otherwise-eligible task (same fixture delivers elsewhere): non-empty env suppresses submission, empty-string still delivers; env lookup runs unmocked and production wiring defaults to live os.environ.",
+  "timestamp": "2026-07-31T23:50:49.436Z"
+}

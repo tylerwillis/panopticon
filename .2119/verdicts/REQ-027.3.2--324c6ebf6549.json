@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.3.2--324c6ebf6549",
-  "requirementId": "REQ-027.3.2",
-  "hash": "324c6ebf6549",
-  "verdict": "pass",
-  "summary": "Parametrized missing/vanished/timeout paths run the real prefill_pane (fake tmux only), asserting False return with zero paste-buffer/send-keys calls; a raising implementation would error the test, and the waker's False-handling (REQ-027.4.4 test) completes the no-crash chain to the host pass.",
-  "timestamp": "2026-07-31T19:40:23.950Z"
-}

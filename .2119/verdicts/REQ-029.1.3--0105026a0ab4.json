@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.1.3--0105026a0ab4",
+  "requirementId": "REQ-029.1.3",
+  "hash": "0105026a0ab4",
+  "verdict": "pass",
+  "summary": "Test wakes with container down, flips to live, re-observes: asserts zero prompts submitted and exactly one durable 'skipped' record; every nearby violation (deliver-when-down, redeliver-after-respawn, in-memory-only dedup) breaks an assertion.",
+  "timestamp": "2026-07-31T23:50:29.937Z"
+}

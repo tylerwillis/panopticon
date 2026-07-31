@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.5.1--383dc465a00c",
+  "requirementId": "REQ-029.5.1",
+  "hash": "383dc465a00c",
+  "verdict": "pass",
+  "summary": "REST advance yields only a 'pending' record with zero prompt injection (subprocess.run trapped, runner untouched); delivery and the 'delivered' record occur solely via the sessionservice StageEntryWaker against the real store",
+  "timestamp": "2026-07-31T23:47:45.278Z"
+}

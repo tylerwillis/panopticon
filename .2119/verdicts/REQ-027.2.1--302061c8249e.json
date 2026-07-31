@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.2.1--302061c8249e",
-  "requirementId": "REQ-027.2.1",
-  "hash": "302061c8249e",
-  "verdict": "pass",
-  "summary": "Briefing rendered by the real service over REST is pinned: exact first-line equality, the state's declared description, post-resolution (current, not seeded) responsibility status, and the /do-work skill pointer; sessionservice reentry test pins submitted prompt verbatim-equal to the briefing, closing the 'submitted' conjunct.",
-  "timestamp": "2026-07-31T19:34:45.189Z"
-}

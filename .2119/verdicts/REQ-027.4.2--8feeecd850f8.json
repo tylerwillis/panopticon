@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.4.2--8feeecd850f8",
-  "requirementId": "REQ-027.4.2",
-  "hash": "8feeecd850f8",
-  "verdict": "pass",
-  "summary": "Repoll + down/live cycle asserts exactly one submission, and a fresh waker with only the recorded 'delivered' status submits nothing — dedup is proven to key off the durable record, not in-process memory; fakes mirror the real protocols and the guard runs in production code.",
-  "timestamp": "2026-07-31T19:36:20.319Z"
-}

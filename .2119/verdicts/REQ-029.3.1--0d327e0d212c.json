@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.3.1--0d327e0d212c",
+  "requirementId": "REQ-029.3.1",
+  "hash": "0d327e0d212c",
+  "verdict": "pass",
+  "summary": "Mutation-verified: dropping paste-buffer -p and doubling Enter each fail both REQ-029.3.1 tests (exact-command counts + ordering, real prefill_pane/LocalRunner logic behind a boundary-only tmux fake); skipping the readiness wait is caught by the sibling 3.2 timeout test in the same evidence file, which asserts no paste/submit when the signal never arrives.",
+  "timestamp": "2026-07-31T23:45:48.234Z"
+}

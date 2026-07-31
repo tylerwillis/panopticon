@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.1.2--4226d6cbd7e7",
-  "requirementId": "REQ-027.1.2",
-  "hash": "4226d6cbd7e7",
-  "verdict": "pass",
-  "summary": "test_initial_entry_is_not_pending_for_stage_entry_wake uses an initial state deliberately configured as non-terminal+agent-turn (which _enter would mark PENDING), proving start_task's hardcoded SKIPPED is the initial-entry exclusion at work, not a coincidental default; genuine, non-tautological coverage.",
-  "timestamp": "2026-07-31T19:46:20.050Z"
-}

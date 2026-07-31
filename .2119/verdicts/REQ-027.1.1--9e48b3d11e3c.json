@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.1.1--9e48b3d11e3c",
-  "requirementId": "REQ-027.1.1",
-  "hash": "9e48b3d11e3c",
-  "verdict": "pass",
-  "summary": "Submission verified end-to-end via real TaskService+REST StageEntryWaker for both advance and free-move; ownership, non-live, user-turn, terminal, and already-delivered near-misses each rejected across core/waker layers",
-  "timestamp": "2026-07-31T19:55:42.638Z"
-}
