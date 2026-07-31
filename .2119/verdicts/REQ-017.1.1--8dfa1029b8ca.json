@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.1.1--8dfa1029b8ca",
-  "requirementId": "REQ-017.1.1",
-  "hash": "8dfa1029b8ca",
-  "verdict": "pass",
-  "summary": "Pane-closed negative asserts no SlugScreen/no set_slug/unchanged slug; pane-open seeds from a genuinely highlighted second task, and a divergent get_task proves seeding from the current service slug",
-  "timestamp": "2026-07-31T05:39:33.767Z"
-}

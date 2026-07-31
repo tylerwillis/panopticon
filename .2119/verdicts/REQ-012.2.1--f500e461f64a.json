@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.2.1--f500e461f64a",
+  "requirementId": "REQ-012.2.1",
+  "hash": "f500e461f64a",
+  "verdict": "pass",
+  "summary": "Sol: The test omits task overrides, supplies conflicting workflow and repository pairs, and rejects the nearest violation—selecting the repository pair—by asserting the workflow pair.",
+  "timestamp": "2026-07-31T23:18:05.441Z"
+}

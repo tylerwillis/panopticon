@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.1.1--2edc3e563a71",
+  "requirementId": "REQ-027.1.1",
+  "hash": "2edc3e563a71",
+  "verdict": "pass",
+  "summary": "Sol: tests verify the model default, null in both REST representations, valid timestamps, and invalid-value rejection.",
+  "timestamp": "2026-07-31T23:10:38.925Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.5.1--6b9fdc94840e",
-  "requirementId": "REQ-006.5.1",
-  "hash": "6b9fdc94840e",
-  "verdict": "pass",
-  "summary": "Sol: Tests use the latest snapshot and cover empty plus every non-down status, requiring the exact no down tasks report.",
-  "timestamp": "2026-07-31T07:26:03.488Z"
-}

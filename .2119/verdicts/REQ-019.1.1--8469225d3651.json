@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.1.1--8469225d3651",
+  "requirementId": "REQ-019.1.1",
+  "hash": "8469225d3651",
+  "verdict": "pass",
+  "summary": "Sol: Blocked discovery is active while the mounted, focused memo accepts input, so synchronous blocking of mounting, focus, or input would prevent the test from completing.",
+  "timestamp": "2026-07-31T23:18:21.642Z"
+}

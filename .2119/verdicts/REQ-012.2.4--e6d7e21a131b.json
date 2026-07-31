@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.2.4--e6d7e21a131b",
+  "requirementId": "REQ-012.2.4",
+  "hash": "e6d7e21a131b",
+  "verdict": "pass",
+  "summary": "Sol: The test removes task, workflow, and repository selections, changes the concrete application default, then reads the task back and requires that harness name to be persisted.",
+  "timestamp": "2026-07-31T23:18:06.380Z"
+}

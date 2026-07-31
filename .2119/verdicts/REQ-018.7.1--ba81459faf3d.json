@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.7.1--ba81459faf3d",
+  "requirementId": "REQ-018.7.1",
+  "hash": "ba81459faf3d",
+  "verdict": "pass",
+  "summary": "Sol: Tests cover untouched fields tracking changed repo, workflow, and app defaults while separately proving touched model or effort values do not track harness changes.",
+  "timestamp": "2026-07-31T23:18:15.149Z"
+}

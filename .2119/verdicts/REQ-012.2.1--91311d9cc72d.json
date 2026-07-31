@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.2.1--91311d9cc72d",
-  "requirementId": "REQ-012.2.1",
-  "hash": "91311d9cc72d",
-  "verdict": "pass",
-  "summary": "With no task overrides and conflicting workflow/repository pairs, the API test requires both persisted values to equal the workflow pair.",
-  "timestamp": "2026-07-31T06:41:55.993Z"
-}

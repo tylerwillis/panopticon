@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.7.1--e18bb31a6add",
-  "requirementId": "REQ-008.7.1",
-  "hash": "e18bb31a6add",
-  "verdict": "pass",
-  "summary": "Sol: The test forces startup through one versioned response, verifies its returned snapshot is rendered, and verifies its cursor seeds the first long poll.",
-  "timestamp": "2026-07-31T07:26:05.674Z"
-}

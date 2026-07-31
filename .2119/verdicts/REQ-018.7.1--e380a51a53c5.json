@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.7.1--e380a51a53c5",
-  "requirementId": "REQ-018.7.1",
-  "hash": "e380a51a53c5",
-  "verdict": "pass",
-  "summary": "Sol: Untouched fields are exercised against changed workflow, repo, and application defaults, including mixed touched and untouched fields.",
-  "timestamp": "2026-07-31T07:26:13.790Z"
-}

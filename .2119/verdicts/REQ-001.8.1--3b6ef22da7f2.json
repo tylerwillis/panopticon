@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.8.1--3b6ef22da7f2",
+  "requirementId": "REQ-001.8.1",
+  "hash": "3b6ef22da7f2",
+  "verdict": "pass",
+  "summary": "Sol: After clearing mount-time notices, pressing x on a built-in workflow must emit exactly the operator-facing cannot-be-deleted notification.",
+  "timestamp": "2026-07-31T23:17:58.185Z"
+}

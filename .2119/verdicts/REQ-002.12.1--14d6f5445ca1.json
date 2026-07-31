@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.12.1--14d6f5445ca1",
+  "requirementId": "REQ-002.12.1",
+  "hash": "14d6f5445ca1",
+  "verdict": "pass",
+  "summary": "Sol: Test rejects the nearest violation by asserting review is absent from both operator menu APIs while confirming it remains registered and governor-linked creation still succeeds.",
+  "timestamp": "2026-07-31T23:17:58.668Z"
+}

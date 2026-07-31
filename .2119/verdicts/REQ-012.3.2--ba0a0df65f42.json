@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.3.2--ba0a0df65f42",
-  "requirementId": "REQ-012.3.2",
-  "hash": "ba0a0df65f42",
-  "verdict": "pass",
-  "summary": "The test supplies only an explicit model and requires that exact model while retaining the independently selected workflow harness.",
-  "timestamp": "2026-07-31T06:41:55.988Z"
-}

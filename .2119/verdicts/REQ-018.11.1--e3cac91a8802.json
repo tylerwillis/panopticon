@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.11.1--e3cac91a8802",
+  "requirementId": "REQ-018.11.1",
+  "hash": "e3cac91a8802",
+  "verdict": "pass",
+  "summary": "Sol: Tests cover typed and candidate-accepted values, both fields together, and each field independently, rejecting any harness-change reset of touched values.",
+  "timestamp": "2026-07-31T23:18:17.025Z"
+}

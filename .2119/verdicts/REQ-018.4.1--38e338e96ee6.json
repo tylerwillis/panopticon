@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.4.1--38e338e96ee6",
+  "requirementId": "REQ-018.4.1",
+  "hash": "38e338e96ee6",
+  "verdict": "pass",
+  "summary": "Sol: Tests use filtered multi-candidate lists and assert Down and Up change the highlight through their current indices, rejecting immobile or incorrectly directed navigation.",
+  "timestamp": "2026-07-31T23:18:13.697Z"
+}

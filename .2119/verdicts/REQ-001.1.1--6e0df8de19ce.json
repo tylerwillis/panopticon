@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.1.1--6e0df8de19ce",
+  "requirementId": "REQ-001.1.1",
+  "hash": "6e0df8de19ce",
+  "verdict": "pass",
+  "summary": "Sol: Pressing x on either highlighted operator workflow opens confirmation naming that workflow, rejecting no-dialog and wrong-selection counterexamples.",
+  "timestamp": "2026-07-31T23:17:54.923Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.2.2--892cac830407",
-  "requirementId": "REQ-027.2.2",
-  "hash": "892cac830407",
-  "verdict": "pass",
-  "summary": "Sol: Behavioral tests press e on active finite and reserved indefinite snoozes and require a None snoozed_until write in both cases.",
-  "timestamp": "2026-07-31T07:26:21.532Z"
-}

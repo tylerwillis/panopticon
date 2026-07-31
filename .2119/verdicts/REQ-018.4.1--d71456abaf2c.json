@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.4.1--d71456abaf2c",
-  "requirementId": "REQ-018.4.1",
-  "hash": "d71456abaf2c",
-  "verdict": "pass",
-  "summary": "Highlight indices asserted per down/up press; Enter yields filtered index 1 (luna/xhigh), which differs from the unfiltered list's index 1",
-  "timestamp": "2026-07-31T05:42:34.473Z"
-}

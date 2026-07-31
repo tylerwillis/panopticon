@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.2.1--cb64f4e37778",
-  "requirementId": "REQ-026.2.1",
-  "hash": "cb64f4e37778",
-  "verdict": "pass",
-  "summary": "Exact instruction-text assertion rejects omission or substitution of either put_artifact MCP or REST PUT mechanism and verifies the core artifacts skill exposed by TaskService.",
-  "timestamp": "2026-07-31T06:46:11.876Z"
-}

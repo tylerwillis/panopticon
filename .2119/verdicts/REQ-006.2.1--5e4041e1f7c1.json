@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.2.1--5e4041e1f7c1",
-  "requirementId": "REQ-006.2.1",
-  "hash": "5e4041e1f7c1",
-  "verdict": "pass",
-  "summary": "Ctrl+R with 6 down + live + failed tasks asserts exact rendered modal lines (every/only, failed excluded), and a mutated-snapshot test proves the modal reads the latest fetch, not the painted table.",
-  "timestamp": "2026-07-30T23:48:50.774Z"
-}

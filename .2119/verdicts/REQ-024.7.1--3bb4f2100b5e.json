@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.7.1--3bb4f2100b5e",
-  "requirementId": "REQ-024.7.1",
-  "hash": "3bb4f2100b5e",
-  "verdict": "pass",
-  "summary": "Exact last-line pane hint + case-sensitive y/Shift+Y substrings in rendered help, tied to live HOTKEYS bindings; mislabels fail both surfaces",
-  "timestamp": "2026-07-31T06:16:46.454Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.1.1--63346cfcef6e",
-  "requirementId": "REQ-027.1.1",
-  "hash": "63346cfcef6e",
-  "verdict": "pass",
-  "summary": "Sol: Tests cover null defaults, aware and naive timestamps, and reject non-timestamp and date-only counterexamples.",
-  "timestamp": "2026-07-31T07:47:02.580Z"
-}

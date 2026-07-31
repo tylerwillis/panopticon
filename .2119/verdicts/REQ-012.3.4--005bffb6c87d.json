@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.3.4--005bffb6c87d",
+  "requirementId": "REQ-012.3.4",
+  "hash": "005bffb6c87d",
+  "verdict": "pass",
+  "summary": "Sol: The test uses an explicit harness equal to the non-null workflow-selected harness with no task model and rejects model loss by asserting the paired model remains.",
+  "timestamp": "2026-07-31T23:18:08.346Z"
+}

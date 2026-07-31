@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.5.1--100d604cd7a0",
-  "requirementId": "REQ-001.5.1",
-  "hash": "100d604cd7a0",
-  "verdict": "pass",
-  "summary": "Sol: A built-in deletion request remains on the workflows screen and preserves the file, rejecting both dialog-opening and deletion violations.",
-  "timestamp": "2026-07-31T07:25:57.493Z"
-}

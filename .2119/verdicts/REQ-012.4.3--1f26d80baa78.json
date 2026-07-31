@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.4.3--1f26d80baa78",
-  "requirementId": "REQ-012.4.3",
-  "hash": "1f26d80baa78",
-  "verdict": "pass",
-  "summary": "The test changes the application default after task creation and distinguishes the old task's persisted harness from a newly created task's new default.",
-  "timestamp": "2026-07-31T06:41:56.213Z"
-}

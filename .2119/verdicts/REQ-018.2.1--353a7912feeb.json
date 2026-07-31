@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.2.1--353a7912feeb",
+  "requirementId": "REQ-018.2.1",
+  "hash": "353a7912feeb",
+  "verdict": "pass",
+  "summary": "Sol: Test starts at the memo editor and asserts each successive Tab focuses harness, model, then effort, rejecting every adjacent reordering or skipped control.",
+  "timestamp": "2026-07-31T23:18:12.693Z"
+}

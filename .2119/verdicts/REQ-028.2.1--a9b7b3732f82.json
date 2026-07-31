@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.2.1--a9b7b3732f82",
+  "requirementId": "REQ-028.2.1",
+  "hash": "a9b7b3732f82",
+  "verdict": "pass",
+  "summary": "Sol: exact artifact guidance requires both put_artifact and the complete REST PUT route.",
+  "timestamp": "2026-07-31T23:19:26.843Z"
+}

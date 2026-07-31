@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.6.2--da35052eec15",
-  "requirementId": "REQ-026.6.2",
-  "hash": "da35052eec15",
-  "verdict": "pass",
-  "summary": "test_attention_marker_is_orthogonal_and_clears_on_user_prompt_handoff round-trips attention=True via an independent GET and attention=False via subsequent stored-state responses, with turn pre-set to agent and blocked pre-set truthy and both re-asserted unchanged after each attention write, over the real service+store",
-  "timestamp": "2026-07-31T06:27:35.120Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.6.1--955b21c3396e",
-  "requirementId": "REQ-001.6.1",
-  "hash": "955b21c3396e",
-  "verdict": "pass",
-  "summary": "Sol: The exact dialog message verifies both file removal and retention of the loaded workflow until the running service restarts.",
-  "timestamp": "2026-07-31T07:25:57.936Z"
-}

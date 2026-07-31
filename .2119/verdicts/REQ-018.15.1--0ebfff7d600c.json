@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.15.1--0ebfff7d600c",
+  "requirementId": "REQ-018.15.1",
+  "hash": "0ebfff7d600c",
+  "verdict": "pass",
+  "summary": "Sol: Combined tests verify the configured editor command receives existing text and returns saved content, then verify Ctrl+G replaces the textarea content used on submission.",
+  "timestamp": "2026-07-31T23:18:18.842Z"
+}

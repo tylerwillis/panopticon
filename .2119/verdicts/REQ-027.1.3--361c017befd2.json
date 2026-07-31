@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.1.3--361c017befd2",
-  "requirementId": "REQ-027.1.3",
-  "hash": "361c017befd2",
-  "verdict": "pass",
-  "summary": "Sol: Tests verify both future and already-past finite deadlines remain recorded without service-side expiry.",
-  "timestamp": "2026-07-31T07:19:13.074Z"
-}

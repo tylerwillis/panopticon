@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.1.1--56c341aa3d8d",
-  "requirementId": "REQ-018.1.1",
-  "hash": "56c341aa3d8d",
-  "verdict": "pass",
-  "summary": "All three labeled controls with values resolved via real resolve_launch_selection asserted rendered (region.width > 0) while MemoTextArea still holds focus — encodes the pre-focus bound; missing/blank/focus-lazy all fail",
-  "timestamp": "2026-07-31T05:39:35.551Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.3.1--d216b7b43645",
+  "requirementId": "REQ-006.3.1",
+  "hash": "d216b7b43645",
+  "verdict": "pass",
+  "summary": "Sol: The test presses Escape, verifies modal dismissal, and rejects any claim-release request.",
+  "timestamp": "2026-07-31T23:18:01.101Z"
+}

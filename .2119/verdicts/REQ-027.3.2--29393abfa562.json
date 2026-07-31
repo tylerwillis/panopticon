@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.3.2--29393abfa562",
-  "requirementId": "REQ-027.3.2",
-  "hash": "29393abfa562",
-  "verdict": "pass",
-  "summary": "Sol: Exact/after deadlines restore multiple ordinary derivations without mutating the recorded fact.",
-  "timestamp": "2026-07-31T07:47:03.465Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.2.2--03658e771feb",
+  "requirementId": "REQ-006.2.2",
+  "hash": "03658e771feb",
+  "verdict": "pass",
+  "summary": "Sol: Rendered rows verify eight-character IDs, set and unset slugs, absent and padded memos, whitespace normalization, exact-60 text without ellipsis, and over-60 text with ellipsis.",
+  "timestamp": "2026-07-31T23:18:00.543Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.1.1--51f6044411b9",
-  "requirementId": "REQ-025.1.1",
-  "hash": "51f6044411b9",
-  "verdict": "pass",
-  "summary": "Sol: Tests propagate a task containing both slug and memo through local, remote, and dashboard attach paths and assert slug [memo] reaches tmux status-left.",
-  "timestamp": "2026-07-31T07:26:20.635Z"
-}

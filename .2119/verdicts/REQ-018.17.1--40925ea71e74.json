@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.17.1--40925ea71e74",
-  "requirementId": "REQ-018.17.1",
-  "hash": "40925ea71e74",
-  "verdict": "pass",
-  "summary": "Sol: Both model and effort controls are tested with zero candidates and with nonempty candidates lacking a highlight, verifying the modal stays open and no task is created.",
-  "timestamp": "2026-07-31T07:26:10.788Z"
-}

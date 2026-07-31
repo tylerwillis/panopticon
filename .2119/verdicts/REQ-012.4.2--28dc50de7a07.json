@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.4.2--28dc50de7a07",
-  "requirementId": "REQ-012.4.2",
-  "hash": "28dc50de7a07",
-  "verdict": "pass",
-  "summary": "test_created_tasks_keep_launch_values_after_defaults_change mutates the repo default via PATCH and the workflow pair via class monkeypatch AFTER creating one repo-derived and one workflow-derived task, then re-reads both via GET and asserts the original harness+model pairs (distinct from the replacement values), rejecting any read-time re-resolution; explicit-value persistence is pinned by the REQ-012.3.x tests.",
-  "timestamp": "2026-07-31T00:52:23.906Z"
-}

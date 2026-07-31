@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.4.1--ca252ba81649",
-  "requirementId": "REQ-017.4.1",
-  "hash": "ca252ba81649",
-  "verdict": "pass",
-  "summary": "Sol: The test opens a task's details and requires the exact edit-slug text as a dim line within the trailing key hints.",
-  "timestamp": "2026-07-31T07:26:07.400Z"
-}

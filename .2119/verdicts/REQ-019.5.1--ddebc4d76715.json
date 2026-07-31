@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.5.1--ddebc4d76715",
-  "requirementId": "REQ-019.5.1",
-  "hash": "ddebc4d76715",
-  "verdict": "pass",
-  "summary": "Sol: The test waits for completed discovery, times each selection update below 10 milliseconds, and verifies all harness-dependent fields.",
-  "timestamp": "2026-07-31T07:26:16.742Z"
-}

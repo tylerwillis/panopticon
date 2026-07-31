@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.6.1--16ff3912c507",
-  "requirementId": "REQ-026.6.1",
-  "hash": "16ff3912c507",
-  "verdict": "pass",
-  "summary": "test_dependency_held_cells_details_and_pre_spawn_row_are_honest and test_governor_held_cell_tracks_active_children_and_reverts_when_they_finish pin every conjunct on the real rendered turn cell: no-wait tasks with marker set/cleared/absent all keep attention styling; marker escalates held->user only inside proven dep and child waits; DROPPED-only dep and COMPLETE-only child do not demote",
-  "timestamp": "2026-07-31T06:27:34.702Z"
-}

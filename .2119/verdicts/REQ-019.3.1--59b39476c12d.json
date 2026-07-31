@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.3.1--59b39476c12d",
+  "requirementId": "REQ-019.3.1",
+  "hash": "59b39476c12d",
+  "verdict": "pass",
+  "summary": "Sol: Successive openings must display distinct call-indexed model and effort results, rejecting reuse of either earlier-opening result.",
+  "timestamp": "2026-07-31T23:18:22.553Z"
+}

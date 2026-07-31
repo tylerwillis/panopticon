@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.3.1--cc41f4897210",
-  "requirementId": "REQ-026.3.1",
-  "hash": "cc41f4897210",
-  "verdict": "pass",
-  "summary": "Exact plain+style assertions on real Textual table cells: dim held / held 1 for waiting dependents and governor, with rejecting counterexamples for attention-set, DROPPED-only, and no-dependency tasks all yellow user.",
-  "timestamp": "2026-07-31T06:27:30.238Z"
-}

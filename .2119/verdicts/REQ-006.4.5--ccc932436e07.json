@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.5--ccc932436e07",
+  "requirementId": "REQ-006.4.5",
+  "hash": "ccc932436e07",
+  "verdict": "pass",
+  "summary": "Sol: The exact sole aggregate notification assertion rejects any task-specific notification for each enumerated recovered status.",
+  "timestamp": "2026-07-31T23:18:03.506Z"
+}

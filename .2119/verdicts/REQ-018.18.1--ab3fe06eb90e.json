@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.18.1--ab3fe06eb90e",
-  "requirementId": "REQ-018.18.1",
-  "hash": "ab3fe06eb90e",
-  "verdict": "pass",
-  "summary": "Sol: Tests verify both untouched values clear together and independently while touched sibling values survive, including the resulting task override.",
-  "timestamp": "2026-07-31T07:26:11.251Z"
-}

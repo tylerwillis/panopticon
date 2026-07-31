@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.2.1--d5a45cab7833",
-  "requirementId": "REQ-017.2.1",
-  "hash": "d5a45cab7833",
-  "verdict": "pass",
-  "summary": "Sol: Tests verify trimming, highlighted-task targeting, service submission, refreshed table and detail displays, plus preservation and continued operation after rejection.",
-  "timestamp": "2026-07-31T07:26:06.536Z"
-}

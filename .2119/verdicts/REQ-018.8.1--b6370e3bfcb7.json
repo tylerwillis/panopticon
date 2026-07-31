@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.8.1--b6370e3bfcb7",
-  "requirementId": "REQ-018.8.1",
-  "hash": "b6370e3bfcb7",
-  "verdict": "pass",
-  "summary": "Parametrized real-UI test escapes from harness/model/effort (candidate list visibility asserted as precondition) and the draft test covers the memo editor; each asserts the MemoScreen is gone and no task was created, rejecting the dropdown-only-close counterexample.",
-  "timestamp": "2026-07-30T23:51:29.184Z"
-}

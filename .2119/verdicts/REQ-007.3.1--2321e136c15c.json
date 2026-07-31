@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-007.3.1--2321e136c15c",
-  "requirementId": "REQ-007.3.1",
-  "hash": "2321e136c15c",
-  "verdict": "pass",
-  "summary": "Sol: The test rejects the forbidden exact hint line in render_detail(task) for a fixture whose fields do not contain the hint.",
-  "timestamp": "2026-07-31T07:26:05.244Z"
-}

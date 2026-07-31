@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.5.3--6cd39fd9e083",
+  "requirementId": "REQ-026.5.3",
+  "hash": "6cd39fd9e083",
+  "verdict": "pass",
+  "summary": "Sol: The selected governor’s two non-terminal children must both appear with current slug and state, while its terminal child must be absent.",
+  "timestamp": "2026-07-31T23:18:33.158Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.15.1--3fbed7827357",
-  "requirementId": "REQ-018.15.1",
-  "hash": "3fbed7827357",
-  "verdict": "pass",
-  "summary": "ctrl+g proves textarea replacement (submit yields 'edited:hi'); _edit_with_editor tested un-mocked: $EDITOR argv, temp-file seed/read-back, cleanup.",
-  "timestamp": "2026-07-31T05:37:25.533Z"
-}

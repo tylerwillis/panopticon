@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.7.1--d684646d62fe",
-  "requirementId": "REQ-026.7.1",
-  "hash": "d684646d62fe",
-  "verdict": "pass",
-  "summary": "Discovery without an external directory registers exactly all three built-in 2119 workflows.",
-  "timestamp": "2026-07-31T07:16:27.730Z"
-}

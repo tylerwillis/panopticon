@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.5.1--a02503cb1daa",
+  "requirementId": "REQ-012.5.1",
+  "hash": "a02503cb1daa",
+  "verdict": "pass",
+  "summary": "Sol: The test rejects model-without-harness on creation, patching, and harness removal while accepting the nearest valid non-null harness/model pair.",
+  "timestamp": "2026-07-31T23:18:09.826Z"
+}

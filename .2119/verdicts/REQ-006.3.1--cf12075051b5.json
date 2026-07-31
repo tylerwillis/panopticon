@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.3.1--cf12075051b5",
-  "requirementId": "REQ-006.3.1",
-  "hash": "cf12075051b5",
-  "verdict": "pass",
-  "summary": "Sol: The test opens the modal, presses Escape, verifies dismissal, and confirms that no claim release was issued.",
-  "timestamp": "2026-07-31T07:26:00.937Z"
-}

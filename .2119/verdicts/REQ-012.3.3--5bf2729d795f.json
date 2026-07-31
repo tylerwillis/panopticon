@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.3.3--5bf2729d795f",
-  "requirementId": "REQ-012.3.3",
-  "hash": "5bf2729d795f",
-  "verdict": "pass",
-  "summary": "Explicit claude against the tuned codex/gpt-5.6-sol:high pair with no task model asserts starting_model is None; retaining the losing pair's model would fail.",
-  "timestamp": "2026-07-31T00:12:24.224Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.3.1--dd37898f608c",
-  "requirementId": "REQ-001.3.1",
-  "hash": "dd37898f608c",
-  "verdict": "pass",
-  "summary": "Sol: Separate no and Escape cases verify dismissal back to the workflows screen while preserving the selected file and contents.",
-  "timestamp": "2026-07-31T07:25:56.583Z"
-}

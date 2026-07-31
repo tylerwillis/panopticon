@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.4.2--c4e4f33940d7",
-  "requirementId": "REQ-012.4.2",
-  "hash": "c4e4f33940d7",
-  "verdict": "pass",
-  "summary": "The test creates repository-derived, workflow-derived, and explicit tasks, changes both default sources, then verifies every persisted launch pair remains unchanged.",
-  "timestamp": "2026-07-31T06:47:16.730Z"
-}

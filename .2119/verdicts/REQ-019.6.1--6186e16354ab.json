@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.6.1--6186e16354ab",
+  "requirementId": "REQ-019.6.1",
+  "hash": "6186e16354ab",
+  "verdict": "pass",
+  "summary": "Sol: A deliberately failing in-flight discovery is released after closure, and the test rejects notification or application-level worker failure visible to the operator.",
+  "timestamp": "2026-07-31T23:18:24.019Z"
+}

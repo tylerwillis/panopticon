@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.8.1--2bc6c526706a",
-  "requirementId": "REQ-018.8.1",
-  "hash": "2bc6c526706a",
-  "verdict": "pass",
-  "summary": "Sol: Escape closes without submission from the memo, harness, model, and effort controls, including both visible candidate lists.",
-  "timestamp": "2026-07-31T07:26:14.237Z"
-}

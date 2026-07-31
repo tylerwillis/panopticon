@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.5.1--faa92e6dd4e2",
-  "requirementId": "REQ-012.5.1",
-  "hash": "faa92e6dd4e2",
-  "verdict": "pass",
-  "summary": "Create, patch, and clearing-harness cases each reject the forbidden non-null-model/null-harness state while the valid paired configuration succeeds.",
-  "timestamp": "2026-07-31T06:41:56.159Z"
-}

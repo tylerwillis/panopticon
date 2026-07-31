@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.1.1--d463ea607e88",
+  "requirementId": "REQ-006.1.1",
+  "hash": "d463ea607e88",
+  "verdict": "pass",
+  "summary": "Sol: Pressing Ctrl+R is behaviorally exercised and must open the bulk-respawn confirmation screen.",
+  "timestamp": "2026-07-31T23:17:59.135Z"
+}

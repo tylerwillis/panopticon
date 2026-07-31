@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-007.2.1--03669cf464d7",
-  "requirementId": "REQ-007.2.1",
-  "hash": "03669cf464d7",
-  "verdict": "pass",
-  "summary": "Sol: The test requires the exact hint as the final line of the visible details pane and verifies that the entire hint is dim.",
-  "timestamp": "2026-07-31T07:26:04.791Z"
-}

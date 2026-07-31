@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-007.1.1--972439d98c4d",
-  "requirementId": "REQ-007.1.1",
-  "hash": "972439d98c4d",
-  "verdict": "pass",
-  "summary": "Tests drive real keypresses through action_copy_detail, mock only the two primitives (OSC52 copy_to_clipboard + host _clipboard_copy), assert both fire with the highlighted task's real render_detail text, incl. terminal-raises -> host still fires",
-  "timestamp": "2026-07-31T05:39:32.064Z"
-}

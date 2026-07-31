@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.3.1--7fb4143eba92",
-  "requirementId": "REQ-012.3.1",
-  "hash": "7fb4143eba92",
-  "verdict": "pass",
-  "summary": "Tests supply an explicit harness against both application and non-null repository defaults and require the explicit harness in the created task.",
-  "timestamp": "2026-07-31T06:41:56.205Z"
-}

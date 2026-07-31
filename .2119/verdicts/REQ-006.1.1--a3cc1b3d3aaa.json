@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.1.1--a3cc1b3d3aaa",
-  "requirementId": "REQ-006.1.1",
-  "hash": "a3cc1b3d3aaa",
-  "verdict": "pass",
-  "summary": "Sol: Pressing Ctrl+R behaviorally opens the bulk-respawn confirmation, rejecting a missing or incorrectly bound action.",
-  "timestamp": "2026-07-31T07:25:59.234Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.5.1--89840f7a3787",
+  "requirementId": "REQ-001.5.1",
+  "hash": "89840f7a3787",
+  "verdict": "pass",
+  "summary": "Sol: Pressing x on a built-in workflow leaves its file unchanged and keeps the workflows screen active, rejecting deletion and confirmation-opening counterexamples.",
+  "timestamp": "2026-07-31T23:17:56.807Z"
+}

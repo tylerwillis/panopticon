@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.6.3--1a7b78747ac0",
-  "requirementId": "REQ-026.6.3",
-  "hash": "1a7b78747ac0",
-  "verdict": "pass",
-  "summary": "Tagged test sets attention=True then issues real PUT blocked=False and blocked=True via the real service/store (no mocks), asserting attention stays True each time; a set_blocked that cleared attention would fail",
-  "timestamp": "2026-07-31T06:27:35.556Z"
-}

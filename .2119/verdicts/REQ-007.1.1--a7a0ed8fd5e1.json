@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-007.1.1--a7a0ed8fd5e1",
-  "requirementId": "REQ-007.1.1",
-  "hash": "a7a0ed8fd5e1",
-  "verdict": "pass",
-  "summary": "Sol: Tests verify both clipboard paths receive the highlighted task's rendered detail and that host copying still occurs after terminal-copy failure.",
-  "timestamp": "2026-07-31T07:26:04.340Z"
-}

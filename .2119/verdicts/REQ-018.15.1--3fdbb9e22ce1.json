@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.15.1--3fdbb9e22ce1",
-  "requirementId": "REQ-018.15.1",
-  "hash": "3fdbb9e22ce1",
-  "verdict": "pass",
-  "summary": "Sol: Tests verify configured-editor invocation and returned content, then exercise Ctrl+G and confirm that content replaces the memo text delivered on submission.",
-  "timestamp": "2026-07-31T07:26:10.334Z"
-}

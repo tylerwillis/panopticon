@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.4.4--930bcccc0285",
-  "requirementId": "REQ-006.4.4",
-  "hash": "930bcccc0285",
-  "verdict": "pass",
-  "summary": "Parametrized over all 11 non-down statuses, the test mutates the service-side task after the modal snapshot so only a confirmation-time get_task can see recovery, and exact-list released==[still_down] rejects any claim-release for the recovered task; fake stubs only the HTTP client (release == DELETE claim).",
-  "timestamp": "2026-07-30T23:49:13.292Z"
-}

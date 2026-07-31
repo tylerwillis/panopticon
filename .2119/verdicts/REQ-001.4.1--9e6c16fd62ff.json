@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.4.1--9e6c16fd62ff",
-  "requirementId": "REQ-001.4.1",
-  "hash": "9e6c16fd62ff",
-  "verdict": "pass",
-  "summary": "Sol: Choosing yes deletes only the selected file, re-queries the registry, and renders the refreshed registry data.",
-  "timestamp": "2026-07-31T07:25:57.037Z"
-}

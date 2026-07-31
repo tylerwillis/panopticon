@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.2.1--faf3b055cefb",
-  "requirementId": "REQ-023.2.1",
-  "hash": "faf3b055cefb",
-  "verdict": "pass",
-  "summary": "Sol: Exact slug-cell assertions cover right and down markers in collapsed and expanded states, including repeated toggles and nested governors.",
-  "timestamp": "2026-07-31T07:26:18.511Z"
-}

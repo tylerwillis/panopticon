@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.4.4--020091eb9d7b",
-  "requirementId": "REQ-006.4.4",
-  "hash": "020091eb9d7b",
-  "verdict": "pass",
-  "summary": "Sol: Parameterized confirmation-time checks cover every non-down status and verify that only the still-down task receives a claim-release request.",
-  "timestamp": "2026-07-31T07:26:02.633Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.7.1--f7ba112b996f",
-  "requirementId": "REQ-019.7.1",
-  "hash": "f7ba112b996f",
-  "verdict": "pass",
-  "summary": "Snapshots 13 widget fields before close and re-reads the same object references after the blocked discovery completes; traced Textual internals confirm the is_attached guards are the sole protection, so removing them flips the byte-for-byte equality assertions",
-  "timestamp": "2026-07-31T05:46:14.167Z"
-}

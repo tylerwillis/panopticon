@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.4.4--121dcef29238",
-  "requirementId": "REQ-006.4.4",
-  "hash": "121dcef29238",
-  "verdict": "pass",
-  "summary": "Parametrized over all eleven non-down statuses; modal holds the stale snapshot so only the confirmation-time get_task can observe recovery, and released excludes it",
-  "timestamp": "2026-07-31T05:36:10.392Z"
-}

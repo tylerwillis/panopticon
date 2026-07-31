@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.2.1--f42ec3baf1df",
+  "requirementId": "REQ-001.2.1",
+  "hash": "f42ec3baf1df",
+  "verdict": "pass",
+  "summary": "Sol: The dialog exposes visible enabled yes and no buttons, and separate tests exercise each choice's distinct behavior.",
+  "timestamp": "2026-07-31T23:17:55.420Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.1.1--1aaed3699b88",
-  "requirementId": "REQ-017.1.1",
-  "hash": "1aaed3699b88",
-  "verdict": "pass",
-  "summary": "Sol: Tests reject rename effects with the pane closed and verify that opening it launches an editor for the highlighted task initialized from its current service slug.",
-  "timestamp": "2026-07-31T07:26:06.101Z"
-}

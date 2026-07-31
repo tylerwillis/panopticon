@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.3.3--8701c4b75ba5",
-  "requirementId": "REQ-027.3.3",
-  "hash": "8701c4b75ba5",
-  "verdict": "pass",
-  "summary": "Sol: Injected clocks drive writes and automatic cached expiry without a service refresh.",
-  "timestamp": "2026-07-31T07:47:03.875Z"
-}

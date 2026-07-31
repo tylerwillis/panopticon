@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.1.1--3fbfa2dc09df",
+  "requirementId": "REQ-007.1.1",
+  "hash": "3fbfa2dc09df",
+  "verdict": "pass",
+  "summary": "Highlighted-task detail is asserted through both clipboard paths, including either path failing independently.",
+  "timestamp": "2026-07-31T23:24:06.832Z"
+}

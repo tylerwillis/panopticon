@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.5.1--70969ba62b54",
+  "requirementId": "REQ-028.5.1",
+  "hash": "70969ba62b54",
+  "verdict": "pass",
+  "summary": "Sol: every built-in spec and review skill exactly requires the respective published artifacts.",
+  "timestamp": "2026-07-31T23:19:28.210Z"
+}

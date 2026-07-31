@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.7.1--bdd8246baefd",
-  "requirementId": "REQ-026.7.1",
-  "hash": "bdd8246baefd",
-  "verdict": "pass",
-  "summary": "Discovery with a nonexistent external directory asserts all three exact built-in names resolve to their respective workflow classes.",
-  "timestamp": "2026-07-31T06:45:44.800Z"
-}

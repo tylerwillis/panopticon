@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.1.1--a0238c60452a",
+  "requirementId": "REQ-028.1.1",
+  "hash": "a0238c60452a",
+  "verdict": "pass",
+  "summary": "Sol: task creation across built-in/custom workflows and collision cases proves the core artifact skill is always exposed.",
+  "timestamp": "2026-07-31T23:19:26.368Z"
+}

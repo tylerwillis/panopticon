@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.3.4--0afb29ef16aa",
-  "requirementId": "REQ-012.3.4",
-  "hash": "0afb29ef16aa",
-  "verdict": "pass",
-  "summary": "The behavioral test supplies the same explicit and default-chain harness with no task model and rejects loss or replacement of the paired model.",
-  "timestamp": "2026-07-31T06:41:55.990Z"
-}

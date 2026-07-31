@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.6.1--71e3785103b8",
-  "requirementId": "REQ-019.6.1",
-  "hash": "71e3785103b8",
-  "verdict": "pass",
-  "summary": "Races a genuinely blocked worker thread against escape then release+failure, asserting app.is_running and an empty patched-notify capture — the two operator-visible error channels in this codebase",
-  "timestamp": "2026-07-31T05:46:13.725Z"
-}

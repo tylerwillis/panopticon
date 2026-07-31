@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.4.2--aff3537a0f5e",
-  "requirementId": "REQ-006.4.2",
-  "hash": "aff3537a0f5e",
-  "verdict": "pass",
-  "summary": "Sol: The event trace and overlap guard reject reversed, interleaved, or concurrent processing and tie processing order directly to displayed order.",
-  "timestamp": "2026-07-31T07:26:01.805Z"
-}

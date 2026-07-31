@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.3.1--db13ccc99d0b",
-  "requirementId": "REQ-019.3.1",
-  "hash": "db13ccc99d0b",
-  "verdict": "pass",
-  "summary": "Sol: Successive openings require distinct model and effort discovery results, rejecting reuse of an earlier opening's cache.",
-  "timestamp": "2026-07-31T07:26:15.904Z"
-}

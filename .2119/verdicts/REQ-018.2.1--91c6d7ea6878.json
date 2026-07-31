@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.2.1--91c6d7ea6878",
-  "requirementId": "REQ-018.2.1",
-  "hash": "91c6d7ea6878",
-  "verdict": "pass",
-  "summary": "Sol: The test begins with the memo editor focused and verifies each successive forward Tab lands on harness, model, then effort.",
-  "timestamp": "2026-07-31T07:26:11.656Z"
-}

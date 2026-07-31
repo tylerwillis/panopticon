@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.1.2--590396bfae4e",
-  "requirementId": "REQ-006.1.2",
-  "hash": "590396bfae4e",
-  "verdict": "pass",
-  "summary": "Sol: The rendered help surface must contain exactly the Ctrl+R Respawn all down tasks entry.",
-  "timestamp": "2026-07-31T07:25:59.648Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.1.1--31eeb2f01819",
-  "requirementId": "REQ-018.1.1",
-  "hash": "31eeb2f01819",
-  "verdict": "pass",
-  "summary": "Sol: The test verifies all three labeled controls, their current values and visibility while initial focus remains on the memo rather than a launch control.",
-  "timestamp": "2026-07-31T07:26:07.797Z"
-}

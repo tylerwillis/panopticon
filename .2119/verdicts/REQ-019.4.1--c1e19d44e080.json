@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.4.1--c1e19d44e080",
-  "requirementId": "REQ-019.4.1",
-  "hash": "c1e19d44e080",
-  "verdict": "pass",
-  "summary": "Sol: Tests cover both pending and unstarted discovery and require the selected harness's model and effort suggestions before cycling returns.",
-  "timestamp": "2026-07-31T07:26:16.334Z"
-}

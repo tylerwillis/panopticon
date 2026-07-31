@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.3.2--bb74f633f749",
-  "requirementId": "REQ-026.3.2",
-  "hash": "bb74f633f749",
-  "verdict": "pass",
-  "summary": "Post-run asserts on the same dict references the dashboard mutates in place reject a turn write-back; held cells render dim while stored turn stays user/agent, and the fake client lacks set_turn so a service write would crash the test.",
-  "timestamp": "2026-07-31T06:27:30.710Z"
-}

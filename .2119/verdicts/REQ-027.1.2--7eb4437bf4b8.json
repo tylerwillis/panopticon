@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.1.2--7eb4437bf4b8",
+  "requirementId": "REQ-027.1.2",
+  "hash": "7eb4437bf4b8",
+  "verdict": "pass",
+  "summary": "Sol: tests verify exact persistence and response values for aware, naive, and null inputs while preserving task signals.",
+  "timestamp": "2026-07-31T23:10:39.382Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.3.1--e5d9a708d8f9",
-  "requirementId": "REQ-027.3.1",
-  "hash": "e5d9a708d8f9",
-  "verdict": "pass",
-  "summary": "Sol: Rendered rows verify full-cell dimming, exact countdown boundaries, and indefinite label text.",
-  "timestamp": "2026-07-31T07:47:03.025Z"
-}
