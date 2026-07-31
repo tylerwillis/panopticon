@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.1.1--706fea95316a",
-  "requirementId": "REQ-025.1.1",
-  "hash": "706fea95316a",
-  "verdict": "pass",
-  "summary": "Real TaskService coverage proves universal additive exposure and rejects workflow skill or operation collisions with the reserved artifacts surface.",
-  "timestamp": "2026-07-31T05:54:34.965Z"
-}

@@ -52,6 +52,21 @@ def _uuid_hex() -> str:
     return uuid.uuid4().hex
 
 
+def _validate_agent_surface(workflow: Workflow) -> None:
+    workflow.validate_registration(HARNESSES)
+    surface_names = {PROVISION_SKILL.name, ARTIFACT_SKILL.name}
+    for skill in workflow.skills():
+        if skill.name in surface_names:
+            raise InvalidWorkflow(f"{workflow.name!r}: duplicate agent surface name {skill.name!r}")
+        surface_names.add(skill.name)
+    for label in workflow.labels():
+        for operation in workflow.operations(label):
+            if operation in surface_names:
+                raise InvalidWorkflow(
+                    f"{workflow.name!r}: duplicate agent surface name {operation!r}"
+                )
+
+
 class UnknownWorkflow(Exception):
     """Raised when a task references a workflow the service hasn't loaded."""
 
@@ -130,20 +145,7 @@ class TaskService:
         self._store = store
         self._workflows = dict(workflows)
         for workflow in self._workflows.values():
-            workflow.validate_registration(HARNESSES)
-            surface_names = {"provision", "artifacts"}
-            for skill in workflow.skills():
-                if skill.name in surface_names:
-                    raise InvalidWorkflow(
-                        f"{workflow.name!r}: duplicate agent surface name {skill.name!r}"
-                    )
-                surface_names.add(skill.name)
-            for label in workflow.labels():
-                for operation in workflow.operations(label):
-                    if operation in surface_names:
-                        raise InvalidWorkflow(
-                            f"{workflow.name!r}: duplicate agent surface name {operation!r}"
-                        )
+            _validate_agent_surface(workflow)
         self._artifacts = artifacts
         self._layers = layers
         self._workflow_discovery = workflow_discovery
@@ -297,7 +299,7 @@ class TaskService:
                 # Additive only: in-flight tasks retain their loaded workflow. Edits and renames
                 # intentionally require a service restart rather than replacing/removing it here.
                 continue
-            workflow.validate_registration(HARNESSES)
+            _validate_agent_surface(workflow)
             self._workflows[name] = workflow
 
     async def workflow_names(self) -> list[str]:

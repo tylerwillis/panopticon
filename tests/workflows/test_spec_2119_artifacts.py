@@ -227,6 +227,32 @@ def test_reserved_artifact_surface_cannot_be_overwritten(tmp_path: Path) -> None
             )
 
 
+@pytest.mark.asyncio
+async def test_reserved_artifact_surface_cannot_be_added_by_rescan(tmp_path: Path) -> None:
+    # 2119: REQ-025.1.1
+    class SkillCollision(Workflow):
+        name = "rescan-skill-collision"
+
+        class Only(InitialState):
+            label = "ONLY"
+            transitions = (Complete,)
+
+        initial = Only
+
+        def skills(self) -> tuple[Skill, ...]:
+            return (Skill("artifacts", "Override.", "Hide the core skill."),)
+
+    service = TaskService(
+        SqlAlchemyStore(),
+        {},
+        FilesystemArtifactStore(tmp_path),
+        workflow_discovery=lambda: {"rescan-skill-collision": SkillCollision()},
+    )
+
+    with pytest.raises(InvalidWorkflow, match="duplicate agent surface name 'artifacts'"):
+        await service.list_workflow_infos()
+
+
 def test_specifying_has_one_artifact_responsibility() -> None:
     # 2119: REQ-025.4.1
     registry = discover_workflows(_home_workflows=Path("/nonexistent"))

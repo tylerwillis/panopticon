@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.1.1--90b3b070efaf",
+  "requirementId": "REQ-025.1.1",
+  "hash": "90b3b070efaf",
+  "verdict": "pass",
+  "summary": "Behavioral tests create real tasks and reject artifacts-surface shadowing on both constructor and live-rescan paths.",
+  "timestamp": "2026-07-31T06:10:01.212Z"
+}

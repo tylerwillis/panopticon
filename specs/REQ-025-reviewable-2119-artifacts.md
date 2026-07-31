@@ -54,8 +54,9 @@ plus Sol for final change review.
 
 ### REQ-025.9: Actionable duplicate migration failure
 
-1. When an external workflow file duplicates a built-in workflow name, discovery MUST fail with an
-actionable error that identifies the external file and directs the operator to remove that copy.
+1. When a workflow file in the operator's home workflow directory duplicates a built-in workflow
+name, discovery MUST fail with an actionable error that identifies the external file and directs
+the operator to remove that copy.
 
 ### REQ-025.10: Artifact complementarity
 

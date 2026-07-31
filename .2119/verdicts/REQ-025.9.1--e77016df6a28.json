@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.9.1--e77016df6a28",
-  "requirementId": "REQ-025.9.1",
-  "hash": "e77016df6a28",
-  "verdict": "pass",
-  "summary": "Real home-directory duplicate files fail discovery with exact file and removal guidance even in live-rescan skip mode.",
-  "timestamp": "2026-07-31T05:54:38.583Z"
-}

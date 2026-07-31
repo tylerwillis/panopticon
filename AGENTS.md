@@ -29,7 +29,9 @@ src/panopticon/
                    # gating the create/list MCP tools to it, ready-to-approve via the spawn-task skill;
                    # SetupRepo = a `runner_type="shell"` workflow — no container, the session service runs
                    # its shell_script in a host tmux session (here: `claude setup-token`)) +
-                   # discovery.py = scan the package + an optional path for Workflow subclasses
+                   # Spec2119Human/Spec2119Auto/Spec2119AutoSol = spec-driven forge lifecycles with
+                   # human-gated, automatic, and Sol-only-review variants; discovery.py = scan the
+                   # package + an optional path for Workflow subclasses
                    # (the registry build_app runs on; drop a module in → registered, ADR 0004)
   harnesses/       # agent-CLI harnesses (M3): the Harness interface + the registry (a literal
                    # claude/codex/pi mapping; outfitter.py is experimental and deliberately
@@ -344,9 +346,11 @@ on every PR (the same commands the Makefile wraps).
   operations. Declared **CLI-agnostically** as a `Skill(name, description, instructions)` spec; the
   in-container harness renders it to the active CLI surface (`container/skills.py` → claude
   `.claude/commands/<name>.md`; other CLIs in M3). Exposed over REST (`GET /tasks/{id}/skills`).
-  The agnostic **`provision`** skill (`core/provisioning.py`) is exposed on **every** task (name
-  the task → set its slug → the session service branches the clone, ADR 0011); workflow-specific
-  skills (e.g. github-peer-reviewed's forge skills) follow it, and a workflow may define none.
+  The agnostic **`provision`** (`core/provisioning.py`) and **`artifacts`**
+  (`core/artifact_skills.py`) skills are exposed on **every** task: provision names the task and
+  triggers branching, while artifacts explains how to publish durable reviewer-readable task
+  documents for the dashboard's `a` hotkey. Workflow-specific skills (e.g.
+  github-peer-reviewed's forge skills) follow them, and a workflow may define none.
 - **Responsibility / Status** — an agent obligation for a state. Entering a state seeds its
   responsibilities onto that entry's history record, all `PENDING` (a promise); the agent
   fulfils each one at a time (`MET`, or `FAILED` with a comment) — mutating that entry — and a
@@ -384,7 +388,9 @@ on every PR (the same commands the Makefile wraps).
 - **Task service** — the deterministic control plane (sole DB authority).
 - **Session service / runner** — spawns task containers (stubbed for now).
 - **Terminal controller** — the user-facing CLI/dashboard (Slice 3).
-- **Artifact** — a file-backed per-task document (plan, notes), reachable via REST/FS/MCP.
+- **Artifact** — a durable, file-backed per-task document for user review, reachable via
+  REST/FS/MCP and opened from the dashboard with `a`; GitHub URLs remain the substantial exception
+  and belong in the task's external URL field opened with `p`.
 - **Lifecycle hook** — a deterministic `Workflow` method the task service runs at a defined
   moment (currently `on_transition`, after a transition, before persistence). It may write
   artifacts or mutate the task's own record — no LLM, no clock. The seam; the built-in workflows
