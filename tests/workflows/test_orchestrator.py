@@ -50,7 +50,7 @@ def test_exposes_spawn_task_and_review_task_skills() -> None:
     assert all(s.description and s.instructions for s in WF.skills())
 
 
-# 2119: REQ-024.6.7
+# 2119: REQ-025.6.7
 def test_spawn_task_skill_explains_attention_escalation_during_child_waits() -> None:
     spawn = next(skill for skill in WF.skills() if skill.name == "spawn-task")
     line = next(line.strip() for line in spawn.instructions.splitlines() if "set_attention" in line)

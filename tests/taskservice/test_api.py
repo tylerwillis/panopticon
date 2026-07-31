@@ -291,7 +291,7 @@ def test_create_and_get_task(client: TestClient) -> None:
     assert [h["to_state"] for h in body["history"]] == ["ITERATING"]
 
 
-# 2119: REQ-024.2.3
+# 2119: REQ-025.2.3
 def test_task_responses_keep_dropped_dependencies_gated(client: TestClient) -> None:
     dependency_id = _new_task(client)
     dependent = client.post(
@@ -312,7 +312,7 @@ def test_task_responses_keep_dropped_dependencies_gated(client: TestClient) -> N
     assert client.get(f"/tasks/{dependent_id}").json()["container_status"] == "gated"
 
 
-# 2119: REQ-024.2.3
+# 2119: REQ-025.2.3
 def test_task_responses_use_workflow_terminality_for_dependency_readiness(tmp_path: Path) -> None:
     service = TaskService(
         SqlAlchemyStore(),
@@ -344,9 +344,9 @@ def test_task_responses_use_workflow_terminality_for_dependency_readiness(tmp_pa
         assert projected["container_status"] == "queued"
 
 
-# 2119: REQ-024.4.1
-# 2119: REQ-024.4.2
-# 2119: REQ-024.4.3
+# 2119: REQ-025.4.1
+# 2119: REQ-025.4.2
+# 2119: REQ-025.4.3
 def test_set_dependencies_rejects_indirect_cycle_actionably_and_atomically(
     client: TestClient,
 ) -> None:
@@ -817,10 +817,10 @@ def test_set_turn_and_blocked(client: TestClient) -> None:
     assert blocked.json()["turn"] == "user"  # flip-independent: the block left the turn alone
 
 
-# 2119: REQ-024.6.2
-# 2119: REQ-024.6.3
-# 2119: REQ-024.6.4
-# 2119: REQ-024.6.5
+# 2119: REQ-025.6.2
+# 2119: REQ-025.6.3
+# 2119: REQ-025.6.4
+# 2119: REQ-025.6.5
 def test_attention_marker_is_orthogonal_and_clears_on_user_prompt_handoff(
     client: TestClient,
 ) -> None:

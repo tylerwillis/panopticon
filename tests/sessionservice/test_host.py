@@ -171,12 +171,12 @@ def test_tick_spawns_only_dependency_ready_tasks_on_each_current_snapshot() -> N
     tasks = [active, dropped, complete, waits_active, waits_dropped, waits_complete]
     daemon = HostDaemon(_FakeClient([]), _Spawner(), _Provisioner())  # type: ignore[arg-type]
 
-    # 2119: REQ-024.1.1
-    # 2119: REQ-024.1.2
+    # 2119: REQ-025.1.1
+    # 2119: REQ-025.1.2
     daemon.tick(tasks)
     assert spawned == ["active", "waits-complete"]
 
-    # 2119: REQ-024.1.3
+    # 2119: REQ-025.1.3
     active["state"] = "COMPLETE"
     spawned.clear()
     daemon.tick(tasks)

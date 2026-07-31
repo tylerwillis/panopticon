@@ -441,13 +441,13 @@ def test_turn_cell_color_codes_like_cloude_cade() -> None:
     assert blocked.plain == "agent ⚠" and blocked.style == "red"
 
 
-# 2119: REQ-024.3.1
-# 2119: REQ-024.3.2
-# 2119: REQ-024.3.3
-# 2119: REQ-024.3.4
-# 2119: REQ-024.3.5
-# 2119: REQ-024.6.1
-# 2119: REQ-024.6.8
+# 2119: REQ-025.3.1
+# 2119: REQ-025.3.2
+# 2119: REQ-025.3.3
+# 2119: REQ-025.3.4
+# 2119: REQ-025.3.5
+# 2119: REQ-025.6.1
+# 2119: REQ-025.6.8
 async def test_dependency_held_cells_details_and_pre_spawn_row_are_honest() -> None:
     live = {
         **_TASK,
@@ -611,11 +611,11 @@ async def test_dependency_held_cells_details_and_pre_spawn_row_are_honest() -> N
     )
 
 
-# 2119: REQ-024.5.1
-# 2119: REQ-024.5.2
-# 2119: REQ-024.5.3
-# 2119: REQ-024.6.1
-# 2119: REQ-024.6.8
+# 2119: REQ-025.5.1
+# 2119: REQ-025.5.2
+# 2119: REQ-025.5.3
+# 2119: REQ-025.6.1
+# 2119: REQ-025.6.8
 async def test_governor_held_cell_tracks_active_children_and_reverts_when_they_finish() -> None:
     waiting_governor = {
         **_TASK,
