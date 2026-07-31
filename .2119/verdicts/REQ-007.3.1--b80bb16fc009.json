@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.3.1--b80bb16fc009",
+  "requirementId": "REQ-007.3.1",
+  "hash": "b80bb16fc009",
+  "verdict": "pass",
+  "summary": "Asserts the hint absent from render_detail output both as substring and as any splitlines() line, on a fixture whose fields lack it — folding the hint into copyable text would fail.",
+  "timestamp": "2026-07-31T06:15:08.223Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.4.1--f22166398252",
+  "requirementId": "REQ-017.4.1",
+  "hash": "f22166398252",
+  "verdict": "pass",
+  "summary": "Exact-equality check that 'v: edit slug' is the second-to-last rendered line of the open pane after a real d-press — missing or mislabeled hint fails; case-sensitive.",
+  "timestamp": "2026-07-31T06:15:14.230Z"
+}
