@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.8.1--3675550bf014",
+  "requirementId": "REQ-019.8.1",
+  "hash": "3675550bf014",
+  "verdict": "pass",
+  "summary": "Verbatim pins of all four review surfaces (spec + review skill instructions, REVIEWING responsibilities) across the three workflows; mutation-tested both directions (auto-sol flipped to Fable, defaults flipped to Sol) and the test fails each time.",
+  "timestamp": "2026-07-31T00:54:36.078Z"
+}

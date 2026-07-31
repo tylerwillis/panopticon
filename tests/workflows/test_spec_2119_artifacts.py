@@ -245,9 +245,10 @@ def test_auto_sol_uses_sol_for_both_review_layers() -> None:
     )
     assert auto_sol_spec == EXPECTED_SOL_SPEC_INSTRUCTIONS.lower()
     assert auto_sol_review.instructions == EXPECTED_SOL_ONLY_REVIEW_INSTRUCTIONS
-    assert tuple(
-        (item.key, item.description) for item in auto_sol.responsibilities("REVIEWING")
-    ) == EXPECTED_SOL_REVIEWING_RESPONSIBILITIES
+    assert (
+        tuple((item.key, item.description) for item in auto_sol.responsibilities("REVIEWING"))
+        == EXPECTED_SOL_REVIEWING_RESPONSIBILITIES
+    )
     for name in ("2119-human-spec", "2119-auto-spec"):
         workflow = _workflow(name)
         assert type(workflow).fable_reviews is True
