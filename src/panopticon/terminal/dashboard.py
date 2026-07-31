@@ -72,7 +72,8 @@ import time
 import webbrowser
 from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
+from math import ceil
 from pathlib import Path
 from typing import Any, TypeVar
 
@@ -85,6 +86,7 @@ from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.css.query import NoMatches
 from textual.screen import ModalScreen
 from textual.suggester import SuggestFromList
+from textual.timer import Timer
 from textual.widget import Widget
 from textual.widgets import (
     Button,
@@ -178,12 +180,70 @@ def _short_tokens(n: int | None) -> str:
 # them.
 _ENSEMBLE_KEY_PREFIX = "__ensemble__"
 
+# Fixed operator snooze controls: `e` means "not today"; `E` records the reserved sticky value.
+_SNOOZE_DURATION = timedelta(hours=12)
+_INDEFINITE_SNOOZE_UNTIL = "9999-12-31T23:59:59+00:00"
+
 
 def _dim(cell: Text | str) -> Text:
     """Return a dim copy of a cell value (str or Rich Text), fading it without erasing content."""
     t = Text(cell if isinstance(cell, str) else cell.plain)
     t.stylize("dim")
     return t
+
+
+def _snooze_label(task: JsonObj, now: datetime) -> str | None:
+    """Return the active snooze label at ``now``; expired or invalid facts are inactive."""
+    raw = task.get("snoozed_until")
+    if not isinstance(raw, str):
+        return None
+    if raw == _INDEFINITE_SNOOZE_UNTIL:
+        return "snoozed"
+    try:
+        deadline = datetime.fromisoformat(raw)
+    except ValueError:
+        return None
+    if deadline.tzinfo is None:
+        deadline = deadline.replace(tzinfo=UTC)
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=UTC)
+    seconds = (deadline - now).total_seconds()
+    if seconds <= 0:
+        return None
+    if seconds < 60:
+        remaining = "<1m"
+    elif seconds < 3600:
+        remaining = f"{ceil(seconds / 60)}m"
+    else:
+        remaining = f"{ceil(seconds / 3600)}h"
+    return f"snoozed · {remaining} left"
+
+
+def _snooze_refresh_delay(task: JsonObj, now: datetime) -> float | None:
+    """Seconds until a finite snooze's displayed duration changes or expires."""
+    raw = task.get("snoozed_until")
+    if not isinstance(raw, str) or raw == _INDEFINITE_SNOOZE_UNTIL:
+        return None
+    try:
+        deadline = datetime.fromisoformat(raw)
+    except ValueError:
+        return None
+    if deadline.tzinfo is None:
+        deadline = deadline.replace(tzinfo=UTC)
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=UTC)
+    seconds = (deadline - now).total_seconds()
+    if seconds <= 0:
+        return None
+    if seconds < 60:
+        return seconds
+    unit = 60 if seconds < 3600 else 3600
+    return max(0.05, seconds - (ceil(seconds / unit) - 1) * unit)
+
+
+def _snooze_is_pierced(task: JsonObj) -> bool:
+    """An agent attention escalation or blocked marker outranks an operator snooze."""
+    return bool(task.get("blocked") or (task.get("attention") and task.get("turn") == "user"))
 
 
 def _slug_cell(task: JsonObj, prefix: str = "", disclosure: str = "") -> Text:
@@ -357,22 +417,27 @@ def _decorate_wait_facts(tasks: list[JsonObj]) -> None:
         ]
 
 
-# Turn-column colors, matching cloude-cade's dashboard ball tags: agent=green,
-# user=yellow, blocked=red. Blocked takes precedence (cloude-cade draws it as its own
-# red tag); here it keeps the turn value but appends ⚠ and colors the whole cell red.
-def _turn_cell(task: JsonObj) -> Text:
+# Turn-column precedence: attention orange > snoozed > held > normal.
+def _turn_cell(task: JsonObj, now: datetime | None = None) -> Text:
     if task.get("blocked"):
-        return Text(f"{task['turn']} ⚠", style="red")
-    dependencies_waiting = any(
-        not _task_is_terminal(dependency) for dependency in task.get("_dependency_tasks", [])
-    )
-    active_children = task.get("_active_children", [])
-    governor_waiting = task["turn"] == "user" and bool(active_children)
-    if not task.get("attention") and (dependencies_waiting or governor_waiting):
-        label = f"held {len(active_children)}" if governor_waiting else "held"
+        ordinary = Text(f"{task['turn']} ⚠", style="red")
+    else:
+        ordinary = Text(
+            task["turn"], style="green" if task["turn"] == "agent" else "dark_orange"
+        )
+        dependencies_waiting = any(
+            not _task_is_terminal(dependency) for dependency in task.get("_dependency_tasks", [])
+        )
+        active_children = task.get("_active_children", [])
+        governor_waiting = task["turn"] == "user" and bool(active_children)
+        if dependencies_waiting or governor_waiting:
+            label = f"held {len(active_children)}" if governor_waiting else "held"
+            ordinary = Text(label, style="dim")
+    if task.get("attention"):
+        return Text("user", style="dark_orange")
+    if now is not None and (label := _snooze_label(task, now)) is not None:
         return Text(label, style="dim")
-    color = "green" if task["turn"] == "agent" else "yellow"
-    return Text(task["turn"], style=color)
+    return ordinary
 
 
 # Container-status colors. The status is composed by the **task service** (folding the session
@@ -2302,7 +2367,16 @@ HOTKEYS: tuple[Hotkey, ...] = (
     Hotkey("a", "artifacts", "Artifacts", "List the task's artifacts", show=False),
     Hotkey("s", "service", "Service", "Switch to the task-service session", show=False),
     Hotkey("u", "runner", "Runner", "Switch to the session-service (runner) session", show=False),
-    Hotkey("e", "edit_slug", "Edit slug", "Edit the highlighted task's slug", show=False),
+    Hotkey("e", "snooze", "Snooze", "Snooze the highlighted task for 12 hours", show=False),
+    Hotkey(
+        "E",
+        "snooze_indefinitely",
+        "Snooze sticky",
+        "Snooze the highlighted task indefinitely",
+        show=False,
+        display="Shift+E",
+    ),
+    Hotkey("v", "edit_slug", "Edit slug", "Edit the highlighted task's slug", show=False),
     Hotkey(
         "y",
         "copy_slug",
@@ -2443,6 +2517,7 @@ class Dashboard(App[None]):
         artifacts_root: str | Path = ARTIFACTS_DIR,
         draft_file: str | Path | None = None,
         refresh_interval: float | None = REFRESH_INTERVAL,
+        now: Callable[[], datetime] | None = None,
     ) -> None:
         super().__init__()
         self._client = client
@@ -2451,6 +2526,7 @@ class Dashboard(App[None]):
         self._on_runner = on_runner  # `u` hook: switch to the runner session; True if one exists
         self._artifacts_root = artifacts_root  # for `a`'s `e` local-open (co-located store)
         self._draft_file = Path(draft_file) if draft_file is not None else None
+        self._now = now or (lambda: datetime.now(UTC))
         self._new_task_drafts = self._load_new_task_drafts()
         self._refresh_interval = (
             refresh_interval  # change-feed long-poll wait (0/None → manual only)
@@ -2474,6 +2550,7 @@ class Dashboard(App[None]):
         # one reused scratch dir for `a`'s REST-open (lazily made, cleaned on exit) — so opening
         # many artifacts doesn't leak a temp dir each.
         self._artifact_tmp: tempfile.TemporaryDirectory[str] | None = None
+        self._snooze_timer: Timer | None = None
 
     def _load_new_task_drafts(self) -> dict[str, dict[str, Any]]:
         if self._draft_file is None:
@@ -2564,6 +2641,9 @@ class Dashboard(App[None]):
                     return
 
     def on_unmount(self) -> None:
+        if self._snooze_timer is not None:
+            self._snooze_timer.stop()
+            self._snooze_timer = None
         if self._artifact_tmp is not None:  # remove the REST-open scratch dir on exit
             self._artifact_tmp.cleanup()
             self._artifact_tmp = None
@@ -2640,6 +2720,8 @@ class Dashboard(App[None]):
         visible = active_visible + terminal_visible
         # Build the task index (real tasks only; ensemble placeholders are synthetic).
         self._tasks = {t["id"]: t for t, _ in visible if not t.get("_ensemble")}
+        display_now = self._now()
+        self._schedule_snooze_refresh(display_now)
 
         def _add_row(task: JsonObj, prefix: str) -> None:
             if task.get("_ensemble"):
@@ -2659,7 +2741,7 @@ class Dashboard(App[None]):
                 )
             else:
                 state_cell: Text | str = task["state"]
-                turn_cell = _turn_cell(task)
+                turn_cell = _turn_cell(task, display_now)
                 status_cell = _status_cell(task)
                 runner_cell: Text | None = (
                     Text(task.get("runner_host") or "") if self._multi_runner else None
@@ -2669,7 +2751,9 @@ class Dashboard(App[None]):
                 if task["id"] in self._governors:
                     disclosure = "▸ " if task["id"] in collapsed_for_display else "▾ "
                 slug_cell_real = _slug_cell(task, prefix, disclosure)
-                if task["state"] in TERMINAL_LABELS:
+                if (
+                    _snooze_label(task, display_now) is not None and not _snooze_is_pierced(task)
+                ) or task["state"] in TERMINAL_LABELS:
                     state_cell = _dim(state_cell)
                     turn_cell = _dim(turn_cell)
                     status_cell = _dim(status_cell)
@@ -2696,6 +2780,19 @@ class Dashboard(App[None]):
         if target is not None:
             table.move_cursor(row=table.get_row_index(target))
         self._update_detail(target)
+
+    def _schedule_snooze_refresh(self, now: datetime) -> None:
+        """Redraw at the next finite countdown boundary without a control-plane wakeup."""
+        if self._snooze_timer is not None:
+            self._snooze_timer.stop()
+            self._snooze_timer = None
+        delays = [
+            delay
+            for task in self._tasks.values()
+            if (delay := _snooze_refresh_delay(task, now)) is not None
+        ]
+        if delays:
+            self._snooze_timer = self.set_timer(min(delays), self.action_refresh)
 
     def on_data_table_row_highlighted(self, event: DataTable.RowHighlighted) -> None:
         key = event.row_key.value
@@ -2749,7 +2846,7 @@ class Dashboard(App[None]):
         detail = Text(render_detail(task)) if task else Text("no tasks")
         if task:
             detail.append("\n")
-            detail.append("e: edit slug\n", style="dim")
+            detail.append(_hotkey_hint("edit_slug") + "\n", style="dim")
             detail.append(_hotkey_hint("copy_detail", "copy_slug", "copy_id"), style="dim")
         self.query_one("#detail", Static).update(detail)
 
@@ -2946,6 +3043,27 @@ class Dashboard(App[None]):
         webbrowser.open(url)
         self.notify(f"opened {url}")
 
+    def action_snooze(self) -> None:
+        """`e`: toggle a fixed twelve-hour operator snooze on the highlighted task."""
+        if self._current is None:
+            return
+        task = self._tasks.get(self._current)
+        if task is None:
+            return
+        now = self._now()
+        until = (
+            None if _snooze_label(task, now) is not None else (now + _SNOOZE_DURATION).isoformat()
+        )
+        self._client.set_snooze(self._current, until)
+        self.action_refresh()
+
+    def action_snooze_indefinitely(self) -> None:
+        """`E`: record the reserved sticky snooze deadline on the highlighted task."""
+        if self._current is None:
+            return
+        self._client.set_snooze(self._current, _INDEFINITE_SNOOZE_UNTIL)
+        self.action_refresh()
+
     def _copy_to_clipboard(self, text: str) -> None:
         """Copy ``text`` to the clipboard two ways, best-effort: an OSC 52 emit (Textual's
         ``copy_to_clipboard`` — terminal-forwarded, so it survives tmux/ssh and needs no external
@@ -2970,7 +3088,7 @@ class Dashboard(App[None]):
         self.notify(f"copied slug: {slug}")
 
     def action_edit_slug(self) -> None:
-        """`e`: edit the highlighted task's slug while its details pane is open."""
+        """`v`: edit the highlighted task's slug while its details pane is open."""
         if not self._detail_visible or self._current is None:
             return
         task_id = self._current

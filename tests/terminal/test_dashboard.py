@@ -442,11 +442,11 @@ def test_short_tokens_formats_human_short() -> None:
 
 
 def test_turn_cell_color_codes_like_cloude_cade() -> None:
-    # cloude-cade: agent=green, user=yellow, blocked=red (blocked wins).
+    # agent=green, user attention=orange, blocked=red (blocked wins).
     agent = _turn_cell(_TASK)
     assert agent.plain == "agent" and agent.style == "green"
     user = _turn_cell({**_TASK, "turn": "user"})
-    assert user.plain == "user" and user.style == "yellow"
+    assert user.plain == "user" and "orange" in str(user.style)
     blocked = _turn_cell({**_TASK, "blocked": True})
     assert blocked.plain == "agent ⚠" and blocked.style == "red"
 
@@ -3009,13 +3009,13 @@ async def test_pressing_y_with_no_slug_warns(monkeypatch: Any) -> None:
 
 
 # 2119: REQ-017.1.1
-async def test_pressing_e_edits_slug_only_while_detail_is_open() -> None:
+async def test_pressing_v_edits_slug_only_while_detail_is_open() -> None:
     other = {**_TASK, "id": "task-other456789", "slug": "other-widget"}
     fake = _FakeClient([_TASK.copy(), other])
     app = Dashboard(fake)  # type: ignore[arg-type]
     async with app.run_test() as pilot:
         await pilot.pause()
-        await pilot.press("e")
+        await pilot.press("v")
         await pilot.pause()
         assert not isinstance(app.screen, dashboard.SlugScreen)
         assert fake.set_slugs == []
@@ -3023,7 +3023,7 @@ async def test_pressing_e_edits_slug_only_while_detail_is_open() -> None:
 
         await pilot.press("d")
         await pilot.press("j")
-        await pilot.press("e")
+        await pilot.press("v")
         await pilot.pause()
         assert isinstance(app.screen, dashboard.SlugScreen)
         assert app.screen.query_one(Input).value == "other-widget"
@@ -3040,7 +3040,7 @@ async def test_slug_editor_uses_current_service_value_over_stale_list_snapshot()
     async with app.run_test() as pilot:
         await pilot.pause()
         await pilot.press("d")
-        await pilot.press("e")
+        await pilot.press("v")
         await pilot.pause()
         assert app.screen.query_one(Input).value == "service-current"
 
@@ -3053,7 +3053,7 @@ async def test_submitting_slug_editor_renames_highlighted_task_and_refreshes() -
     async with app.run_test() as pilot:
         await pilot.pause()
         await pilot.press("d")
-        await pilot.press("e")
+        await pilot.press("v")
         await pilot.pause()
         calls_before_submit = fake.list_tasks_calls
         editor = app.screen.query_one(Input)
@@ -3082,7 +3082,7 @@ async def test_rejected_slug_keeps_dashboard_running_and_existing_slug_visible()
     async with app.run_test() as pilot:
         await pilot.pause()
         await pilot.press("d")
-        await pilot.press("e")
+        await pilot.press("v")
         await pilot.pause()
         app.screen.query_one(Input).value = "bad/name"
         await pilot.press("enter")
@@ -3099,7 +3099,7 @@ async def test_cancelling_slug_editor_does_not_rename_task() -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
         await pilot.press("d")
-        await pilot.press("e")
+        await pilot.press("v")
         await pilot.pause()
         app.screen.query_one(Input).value = "discard-me"
         await pilot.press("escape")
@@ -3117,7 +3117,7 @@ async def test_detail_pane_shows_edit_slug_key_hint() -> None:
         await pilot.press("d")
         await pilot.pause()
         rendered: Any = app.query_one("#detail", Static).render()
-        assert str(rendered).splitlines()[-2] == "e: edit slug"
+        assert str(rendered).splitlines()[-2] == "v: edit slug"
         assert rendered.spans[-2].style.dim is True
 
 
@@ -5300,6 +5300,8 @@ def test_footer_shows_only_the_essential_keys() -> None:
         "s",
         "u",
         "e",
+        "E",
+        "v",
         "y",
         "Y",
         "c",
