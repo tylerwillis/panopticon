@@ -196,10 +196,7 @@ class _Spec2119Workflow(GithubForgeWorkflow):
     fable_reviews: ClassVar[bool] = True
 
     def _honesty_reviewer_cmd(self) -> str:
-        return (
-            "codex exec --dangerously-bypass-approvals-and-sandbox "
-            "-m gpt-5.6-sol"
-        )
+        return "codex exec --dangerously-bypass-approvals-and-sandbox -m gpt-5.6-sol"
 
     def _spec_skill(self) -> Skill:
         return Skill(
