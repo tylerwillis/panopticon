@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-007.2.1--b934b2f6f75b",
-  "requirementId": "REQ-007.2.1",
-  "hash": "b934b2f6f75b",
-  "verdict": "pass",
-  "summary": "Real d-press opens pane; endswith('\\n'+hint) pins the exact trailing line and a span check pins dim styling over exactly that range — wrong text, placement, or styling all fail.",
-  "timestamp": "2026-07-31T06:15:06.610Z"
-}

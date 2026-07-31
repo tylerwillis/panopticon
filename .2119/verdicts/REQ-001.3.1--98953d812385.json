@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.3.1--98953d812385",
+  "requirementId": "REQ-001.3.1",
+  "hash": "98953d812385",
+  "verdict": "pass",
+  "summary": "Separate no and Escape cases both require dialog dismissal and unchanged selected-file contents.",
+  "timestamp": "2026-07-31T06:40:38.469Z"
+}

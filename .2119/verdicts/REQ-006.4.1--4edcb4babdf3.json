@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.1--4edcb4babdf3",
+  "requirementId": "REQ-006.4.1",
+  "hash": "4edcb4babdf3",
+  "verdict": "pass",
+  "summary": "Confirmation-time checks and release logs verify each still-down listed task receives exactly one claim release while recovered tasks do not.",
+  "timestamp": "2026-07-31T06:41:56.010Z"
+}

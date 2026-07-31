@@ -1349,8 +1349,8 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
             if "effort" not in self._touched:
                 self._set_untouched_value("effort", self._selection.effort)
             model.placeholder = harness.field_label
-            if isinstance(self.focused, _LaunchInput):
-                self._refresh_candidates(self._field_for_input(self.focused))
+            self._refresh_candidates("model")
+            self._refresh_candidates("effort")
 
     def on_input_changed(self, event: Input.Changed) -> None:
         if event.input.id not in {"launch-model", "launch-effort"}:

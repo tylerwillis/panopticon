@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.2.2--c0b7a7391bc3",
+  "requirementId": "REQ-006.2.2",
+  "hash": "c0b7a7391bc3",
+  "verdict": "pass",
+  "summary": "Exact rendered lines reject wrong ID length, slug fallback, whitespace normalization, 60-character truncation, and misplaced ellipses.",
+  "timestamp": "2026-07-31T06:41:55.984Z"
+}

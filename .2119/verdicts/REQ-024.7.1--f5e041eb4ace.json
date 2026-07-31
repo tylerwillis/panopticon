@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.7.1--f5e041eb4ace",
+  "requirementId": "REQ-024.7.1",
+  "hash": "f5e041eb4ace",
+  "verdict": "pass",
+  "summary": "Tests verify the case-sensitive bindings and exact visible labels in both the open details pane and full help screen.",
+  "timestamp": "2026-07-31T06:42:55.580Z"
+}

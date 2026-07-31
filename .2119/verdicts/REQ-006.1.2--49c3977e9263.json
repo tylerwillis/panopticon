@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.1.2--49c3977e9263",
-  "requirementId": "REQ-006.1.2",
-  "hash": "49c3977e9263",
-  "verdict": "pass",
-  "summary": "test_help_screen_documents_bulk_respawn_binding presses ? on the real Dashboard and asserts the rendered #help-keys lines containing Ctrl+R equal exactly ['Ctrl+R Respawn all down tasks'] (a test-local literal), so a missing entry, wrong/blank description, or duplicate line all fail; only the REST client is faked.",
-  "timestamp": "2026-07-31T05:51:24.258Z"
-}

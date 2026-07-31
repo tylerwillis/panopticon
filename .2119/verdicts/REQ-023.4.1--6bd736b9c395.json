@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.4.1--6bd736b9c395",
-  "requirementId": "REQ-023.4.1",
-  "hash": "6bd736b9c395",
-  "verdict": "pass",
-  "summary": "Real Textual pilot tests press literal up/down over a rendered sentinel (presence pinned via row_keys) and assert both _current and the actual cursor-row key, rejecting land-on-sentinel and last-row clamp violations for both directions.",
-  "timestamp": "2026-07-31T05:55:30.533Z"
-}

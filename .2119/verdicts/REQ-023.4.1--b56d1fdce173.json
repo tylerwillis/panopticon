@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.4.1--b56d1fdce173",
+  "requirementId": "REQ-023.4.1",
+  "hash": "b56d1fdce173",
+  "verdict": "pass",
+  "summary": "Arrow-key tests reject landing on the collapsed summary in both directions, including the no-real-row-below boundary.",
+  "timestamp": "2026-07-31T06:42:55.534Z"
+}

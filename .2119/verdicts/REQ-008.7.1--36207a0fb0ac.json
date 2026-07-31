@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.7.1--36207a0fb0ac",
-  "requirementId": "REQ-008.7.1",
-  "hash": "36207a0fb0ac",
-  "verdict": "pass",
-  "summary": "Fake's unversioned list_tasks raises; seed versioned response mutates snapshot before returning with cursor, so stale/torn or discarded-seed renders fail the row assertion",
-  "timestamp": "2026-07-31T05:51:31.758Z"
-}

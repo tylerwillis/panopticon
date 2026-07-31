@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.5.1--a905fe6fb573",
+  "requirementId": "REQ-006.5.1",
+  "hash": "a905fe6fb573",
+  "verdict": "pass",
+  "summary": "Empty, mixed, and every individual non-down latest snapshot require the exact no down tasks notification.",
+  "timestamp": "2026-07-31T06:41:56.059Z"
+}

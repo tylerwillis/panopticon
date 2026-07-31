@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.8.1--05ced2305755",
+  "requirementId": "REQ-001.8.1",
+  "hash": "05ced2305755",
+  "verdict": "pass",
+  "summary": "After clearing prior notices, the deletion request must emit exactly the operator-facing built-in-workflow warning.",
+  "timestamp": "2026-07-31T06:47:16.750Z"
+}

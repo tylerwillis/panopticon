@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.8.1--b5bdb2200984",
-  "requirementId": "REQ-001.8.1",
-  "hash": "b5bdb2200984",
-  "verdict": "pass",
-  "summary": "Test drives the real x-keypress path via pilot and asserts app.notify (Textual's toast seam) received exactly 'Built-in workflows cannot be deleted.' after clearing mount-time notices — silent ignore, wrong wording, or mount-time keyword theater all fail.",
-  "timestamp": "2026-07-31T05:50:53.588Z"
-}

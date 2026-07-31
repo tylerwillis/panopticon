@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.4.1--b0c553ec8962",
+  "requirementId": "REQ-012.4.1",
+  "hash": "b0c553ec8962",
+  "verdict": "pass",
+  "summary": "An unfamiliar model-and-effort string containing spaces and a colon round-trips through repository storage and task selection unchanged.",
+  "timestamp": "2026-07-31T06:41:56.100Z"
+}

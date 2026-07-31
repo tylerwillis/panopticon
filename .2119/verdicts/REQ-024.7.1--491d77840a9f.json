@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.7.1--491d77840a9f",
-  "requirementId": "REQ-024.7.1",
-  "hash": "491d77840a9f",
-  "verdict": "pass",
-  "summary": "Both surfaces checked behaviorally: pane trailing line by exact equality, help screen via real ?-press with case-sensitive label strings; HOTKEYS assertions tie the y/Shift+Y labels to the actual y/Y bindings.",
-  "timestamp": "2026-07-31T06:15:16.188Z"
-}

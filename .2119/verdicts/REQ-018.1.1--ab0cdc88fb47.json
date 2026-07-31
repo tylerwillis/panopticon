@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.1.1--ab0cdc88fb47",
-  "requirementId": "REQ-018.1.1",
-  "hash": "ab0cdc88fb47",
-  "verdict": "pass",
-  "summary": "Labels/values/nonzero widths asserted while focus is still on the memo textarea; values derived from repo default terra:high, so focus-materialized or unpopulated controls fail",
-  "timestamp": "2026-07-31T05:51:43.298Z"
-}

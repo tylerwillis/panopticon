@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.3.1--4c865aa7b175",
+  "requirementId": "REQ-019.3.1",
+  "hash": "4c865aa7b175",
+  "verdict": "pass",
+  "summary": "Successive openings require distinct second-generation model and effort suggestions, rejecting reuse of cached first-opening results.",
+  "timestamp": "2026-07-31T06:43:45.955Z"
+}

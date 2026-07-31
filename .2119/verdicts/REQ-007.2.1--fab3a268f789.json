@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.2.1--fab3a268f789",
+  "requirementId": "REQ-007.2.1",
+  "hash": "fab3a268f789",
+  "verdict": "pass",
+  "summary": "The open pane test requires the exact hint as the trailing line and verifies a dim style span covering that entire line.",
+  "timestamp": "2026-07-31T06:41:56.116Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.3.2--8def66fdb1ee",
-  "requirementId": "REQ-025.3.2",
-  "hash": "8def66fdb1ee",
-  "verdict": "pass",
-  "summary": "Expiry test drives the real render path at the exact deadline (clock==deadline), asserts the turn cell resumes ordinary orange 'user' derivation, and rejects both mutation channels: shared task dict keeps snoozed_until and fake.snoozes stays empty (no clearing write).",
-  "timestamp": "2026-07-31T05:55:58.811Z"
-}

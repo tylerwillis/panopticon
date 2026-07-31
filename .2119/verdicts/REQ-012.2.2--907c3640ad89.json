@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.2.2--907c3640ad89",
+  "requirementId": "REQ-012.2.2",
+  "hash": "907c3640ad89",
+  "verdict": "pass",
+  "summary": "With neither task overrides nor a workflow pair, the test rejects application defaults by requiring the conflicting repository harness and model pair.",
+  "timestamp": "2026-07-31T06:41:55.996Z"
+}

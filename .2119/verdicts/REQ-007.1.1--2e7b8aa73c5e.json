@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-007.1.1--2e7b8aa73c5e",
-  "requirementId": "REQ-007.1.1",
-  "hash": "2e7b8aa73c5e",
-  "verdict": "pass",
-  "summary": "Three tests pin copied text == render_detail(highlighted task) and patch the two real seams (OSC52 copy_to_clipboard + host _clipboard_copy) separately, incl. host attempt after terminal-path failure",
-  "timestamp": "2026-07-31T05:51:30.464Z"
-}

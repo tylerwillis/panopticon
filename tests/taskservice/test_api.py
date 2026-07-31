@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from panopticon.core.models import Repo, Responsibility
+from panopticon.core.models import Actor, Repo, Responsibility, Task
 from panopticon.core.state import Complete, InitialState, TerminalState
 from panopticon.core.workflow import Workflow
 from panopticon.taskservice.api import create_app
@@ -839,13 +839,24 @@ def test_set_slug(client: TestClient) -> None:
     assert resp.json()["slug"] == "fix-widget"
 
 
-# 2119: REQ-025.1.1
-# 2119: REQ-025.1.2
-# 2119: REQ-025.1.3
+# 2119: REQ-027.1.1
+# 2119: REQ-027.1.2
+# 2119: REQ-027.1.3
 def test_snooze_deadline_round_trips_without_changing_task_signals(client: TestClient) -> None:
+    assert (
+        Task(
+            id="default-snooze",
+            repo_id="r1",
+            workflow="spike",
+            state="SPIKING",
+            turn=Actor.AGENT,
+        ).snoozed_until
+        is None
+    )
     task_id = _new_task(client)
     created = client.get(f"/tasks/{task_id}").json()
     assert created["snoozed_until"] is None
+    assert client.get("/tasks").json()[0]["snoozed_until"] is None
 
     moved = client.put(f"/tasks/{task_id}/state", json={"state": "COMPLETE"})
     assert moved.status_code == 200
@@ -863,8 +874,8 @@ def test_snooze_deadline_round_trips_without_changing_task_signals(client: TestC
     assert client.get("/tasks").json()[0]["snoozed_until"] == deadline
 
 
-# 2119: REQ-025.1.2
-# 2119: REQ-025.1.3
+# 2119: REQ-027.1.2
+# 2119: REQ-027.1.3
 def test_snooze_null_clears_and_service_does_not_expire_deadlines(client: TestClient) -> None:
     task_id = _new_task(client)
     already_past = "2000-01-01T00:00:00+00:00"
@@ -884,6 +895,14 @@ def test_snooze_null_clears_and_service_does_not_expire_deadlines(client: TestCl
     assert cleared.json()["state"] == "COMPLETE"
     assert cleared.json()["turn"] == "user"
     assert cleared.json()["blocked"] is True
+    assert client.get(f"/tasks/{task_id}").json()["snoozed_until"] is None
+
+
+# 2119: REQ-027.1.1
+def test_snooze_rejects_a_non_timestamp_value(client: TestClient) -> None:
+    task_id = _new_task(client)
+    rejected = client.put(f"/tasks/{task_id}/snooze", json={"until": "not-a-timestamp"})
+    assert rejected.status_code == 422
     assert client.get(f"/tasks/{task_id}").json()["snoozed_until"] is None
 
 

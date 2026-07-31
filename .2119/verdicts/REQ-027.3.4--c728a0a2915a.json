@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.3.4--c728a0a2915a",
+  "requirementId": "REQ-027.3.4",
+  "hash": "c728a0a2915a",
+  "verdict": "pass",
+  "summary": "Tests reject snooze overriding active attention and reject held or gated presentation overriding an unpierced snooze.",
+  "timestamp": "2026-07-31T06:42:55.626Z"
+}

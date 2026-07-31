@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.6.1--4c9ea7c19981",
+  "requirementId": "REQ-019.6.1",
+  "hash": "4c9ea7c19981",
+  "verdict": "pass",
+  "summary": "The test closes during an in-flight discovery that then fails and rejects notification, application failure, or a modal remaining visible.",
+  "timestamp": "2026-07-31T06:43:45.977Z"
+}

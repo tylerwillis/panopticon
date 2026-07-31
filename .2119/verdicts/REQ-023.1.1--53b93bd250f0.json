@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.1.1--53b93bd250f0",
-  "requirementId": "REQ-023.1.1",
-  "hash": "53b93bd250f0",
-  "verdict": "pass",
-  "summary": "Pilot tests assert the real DataTable slug cell verbatim (connector + ▸ + count + 'enter to expand'), full-width dim Span, hidden child rows via exact row-key lists, direct-vs-descendant count (grandchild fixture), and count refresh on snapshot change; only the REST client is faked.",
-  "timestamp": "2026-07-31T05:54:57.342Z"
-}

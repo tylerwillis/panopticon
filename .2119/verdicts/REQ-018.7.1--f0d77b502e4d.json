@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.7.1--f0d77b502e4d",
-  "requirementId": "REQ-018.7.1",
-  "hash": "f0d77b502e4d",
-  "verdict": "pass",
-  "summary": "Ran the evidence suite: the seeded mutant clobbering an untouched model field is killed by 5/6 annotated tests; focus-only reopen tests reject focus-as-touch pinning per source (repo/workflow/app), precedence params reject repo-over-workflow, and mixed touched/untouched tests reject per-field bleed - no over-mocking (fake sits at the client seam, assertions read real rendered widgets).",
-  "timestamp": "2026-07-31T05:56:21.006Z"
-}

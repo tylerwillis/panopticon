@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.5--45cf051a444d",
+  "requirementId": "REQ-006.4.5",
+  "hash": "45cf051a444d",
+  "verdict": "pass",
+  "summary": "Exact notification assertions across every non-down status reject any task-specific notice while permitting only the aggregate result.",
+  "timestamp": "2026-07-31T06:41:56.023Z"
+}

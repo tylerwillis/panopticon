@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.3.1--9f59afed9a71",
+  "requirementId": "REQ-007.3.1",
+  "hash": "9f59afed9a71",
+  "verdict": "pass",
+  "summary": "For a task without the hint in its fields, the test rejects both any embedded hint substring and a line equal to the hint in render_detail(task).",
+  "timestamp": "2026-07-31T06:41:56.094Z"
+}

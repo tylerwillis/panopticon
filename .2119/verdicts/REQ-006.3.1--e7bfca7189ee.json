@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.3.1--e7bfca7189ee",
-  "requirementId": "REQ-006.3.1",
-  "hash": "e7bfca7189ee",
-  "verdict": "pass",
-  "summary": "Real Escape keypress on the open modal asserts both conjuncts: screen_stack returns to 1 and fake.released stays empty.",
-  "timestamp": "2026-07-31T05:50:50.548Z"
-}

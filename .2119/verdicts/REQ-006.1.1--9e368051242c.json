@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.1.1--9e368051242c",
-  "requirementId": "REQ-006.1.1",
-  "hash": "9e368051242c",
-  "verdict": "pass",
-  "summary": "test_bulk_respawn_binding_lists_only_down_tasks_for_confirmation presses the real ctrl+r key via Textual pilot and asserts BulkRespawnScreen is pushed with the down-task list rendered; mutation check (rebinding to ctrl+b) made it fail, and only the HTTP client is faked.",
-  "timestamp": "2026-07-31T05:51:43.144Z"
-}

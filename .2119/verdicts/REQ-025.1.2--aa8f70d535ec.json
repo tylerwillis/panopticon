@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.1.2--aa8f70d535ec",
-  "requirementId": "REQ-025.1.2",
-  "hash": "aa8f70d535ec",
-  "verdict": "pass",
-  "summary": "Real-stack round-trip tests pin exact timestamp and null persistence on PUT response, GET, and list, with state/turn/blocked moved off defaults first to catch clobbering",
-  "timestamp": "2026-07-31T05:56:09.353Z"
-}

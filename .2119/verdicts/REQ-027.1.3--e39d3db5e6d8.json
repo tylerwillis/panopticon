@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.1.3--e39d3db5e6d8",
+  "requirementId": "REQ-027.1.3",
+  "hash": "e39d3db5e6d8",
+  "verdict": "pass",
+  "summary": "Tests preserve a future deadline without changing task signals and retain an already-past deadline through a subsequent read.",
+  "timestamp": "2026-07-31T06:47:16.739Z"
+}

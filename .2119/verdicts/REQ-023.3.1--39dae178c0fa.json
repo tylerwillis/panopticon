@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.3.1--39dae178c0fa",
-  "requirementId": "REQ-023.3.1",
-  "hash": "39dae178c0fa",
-  "verdict": "pass",
-  "summary": "Tests genuinely cover all five conjuncts (bidirectional toggle, search-scoped no-op, session-local state via a fresh Dashboard instance, zero task-service mutation calls, and search-reveals-matching-children) with non-tautological assertions against real Dashboard/DataTable behavior.",
-  "timestamp": "2026-07-31T05:55:29.917Z"
-}

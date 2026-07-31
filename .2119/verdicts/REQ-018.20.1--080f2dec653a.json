@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.20.1--080f2dec653a",
-  "requirementId": "REQ-018.20.1",
-  "hash": "080f2dec653a",
-  "verdict": "pass",
-  "summary": "Mutation-verified: hiding the empty list zeroes region.width, so 'width>0' plus option_count==0 reject hidden/stale lists for both model and effort fields against real codex-harness suggestions.",
-  "timestamp": "2026-07-31T05:55:56.219Z"
-}

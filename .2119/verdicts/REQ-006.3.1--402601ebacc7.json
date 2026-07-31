@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.3.1--402601ebacc7",
+  "requirementId": "REQ-006.3.1",
+  "hash": "402601ebacc7",
+  "verdict": "pass",
+  "summary": "The Escape interaction verifies both modal dismissal and zero claim releases.",
+  "timestamp": "2026-07-31T06:41:56.073Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.11.1--1deed1ea8517",
+  "requirementId": "REQ-018.11.1",
+  "hash": "1deed1ea8517",
+  "verdict": "pass",
+  "summary": "Typed and candidate-accepted model/effort values are asserted unchanged after an observed harness change.",
+  "timestamp": "2026-07-31T06:41:56.141Z"
+}

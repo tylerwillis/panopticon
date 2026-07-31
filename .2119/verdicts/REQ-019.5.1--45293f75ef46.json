@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.5.1--45293f75ef46",
-  "requirementId": "REQ-019.5.1",
-  "hash": "45293f75ef46",
-  "verdict": "pass",
-  "summary": "Timed real cycles over 20ms-delayed fake harnesses: cache-bypass rediscovery (41ms), deferred field update, and wrong-harness suggestions each fail the test; passes on pristine HEAD.",
-  "timestamp": "2026-07-31T05:57:58.215Z"
-}

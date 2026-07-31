@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.4.1--9da9b718ac33",
-  "requirementId": "REQ-001.4.1",
-  "hash": "9da9b718ac33",
-  "verdict": "pass",
-  "summary": "Yes-path test asserts real on-disk removal of the selected file (sibling untouched), a second client list_workflow_files call after confirm, and that the table renders service-only data ('Loaded until restart.' for the still-registered deleted workflow) — rejecting local row-drop, filesystem re-read, no-removal, and wrong-file removal.",
-  "timestamp": "2026-07-31T05:50:50.518Z"
-}

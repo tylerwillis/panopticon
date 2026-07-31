@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.1.1--43d252dece50",
+  "requirementId": "REQ-006.1.1",
+  "hash": "43d252dece50",
+  "verdict": "pass",
+  "summary": "Pressing Ctrl+R behaviorally opens the bulk-respawn confirmation populated with down tasks, rejecting an absent or misbound action.",
+  "timestamp": "2026-07-31T06:40:41.085Z"
+}

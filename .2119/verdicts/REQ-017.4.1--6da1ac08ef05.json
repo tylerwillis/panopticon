@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.4.1--6da1ac08ef05",
+  "requirementId": "REQ-017.4.1",
+  "hash": "6da1ac08ef05",
+  "verdict": "pass",
+  "summary": "The open detail pane's rendered trailing hint is checked at its exact line position for the exact v: edit slug text.",
+  "timestamp": "2026-07-31T06:41:56.235Z"
+}

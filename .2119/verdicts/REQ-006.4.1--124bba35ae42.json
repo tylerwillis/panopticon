@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.4.1--124bba35ae42",
-  "requirementId": "REQ-006.4.1",
-  "hash": "124bba35ae42",
-  "verdict": "pass",
-  "summary": "Exact event-sequence equality (check/release per task) rejects double, missing, or uncheckd releases; the release flows through the same client.release seam the single-task R test pins.",
-  "timestamp": "2026-07-31T05:50:51.014Z"
-}

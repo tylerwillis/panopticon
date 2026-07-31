@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.5.1--96a66ba7df47",
-  "requirementId": "REQ-006.5.1",
-  "hash": "96a66ba7df47",
-  "verdict": "pass",
-  "summary": "Exact 'no down tasks' message asserted for the empty list and all eleven non-down statuses; the snapshot is swapped after startup so a stale-snapshot implementation fails.",
-  "timestamp": "2026-07-31T05:51:02.862Z"
-}

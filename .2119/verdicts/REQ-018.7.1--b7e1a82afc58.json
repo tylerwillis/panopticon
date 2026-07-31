@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.7.1--b7e1a82afc58",
+  "requirementId": "REQ-018.7.1",
+  "hash": "b7e1a82afc58",
+  "verdict": "pass",
+  "summary": "Untouched harness, model, and effort fields are verified against changed workflow, repo, and application defaults, including precedence.",
+  "timestamp": "2026-07-31T06:42:55.616Z"
+}

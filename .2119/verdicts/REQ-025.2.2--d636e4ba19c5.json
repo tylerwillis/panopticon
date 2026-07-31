@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.2.2--d636e4ba19c5",
-  "requirementId": "REQ-025.2.2",
-  "hash": "d636e4ba19c5",
-  "verdict": "pass",
-  "summary": "Real pilot keypresses toggle off both finite (test_e_snoozes_..._toggles_off) and indefinite (test_shift_e_...) active snoozes, asserting the (id, None) clear write plus restored orange 'user' rendering; the expired-deadline sibling test rejects clearing an inactive snooze.",
-  "timestamp": "2026-07-31T05:56:44.885Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.17.1--62a2b01b4f3e",
-  "requirementId": "REQ-018.17.1",
-  "hash": "62a2b01b4f3e",
-  "verdict": "pass",
-  "summary": "Both boundary cases tested for model and effort: empty candidate list and non-empty list with highlighted None (precondition asserted); Enter must leave MemoScreen open with created==[]",
-  "timestamp": "2026-07-31T05:52:01.897Z"
-}

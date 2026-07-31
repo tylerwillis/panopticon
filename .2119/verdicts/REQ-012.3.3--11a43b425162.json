@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.3.3--11a43b425162",
+  "requirementId": "REQ-012.3.3",
+  "hash": "11a43b425162",
+  "verdict": "pass",
+  "summary": "With a differing explicit harness, a non-null workflow pair, and no task model, the test requires the explicit harness and a null losing model.",
+  "timestamp": "2026-07-31T06:41:56.076Z"
+}

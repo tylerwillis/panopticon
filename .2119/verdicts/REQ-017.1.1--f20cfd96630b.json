@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.1.1--f20cfd96630b",
+  "requirementId": "REQ-017.1.1",
+  "hash": "f20cfd96630b",
+  "verdict": "pass",
+  "summary": "Tests reject rename behavior with details closed and verify that details-open editing targets the highlighted task and initializes from its current service slug.",
+  "timestamp": "2026-07-31T06:41:56.177Z"
+}

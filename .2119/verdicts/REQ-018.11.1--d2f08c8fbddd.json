@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.11.1--d2f08c8fbddd",
-  "requirementId": "REQ-018.11.1",
-  "hash": "d2f08c8fbddd",
-  "verdict": "pass",
-  "summary": "Four pilot tests keep typed and candidate-accepted values intact across a confirmed harness change (selector asserted changed to outfitter), so clear-or-reset-on-change implementations fail",
-  "timestamp": "2026-07-31T05:51:48.693Z"
-}

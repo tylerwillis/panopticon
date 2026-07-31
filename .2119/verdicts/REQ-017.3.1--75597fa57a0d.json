@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.3.1--75597fa57a0d",
+  "requirementId": "REQ-017.3.1",
+  "hash": "75597fa57a0d",
+  "verdict": "pass",
+  "summary": "After changing the editor value and cancelling, the test verifies no service rename call and the original highlighted slug remains displayed.",
+  "timestamp": "2026-07-31T06:41:56.067Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.2.4--e89aac74ba22",
+  "requirementId": "REQ-012.2.4",
+  "hash": "e89aac74ba22",
+  "verdict": "pass",
+  "summary": "With no higher-priority selection, the test changes the application default and verifies the concrete harness name is persisted.",
+  "timestamp": "2026-07-31T06:41:56.069Z"
+}

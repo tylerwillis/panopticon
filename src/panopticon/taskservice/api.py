@@ -12,11 +12,12 @@ from __future__ import annotations
 import asyncio
 from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager, suppress
+from datetime import datetime
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi.responses import JSONResponse, StreamingResponse
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from panopticon.core.artifacts import ArtifactError
 from panopticon.core.models import Actor, LifecyclePhase, Repo, Status, Task
@@ -309,6 +310,19 @@ class AttentionIn(BaseModel):
 
 class SnoozeIn(BaseModel):
     until: str | None
+
+    @field_validator("until")
+    @classmethod
+    def validate_until(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        try:
+            parsed = datetime.fromisoformat(value)
+        except ValueError as exc:
+            raise ValueError("until must be an ISO-8601 timestamp") from exc
+        if parsed.tzinfo is None:
+            raise ValueError("until must include a timezone")
+        return value
 
 
 class ClaimIn(BaseModel):

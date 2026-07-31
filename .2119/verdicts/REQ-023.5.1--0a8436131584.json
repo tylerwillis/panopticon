@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.5.1--0a8436131584",
+  "requirementId": "REQ-023.5.1",
+  "hash": "0a8436131584",
+  "verdict": "pass",
+  "summary": "The rendered help test requires one ensemble entry containing Enter and both collapse and expand.",
+  "timestamp": "2026-07-31T06:42:55.569Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.3.1--a76963f62b51",
+  "requirementId": "REQ-027.3.1",
+  "hash": "a76963f62b51",
+  "verdict": "pass",
+  "summary": "Tests require every cell dimmed, exact finite labels at twelve and four hours before expiry, and the exact indefinite label.",
+  "timestamp": "2026-07-31T06:42:55.614Z"
+}

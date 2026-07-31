@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.3.4--50accfd4ccf4",
-  "requirementId": "REQ-025.3.4",
-  "hash": "50accfd4ccf4",
-  "verdict": "pass",
-  "summary": "End-to-end DataTable render of both boundary tasks: snoozed+held+gated must show dim 'snoozed · 4h left' in every cell (rejects held/gated winning) and the attention=True twin must show undimmed orange 'user' (rejects snooze winning over attention).",
-  "timestamp": "2026-07-31T06:11:20.198Z"
-}

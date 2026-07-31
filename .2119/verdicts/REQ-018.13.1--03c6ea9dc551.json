@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.13.1--03c6ea9dc551",
-  "requirementId": "REQ-018.13.1",
-  "hash": "03c6ea9dc551",
-  "verdict": "pass",
-  "summary": "Enter after typing the memo must record initial_prompt='fix' at the client seam; create-without-prompt or no-create both fail the tuple assertion",
-  "timestamp": "2026-07-31T05:51:49.752Z"
-}

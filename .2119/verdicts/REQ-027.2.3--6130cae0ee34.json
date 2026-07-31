@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.2.3--6130cae0ee34",
+  "requirementId": "REQ-027.2.3",
+  "hash": "6130cae0ee34",
+  "verdict": "pass",
+  "summary": "Shift+E sends the reserved indefinite timestamp, while keymap uniqueness and action assertions reject swapped or duplicate bindings.",
+  "timestamp": "2026-07-31T06:42:55.581Z"
+}

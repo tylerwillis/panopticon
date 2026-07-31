@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.2.2--ee804fec47b6",
-  "requirementId": "REQ-006.2.2",
-  "hash": "ee804fec47b6",
-  "verdict": "pass",
-  "summary": "Literal expected lines pin every conjunct with boundary fixtures: 8-char id prefix, en-dash null slug, whitespace normalization incl. normalize-before-truncate, exactly-60-char memo without ellipsis, absent-memo omission.",
-  "timestamp": "2026-07-31T05:50:44.709Z"
-}

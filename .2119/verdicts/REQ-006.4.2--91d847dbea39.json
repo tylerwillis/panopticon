@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.4.2--91d847dbea39",
-  "requirementId": "REQ-006.4.2",
-  "hash": "91d847dbea39",
-  "verdict": "pass",
-  "summary": "Service order reversed from displayed order, displayed order proven from rendered text, strict check/release interleaving asserted, and a sleeping fake with max_active_releases==1 observably rejects concurrent processing.",
-  "timestamp": "2026-07-31T05:50:51.473Z"
-}

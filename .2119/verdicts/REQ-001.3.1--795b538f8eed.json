@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.3.1--795b538f8eed",
-  "requirementId": "REQ-001.3.1",
-  "hash": "795b538f8eed",
-  "verdict": "pass",
-  "summary": "Parametrized cancel test covers both no-click and Escape; each asserts return to WorkflowsScreen (dialog is a real pushed ModalScreen) AND the file survives on real tmp_path disk (unlink is unmocked), so delete-on-cancel or a stuck dialog each fail; escape-without-dialog can't pass vacuously since WorkflowsScreen's own escape binding would dismiss it and break the screen assertion.",
-  "timestamp": "2026-07-31T05:50:35.511Z"
-}

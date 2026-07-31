@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.9.1--9d1eb634c513",
+  "requirementId": "REQ-018.9.1",
+  "hash": "9d1eb634c513",
+  "verdict": "pass",
+  "summary": "The modal is asserted exactly 64 columns with launch controls present and while each candidate list is visible.",
+  "timestamp": "2026-07-31T06:42:55.629Z"
+}

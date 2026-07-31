@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.3.3--6434da949da8",
-  "requirementId": "REQ-025.3.3",
-  "hash": "6434da949da8",
-  "verdict": "pass",
-  "summary": "Injected clock genuinely drives both seams: write tests pin the exact isoformat deadline (_SNOOZE_NOW+12h) a wall-clock read could not produce, and the expiry test advances only the injected clock to flip snoozed->user, so a real-clock rendering comparison fails one of its two phases.",
-  "timestamp": "2026-07-31T05:56:52.299Z"
-}

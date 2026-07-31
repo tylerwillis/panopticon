@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.3.3--55ef0b0d7e10",
+  "requirementId": "REQ-027.3.3",
+  "hash": "55ef0b0d7e10",
+  "verdict": "pass",
+  "summary": "Injected clock values determine both the exact twelve-hour snooze write and rendering before, at, and after expiry.",
+  "timestamp": "2026-07-31T06:42:55.673Z"
+}

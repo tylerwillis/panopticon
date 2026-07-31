@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.4.1--c9a8c1d2b85d",
+  "requirementId": "REQ-001.4.1",
+  "hash": "c9a8c1d2b85d",
+  "verdict": "pass",
+  "summary": "The yes path must delete only the selected file, re-query the service, and render data unique to the refreshed registry response.",
+  "timestamp": "2026-07-31T06:40:38.903Z"
+}

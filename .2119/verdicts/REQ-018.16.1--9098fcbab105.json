@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.16.1--9098fcbab105",
-  "requirementId": "REQ-018.16.1",
-  "hash": "9098fcbab105",
-  "verdict": "pass",
-  "summary": "Focus on the selector is asserted before Enter; value must advance claude->codex with created==[], rejecting submit-on-enter and no-cycle implementations",
-  "timestamp": "2026-07-31T05:51:56.319Z"
-}

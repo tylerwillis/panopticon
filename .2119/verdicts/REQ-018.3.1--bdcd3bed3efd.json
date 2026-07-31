@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.3.1--bdcd3bed3efd",
+  "requirementId": "REQ-018.3.1",
+  "hash": "bdcd3bed3efd",
+  "verdict": "pass",
+  "summary": "Exact model and effort lists from the selected Codex harness verify case-insensitive containment and reject missing or extraneous suggestions.",
+  "timestamp": "2026-07-31T06:42:55.555Z"
+}

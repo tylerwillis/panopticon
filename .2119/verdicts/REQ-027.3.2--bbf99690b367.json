@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.3.2--bbf99690b367",
+  "requirementId": "REQ-027.3.2",
+  "hash": "bbf99690b367",
+  "verdict": "pass",
+  "summary": "Tests reject early expiry, failure to resume ordinary orange user attention at and after the deadline, and mutation of the recorded deadline.",
+  "timestamp": "2026-07-31T06:42:55.622Z"
+}

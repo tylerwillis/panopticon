@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.8.1--7b59fc1353ff",
-  "requirementId": "REQ-019.8.1",
-  "hash": "7b59fc1353ff",
-  "verdict": "pass",
-  "summary": "Exact-equality assertions on the real model/effort OptionLists pin harness-tagged, call-counted fake suggestions (multiple=True catches subset/extra), effort_models pins the effort-discovery model; empirically kills the planted working-tree mutation while passing on clean HEAD.",
-  "timestamp": "2026-07-31T05:56:17.504Z"
-}

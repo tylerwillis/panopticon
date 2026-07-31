@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.5.1--a6d70e19e4ac",
+  "requirementId": "REQ-019.5.1",
+  "hash": "a6d70e19e4ac",
+  "verdict": "pass",
+  "summary": "With discovery cached, each harness selection is timed below 10 ms and all dependent selection, summary, placeholder, model, and effort fields are verified.",
+  "timestamp": "2026-07-31T06:47:16.767Z"
+}

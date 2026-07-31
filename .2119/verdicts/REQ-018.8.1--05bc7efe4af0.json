@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.8.1--05bc7efe4af0",
-  "requirementId": "REQ-018.8.1",
-  "hash": "05bc7efe4af0",
-  "verdict": "pass",
-  "summary": "Parametrized over harness/model/effort focus with the candidate list asserted visible (width>0) before Escape, plus the draft test's memo-editor Escape; each asserts the MemoScreen closed and nothing was created.",
-  "timestamp": "2026-07-31T05:54:58.357Z"
-}
