@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.2.1--65a78d530af8",
+  "requirementId": "REQ-007.2.1",
+  "hash": "65a78d530af8",
+  "verdict": "pass",
+  "summary": "Pilot test renders the real pane and asserts visibility, the exact hard-coded hint literal as the trailing line, and a dim span covering exactly the hint region; wrong text, non-trailing placement, or missing dim each fail, and the literal is independent of the _hotkey_hint implementation.",
+  "timestamp": "2026-07-31T05:19:37.609Z"
+}

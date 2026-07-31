@@ -459,7 +459,7 @@ async def test_dashboard_mounts_lists_tasks_and_shows_detail() -> None:
 async def test_detail_pane_shows_copy_key_hint_without_changing_copyable_detail() -> None:
     # 2119: REQ-007.2.1
     # 2119: REQ-007.3.1
-    hint = "c: copy details  y: copy slug  Y: copy id"
+    hint = "c: copy details  y: copy slug  Shift+Y: copy id"
     assert hint not in render_detail(_TASK)
     assert hint not in render_detail(_TASK).splitlines()
     app = Dashboard(_FakeClient([_TASK]))  # type: ignore[arg-type]
