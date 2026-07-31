@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.7.1--7ba53c8c0290",
-  "requirementId": "REQ-025.7.1",
-  "hash": "7ba53c8c0290",
-  "verdict": "pass",
-  "summary": "Built-in discovery with no external directory requires all three exact workflow names; omission, misnaming, or external-only registration fails.",
-  "timestamp": "2026-07-31T06:33:43.123Z"
-}

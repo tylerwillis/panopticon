@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.1.1--0e9918b44d80",
-  "requirementId": "REQ-025.1.1",
-  "hash": "0e9918b44d80",
-  "verdict": "pass",
-  "summary": "Task-service tests reject omission of the core artifacts skill for skill-less and skilled workflows, loss of workflow-specific skills, per-task inconsistency, and replacement of the reserved publishing surface.",
-  "timestamp": "2026-07-31T06:36:21.173Z"
-}

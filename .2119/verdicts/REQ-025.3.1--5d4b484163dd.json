@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.3.1--5d4b484163dd",
-  "requirementId": "REQ-025.3.1",
-  "hash": "5d4b484163dd",
-  "verdict": "pass",
-  "summary": "Actual core artifact skill is retrieved through TaskService; exact instructions require dashboard a-hotkey guidance, reviewer-readable non-PR material, and every enumerated example category.",
-  "timestamp": "2026-07-31T06:34:05.530Z"
-}

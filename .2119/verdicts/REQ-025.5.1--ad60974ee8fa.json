@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.5.1--ad60974ee8fa",
-  "requirementId": "REQ-025.5.1",
-  "hash": "ad60974ee8fa",
-  "verdict": "pass",
-  "summary": "Tests enumerate every built-in 2119 workflow and require its actual spec and every review skill to explicitly publish the specification, final review outputs, and triage summary as task artifacts.",
-  "timestamp": "2026-07-31T06:36:31.200Z"
-}

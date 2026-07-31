@@ -67,12 +67,6 @@ EXPECTED_SOL_REVIEWING_RESPONSIBILITIES = (
         "accepted (2 rounds max); the triage summary is a PR comment.",
     ),
 )
-SPEC_SKILL_ARTIFACT_SENTENCE = (
-    "Also publish the specification as a task artifact for the operator to review."
-)
-REVIEW_SKILL_ARTIFACT_SENTENCE = (
-    "Also publish the final review outputs and triage summary as task artifacts."
-)
 EXPECTED_FABLE_SOL_REVIEW_INSTRUCTIONS = """Run two independent fresh-context reviews of the final
 diff: Fable 5 through the Claude CLI and Sol 5.6 through the Codex CLI. Each review covers
 correctness, simplicity, scope, and spec/test honesty. Post both final review reports as labeled
@@ -119,7 +113,7 @@ def _responsibility_descriptions(workflow: Workflow, state: str) -> dict[str, st
 
 @pytest.mark.asyncio
 async def test_every_task_exposes_the_core_artifact_skill(tmp_path: Path) -> None:
-    # 2119: REQ-025.1.1
+    # 2119: REQ-026.1.1
     class SkillLess(Workflow):
         name = "skill-less"
 
@@ -170,11 +164,11 @@ async def test_every_task_exposes_the_core_artifact_skill(tmp_path: Path) -> Non
 
 @pytest.mark.asyncio
 async def test_artifact_skill_explains_both_write_mechanisms(tmp_path: Path) -> None:
-    # 2119: REQ-025.1.1
-    # 2119: REQ-025.2.1
-    # 2119: REQ-025.3.1
-    # 2119: REQ-025.10.1
-    # 2119: REQ-025.11.1
+    # 2119: REQ-026.1.1
+    # 2119: REQ-026.2.1
+    # 2119: REQ-026.3.1
+    # 2119: REQ-026.10.1
+    # 2119: REQ-026.11.1
     service = TaskService(
         SqlAlchemyStore(),
         {"spike": discover_workflows(_home_workflows=Path("/nonexistent"))["spike"]},
@@ -191,7 +185,7 @@ async def test_artifact_skill_explains_both_write_mechanisms(tmp_path: Path) -> 
 
 
 def test_reserved_artifact_surface_cannot_be_overwritten(tmp_path: Path) -> None:
-    # 2119: REQ-025.1.1
+    # 2119: REQ-026.1.1
     class SkillCollision(Workflow):
         name = "skill-collision"
 
@@ -225,7 +219,7 @@ def test_reserved_artifact_surface_cannot_be_overwritten(tmp_path: Path) -> None
 
 @pytest.mark.asyncio
 async def test_reserved_artifact_surface_cannot_be_added_by_rescan(tmp_path: Path) -> None:
-    # 2119: REQ-025.1.1
+    # 2119: REQ-026.1.1
     class SkillCollision(Workflow):
         name = "rescan-skill-collision"
 
@@ -250,7 +244,7 @@ async def test_reserved_artifact_surface_cannot_be_added_by_rescan(tmp_path: Pat
 
 
 def test_specifying_has_one_artifact_responsibility() -> None:
-    # 2119: REQ-025.4.1
+    # 2119: REQ-026.4.1
     registry = discover_workflows(_home_workflows=Path("/nonexistent"))
     builtins = [workflow for name, workflow in registry.items() if name.startswith("2119-")]
 
@@ -263,25 +257,28 @@ def test_specifying_has_one_artifact_responsibility() -> None:
 
 
 def test_2119_skills_publish_spec_and_review_material() -> None:
-    # 2119: REQ-025.5.1
+    # 2119: REQ-026.5.1
     registry = discover_workflows(_home_workflows=Path("/nonexistent"))
     builtins = [workflow for name, workflow in registry.items() if name.startswith("2119-")]
 
     assert {workflow.name for workflow in builtins} == set(WORKFLOW_NAMES)
     for workflow in builtins:
-        spec_instructions = _skill(workflow, "spec-2119").instructions.lower()
+        spec_instructions = _skill(workflow, "spec-2119").instructions
         review_skills = [skill for skill in workflow.skills() if "review" in skill.name]
+        expected_review = (
+            EXPECTED_FABLE_SOL_REVIEW_INSTRUCTIONS
+            if type(workflow).fable_reviews
+            else EXPECTED_SOL_ONLY_REVIEW_INSTRUCTIONS
+        )
 
-        assert spec_instructions.count(SPEC_SKILL_ARTIFACT_SENTENCE.lower()) == 1
+        assert spec_instructions == EXPECTED_SOL_SPEC_INSTRUCTIONS
         assert review_skills
         for review_skill in review_skills:
-            assert (
-                review_skill.instructions.lower().count(REVIEW_SKILL_ARTIFACT_SENTENCE.lower()) == 1
-            )
+            assert review_skill.instructions == expected_review
 
 
 def test_building_retains_the_external_pr_url_responsibility() -> None:
-    # 2119: REQ-025.6.1
+    # 2119: REQ-026.6.1
     registry = discover_workflows(_home_workflows=Path("/nonexistent"))
     builtins = [workflow for name, workflow in registry.items() if name.startswith("2119-")]
 
@@ -292,22 +289,32 @@ def test_building_retains_the_external_pr_url_responsibility() -> None:
 
 
 def test_discovers_all_three_builtin_2119_workflows() -> None:
-    # 2119: REQ-025.7.1
+    # 2119: REQ-026.7.1
     registry = discover_workflows(_home_workflows=Path("/nonexistent"))
 
-    assert set(WORKFLOW_NAMES) <= set(registry)
+    assert {name: type(registry[name]).__name__ for name in WORKFLOW_NAMES} == {
+        "2119-human-spec": "Spec2119Human",
+        "2119-auto-spec": "Spec2119Auto",
+        "2119-auto-sol": "Spec2119AutoSol",
+    }
 
 
 def test_auto_sol_uses_sol_for_both_review_layers() -> None:
-    # 2119: REQ-025.8.1
+    # 2119: REQ-026.8.1
+    registry = discover_workflows(_home_workflows=Path("/nonexistent"))
+    builtins = [workflow for name, workflow in registry.items() if name.startswith("2119-")]
+    assert {workflow.name for workflow in builtins} == set(WORKFLOW_NAMES)
+    for workflow in builtins:
+        assert workflow._honesty_reviewer_cmd() == (
+            "codex exec --sandbox workspace-write -m gpt-5.6-sol"
+        )
+        assert _skill(workflow, "spec-2119").instructions == EXPECTED_SOL_SPEC_INSTRUCTIONS
+
     auto_sol = _workflow("2119-auto-sol")
     auto_sol_spec = _skill(auto_sol, "spec-2119").instructions.lower()
     auto_sol_review = next(skill for skill in auto_sol.skills() if "review" in skill.name)
 
     assert type(auto_sol).fable_reviews is False
-    assert auto_sol._honesty_reviewer_cmd() == (
-        "codex exec --sandbox workspace-write -m gpt-5.6-sol"
-    )
     assert auto_sol_spec == EXPECTED_SOL_SPEC_INSTRUCTIONS.lower()
     assert auto_sol_review.instructions == EXPECTED_SOL_ONLY_REVIEW_INSTRUCTIONS
     assert [skill.name for skill in auto_sol.skills() if "review" in skill.name] == [
@@ -320,10 +327,6 @@ def test_auto_sol_uses_sol_for_both_review_layers() -> None:
     for name in ("2119-human-spec", "2119-auto-spec"):
         workflow = _workflow(name)
         assert type(workflow).fable_reviews is True
-        assert workflow._honesty_reviewer_cmd() == (
-            "codex exec --sandbox workspace-write -m gpt-5.6-sol"
-        )
-        assert _skill(workflow, "spec-2119").instructions == EXPECTED_SOL_SPEC_INSTRUCTIONS
         assert (
             _skill(workflow, "dual-review").instructions == EXPECTED_FABLE_SOL_REVIEW_INSTRUCTIONS
         )
@@ -346,7 +349,7 @@ def test_2119_open_pr_and_reviewer_cli_match_the_workflow_contract() -> None:
 
 
 def test_duplicate_error_identifies_external_file_and_remediation(tmp_path: Path) -> None:
-    # 2119: REQ-025.9.1
+    # 2119: REQ-026.9.1
     builtin_names = discover_workflows(_home_workflows=tmp_path / "absent").keys()
     for index, workflow_name in enumerate(builtin_names):
         external = tmp_path / f"spec_2119_{index}.py"

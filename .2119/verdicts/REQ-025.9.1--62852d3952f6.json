@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.9.1--62852d3952f6",
-  "requirementId": "REQ-025.9.1",
-  "hash": "62852d3952f6",
-  "verdict": "pass",
-  "summary": "Exercises every built-in name from an injected home workflow directory; discovery must raise, and the exact error includes the offending external path plus an explicit instruction to remove that file, including when duplicate skipping is requested.",
-  "timestamp": "2026-07-31T06:34:26.569Z"
-}

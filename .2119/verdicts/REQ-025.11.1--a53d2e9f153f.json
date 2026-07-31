@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.11.1--a53d2e9f153f",
-  "requirementId": "REQ-025.11.1",
-  "hash": "a53d2e9f153f",
-  "verdict": "pass",
-  "summary": "Exact full-instruction assertion covers every conjunct and rejects omissions, type restrictions, GitHub-as-artifact guidance, wrong URL field, and incorrect p/a hotkeys.",
-  "timestamp": "2026-07-31T06:34:44.063Z"
-}

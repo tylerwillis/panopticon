@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.4.1--5e7e7550d384",
-  "requirementId": "REQ-025.4.1",
-  "hash": "5e7e7550d384",
-  "verdict": "pass",
-  "summary": "All three built-in 2119 workflows are enumerated, and each exact SPECIFYING responsibility tuple permits exactly one obligation to publish the specification as a task artifact for user review.",
-  "timestamp": "2026-07-31T06:36:27.082Z"
-}

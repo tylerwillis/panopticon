@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.8.1--13e417f5d8cb",
-  "requirementId": "REQ-025.8.1",
-  "hash": "13e417f5d8cb",
-  "verdict": "pass",
-  "summary": "Golden workflow-surface tests reject non-Sol honesty review for all three built-ins, reject missing Fable or Sol in human/auto final review, and reject any Fable inclusion in auto-sol final review.",
-  "timestamp": "2026-07-31T06:34:08.003Z"
-}
