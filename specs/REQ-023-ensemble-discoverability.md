@@ -22,14 +22,14 @@ affordances, and the help screen explains how to toggle them.
 
 ### REQ-023.3: Session-local toggle
 
-1. Enter on a governor MUST alternate between its collapsed summary and expanded child rows while
-   keeping that display state local to the dashboard session and leaving task-service data
-   unchanged.
+1. Enter on a governor outside an active search MUST alternate between its collapsed summary and
+   expanded child rows while keeping that display state local to the dashboard session and leaving
+   task-service data unchanged; an active search continues to reveal matching governed tasks.
 
 ### REQ-023.4: Placeholder navigation
 
-1. Vertical keyboard navigation MUST skip a collapsed ensemble summary and land only on real task
-   rows.
+1. Up and Down arrow-key navigation MUST skip a collapsed ensemble summary and land only on real
+   task rows.
 
 ### REQ-023.5: Help discoverability
 
