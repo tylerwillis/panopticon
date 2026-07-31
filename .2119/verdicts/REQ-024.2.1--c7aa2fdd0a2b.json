@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.2.1--c7aa2fdd0a2b",
+  "requirementId": "REQ-024.2.1",
+  "hash": "c7aa2fdd0a2b",
+  "verdict": "pass",
+  "summary": "Conflict fixture's Input subclass declares no BINDINGS, so its enter-to-submit target is purely Textual-inherited; pytest.raises demands the check fail against the screen's Panopticon enter",
+  "timestamp": "2026-07-31T05:28:56.515Z"
+}

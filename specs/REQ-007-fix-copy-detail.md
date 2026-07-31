@@ -15,7 +15,7 @@ discoverable without changing the copyable detail text.
 
 ### REQ-007.2: Copy-key hint
 
-1. When displaying a task, the open details pane MUST show a dim trailing line reading `c: copy details  y: copy slug  Y: copy id`.
+1. When displaying a task, the open details pane MUST show a dim trailing line reading `c: copy details  y: copy slug  Shift+Y: copy id`.
 
 ### REQ-007.3: Copyable detail text
 

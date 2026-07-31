@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.7.1--ad27c6d97ea8",
+  "requirementId": "REQ-024.7.1",
+  "hash": "ad27c6d97ea8",
+  "verdict": "pass",
+  "summary": "Verbatim pane hint line plus real help-screen rows for y slug and Shift+Y id after pressing question mark, so a bare-Y label or swapped chords on either surface fails",
+  "timestamp": "2026-07-31T05:28:58.640Z"
+}

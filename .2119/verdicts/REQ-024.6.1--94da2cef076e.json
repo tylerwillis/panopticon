@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.6.1--94da2cef076e",
+  "requirementId": "REQ-024.6.1",
+  "hash": "94da2cef076e",
+  "verdict": "pass",
+  "summary": "The raised diagnostic is asserted to name the context, chord=enter, and both conflicting targets including the inherited submit",
+  "timestamp": "2026-07-31T05:28:58.223Z"
+}

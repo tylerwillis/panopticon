@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.3.1--04707cf46ce5",
+  "requirementId": "REQ-007.3.1",
+  "hash": "04707cf46ce5",
+  "verdict": "pass",
+  "summary": "With a fixture task whose fields lack the hint, the test asserts it appears neither as substring nor as any splitlines() line of render_detail(task), failing the moment render_detail appends the hint",
+  "timestamp": "2026-07-31T05:28:55.184Z"
+}
