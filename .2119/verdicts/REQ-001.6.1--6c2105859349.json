@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.6.1--6c2105859349",
+  "requirementId": "REQ-001.6.1",
+  "hash": "6c2105859349",
+  "verdict": "pass",
+  "summary": "Full-message equality on the dialog's labels covers both conjuncts (removes the file; loaded until next restart); string assertion is the right verification for a text-content requirement.",
+  "timestamp": "2026-07-22T14:39:14.402Z"
+}

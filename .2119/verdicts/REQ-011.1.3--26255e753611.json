@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-011.1.3--26255e753611",
+  "requirementId": "REQ-011.1.3",
+  "hash": "26255e753611",
+  "verdict": "pass",
+  "summary": "Exhaustive product over runner_live x every phase with an open registration on a claimed non-terminal task, all pinned to 'live' — a dead runner or lingering FAILED phase cannot demote it.",
+  "timestamp": "2026-07-23T17:38:37.217Z"
+}

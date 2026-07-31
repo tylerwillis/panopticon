@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.2.2--396dadc2f042",
-  "requirementId": "REQ-008.2.2",
-  "hash": "396dadc2f042",
-  "verdict": "pass",
-  "summary": "Tests pin exactly one change-feed version bump per state change (declared/free-move/drop, and with a hook-raised fresh block) plus a DB read-back of the blocked value against the real store; a two-write implementation demonstrably yields +2 and fails the assertion.",
-  "timestamp": "2026-07-22T07:57:08.253Z"
-}

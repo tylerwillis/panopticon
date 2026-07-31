@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.7.1--6cfc8ccde41e",
+  "requirementId": "REQ-001.7.1",
+  "hash": "6cfc8ccde41e",
+  "verdict": "pass",
+  "summary": "Reference style captured live from the new-workflow dialog and independently pinned (56/auto/round/accent/surface), compared tuple-for-tuple, with centering checked arithmetically against app.size — any drift in either dialog fails.",
+  "timestamp": "2026-07-22T14:39:18.603Z"
+}

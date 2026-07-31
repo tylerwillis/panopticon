@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-011.1.1--17a45432dc75",
+  "requirementId": "REQ-011.1.1",
+  "hash": "17a45432dc75",
+  "verdict": "pass",
+  "summary": "Real Codex argv includes no-alt-screen for both first-run and resumed sessions.",
+  "timestamp": "2026-07-30T16:15:16.429Z"
+}

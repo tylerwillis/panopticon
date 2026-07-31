@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-013.3.1--aad30fcf31e7",
+  "requirementId": "REQ-013.3.1",
+  "hash": "aad30fcf31e7",
+  "verdict": "pass",
+  "summary": "Two distinct declared launch pairs are exercised end-to-end and both review-task harness and starting_model must equal the workflow declarations, not author values.",
+  "timestamp": "2026-07-30T17:02:56.033Z"
+}

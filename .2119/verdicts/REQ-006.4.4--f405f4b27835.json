@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.4--f405f4b27835",
+  "requirementId": "REQ-006.4.4",
+  "hash": "f405f4b27835",
+  "verdict": "pass",
+  "summary": "Parametrized over all 11 non-down statuses; the service-side object is swapped after the modal opens so only a confirmation-time get_task can observe recovery, and released excludes the recovered task.",
+  "timestamp": "2026-07-22T14:41:46.597Z"
+}

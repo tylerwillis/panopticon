@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.5.1--0c6dffd6621a",
+  "requirementId": "REQ-001.5.1",
+  "hash": "0c6dffd6621a",
+  "verdict": "pass",
+  "summary": "x on a built_in workflow leaves the app on WorkflowsScreen (no dialog pushed) and the real file's content intact; either violation fails the isinstance or read_text assert.",
+  "timestamp": "2026-07-22T15:42:47.780Z"
+}

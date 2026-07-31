@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.1.2--b4bb5271f75c",
+  "requirementId": "REQ-008.1.2",
+  "hash": "b4bb5271f75c",
+  "verdict": "pass",
+  "summary": "Raised blocked marker survives a turn-to-user write.",
+  "timestamp": "2026-07-30T16:15:10.377Z"
+}

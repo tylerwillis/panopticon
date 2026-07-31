@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.2.1--17e8be0587ad",
+  "requirementId": "REQ-017.2.1",
+  "hash": "17e8be0587ad",
+  "verdict": "pass",
+  "summary": "UI tests verify highlighted-task targeting, exact whitespace trimming, service-backed refresh in table and detail, isolation from another task, and rejection preserving the old slug while running.",
+  "timestamp": "2026-07-30T17:04:55.837Z"
+}

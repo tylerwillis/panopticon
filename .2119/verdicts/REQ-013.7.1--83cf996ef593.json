@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-013.7.1--83cf996ef593",
+  "requirementId": "REQ-013.7.1",
+  "hash": "83cf996ef593",
+  "verdict": "pass",
+  "summary": "Three distinct creation failures are induced through the real service boundary and each test requires the persisted author state to be REVIEW.",
+  "timestamp": "2026-07-30T17:02:56.030Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.4.1--41be48a1a968",
+  "requirementId": "REQ-001.4.1",
+  "hash": "41be48a1a968",
+  "verdict": "pass",
+  "summary": "Yes-click deletes the real selected file (sibling file untouched) and list_calls==2 plus the second-fetch-only description rendered in the table proves a registry re-fetch, not a local row removal.",
+  "timestamp": "2026-07-22T14:39:07.022Z"
+}

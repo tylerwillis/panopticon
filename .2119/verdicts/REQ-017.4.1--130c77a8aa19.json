@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.4.1--130c77a8aa19",
+  "requirementId": "REQ-017.4.1",
+  "hash": "130c77a8aa19",
+  "verdict": "pass",
+  "summary": "With a task's details open, the test asserts the exact e: edit slug text at the trailing hint position and verifies its dim styling.",
+  "timestamp": "2026-07-30T17:03:12.764Z"
+}

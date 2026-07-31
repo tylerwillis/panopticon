@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-003.4.1--ddd434904d34",
+  "requirementId": "REQ-003.4.1",
+  "hash": "ddd434904d34",
+  "verdict": "fail",
+  "summary": "The test covers governed and ungoverned non-review creation only with equal claude harnesses, not the requirement's regardless-of-recorded-harness-strings boundary.",
+  "timestamp": "2026-07-30T17:02:58.277Z"
+}

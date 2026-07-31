@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.3.1--93b9dc26888f",
+  "requirementId": "REQ-014.3.1",
+  "hash": "93b9dc26888f",
+  "verdict": "pass",
+  "summary": "set_state into a fully-qualifying state stays put, create_task never fires it, and 3.2 covers transition entry — an evaluate-on-set_state mutation fails the test; only resolve_responsibility triggers evaluation",
+  "timestamp": "2026-07-23T17:58:01.732Z"
+}

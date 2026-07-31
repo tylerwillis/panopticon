@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.3.1--096979565a28",
+  "requirementId": "REQ-009.3.1",
+  "hash": "096979565a28",
+  "verdict": "pass",
+  "summary": "Asserts state=='PLAN' from a real start_task, and NonFirstInitial declares the configured initial after another state and asserts 'CONFIGURED' — defeating a first-declared-state fallback, the nearest violating implementation.",
+  "timestamp": "2026-07-23T17:40:01.465Z"
+}

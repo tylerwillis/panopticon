@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.3.5--864c8374ad4f",
+  "requirementId": "REQ-009.3.5",
+  "hash": "864c8374ad4f",
+  "verdict": "pass",
+  "summary": "All three conjuncts asserted directly on history[0] of a real start_task: from_state is None, to_state=='PLAN', trigger=='start' — a non-null source, wrong destination, or any other trigger each fails an assertion.",
+  "timestamp": "2026-07-23T17:40:14.298Z"
+}

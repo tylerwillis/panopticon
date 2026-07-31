@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.3.4--04e416850c6e",
+  "requirementId": "REQ-012.3.4",
+  "hash": "04e416850c6e",
+  "verdict": "pass",
+  "summary": "Equal explicit harness with tuned workflow pair retains gpt-5.6-sol:high end-to-end over REST; the sibling REQ-012.3.3 test pins the differing-harness discard counterexample, so retain-vs-discard is genuinely distinguished",
+  "timestamp": "2026-07-23T18:16:16.801Z"
+}

@@ -21,6 +21,7 @@ import httpx
 from panopticon.core.models import Skill
 from panopticon.harnesses.base import (
     HOOK_COMMAND,
+    HOOK_TIMEOUT_SECONDS,
     INTERRUPT_PROMPT,
     BootstrapContext,
     Harness,
@@ -103,7 +104,9 @@ def settings() -> dict[str, Any]:
         # `actor` is the turn to set; the optional `event` selects the callback's side-effect
         # (briefing on the prompt hook, token report on stop) — the bare question hooks pass none.
         command = f"{HOOK_COMMAND} {actor}" + (f" {event}" if event else "")
-        entry: dict[str, Any] = {"hooks": [{"type": "command", "command": command}]}
+        entry: dict[str, Any] = {
+            "hooks": [{"type": "command", "command": command, "timeout": HOOK_TIMEOUT_SECONDS}]
+        }
         if (
             matcher is not None
         ):  # PreToolUse/PostToolUse are tool-scoped; Stop/UserPromptSubmit aren't

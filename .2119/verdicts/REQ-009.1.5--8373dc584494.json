@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.1.5--8373dc584494",
+  "requirementId": "REQ-009.1.5",
+  "hash": "8373dc584494",
+  "verdict": "pass",
+  "summary": "A 'GHOST' transition target raises InvalidWorkflow at graph resolution (labels()), a direct rejection of the nearest violating input; free-move-to-GHOST is also rejected elsewhere in the file",
+  "timestamp": "2026-07-23T17:38:51.330Z"
+}

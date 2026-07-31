@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.2.1--cb1bf257abc6",
+  "requirementId": "REQ-012.2.1",
+  "hash": "cb1bf257abc6",
+  "verdict": "pass",
+  "summary": "test_workflow_launch_pair_beats_repo_pair pits a codex/gpt-5.6-sol:high workflow pair against a distinguishable claude/opus:low repo pair over REST with no task override; a repo-wins or app-default-wins violation yields (claude, opus:low)/(claude, None) and fails the tuple assert",
+  "timestamp": "2026-07-23T18:15:49.139Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-013.10.1--c52b22b443dc",
+  "requirementId": "REQ-013.10.1",
+  "hash": "c52b22b443dc",
+  "verdict": "pass",
+  "summary": "Three successive REVIEW entries are exercised and asserted to produce three distinct governed review-task IDs, rejecting reuse from an earlier round.",
+  "timestamp": "2026-07-30T17:03:10.169Z"
+}

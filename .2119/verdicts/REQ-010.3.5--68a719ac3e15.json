@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.3.5--68a719ac3e15",
+  "requirementId": "REQ-010.3.5",
+  "hash": "68a719ac3e15",
+  "verdict": "pass",
+  "summary": "Covers declared transition, free move, and drop, plus an in-hook assertion pinning clear-before-lifecycle ordering; clear-after-hook and no-clear mutants both empirically fail.",
+  "timestamp": "2026-07-23T17:57:39.277Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.5.7--1227c601287d",
+  "requirementId": "REQ-009.5.7",
+  "hash": "1227c601287d",
+  "verdict": "pass",
+  "summary": "the test asserts history grew to 3 entries and the appended entry records (from=WORKING, to=PLAN) exactly, catching missing appends and wrong/omitted source or destination",
+  "timestamp": "2026-07-23T17:39:45.679Z"
+}

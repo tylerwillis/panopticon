@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.7.1--33d5de47adad",
+  "requirementId": "REQ-008.7.1",
+  "hash": "33d5de47adad",
+  "verdict": "pass",
+  "summary": "Unversioned list_tasks raises and version never bumps after the seed, so the rendered cell can only come from the snapshot returned with the initialized cursor",
+  "timestamp": "2026-07-22T17:08:15.414Z"
+}

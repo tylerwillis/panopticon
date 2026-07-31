@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.6.1--d0090213c4e4",
+  "requirementId": "REQ-018.6.1",
+  "hash": "d0090213c4e4",
+  "verdict": "pass",
+  "summary": "Cycling Claude to Codex is followed by exact assertions for both newly selected model and effort vocabularies.",
+  "timestamp": "2026-07-30T16:50:20.060Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.3--27dc402c8643",
+  "requirementId": "REQ-006.4.3",
+  "hash": "27dc402c8643",
+  "verdict": "pass",
+  "summary": "respawned 2/1/0 cases prove N counts released claims (not listed tasks), exact single-message equality pins one line, and an unpatched app._notifications test proves the notify monkeypatch isn't vacuous.",
+  "timestamp": "2026-07-22T14:41:41.296Z"
+}

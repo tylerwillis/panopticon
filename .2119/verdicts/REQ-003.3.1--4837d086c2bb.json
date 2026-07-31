@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-003.3.1--4837d086c2bb",
+  "requirementId": "REQ-003.3.1",
+  "hash": "4837d086c2bb",
+  "verdict": "pass",
+  "summary": "Tests create review tasks for differing resolved harnesses in explicit/default cases while holding starting-model strings equal.",
+  "timestamp": "2026-07-30T17:02:58.272Z"
+}

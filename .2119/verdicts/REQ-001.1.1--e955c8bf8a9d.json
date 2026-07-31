@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.1.1--e955c8bf8a9d",
-  "requirementId": "REQ-001.1.1",
-  "hash": "e955c8bf8a9d",
-  "verdict": "pass",
-  "summary": "Real key-driven dashboard tests verify x opens a confirmation for the selected operator workflow and reject always-target-first behavior.",
-  "timestamp": "2026-07-22T07:01:04.712Z"
-}

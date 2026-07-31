@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.5.3--9be0fccb6bdc",
+  "requirementId": "REQ-009.5.3",
+  "hash": "9be0fccb6bdc",
+  "verdict": "pass",
+  "summary": "after force_transition WORKING->PLAN the test asserts task.state == PLAN, a destination differing from the prior state, so a no-op or wrong-destination move would fail",
+  "timestamp": "2026-07-23T17:39:26.349Z"
+}
