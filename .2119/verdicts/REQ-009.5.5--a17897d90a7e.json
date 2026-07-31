@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-009.5.5--a17897d90a7e",
-  "requirementId": "REQ-009.5.5",
-  "hash": "a17897d90a7e",
-  "verdict": "pass",
-  "summary": "Terminal COMPLETE task free-moves to ITERATING and persists, rejecting a terminal-source guard.",
-  "timestamp": "2026-07-31T05:18:17.824Z"
-}

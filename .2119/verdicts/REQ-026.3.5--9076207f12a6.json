@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.3.5--9076207f12a6",
-  "requirementId": "REQ-026.3.5",
-  "hash": "9076207f12a6",
-  "verdict": "pass",
-  "summary": "Tests verify a dependency-gated task remains unclaimed and unspawned in service listings and is rendered as a concrete dashboard task row.",
-  "timestamp": "2026-07-31T06:44:15.811Z"
-}

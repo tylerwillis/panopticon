@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.4.3--b4671380a140",
+  "requirementId": "REQ-026.4.3",
+  "hash": "b4671380a140",
+  "verdict": "pass",
+  "summary": "REST tests preserve an existing dependency after rejected direct-cycle, missing-target, and indirect-cycle updates, while concurrency tests verify the rejected writer retains its prior empty dependency set.",
+  "timestamp": "2026-07-31T07:32:49.692Z"
+}

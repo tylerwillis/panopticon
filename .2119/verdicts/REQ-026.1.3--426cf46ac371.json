@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.1.3--426cf46ac371",
-  "requirementId": "REQ-026.1.3",
-  "hash": "426cf46ac371",
-  "verdict": "pass",
-  "summary": "Tests reject active or dropped dependency counterexamples and verify immediate post-completion eligibility, claim/spawn, and configured initial-prompt delivery.",
-  "timestamp": "2026-07-31T06:44:15.358Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.3.1--4f1009dea400",
-  "requirementId": "REQ-008.3.1",
-  "hash": "4f1009dea400",
-  "verdict": "pass",
-  "summary": "After both automatic clears, explicit true then false persist and reload.",
-  "timestamp": "2026-07-31T05:18:16.987Z"
-}

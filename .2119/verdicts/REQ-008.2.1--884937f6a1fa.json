@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.2.1--884937f6a1fa",
-  "requirementId": "REQ-008.2.1",
-  "hash": "884937f6a1fa",
-  "verdict": "pass",
-  "summary": "Declared, free, drop, and cascade changes clear blocked; hook asserts clear before fresh lifecycle block.",
-  "timestamp": "2026-07-31T05:18:16.094Z"
-}

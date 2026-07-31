@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.3.1--b1aa3fadc24c",
+  "requirementId": "REQ-014.3.1",
+  "hash": "b1aa3fadc24c",
+  "verdict": "pass",
+  "summary": "Tests reject auto-advance during creation, direct and declared transitions, drops, cascade drops, free state moves, and unrelated task mutations while proving resolve_responsibility is the triggering boundary.",
+  "timestamp": "2026-07-31T07:32:46.637Z"
+}

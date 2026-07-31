@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-003.3.1--8c2dbfd8ab10",
-  "requirementId": "REQ-003.3.1",
-  "hash": "8c2dbfd8ab10",
-  "verdict": "pass",
-  "summary": "Identical model strings with different harnesses cover explicit and repo-resolved acceptance paths.",
-  "timestamp": "2026-07-31T05:18:14.360Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.1.1--704576f9a6fd",
+  "requirementId": "REQ-014.1.1",
+  "hash": "704576f9a6fd",
+  "verdict": "pass",
+  "summary": "Tests resolve the final PENDING responsibility in agent-advanced states and require transition for both auto-derived and explicitly declared advance operations.",
+  "timestamp": "2026-07-31T07:32:44.444Z"
+}

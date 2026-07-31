@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.3.3--f385d73d0c76",
+  "requirementId": "REQ-010.3.3",
+  "hash": "f385d73d0c76",
+  "verdict": "pass",
+  "summary": "Parameterized tests set blocked to both false and true, set turn to user, and independently reload both the user turn and unchanged marker.",
+  "timestamp": "2026-07-31T07:32:42.262Z"
+}

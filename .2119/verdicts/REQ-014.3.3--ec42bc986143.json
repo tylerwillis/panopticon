@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.3.3--ec42bc986143",
+  "requirementId": "REQ-014.3.3",
+  "hash": "ec42bc986143",
+  "verdict": "pass",
+  "summary": "Parameterized tests reject unknown keys, explicit PENDING, and FAILED without a comment, then reload the task and verify both its state and remaining responsibility are unchanged.",
+  "timestamp": "2026-07-31T07:32:47.464Z"
+}

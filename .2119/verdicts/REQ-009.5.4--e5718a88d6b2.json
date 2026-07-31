@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-009.5.4--e5718a88d6b2",
+  "requirementId": "REQ-009.5.4",
+  "hash": "e5718a88d6b2",
+  "verdict": "pass",
+  "summary": "The test starts with an unresolved PLANNING responsibility and proves an otherwise off-graph free move to existing MERGING succeeds and persists.",
+  "timestamp": "2026-07-31T07:32:41.375Z"
+}

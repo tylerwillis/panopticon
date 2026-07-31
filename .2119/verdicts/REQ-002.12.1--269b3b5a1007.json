@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-002.12.1--269b3b5a1007",
-  "requirementId": "REQ-002.12.1",
-  "hash": "269b3b5a1007",
-  "verdict": "pass",
-  "summary": "Review registered+creatable yet absent from both menu feeds, with non-hidden spike present to reject hide-everything.",
-  "timestamp": "2026-07-31T05:18:13.050Z"
-}

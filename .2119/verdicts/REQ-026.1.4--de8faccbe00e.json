@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.1.4--de8faccbe00e",
-  "requirementId": "REQ-026.1.4",
-  "hash": "de8faccbe00e",
-  "verdict": "pass",
-  "summary": "Exact-list assertion keeps dependency-free tasks (empty and absent depends_on_task_ids) spawnable while still excluding claimed and terminal no-deps tasks, matching main's pre-gating predicate.",
-  "timestamp": "2026-07-31T06:28:39.373Z"
-}

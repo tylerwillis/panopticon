@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-010.3.3--b952508197f0",
-  "requirementId": "REQ-010.3.3",
-  "hash": "b952508197f0",
-  "verdict": "pass",
-  "summary": "Parametrized blocked true and false proves turn-to-user preserves the prior marker.",
-  "timestamp": "2026-07-31T05:18:18.267Z"
-}

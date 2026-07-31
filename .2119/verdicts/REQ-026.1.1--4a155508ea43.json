@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.1.1--4a155508ea43",
-  "requirementId": "REQ-026.1.1",
-  "hash": "4a155508ea43",
-  "verdict": "pass",
-  "summary": "Real spawnable_tasks and HostDaemon.tick exercised with exact-list assertions covering single-, mixed-, and multi-dependency boundary cases; test_service.py closes the create-time race so the gate is visible before any spawn pass.",
-  "timestamp": "2026-07-31T06:28:38.111Z"
-}

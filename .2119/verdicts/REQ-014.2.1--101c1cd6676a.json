@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-014.2.1--101c1cd6676a",
-  "requirementId": "REQ-014.2.1",
-  "hash": "101c1cd6676a",
-  "verdict": "pass",
-  "summary": "Pins history from/to, advance trigger, seeded pending promises, lifecycle args, and turn.",
-  "timestamp": "2026-07-31T05:18:22.605Z"
-}

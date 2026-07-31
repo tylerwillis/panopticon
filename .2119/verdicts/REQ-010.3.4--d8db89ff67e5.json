@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.3.4--d8db89ff67e5",
+  "requirementId": "REQ-010.3.4",
+  "hash": "d8db89ff67e5",
+  "verdict": "pass",
+  "summary": "Starting blocked, the test verifies agent turn and blocked=false are returned and reloaded together with exactly one version increment.",
+  "timestamp": "2026-07-31T07:32:42.709Z"
+}

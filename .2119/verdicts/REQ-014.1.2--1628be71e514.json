@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-014.1.2--1628be71e514",
-  "requirementId": "REQ-014.1.2",
-  "hash": "1628be71e514",
-  "verdict": "pass",
-  "summary": "One still-pending responsibility keeps the task in WORKING, catching eager advance.",
-  "timestamp": "2026-07-31T05:18:20.876Z"
-}

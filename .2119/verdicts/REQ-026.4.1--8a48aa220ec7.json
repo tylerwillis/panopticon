@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.4.1--8a48aa220ec7",
-  "requirementId": "REQ-026.4.1",
-  "hash": "8a48aa220ec7",
-  "verdict": "pass",
-  "summary": "Rejection tested for self-loop (A->A, 400), 3-node indirect cycle (A->B->C then C->A, 400 with deps verifiably unchanged on re-read), and a barrier-forced concurrent 2-node/3-node cycle where exactly one writer errors; acyclic chain builds assert 200, ruling out trivial reject-all. Real service/store, no mocks.",
-  "timestamp": "2026-07-31T06:27:32.006Z"
-}

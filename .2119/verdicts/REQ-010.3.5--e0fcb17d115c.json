@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-010.3.5--e0fcb17d115c",
-  "requirementId": "REQ-010.3.5",
-  "hash": "e0fcb17d115c",
-  "verdict": "pass",
-  "summary": "Declared, free, and drop clear in one bump; lifecycle hook observes clear before raising fresh block.",
-  "timestamp": "2026-07-31T05:18:19.091Z"
-}

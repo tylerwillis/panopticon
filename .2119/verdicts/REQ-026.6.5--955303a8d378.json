@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.6.5--955303a8d378",
-  "requirementId": "REQ-026.6.5",
-  "hash": "955303a8d378",
-  "verdict": "pass",
-  "summary": "One turn-to-agent API mutation returns both agent turn and cleared attention, with a subsequent read confirming the cleared marker persisted.",
-  "timestamp": "2026-07-31T06:38:15.396Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.12.1--fdcc2377206c",
+  "requirementId": "REQ-002.12.1",
+  "hash": "fdcc2377206c",
+  "verdict": "pass",
+  "summary": "The test confirms review remains registered and creatable but is absent from both operator workflow-menu surfaces, while visible non-hidden workflows remain present.",
+  "timestamp": "2026-07-31T07:32:37.409Z"
+}

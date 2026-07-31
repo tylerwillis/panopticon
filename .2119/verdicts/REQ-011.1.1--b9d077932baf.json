@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-011.1.1--b9d077932baf",
-  "requirementId": "REQ-011.1.1",
-  "hash": "b9d077932baf",
-  "verdict": "pass",
-  "summary": "Exhaustive 64-case signal product plus service case proves terminal status is always dash.",
-  "timestamp": "2026-07-31T05:18:19.978Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.1.2--77cc63c7d0fc",
+  "requirementId": "REQ-008.1.2",
+  "hash": "77cc63c7d0fc",
+  "verdict": "pass",
+  "summary": "The parameterized test starts with both possible blocked values and verifies that setting turn=user persists each value unchanged.",
+  "timestamp": "2026-07-31T07:32:39.629Z"
+}

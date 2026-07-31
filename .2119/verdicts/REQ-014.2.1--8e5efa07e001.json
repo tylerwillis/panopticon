@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.2.1--8e5efa07e001",
+  "requirementId": "REQ-014.2.1",
+  "hash": "8e5efa07e001",
+  "verdict": "pass",
+  "summary": "The test compares normalized history entries against an explicit advance and independently verifies hook invocation, hook arguments, destination turn, trigger, and seeded destination responsibilities.",
+  "timestamp": "2026-07-31T07:32:45.733Z"
+}

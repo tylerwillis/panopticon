@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.3.1--2f69e471048a",
+  "requirementId": "REQ-008.3.1",
+  "hash": "2f69e471048a",
+  "verdict": "pass",
+  "summary": "After both agent-turn and state-change automatic clears, tests independently persist and reload requested true and false blocked values.",
+  "timestamp": "2026-07-31T07:32:40.913Z"
+}

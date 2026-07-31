@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.6.7--cd6a5b0d8700",
-  "requirementId": "REQ-026.6.7",
-  "hash": "cd6a5b0d8700",
-  "verdict": "pass",
-  "summary": "The exact skill instruction covers non-terminal governed children, setting attention=true on the orchestrator itself, and doing so before asking the user.",
-  "timestamp": "2026-07-31T06:38:15.799Z"
-}

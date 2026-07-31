@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-014.1.3--437595041993",
-  "requirementId": "REQ-014.1.3",
-  "hash": "437595041993",
-  "verdict": "pass",
-  "summary": "Minimal pair differing only advanced_by USER stays WORKING after last responsibility resolves.",
-  "timestamp": "2026-07-31T05:18:21.308Z"
-}

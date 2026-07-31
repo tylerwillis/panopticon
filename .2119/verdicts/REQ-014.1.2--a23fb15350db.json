@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.1.2--a23fb15350db",
+  "requirementId": "REQ-014.1.2",
+  "hash": "a23fb15350db",
+  "verdict": "pass",
+  "summary": "A two-responsibility test resolves only one, confirms another remains PENDING, and rejects the prohibited transition by requiring the original state.",
+  "timestamp": "2026-07-31T07:32:44.850Z"
+}

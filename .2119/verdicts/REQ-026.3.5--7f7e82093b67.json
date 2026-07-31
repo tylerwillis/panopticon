@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.3.5--7f7e82093b67",
+  "requirementId": "REQ-026.3.5",
+  "hash": "7f7e82093b67",
+  "verdict": "pass",
+  "summary": "Real service/spawner tests verify a gated task remains unclaimed and list-visible before spawning, while the dashboard test verifies that gated task is rendered as a task row.",
+  "timestamp": "2026-07-31T07:32:48.789Z"
+}

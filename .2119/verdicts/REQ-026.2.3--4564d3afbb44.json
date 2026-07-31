@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.2.3--4564d3afbb44",
-  "requirementId": "REQ-026.2.3",
-  "hash": "4564d3afbb44",
-  "verdict": "pass",
-  "summary": "Tests dynamically reject stale gating, hard-coded COMPLETE-only terminality, and treating DROPPED as successful across task and list responses.",
-  "timestamp": "2026-07-31T06:42:27.396Z"
-}
