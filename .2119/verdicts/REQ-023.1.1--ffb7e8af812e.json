@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.1.1--ffb7e8af812e",
-  "requirementId": "REQ-023.1.1",
-  "hash": "ffb7e8af812e",
-  "verdict": "pass",
-  "summary": "Tests reject visible descendants, wrong summary count or text, stale counts, wrong placement, and incomplete dim styling.",
-  "timestamp": "2026-07-31T06:43:45.965Z"
-}

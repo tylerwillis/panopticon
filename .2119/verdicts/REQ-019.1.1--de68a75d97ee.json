@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.1.1--de68a75d97ee",
+  "requirementId": "REQ-019.1.1",
+  "hash": "de68a75d97ee",
+  "verdict": "pass",
+  "summary": "Sol: A deliberately blocked discovery verifies the modal mounts, retains memo focus, and accepts input before discovery is released.",
+  "timestamp": "2026-07-31T07:26:15.096Z"
+}

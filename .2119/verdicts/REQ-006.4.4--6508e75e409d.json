@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.4.4--6508e75e409d",
-  "requirementId": "REQ-006.4.4",
-  "hash": "6508e75e409d",
-  "verdict": "pass",
-  "summary": "Every non-down status is exercised at confirmation time and the recovered task is absent from the exact release list.",
-  "timestamp": "2026-07-31T06:41:56.009Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.17.1--42f721811c55",
-  "requirementId": "REQ-018.17.1",
-  "hash": "42f721811c55",
-  "verdict": "pass",
-  "summary": "Both model and effort controls are tested with zero candidates and with candidates but no highlight; each keeps the screen open and creates nothing.",
-  "timestamp": "2026-07-31T06:41:56.108Z"
-}

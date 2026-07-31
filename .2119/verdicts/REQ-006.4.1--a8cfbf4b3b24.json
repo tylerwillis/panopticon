@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.1--a8cfbf4b3b24",
+  "requirementId": "REQ-006.4.1",
+  "hash": "a8cfbf4b3b24",
+  "verdict": "pass",
+  "summary": "Sol: Tests confirm each still-down listed task is checked and released exactly once while every non-down confirmation-time status is excluded from release.",
+  "timestamp": "2026-07-31T07:26:01.375Z"
+}

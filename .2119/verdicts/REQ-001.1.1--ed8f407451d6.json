@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.1.1--ed8f407451d6",
-  "requirementId": "REQ-001.1.1",
-  "hash": "ed8f407451d6",
-  "verdict": "pass",
-  "summary": "Pressing x opens a confirmation naming the highlighted operator workflow, and tests distinguish both first and second selections.",
-  "timestamp": "2026-07-31T06:40:37.568Z"
-}

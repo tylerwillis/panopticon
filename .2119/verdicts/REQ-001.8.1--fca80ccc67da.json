@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.8.1--fca80ccc67da",
+  "requirementId": "REQ-001.8.1",
+  "hash": "fca80ccc67da",
+  "verdict": "pass",
+  "summary": "Sol: The built-in deletion action must emit exactly the operator-facing cannot-delete notification, with prior mount notices excluded.",
+  "timestamp": "2026-07-31T07:25:58.806Z"
+}

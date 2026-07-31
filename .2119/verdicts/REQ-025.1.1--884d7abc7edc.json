@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.1.1--884d7abc7edc",
-  "requirementId": "REQ-025.1.1",
-  "hash": "884d7abc7edc",
-  "verdict": "pass",
-  "summary": "Local and remote attach tests carry a task with both fields through resolution and require the exact slug [memo] value in tmux status-left.",
-  "timestamp": "2026-07-31T06:30:19.224Z"
-}

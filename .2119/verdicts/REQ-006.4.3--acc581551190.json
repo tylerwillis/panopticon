@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.4.3--acc581551190",
-  "requirementId": "REQ-006.4.3",
-  "hash": "acc581551190",
-  "verdict": "pass",
-  "summary": "Exact dashboard notifications for two and zero releases reject incorrect counts, wording, extra lines, and non-dashboard reporting.",
-  "timestamp": "2026-07-31T06:41:55.940Z"
-}

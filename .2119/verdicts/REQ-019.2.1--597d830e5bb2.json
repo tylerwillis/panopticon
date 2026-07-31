@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.2.1--597d830e5bb2",
-  "requirementId": "REQ-019.2.1",
-  "hash": "597d830e5bb2",
-  "verdict": "pass",
-  "summary": "Tests reject missing or duplicate model/effort discovery for every registered harness across repeated cycles, early closure, and discovery failures.",
-  "timestamp": "2026-07-31T06:43:45.958Z"
-}

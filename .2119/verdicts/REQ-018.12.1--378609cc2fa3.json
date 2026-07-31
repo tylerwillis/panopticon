@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.12.1--378609cc2fa3",
+  "requirementId": "REQ-018.12.1",
+  "hash": "378609cc2fa3",
+  "verdict": "pass",
+  "summary": "Sol: Tests reject incorrect source labels for every override control and for winning app, repo, and workflow defaults using exact rendered summaries.",
+  "timestamp": "2026-07-31T07:26:09.033Z"
+}

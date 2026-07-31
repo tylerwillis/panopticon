@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.2.1--1231da93a3c9",
-  "requirementId": "REQ-017.2.1",
-  "hash": "1231da93a3c9",
-  "verdict": "pass",
-  "summary": "Tests verify trimming, highlighted-task targeting, service mutation, list refresh, both displayed views, isolation, and rejected-value survival.",
-  "timestamp": "2026-07-31T06:41:56.208Z"
-}

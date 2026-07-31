@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.1.2--26c84240dc0c",
+  "requirementId": "REQ-027.1.2",
+  "hash": "26c84240dc0c",
+  "verdict": "pass",
+  "summary": "Sol: Tests verify exact non-null and null round trips, persistence, and unchanged state, turn, and blocked marker.",
+  "timestamp": "2026-07-31T07:19:12.642Z"
+}

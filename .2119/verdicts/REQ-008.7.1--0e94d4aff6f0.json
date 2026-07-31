@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.7.1--0e94d4aff6f0",
-  "requirementId": "REQ-008.7.1",
-  "hash": "0e94d4aff6f0",
-  "verdict": "pass",
-  "summary": "The test rejects both nearest violations: discarding the initialized snapshot and starting the feed from a cursor other than the version returned with that snapshot.",
-  "timestamp": "2026-07-31T06:47:52.818Z"
-}

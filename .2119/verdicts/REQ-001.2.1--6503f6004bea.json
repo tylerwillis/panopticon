@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.2.1--6503f6004bea",
+  "requirementId": "REQ-001.2.1",
+  "hash": "6503f6004bea",
+  "verdict": "pass",
+  "summary": "Sol: The dialog visibly exposes enabled yes and no controls, and behavioral tests exercise both choices.",
+  "timestamp": "2026-07-31T07:25:56.134Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.7.1--2e60343059e4",
+  "requirementId": "REQ-019.7.1",
+  "hash": "2e60343059e4",
+  "verdict": "pass",
+  "summary": "Sol: Completing discovery after closure leaves every captured closed-modal widget property unchanged.",
+  "timestamp": "2026-07-31T07:27:13.494Z"
+}

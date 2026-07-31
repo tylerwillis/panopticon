@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.5.2--4d606e82b771",
-  "requirementId": "REQ-006.5.2",
-  "hash": "4d606e82b771",
-  "verdict": "pass",
-  "summary": "Empty and all non-down latest snapshots explicitly verify no screen is pushed and the screen stack remains unchanged.",
-  "timestamp": "2026-07-31T06:41:56.063Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.6.1--e93d765faec0",
-  "requirementId": "REQ-001.6.1",
-  "hash": "e93d765faec0",
-  "verdict": "pass",
-  "summary": "Exact dialog text requires both file removal and retention-until-next-service-restart explanations, rejecting omission of either conjunct.",
-  "timestamp": "2026-07-31T06:40:39.787Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.1.1--85ab53c28b45",
-  "requirementId": "REQ-027.1.1",
-  "hash": "85ab53c28b45",
-  "verdict": "pass",
-  "summary": "Tests verify the model default and both REST representations are null initially, accept and expose a valid ISO-8601 timestamp, and reject a non-timestamp value.",
-  "timestamp": "2026-07-31T06:47:53.263Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.1.1--46f8c496bf7d",
+  "requirementId": "REQ-027.1.1",
+  "hash": "46f8c496bf7d",
+  "verdict": "pass",
+  "summary": "Sol: Tests verify model and both REST representations default null, accept aware and naive ISO-8601 timestamps, and reject a non-timestamp.",
+  "timestamp": "2026-07-31T07:19:12.200Z"
+}

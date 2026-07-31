@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.11.1--8161ceeaee57",
+  "requirementId": "REQ-018.11.1",
+  "hash": "8161ceeaee57",
+  "verdict": "pass",
+  "summary": "Sol: Tests change the harness and verify manually entered and accepted model/effort values remain exact, including independently touched fields.",
+  "timestamp": "2026-07-31T07:26:08.623Z"
+}

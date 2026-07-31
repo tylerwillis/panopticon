@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.2.1--4400eab320f7",
-  "requirementId": "REQ-006.2.1",
-  "hash": "4400eab320f7",
-  "verdict": "pass",
-  "summary": "Mixed-status and latest-snapshot boundary tests verify a modal opens with every and only the down tasks.",
-  "timestamp": "2026-07-31T06:41:56.028Z"
-}

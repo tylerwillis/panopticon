@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.1.1--17c8a886af56",
-  "requirementId": "REQ-018.1.1",
-  "hash": "17c8a886af56",
-  "verdict": "pass",
-  "summary": "Before any launch control is focused, the test verifies memo focus plus visible labeled harness, model, and effort controls containing the split current values.",
-  "timestamp": "2026-07-31T06:41:56.239Z"
-}

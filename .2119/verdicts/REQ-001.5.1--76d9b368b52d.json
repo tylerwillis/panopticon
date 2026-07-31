@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.5.1--76d9b368b52d",
-  "requirementId": "REQ-001.5.1",
-  "hash": "76d9b368b52d",
-  "verdict": "pass",
-  "summary": "Built-in deletion is requested via x; the test rejects both forbidden outcomes by asserting the file remains unchanged and no deletion dialog exists.",
-  "timestamp": "2026-07-31T06:47:16.766Z"
-}

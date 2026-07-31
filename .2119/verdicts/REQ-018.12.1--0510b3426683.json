@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.12.1--0510b3426683",
-  "requirementId": "REQ-018.12.1",
-  "hash": "0510b3426683",
-  "verdict": "pass",
-  "summary": "Exact summary assertions reject wrong or multiple source labels for every override field and default winner.",
-  "timestamp": "2026-07-31T06:41:56.174Z"
-}

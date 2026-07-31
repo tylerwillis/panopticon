@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.1.2--75c107746a7a",
-  "requirementId": "REQ-027.1.2",
-  "hash": "75c107746a7a",
-  "verdict": "pass",
-  "summary": "REST tests reject timestamp normalization, failure to persist or return both timestamp and null, and changes to state, turn, or blocked.",
-  "timestamp": "2026-07-31T06:42:55.550Z"
-}

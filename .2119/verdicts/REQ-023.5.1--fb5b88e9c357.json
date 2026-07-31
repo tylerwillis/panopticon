@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.5.1--fb5b88e9c357",
+  "requirementId": "REQ-023.5.1",
+  "hash": "fb5b88e9c357",
+  "verdict": "pass",
+  "summary": "Sol: Rendered help is checked for a single ensemble entry containing Enter, collapse, and expand, rejecting omissions or wrong controls.",
+  "timestamp": "2026-07-31T07:26:19.797Z"
+}

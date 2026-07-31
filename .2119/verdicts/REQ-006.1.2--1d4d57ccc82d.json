@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.1.2--1d4d57ccc82d",
-  "requirementId": "REQ-006.1.2",
-  "hash": "1d4d57ccc82d",
-  "verdict": "pass",
-  "summary": "The rendered help surface must contain exactly the Ctrl+R mapping 'Respawn all down tasks,' rejecting a missing key or wrong action.",
-  "timestamp": "2026-07-31T06:40:41.528Z"
-}

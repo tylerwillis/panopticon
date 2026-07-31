@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.4.1--e9c2e58cd579",
+  "requirementId": "REQ-023.4.1",
+  "hash": "e9c2e58cd579",
+  "verdict": "pass",
+  "summary": "Sol: Both arrow directions must cross an intervening summary onto real rows, and the terminal-summary boundary requires Down to remain on the preceding real row.",
+  "timestamp": "2026-07-31T07:26:19.364Z"
+}

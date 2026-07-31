@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.20.1--d916ba8189f5",
-  "requirementId": "REQ-018.20.1",
-  "hash": "d916ba8189f5",
-  "verdict": "pass",
-  "summary": "Both model and effort no-match cases assert zero candidates while the corresponding list remains visibly mounted.",
-  "timestamp": "2026-07-31T06:42:55.581Z"
-}

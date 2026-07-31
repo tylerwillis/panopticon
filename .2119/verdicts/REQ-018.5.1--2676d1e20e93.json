@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.5.1--2676d1e20e93",
+  "requirementId": "REQ-018.5.1",
+  "hash": "2676d1e20e93",
+  "verdict": "pass",
+  "summary": "Sol: UI tests enter out-of-suggestion model and effort values independently and together, then verify exact submission.",
+  "timestamp": "2026-07-31T07:27:54.549Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.5--5b9dc27ed052",
+  "requirementId": "REQ-006.4.5",
+  "hash": "5b9dc27ed052",
+  "verdict": "pass",
+  "summary": "Sol: The mixed-status test verifies that skipping a recovered task produces only the aggregate respawned notification and no task-specific notice.",
+  "timestamp": "2026-07-31T07:26:03.077Z"
+}

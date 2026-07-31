@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.7.1--9a47dad1841a",
+  "requirementId": "REQ-024.7.1",
+  "hash": "9a47dad1841a",
+  "verdict": "pass",
+  "summary": "Sol: The test verifies both case-sensitive keymap entries and their exact labels in the open details pane and full help screen.",
+  "timestamp": "2026-07-31T07:26:20.212Z"
+}

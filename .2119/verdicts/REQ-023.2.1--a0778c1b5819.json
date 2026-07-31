@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.2.1--a0778c1b5819",
-  "requirementId": "REQ-023.2.1",
-  "hash": "a0778c1b5819",
-  "verdict": "pass",
-  "summary": "Tests verify exact collapsed and expanded markers across repeated root and nested governor toggles.",
-  "timestamp": "2026-07-31T06:43:45.993Z"
-}

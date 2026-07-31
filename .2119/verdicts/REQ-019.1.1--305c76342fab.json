@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.1.1--305c76342fab",
-  "requirementId": "REQ-019.1.1",
-  "hash": "305c76342fab",
-  "verdict": "pass",
-  "summary": "Discovery is held in flight while the test verifies the memo modal mounted, owns focus, and accepts typed input before release.",
-  "timestamp": "2026-07-31T06:47:16.742Z"
-}

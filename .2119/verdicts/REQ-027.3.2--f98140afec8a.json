@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.3.2--f98140afec8a",
+  "requirementId": "REQ-027.3.2",
+  "hash": "f98140afec8a",
+  "verdict": "pass",
+  "summary": "Sol: At/after boundaries restore multiple ordinary attention states without mutating the recorded deadline.",
+  "timestamp": "2026-07-31T07:27:13.917Z"
+}

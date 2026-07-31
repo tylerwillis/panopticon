@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.2.1--7412c4be0726",
+  "requirementId": "REQ-019.2.1",
+  "hash": "7412c4be0726",
+  "verdict": "pass",
+  "summary": "Sol: Call counters verify model and effort discovery exactly once for every harness despite repeated cycling, early closure, and discovery failures.",
+  "timestamp": "2026-07-31T07:26:15.492Z"
+}

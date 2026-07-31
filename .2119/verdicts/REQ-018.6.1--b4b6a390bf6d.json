@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.6.1--b4b6a390bf6d",
+  "requirementId": "REQ-018.6.1",
+  "hash": "b4b6a390bf6d",
+  "verdict": "pass",
+  "summary": "Sol: Cycling from Claude to Codex verifies replacement of both model and effort vocabularies with the new harness's suggestions.",
+  "timestamp": "2026-07-31T07:26:13.350Z"
+}

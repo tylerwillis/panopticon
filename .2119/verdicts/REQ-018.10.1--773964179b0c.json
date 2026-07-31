@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.10.1--773964179b0c",
+  "requirementId": "REQ-018.10.1",
+  "hash": "773964179b0c",
+  "verdict": "pass",
+  "summary": "Sol: Parameterized tests highlight model and effort candidates, press Enter, and verify the corresponding value changes while the memo remains open and no task is created.",
+  "timestamp": "2026-07-31T07:26:08.201Z"
+}

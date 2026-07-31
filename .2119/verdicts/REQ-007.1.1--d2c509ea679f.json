@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-007.1.1--d2c509ea679f",
-  "requirementId": "REQ-007.1.1",
-  "hash": "d2c509ea679f",
-  "verdict": "pass",
-  "summary": "Tests reject copying the wrong highlighted task, omitting either clipboard path, using non-rendered text, or skipping the host attempt after terminal failure.",
-  "timestamp": "2026-07-31T06:41:56.163Z"
-}

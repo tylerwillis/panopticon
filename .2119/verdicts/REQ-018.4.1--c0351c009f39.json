@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.4.1--c0351c009f39",
-  "requirementId": "REQ-018.4.1",
-  "hash": "c0351c009f39",
-  "verdict": "pass",
-  "summary": "Both filtered lists exercise Down and Up across two candidates and assert each resulting highlight index.",
-  "timestamp": "2026-07-31T06:42:55.575Z"
-}

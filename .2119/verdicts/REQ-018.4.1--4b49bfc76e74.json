@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.4.1--4b49bfc76e74",
+  "requirementId": "REQ-018.4.1",
+  "hash": "4b49bfc76e74",
+  "verdict": "pass",
+  "summary": "Sol: Both filtered controls verify Down and Up move the highlight through each current candidate.",
+  "timestamp": "2026-07-31T07:26:12.937Z"
+}

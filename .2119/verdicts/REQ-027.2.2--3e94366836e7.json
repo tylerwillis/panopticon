@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.2.2--3e94366836e7",
-  "requirementId": "REQ-027.2.2",
-  "hash": "3e94366836e7",
-  "verdict": "pass",
-  "summary": "Tests press e on active finite and indefinite snoozes and require each resulting call to clear the deadline with null.",
-  "timestamp": "2026-07-31T06:42:55.626Z"
-}

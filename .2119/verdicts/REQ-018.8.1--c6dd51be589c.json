@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.8.1--c6dd51be589c",
-  "requirementId": "REQ-018.8.1",
-  "hash": "c6dd51be589c",
-  "verdict": "pass",
-  "summary": "Escape closes without creation from memo, harness, model, and effort focus, including candidate-list-visible cases.",
-  "timestamp": "2026-07-31T06:42:55.583Z"
-}

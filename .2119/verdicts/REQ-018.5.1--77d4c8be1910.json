@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.5.1--77d4c8be1910",
-  "requirementId": "REQ-018.5.1",
-  "hash": "77d4c8be1910",
-  "verdict": "pass",
-  "summary": "The test types suggestion-absent model and effort values and verifies their exact combined value reaches task creation.",
-  "timestamp": "2026-07-31T06:42:55.525Z"
-}

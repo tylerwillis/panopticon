@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.15.1--76a43020b471",
-  "requirementId": "REQ-018.15.1",
-  "hash": "76a43020b471",
-  "verdict": "pass",
-  "summary": "Separate tests verify configured-editor content retrieval and Ctrl+G replacement, with submission proving exact replacement.",
-  "timestamp": "2026-07-31T06:41:56.234Z"
-}

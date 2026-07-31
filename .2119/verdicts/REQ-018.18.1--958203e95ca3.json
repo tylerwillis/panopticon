@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.18.1--958203e95ca3",
-  "requirementId": "REQ-018.18.1",
-  "hash": "958203e95ca3",
-  "verdict": "pass",
-  "summary": "Tests reject retained untouched defaults for both fields and for untouched effort beside a touched model.",
-  "timestamp": "2026-07-31T06:41:56.156Z"
-}

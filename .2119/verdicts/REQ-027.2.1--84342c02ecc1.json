@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.2.1--84342c02ecc1",
-  "requirementId": "REQ-027.2.1",
-  "hash": "84342c02ecc1",
-  "verdict": "pass",
-  "summary": "Tests cover null and expired snoozes, require exactly injected-now plus twelve hours, and reject the supplied configuration override.",
-  "timestamp": "2026-07-31T06:42:55.615Z"
-}

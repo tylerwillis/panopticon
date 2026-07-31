@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.2.1--ada88b1b6fc1",
-  "requirementId": "REQ-001.2.1",
-  "hash": "ada88b1b6fc1",
-  "verdict": "pass",
-  "summary": "Tests require visible, enabled yes/no buttons and exercise each choice behaviorally, rejecting a missing or unusable choice.",
-  "timestamp": "2026-07-31T06:40:38.021Z"
-}

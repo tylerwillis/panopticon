@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.7.1--b711fc59c722",
-  "requirementId": "REQ-019.7.1",
-  "hash": "b711fc59c722",
-  "verdict": "pass",
-  "summary": "The test releases genuinely in-flight discovery only after Escape and rejects any post-close change across all affected widgets.",
-  "timestamp": "2026-07-31T06:43:45.983Z"
-}

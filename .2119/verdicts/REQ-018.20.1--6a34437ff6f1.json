@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.20.1--6a34437ff6f1",
+  "requirementId": "REQ-018.20.1",
+  "hash": "6a34437ff6f1",
+  "verdict": "pass",
+  "summary": "Sol: Both controls are tested with unmatched text, zero candidates, and a visibly rendered empty list.",
+  "timestamp": "2026-07-31T07:26:12.106Z"
+}

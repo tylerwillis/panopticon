@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.2.1--ef37b85bdf39",
-  "requirementId": "REQ-018.2.1",
-  "hash": "ef37b85bdf39",
-  "verdict": "pass",
-  "summary": "Sequential Tab presses behaviorally verify memo to harness to model to effort, rejecting every nearest out-of-order control.",
-  "timestamp": "2026-07-31T06:42:55.577Z"
-}

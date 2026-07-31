@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.10.1--989637799236",
-  "requirementId": "REQ-018.10.1",
-  "hash": "989637799236",
-  "verdict": "pass",
-  "summary": "Model and effort cases select a noninitial highlighted candidate, assert the corresponding field changes to it, and assert no task is created.",
-  "timestamp": "2026-07-31T06:41:56.170Z"
-}
