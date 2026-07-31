@@ -367,12 +367,9 @@ def _turn_cell(task: JsonObj) -> Text:
         not _task_is_terminal(dependency) for dependency in task.get("_dependency_tasks", [])
     )
     active_children = task.get("_active_children", [])
-    if (
-        task["turn"] == "user"
-        and not task.get("attention")
-        and (dependencies_waiting or active_children)
-    ):
-        label = f"held {len(active_children)}" if active_children else "held"
+    governor_waiting = task["turn"] == "user" and bool(active_children)
+    if not task.get("attention") and (dependencies_waiting or governor_waiting):
+        label = f"held {len(active_children)}" if governor_waiting else "held"
         return Text(label, style="dim")
     color = "green" if task["turn"] == "agent" else "yellow"
     return Text(task["turn"], style=color)

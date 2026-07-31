@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.3.2--07119ceea2eb",
+  "requirementId": "REQ-014.3.2",
+  "hash": "07119ceea2eb",
+  "verdict": "pass",
+  "summary": "MIDDLE qualifies immediately but resolve stops there, rejecting cascaded evaluation.",
+  "timestamp": "2026-07-31T05:18:23.904Z"
+}

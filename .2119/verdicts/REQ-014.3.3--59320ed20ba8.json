@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.3.3--59320ed20ba8",
+  "requirementId": "REQ-014.3.3",
+  "hash": "59320ed20ba8",
+  "verdict": "pass",
+  "summary": "All three rejection causes are armed so wrongful acceptance auto-advances; reload catches mutation.",
+  "timestamp": "2026-07-31T05:18:24.349Z"
+}

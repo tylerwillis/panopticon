@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.1.4--64ecc5547f70",
+  "requirementId": "REQ-014.1.4",
+  "hash": "64ecc5547f70",
+  "verdict": "pass",
+  "summary": "Ambiguous two-transition agent state holds while declared-advance sibling proves the discriminator.",
+  "timestamp": "2026-07-31T05:18:21.739Z"
+}

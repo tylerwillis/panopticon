@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.2.4--71ab04c93fa0",
+  "requirementId": "REQ-023.2.4",
+  "hash": "71ab04c93fa0",
+  "verdict": "pass",
+  "summary": "Fixed facts varying only dependencies_blocking covary output in a no-I/O unit context.",
+  "timestamp": "2026-07-31T05:18:25.647Z"
+}

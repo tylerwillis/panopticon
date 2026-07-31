@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.2.2--e3409ef48005",
+  "requirementId": "REQ-014.2.2",
+  "hash": "e3409ef48005",
+  "verdict": "pass",
+  "summary": "Return and store reload prove new state, turn, and current entry persist.",
+  "timestamp": "2026-07-31T05:18:23.034Z"
+}

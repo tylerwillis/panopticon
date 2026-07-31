@@ -339,6 +339,9 @@ def test_task_responses_use_workflow_terminality_for_dependency_readiness(tmp_pa
         assert archived.status_code == 200, archived.text
         assert archived.json()["state"] == "ARCHIVED"
         assert custom_client.get(f"/tasks/{dependent['id']}").json()["container_status"] == "queued"
+        active = custom_client.get("/tasks", params={"terminal": "false"}).json()
+        projected = next(task for task in active if task["id"] == dependent["id"])
+        assert projected["container_status"] == "queued"
 
 
 # 2119: REQ-023.4.1

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.6.8--b65e6e02805d",
+  "requirementId": "REQ-023.6.8",
+  "hash": "b65e6e02805d",
+  "verdict": "pass",
+  "summary": "Blocked dependency waits, attention waits, and governor waits all remain red user-warning rather than held.",
+  "timestamp": "2026-07-31T05:18:27.330Z"
+}

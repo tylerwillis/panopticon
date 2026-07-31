@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.1.1--d45d50f0e404",
+  "requirementId": "REQ-023.1.1",
+  "hash": "d45d50f0e404",
+  "verdict": "pass",
+  "summary": "Real filter excludes non-terminal and mixed dependency tasks; initial-row test closes the publication race.",
+  "timestamp": "2026-07-31T05:18:24.792Z"
+}

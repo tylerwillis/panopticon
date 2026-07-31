@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-003.2.1--0a2ec67c9ec2",
-  "requirementId": "REQ-003.2.1",
-  "hash": "0a2ec67c9ec2",
-  "verdict": "pass",
-  "summary": "Parameterized tests reject equal resolved harnesses across unset/default representations and differing starting models, with no review task persisted.",
-  "timestamp": "2026-07-30T17:02:58.272Z"
-}

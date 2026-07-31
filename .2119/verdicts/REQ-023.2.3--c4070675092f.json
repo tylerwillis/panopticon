@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.2.3--c4070675092f",
+  "requirementId": "REQ-023.2.3",
+  "hash": "c4070675092f",
+  "verdict": "pass",
+  "summary": "Custom ARCHIVED terminal rejects hardcoded COMPLETE while DROPPED remains gated over real API.",
+  "timestamp": "2026-07-31T05:18:25.224Z"
+}

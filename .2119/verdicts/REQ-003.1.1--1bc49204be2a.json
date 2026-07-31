@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-003.1.1--1bc49204be2a",
-  "requirementId": "REQ-003.1.1",
-  "hash": "1bc49204be2a",
-  "verdict": "pass",
-  "summary": "The test creates review without a governor, requires a governor-specific validation error, and verifies no task was persisted.",
-  "timestamp": "2026-07-30T17:02:58.287Z"
-}

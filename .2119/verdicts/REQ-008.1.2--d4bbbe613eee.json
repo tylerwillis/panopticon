@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.1.2--d4bbbe613eee",
+  "requirementId": "REQ-008.1.2",
+  "hash": "d4bbbe613eee",
+  "verdict": "pass",
+  "summary": "Parametrized initial false and true catches both clearing and setting on user-turn violations.",
+  "timestamp": "2026-07-31T05:18:15.648Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.2.2--f09f0dd61dac",
+  "requirementId": "REQ-008.2.2",
+  "hash": "f09f0dd61dac",
+  "verdict": "pass",
+  "summary": "Both tests pin one version bump with final blocked value, including hook-raised fresh block.",
+  "timestamp": "2026-07-31T05:18:16.537Z"
+}

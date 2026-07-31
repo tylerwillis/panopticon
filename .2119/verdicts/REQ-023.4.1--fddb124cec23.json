@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.4.1--fddb124cec23",
-  "requirementId": "REQ-023.4.1",
-  "hash": "fddb124cec23",
-  "verdict": "pass",
-  "summary": "Real REST test: direct self-cycle and indirect a->b->c->a both 400 with 'cycle'; the valid DAG edges assert 200, so both accepting a cycle and over-rejecting fail",
-  "timestamp": "2026-07-31T01:01:28.863Z"
-}

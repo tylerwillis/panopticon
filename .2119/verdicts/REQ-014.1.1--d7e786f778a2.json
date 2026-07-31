@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.1.1--d7e786f778a2",
+  "requirementId": "REQ-014.1.1",
+  "hash": "d7e786f778a2",
+  "verdict": "pass",
+  "summary": "Last responsibility on agent-advanced state transitions in same call with one bump and advance-parity history.",
+  "timestamp": "2026-07-31T05:18:20.425Z"
+}

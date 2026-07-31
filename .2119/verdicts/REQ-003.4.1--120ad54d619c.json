@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-003.4.1--120ad54d619c",
+  "requirementId": "REQ-003.4.1",
+  "hash": "120ad54d619c",
+  "verdict": "pass",
+  "summary": "Non-review creation succeeds ungoverned, governed-different, and governed-same-harness, catching validation leakage.",
+  "timestamp": "2026-07-31T05:18:14.775Z"
+}

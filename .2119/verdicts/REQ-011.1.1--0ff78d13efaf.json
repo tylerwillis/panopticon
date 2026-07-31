@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-011.1.1--0ff78d13efaf",
-  "requirementId": "REQ-011.1.1",
-  "hash": "0ff78d13efaf",
-  "verdict": "pass",
-  "summary": "exhaustive 64-case product over claim/registration/liveness/phase asserts '–' from the real composer, plus a service-level terminal task composes '–'",
-  "timestamp": "2026-07-31T00:11:52.365Z"
-}

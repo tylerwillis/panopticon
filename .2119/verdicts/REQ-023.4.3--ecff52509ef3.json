@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.4.3--ecff52509ef3",
-  "requirementId": "REQ-023.4.3",
-  "hash": "ecff52509ef3",
-  "verdict": "pass",
-  "summary": "task_c's prior dep [prior_dependency] is asserted unchanged via GET after the rejected cycle-closing PUT; any clobber, partial write, or clear on rejection fails the equality",
-  "timestamp": "2026-07-31T01:01:29.326Z"
-}

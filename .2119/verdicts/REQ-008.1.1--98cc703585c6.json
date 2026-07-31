@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.1.1--98cc703585c6",
+  "requirementId": "REQ-008.1.1",
+  "hash": "98cc703585c6",
+  "verdict": "pass",
+  "summary": "Seeds blocked true, flips agent, asserts false returned and reloaded with exactly one version bump.",
+  "timestamp": "2026-07-31T05:18:15.206Z"
+}

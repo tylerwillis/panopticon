@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.3.4--77251682d6ab",
+  "requirementId": "REQ-010.3.4",
+  "hash": "77251682d6ab",
+  "verdict": "pass",
+  "summary": "Agent turn clears blocked in return and reload with exactly one version bump.",
+  "timestamp": "2026-07-31T05:18:18.683Z"
+}

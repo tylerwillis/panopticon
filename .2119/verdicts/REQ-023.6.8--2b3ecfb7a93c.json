@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.6.8--2b3ecfb7a93c",
-  "requirementId": "REQ-023.6.8",
-  "hash": "2b3ecfb7a93c",
-  "verdict": "pass",
-  "summary": "Blocked tasks with a non-terminal dep wait, with dep wait plus attention, and a blocked governor with an active child all must render red 'user ⚠' — any wait or marker overriding blocked rendering fails an assertion.",
-  "timestamp": "2026-07-31T01:02:18.300Z"
-}

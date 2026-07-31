@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.1.5--96c7b7b41fbc",
+  "requirementId": "REQ-014.1.5",
+  "hash": "96c7b7b41fbc",
+  "verdict": "pass",
+  "summary": "Return asserts both state held and outstanding empty, rejecting invented transition or refused resolution.",
+  "timestamp": "2026-07-31T05:18:22.158Z"
+}

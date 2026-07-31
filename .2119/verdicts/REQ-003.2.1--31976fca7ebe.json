@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-003.2.1--31976fca7ebe",
+  "requirementId": "REQ-003.2.1",
+  "hash": "31976fca7ebe",
+  "verdict": "pass",
+  "summary": "Three cases cover sentinel and explicit-default directions plus repo-default resolution with differing models.",
+  "timestamp": "2026-07-31T05:18:13.947Z"
+}

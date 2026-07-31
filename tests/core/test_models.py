@@ -96,17 +96,21 @@ def test_dependency_gate_precedes_queued_but_not_terminal() -> None:
 
 
 # 2119: REQ-023.2.4
-def test_container_status_composer_accepts_dependency_facts_without_service_access() -> None:
-    facts = {
+def test_container_status_composer_is_determined_by_supplied_dependency_fact() -> None:
+    base_facts = {
         "terminal": False,
         "claimed": False,
         "registered": False,
         "runner_live": False,
         "phase": None,
-        "dependencies_blocking": True,
     }
-    assert compose_container_status(**facts) is ContainerStatus.GATED
-    assert facts["dependencies_blocking"] is True
+    assert (
+        compose_container_status(**base_facts, dependencies_blocking=True) is ContainerStatus.GATED
+    )
+    assert (
+        compose_container_status(**base_facts, dependencies_blocking=False)
+        is ContainerStatus.QUEUED
+    )
 
 
 @pytest.mark.parametrize(

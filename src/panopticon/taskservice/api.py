@@ -406,7 +406,7 @@ def create_app(service: TaskService) -> FastAPI:
         runner liveness), so they're attached here rather than read off the Task by ``model_validate``.
         Every task-returning handler routes through this so the dashboard always sees them."""
         out = TaskOut.model_validate(task)
-        out.terminal = service._task_is_terminal(task)
+        out.terminal = service.task_is_terminal(task)
         out.container_status = service.container_status(
             task, dependencies_blocking=await service.dependencies_blocking(task)
         ).value
@@ -416,12 +416,13 @@ def create_app(service: TaskService) -> FastAPI:
             out.runner_host = service.runner_host(task.claimed_by)
         return out
 
-    async def _task_summary_out(task: Task) -> TaskSummaryOut:
+    def _task_summary_out(task: Task, tasks_by_id: dict[str, Task]) -> TaskSummaryOut:
         """Serialize a task to the cheap summary shape (no history), with computed status fields."""
         out = TaskSummaryOut.model_validate(task)
-        out.terminal = service._task_is_terminal(task)
+        out.terminal = service.task_is_terminal(task)
         out.container_status = service.container_status(
-            task, dependencies_blocking=await service.dependencies_blocking(task)
+            task,
+            dependencies_blocking=service.dependencies_blocking_in_snapshot(task, tasks_by_id),
         ).value
         lifecycle = service.lifecycle(task.id)
         out.lifecycle_detail = lifecycle.detail if lifecycle is not None else None
@@ -580,12 +581,18 @@ def create_app(service: TaskService) -> FastAPI:
         # the cap elapses); without it, it's an immediate snapshot — today's behaviour.
         if wait is not None:
             version = await feed.wait(since=since, timeout=min(wait, MAX_WAIT_SECONDS))
-            tasks_raw = await service.list_tasks_summary(terminal=terminal)
+            all_tasks = await service.list_tasks_summary()
         else:
             # Read version and snapshot in a single thread call so no event-loop yield can
             # interleave a mutation between them — preserving the original atomicity invariant.
-            version, tasks_raw = await service._tasks_snapshot(terminal=terminal)
-        tasks = [await _task_summary_out(t) for t in tasks_raw]
+            version, all_tasks = await service._tasks_snapshot()
+        tasks_by_id = {task.id: task for task in all_tasks}
+        tasks_raw = (
+            all_tasks
+            if terminal is None
+            else [task for task in all_tasks if service.task_is_terminal(task) == terminal]
+        )
+        tasks = [_task_summary_out(task, tasks_by_id) for task in tasks_raw]
         response.headers[TASKS_VERSION_HEADER] = str(version)
         return tasks
 

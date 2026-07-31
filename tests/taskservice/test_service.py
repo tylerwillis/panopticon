@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import asyncio
 from collections.abc import Iterator
+from contextlib import suppress
 from pathlib import Path
 
 import pytest
@@ -16,7 +18,7 @@ from panopticon.core import (
     TerminalState,
     Workflow,
 )
-from panopticon.core.models import Actor, LifecyclePhase, Repo, Responsibility, Status
+from panopticon.core.models import Actor, LifecyclePhase, Repo, Responsibility, Status, Task
 from panopticon.core.store import NotFound
 from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
 from panopticon.taskservice.service import (
@@ -55,6 +57,72 @@ async def make_service(tmp_path: Path) -> TaskService:
         )
     )
     return svc
+
+
+async def _dependency_service(
+    tmp_path: Path,
+) -> tuple[TaskService, SqlAlchemyStore]:
+    store = SqlAlchemyStore()
+    service = TaskService(store, {"spike": Spike()}, FilesystemArtifactStore(tmp_path))
+    await service.init()
+    await service.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
+    return service, store
+
+
+# 2119: REQ-023.1.1
+# 2119: REQ-023.3.5
+async def test_create_dependent_publishes_its_gate_in_the_initial_row(tmp_path: Path) -> None:
+    service, store = await _dependency_service(tmp_path)
+    dependency = await service.create_task("r1", "spike")
+    published_dependencies: list[list[str]] = []
+    create_task = store.create_task
+
+    async def observe_initial_row(task: Task) -> None:
+        published_dependencies.append(list(task.depends_on_task_ids))
+        await create_task(task)
+
+    store.create_task = observe_initial_row  # type: ignore[method-assign]
+    dependent = await service.create_task("r1", "spike", depends_on_task_ids=[dependency.id])
+
+    assert published_dependencies == [[dependency.id]]
+    assert dependent.depends_on_task_ids == [dependency.id]
+    assert await service.dependencies_blocking(dependent)
+
+
+@pytest.mark.parametrize("task_count", [2, 3])
+# 2119: REQ-023.4.1
+# 2119: REQ-023.4.3
+async def test_concurrent_dependency_updates_cannot_commit_a_cycle(
+    tmp_path: Path, task_count: int
+) -> None:
+    service, store = await _dependency_service(tmp_path)
+    tasks = [await service.create_task("r1", "spike") for _ in range(task_count)]
+    source_ids = {task.id for task in tasks}
+    all_writers_arrived = asyncio.Event()
+    arrivals = 0
+    save_task = store.save_task
+
+    async def synchronize_after_validation(task: Task) -> None:
+        nonlocal arrivals
+        if task.id in source_ids:
+            arrivals += 1
+            if arrivals == task_count:
+                all_writers_arrived.set()
+            with suppress(TimeoutError):
+                await asyncio.wait_for(all_writers_arrived.wait(), timeout=0.05)
+        await save_task(task)
+
+    store.save_task = synchronize_after_validation  # type: ignore[method-assign]
+    results = await asyncio.gather(
+        *(
+            service.set_dependencies(task.id, [tasks[(index + 1) % task_count].id])
+            for index, task in enumerate(tasks)
+        ),
+        return_exceptions=True,
+    )
+
+    assert sum(isinstance(result, ValueError) for result in results) == 1
+    assert sum(not isinstance(result, Exception) for result in results) == task_count - 1
 
 
 async def test_create_task_as_orchestrator_is_allowed(tmp_path: Path) -> None:

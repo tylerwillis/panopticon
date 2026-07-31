@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.3.1--1f6f3ea9da4a",
+  "requirementId": "REQ-014.3.1",
+  "hash": "1f6f3ea9da4a",
+  "verdict": "pass",
+  "summary": "set_state into fully qualifying state stays put, rejecting evaluate-on-entry.",
+  "timestamp": "2026-07-31T05:18:23.460Z"
+}

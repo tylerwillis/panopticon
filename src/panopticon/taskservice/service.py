@@ -163,6 +163,7 @@ class TaskService:
         self._runner_registrations: dict[str, RunnerRegistration] = {}
         self._lifecycles: dict[str, ContainerLifecycle] = {}
         self._transition_locks: dict[str, asyncio.Lock] = {}
+        self._dependency_lock = asyncio.Lock()
         # Ephemeral liveness (registrations, runner liveness, lifecycle phases) lives outside the
         # store, so it doesn't bump the store's version. But the dashboard's change-feed long-poll
         # only wakes on a version change — so a container going live or a phase advancing wouldn't
@@ -470,12 +471,16 @@ class TaskService:
         task.governor_task_id = governor_task_id
         task.created_at = now
         task.updated_at = now  # creation time = first mutation
-        await self._store.create_task(task)
+        if depends_on_task_ids:
+            async with self._dependency_lock:
+                await self._validate_dependencies(task.id, depends_on_task_ids)
+                task.depends_on_task_ids = list(depends_on_task_ids)
+                await self._store.create_task(task)
+        else:
+            await self._store.create_task(task)
         _log.info("task %s: created (workflow=%s, repo=%s)", task.id, workflow_name, repo_id)
         for name, content in (artifacts or {}).items():
             await self.put_artifact(task.id, name, content.encode())
-        if depends_on_task_ids:
-            task = await self.set_dependencies(task.id, depends_on_task_ids)
         return task
 
     async def _require_orchestrator(self, actor_task_id: str) -> Task:
@@ -862,7 +867,15 @@ class TaskService:
         empty list clears all dependencies. This is a plain recorded fact — the state machine
         does not enforce the constraint.
         """
-        task = await self.get_task(task_id)
+        async with self._dependency_lock:
+            task = await self.get_task(task_id)
+            await self._validate_dependencies(task_id, dep_ids)
+            task.depends_on_task_ids = list(dep_ids)
+            await self._save_task(task)
+        return task
+
+    async def _validate_dependencies(self, task_id: str, dep_ids: list[str]) -> None:
+        """Validate one proposed graph write while the caller holds ``_dependency_lock``."""
         for dep_id in dep_ids:
             if await self._store.get_task(dep_id) is None:
                 raise NotFound(f"dependency task {dep_id!r} does not exist")
@@ -876,9 +889,6 @@ class TaskService:
             raise ValueError(
                 f"dependency cycle detected: {rendered}; edit the dependency set to break the cycle"
             )
-        task.depends_on_task_ids = list(dep_ids)
-        await self._save_task(task)
-        return task
 
     async def dependency_tasks(self, task: Task) -> list[Task]:
         """Resolve a task's dependency rows in recorded order."""
@@ -891,10 +901,27 @@ class TaskService:
 
     async def dependencies_blocking(self, task: Task) -> bool:
         """Whether dependency facts prevent an unspawned task from becoming ready."""
-        return any(
-            dependency.state == Dropped.label or not self._task_is_terminal(dependency)
-            for dependency in await self.dependency_tasks(task)
+        dependencies = await self.dependency_tasks(task)
+        return len(dependencies) != len(task.depends_on_task_ids) or any(
+            self.dependency_blocks(dependency) for dependency in dependencies
         )
+
+    def dependencies_blocking_in_snapshot(
+        self, task: Task, tasks_by_id: Mapping[str, Task]
+    ) -> bool:
+        """Derive readiness from one already-read task snapshot, without additional store I/O."""
+        return any(
+            (dependency := tasks_by_id.get(dep_id)) is None or self.dependency_blocks(dependency)
+            for dep_id in task.depends_on_task_ids
+        )
+
+    def dependency_blocks(self, dependency: Task) -> bool:
+        """Whether one dependency is still required or ended without supplying its work."""
+        return dependency.state == Dropped.label or not self._task_is_terminal(dependency)
+
+    def task_is_terminal(self, task: Task) -> bool:
+        """Public workflow-aware terminality projection for API consumers."""
+        return self._task_is_terminal(task)
 
     # -- claim (a runner owns the task; the spawn gate, ADR 0008) --------------------------
 

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-010.3.6--23740e3b1c5d",
+  "requirementId": "REQ-010.3.6",
+  "hash": "23740e3b1c5d",
+  "verdict": "pass",
+  "summary": "After automatic clears explicit blocked true and false both persist through reload.",
+  "timestamp": "2026-07-31T05:18:19.513Z"
+}

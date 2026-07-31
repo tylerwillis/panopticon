@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-003.1.1--6140abb473e4",
+  "requirementId": "REQ-003.1.1",
+  "hash": "6140abb473e4",
+  "verdict": "pass",
+  "summary": "Governor-less review creation raises ValueError against the real service; list_tasks empty proves nothing persisted.",
+  "timestamp": "2026-07-31T05:18:13.507Z"
+}

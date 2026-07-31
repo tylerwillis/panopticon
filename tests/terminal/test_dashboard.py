@@ -506,6 +506,15 @@ async def test_dependency_held_cells_details_and_pre_spawn_row_are_honest() -> N
         "container_status": "gated",
         "depends_on_task_ids": ["c-active"],
     }
+    agent_wait = {
+        **_TASK,
+        "id": "ae-agent-dependent",
+        "slug": "approved-but-gated",
+        "turn": "agent",
+        "attention": False,
+        "container_status": "gated",
+        "depends_on_task_ids": ["c-active"],
+    }
     no_wait_tasks = [
         {
             **_TASK,
@@ -546,6 +555,7 @@ async def test_dependency_held_cells_details_and_pre_spawn_row_are_honest() -> N
             escalated,
             blocked_wait,
             blocked_attention_wait,
+            agent_wait,
             gated,
             *dependencies,
             *no_wait_tasks,
@@ -560,6 +570,7 @@ async def test_dependency_held_cells_details_and_pre_spawn_row_are_honest() -> N
         assert "b-gated-dependent" in {str(key.value) for key in table.rows}
         expected_turns = {
             "a-live-dependent": "held 1",
+            "ae-agent-dependent": "held",
             "b-gated-dependent": "held",
         }
         for task_id, expected in expected_turns.items():
@@ -592,7 +603,12 @@ async def test_dependency_held_cells_details_and_pre_spawn_row_are_honest() -> N
         assert "auditor-missing DROPPED" in detail
         assert "edit dependencies or drop the dependent" in detail
 
-    assert live["turn"] == "user" and gated["turn"] == "user" and dropped_only["turn"] == "user"
+    assert (
+        live["turn"] == "user"
+        and gated["turn"] == "user"
+        and dropped_only["turn"] == "user"
+        and agent_wait["turn"] == "agent"
+    )
 
 
 # 2119: REQ-023.5.1

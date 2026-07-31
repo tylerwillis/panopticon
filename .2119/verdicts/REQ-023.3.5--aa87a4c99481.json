@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.3.5--aa87a4c99481",
+  "requirementId": "REQ-023.3.5",
+  "hash": "aa87a4c99481",
+  "verdict": "pass",
+  "summary": "Pilot keeps unclaimed gated row visible; service test proves gate is present on the initial published row.",
+  "timestamp": "2026-07-31T05:18:26.060Z"
+}
