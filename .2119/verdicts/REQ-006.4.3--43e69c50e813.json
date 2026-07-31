@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.3--43e69c50e813",
+  "requirementId": "REQ-006.4.3",
+  "hash": "43e69c50e813",
+  "verdict": "pass",
+  "summary": "respawned 2 with two releases and respawned 0 on recovery reject listed-count N; a dedicated test verifies the real app._notifications surface.",
+  "timestamp": "2026-07-31T00:55:34.622Z"
+}

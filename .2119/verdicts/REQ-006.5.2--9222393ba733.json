@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.5.2--9222393ba733",
-  "requirementId": "REQ-006.5.2",
-  "hash": "9222393ba733",
-  "verdict": "pass",
-  "summary": "Both no-down tests reject a modal open: screen_stack stays at 1 and a captured push_screen records zero calls across empty and all 11 non-down statuses.",
-  "timestamp": "2026-07-30T18:26:58.769Z"
-}

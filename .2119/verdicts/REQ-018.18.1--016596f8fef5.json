@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.18.1--016596f8fef5",
-  "requirementId": "REQ-018.18.1",
-  "hash": "016596f8fef5",
-  "verdict": "pass",
-  "summary": "Real Textual pilot tests seed repo default terra:high, cycle the harness, and assert both inputs cleared and starting_model=None at create; mixed case pins touched model surviving while untouched effort clears.",
-  "timestamp": "2026-07-30T18:28:45.489Z"
-}

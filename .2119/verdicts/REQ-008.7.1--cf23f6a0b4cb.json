@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.7.1--cf23f6a0b4cb",
+  "requirementId": "REQ-008.7.1",
+  "hash": "cf23f6a0b4cb",
+  "verdict": "pass",
+  "summary": "Unversioned list_tasks raises AssertionError and the versioned seed mutates once with no later signal — discarding the seed snapshot or painting unversioned data never shows turn=agent and fails",
+  "timestamp": "2026-07-31T00:55:38.463Z"
+}

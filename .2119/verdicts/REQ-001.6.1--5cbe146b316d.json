@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.6.1--5cbe146b316d",
+  "requirementId": "REQ-001.6.1",
+  "hash": "5cbe146b316d",
+  "verdict": "pass",
+  "summary": "Exact equality over ALL dialog labels pins the removes-file/retained-until-restart explanation; any omission or dilution fails",
+  "timestamp": "2026-07-31T00:55:30.231Z"
+}

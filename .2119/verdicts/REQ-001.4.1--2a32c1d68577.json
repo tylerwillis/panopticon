@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.4.1--2a32c1d68577",
-  "requirementId": "REQ-001.4.1",
-  "hash": "2a32c1d68577",
-  "verdict": "pass",
-  "summary": "Yes removes only the selected real file (sibling asserted untouched) and re-queries list_workflow_files (count==2), with the table rendering the post-delete registry payload — skipping the refresh or repaint fails on 'Loaded until restart.'",
-  "timestamp": "2026-07-30T18:26:19.362Z"
-}

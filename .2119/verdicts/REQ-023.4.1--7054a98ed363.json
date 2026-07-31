@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.4.1--7054a98ed363",
+  "requirementId": "REQ-023.4.1",
+  "hash": "7054a98ed363",
+  "verdict": "pass",
+  "summary": "Real down/up presses skip a middle sentinel; trailing-boundary test asserts the actual cursor row never clamps onto the sentinel",
+  "timestamp": "2026-07-31T01:17:25.731Z"
+}

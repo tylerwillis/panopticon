@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.2.1--bd4ff1920363",
+  "requirementId": "REQ-023.2.1",
+  "hash": "bd4ff1920363",
+  "verdict": "pass",
+  "summary": "Exact slug-cell assertions pin the right/down marker across Enter presses in both directions, including a nested governor with its tree connector",
+  "timestamp": "2026-07-31T01:17:24.881Z"
+}

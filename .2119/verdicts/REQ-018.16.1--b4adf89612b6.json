@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.16.1--b4adf89612b6",
+  "requirementId": "REQ-018.16.1",
+  "hash": "b4adf89612b6",
+  "verdict": "pass",
+  "summary": "Enter on the focused selector must yield the next registered harness with created==[] and the override on the eventual submit; submit-or-no-cycle regressions fail.",
+  "timestamp": "2026-07-31T00:55:43.788Z"
+}

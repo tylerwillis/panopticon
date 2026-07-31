@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.2.1--3abba164bfc8",
-  "requirementId": "REQ-001.2.1",
-  "hash": "3abba164bfc8",
-  "verdict": "pass",
-  "summary": "Dialog test asserts distinct yes/no buttons exist, labeled, displayed, enabled; companion tests prove each choice is functional (no cancels, yes deletes) — a missing or inert button fails",
-  "timestamp": "2026-07-30T18:26:12.655Z"
-}

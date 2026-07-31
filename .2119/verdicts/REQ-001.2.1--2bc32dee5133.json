@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.2.1--2bc32dee5133",
+  "requirementId": "REQ-001.2.1",
+  "hash": "2bc32dee5133",
+  "verdict": "pass",
+  "summary": "Both yes/no buttons queried by id, labeled literally, displayed+enabled; companion tests click each and verify its effect, so a missing or inert choice fails",
+  "timestamp": "2026-07-31T00:55:28.459Z"
+}

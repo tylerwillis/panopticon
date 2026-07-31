@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.3.1--bed76a345c87",
-  "requirementId": "REQ-017.3.1",
-  "hash": "bed76a345c87",
-  "verdict": "pass",
-  "summary": "Test drives real SlugScreen via pilot (d,e, type, escape) and asserts fake.set_slugs == [] (no rename call, incl. typed 'discard-me') plus slug still rendered; cancel-submits/clears/local-blank counterexamples all rejected",
-  "timestamp": "2026-07-30T18:27:07.185Z"
-}

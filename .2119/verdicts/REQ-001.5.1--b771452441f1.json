@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.5.1--b771452441f1",
+  "requirementId": "REQ-001.5.1",
+  "hash": "b771452441f1",
+  "verdict": "pass",
+  "summary": "x on a built_in row asserts no dialog pushed (still WorkflowsScreen) and the file content intact on disk",
+  "timestamp": "2026-07-31T00:55:29.788Z"
+}
