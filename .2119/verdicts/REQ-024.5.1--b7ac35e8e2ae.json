@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.5.1--b7ac35e8e2ae",
-  "requirementId": "REQ-024.5.1",
-  "hash": "b7ac35e8e2ae",
-  "verdict": "pass",
-  "summary": "count==1 of the exact publish sentences in spec-2119 and the review skill, parametrized over all three workflows; absence and cross-placement both fail",
-  "timestamp": "2026-07-31T05:15:07.605Z"
-}

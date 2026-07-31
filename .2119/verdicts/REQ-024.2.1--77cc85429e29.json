@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.2.1--77cc85429e29",
-  "requirementId": "REQ-024.2.1",
-  "hash": "77cc85429e29",
-  "verdict": "pass",
-  "summary": "Full exact-equality pin of the served skill text names both put_artifact and the REST PUT route; a skill with only one mechanism fails the equality",
-  "timestamp": "2026-07-31T05:15:06.314Z"
-}

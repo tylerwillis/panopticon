@@ -131,6 +131,19 @@ class TaskService:
         self._workflows = dict(workflows)
         for workflow in self._workflows.values():
             workflow.validate_registration(HARNESSES)
+            surface_names = {"provision", "artifacts"}
+            for skill in workflow.skills():
+                if skill.name in surface_names:
+                    raise InvalidWorkflow(
+                        f"{workflow.name!r}: duplicate agent surface name {skill.name!r}"
+                    )
+                surface_names.add(skill.name)
+            for label in workflow.labels():
+                for operation in workflow.operations(label):
+                    if operation in surface_names:
+                        raise InvalidWorkflow(
+                            f"{workflow.name!r}: duplicate agent surface name {operation!r}"
+                        )
         self._artifacts = artifacts
         self._layers = layers
         self._workflow_discovery = workflow_discovery

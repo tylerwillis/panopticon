@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.8.1--4d739f01d300",
-  "requirementId": "REQ-024.8.1",
-  "hash": "4d739f01d300",
-  "verdict": "pass",
-  "summary": "Full instruction-text equality pins Sol-only for 2119-auto-sol and Fable honesty / Fable+Sol final review for the other two; any model swap in any layer breaks an equality",
-  "timestamp": "2026-07-31T05:15:08.945Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.4.1--88b4fbf39dc3",
-  "requirementId": "REQ-024.4.1",
-  "hash": "88b4fbf39dc3",
-  "verdict": "pass",
-  "summary": "Whole-tuple equality over SPECIFYING responsibilities enforces exactly-one artifact responsibility (zero and two both fail) across all three builtins, with the builtin set pinned so the loop is non-vacuous",
-  "timestamp": "2026-07-31T05:15:07.176Z"
-}

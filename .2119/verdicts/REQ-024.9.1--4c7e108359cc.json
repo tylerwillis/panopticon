@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.9.1--4c7e108359cc",
-  "requirementId": "REQ-024.9.1",
-  "hash": "4c7e108359cc",
-  "verdict": "pass",
-  "summary": "A real duplicate external file per builtin name must raise the exact error naming the file path and the remove-this-copy remediation; generic errors or silent shadowing fail",
-  "timestamp": "2026-07-31T05:15:09.377Z"
-}

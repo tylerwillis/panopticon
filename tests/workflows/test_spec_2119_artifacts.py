@@ -8,7 +8,8 @@ import pytest
 
 from panopticon.core.models import Repo, Skill
 from panopticon.core.state import Complete, InitialState
-from panopticon.core.workflow import Workflow
+from panopticon.core.workflow import InvalidWorkflow, Workflow
+from panopticon.harnesses.codex import CodexHarness
 from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
 from panopticon.taskservice.service import TaskService
 from panopticon.taskservice.store_sqlalchemy import SqlAlchemyStore
@@ -193,6 +194,39 @@ async def test_artifact_skill_explains_both_write_mechanisms(tmp_path: Path) -> 
     assert instructions == EXPECTED_ARTIFACT_INSTRUCTIONS
 
 
+def test_reserved_artifact_surface_cannot_be_overwritten(tmp_path: Path) -> None:
+    # 2119: REQ-024.1.1
+    class SkillCollision(Workflow):
+        name = "skill-collision"
+
+        class Only(InitialState):
+            label = "ONLY"
+            transitions = (Complete,)
+
+        initial = Only
+
+        def skills(self) -> tuple[Skill, ...]:
+            return (Skill("artifacts", "Override.", "Hide the core skill."),)
+
+    class OperationCollision(Workflow):
+        name = "operation-collision"
+
+        class Only(InitialState):
+            label = "ONLY"
+            transitions = (Complete,)
+            operations = {"artifacts": Complete}
+
+        initial = Only
+
+    for workflow in (SkillCollision(), OperationCollision()):
+        with pytest.raises(InvalidWorkflow, match="duplicate agent surface name 'artifacts'"):
+            TaskService(
+                SqlAlchemyStore(),
+                {workflow.name: workflow},
+                FilesystemArtifactStore(tmp_path),
+            )
+
+
 def test_specifying_has_one_artifact_responsibility() -> None:
     # 2119: REQ-024.4.1
     registry = discover_workflows(_home_workflows=Path("/nonexistent"))
@@ -245,6 +279,9 @@ def test_auto_sol_uses_sol_for_both_review_layers() -> None:
     )
     assert auto_sol_spec == EXPECTED_SOL_SPEC_INSTRUCTIONS.lower()
     assert auto_sol_review.instructions == EXPECTED_SOL_ONLY_REVIEW_INSTRUCTIONS
+    assert [skill.name for skill in auto_sol.skills() if "review" in skill.name] == [
+        "dual-review-sol"
+    ]
     assert (
         tuple((item.key, item.description) for item in auto_sol.responsibilities("REVIEWING"))
         == EXPECTED_SOL_REVIEWING_RESPONSIBILITIES
@@ -257,6 +294,22 @@ def test_auto_sol_uses_sol_for_both_review_layers() -> None:
         assert (
             _skill(workflow, "dual-review").instructions == EXPECTED_FABLE_SOL_REVIEW_INSTRUCTIONS
         )
+        assert [skill.name for skill in workflow.skills() if "review" in skill.name] == [
+            "dual-review"
+        ]
+        assert tuple(item.key for item in workflow.responsibilities("REVIEWING")) == (
+            "reviews-recorded",
+            "findings-triaged",
+        )
+
+
+def test_2119_open_pr_and_reviewer_cli_match_the_workflow_contract() -> None:
+    for name in WORKFLOW_NAMES:
+        workflow = _workflow(name)
+        open_pr = _skill(workflow, "open-pr").instructions
+        assert "published specification artifact" in open_pr
+        assert "plan.md" not in open_pr
+        assert workflow.image_layer() == CodexHarness().image_layer()
 
 
 def test_duplicate_error_identifies_external_file_and_remediation(tmp_path: Path) -> None:
@@ -282,4 +335,6 @@ def test_duplicate_error_identifies_external_file_and_remediation(tmp_path: Path
             f"external workflow file {external}: duplicate workflow name "
             f"{workflow_name!r}; remove this external workflow file before restarting Panopticon"
         )
+        with pytest.raises(ValueError, match="remove this external workflow file"):
+            discover_workflows(_home_workflows=tmp_path, _skip_duplicates=True)
         external.unlink()

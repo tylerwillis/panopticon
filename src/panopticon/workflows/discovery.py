@@ -95,6 +95,17 @@ def discover_workflows(
             workflow = cls()  # instantiation validates the workflow (raises InvalidWorkflow)
             workflow.validate_registration(HARNESSES)
             if workflow.name in registry:
+                source = inspect.getsourcefile(cls)
+                if (
+                    source is not None
+                    and cls.__module__.startswith(_EXT_PREFIX)
+                    and Path(source).resolve().is_relative_to(home_wf.resolve())
+                ):
+                    raise ValueError(
+                        f"external workflow file {source}: duplicate workflow name "
+                        f"{workflow.name!r}; remove this external workflow file before restarting "
+                        "Panopticon"
+                    )
                 if _skip_duplicates:
                     _log.warning(
                         "skipping duplicate workflow name %r from %s.%s",
@@ -103,13 +114,6 @@ def discover_workflows(
                         cls.__name__,
                     )
                     continue
-                source = inspect.getsourcefile(cls)
-                if source is not None and cls.__module__.startswith(_EXT_PREFIX):
-                    raise ValueError(
-                        f"external workflow file {source}: duplicate workflow name "
-                        f"{workflow.name!r}; remove this external workflow file before restarting "
-                        "Panopticon"
-                    )
                 raise ValueError(
                     f"duplicate workflow name {workflow.name!r} (from {cls.__module__}.{cls.__name__})"
                 )

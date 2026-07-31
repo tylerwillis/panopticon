@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.7.1--45eef5434c82",
-  "requirementId": "REQ-024.7.1",
-  "hash": "45eef5434c82",
-  "verdict": "pass",
-  "summary": "Real discovery with a nonexistent external dir must register all three 2119 names; any missing builtin fails the subset assertion",
-  "timestamp": "2026-07-31T05:15:08.505Z"
-}

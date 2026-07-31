@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.3.1--236c99b60646",
-  "requirementId": "REQ-024.3.1",
-  "hash": "236c99b60646",
-  "verdict": "pass",
-  "summary": "Exact-text pin covers the dashboard a-hotkey sentence and every enumerated material class (spec/summary, review outputs, triage summary, stage/gate reports); any dropped conjunct fails",
-  "timestamp": "2026-07-31T05:15:06.749Z"
-}

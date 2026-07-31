@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.6.1--5cf86bac78c2",
-  "requirementId": "REQ-024.6.1",
-  "hash": "5cf86bac78c2",
-  "verdict": "pass",
-  "summary": "descriptions['url-recorded'] pinned to the external-URL recording text for all three workflows; removing the BUILDING responsibility raises KeyError",
-  "timestamp": "2026-07-31T05:15:08.058Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.2.1--42e642c0ff7f",
+  "requirementId": "REQ-024.2.1",
+  "hash": "42e642c0ff7f",
+  "verdict": "pass",
+  "summary": "Exact delivered-skill text pins both put_artifact MCP and REST PUT publishing mechanisms.",
+  "timestamp": "2026-07-31T05:40:35.061Z"
+}

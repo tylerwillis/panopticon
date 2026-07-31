@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.6.1--15317fc30ba8",
+  "requirementId": "REQ-024.6.1",
+  "hash": "15317fc30ba8",
+  "verdict": "pass",
+  "summary": "All three workflows retain the BUILDING url-recorded responsibility targeting the external task URL field.",
+  "timestamp": "2026-07-31T05:40:36.810Z"
+}

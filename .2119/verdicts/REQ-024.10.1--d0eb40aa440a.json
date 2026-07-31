@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.10.1--d0eb40aa440a",
+  "requirementId": "REQ-024.10.1",
+  "hash": "d0eb40aa440a",
+  "verdict": "pass",
+  "summary": "Exact delivered-skill text states artifacts complement and do not replace both the PR and dedicated task URL.",
+  "timestamp": "2026-07-31T05:40:38.491Z"
+}

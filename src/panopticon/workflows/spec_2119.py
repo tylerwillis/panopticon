@@ -7,6 +7,7 @@ from typing import ClassVar
 
 from panopticon.core.models import Actor, Responsibility, Skill
 from panopticon.core.state import Complete, InitialState, State
+from panopticon.harnesses.codex import CodexHarness
 from panopticon.workflows.github_forge import GithubForgeWorkflow
 
 SPEC_ARTIFACT = Responsibility(
@@ -226,7 +227,22 @@ class _Spec2119Workflow(GithubForgeWorkflow):
         )
 
     def skills(self) -> Sequence[Skill]:
-        return (*super().skills(), self._spec_skill(), self._review_skill())
+        forge_skills = super().skills()
+        open_pr = Skill(
+            "open-pr",
+            "Open a draft PR for this task's branch.",
+            "1. Push the task's branch.\n"
+            "2. Open a **draft** PR against the repo's base branch with `gh pr create --draft`. "
+            "Title it for the change and reference the published specification artifact.\n"
+            "3. Call the `set_url` MCP tool with the PR URL returned by `gh pr create`, so the "
+            "dashboard's `p` hotkey opens it and the `url-recorded` responsibility can be "
+            "resolved.",
+        )
+        return (open_pr, *forge_skills[1:], self._spec_skill(), self._review_skill())
+
+    def image_layer(self) -> str:
+        """Install the Codex reviewer CLI regardless of the task's primary harness."""
+        return CodexHarness().image_layer()
 
 
 class Spec2119Human(_Spec2119Workflow):

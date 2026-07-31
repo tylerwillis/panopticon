@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.1.1--eff72c907182",
-  "requirementId": "REQ-024.1.1",
-  "hash": "eff72c907182",
-  "verdict": "pass",
-  "summary": "Real TaskService.skills() seam, no mocks: skill-less and skilled workflows pinned by exact ordered list equality to expose provision+artifacts plus workflow skills; removal or replacement of the core skill fails",
-  "timestamp": "2026-07-31T05:15:05.885Z"
-}

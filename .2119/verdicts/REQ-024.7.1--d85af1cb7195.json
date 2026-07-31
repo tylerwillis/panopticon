@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.7.1--d85af1cb7195",
+  "requirementId": "REQ-024.7.1",
+  "hash": "d85af1cb7195",
+  "verdict": "pass",
+  "summary": "Built-in-only discovery must return all three named 2119 workflows without an external directory.",
+  "timestamp": "2026-07-31T05:40:37.231Z"
+}
