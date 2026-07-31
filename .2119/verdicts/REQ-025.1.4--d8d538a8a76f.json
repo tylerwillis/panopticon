@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.1.4--d8d538a8a76f",
+  "requirementId": "REQ-025.1.4",
+  "hash": "d8d538a8a76f",
+  "verdict": "pass",
+  "summary": "No-dep tasks included via empty list and absent key; claimed/terminal still excluded — over-gating or eligibility regression fails the exact-list equality",
+  "timestamp": "2026-07-31T06:16:48.202Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.2.2--e2cfaff76e4d",
-  "requirementId": "REQ-024.2.2",
-  "hash": "e2cfaff76e4d",
-  "verdict": "pass",
-  "summary": "test_dependency_gate_precedes_queued_but_not_terminal exercises both conjuncts on the pure composer: gated wins the unclaimed-non-terminal conflict (with a no-gate queued counterfactual) and terminal+gating still composes to –",
-  "timestamp": "2026-07-31T05:44:14.212Z"
-}

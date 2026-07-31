@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.6.8--d0b9a5bbd1dd",
-  "requirementId": "REQ-024.6.8",
-  "hash": "d0b9a5bbd1dd",
-  "verdict": "pass",
-  "summary": "Blocked-wins pinned against every override path: blocked+non-terminal-dependency, blocked+active-governed-child, and blocked+attention fixtures each assert exact red 'user' warning cell text via the real _turn_cell render, so any dim/held or yellow demotion of a blocked task fails.",
-  "timestamp": "2026-07-31T05:49:39.856Z"
-}

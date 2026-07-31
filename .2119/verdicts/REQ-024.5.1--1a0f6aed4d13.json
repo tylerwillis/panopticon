@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.5.1--1a0f6aed4d13",
-  "requirementId": "REQ-024.5.1",
-  "hash": "1a0f6aed4d13",
-  "verdict": "pass",
-  "summary": "Governor test pins every conjunct: 'held 2' with exact-equality dim style for a turn=user attention-free governor of 2 non-terminal + 1 COMPLETE child (wrong N or terminal-counting fails), yellow/orange asserted absent, attention=True and all-terminal governors rejected back to yellow 'user'.",
-  "timestamp": "2026-07-31T05:48:26.791Z"
-}

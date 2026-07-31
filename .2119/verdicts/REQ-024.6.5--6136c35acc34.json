@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.6.5--6136c35acc34",
-  "requirementId": "REQ-024.6.5",
-  "hash": "6136c35acc34",
-  "verdict": "pass",
-  "summary": "test_api asserts the single PUT /turn agent response itself shows attention=False (rejecting leave-set and separate-follow-up-call violations) and turn-to-user preserves attention; hook/pi tests pin both user-prompt paths to that same single turn write against a fake with no attention method",
-  "timestamp": "2026-07-31T06:01:50.467Z"
-}

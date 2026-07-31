@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.6.6--a83a08fb2eb1",
-  "requirementId": "REQ-024.6.6",
-  "hash": "a83a08fb2eb1",
-  "verdict": "pass",
-  "summary": "test_mcp.py:68-75 pins set_attention on the real FastMCP list_tools surface: 'escalat' pins escalation-only framing, 'cannot suppress' rejects a description claiming clearing CAN suppress user-turn attention, and attention=True round-trips through the real service.",
-  "timestamp": "2026-07-31T05:49:39.037Z"
-}

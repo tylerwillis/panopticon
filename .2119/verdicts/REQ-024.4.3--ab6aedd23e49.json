@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.4.3--ab6aedd23e49",
-  "requirementId": "REQ-024.4.3",
-  "hash": "ab6aedd23e49",
-  "verdict": "pass",
-  "summary": "API test gives task_c a non-empty prior dependency, triggers a real indirect-cycle 400, then re-reads GET /tasks/{id} asserting the exact prior set — catches persist-before-validate, clear-on-reject, and partial apply; real store, no mocks.",
-  "timestamp": "2026-07-31T05:48:26.342Z"
-}

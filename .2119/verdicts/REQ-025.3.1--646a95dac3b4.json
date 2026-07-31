@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.3.1--646a95dac3b4",
+  "requirementId": "REQ-025.3.1",
+  "hash": "646a95dac3b4",
+  "verdict": "pass",
+  "summary": "Pilot-mounted dashboard asserts exact dim style (== 'dim', plus no yellow/orange) and exact 'held'/'held 1' text on real DataTable cells for user-turn, agent-turn, and governor+dependency tasks; boundary rows reject held for attention-set, all-terminal-DROPPED-deps (despite gated status), and no-dep tasks.",
+  "timestamp": "2026-07-31T06:16:50.366Z"
+}

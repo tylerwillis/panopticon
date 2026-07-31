@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.6.1--ce69f72a6241",
-  "requirementId": "REQ-024.6.1",
-  "hash": "ce69f72a6241",
-  "verdict": "pass",
-  "summary": "Both pilot tests drive the real _decorate_wait_facts->_turn_cell->DataTable path (fake is only the HTTP client): terminal-only deps and all-terminal children reject demotion without a proven wait; attention=True inside a proven wait re-escalates held->user/yellow; no-wait turn=user renders attention-colored for marker unset/False/True.",
-  "timestamp": "2026-07-31T05:49:36.833Z"
-}

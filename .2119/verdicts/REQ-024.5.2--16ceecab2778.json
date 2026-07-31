@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.5.2--16ceecab2778",
-  "requirementId": "REQ-024.5.2",
-  "hash": "16ceecab2778",
-  "verdict": "pass",
-  "summary": "finished_governor (turn=user, one COMPLETE child) asserts exact normal rendering plain=='user' style=='yellow' — a held/dim rendering fails both; waiting_governor's 'held 2' with 2 active + 1 COMPLETE child pins the mix boundary from the other side.",
-  "timestamp": "2026-07-31T05:48:27.223Z"
-}

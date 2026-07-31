@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.1.2--900e0c461698",
-  "requirementId": "REQ-024.1.2",
-  "hash": "900e0c461698",
-  "verdict": "pass",
-  "summary": "Real spawnable_tasks filter rejects the DROPPED-is-terminal trap: task h (dep DROPPED) and k (COMPLETE+DROPPED mix) excluded where a naive all-deps-terminal impl would spawn them; host tick test proves exclusion persists across passes",
-  "timestamp": "2026-07-31T06:01:48.676Z"
-}

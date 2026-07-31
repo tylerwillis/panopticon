@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.2.4--80694057a132",
+  "requirementId": "REQ-025.2.4",
+  "hash": "80694057a132",
+  "verdict": "pass",
+  "summary": "Annotated test calls compose_container_status standalone with only keyword facts in a service-free unit process and asserts flipping dependencies_blocking alone flips GATED/QUEUED — a composer deriving gating from a store/global/hidden state instead of the supplied fact would fail or TypeError.",
+  "timestamp": "2026-07-31T06:16:49.962Z"
+}

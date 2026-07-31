@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.6.7--ab6dfc5fdf0b",
-  "requirementId": "REQ-024.6.7",
-  "hash": "ab6dfc5fdf0b",
-  "verdict": "pass",
-  "summary": "Test pins the real spawn-task instructions (no mocks): the set_attention line itself must contain 'before asking the user' and 'non-terminal'+'child', so omission, after-instead-of-before, and a missing children condition each fail.",
-  "timestamp": "2026-07-31T05:49:39.449Z"
-}

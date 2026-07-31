@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.6.5--2eb468ffdd5c",
+  "requirementId": "REQ-025.6.5",
+  "hash": "2eb468ffdd5c",
+  "verdict": "pass",
+  "summary": "API test proves the single PUT turn=agent response already shows attention cleared; hook and executed pi-extension tests pin that user-prompt path performs exactly that write",
+  "timestamp": "2026-07-31T06:17:17.134Z"
+}

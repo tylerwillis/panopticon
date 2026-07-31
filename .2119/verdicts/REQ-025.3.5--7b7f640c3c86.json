@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.3.5--7b7f640c3c86",
+  "requirementId": "REQ-025.3.5",
+  "hash": "7b7f640c3c86",
+  "verdict": "pass",
+  "summary": "Dashboard pilot test asserts the unclaimed (claimed_by=None), pre-spawn gated task appears in the real DataTable's row keys and renders a held turn cell; row absence or a gated-row filter would fail the membership assert and get_row lookup.",
+  "timestamp": "2026-07-31T06:16:52.076Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.4.1--c63741adf3fa",
-  "requirementId": "REQ-017.4.1",
-  "hash": "c63741adf3fa",
-  "verdict": "pass",
-  "summary": "Real d keypress, real rendered #detail: splitlines()[-2] == 'e: edit slug' with dim span at spans[-2] pins content, trailing position, and styling together",
-  "timestamp": "2026-07-31T05:39:35.098Z"
-}

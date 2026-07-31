@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.4.2--6627e7ee02b1",
+  "requirementId": "REQ-025.4.2",
+  "hash": "6627e7ee02b1",
+  "verdict": "pass",
+  "summary": "Real-API test asserts the 400 detail names all three cycle-member task ids (rejecting bare 'cycle detected') and contains edit/dependency advice (rejecting a member listing with no guidance); no mocks, prior deps proven intact.",
+  "timestamp": "2026-07-31T06:16:52.948Z"
+}

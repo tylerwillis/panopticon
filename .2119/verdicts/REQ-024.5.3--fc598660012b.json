@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.5.3--fc598660012b",
-  "requirementId": "REQ-024.5.3",
-  "hash": "fc598660012b",
-  "verdict": "pass",
-  "summary": "Real Dashboard pilot renders the governor detail pane and pins both non-terminal children as adjacent 'slug STATE' substrings (all-but-one or slug-without-state fails), excludes the terminal child and other governors' children; only the data client is faked.",
-  "timestamp": "2026-07-31T05:48:27.666Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.1.3--aa9fe2e0e821",
+  "requirementId": "REQ-025.1.3",
+  "hash": "aa9fe2e0e821",
+  "verdict": "pass",
+  "summary": "REST test: excluded before, eligible on first pass after COMPLETE, claim recorded, runner receives the configured initial_prompt; DROPPED stays excluded",
+  "timestamp": "2026-07-31T06:16:47.759Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.5.1--8f56cb296c23",
+  "requirementId": "REQ-025.5.1",
+  "hash": "8f56cb296c23",
+  "verdict": "pass",
+  "summary": "Governor test mounts the real Dashboard on fake task dicts and asserts the turn cell is exactly 'held 2' with style == 'dim' for a turn=user, attention=False governor with 2 non-terminal + 1 COMPLETE child (terminal child excluded from N), while sibling cases pin the boundaries: all-terminal governor renders yellow 'user', attention=True governor renders yellow 'user', blocked governor renders red.",
+  "timestamp": "2026-07-31T06:16:53.802Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.3.1--dd20824b40fc",
-  "requirementId": "REQ-024.3.1",
-  "hash": "dd20824b40fc",
-  "verdict": "pass",
-  "summary": "Held cells asserted with exact plain=='held'/'held 1' and exact style=='dim' plus explicit no-yellow/no-orange checks across live/gated/agent-turn dependents; attention-set, dropped-only-dep, and no-dep tasks asserted yellow 'user', via the real Dashboard render path (fake replaces only REST)",
-  "timestamp": "2026-07-31T06:01:49.564Z"
-}

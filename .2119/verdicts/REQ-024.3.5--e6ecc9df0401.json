@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.3.5--e6ecc9df0401",
-  "requirementId": "REQ-024.3.5",
-  "hash": "e6ecc9df0401",
-  "verdict": "pass",
-  "summary": "Dashboard pilot asserts the unclaimed (claimed_by=None) gated task's id is a DataTable row key with rendered cells (rows built unfiltered from the listing); service test proves the gated row persists via the ordinary create path before any claim/spawn.",
-  "timestamp": "2026-07-31T05:48:25.037Z"
-}

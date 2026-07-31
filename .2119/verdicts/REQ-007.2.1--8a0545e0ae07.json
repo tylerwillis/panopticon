@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.2.1--8a0545e0ae07",
+  "requirementId": "REQ-007.2.1",
+  "hash": "8a0545e0ae07",
+  "verdict": "pass",
+  "summary": "Real pane render: endswith hint as final line pins exact text+trailing position, span check pins dim; wrong text/position/style each fail",
+  "timestamp": "2026-07-31T06:16:45.138Z"
+}

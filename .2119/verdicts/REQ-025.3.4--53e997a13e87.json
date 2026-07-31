@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.3.4--53e997a13e87",
+  "requirementId": "REQ-025.3.4",
+  "hash": "53e997a13e87",
+  "verdict": "pass",
+  "summary": "End-to-end Dashboard test (fake REST client only) opens the detail pane for a task whose deps include a DROPPED one and asserts both the 'auditor-missing DROPPED' line and the verbatim remedy 'edit dependencies or drop the dependent' — absent marking or a marker lacking the remedy fails the assertions.",
+  "timestamp": "2026-07-31T06:16:51.646Z"
+}

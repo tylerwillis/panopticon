@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.2.1--d9eb1947ef4f",
+  "requirementId": "REQ-025.2.1",
+  "hash": "d9eb1947ef4f",
+  "verdict": "pass",
+  "summary": "Composer test asserts unclaimed+blocking->gated, blocking=False->queued, and terminal+blocking->'–'; the dependency-state boundary (DROPPED/non-terminal vs ARCHIVED) is exercised end-to-end under REQ-025.2.3, matching the spec's 2.4 pure-fact decomposition.",
+  "timestamp": "2026-07-31T06:16:48.645Z"
+}
