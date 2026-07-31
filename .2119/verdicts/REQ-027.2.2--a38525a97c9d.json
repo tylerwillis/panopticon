@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.2.2--a38525a97c9d",
+  "requirementId": "REQ-027.2.2",
+  "hash": "a38525a97c9d",
+  "verdict": "pass",
+  "summary": "Both tests use real fs + production HARNESS.argv (no mocks); genuinely reject resuming a non-interactive rollout (codex_exec/exec originators) and correctly treat unparseable rollouts as fresh, matching _resume_target's actual originator check.",
+  "timestamp": "2026-07-31T23:27:50.833Z"
+}

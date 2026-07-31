@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.2.1--36f479b7b411",
+  "requirementId": "REQ-027.2.1",
+  "hash": "36f479b7b411",
+  "verdict": "pass",
+  "summary": "test_argv_resume_stays_fresh_when_no_rollouts_recorded calls the real HARNESS.argv with an untouched tmp_path (no .codex/sessions dir at all) and asserts byte-identical equality with the pre-scan first-run argv list, genuinely exercising the no-resume branch with no mocking.",
+  "timestamp": "2026-07-31T23:20:11.282Z"
+}

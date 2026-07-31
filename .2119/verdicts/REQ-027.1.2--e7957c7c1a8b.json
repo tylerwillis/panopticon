@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.1.2--e7957c7c1a8b",
+  "requirementId": "REQ-027.1.2",
+  "hash": "e7957c7c1a8b",
+  "verdict": "pass",
+  "summary": "Rewritten test sets the correct file's mtime later while making it write-first and alphabetically-first, and the wrong file write-second/alphabetically-last: this defeats every realistic non-mtime proxy (name-sort-descending, append/insertion-order, ctime-vs-mtime confusion, flipped min/max comparator), which would all incorrectly select the older file; genuine mtime comparison is required to pass.",
+  "timestamp": "2026-07-31T23:24:37.601Z"
+}

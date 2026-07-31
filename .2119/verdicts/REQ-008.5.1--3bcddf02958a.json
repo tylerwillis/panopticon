@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.5.1--3bcddf02958a",
+  "requirementId": "REQ-008.5.1",
+  "hash": "3bcddf02958a",
+  "verdict": "pass",
+  "summary": "hook.main blocks on set_turn before returning (thread-gated test proves it), and codex's UserPromptSubmit is wired as a synchronous 'command' hook to that same callback with turn=agent asserted.",
+  "timestamp": "2026-07-31T23:19:29.813Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.4.1--c98860d8f8b4",
+  "requirementId": "REQ-027.4.1",
+  "hash": "c98860d8f8b4",
+  "verdict": "pass",
+  "summary": "The _FirstLineOnly proxy enforces a hard byte-budget on Path.open reads (readline/read/readlines/iter all counted) and the rollout is seeded with 5000 garbage lines past line 1 that would blow both the budget and JSON parsing if touched; test currently fails against the not-yet-implemented src (confirming it's not tautological), and correctly rejects any over-read boundary case.",
+  "timestamp": "2026-07-31T23:20:22.525Z"
+}

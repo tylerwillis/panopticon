@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.3.1--0154a59dc5e9",
+  "requirementId": "REQ-027.3.1",
+  "hash": "0154a59dc5e9",
+  "verdict": "pass",
+  "summary": "Both tests use real files (no mocks): empty, invalid-JSON, and originator-less rollouts are combined with a genuine interactive rollout and assert the correct session id is still resumed (and, in the second test, that all-malformed falls back to fresh argv); an unhandled exception on any of the three malformed forms would fail the test, covering the 'no error raised' clause too.",
+  "timestamp": "2026-07-31T23:20:51.594Z"
+}
