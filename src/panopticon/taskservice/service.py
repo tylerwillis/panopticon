@@ -64,6 +64,30 @@ class NotAuthorized(Exception):
     non-orchestration workflow trying to create other tasks)."""
 
 
+def _dependency_cycle(graph: Mapping[str, list[str]], start: str) -> list[str] | None:
+    """Return the first deterministic dependency cycle reachable from ``start``, if any."""
+    path: list[str] = []
+    positions: dict[str, int] = {}
+    visited: set[str] = set()
+
+    def visit(task_id: str) -> list[str] | None:
+        if task_id in positions:
+            return [*path[positions[task_id] :], task_id]
+        if task_id in visited:
+            return None
+        positions[task_id] = len(path)
+        path.append(task_id)
+        for dep_id in graph.get(task_id, []):
+            if cycle := visit(dep_id):
+                return cycle
+        path.pop()
+        positions.pop(task_id)
+        visited.add(task_id)
+        return None
+
+    return visit(start)
+
+
 @dataclass
 class Registration:
     """An active container's claim that it is working on a task (liveness).
@@ -798,6 +822,7 @@ class TaskService:
         task.turn = turn
         if turn is Actor.AGENT:
             task.blocked = False
+            task.attention = False
         await self._save_task(task)
         return task
 
@@ -807,6 +832,14 @@ class TaskService:
         task.blocked = blocked
         await self._save_task(task)
         _log.debug("task %s: blocked=%s", task_id, blocked)
+        return task
+
+    async def set_attention(self, task_id: str, attention: bool) -> Task:
+        """Set or clear the escalation-only attention marker without changing turn or blocked."""
+        task = await self.get_task(task_id)
+        task.attention = attention
+        await self._save_task(task)
+        _log.debug("task %s: attention=%s", task_id, attention)
         return task
 
     async def set_governor(self, task_id: str, governor_task_id: str | None) -> Task:
@@ -829,15 +862,39 @@ class TaskService:
         empty list clears all dependencies. This is a plain recorded fact — the state machine
         does not enforce the constraint.
         """
-        if task_id in dep_ids:
-            raise ValueError(f"task {task_id!r} cannot depend on itself")
         task = await self.get_task(task_id)
         for dep_id in dep_ids:
             if await self._store.get_task(dep_id) is None:
                 raise NotFound(f"dependency task {dep_id!r} does not exist")
+        graph = {
+            candidate.id: list(candidate.depends_on_task_ids)
+            for candidate in await self._store.list_tasks_summary()
+        }
+        graph[task_id] = list(dep_ids)
+        if cycle := _dependency_cycle(graph, task_id):
+            rendered = " -> ".join(cycle)
+            raise ValueError(
+                f"dependency cycle detected: {rendered}; edit the dependency set to break the cycle"
+            )
         task.depends_on_task_ids = list(dep_ids)
         await self._save_task(task)
         return task
+
+    async def dependency_tasks(self, task: Task) -> list[Task]:
+        """Resolve a task's dependency rows in recorded order."""
+        dependencies: list[Task] = []
+        for dep_id in task.depends_on_task_ids:
+            dependency = await self._store.get_task(dep_id)
+            if dependency is not None:
+                dependencies.append(dependency)
+        return dependencies
+
+    async def dependencies_blocking(self, task: Task) -> bool:
+        """Whether dependency facts prevent an unspawned task from becoming ready."""
+        return any(
+            dependency.state == Dropped.label or not self._task_is_terminal(dependency)
+            for dependency in await self.dependency_tasks(task)
+        )
 
     # -- claim (a runner owns the task; the spawn gate, ADR 0008) --------------------------
 
@@ -973,12 +1030,15 @@ class TaskService:
         """The task's latest reported spawn phase, or ``None`` if none is current."""
         return self._lifecycles.get(task_id)
 
-    def container_status(self, task: Task) -> ContainerStatus:
+    def container_status(
+        self, task: Task, *, dependencies_blocking: bool = False
+    ) -> ContainerStatus:
         """The task's composed container-lifecycle status (the single string the dashboard shows):
         fold the reported phase together with registration presence + runner liveness."""
         lifecycle = self._lifecycles.get(task.id)
         return compose_container_status(
             terminal=self._task_is_terminal(task),
+            dependencies_blocking=dependencies_blocking,
             claimed=task.claimed_by is not None,
             registered=bool(self.registrations(task.id)),
             runner_live=task.claimed_by in self.live_runners(),

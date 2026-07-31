@@ -74,6 +74,7 @@ class TaskSummaryOut(BaseModel):
     state: str
     turn: Actor
     blocked: bool
+    attention: bool
     memo: str | None
     initial_prompt: str | None
     slug: str | None
@@ -90,6 +91,7 @@ class TaskSummaryOut(BaseModel):
     updated_at: str | None = None
     depends_on_task_ids: list[str] = []
     provisioned: bool
+    terminal: bool = False
     container_status: str = "–"
     lifecycle_detail: str | None = None
     runner_host: str | None = (
@@ -106,6 +108,7 @@ class TaskOut(BaseModel):
     state: str
     turn: Actor
     blocked: bool
+    attention: bool
     memo: (
         str | None
     )  # a brief one-line reminder of what the task is, collected at creation (shown in the summary)
@@ -138,6 +141,7 @@ class TaskOut(BaseModel):
         str
     ] = []  # task IDs that must complete before work on this task should begin
     provisioned: bool  # computed (Task.provisioned): branch + clone recorded
+    terminal: bool = False  # workflow-derived terminality for deterministic relationship consumers
     #: The composed container-lifecycle status the dashboard displays (the task service folds the
     #: session service's reported phase with registration presence + runner liveness). Not a domain
     #: field — attached on serialization (see ``_task_out``), defaulted for the bare-validate path.
@@ -296,6 +300,10 @@ class BlockedIn(BaseModel):
     blocked: bool
 
 
+class AttentionIn(BaseModel):
+    attention: bool
+
+
 class ClaimIn(BaseModel):
     runner_id: str
 
@@ -392,23 +400,29 @@ def create_app(service: TaskService) -> FastAPI:
     feed = ChangeFeed(service.tasks_version)
     service.subscribe_to_changes(feed.notify)
 
-    def _task_out(task: Task) -> TaskOut:
+    async def _task_out(task: Task) -> TaskOut:
         """Serialize a task **with** its computed container-lifecycle fields. These aren't domain
         attributes (the status is composed from ephemeral runner-reported phase + registrations +
         runner liveness), so they're attached here rather than read off the Task by ``model_validate``.
         Every task-returning handler routes through this so the dashboard always sees them."""
         out = TaskOut.model_validate(task)
-        out.container_status = service.container_status(task).value
+        out.terminal = service._task_is_terminal(task)
+        out.container_status = service.container_status(
+            task, dependencies_blocking=await service.dependencies_blocking(task)
+        ).value
         lifecycle = service.lifecycle(task.id)
         out.lifecycle_detail = lifecycle.detail if lifecycle is not None else None
         if task.claimed_by is not None:
             out.runner_host = service.runner_host(task.claimed_by)
         return out
 
-    def _task_summary_out(task: Task) -> TaskSummaryOut:
+    async def _task_summary_out(task: Task) -> TaskSummaryOut:
         """Serialize a task to the cheap summary shape (no history), with computed status fields."""
         out = TaskSummaryOut.model_validate(task)
-        out.container_status = service.container_status(task).value
+        out.terminal = service._task_is_terminal(task)
+        out.container_status = service.container_status(
+            task, dependencies_blocking=await service.dependencies_blocking(task)
+        ).value
         lifecycle = service.lifecycle(task.id)
         out.lifecycle_detail = lifecycle.detail if lifecycle is not None else None
         if task.claimed_by is not None:
@@ -525,7 +539,7 @@ def create_app(service: TaskService) -> FastAPI:
     @app.post("/tasks", status_code=201)
     async def create_task(body: CreateTaskIn) -> TaskOut:
         try:
-            return _task_out(
+            return await _task_out(
                 await service.create_task(
                     body.repo_id,
                     body.workflow,
@@ -571,13 +585,13 @@ def create_app(service: TaskService) -> FastAPI:
             # Read version and snapshot in a single thread call so no event-loop yield can
             # interleave a mutation between them — preserving the original atomicity invariant.
             version, tasks_raw = await service._tasks_snapshot(terminal=terminal)
-        tasks = [_task_summary_out(t) for t in tasks_raw]
+        tasks = [await _task_summary_out(t) for t in tasks_raw]
         response.headers[TASKS_VERSION_HEADER] = str(version)
         return tasks
 
     @app.get("/tasks/{task_id}")
     async def get_task(task_id: str) -> TaskOut:
-        return _task_out(await service.get_task(task_id))
+        return await _task_out(await service.get_task(task_id))
 
     @app.get("/tasks/{task_id}/transitions")
     async def list_transitions(task_id: str) -> list[str]:
@@ -589,7 +603,7 @@ def create_app(service: TaskService) -> FastAPI:
 
     @app.post("/tasks/{task_id}/operations/{operation}")
     async def apply_operation(task_id: str, operation: str) -> TaskOut:
-        return _task_out(await service.apply_operation(task_id, operation))
+        return await _task_out(await service.apply_operation(task_id, operation))
 
     @app.get("/tasks/{task_id}/states")
     async def list_states(task_id: str) -> list[str]:
@@ -611,11 +625,11 @@ def create_app(service: TaskService) -> FastAPI:
 
     @app.put("/tasks/{task_id}/state")
     async def set_state(task_id: str, body: StateIn) -> TaskOut:
-        return _task_out(await service.set_state(task_id, body.state))
+        return await _task_out(await service.set_state(task_id, body.state))
 
     @app.post("/tasks/{task_id}/transition")
     async def transition(task_id: str, body: TransitionIn) -> TaskOut:
-        return _task_out(
+        return await _task_out(
             await service.request_transition(
                 task_id, body.to_state, trigger=body.trigger, note=body.note
             )
@@ -629,37 +643,39 @@ def create_app(service: TaskService) -> FastAPI:
             )
         except ValueError as exc:  # unknown key / PENDING / FAILED without a comment
             raise HTTPException(status_code=400, detail=str(exc)) from exc
-        return _task_out(task)
+        return await _task_out(task)
 
     @app.put("/tasks/{task_id}/slug")
     async def set_slug(task_id: str, body: SlugIn) -> TaskOut:
-        return _task_out(await service.set_slug(task_id, body.slug))
+        return await _task_out(await service.set_slug(task_id, body.slug))
 
     @app.put("/tasks/{task_id}/url")
     async def set_url(task_id: str, body: UrlIn) -> TaskOut:
-        return _task_out(await service.set_url(task_id, body.url))
+        return await _task_out(await service.set_url(task_id, body.url))
 
     @app.put("/tasks/{task_id}/tokens-used")
     async def set_tokens_used(task_id: str, body: TokensUsedIn) -> TaskOut:
-        return _task_out(await service.set_tokens_used(task_id, body.tokens_used))
+        return await _task_out(await service.set_tokens_used(task_id, body.tokens_used))
 
     @app.put("/tasks/{task_id}/token-estimate")
     async def set_token_estimate(task_id: str, body: TokenEstimateIn) -> TaskOut:
-        return TaskOut.model_validate(
-            await service.set_token_estimate(task_id, body.token_estimate)
-        )
+        return await _task_out(await service.set_token_estimate(task_id, body.token_estimate))
 
     @app.put("/tasks/{task_id}/turn")
     async def set_turn(task_id: str, body: TurnIn) -> TaskOut:
-        return _task_out(await service.set_turn(task_id, body.turn))
+        return await _task_out(await service.set_turn(task_id, body.turn))
 
     @app.put("/tasks/{task_id}/blocked")
     async def set_blocked(task_id: str, body: BlockedIn) -> TaskOut:
-        return _task_out(await service.set_blocked(task_id, body.blocked))
+        return await _task_out(await service.set_blocked(task_id, body.blocked))
+
+    @app.put("/tasks/{task_id}/attention")
+    async def set_attention(task_id: str, body: AttentionIn) -> TaskOut:
+        return await _task_out(await service.set_attention(task_id, body.attention))
 
     @app.put("/tasks/{task_id}/governor")
     async def set_governor(task_id: str, body: GovernorIn) -> TaskOut:
-        return _task_out(await service.set_governor(task_id, body.governor_task_id))
+        return await _task_out(await service.set_governor(task_id, body.governor_task_id))
 
     @app.put("/tasks/{task_id}/dependencies")
     async def set_dependencies(task_id: str, body: DependenciesIn) -> TaskOut:
@@ -669,7 +685,7 @@ def create_app(service: TaskService) -> FastAPI:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
         except NotFound as exc:
             raise HTTPException(status_code=404, detail=str(exc)) from exc
-        return _task_out(task)
+        return await _task_out(task)
 
     @app.put("/tasks/{task_id}/claim")
     async def claim(task_id: str, body: ClaimIn) -> TaskOut:
@@ -677,11 +693,11 @@ def create_app(service: TaskService) -> FastAPI:
             task = await service.claim(task_id, body.runner_id)
         except AlreadyClaimed as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
-        return _task_out(task)
+        return await _task_out(task)
 
     @app.delete("/tasks/{task_id}/claim")
     async def release(task_id: str) -> TaskOut:
-        return _task_out(await service.release(task_id))
+        return await _task_out(await service.release(task_id))
 
     @app.put("/tasks/{task_id}/provisioning")
     async def record_provisioning(task_id: str, body: ProvisioningIn) -> TaskOut:
@@ -689,7 +705,7 @@ def create_app(service: TaskService) -> FastAPI:
             task = await service.record_provisioning(task_id, branch=body.branch, clone=body.clone)
         except ValueError as exc:  # slug not set yet
             raise HTTPException(status_code=400, detail=str(exc)) from exc
-        return _task_out(task)
+        return await _task_out(task)
 
     # -- artifacts ----------------------------------------------------------------
 
@@ -763,13 +779,13 @@ def create_app(service: TaskService) -> FastAPI:
     @app.put("/tasks/{task_id}/lifecycle")
     async def report_lifecycle(task_id: str, body: LifecycleIn) -> TaskOut:
         await service.report_lifecycle(task_id, body.runner_id, body.phase, body.detail)
-        return _task_out(await service.get_task(task_id))
+        return await _task_out(await service.get_task(task_id))
 
     @app.delete("/tasks/{task_id}/lifecycle")
     async def clear_lifecycle(task_id: str) -> TaskOut:
         await service.get_task(task_id)  # 404 if the task is unknown
         service.clear_lifecycle(task_id)
-        return _task_out(await service.get_task(task_id))
+        return await _task_out(await service.get_task(task_id))
 
     # -- host (runner) liveness + reclaim ----------------------------------------------
     #
@@ -822,7 +838,7 @@ def create_app(service: TaskService) -> FastAPI:
     @app.post("/runners/{runner_id}/reclaim")
     async def reclaim(runner_id: str) -> list[TaskOut]:
         """Release a (dead) runner's non-terminal claims so a healthy host respawns them."""
-        return [_task_out(t) for t in await service.reclaim(runner_id)]
+        return [await _task_out(t) for t in await service.reclaim(runner_id)]
 
     app.mount("/mcp", mcp_app)  # in-container agents connect here for task operations + artifacts
     return app

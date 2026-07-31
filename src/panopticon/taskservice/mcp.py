@@ -98,6 +98,15 @@ def build_mcp_server(service: TaskService, *, name: str = "panopticon") -> FastM
 
     @mcp.tool(
         description=(
+            "Set or clear the escalation-only attention marker. Setting it forces attention "
+            "inside a proven upstream wait; clearing it cannot suppress the ordinary user-turn queue."
+        )
+    )
+    async def set_attention(task_id: str, attention: bool) -> dict[str, Any]:
+        return _task(await service.set_attention(task_id, attention))
+
+    @mcp.tool(
+        description=(
             "Replace the task's dependency list with the given task IDs. "
             "Each ID must reference an existing task; pass an empty list to clear all dependencies. "
             "Dependencies are tracking only — the state machine does not enforce them."
