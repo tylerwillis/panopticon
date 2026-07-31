@@ -1,8 +1,8 @@
 {
-  "reviewId": "REQ-024.3.1--feed1c6fee23",
-  "requirementId": "REQ-024.3.1",
-  "hash": "feed1c6fee23",
+  "reviewId": "REQ-025.3.1--1610fbe248f2",
+  "requirementId": "REQ-025.3.1",
+  "hash": "1610fbe248f2",
   "verdict": "pass",
   "summary": "Exact delivered-skill text pins a-hotkey review guidance, encouragement, complement framing, and all requested examples.",
-  "timestamp": "2026-07-31T05:40:35.492Z"
+  "timestamp": "2026-07-31T05:54:35.865Z"
 }

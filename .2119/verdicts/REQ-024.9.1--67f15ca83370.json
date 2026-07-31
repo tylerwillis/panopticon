@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-024.9.1--67f15ca83370",
-  "requirementId": "REQ-024.9.1",
-  "hash": "67f15ca83370",
-  "verdict": "pass",
-  "summary": "Real external duplicate files fail discovery with exact file and removal guidance even in live-rescan skip mode.",
-  "timestamp": "2026-07-31T05:40:38.065Z"
-}

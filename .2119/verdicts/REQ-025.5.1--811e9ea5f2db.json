@@ -1,8 +1,8 @@
 {
-  "reviewId": "REQ-024.5.1--10a63e01a2c9",
-  "requirementId": "REQ-024.5.1",
-  "hash": "10a63e01a2c9",
+  "reviewId": "REQ-025.5.1--811e9ea5f2db",
+  "requirementId": "REQ-025.5.1",
+  "hash": "811e9ea5f2db",
   "verdict": "pass",
   "summary": "All three workflows' real spec and review skills contain exactly one required artifact-publishing instruction.",
-  "timestamp": "2026-07-31T05:40:36.374Z"
+  "timestamp": "2026-07-31T05:54:36.753Z"
 }
