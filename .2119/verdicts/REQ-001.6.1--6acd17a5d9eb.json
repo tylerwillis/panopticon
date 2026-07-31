@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.6.1--6acd17a5d9eb",
+  "requirementId": "REQ-001.6.1",
+  "hash": "6acd17a5d9eb",
+  "verdict": "pass",
+  "summary": "Exact-equality assertion on the rendered dialog labels including the removes-file/loaded-until-restart explanation — displayed text is the requirement's observable.",
+  "timestamp": "2026-07-31T05:24:51.465Z"
+}

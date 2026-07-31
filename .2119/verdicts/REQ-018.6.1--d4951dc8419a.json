@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.6.1--d4951dc8419a",
+  "requirementId": "REQ-018.6.1",
+  "hash": "d4951dc8419a",
+  "verdict": "pass",
+  "summary": "Exact claude model/effort lists asserted, harness cycled to codex, exact codex lists asserted for both vocabularies; stale suggestions fail equality",
+  "timestamp": "2026-07-31T05:27:52.315Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.3.1--6787a3885e82",
+  "requirementId": "REQ-023.3.1",
+  "hash": "6787a3885e82",
+  "verdict": "pass",
+  "summary": "Real-pilot Enter toggles round-trip expand/collapse (rows+markers), a fresh Dashboard on the same client proves session-locality, all fake-client mutation channels are asserted empty (unknown methods would AttributeError), and search-time Enter is proven a no-op with matching governed tasks still revealed",
+  "timestamp": "2026-07-31T05:27:49.866Z"
+}

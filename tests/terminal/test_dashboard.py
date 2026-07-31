@@ -8,6 +8,7 @@ from __future__ import annotations
 import contextlib
 import threading
 import time
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -117,6 +118,7 @@ class _FakeClient:
         self.got_tasks: list[str] = []
         self.released: list[str] = []
         self.set_slugs: list[tuple[str, str]] = []
+        self.snoozes: list[tuple[str, str | None]] = []
         self.created_repos: list[dict[str, Any]] = []
         self.updated_repos: list[tuple[str, dict[str, Any]]] = []
         # When set, create_repo/update_repo raise a 400 carrying this detail (mimics the task
@@ -263,6 +265,14 @@ class _FakeClient:
         for task in self._tasks:
             if task["id"] == task_id:
                 task["slug"] = slug
+                return task
+        raise KeyError(task_id)
+
+    def set_snooze(self, task_id: str, until: str | None) -> dict[str, Any]:
+        self.snoozes.append((task_id, until))
+        for task in self._tasks:
+            if task["id"] == task_id:
+                task["snoozed_until"] = until
                 return task
         raise KeyError(task_id)
 
@@ -959,6 +969,165 @@ async def test_active_only_rows_not_faded() -> None:
         for task_id in ("t-a", "t-b"):
             slug_cell = table.get_row(task_id)[4]
             assert not any(s.style == "dim" for s in slug_cell._spans)
+
+
+_SNOOZE_NOW = datetime(2026, 7, 31, 8, 0, tzinfo=UTC)
+_INDEFINITE_SNOOZE = "9999-12-31T23:59:59+00:00"
+
+
+# 2119: REQ-024.2.1
+# 2119: REQ-024.2.2
+# 2119: REQ-024.3.1
+# 2119: REQ-024.3.3
+async def test_e_snoozes_for_twelve_hours_renders_countdown_and_toggles_off() -> None:
+    task = {
+        **_TASK,
+        "turn": "user",
+        "attention": False,
+        "snoozed_until": None,
+    }
+    fake = _FakeClient([task])
+    app = Dashboard(fake, now=lambda: _SNOOZE_NOW, refresh_interval=0)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("e")
+        await pilot.pause()
+
+        deadline = (_SNOOZE_NOW + timedelta(hours=12)).isoformat()
+        assert fake.snoozes == [(_TASK["id"], deadline)]
+        row = app.query_one("#tasks", DataTable).get_row(_TASK["id"])
+        assert row[1].plain == "snoozed · 12h left"
+        for cell in row:
+            assert cell._spans and all(span.style == "dim" for span in cell._spans)
+        assert "orange" not in str(row[1].style)
+
+        await pilot.press("e")
+        await pilot.pause()
+        assert fake.snoozes[-1] == (_TASK["id"], None)
+        restored = app.query_one("#tasks", DataTable).get_row(_TASK["id"])
+        assert restored[1].plain == "user"
+        assert "orange" in str(restored[1].style)
+
+
+# 2119: REQ-024.2.1
+# 2119: REQ-024.3.3
+async def test_e_replaces_an_expired_deadline_with_a_new_twelve_hour_snooze() -> None:
+    task = {
+        **_TASK,
+        "turn": "user",
+        "attention": False,
+        "snoozed_until": (_SNOOZE_NOW - timedelta(seconds=1)).isoformat(),
+    }
+    fake = _FakeClient([task])
+    app = Dashboard(fake, now=lambda: _SNOOZE_NOW, refresh_interval=0)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("e")
+        await pilot.pause()
+
+        expected = (_SNOOZE_NOW + timedelta(hours=12)).isoformat()
+        assert fake.snoozes == [(_TASK["id"], expected)]
+
+
+# 2119: REQ-024.2.3
+# 2119: REQ-024.2.2
+# 2119: REQ-024.3.1
+async def test_shift_e_sets_an_indefinite_snooze_with_visible_dim_label() -> None:
+    task = {
+        **_TASK,
+        "turn": "user",
+        "attention": False,
+        "snoozed_until": None,
+    }
+    fake = _FakeClient([task])
+    app = Dashboard(fake, now=lambda: _SNOOZE_NOW, refresh_interval=0)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("E")
+        await pilot.pause()
+
+        assert fake.snoozes == [(_TASK["id"], _INDEFINITE_SNOOZE)]
+        row = app.query_one("#tasks", DataTable).get_row(_TASK["id"])
+        assert row[1].plain == "snoozed"
+        for cell in row:
+            assert cell._spans and all(span.style == "dim" for span in cell._spans)
+
+        await pilot.press("e")
+        await pilot.pause()
+        assert fake.snoozes[-1] == (_TASK["id"], None)
+
+
+# 2119: REQ-024.3.2
+# 2119: REQ-024.3.3
+async def test_finite_snooze_expiry_restores_attention_without_clearing_recorded_fact() -> None:
+    clock = [_SNOOZE_NOW]
+    deadline = _SNOOZE_NOW + timedelta(hours=4)
+    task = {
+        **_TASK,
+        "turn": "user",
+        "attention": False,
+        "snoozed_until": deadline.isoformat(),
+    }
+    fake = _FakeClient([task])
+    app = Dashboard(fake, now=lambda: clock[0], refresh_interval=0)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        table = app.query_one("#tasks", DataTable)
+        assert table.get_row(_TASK["id"])[1].plain == "snoozed · 4h left"
+
+        clock[0] = deadline
+        app.action_refresh()
+        await pilot.pause()
+        expired = table.get_row(_TASK["id"])
+        assert expired[1].plain == "user"
+        assert "orange" in str(expired[1].style)
+        assert task["snoozed_until"] == deadline.isoformat()
+        assert fake.snoozes == []
+
+
+# 2119: REQ-024.3.4
+async def test_attention_marker_pierces_snooze_and_snooze_precedes_held() -> None:
+    dependency = {
+        **_TASK,
+        "id": "dependency",
+        "slug": "dependency",
+        "turn": "agent",
+    }
+    snoozed = {
+        **_TASK,
+        "id": "snoozed",
+        "slug": "snoozed",
+        "turn": "user",
+        "attention": False,
+        "depends_on_task_ids": ["dependency"],
+        "container_status": "gated",
+        "snoozed_until": (_SNOOZE_NOW + timedelta(hours=4)).isoformat(),
+    }
+    pierced = {
+        **snoozed,
+        "id": "pierced",
+        "slug": "pierced",
+        "attention": True,
+    }
+    app = Dashboard(
+        _FakeClient([dependency, snoozed, pierced]),
+        now=lambda: _SNOOZE_NOW,
+        refresh_interval=0,
+    )  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        table = app.query_one("#tasks", DataTable)
+
+        snoozed_row = table.get_row("snoozed")
+        assert snoozed_row[1].plain == "snoozed · 4h left"
+        assert all(
+            cell._spans and all(span.style == "dim" for span in cell._spans) for cell in snoozed_row
+        )
+
+        pierced_row = table.get_row("pierced")
+        assert pierced_row[1].plain == "user"
+        assert "orange" in str(pierced_row[1].style)
+        assert not any(span.style == "dim" for span in pierced_row[-1]._spans)
 
 
 def test_dim_helper_str_and_text() -> None:
@@ -5148,6 +5317,15 @@ def test_bindings_and_help_derive_from_the_single_hotkey_table() -> None:
     assert {b.key for b in Dashboard.BINDINGS if b.show} == shown
     for hotkey in dashboard.HOTKEYS:
         assert hotkey.action == "quit" or hasattr(Dashboard, f"action_{hotkey.action}")
+
+
+# 2119: REQ-024.2.3
+def test_task_snooze_keybindings_are_unique() -> None:
+    keys = [hotkey.key for hotkey in dashboard.HOTKEYS]
+    assert len(keys) == len(set(keys))
+    actions = {hotkey.key: hotkey.action for hotkey in dashboard.HOTKEYS}
+    assert actions["e"] == "snooze"
+    assert actions["E"] == "snooze_indefinitely"
 
 
 async def test_pressing_question_mark_opens_the_help_screen() -> None:

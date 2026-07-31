@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.2.1--457f803b5c30",
+  "requirementId": "REQ-006.2.1",
+  "hash": "457f803b5c30",
+  "verdict": "pass",
+  "summary": "Pilot-driven ctrl+r asserts BulkRespawnScreen opens with exact rendered lines for all 6 down tasks while live and failed are excluded (exact splitlines equality kills both missing and extra entries); a second test flips the service snapshot after mount to prove the latest snapshot, not a stale one, feeds the modal at the one-down boundary.",
+  "timestamp": "2026-07-31T05:24:49.914Z"
+}

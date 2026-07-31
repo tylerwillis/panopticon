@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.4.1--c4a1b34e04b1",
+  "requirementId": "REQ-023.4.1",
+  "hash": "c4a1b34e04b1",
+  "verdict": "pass",
+  "summary": "Real keypress tests: down/up over a collapsed sentinel land on zzz-extra/gov via _current AND the actual cursor row key, incl. the sentinel-as-last-row clamp case; landing on the sentinel fails both observables.",
+  "timestamp": "2026-07-31T05:30:21.922Z"
+}

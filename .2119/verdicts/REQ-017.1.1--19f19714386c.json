@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.1.1--19f19714386c",
+  "requirementId": "REQ-017.1.1",
+  "hash": "19f19714386c",
+  "verdict": "pass",
+  "summary": "Closed-pane e asserted to open no SlugScreen and write no slug; open-pane e on the j-highlighted task asserts editor seeded with its current (service-fresh) slug",
+  "timestamp": "2026-07-31T05:26:16.592Z"
+}

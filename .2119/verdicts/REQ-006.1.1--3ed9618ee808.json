@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.1.1--3ed9618ee808",
+  "requirementId": "REQ-006.1.1",
+  "hash": "3ed9618ee808",
+  "verdict": "pass",
+  "summary": "A real ctrl+r key event yields BulkRespawnScreen with the down-task listing; an unbound or misrouted binding fails the isinstance and content assertions.",
+  "timestamp": "2026-07-31T05:24:57.711Z"
+}

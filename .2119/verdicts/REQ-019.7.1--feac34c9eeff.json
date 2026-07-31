@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.7.1--feac34c9eeff",
+  "requirementId": "REQ-019.7.1",
+  "hash": "feac34c9eeff",
+  "verdict": "pass",
+  "summary": "Test closes the modal with slow-harness discovery genuinely blocked in flight (threading.Event), releases it post-escape, and compares a pre-close snapshot of memo/selector/summary/model+effort value,placeholder,suggester; a mutation making prefetch write late results into the closed modal's input fails the test.",
+  "timestamp": "2026-07-31T05:28:31.913Z"
+}

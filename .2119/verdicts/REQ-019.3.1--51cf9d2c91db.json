@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.3.1--51cf9d2c91db",
+  "requirementId": "REQ-019.3.1",
+  "hash": "51cf9d2c91db",
+  "verdict": "pass",
+  "summary": "Two real modal openings with a call-counting fake harness: second opening must display claude-model-2/effort-2 in the visible OptionList, which a cross-opening cache retaining the first opening's results would fail",
+  "timestamp": "2026-07-31T05:26:31.703Z"
+}

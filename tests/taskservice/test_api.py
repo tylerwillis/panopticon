@@ -839,6 +839,54 @@ def test_set_slug(client: TestClient) -> None:
     assert resp.json()["slug"] == "fix-widget"
 
 
+# 2119: REQ-024.1.1
+# 2119: REQ-024.1.2
+# 2119: REQ-024.1.3
+def test_snooze_deadline_round_trips_without_changing_task_signals(client: TestClient) -> None:
+    task_id = _new_task(client)
+    created = client.get(f"/tasks/{task_id}").json()
+    assert created["snoozed_until"] is None
+
+    moved = client.put(f"/tasks/{task_id}/state", json={"state": "COMPLETE"})
+    assert moved.status_code == 200
+    client.put(f"/tasks/{task_id}/turn", json={"turn": "user"})
+    client.put(f"/tasks/{task_id}/blocked", json={"blocked": True})
+    deadline = "2099-08-01T20:30:00+00:00"
+    snoozed = client.put(f"/tasks/{task_id}/snooze", json={"until": deadline})
+
+    assert snoozed.status_code == 200
+    assert snoozed.json()["snoozed_until"] == deadline
+    assert snoozed.json()["state"] == "COMPLETE"
+    assert snoozed.json()["turn"] == "user"
+    assert snoozed.json()["blocked"] is True
+    assert client.get(f"/tasks/{task_id}").json()["snoozed_until"] == deadline
+    assert client.get("/tasks").json()[0]["snoozed_until"] == deadline
+
+
+# 2119: REQ-024.1.2
+# 2119: REQ-024.1.3
+def test_snooze_null_clears_and_service_does_not_expire_deadlines(client: TestClient) -> None:
+    task_id = _new_task(client)
+    already_past = "2000-01-01T00:00:00+00:00"
+
+    moved = client.put(f"/tasks/{task_id}/state", json={"state": "COMPLETE"})
+    assert moved.status_code == 200
+    recorded = client.put(f"/tasks/{task_id}/snooze", json={"until": already_past})
+    assert recorded.status_code == 200
+    assert recorded.json()["snoozed_until"] == already_past
+    assert client.get(f"/tasks/{task_id}").json()["snoozed_until"] == already_past
+
+    client.put(f"/tasks/{task_id}/turn", json={"turn": "user"})
+    client.put(f"/tasks/{task_id}/blocked", json={"blocked": True})
+    cleared = client.put(f"/tasks/{task_id}/snooze", json={"until": None})
+    assert cleared.status_code == 200
+    assert cleared.json()["snoozed_until"] is None
+    assert cleared.json()["state"] == "COMPLETE"
+    assert cleared.json()["turn"] == "user"
+    assert cleared.json()["blocked"] is True
+    assert client.get(f"/tasks/{task_id}").json()["snoozed_until"] is None
+
+
 def test_set_turn_and_blocked(client: TestClient) -> None:
     task_id = _new_task(client)  # turn=agent, blocked=false
     turned = client.put(f"/tasks/{task_id}/turn", json={"turn": "user"})

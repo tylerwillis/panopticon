@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.5.2--cc0c82a839ca",
+  "requirementId": "REQ-006.5.2",
+  "hash": "cc0c82a839ca",
+  "verdict": "pass",
+  "summary": "screen_stack stays at 1 and a push_screen spy records zero opens across the empty snapshot and all 11 non-down statuses, with a down task in the stale initial snapshot as the near-violating input — a modal on any latest-snapshot-empty path fails both assertions.",
+  "timestamp": "2026-07-31T05:25:30.916Z"
+}

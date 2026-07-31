@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.4.1--f68f076eba8a",
+  "requirementId": "REQ-017.4.1",
+  "hash": "f68f076eba8a",
+  "verdict": "pass",
+  "summary": "Real render asserts 'e: edit slug' as an exact dim line in the trailing hint block (second-to-last line)",
+  "timestamp": "2026-07-31T05:26:17.958Z"
+}

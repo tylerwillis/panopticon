@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.2.1--bd75cede7e6a",
+  "requirementId": "REQ-018.2.1",
+  "hash": "bd75cede7e6a",
+  "verdict": "pass",
+  "summary": "Pilot test asserts focused widget identity after each tab: memo editor -> HarnessSelector -> #launch-model -> #launch-effort; any reorder or skip fails",
+  "timestamp": "2026-07-31T05:27:42.148Z"
+}

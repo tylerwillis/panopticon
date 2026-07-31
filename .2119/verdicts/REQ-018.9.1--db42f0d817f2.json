@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.9.1--db42f0d817f2",
+  "requirementId": "REQ-018.9.1",
+  "hash": "db42f0d817f2",
+  "verdict": "pass",
+  "summary": "Real layout region asserts #memo-box width == 64 before focus and with model and effort candidate lists open (each asserted rendered)",
+  "timestamp": "2026-07-31T05:27:53.620Z"
+}

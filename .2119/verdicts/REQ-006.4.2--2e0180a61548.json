@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.2--2e0180a61548",
+  "requirementId": "REQ-006.4.2",
+  "hash": "2e0180a61548",
+  "verdict": "pass",
+  "summary": "Service order is deliberately reversed from displayed order (asserted via modal text indices), and the exact event list requires first's check+release to complete before second's; a sleeping release plus max_active_releases == 1 rejects concurrent processing, service-order processing fails the event sequence.",
+  "timestamp": "2026-07-31T05:25:08.728Z"
+}

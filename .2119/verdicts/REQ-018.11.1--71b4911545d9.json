@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.11.1--71b4911545d9",
+  "requirementId": "REQ-018.11.1",
+  "hash": "71b4911545d9",
+  "verdict": "pass",
+  "summary": "Typed, candidate-accepted, and mixed touched values all asserted unchanged after a verified harness change to outfitter, including the wire payload",
+  "timestamp": "2026-07-31T05:24:48.565Z"
+}

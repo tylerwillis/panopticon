@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.3.1--7f55d3d37c96",
+  "requirementId": "REQ-017.3.1",
+  "hash": "7f55d3d37c96",
+  "verdict": "pass",
+  "summary": "Escape after typing a replacement asserts zero set_slug calls and the original slug still rendered",
+  "timestamp": "2026-07-31T05:26:17.511Z"
+}

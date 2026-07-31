@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.6.1--0fe6f1022e0a",
+  "requirementId": "REQ-019.6.1",
+  "hash": "0fe6f1022e0a",
+  "verdict": "pass",
+  "summary": "Test genuinely closes the modal mid-discovery (blocked on a threading.Event), releases the in-flight worker to raise a real RuntimeError, waits for the failing calls to complete, and asserts no notify toast and no app crash — a violating implementation (propagating worker error or error notification) would fail it",
+  "timestamp": "2026-07-31T05:27:01.734Z"
+}

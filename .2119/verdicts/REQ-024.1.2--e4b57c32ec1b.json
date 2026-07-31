@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.1.2--e4b57c32ec1b",
+  "requirementId": "REQ-024.1.2",
+  "hash": "e4b57c32ec1b",
+  "verdict": "pass",
+  "summary": "Round-trip via independent GET + list asserts exact string persistence for both a timestamp and null; state/turn/blocked pre-set to non-defaults (COMPLETE/user/True) so any reset or blocked-clearing side effect fails; real service, no mocks.",
+  "timestamp": "2026-07-31T05:37:49.047Z"
+}

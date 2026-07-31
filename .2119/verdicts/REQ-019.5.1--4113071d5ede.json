@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.5.1--4113071d5ede",
+  "requirementId": "REQ-019.5.1",
+  "hash": "4113071d5ede",
+  "verdict": "pass",
+  "summary": "Timed cycle assert (<10ms) is calibrated by 20ms injected discovery delays, so any re-discovery or pending-wait on the cached selection path trips it; harness-dependent fields (summary, placeholder, model/effort suggestions) are asserted synchronously with harness-specific content after cache completion is established",
+  "timestamp": "2026-07-31T05:27:00.938Z"
+}

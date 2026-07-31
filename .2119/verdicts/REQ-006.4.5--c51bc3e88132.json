@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.5--c51bc3e88132",
+  "requirementId": "REQ-006.4.5",
+  "hash": "c51bc3e88132",
+  "verdict": "pass",
+  "summary": "notices == ['respawned 1'] by exact list equality across all 11 recovered-status parametrizations — any additional per-task 'skipped …' notification would add an element and fail.",
+  "timestamp": "2026-07-31T05:25:22.304Z"
+}

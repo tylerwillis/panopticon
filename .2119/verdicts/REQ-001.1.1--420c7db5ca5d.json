@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.1.1--420c7db5ca5d",
+  "requirementId": "REQ-001.1.1",
+  "hash": "420c7db5ca5d",
+  "verdict": "pass",
+  "summary": "Real x keypress on the workflows screen opens the dialog; highlighted-row targeting proven from both cursor positions (wrong-row and no-dialog violations fail).",
+  "timestamp": "2026-07-31T05:24:31.491Z"
+}

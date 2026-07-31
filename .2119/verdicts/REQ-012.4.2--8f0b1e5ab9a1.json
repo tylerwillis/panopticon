@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.4.2--8f0b1e5ab9a1",
+  "requirementId": "REQ-012.4.2",
+  "hash": "8f0b1e5ab9a1",
+  "verdict": "pass",
+  "summary": "GET after mutating repo defaults and monkeypatched workflow pair still returns creation-time values for both derived paths; read-time re-resolution fails",
+  "timestamp": "2026-07-31T05:26:08.162Z"
+}

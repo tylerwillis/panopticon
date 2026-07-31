@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.8.1--d3b037345d9c",
+  "requirementId": "REQ-001.8.1",
+  "hash": "d3b037345d9c",
+  "verdict": "pass",
+  "summary": "Captured notify asserted exactly ['Built-in workflows cannot be deleted.'], with mount-time notices cleared first so the deletion request provably emits it.",
+  "timestamp": "2026-07-31T05:24:57.247Z"
+}

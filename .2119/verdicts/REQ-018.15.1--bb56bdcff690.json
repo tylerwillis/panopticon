@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.15.1--bb56bdcff690",
+  "requirementId": "REQ-018.15.1",
+  "hash": "bb56bdcff690",
+  "verdict": "pass",
+  "summary": "Widget test proves ctrl+g passes current text in and replaces it with the editor's return; unit test pins $EDITOR argv parsing and temp-file round-trip at the subprocess boundary",
+  "timestamp": "2026-07-31T05:24:57.590Z"
+}

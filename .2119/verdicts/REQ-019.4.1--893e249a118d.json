@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.4.1--893e249a118d",
+  "requirementId": "REQ-019.4.1",
+  "hash": "893e249a118d",
+  "verdict": "pass",
+  "summary": "Two complementary Pilot tests reject late/never presentation: a 0.1s-delayed release catches fire-and-forget cycles showing empty/stale options, and a permanently wedged background queue proves the cycle itself must deliver the target harness's exact model+effort prompts",
+  "timestamp": "2026-07-31T05:28:14.930Z"
+}

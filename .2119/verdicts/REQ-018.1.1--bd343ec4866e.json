@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.1.1--bd343ec4866e",
+  "requirementId": "REQ-018.1.1",
+  "hash": "bd343ec4866e",
+  "verdict": "pass",
+  "summary": "At modal open with memo focused (no launch control focused), asserts label set {harness,model,effort}, repo-derived values codex/terra/high, and nonzero widget widths",
+  "timestamp": "2026-07-31T05:26:18.379Z"
+}

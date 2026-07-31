@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.1.1--9bc1bef6d575",
+  "requirementId": "REQ-023.1.1",
+  "hash": "9bc1bef6d575",
+  "verdict": "pass",
+  "summary": "Tests render the real Textual table and pin the exact dim slug-cell text (connector + ▸ + direct-child count + 'enter to expand'), assert children/grandchildren vanish behind exactly one sentinel row, and re-count on refresh; only the REST client is faked.",
+  "timestamp": "2026-07-31T05:27:14.601Z"
+}

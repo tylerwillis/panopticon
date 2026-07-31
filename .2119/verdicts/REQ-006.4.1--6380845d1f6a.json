@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.1--6380845d1f6a",
+  "requirementId": "REQ-006.4.1",
+  "hash": "6380845d1f6a",
+  "verdict": "pass",
+  "summary": "Exact event-list equality pins one confirmation-time get_task check followed by exactly one release per still-down task (a duplicate or skipped release breaks the list), against the same client release endpoint the single-task R respawn test pins; the parametrized skip test proves the check gates the release.",
+  "timestamp": "2026-07-31T05:25:03.634Z"
+}

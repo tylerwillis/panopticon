@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.14.1--d70ebcb623f3",
+  "requirementId": "REQ-018.14.1",
+  "hash": "d70ebcb623f3",
+  "verdict": "pass",
+  "summary": "Ctrl+S yields create_task with memo 'fix' and initial_prompt None — the exact negative of the Enter-submit test",
+  "timestamp": "2026-07-31T05:24:49.886Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.3.1--32e93f2bb262",
+  "requirementId": "REQ-006.3.1",
+  "hash": "32e93f2bb262",
+  "verdict": "pass",
+  "summary": "Real escape keypress on the open modal asserts screen_stack collapses to 1 (dismissal) and fake.released == [] (no claim-release) — a release-on-cancel or a stuck modal both fail.",
+  "timestamp": "2026-07-31T05:24:59.525Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.7.1--0f7f806a0476",
+  "requirementId": "REQ-018.7.1",
+  "hash": "0f7f806a0476",
+  "verdict": "pass",
+  "summary": "Focus-without-edit then reopen tests cover repo, workflow, and app default changes; a focus-counts-as-touched implementation pinning stale values fails all three",
+  "timestamp": "2026-07-31T05:27:52.769Z"
+}

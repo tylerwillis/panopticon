@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.1.1--5e8396310e05",
+  "requirementId": "REQ-007.1.1",
+  "hash": "5e8396310e05",
+  "verdict": "pass",
+  "summary": "Both seams asserted with render_detail text of the j-highlighted task; single-path, wrong-text, and terminal-failure violations each fail a test",
+  "timestamp": "2026-07-31T05:26:06.361Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.7.1--1239a96e04a8",
+  "requirementId": "REQ-008.7.1",
+  "hash": "1239a96e04a8",
+  "verdict": "pass",
+  "summary": "Fake bumps snapshot+cursor inside the seed call and poisons unversioned list_tasks; a torn or discarded seed renders stale turn or nothing and fails",
+  "timestamp": "2026-07-31T05:26:07.696Z"
+}

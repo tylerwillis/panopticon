@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.18.1--6b28c844fdd3",
+  "requirementId": "REQ-018.18.1",
+  "hash": "6b28c844fdd3",
+  "verdict": "pass",
+  "summary": "Untouched fields drop repo-default terra:high to empty after the cycle and starting_model=None reaches the wire; mixed case keeps only the touched model",
+  "timestamp": "2026-07-31T05:24:58.951Z"
+}

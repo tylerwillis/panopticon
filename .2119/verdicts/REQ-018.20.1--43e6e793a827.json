@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.20.1--43e6e793a827",
+  "requirementId": "REQ-018.20.1",
+  "hash": "43e6e793a827",
+  "verdict": "pass",
+  "summary": "No-match text asserts option_count == 0 with region.width > 0; hide is a display toggle so a vanishing list zeroes the region and fails",
+  "timestamp": "2026-07-31T05:27:54.059Z"
+}
