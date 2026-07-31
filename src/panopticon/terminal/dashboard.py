@@ -252,10 +252,12 @@ def _apply_snooze_precedence(task: JsonObj, now: datetime | None, ordinary_turn:
     ``ordinary_turn`` is deliberately supplied by the caller: dependency-gating can pass its
     dim ``held`` cell through this seam when that concurrent feature lands.
     """
-    if task.get("attention"):
-        return Text("user", style="dark_orange")
     if now is not None and (label := _snooze_label(task, now)) is not None:
+        if task.get("attention"):
+            return Text("user", style="dark_orange")
         return Text(label, style="dim")
+    if task.get("attention") and not task.get("blocked"):
+        return Text("user", style="dark_orange")
     return ordinary_turn
 
 
@@ -2676,9 +2678,7 @@ class Dashboard(App[None]):
         """Paint cached service facts; clock-only snooze changes need no network request."""
         table = self.query_one("#tasks", DataTable)
         selected = self._current  # keep the operator's highlight across the rebuild (feed refresh)
-        ordered = sorted(
-            self._task_snapshot.values(), key=_make_sort_key(self._sort_by_updated)
-        )
+        ordered = sorted(self._task_snapshot.values(), key=_make_sort_key(self._sort_by_updated))
         new_multi_runner = len({r.get("host") for r in self._runner_snapshot if r.get("host")}) > 1
         table.clear()
         if new_multi_runner != self._multi_runner:
@@ -3107,7 +3107,8 @@ class Dashboard(App[None]):
         # never let a clipboard write take down the dashboard
         with contextlib.suppress(Exception):
             self.copy_to_clipboard(text)  # OSC 52 — no-op on terminals that don't support it
-        _clipboard_copy(text)  # host tool; best-effort (False when none installed)
+        with contextlib.suppress(Exception):
+            _clipboard_copy(text)  # host tool; best-effort (False when none installed)
 
     def action_copy_slug(self) -> None:
         """`y`: copy the highlighted task's slug to the clipboard (the human label, e.g. for the

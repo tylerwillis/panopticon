@@ -615,12 +615,15 @@ async def test_dependency_held_cells_details_and_pre_spawn_row_are_honest() -> N
         for task_id in attention_rows:
             turn_cell = table.get_row(task_id)[1]
             assert turn_cell.plain == "user"
-            assert str(turn_cell.style) == "yellow"
+            assert str(turn_cell.style) == "dark_orange"
 
-        for task_id in ("ac-blocked-dependent", "ad-blocked-attention-dependent"):
-            blocked_turn = table.get_row(task_id)[1]
-            assert blocked_turn.plain == "user ⚠"
-            assert str(blocked_turn.style) == "red"
+        blocked_turn = table.get_row("ac-blocked-dependent")[1]
+        assert blocked_turn.plain == "user ⚠"
+        assert str(blocked_turn.style) == "red"
+
+        blocked_attention_turn = table.get_row("ad-blocked-attention-dependent")[1]
+        assert blocked_attention_turn.plain == "user ⚠"
+        assert str(blocked_attention_turn.style) == "red"
 
         await pilot.press("d")
         await pilot.pause()
@@ -690,6 +693,21 @@ async def test_governor_held_cell_tracks_active_children_and_reverts_when_they_f
         "terminal": True,
         "governor_task_id": "d-finished-governor",
     }
+    agent_finished_governor = {
+        **_TASK,
+        "id": "da-agent-finished-governor",
+        "slug": "agent-done-governor",
+        "turn": "agent",
+        "attention": False,
+        "container_status": "live",
+    }
+    agent_finished_child = {
+        **_TASK,
+        "id": "db-agent-finished-child",
+        "slug": "agent-finished-auditor",
+        "state": "COMPLETE",
+        "governor_task_id": "da-agent-finished-governor",
+    }
     escalated_governor = {
         **_TASK,
         "id": "f-escalated-governor",
@@ -730,6 +748,8 @@ async def test_governor_held_cell_tracks_active_children_and_reverts_when_they_f
                 finished_child,
                 finished_governor,
                 only_finished_child,
+                agent_finished_governor,
+                agent_finished_child,
                 escalated_governor,
                 escalated_child,
                 blocked_governor,
@@ -749,11 +769,15 @@ async def test_governor_held_cell_tracks_active_children_and_reverts_when_they_f
 
         finished_turn = table.get_row("d-finished-governor")[1]
         assert finished_turn.plain == "user"
-        assert str(finished_turn.style) == "yellow"
+        assert str(finished_turn.style) == "dark_orange"
+
+        agent_finished_turn = table.get_row("da-agent-finished-governor")[1]
+        assert agent_finished_turn.plain == "agent"
+        assert str(agent_finished_turn.style) == "green"
 
         escalated_turn = table.get_row("f-escalated-governor")[1]
         assert escalated_turn.plain == "user"
-        assert str(escalated_turn.style) == "yellow"
+        assert str(escalated_turn.style) == "dark_orange"
 
         blocked_turn = table.get_row("h-blocked-governor")[1]
         assert blocked_turn.plain == "user ⚠"
@@ -992,7 +1016,16 @@ async def test_e_snoozes_for_twelve_hours_renders_countdown_and_toggles_off(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setenv("PANOPTICON_SNOOZE_HOURS", "1")
-    assert not any("snooze" in parameter for parameter in signature(Dashboard).parameters)
+    assert set(signature(Dashboard).parameters) == {
+        "client",
+        "on_switch",
+        "on_service",
+        "on_runner",
+        "artifacts_root",
+        "draft_file",
+        "refresh_interval",
+        "now",
+    }
     task = {
         **_TASK,
         "turn": "user",
@@ -1003,6 +1036,32 @@ async def test_e_snoozes_for_twelve_hours_renders_countdown_and_toggles_off(
     app = Dashboard(fake, now=lambda: _SNOOZE_NOW, refresh_interval=0)  # type: ignore[arg-type]
     async with app.run_test() as pilot:
         await pilot.pause()
+
+        class RejectSnoozeEnvironment(dict[str, str]):
+            """Fail any environment lookup that could configure snooze duration."""
+
+            @staticmethod
+            def _check(key: object) -> None:
+                if "SNOOZE" in str(key).upper():
+                    raise AssertionError(f"unexpected snooze configuration lookup: {key}")
+
+            def __getitem__(self, key: str) -> str:
+                self._check(key)
+                return super().__getitem__(key)
+
+            def get(self, key: str, default: str | None = None) -> str | None:
+                self._check(key)
+                return super().get(key, default)
+
+            def __contains__(self, key: object) -> bool:
+                self._check(key)
+                return super().__contains__(key)
+
+        monkeypatch.setattr(
+            dashboard.os,
+            "environ",
+            RejectSnoozeEnvironment(dashboard.os.environ),
+        )
         await pilot.press("e")
         await pilot.pause()
 
@@ -1223,6 +1282,7 @@ async def test_attention_marker_pierces_snooze_and_snooze_precedes_held_and_gate
         "id": "pierced-gated",
         "slug": "pierced-gated",
         "turn": "agent",
+        "blocked": True,
         "attention": True,
     }
     app = Dashboard(
@@ -2852,8 +2912,20 @@ async def test_in_flight_discovery_does_not_update_widgets_after_memo_closes(
         )
         await pilot.press("escape")
         assert not isinstance(app.screen, dashboard.MemoScreen)
+        presentation_attempts: list[str] = []
+
+        def reject_post_close_presentation(harness_name: str, _suggestions: Any) -> None:
+            presentation_attempts.append(harness_name)
+            raise AssertionError("discovery attempted to present after the modal closed")
+
+        monkeypatch.setattr(
+            closed_screen,
+            "_present_suggestions_if_selected",
+            reject_post_close_presentation,
+        )
         release.set()
         await _wait_for(pilot, lambda: slow.model_calls == slow.effort_calls == 1)
+        assert presentation_attempts == []
         assert (
             memo.text,
             selector.value,
@@ -3369,6 +3441,22 @@ async def test_pressing_c_attempts_host_clipboard_after_terminal_failure(monkeyp
         await pilot.pause()
 
         assert host_copies == [render_detail(_TASK)]
+
+
+# 2119: REQ-007.1.1
+async def test_pressing_c_attempts_terminal_clipboard_when_host_fails(monkeypatch: Any) -> None:
+    terminal_copies: list[str] = []
+    app = Dashboard(_FakeClient([_TASK]))  # type: ignore[arg-type]
+    monkeypatch.setattr(app, "copy_to_clipboard", terminal_copies.append)
+    monkeypatch.setattr(dashboard, "_clipboard_copy", _raise)
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("c")
+        await pilot.pause()
+
+        assert terminal_copies == [render_detail(_TASK)]
+        assert app.is_running
 
 
 def test_render_detail_shows_the_claim() -> None:

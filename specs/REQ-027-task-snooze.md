@@ -30,7 +30,9 @@ dim presentation with this precedence: attention orange, snoozed, held/gated, no
 ### REQ-027.2: Fixed dashboard controls
 
 1. Pressing `e` on a highlighted task that is not actively snoozed MUST record a deadline exactly
-   twelve hours after the injected dashboard display time, with no configuration lookup.
+   twelve hours after the injected dashboard display time even when the process environment
+   supplies a conflicting snooze duration, and the dashboard constructor exposes no duration
+   input.
 2. Pressing `e` on a highlighted task with an active finite or indefinite snooze MUST clear
    `snoozed_until`.
 3. Pressing `E` on a highlighted task MUST record the reserved indefinite-snooze timestamp, and

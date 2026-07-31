@@ -293,6 +293,7 @@ def test_create_and_get_task(client: TestClient) -> None:
 
 # 2119: REQ-026.2.1
 # 2119: REQ-026.2.3
+# 2119: REQ-026.3.2
 # 2119: REQ-026.3.5
 def test_task_responses_keep_dropped_dependencies_gated(client: TestClient) -> None:
     dependency_id = _new_task(client)
@@ -306,6 +307,8 @@ def test_task_responses_keep_dropped_dependencies_gated(client: TestClient) -> N
     )
     assert dependent.status_code == 201, dependent.text
     dependent_id = dependent.json()["id"]
+    assert dependent.json()["turn"] == "user"
+    assert {actor.value for actor in Actor} == {"agent", "user"}
     assert dependent.json()["container_status"] == "gated"
     listed = client.get("/tasks", params={"terminal": "false"}).json()
     listed_dependent = next(task for task in listed if task["id"] == dependent_id)
@@ -315,7 +318,9 @@ def test_task_responses_keep_dropped_dependencies_gated(client: TestClient) -> N
     dropped = client.post(f"/tasks/{dependency_id}/operations/drop")
     assert dropped.status_code == 200, dropped.text
     assert dropped.json()["state"] == "DROPPED"
-    assert client.get(f"/tasks/{dependent_id}").json()["container_status"] == "gated"
+    persisted = client.get(f"/tasks/{dependent_id}").json()
+    assert persisted["container_status"] == "gated"
+    assert persisted["turn"] == "user"
 
 
 # 2119: REQ-026.2.1
@@ -487,6 +492,54 @@ def test_repo_default_model_is_opaque_and_patchable(client: TestClient) -> None:
     # 2119: REQ-012.4.1
     task = client.post("/tasks", json={"repo_id": "r1", "workflow": "spike"}).json()
     assert task["starting_model"] == value
+
+
+# 2119: REQ-012.4.1
+def test_every_model_selection_source_preserves_opaque_vocabulary(tmp_path: Path) -> None:
+    class OpaqueWorkflow(Workflow):
+        name = "opaque"
+        default_harness = "codex"
+        default_model = "workflow/model::effort=warp"
+
+        class Working(InitialState):
+            label = "WORKING"
+            transitions = (Complete,)
+
+        initial = Working
+
+    service = TaskService(
+        SqlAlchemyStore(),
+        {"spike": Spike(), "opaque": OpaqueWorkflow()},
+        FilesystemArtifactStore(tmp_path),
+    )
+    asyncio.run(service.init())
+    asyncio.run(
+        service.create_repo(
+            Repo(
+                id="r1",
+                name="acme/widgets",
+                git_url="https://x/r1.git",
+                default_harness="claude",
+                default_model="repo vocab / no parsing ???",
+            )
+        )
+    )
+    with TestClient(create_app(service)) as opaque_client:
+        repo_task = opaque_client.post("/tasks", json={"repo_id": "r1", "workflow": "spike"})
+        workflow_task = opaque_client.post("/tasks", json={"repo_id": "r1", "workflow": "opaque"})
+        explicit_task = opaque_client.post(
+            "/tasks",
+            json={
+                "repo_id": "r1",
+                "workflow": "spike",
+                "starting_model": "explicit|model:effort:extra",
+            },
+        )
+
+    assert repo_task.status_code == workflow_task.status_code == explicit_task.status_code == 201
+    assert repo_task.json()["starting_model"] == "repo vocab / no parsing ???"
+    assert workflow_task.json()["starting_model"] == "workflow/model::effort=warp"
+    assert explicit_task.json()["starting_model"] == "explicit|model:effort:extra"
 
 
 # 2119: REQ-012.2.4
