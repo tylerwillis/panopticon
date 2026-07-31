@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.3.1--ec4bd1b45e68",
+  "requirementId": "REQ-023.3.1",
+  "hash": "ec4bd1b45e68",
+  "verdict": "pass",
+  "summary": "test_artifact_skill_explains_both_write_mechanisms reads the real ARTIFACT_SKILL singleton via TaskService.skills() (no mocking) and asserts full-text equality against an independently-authored expected string; removing the 'a' hotkey mention, the PR-is-not-an-artifact caveat, or any of the four required examples (spec/summary, review outputs, triage summary, stage/gate reports) would break the equality, so each conjunct is genuinely covered.",
+  "timestamp": "2026-07-31T04:41:57.379Z"
+}

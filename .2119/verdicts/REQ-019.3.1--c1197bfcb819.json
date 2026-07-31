@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.3.1--c1197bfcb819",
-  "requirementId": "REQ-019.3.1",
-  "hash": "c1197bfcb819",
-  "verdict": "pass",
-  "summary": "Exact-equality pin of the served artifacts-skill instructions (real TaskService + discovery, no mocks) whose expected constant contains every conjunct - the a-hotkey sentence, the not-the-PR encouragement, and all four enumerated example kinds - so any dropped or reworded conjunct breaks equality; the test is currently red against the stale implementation text, proving it is not tautological.",
-  "timestamp": "2026-07-31T00:08:52.838Z"
-}

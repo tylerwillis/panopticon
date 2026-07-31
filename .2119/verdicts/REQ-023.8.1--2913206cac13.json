@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.8.1--2913206cac13",
+  "requirementId": "REQ-023.8.1",
+  "hash": "2913206cac13",
+  "verdict": "pass",
+  "summary": "test_auto_sol_uses_sol_for_both_review_layers exercises real discover_workflows() output (no mocking) and checks both the test-honesty reviewer command and the literal rendered spec-2119/dual-review skill instructions for all three workflows; simulated counterexamples (auto-sol using Fable+Sol, human/auto-spec using Sol-only) both fail the assertions, confirming genuine detection.",
+  "timestamp": "2026-07-31T04:42:31.389Z"
+}

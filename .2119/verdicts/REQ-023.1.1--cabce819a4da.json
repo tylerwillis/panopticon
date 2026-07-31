@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.1.1--cabce819a4da",
+  "requirementId": "REQ-023.1.1",
+  "hash": "cabce819a4da",
+  "verdict": "pass",
+  "summary": "Verified via real TaskService.skills(): both a skill-less and a skill-bearing synthetic workflow get provision+artifacts prepended (exact list-equality, order-checked), proving the core artifact skill is added universally at the service layer regardless of workflow, not replacing workflow-specific skills; no mocking, non-tautological.",
+  "timestamp": "2026-07-31T04:41:11.623Z"
+}

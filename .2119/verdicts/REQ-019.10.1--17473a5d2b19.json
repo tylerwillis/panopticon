@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.10.1--17473a5d2b19",
-  "requirementId": "REQ-019.10.1",
-  "hash": "17473a5d2b19",
-  "verdict": "pass",
-  "summary": "Exact-equality pin of the service-assembled artifacts-skill text includes the complement-not-replace sentence covering both the PR and the dedicated task URL, so any replacement-framed or omitted guidance fails; the test currently fails against the stale implementation, proving it is non-tautological.",
-  "timestamp": "2026-07-31T00:09:07.356Z"
-}

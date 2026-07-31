@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.1.1--bd9f3900e0cb",
-  "requirementId": "REQ-019.1.1",
-  "hash": "bd9f3900e0cb",
-  "verdict": "pass",
-  "summary": "Test drives the real TaskService.skills composition with two ad-hoc workflows (one skill-less, one skilled) and exact-list asserts 'artifacts' present in both plus the workflow skill retained; mutation check confirmed omitting the core skill for skill-less workflows fails the test, and skill content is pinned by sibling REQ-019.2/3/10/11 tests.",
-  "timestamp": "2026-07-31T00:09:04.905Z"
-}

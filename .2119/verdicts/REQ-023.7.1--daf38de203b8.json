@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.7.1--daf38de203b8",
+  "requirementId": "REQ-023.7.1",
+  "hash": "daf38de203b8",
+  "verdict": "pass",
+  "summary": "test_discovers_all_three_builtin_2119_workflows calls the real discover_workflows() with no external/home dir and asserts all three 2119 names are registered; verified by monkeypatching one workflow's name off (nearest violating case) which flips the subset assertion to False, so the test genuinely fails on non-registration.",
+  "timestamp": "2026-07-31T04:41:50.188Z"
+}

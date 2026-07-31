@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.5.1--60d8887c5d19",
+  "requirementId": "REQ-023.5.1",
+  "hash": "60d8887c5d19",
+  "verdict": "pass",
+  "summary": "test_2119_skills_publish_spec_and_review_material checks exact-sentence presence (count==1) per workflow for both the spec-2119 and review skills; simulated violations (dropped sentence, swapped spec/review sentences, missing 'triage summary' clause) all correctly reduce the count to 0, confirming the test catches real regressions, not tautology or keyword theater.",
+  "timestamp": "2026-07-31T04:42:16.971Z"
+}
