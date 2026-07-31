@@ -2643,6 +2643,8 @@ class Dashboard(App[None]):
             return
         if key not in self._governors:
             return
+        if self._query:
+            return
         if key in self._collapsed:
             self._collapsed.discard(key)
         else:

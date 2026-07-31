@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.1.1--0b3a7ffbc0fd",
-  "requirementId": "REQ-023.1.1",
-  "hash": "0b3a7ffbc0fd",
-  "verdict": "pass",
-  "summary": "Exact dim summary text with connector+▸+count+instruction; grandchild distinguishes direct-child count 2 from descendants 3; child rows asserted absent",
-  "timestamp": "2026-07-31T00:55:52.164Z"
-}

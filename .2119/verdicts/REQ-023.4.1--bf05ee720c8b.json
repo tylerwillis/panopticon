@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.4.1--bf05ee720c8b",
-  "requirementId": "REQ-023.4.1",
-  "hash": "bf05ee720c8b",
-  "verdict": "pass",
-  "summary": "Real down/up presses over a mid-list sentinel land on adjacent real rows; landing on the sentinel fails the _current assertions",
-  "timestamp": "2026-07-31T00:55:53.497Z"
-}

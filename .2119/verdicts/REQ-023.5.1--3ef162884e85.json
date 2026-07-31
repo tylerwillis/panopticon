@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.5.1--3ef162884e85",
+  "requirementId": "REQ-023.5.1",
+  "hash": "3ef162884e85",
+  "verdict": "pass",
+  "summary": "Real help screen opened by keypress; exactly one ensemble line identifies Enter, collapse, and expand",
+  "timestamp": "2026-07-31T01:17:26.133Z"
+}

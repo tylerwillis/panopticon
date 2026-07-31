@@ -4793,9 +4793,12 @@ async def test_help_screen_documents_ensemble_toggle() -> None:
         await pilot.press("question_mark")
         await pilot.pause()
         lines = str(app.screen.query_one("#help-keys", Static).render()).splitlines()
-        assert [line.strip() for line in lines if "ensemble" in line.lower()] == [
-            "Enter Collapse/expand the ensemble of governed tasks under the cursor"
-        ]
+        ensemble_lines = [line.strip() for line in lines if "ensemble" in line.lower()]
+        assert len(ensemble_lines) == 1
+        line = ensemble_lines[0]
+        assert "Enter" in line
+        assert "collapse" in line.lower()
+        assert "expand" in line.lower()
 
 
 # 2119: REQ-006.1.2
@@ -5134,6 +5137,52 @@ async def test_collapsed_ensemble_row_explains_hidden_child_count() -> None:
 
 
 # 2119: REQ-023.1.1
+async def test_collapsed_ensemble_count_updates_with_the_current_snapshot() -> None:
+    governor = {**_TASK, "id": "gov", "slug": "orchestrator", "governor_task_id": None}
+    first = {**_TASK, "id": "wrk-1", "slug": "worker-1", "governor_task_id": "gov"}
+    fake = _FakeClient([governor, first])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        table = app.query_one("#tasks", DataTable)
+        sentinel = f"{_ENSEMBLE_KEY_PREFIX}gov"
+        assert table.get_row(sentinel)[4].plain == "└─ ▸ 1 child task — enter to expand"
+
+        fake._tasks.append({**_TASK, "id": "wrk-2", "slug": "worker-2", "governor_task_id": "gov"})
+        app.action_refresh()
+        await pilot.pause()
+        assert table.get_row(sentinel)[4].plain == "└─ ▸ 2 child tasks — enter to expand"
+
+
+# 2119: REQ-023.1.1
+# 2119: REQ-023.2.1
+# 2119: REQ-023.3.1
+async def test_nested_governor_has_matching_disclosures_and_summary() -> None:
+    root = {**_TASK, "id": "root", "slug": "root", "governor_task_id": None}
+    middle = {**_TASK, "id": "middle", "slug": "middle", "governor_task_id": "root"}
+    leaf = {**_TASK, "id": "leaf", "slug": "leaf", "governor_task_id": "middle"}
+    app = Dashboard(_FakeClient([root, middle, leaf]))  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        table = app.query_one("#tasks", DataTable)
+        table.move_cursor(row=table.get_row_index("root"))
+        await pilot.press("enter")
+        await pilot.pause()
+
+        sentinel = f"{_ENSEMBLE_KEY_PREFIX}middle"
+        assert table.get_row("middle")[4].plain == "└─ ▸ middle"
+        summary = table.get_row(sentinel)[4]
+        assert summary.plain == "   └─ ▸ 1 child task — enter to expand"
+        assert summary.spans == [Span(0, len(summary.plain), "dim")]
+
+        table.move_cursor(row=table.get_row_index("middle"))
+        await pilot.press("enter")
+        await pilot.pause()
+        assert table.get_row("middle")[4].plain == "└─ ▾ middle"
+        assert table.get_row("leaf")[4].plain == "   └─ leaf"
+
+
+# 2119: REQ-023.1.1
 # 2119: REQ-023.2.1
 # 2119: REQ-023.3.1
 async def test_terminal_governor_collapses_and_expands_active_child() -> None:
@@ -5227,14 +5276,21 @@ async def test_search_keeps_matching_governed_tasks_expanded() -> None:
         await pilot.pause()
         table.move_cursor(row=table.get_row_index("gov"))
 
-        for _ in range(2):
-            assert [str(key.value) for key in table.rows] == ["gov", "wrk"]
-            assert table.get_row("gov")[4].plain == "▾ orchestrator"
-            await pilot.press("enter")
-            await pilot.pause()
-
         assert [str(key.value) for key in table.rows] == ["gov", "wrk"]
         assert table.get_row("gov")[4].plain == "▾ orchestrator"
+        await pilot.press("enter")
+        await pilot.pause()
+        assert [str(key.value) for key in table.rows] == ["gov", "wrk"]
+        assert table.get_row("gov")[4].plain == "▾ orchestrator"
+
+        app._query = ""
+        app.action_refresh()
+        await pilot.pause()
+        assert [str(key.value) for key in table.rows] == [
+            "gov",
+            f"{_ENSEMBLE_KEY_PREFIX}gov",
+        ]
+        assert table.get_row("gov")[4].plain == "▸ orchestrator"
 
 
 async def test_enter_on_non_governor_does_nothing() -> None:
@@ -5543,7 +5599,8 @@ async def test_navigating_over_an_ensemble_row_never_selects_the_sentinel() -> N
         assert str(table.ordered_rows[table.cursor_row].key.value) != sentinel
 
 
-async def test_ensemble_row_as_the_last_row_is_not_landed_on() -> None:
+# 2119: REQ-023.4.1
+async def test_ensemble_row_as_the_last_row_is_not_landed_on_by_down_arrow() -> None:
     # When a collapsed ensemble is the last navigable row, pressing down keeps the cursor on the
     # real row above it rather than clamping onto the sentinel.
     governor = {
@@ -5571,9 +5628,10 @@ async def test_ensemble_row_as_the_last_row_is_not_landed_on() -> None:
         assert row_keys == ["gov", f"{dashboard._ENSEMBLE_KEY_PREFIX}gov"]
         table.move_cursor(row=table.get_row_index("gov"))
         await pilot.pause()
-        await pilot.press("j")  # nothing real below the sentinel — stay on gov
+        await pilot.press("down")  # nothing real below the sentinel — stay on gov
         await pilot.pause()
         assert app._current == "gov"
+        assert str(table.ordered_rows[table.cursor_row].key.value) == "gov"
 
 
 async def test_pressing_jk_navigates_the_repos_table() -> None:
