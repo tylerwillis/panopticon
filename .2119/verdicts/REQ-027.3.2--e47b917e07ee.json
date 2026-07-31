@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.3.2--e47b917e07ee",
+  "requirementId": "REQ-027.3.2",
+  "hash": "e47b917e07ee",
+  "verdict": "pass",
+  "summary": "The test uses a non-shell orphan and unreachable-daemon probe, then rejects both a respawn and any crash-loop counter increment.",
+  "timestamp": "2026-07-31T23:31:35.093Z"
+}

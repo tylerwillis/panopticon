@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.1.4--fbcb0e90cd6d",
+  "requirementId": "REQ-027.1.4",
+  "hash": "fbcb0e90cd6d",
+  "verdict": "pass",
+  "summary": "Start, host, and the no-argument start alias each assert exit status 1 on refusal, rejecting the nearest violation of a zero status.",
+  "timestamp": "2026-07-31T23:35:53.694Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.3.1--2ed67d540b0b",
+  "requirementId": "REQ-027.3.1",
+  "hash": "2ed67d540b0b",
+  "verdict": "pass",
+  "summary": "Daemon-down non-shell spawn_one returns deferred with no claim, spawn, or failure phase, then retries normally when reachability returns.",
+  "timestamp": "2026-07-31T23:31:27.395Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.3.4--04c0440efb11",
+  "requirementId": "REQ-027.3.4",
+  "hash": "04c0440efb11",
+  "verdict": "pass",
+  "summary": "A daemon-down shell task still claims and spawns, while heal rejects even consulting the Docker reachability probe for shell workflows.",
+  "timestamp": "2026-07-31T23:34:38.958Z"
+}

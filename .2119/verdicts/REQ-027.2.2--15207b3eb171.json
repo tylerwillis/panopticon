@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.2.2--15207b3eb171",
+  "requirementId": "REQ-027.2.2",
+  "hash": "15207b3eb171",
+  "verdict": "pass",
+  "summary": "Combined tests verify daemon refusal propagates the diagnostic and the real host preflight message names unreachable Docker plus macOS and Linux remedies.",
+  "timestamp": "2026-07-31T23:29:38.548Z"
+}
