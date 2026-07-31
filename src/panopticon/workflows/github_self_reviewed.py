@@ -7,7 +7,7 @@ the change themselves during/after ITERATING and approves it by advancing `ITERA
 — that advance is user-gated (`advanced_by = USER`), so "tell the agent to proceed to merging"
 *is* the approval. The peer-only `pr-reviewed` responsibility falls away with the REVIEW state.
 
-The forge plumbing (the `gh` tool, its image layer, and the `open-pr`/`babysit-ci`/`babysit-merge`
+The forge plumbing (the base-installed `gh` tool and the `open-pr`/`babysit-ci`/`babysit-merge`
 skills) is shared with the peer-reviewed lifecycle via
 :class:`~panopticon.workflows.github_forge.GithubForgeWorkflow`; only the states differ.
 """

@@ -26,12 +26,13 @@ entity, per-repo secrets).
 A task's container image is **composed from layers**, not a single fixed image:
 
 1. **Base image** — minimal and general. The panopticon agent-runtime essentials only:
-   an agent CLI (e.g. `claude`, but see Milestone 3), git, tmux, the in-container command
-   surface, and the language runtime. Deliberately small; **not** opinionated about any
+   an agent CLI (e.g. `claude`, but see Milestone 3), git, `gh`, tmux, the in-container command
+   surface, and the language runtime. `gh` is shared because GitHub credentials and GitHub-bound
+   work are workflow-independent. Deliberately small; **not** opinionated about any single
    workflow or repo.
 2. **Workflow layer** — adds what a workflow's imperative steps need. E.g. a forge-
-   integrating workflow layers in `gh`; a workflow that runs tests layers in its test
-   tooling. Contributed by the workflow (ADR 0004 provisioning extension point). A
+   integrating workflow can use the base-installed `gh`, while a workflow that runs tests may
+   layer in its test tooling. Contributed by the workflow (ADR 0004 provisioning extension point). A
    minimal/free-form workflow may add nothing.
 3. **Repo layer** — adds repo-specific setup: build toolchain, dependencies, and the
    repo's pre-launch configuration/hooks (the cloude-cade `repo-hooks/<repo>` concept,
@@ -44,7 +45,7 @@ it sits on top), but workflow and repo layers are largely orthogonal — see ope
 questions.
 
 Supporting decisions:
-- **Optional features are layer choices, not base defaults.** Docker-in-Docker is
+- **Optional or specialized features are layer choices, not base defaults.** Docker-in-Docker is
   included only when a repo/workflow needs it (PARITY: "configurable per repo"), not
   baked into the base.
 - **The entrypoint is base-provided but extensible.** The base ships the general

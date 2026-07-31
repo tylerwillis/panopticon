@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-022.3.1--c9f74092d376",
+  "requirementId": "REQ-022.3.1",
+  "hash": "c9f74092d376",
+  "verdict": "pass",
+  "summary": "Composed image with a verified-applied non-empty layer must still run gh --version; docker-gated per repo acceptance convention",
+  "timestamp": "2026-07-30T17:06:11.795Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.8.1--fc7d40d44e5e",
+  "requirementId": "REQ-019.8.1",
+  "hash": "fc7d40d44e5e",
+  "verdict": "pass",
+  "summary": "Presented model/effort OptionList prompts are asserted with exact list equality against the fake harness's dynamically call- and name-tagged multi-entry returns (target-model-1/-alternate-1, effort keyed to the selected model), through the real discovery→cache→widget path — wrong-harness, stale, subset, superset, or wrong-model-effort presentations would all fail.",
+  "timestamp": "2026-07-30T18:24:20.339Z"
+}

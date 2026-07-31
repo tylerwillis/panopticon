@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.1.1--f623a1b15696",
+  "requirementId": "REQ-017.1.1",
+  "hash": "f623a1b15696",
+  "verdict": "pass",
+  "summary": "Both branches behaviorally verified via real Textual key dispatch: pane-closed 'e' asserts no SlugScreen, no set_slug call, slug unchanged; pane-open 'e' after moving the highlight asserts SlugScreen opens seeded with the highlighted task's slug, and a divergent-client test proves the editor takes the service's current slug over the stale list snapshot.",
+  "timestamp": "2026-07-30T23:06:25.796Z"
+}

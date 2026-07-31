@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-022.2.1--b546334739c3",
+  "requirementId": "REQ-022.2.1",
+  "hash": "b546334739c3",
+  "verdict": "pass",
+  "summary": "Discovery sweep rejects any \\bgh\\b in shipped workflow image layers — over-approximate in the safe direction; re-adding the gh install trips it",
+  "timestamp": "2026-07-30T17:06:11.370Z"
+}

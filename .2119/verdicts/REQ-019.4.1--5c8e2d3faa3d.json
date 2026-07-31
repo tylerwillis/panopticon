@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.4.1--5c8e2d3faa3d",
+  "requirementId": "REQ-019.4.1",
+  "hash": "5c8e2d3faa3d",
+  "verdict": "pass",
+  "summary": "Both early-cycle tests construct genuine not-completed preconditions (release-gated in-progress discovery; unstarted target behind a blocked worker) and assert the target harness's exact model AND effort prompts in the rendered OptionLists at first observation after the cycle; the unstarted-harness test holds the prefetch worker forever, so a cycle that completed with empty/stale suggestions and relied on background fill fails deterministically.",
+  "timestamp": "2026-07-30T18:27:10.614Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.4.3--1df6e62e26a1",
+  "requirementId": "REQ-012.4.3",
+  "hash": "1df6e62e26a1",
+  "verdict": "pass",
+  "summary": "Pre-flip task must still read claude after the app default flips to codex; the second-task assertion proves the flip took effect",
+  "timestamp": "2026-07-30T17:06:10.061Z"
+}

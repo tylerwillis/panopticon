@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.1.1--5f3e054e6195",
+  "requirementId": "REQ-018.1.1",
+  "hash": "5f3e054e6195",
+  "verdict": "pass",
+  "summary": "test_memo_launch_fields_are_labeled_visible_and_stay_within_64_columns opens the real modal via keypresses, asserts focus is still on MemoTextArea, then checks all three labels by exact text, non-default resolved values (codex/terra/high from repo default terra:high), and region.width>0 per control — each conjunct's violation (missing control, blank/app-default values, appear-on-focus) would fail",
+  "timestamp": "2026-07-30T18:27:22.282Z"
+}

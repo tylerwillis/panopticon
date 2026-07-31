@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.1--d109d27df09f",
+  "requirementId": "REQ-006.4.1",
+  "hash": "d109d27df09f",
+  "verdict": "pass",
+  "summary": "Exact event-list equality (check then release per task, got_tasks == released == both ids) rejects duplicate or missing releases; release() is the same client seam the single-task respawn test pins.",
+  "timestamp": "2026-07-30T18:26:41.919Z"
+}

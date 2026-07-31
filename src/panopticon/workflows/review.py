@@ -90,9 +90,5 @@ class Review(Workflow):
         )
 
     def tools(self) -> Sequence[Tool]:
-        """Name the GitHub CLI used when the governor records a PR URL."""
+        """Name the base-installed GitHub CLI used when the governor records a PR URL."""
         return (Tool("gh", "the GitHub CLI, used read-only to inspect the governor's PR."),)
-
-    def image_layer(self) -> str:
-        """Install the GitHub CLI used by the review procedure."""
-        return "RUN apt-get update && apt-get install --yes --no-install-recommends gh"
