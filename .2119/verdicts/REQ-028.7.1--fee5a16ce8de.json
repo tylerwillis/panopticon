@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.7.1--fee5a16ce8de",
+  "requirementId": "REQ-028.7.1",
+  "hash": "fee5a16ce8de",
+  "verdict": "pass",
+  "summary": "With an absent external workflow directory, the test rejects any missing, renamed, or wrong-type registration for each of the three required built-in workflow keys.",
+  "timestamp": "2026-07-31T23:30:24.096Z"
+}

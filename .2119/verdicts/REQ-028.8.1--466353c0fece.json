@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.8.1--466353c0fece",
+  "requirementId": "REQ-028.8.1",
+  "hash": "466353c0fece",
+  "verdict": "pass",
+  "summary": "Tests enumerate all three built-in 2119 workflows, require Sol for every honesty review, require exact Fable-plus-Sol final-review directives for human/auto, and require an exclusive Sol-only review surface for auto-sol.",
+  "timestamp": "2026-07-31T23:30:52.923Z"
+}

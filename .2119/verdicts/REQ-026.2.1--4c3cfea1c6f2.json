@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.2.1--4c3cfea1c6f2",
-  "requirementId": "REQ-026.2.1",
-  "hash": "4c3cfea1c6f2",
-  "verdict": "pass",
-  "summary": "The service-level test exact-matches instructions explaining both put_artifact MCP and REST PUT mechanisms.",
-  "timestamp": "2026-07-31T07:16:25.597Z"
-}

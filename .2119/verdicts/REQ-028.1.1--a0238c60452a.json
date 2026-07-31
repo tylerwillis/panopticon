@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.1.1--a0238c60452a",
+  "requirementId": "REQ-028.1.1",
+  "hash": "a0238c60452a",
+  "verdict": "pass",
+  "summary": "Tests reject omission of the artifacts skill, loss of workflow-specific skills, per-task inconsistency across repeated instances, incorrect publishing instructions, and attempts to override the reserved artifacts surface.",
+  "timestamp": "2026-07-31T23:26:56.104Z"
+}

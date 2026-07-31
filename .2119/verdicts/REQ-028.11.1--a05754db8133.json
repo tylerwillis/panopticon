@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.11.1--a05754db8133",
+  "requirementId": "REQ-028.11.1",
+  "hash": "a05754db8133",
+  "verdict": "pass",
+  "summary": "The service-level test retrieves the core artifact skill and exact-matches instructions covering durable user-review documents, all document types, and GitHub URLs as the external-URL p-hotkey exception rather than a-hotkey artifacts.",
+  "timestamp": "2026-07-31T23:32:06.147Z"
+}

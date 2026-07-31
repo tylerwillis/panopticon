@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.5.1--34a440628c63",
-  "requirementId": "REQ-001.5.1",
-  "hash": "34a440628c63",
-  "verdict": "pass",
-  "summary": "Test presses x on a real built_in=True row: read_text proves the real tmp file survives, isinstance(app.screen, WorkflowsScreen) detects the ModalScreen push that opening the dialog would cause, and the cleared-then-asserted notification proves the request was actually dispatched.",
-  "timestamp": "2026-07-30T23:45:15.406Z"
-}

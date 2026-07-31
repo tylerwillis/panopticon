@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.4.1--ca542d31ac32",
+  "requirementId": "REQ-028.4.1",
+  "hash": "ca542d31ac32",
+  "verdict": "pass",
+  "summary": "All three discovered built-in 2119 workflows are enumerated, and each full SPECIFYING tuple is pinned to exactly one spec-artifact responsibility whose description requires publishing the specification as a task artifact for user dashboard review; omission, duplication, misplacement, or weakened wording fails.",
+  "timestamp": "2026-07-31T23:28:29.775Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.12.1--32548aee1fd9",
+  "requirementId": "REQ-028.12.1",
+  "hash": "32548aee1fd9",
+  "verdict": "pass",
+  "summary": "Exact full-instruction assertions cover every built-in 2119 workflow and reject missing bypass execution, read-only prompts, or post-run clean-tree verification.",
+  "timestamp": "2026-07-31T23:32:37.435Z"
+}

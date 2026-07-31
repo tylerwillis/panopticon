@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.10.1--ae19382f3060",
+  "requirementId": "REQ-028.10.1",
+  "hash": "ae19382f3060",
+  "verdict": "pass",
+  "summary": "Exact full-instruction assertion rejects omission or reversal of complement framing and rejects replacing either the pull request or dedicated external task URL.",
+  "timestamp": "2026-07-31T23:31:41.574Z"
+}

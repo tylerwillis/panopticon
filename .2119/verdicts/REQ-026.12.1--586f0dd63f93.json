@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.12.1--586f0dd63f93",
-  "requirementId": "REQ-026.12.1",
-  "hash": "586f0dd63f93",
-  "verdict": "pass",
-  "summary": "All built-in reviewer skills are exhaustively enumerated and exactly require bypass execution, no-edit prompts, and unchanged status checks.",
-  "timestamp": "2026-07-31T07:16:29.891Z"
-}

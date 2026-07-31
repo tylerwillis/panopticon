@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.10.1--755240878ac7",
-  "requirementId": "REQ-026.10.1",
-  "hash": "755240878ac7",
-  "verdict": "pass",
-  "summary": "Core guidance explicitly makes artifacts complement both the PR and dedicated task URL.",
-  "timestamp": "2026-07-31T07:16:29.049Z"
-}

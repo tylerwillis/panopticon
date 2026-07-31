@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.5.1--70969ba62b54",
+  "requirementId": "REQ-028.5.1",
+  "hash": "70969ba62b54",
+  "verdict": "pass",
+  "summary": "Exact full-instruction assertions cover every built-in 2119 workflow and reject omission of spec, final review outputs, triage summary, or task-artifact publication.",
+  "timestamp": "2026-07-31T23:28:55.829Z"
+}

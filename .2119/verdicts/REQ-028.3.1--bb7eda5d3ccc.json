@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.3.1--bb7eda5d3ccc",
+  "requirementId": "REQ-028.3.1",
+  "hash": "bb7eda5d3ccc",
+  "verdict": "pass",
+  "summary": "The service-level golden test rejects omission of the dashboard a hotkey, reviewer-readable non-PR publishing guidance, or any required example category.",
+  "timestamp": "2026-07-31T23:28:04.771Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.4.2--31dd51582f27",
+  "requirementId": "REQ-012.4.2",
+  "hash": "31dd51582f27",
+  "verdict": "pass",
+  "summary": "Test creates explicit, workflow-derived, and repository-derived launch values, changes both defaults, and rejects any re-resolution by asserting all persisted task values remain unchanged.",
+  "timestamp": "2026-07-31T23:33:33.468Z"
+}

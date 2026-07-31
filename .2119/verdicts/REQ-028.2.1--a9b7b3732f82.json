@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.2.1--a9b7b3732f82",
+  "requirementId": "REQ-028.2.1",
+  "hash": "a9b7b3732f82",
+  "verdict": "pass",
+  "summary": "The test retrieves the real core artifact skill and exact-matches instructions naming both put_artifact and REST PUT /tasks/{task_id}/artifacts/{name}; omitting either mechanism fails.",
+  "timestamp": "2026-07-31T23:27:40.604Z"
+}

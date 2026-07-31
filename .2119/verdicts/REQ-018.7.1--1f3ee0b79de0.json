@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.7.1--1f3ee0b79de0",
-  "requirementId": "REQ-018.7.1",
-  "hash": "1f3ee0b79de0",
-  "verdict": "pass",
-  "summary": "Focus-only tests mutate repo/workflow/app defaults between modal opens (with draft persistence live) and assert untouched fields show the new values via real keypresses; precedence and mixed touched/untouched harness-change cases reject the nearest violations.",
-  "timestamp": "2026-07-30T23:51:56.350Z"
-}

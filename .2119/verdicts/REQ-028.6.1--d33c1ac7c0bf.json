@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.6.1--d33c1ac7c0bf",
+  "requirementId": "REQ-028.6.1",
+  "hash": "d33c1ac7c0bf",
+  "verdict": "pass",
+  "summary": "All three built-in 2119 workflows are enumerated, and each BUILDING state must expose the exact url-recorded responsibility requiring set_url to store the PR URL in the external URL field.",
+  "timestamp": "2026-07-31T23:29:49.454Z"
+}

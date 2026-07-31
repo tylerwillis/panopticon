@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.6.1--d1de28890aa1",
-  "requirementId": "REQ-026.6.1",
-  "hash": "d1de28890aa1",
-  "verdict": "pass",
-  "summary": "Every built-in retains the exact BUILDING external PR URL responsibility.",
-  "timestamp": "2026-07-31T07:16:27.298Z"
-}

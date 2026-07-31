@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-008.7.1--83bc0f795e2b",
-  "requirementId": "REQ-008.7.1",
-  "hash": "83bc0f795e2b",
-  "verdict": "pass",
-  "summary": "Test renders real Dashboard against a fake whose seed versioned response differs from constructor state and whose unversioned list_tasks raises: a torn read renders 'user' or crashes, a discarded seed leaves an empty table with no quiet-feed rescue - both fail the rendered-cell assertion.",
-  "timestamp": "2026-07-30T23:50:14.844Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.16.1--bcfca6299b8b",
-  "requirementId": "REQ-018.16.1",
-  "hash": "bcfca6299b8b",
-  "verdict": "pass",
-  "summary": "Real pilot test: Enter on the focus-asserted HarnessSelector cycles claude->codex (registry-next, confirmed via the submitted override) while fake.created==[] proves no submission — a live submit binding elsewhere gives the negative assertion teeth.",
-  "timestamp": "2026-07-30T23:51:35.586Z"
-}

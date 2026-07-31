@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.11.1--50b289626147",
-  "requirementId": "REQ-026.11.1",
-  "hash": "50b289626147",
-  "verdict": "pass",
-  "summary": "Golden test reads the actual core skill and exactly pins all three conjuncts, rejecting omissions or misrouting GitHub URLs between external URL/p and artifacts/a.",
-  "timestamp": "2026-07-31T06:45:44.869Z"
-}

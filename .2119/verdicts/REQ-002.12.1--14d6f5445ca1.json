@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-002.12.1--14d6f5445ca1",
+  "requirementId": "REQ-002.12.1",
+  "hash": "14d6f5445ca1",
+  "verdict": "pass",
+  "summary": "The test rejects review appearing in either operator menu source while confirming it remains registered and can be created for a governor.",
+  "timestamp": "2026-07-31T23:33:02.617Z"
+}

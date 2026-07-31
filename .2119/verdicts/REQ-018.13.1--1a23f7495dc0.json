@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.13.1--1a23f7495dc0",
-  "requirementId": "REQ-018.13.1",
-  "hash": "1a23f7495dc0",
-  "verdict": "pass",
-  "summary": "Real-app pilot test types a memo, presses Enter in the memo editor, and pins create_task called with initial_prompt equal to the memo text; exact tuple equality rejects submit-without-prompt (Ctrl+S semantics) and no-submit counterexamples; only the HTTP client is faked.",
-  "timestamp": "2026-07-30T23:51:40.140Z"
-}
