@@ -17,7 +17,15 @@ from functools import cached_property
 from typing import ClassVar
 
 from panopticon.core.artifacts import ArtifactStore
-from panopticon.core.models import Actor, HistoryEntry, Responsibility, Skill, Task, Tool
+from panopticon.core.models import (
+    Actor,
+    HistoryEntry,
+    Responsibility,
+    Skill,
+    Task,
+    Tool,
+    WakeStatus,
+)
 from panopticon.core.state import BaseState, Complete, Dropped, InitialState, State, TerminalState
 
 _ABSTRACT_BASES = (BaseState, State, TerminalState)
@@ -568,6 +576,7 @@ class Workflow(ABC):
                     to_state=state,
                     trigger="start",
                     responsibilities=self._promised(state),
+                    wake_status=WakeStatus.SKIPPED,
                 )
             ],
         )
@@ -634,6 +643,12 @@ class Workflow(ABC):
                 trigger=trigger,
                 note=note,
                 responsibilities=self._promised(to_state),
+                wake_status=(
+                    WakeStatus.PENDING
+                    if not self.is_terminal(to_state)
+                    and self.turn_on_enter(to_state) is Actor.AGENT
+                    else WakeStatus.SKIPPED
+                ),
             )
         )
         task.state = to_state

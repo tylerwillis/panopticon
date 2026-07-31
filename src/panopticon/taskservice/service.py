@@ -33,6 +33,7 @@ from panopticon.core.models import (
     Skill,
     Status,
     Task,
+    WakeStatus,
     compose_container_status,
 )
 from panopticon.core.provisioning import PROVISION_SKILL
@@ -624,6 +625,51 @@ class TaskService:
         rendered from the workflow so the in-container agent knows *where it is* (the hook emits it)."""
         task = await self.get_task(task_id)
         return await self._workflow(task.workflow).briefing(task, artifacts=self._artifacts)
+
+    async def stage_entry_briefing(self, task_id: str, entry_index: int) -> str:
+        """Render the deterministic agent briefing for one recorded state entry."""
+        task = await self.get_task(task_id)
+        try:
+            entry = task.history[entry_index]
+        except IndexError:
+            raise ValueError(f"history entry {entry_index} does not exist") from None
+        if entry_index < 0:
+            raise ValueError("history entry index must be non-negative")
+        entry_task = replace(
+            task,
+            state=entry.to_state,
+            history=list(task.history[: entry_index + 1]),
+        )
+        briefing = await self._workflow(task.workflow).briefing(
+            entry_task, artifacts=self._artifacts
+        )
+        skills = await self.skills(task_id)
+        skill_pointer = ", ".join(f"`/{skill.name}`" for skill in skills)
+        parts = [f"You have entered {entry.to_state}.", briefing]
+        if skill_pointer:
+            parts.append(f"Relevant agent skills: {skill_pointer}.")
+        return "\n\n".join(parts)
+
+    async def record_stage_entry_wake(
+        self, task_id: str, entry_index: int, status: WakeStatus
+    ) -> Task:
+        """Settle one pending runner-side wake as delivered or deliberately skipped."""
+        if status is WakeStatus.PENDING:
+            raise ValueError("a stage-entry wake can only be recorded as delivered or skipped")
+        async with self._transition_lock(task_id):
+            task = await self.get_task(task_id)
+            if entry_index < 0 or entry_index >= len(task.history):
+                raise ValueError(f"history entry {entry_index} does not exist")
+            entry = task.history[entry_index]
+            if entry.wake_status is status:
+                return task
+            if entry.wake_status is not WakeStatus.PENDING:
+                raise ValueError(
+                    f"history entry {entry_index} wake is already {entry.wake_status.value}"
+                )
+            task.history[entry_index] = replace(entry, wake_status=status)
+            await self._save_task(task)
+            return task
 
     async def workflow_overview(self, task_id: str) -> str:
         """A one-time map of the task's whole workflow (the agent gets this in its system prompt)."""
