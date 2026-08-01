@@ -245,6 +245,27 @@ def test_down_observation_is_skipped_even_if_container_heals_before_delivery() -
     assert client.records == [("t1", 1, "skipped")]
 
 
+def test_down_observation_cannot_be_settled_after_ownership_transfers() -> None:
+    # 2119: REQ-029.1.1
+    # 2119: REQ-029.1.3
+    task = _task(container_status="down")
+    client, runner = _Client(task), _Runner()
+    queued: list[Callable[[], None]] = []
+    waker = StageEntryWaker(client, runner, runner_id="host-1", dispatch=queued.append)
+
+    waker.wake(task)
+    task["claimed_by"] = "host-2"
+    task["history"].append(_entry("REVIEWING", trigger="set-state"))  # type: ignore[union-attr]
+    queued.pop()()
+
+    assert runner.prompts == []
+    assert client.records == []
+    assert [entry["wake_status"] for entry in task["history"][1:]] == [  # type: ignore[index]
+        "pending",
+        "pending",
+    ]
+
+
 def test_delivery_is_dispatched_once_without_blocking_the_observation() -> None:
     # 2119: REQ-029.1.1
     task = _task()

@@ -62,6 +62,12 @@ class StageEntryWaker:
             return
         observed_at = task.get("updated_at")
         observed_live = task.get("container_status") == ContainerStatus.LIVE.value
+        observed_history = cast(list[JsonObj], task.get("history", []))
+        observed_pending = tuple(
+            index
+            for index, entry in enumerate(observed_history)
+            if entry.get("wake_status") == WakeStatus.PENDING.value
+        )
         with self._lock:
             if isinstance(observed_at, str) and self._observed.get(task_id) == observed_at:
                 return
@@ -71,7 +77,11 @@ class StageEntryWaker:
 
         def deliver() -> None:
             try:
-                self._deliver(task, observed_live=observed_live)
+                self._deliver(
+                    task,
+                    observed_live=observed_live,
+                    observed_pending=observed_pending,
+                )
             except Exception:
                 _log.warning("stage-entry delivery failed for task %s", task_id, exc_info=True)
             finally:
@@ -80,7 +90,13 @@ class StageEntryWaker:
 
         self._dispatch(deliver)
 
-    def _deliver(self, task: JsonObj, *, observed_live: bool) -> None:
+    def _deliver(
+        self,
+        task: JsonObj,
+        *,
+        observed_live: bool,
+        observed_pending: tuple[int, ...],
+    ) -> None:
         task_id = str(task["id"])
         full = self._client.get_task(task_id)
         history = cast(list[JsonObj], full["history"])
@@ -89,18 +105,28 @@ class StageEntryWaker:
             return
         pending = [
             index
-            for index, entry in enumerate(history)
-            if entry.get("wake_status") == WakeStatus.PENDING.value
+            for index in observed_pending
+            if index < len(history)
+            and history[index].get("wake_status") == WakeStatus.PENDING.value
         ]
         if not pending:
             self._remember(task_id, task.get("updated_at"))
             return
 
+        if self._runner_id is not None and full.get("claimed_by") != self._runner_id:
+            return
         if not observed_live:
             for entry_index in pending:
+                current = self._client.get_task(task_id)
+                if self._runner_id is not None and current.get("claimed_by") != self._runner_id:
+                    return
+                current_history = cast(list[JsonObj], current["history"])
+                if (
+                    entry_index >= len(current_history)
+                    or current_history[entry_index].get("wake_status") != WakeStatus.PENDING.value
+                ):
+                    continue
                 self._client.record_stage_entry_wake(task_id, entry_index, WakeStatus.SKIPPED.value)
-            return
-        if self._runner_id is not None and full.get("claimed_by") != self._runner_id:
             return
         if self._environ.get(OPT_OUT_ENV):
             for entry_index in pending:
