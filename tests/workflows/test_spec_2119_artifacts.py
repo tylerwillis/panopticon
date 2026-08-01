@@ -55,6 +55,11 @@ EXPECTED_SPECIFYING_RESPONSIBILITIES = (
 EXPECTED_URL_RESPONSIBILITY = (
     "Record the PR URL in the task's external URL field with the `set_url` MCP tool."
 )
+EXPECTED_DEFERRED_ISSUES_FILED_RESPONSIBILITY = (
+    "Every suggested placeholder issue from the triage summary has been weighed against the "
+    "PR's comments — filed with `gh issue create` if the user endorsed it or left it "
+    "unaddressed, skipped if the user rejected it. Filing zero issues is a legal outcome."
+)
 EXPECTED_SOL_REVIEWING_RESPONSIBILITIES = (
     (
         "reviews-recorded-sol",
@@ -67,7 +72,14 @@ EXPECTED_SOL_REVIEWING_RESPONSIBILITIES = (
         "accepted (2 rounds max); the triage summary is a PR comment.",
     ),
 )
-EXPECTED_FABLE_SOL_REVIEW_INSTRUCTIONS = """Run two independent fresh-context reviews of the final
+EXPECTED_DEFERRED_ISSUES_TRIAGE_INSTRUCTIONS = """End the triage summary PR comment with a
+"Suggested placeholder issues" section. For each finding you rejected or deferred that is
+nonetheless a genuinely good idea, add a one-paragraph entry: what the idea is, why it was
+deferred rather than done now, and what an implementer would need to know. Omit findings
+rejected as simply wrong — this section captures deferred value, not a changelog of the review.
+Frame the section explicitly as recommendations for the user to react to (endorse, reject, or
+edit) at the PR approval gate; `MERGING` reads this section back before filing issues."""
+EXPECTED_FABLE_SOL_REVIEW_INSTRUCTIONS = f"""Run two independent fresh-context reviews of the final
 diff: Fable 5 through the Claude CLI and Sol 5.6 with
 `codex exec --dangerously-bypass-approvals-and-sandbox -m gpt-5.6-sol`. Each review covers
 correctness, simplicity, scope, and spec/test honesty. Reviewer prompts must forbid edits. After
@@ -78,8 +90,10 @@ Triage every finding against the code. Accept or reject each finding with a reas
 accepted fix, and re-run the TESTING gates. If a MUST-FIX was accepted, run one fresh review round;
 never exceed two rounds. Post the final triage as a PR comment.
 
+{EXPECTED_DEFERRED_ISSUES_TRIAGE_INSTRUCTIONS}
+
 Also publish the final review outputs and triage summary as task artifacts."""
-EXPECTED_SOL_ONLY_REVIEW_INSTRUCTIONS = """Run two independent fresh-context Sol 5.6 reviews of the
+EXPECTED_SOL_ONLY_REVIEW_INSTRUCTIONS = f"""Run two independent fresh-context Sol 5.6 reviews of the
 final diff with `codex exec --dangerously-bypass-approvals-and-sandbox -m gpt-5.6-sol`. Each review
 covers correctness, simplicity, scope, and spec/test honesty. Reviewer prompts must forbid edits.
 After each reviewer run, you MUST verify `git status --porcelain` is unchanged. Post both final
@@ -89,7 +103,28 @@ Triage every finding against the code. Accept or reject each finding with a reas
 accepted fix, and re-run the TESTING gates. If a MUST-FIX was accepted, run one fresh review round;
 never exceed two rounds. Post the final triage as a PR comment.
 
+{EXPECTED_DEFERRED_ISSUES_TRIAGE_INSTRUCTIONS}
+
 Also publish the final review outputs and triage summary as task artifacts."""
+EXPECTED_DEFERRED_ISSUES_MERGE_INSTRUCTIONS = """## Before merging: file deferred-work issues
+
+The `deferred-issues-filed` responsibility gates this stage ahead of `pr-merged`. Before running
+the merge-queue steps below:
+
+1. If `deferred-issues-filed` is already resolved — this is a re-invocation, e.g. while a merge
+   watcher waits on CI — skip straight to the merge-queue steps below; do not re-file.
+2. Otherwise, re-read your triage summary PR comment's "Suggested placeholder issues" section
+   (posted at the end of `REVIEWING`) together with any user comments left on the PR reacting to
+   those suggestions.
+3. For each suggested issue the user endorsed, or left without objection, file it with
+   `gh issue create`, incorporating any user edits. Each issue MUST be self-contained: a title
+   stating the idea, and a body carrying context — a link to the PR, a reference to the review
+   comment it came from, why it was deferred rather than done now, and what implementing it would
+   involve.
+4. Skip any suggested issue the user explicitly rejected.
+5. Filing zero issues — because there were no suggestions, or every suggestion was explicitly
+   rejected — is a legal outcome. Resolve `deferred-issues-filed` either way once every
+   suggestion has been considered."""
 EXPECTED_SOL_SPEC_INSTRUCTIONS = """The spec is the contract: requirements first, tests second,
 code later.
 
@@ -269,6 +304,10 @@ def test_specifying_has_one_artifact_responsibility() -> None:
 def test_2119_skills_publish_spec_and_review_material() -> None:
     # 2119: REQ-028.5.1
     # 2119: REQ-028.12.1
+    # 2119: REQ-033.1.1
+    # 2119: REQ-033.2.1
+    # 2119: REQ-033.3.1
+    # 2119: REQ-033.4.1
     registry = discover_workflows(_home_workflows=Path("/nonexistent"))
     builtins = [workflow for name, workflow in registry.items() if name.startswith("2119-")]
 
@@ -384,6 +423,41 @@ def test_2119_open_pr_and_reviewer_cli_match_the_workflow_contract() -> None:
         assert "published specification artifact" in open_pr
         assert "plan.md" not in open_pr
         assert workflow.image_layer() == CodexHarness().image_layer()
+
+
+def test_merging_gains_deferred_issues_filed_before_pr_merged() -> None:
+    # 2119: REQ-033.5.1
+    # 2119: REQ-033.10.1
+    registry = discover_workflows(_home_workflows=Path("/nonexistent"))
+    builtins = [workflow for name, workflow in registry.items() if name.startswith("2119-")]
+    assert {workflow.name for workflow in builtins} == set(WORKFLOW_NAMES)
+
+    for workflow in builtins:
+        responsibilities = list(workflow.responsibilities("MERGING"))
+        assert [item.key for item in responsibilities] == ["deferred-issues-filed", "pr-merged"]
+        assert responsibilities[0].description == EXPECTED_DEFERRED_ISSUES_FILED_RESPONSIBILITY
+
+
+def test_babysit_merge_files_deferred_issues_before_the_merge_queue_steps() -> None:
+    # 2119: REQ-033.6.1
+    # 2119: REQ-033.7.1
+    # 2119: REQ-033.8.1
+    # 2119: REQ-033.9.1
+    registry = discover_workflows(_home_workflows=Path("/nonexistent"))
+    builtins = [workflow for name, workflow in registry.items() if name.startswith("2119-")]
+    assert {workflow.name for workflow in builtins} == set(WORKFLOW_NAMES)
+
+    base_instructions = _skill(_workflow("github-peer-reviewed"), "babysit-merge").instructions
+
+    for workflow in builtins:
+        instructions = _skill(workflow, "babysit-merge").instructions
+
+        # The deferred-issue-filing instructions precede the untouched base merge-queue
+        # instructions (proving nothing about the queue mechanics itself was disturbed) and are
+        # exactly the required text — not merely a superset containing the right words.
+        assert instructions.endswith(base_instructions)
+        prefix = instructions[: -len(base_instructions)]
+        assert prefix == EXPECTED_DEFERRED_ISSUES_MERGE_INSTRUCTIONS + "\n\n"
 
 
 def test_duplicate_error_identifies_external_file_and_remediation(

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.2.1--aa484878a88d",
+  "requirementId": "REQ-033.2.1",
+  "hash": "aa484878a88d",
+  "verdict": "pass",
+  "summary": "test_2119_skills_publish_spec_and_review_material exact-matches the real rendered review-skill instructions against an independently authored expected string containing the required one-paragraph what/why/what-to-know entry; confirmed in-process (module-global monkeypatch, no file edits) that dropping the 'what an implementer would need to know' clause breaks the equality assertion.",
+  "timestamp": "2026-08-01T01:01:04.867Z"
+}

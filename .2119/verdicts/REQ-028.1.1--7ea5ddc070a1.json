@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.1.1--7ea5ddc070a1",
+  "requirementId": "REQ-028.1.1",
+  "hash": "7ea5ddc070a1",
+  "verdict": "pass",
+  "summary": "test_every_task_exposes_the_core_artifact_skill exercises real TaskService.skills() across all built-in workflows + governor tasks and detects a per-workflow omission (verified via monkeypatch counterexample); collision tests confirm the artifacts skill can't be shadowed by a workflow-declared skill/operation.",
+  "timestamp": "2026-08-01T00:59:52.469Z"
+}

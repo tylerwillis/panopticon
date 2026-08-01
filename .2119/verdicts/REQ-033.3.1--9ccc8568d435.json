@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.3.1--9ccc8568d435",
+  "requirementId": "REQ-033.3.1",
+  "hash": "9ccc8568d435",
+  "verdict": "pass",
+  "summary": "test_2119_skills_publish_spec_and_review_material asserts full-string equality of the rendered review-skill instructions against an expected constant containing the exact 'Omit findings rejected as simply wrong' clause; confirmed via monkeypatch that dropping that sentence (nearest violating input) breaks the equality assertion, and the requirement text is a testable, observable-outcome statement about instruction content.",
+  "timestamp": "2026-08-01T01:00:23.576Z"
+}

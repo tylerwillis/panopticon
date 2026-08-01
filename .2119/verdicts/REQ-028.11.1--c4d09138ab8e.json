@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.11.1--c4d09138ab8e",
+  "requirementId": "REQ-028.11.1",
+  "hash": "c4d09138ab8e",
+  "verdict": "pass",
+  "summary": "Exact-string assertion on live TaskService.skills() output (real store/workflow, no mocks) verifies all three conjuncts; monkeypatch counterexamples dropping the definition sentence, 'regardless of document type', the GitHub-URL exception, and inverting the a/p hotkeys are each correctly rejected.",
+  "timestamp": "2026-08-01T01:00:41.989Z"
+}
