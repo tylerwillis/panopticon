@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.1.2--bded90fada50",
+  "requirementId": "REQ-026.1.2",
+  "hash": "bded90fada50",
+  "verdict": "pass",
+  "summary": "Candidate and claim-race tests reject unclaimed non-terminal tasks with a DROPPED dependency, including mixed dependencies.",
+  "timestamp": "2026-08-01T00:38:23.660Z"
+}

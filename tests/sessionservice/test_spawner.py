@@ -5,6 +5,7 @@ service over REST. No Docker, no LLM — `git`/runner are fakes."""
 from __future__ import annotations
 
 import asyncio
+import logging
 from collections.abc import Callable
 from pathlib import Path
 
@@ -15,6 +16,8 @@ from fastapi.testclient import TestClient
 from panopticon.client import JsonObj, TaskServiceClient
 from panopticon.core.git import GitClones
 from panopticon.core.models import LifecyclePhase, Repo
+from panopticon.core.state import InitialState, TerminalState
+from panopticon.core.workflow import Workflow
 from panopticon.sessionservice.clones import CloneCache
 from panopticon.sessionservice.spawner import Spawner, spawnable_tasks
 from panopticon.taskservice.api import create_app
@@ -22,6 +25,23 @@ from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
 from panopticon.taskservice.service import TaskService
 from panopticon.taskservice.store_sqlalchemy import SqlAlchemyStore
 from panopticon.workflows import Spike
+
+
+class _ArchivedWorkflow(Workflow):
+    """A workflow whose terminal state isn't the built-in `COMPLETE` — proves dependency gating
+    (REQ-026.1.3) clears via the generic per-workflow terminal check, not a hardcoded `COMPLETE`
+    comparison."""
+
+    name = "archived"
+
+    class Active(InitialState):
+        label = "ACTIVE"
+        transitions = ("ARCHIVED",)
+
+    class Archived(TerminalState):
+        label = "ARCHIVED"
+
+    initial = Active
 
 
 def _no_op_run(args: object, *, check: bool = True) -> str:
@@ -158,7 +178,13 @@ class _FakeClient:
         return {"id": task_id}
 
 
-def _spawner(client: object, runner: object, images: object = None) -> Spawner:
+def _spawner(
+    client: object,
+    runner: object,
+    images: object = None,
+    *,
+    daemon_reachable: Callable[[], bool] = lambda: True,
+) -> Spawner:
     cache = CloneCache("/cache", run=_no_op_run, exists=lambda _p: True, makedirs=lambda _p: None)  # type: ignore[arg-type]
     return Spawner(
         client,
@@ -169,6 +195,7 @@ def _spawner(client: object, runner: object, images: object = None) -> Spawner:
         git=GitClones(run=_no_op_run),
         images=images or _FakeImageBuilder(),  # type: ignore[arg-type]
         makedirs=lambda _p: None,
+        daemon_reachable=daemon_reachable,
     )
 
 
@@ -288,7 +315,12 @@ class _FakeShellRunner:
 
 
 def _shell_spawner(
-    client: object, runner: object, shell_runner: object, made: list[str] | None = None
+    client: object,
+    runner: object,
+    shell_runner: object,
+    made: list[str] | None = None,
+    *,
+    daemon_reachable: Callable[[], bool] = lambda: True,
 ) -> Spawner:
     cache = CloneCache("/cache", run=_no_op_run, exists=lambda _p: True, makedirs=lambda _p: None)  # type: ignore[arg-type]
     return Spawner(
@@ -301,6 +333,7 @@ def _shell_spawner(
         git=GitClones(run=_no_op_run),
         images=_FakeImageBuilder(),  # type: ignore[arg-type]
         makedirs=(made.append if made is not None else (lambda _p: None)),
+        daemon_reachable=daemon_reachable,
     )
 
 
@@ -763,6 +796,152 @@ def test_heal_resets_the_respawn_budget_after_a_survivor_window() -> None:
     clock["t"] += 120.0  # the last respawn survived past the reset window
     spawner.heal(_orphan())  # a fresh episode → budget reset → respawns again
     assert len(runner.spawned) == 3
+
+
+def test_spawn_one_defers_a_container_task_without_claiming_when_daemon_is_unreachable() -> None:
+    # 2119: REQ-031.3.1
+    client, runner = _FakeClient(repo=_REPO), _FakeRunner()
+    spawner = _spawner(client, runner, daemon_reachable=lambda: False)
+    assert (
+        spawner.spawn_one(
+            {
+                "id": "t1",
+                "repo_id": "r1",
+                "workflow": "spike",
+                "state": "ITERATING",
+                "claimed_by": None,
+            }
+        )
+        is None
+    )
+    assert client.claims == []  # deferred, not claimed — a later pass retries it
+    assert runner.spawned == []
+    assert client.phases == []  # not reported failed either
+
+
+def test_spawn_one_and_heal_log_the_deferral_as_a_daemon_condition_not_a_task_failure(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    # 2119: REQ-031.3.6
+    caplog.set_level(logging.ERROR, logger="panopticon.sessionservice.spawner")
+    client, runner = _FakeClient(repo=_REPO), _FakeRunner(session=False)
+    spawner = _spawner(client, runner, daemon_reachable=lambda: False)
+
+    spawner.spawn_one(
+        {"id": "t1", "repo_id": "r1", "workflow": "spike", "state": "ITERATING", "claimed_by": None}
+    )
+    spawner.heal(_orphan("t2"))
+
+    messages = [record.message for record in caplog.records]
+    assert any("docker daemon unreachable" in m and "t1" in m for m in messages)
+    assert any("docker daemon unreachable" in m and "t2" in m for m in messages)
+    # distinct wording from a real per-task spawn failure — never "failed" for a deferral
+    assert not any("failed" in m.lower() for m in messages)
+
+
+def test_spawn_one_resumes_once_the_daemon_is_reachable_again() -> None:
+    # 2119: REQ-031.3.1
+    client, runner = _FakeClient(repo=_REPO), _FakeRunner()
+    reachable = {"ok": False}
+    spawner = _spawner(client, runner, daemon_reachable=lambda: reachable["ok"])
+    task = {
+        "id": "t1",
+        "repo_id": "r1",
+        "workflow": "spike",
+        "state": "ITERATING",
+        "claimed_by": None,
+    }
+    assert spawner.spawn_one(task) is None  # deferred while down
+    reachable["ok"] = True
+    assert spawner.spawn_one(task) == "panopticon-t1"  # a later pass claims + spawns normally
+    assert client.claims == [("t1", "host-1")]
+
+
+def test_spawn_one_shell_task_ignores_daemon_reachability() -> None:
+    # 2119: REQ-031.3.4
+    client = _FakeClient(repo={**_REPO, "name": "acme/widget"}, runner_type="shell")
+    runner, shell = _FakeRunner(), _FakeShellRunner()
+    cid = _shell_spawner(client, runner, shell, daemon_reachable=lambda: False).spawn_one(
+        dict(_SHELL_TASK)
+    )
+    assert cid is not None  # a shell task never touches Docker — unaffected by daemon state
+    assert client.claims == [("t1", "host-1")]
+
+
+def test_heal_defers_an_orphan_without_touching_the_crash_loop_budget_when_daemon_is_unreachable() -> (
+    None
+):
+    # 2119: REQ-031.3.2
+    # 2119: REQ-031.3.3
+    client, runner = _FakeClient(repo=_REPO), _FakeRunner(session=False)
+    spawner = _spawner(client, runner, daemon_reachable=lambda: False)
+    assert spawner.heal(_orphan()) is None
+    assert runner.spawned == []
+    assert client.phases == []  # not reported failed
+    assert spawner._respawn_count("t1", 0.0) == 0  # the crash-loop budget is untouched
+
+
+def test_heal_shell_task_never_even_consults_daemon_reachability() -> None:
+    # `_is_orphan` already excludes shell workflows outright, so a shell orphan reads `None` from
+    # `heal` whether or not daemon reachability is separately consulted — asserting just the
+    # return value can't tell "correctly unaffected" apart from "checked it and ignored it" (or a
+    # bug that checks it first). Counting calls on the injected probe proves it's never consulted
+    # at all for a shell task, not merely that its result doesn't change the outcome.
+    # 2119: REQ-031.3.4
+    client = _FakeClient(repo={**_REPO, "name": "acme/widget"}, runner_type="shell")
+    runner, shell = _FakeRunner(session=False), _FakeShellRunner(session=False)
+    calls = {"n": 0}
+
+    def _daemon_reachable() -> bool:
+        calls["n"] += 1
+        return False
+
+    assert (
+        _shell_spawner(client, runner, shell, daemon_reachable=_daemon_reachable).heal(
+            {**_SHELL_TASK, "claimed_by": "host-1"}
+        )
+        is None
+    )
+    assert runner.spawned == []
+    assert calls["n"] == 0  # never even consulted for a shell task
+
+
+def test_heal_resumes_with_its_prior_budget_once_the_daemon_returns() -> None:
+    # 2119: REQ-031.3.5
+    clock = {"t": 0.0}
+    client, runner = _FakeClient(repo=_REPO), _FakeRunner(session=False)
+    reachable = {"ok": True}
+    spawner = Spawner(
+        client,
+        runner,
+        runner_id="host-1",  # type: ignore[arg-type]
+        cache=CloneCache(
+            "/cache", run=_no_op_run, exists=lambda _p: True, makedirs=lambda _p: None
+        ),
+        tasks_root="/tasks",
+        git=GitClones(run=_no_op_run),
+        images=_FakeImageBuilder(),  # type: ignore[arg-type]
+        makedirs=lambda _p: None,
+        now=lambda: clock["t"],
+        max_respawns=5,
+        respawn_reset=60.0,
+        daemon_reachable=lambda: reachable["ok"],
+    )
+    spawner.heal(_orphan())  # respawn 1 — budget now at 1/5
+    assert len(runner.spawned) == 1
+
+    reachable["ok"] = False
+    # The outage outlasts the 60s survivor-window reset — proving the deferral doesn't let the
+    # elapsed *outage* time masquerade as the task having survived and earned a fresh budget.
+    for _ in range(10):
+        spawner.heal(_orphan())
+        clock["t"] += 10.0
+    assert len(runner.spawned) == 1  # still just the one respawn from before the outage
+
+    reachable["ok"] = True
+    spawner.heal(_orphan())  # the daemon returns → resumes from the pre-outage budget (1/5)
+    assert len(runner.spawned) == 2
+    assert spawner._respawn_count("t1", clock["t"]) == 2  # not inflated by the deferred attempts
 
 
 def test_mark_healing_flags_an_orphan_without_respawning_it() -> None:
@@ -1352,3 +1531,47 @@ def test_next_spawner_pass_starts_dependent_with_initial_prompt_when_last_dep_co
         assert spawner.spawn_one(ready[dependent_id]) == f"panopticon-{dependent_id}"
         assert client.get_task(dependent_id)["claimed_by"] == "host-1"
         assert runner.spawned[-1]["initial_prompt"] == "synthesize the audit results"
+
+
+# 2119: REQ-026.1.3
+def test_spawner_pass_starts_dependent_when_dependency_reaches_a_custom_terminal_state(
+    tmp_path: Path,
+) -> None:
+    # The requirement says "a workflow terminal state" generically, not `COMPLETE` specifically —
+    # a hardcoded `state == "COMPLETE"` check would pass every other REQ-026.1.3 test (they all use
+    # `COMPLETE`) while failing here, since `_ArchivedWorkflow`'s terminal label is `ARCHIVED`.
+    service = TaskService(
+        SqlAlchemyStore(), {"archived": _ArchivedWorkflow()}, FilesystemArtifactStore(tmp_path)
+    )
+    asyncio.run(service.init())
+    asyncio.run(
+        service.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://forge/r1.git"))
+    )
+    with TestClient(create_app(service)) as http:
+        client = TaskServiceClient(http)
+        dependency_id = client.create_task("r1", "archived")["id"]
+        dependent_id = client.create_task("r1", "archived")["id"]
+        client.set_dependencies(dependent_id, [dependency_id])
+
+        runner = _FakeRunner()
+        spawner = Spawner(
+            client,
+            runner,
+            runner_id="host-1",  # type: ignore[arg-type]
+            cache=CloneCache(
+                "/cache", run=_no_op_run, exists=lambda _p: True, makedirs=lambda _p: None
+            ),
+            tasks_root="/tasks",
+            git=GitClones(run=_no_op_run),
+            images=_FakeImageBuilder(),  # type: ignore[arg-type]
+            makedirs=lambda _p: None,
+        )
+
+        assert dependent_id not in {task["id"] for task in spawnable_tasks(client)()}
+
+        client.request_transition(dependency_id, "ARCHIVED", trigger="advance")
+        ready = {task["id"]: task for task in spawnable_tasks(client)()}
+        assert dependent_id in ready
+
+        assert spawner.spawn_one(ready[dependent_id]) == f"panopticon-{dependent_id}"
+        assert client.get_task(dependent_id)["claimed_by"] == "host-1"

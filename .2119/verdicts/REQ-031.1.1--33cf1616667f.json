@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.1.1--33cf1616667f",
+  "requirementId": "REQ-031.1.1",
+  "hash": "33cf1616667f",
+  "verdict": "pass",
+  "summary": "Unreachable docker info is exercised through the real preflight, and start is proven to invoke neither migration, session startup, nor console.",
+  "timestamp": "2026-08-01T05:06:57.912Z"
+}

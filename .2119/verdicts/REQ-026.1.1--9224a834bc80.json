@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.1.1--9224a834bc80",
+  "requirementId": "REQ-026.1.1",
+  "hash": "9224a834bc80",
+  "verdict": "pass",
+  "summary": "Candidate, host-pass, atomic-create, and claim-race tests reject unclaimed non-terminal tasks with any active dependency.",
+  "timestamp": "2026-08-01T00:38:23.191Z"
+}

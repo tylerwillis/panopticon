@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.1.5--ca9391ccc945",
+  "requirementId": "REQ-031.1.5",
+  "hash": "ca9391ccc945",
+  "verdict": "pass",
+  "summary": "Reachable-daemon integration tests run real start/host dispatch and require exact detached task-service and runner tmux commands, rejecting refusal, omission, foregrounding, or wrong session commands.",
+  "timestamp": "2026-08-01T05:07:38.031Z"
+}

@@ -7,6 +7,7 @@ from __future__ import annotations
 import asyncio
 from collections.abc import Callable, Generator
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import httpx
 import pytest
@@ -20,6 +21,7 @@ from panopticon.sessionservice.host import (
     HostDaemon,
     build_arg_parser,
     hold_runner_liveness,
+    preflight_or_exit,
     run_host,
 )
 from panopticon.taskservice.api import create_app
@@ -451,6 +453,109 @@ def test_build_arg_parser_host_flag_overrides_env(monkeypatch: pytest.MonkeyPatc
     assert args.host == "other.example.com"
 
 
+def test_preflight_or_exit_raises_with_the_actionable_message_when_docker_is_down(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "panopticon.sessionservice.host.docker_daemon.preflight_message",
+        lambda command: f"Docker daemon unreachable — fix it, then rerun `panopticon {command}`.",
+    )
+    with pytest.raises(SystemExit, match="Docker daemon unreachable"):
+        preflight_or_exit()
+
+
+def test_preflight_or_exit_names_the_real_fix_when_the_real_docker_probe_fails(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Unlike the test above (which stubs `preflight_message` with a canned string), this drives
+    # the real `daemon_reachable` → `preflight_message` chain down to a faked `docker info`
+    # subprocess call, so the SystemExit message is the genuine cross-platform remediation text,
+    # not just a substring an under-specified stub happens to satisfy.
+    # 2119: REQ-031.2.2
+    docker_info_failed = MagicMock(returncode=1)
+    monkeypatch.setattr("subprocess.run", MagicMock(return_value=docker_info_failed))
+    with pytest.raises(SystemExit) as exc_info:
+        preflight_or_exit()
+    # Full-string equality, not a substring check: a substring check is a keyword-theater trap
+    # here — it would pass a *negated* remediation ("Never start OrbStack or Docker Desktop
+    # (macOS)") just as readily as the real, actionable one.
+    assert str(exc_info.value) == (
+        "Docker daemon unreachable — start OrbStack or Docker Desktop (macOS), or "
+        "`systemctl start docker` (Linux), then rerun `panopticon host`."
+    )
+
+
+def test_preflight_or_exit_is_a_no_op_when_docker_is_reachable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "panopticon.sessionservice.host.docker_daemon.preflight_message", lambda command: None
+    )
+    preflight_or_exit()  # does not raise
+
+
+def test_main_exits_before_migrating_or_building_anything_when_docker_is_unreachable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # The daemon process itself (not just the extracted helper) must refuse before touching the
+    # DB or building its runners — proving the wiring, not just `preflight_or_exit` in isolation.
+    from panopticon.sessionservice import host as host_module
+
+    monkeypatch.setattr(
+        host_module.docker_daemon,
+        "preflight_message",
+        lambda command: f"Docker daemon unreachable — fix it, then rerun `panopticon {command}`.",
+    )
+    mock_migrate = MagicMock()
+    monkeypatch.setattr(host_module, "migrate_session_dirs", mock_migrate)
+    with pytest.raises(SystemExit, match="Docker daemon unreachable"):
+        host_module.main([])
+    mock_migrate.assert_not_called()
+
+
+def test_main_exits_via_the_real_docker_probe_when_docker_info_fails(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Unlike the tests above (which mock `preflight_message` itself), this drives the real
+    # `daemon_reachable` → `preflight_message` chain down to a faked `docker info` subprocess call
+    # — proving a genuinely unreachable daemon, not just a stubbed refusal, keeps this daemon
+    # process out of its spawn/heal loop.
+    # 2119: REQ-031.2.1
+    from panopticon.sessionservice import host as host_module
+
+    docker_info_failed = MagicMock(returncode=1)
+    mock_run = MagicMock(return_value=docker_info_failed)
+    monkeypatch.setattr("subprocess.run", mock_run)
+    mock_migrate = MagicMock()
+    monkeypatch.setattr(host_module, "migrate_session_dirs", mock_migrate)
+    mock_run_host = MagicMock()
+    monkeypatch.setattr(host_module, "run_host", mock_run_host)
+    with pytest.raises(SystemExit, match="Docker daemon unreachable"):
+        host_module.main([])
+    mock_run.assert_called_once_with(["docker", "info"], capture_output=True)
+    mock_migrate.assert_not_called()
+    mock_run_host.assert_not_called()  # the spawn/heal loop is never entered
+
+
+def test_main_proceeds_to_migrate_and_build_runners_when_docker_is_reachable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # 2119: REQ-031.2.1
+    from panopticon.sessionservice import host as host_module
+
+    monkeypatch.setattr(host_module.docker_daemon, "preflight_message", lambda command: None)
+    mock_migrate = MagicMock()
+    monkeypatch.setattr(host_module, "migrate_session_dirs", mock_migrate)
+    monkeypatch.setattr(host_module, "LocalRunner", MagicMock())
+    monkeypatch.setattr(host_module, "ShellRunner", MagicMock())
+    monkeypatch.setattr(host_module.threading, "Thread", MagicMock())
+    mock_run_host = MagicMock()
+    monkeypatch.setattr(host_module, "run_host", mock_run_host)
+    host_module.main([], client=MagicMock())  # a client bypasses building a real TaskServiceClient
+    mock_migrate.assert_called_once_with(host_module.CLONE_CACHE_DIR, host_module.TASKS_DIR)
+    mock_run_host.assert_called_once()  # actually enters the spawn/heal loop, not just migrates
+
+
 def test_run_host_spawns_then_provisions_end_to_end(tmp_path: Path) -> None:
     service = TaskService(SqlAlchemyStore(), {"spike": Spike()}, FilesystemArtifactStore(tmp_path))
     asyncio.run(service.init())
@@ -484,6 +589,7 @@ def test_run_host_spawns_then_provisions_end_to_end(tmp_path: Path) -> None:
             images=_FakeImageBuilder(),
             makedirs=lambda _p: None,
             sleep=lambda _s: None,
+            daemon_reachable=lambda: True,  # no real Docker in tests
         )
 
         # Pass 1: fresh task → claimed + spawned; no slug yet → not provisioned.
@@ -498,6 +604,54 @@ def test_run_host_spawns_then_provisions_end_to_end(tmp_path: Path) -> None:
         got = client.get_task(task_id)
         assert runner.spawned == [task_id]  # not spawned again
         assert got["branch"] == "panopticon/fix-widget" and got["clone"] == f"/clones/{task_id}"
+
+
+def test_run_host_forwards_daemon_reachable_to_the_real_spawner(tmp_path: Path) -> None:
+    # `run_host` wires its `daemon_reachable` parameter straight into the `Spawner` it builds
+    # (REQ-031.3) — this proves that wiring holds through a real `run_host` call, not just a
+    # directly-constructed `Spawner` in the spawner-level tests: dropping that forwarding line
+    # would leave this task claimable and spawned even with the daemon reported unreachable.
+    # 2119: REQ-031.3.1
+    service = TaskService(SqlAlchemyStore(), {"spike": Spike()}, FilesystemArtifactStore(tmp_path))
+    asyncio.run(service.init())
+    asyncio.run(
+        service.create_repo(
+            Repo(id="r1", name="acme/widgets", git_url="https://forge/r1.git", default_base="trunk")
+        )
+    )
+    with TestClient(create_app(service)) as http:
+        client = TaskServiceClient(http)
+        task_id = client.create_task("r1", "spike")["id"]
+        runner = _FakeRunner()
+
+        def one_pass() -> Callable[[], bool]:
+            calls = {"n": 0}
+
+            def until() -> bool:
+                done = calls["n"] >= 1
+                calls["n"] += 1
+                return done
+
+            return until
+
+        run_host(
+            client,
+            runner,  # type: ignore[arg-type]
+            runner_id="host-1",
+            tasks_root="/clones",
+            cache=CloneCache(
+                "/cache", run=_no_op_run, exists=lambda _p: True, makedirs=lambda _p: None
+            ),
+            git=GitClones(run=_no_op_run),
+            images=_FakeImageBuilder(),  # type: ignore[arg-type]
+            makedirs=lambda _p: None,
+            sleep=lambda _s: None,
+            until=one_pass(),
+            daemon_reachable=lambda: False,
+        )
+        got = client.get_task(task_id)
+        assert runner.spawned == []  # deferred, not spawned
+        assert got["claimed_by"] is None  # left unclaimed for a later pass to retry
 
 
 def test_tick_cleans_up_each_task() -> None:
