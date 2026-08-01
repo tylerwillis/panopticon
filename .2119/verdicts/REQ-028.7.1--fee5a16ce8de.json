@@ -3,6 +3,6 @@
   "requirementId": "REQ-028.7.1",
   "hash": "fee5a16ce8de",
   "verdict": "pass",
-  "summary": "Test calls the real discover_workflows (no mocks) with no external dir and asserts an exact name-to-class mapping for all three built-ins; would fail on missing, extra, or misclassified workflows.",
-  "timestamp": "2026-07-31T23:54:15.092Z"
+  "summary": "Sol: discovery without an external directory returns all three exact built-ins and classes.",
+  "timestamp": "2026-07-31T23:19:29.132Z"
 }

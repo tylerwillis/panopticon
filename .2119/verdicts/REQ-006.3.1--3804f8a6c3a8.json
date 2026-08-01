@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.3.1--3804f8a6c3a8",
-  "requirementId": "REQ-006.3.1",
-  "hash": "3804f8a6c3a8",
-  "verdict": "pass",
-  "summary": "Real-app pilot test verifies modal presence, escape pops the screen stack, and the client double records zero release() calls for a claimed down task — both a confirm-wired escape and a non-dismissing escape would fail it.",
-  "timestamp": "2026-07-30T23:48:46.506Z"
-}

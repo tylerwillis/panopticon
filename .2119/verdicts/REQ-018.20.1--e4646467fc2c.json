@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.20.1--e4646467fc2c",
+  "requirementId": "REQ-018.20.1",
+  "hash": "e4646467fc2c",
+  "verdict": "pass",
+  "summary": "Sol: For both model and effort, no-match inputs produce zero-option candidate lists whose rendered width remains positive, rejecting hidden or removed empty states.",
+  "timestamp": "2026-07-31T23:18:21.176Z"
+}

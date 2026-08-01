@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.8.1--97ecfde681ac",
+  "requirementId": "REQ-018.8.1",
+  "hash": "97ecfde681ac",
+  "verdict": "pass",
+  "summary": "Sol: Tests press Escape from the memo editor and every launch control, including both visible candidate-list states, and verify cancellation without task creation.",
+  "timestamp": "2026-07-31T23:18:15.596Z"
+}

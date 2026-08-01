@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.5.2--9f8d3683f767",
-  "requirementId": "REQ-006.5.2",
-  "hash": "9f8d3683f767",
-  "verdict": "pass",
-  "summary": "screen_stack==1 plus a recorded push_screen (opened==[]) rejects any modal, even a swallowed push",
-  "timestamp": "2026-07-31T05:36:11.808Z"
-}

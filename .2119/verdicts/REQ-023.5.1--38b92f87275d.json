@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-023.5.1--38b92f87275d",
-  "requirementId": "REQ-023.5.1",
-  "hash": "38b92f87275d",
-  "verdict": "pass",
-  "summary": "test_help_screen_documents_ensemble_toggle drives the real HelpScreen via '?' keypress and asserts the single rendered ensemble line contains Enter, collapse, and expand - each conjunct's omission (missing key, collapse-only, or line removed) fails an assertion",
-  "timestamp": "2026-07-31T05:44:11.502Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.17.1--7e3dd6b3f583",
+  "requirementId": "REQ-018.17.1",
+  "hash": "7e3dd6b3f583",
+  "verdict": "pass",
+  "summary": "Sol: Tests cover both model and effort controls with empty candidate sets and nonempty unhighlighted sets, verifying Enter leaves the modal open without creation.",
+  "timestamp": "2026-07-31T23:18:19.779Z"
+}

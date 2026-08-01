@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-017.1.1--5484f4f66d72",
+  "requirementId": "REQ-017.1.1",
+  "hash": "5484f4f66d72",
+  "verdict": "pass",
+  "summary": "Sol: Tests reject closed-pane rename effects, verify the open-pane editor targets the highlighted task, and confirm initialization from its current service slug.",
+  "timestamp": "2026-07-31T23:18:10.290Z"
+}

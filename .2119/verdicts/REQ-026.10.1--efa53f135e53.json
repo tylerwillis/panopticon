@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.10.1--efa53f135e53",
-  "requirementId": "REQ-026.10.1",
-  "hash": "efa53f135e53",
-  "verdict": "pass",
-  "summary": "Real TaskService guidance is checked exactly and requires artifacts to complement both the pull request and dedicated external task URL, replacing neither.",
-  "timestamp": "2026-07-31T06:46:27.777Z"
-}

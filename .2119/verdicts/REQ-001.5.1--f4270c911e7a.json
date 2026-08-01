@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.5.1--f4270c911e7a",
-  "requirementId": "REQ-001.5.1",
-  "hash": "f4270c911e7a",
-  "verdict": "pass",
-  "summary": "x on a built-in stays on the workflows screen (no dialog) with the real file's content unchanged",
-  "timestamp": "2026-07-31T05:37:20.352Z"
-}

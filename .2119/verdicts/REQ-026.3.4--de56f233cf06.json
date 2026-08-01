@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.3.4--de56f233cf06",
-  "requirementId": "REQ-026.3.4",
-  "hash": "de56f233cf06",
-  "verdict": "pass",
-  "summary": "Detail pane is opened for a task whose deps include a DROPPED one and the test pins both the dep's DROPPED listing and the remedy-naming marking 'edit dependencies or drop the dependent' (sole source: the DROPPED-guarded line in render_detail), so an unmarked DROPPED dep or a remedy-less marking fails.",
-  "timestamp": "2026-07-31T06:27:31.573Z"
-}

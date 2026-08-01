@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.8.1--b64c6077ae97",
-  "requirementId": "REQ-001.8.1",
-  "hash": "b64c6077ae97",
-  "verdict": "pass",
-  "summary": "Exactly one 'Built-in workflows cannot be deleted.' notification, with notices cleared post-mount to prove the keypress emits it",
-  "timestamp": "2026-07-31T05:37:21.830Z"
-}

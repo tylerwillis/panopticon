@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.17.1--6cc0a3301150",
-  "requirementId": "REQ-018.17.1",
-  "hash": "6cc0a3301150",
-  "verdict": "pass",
-  "summary": "Both no-highlight variants (empty list; non-empty with highlighted=None) assert the screen stays a MemoScreen with no create.",
-  "timestamp": "2026-07-31T05:37:26.521Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.5.2--0f29b15205d5",
-  "requirementId": "REQ-026.5.2",
-  "hash": "0f29b15205d5",
-  "verdict": "pass",
-  "summary": "test_governor_held_cell_tracks_active_children_and_reverts_when_they_finish renders an all-terminal governor (turn=user, one COMPLETE child) as plain yellow 'user' via the real table, differentially vs an identical governor with active children rendering dim 'held 2'",
-  "timestamp": "2026-07-31T06:27:33.822Z"
-}

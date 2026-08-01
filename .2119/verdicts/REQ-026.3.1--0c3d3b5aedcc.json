@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.3.1--0c3d3b5aedcc",
+  "requirementId": "REQ-026.3.1",
+  "hash": "0c3d3b5aedcc",
+  "verdict": "pass",
+  "summary": "Sol: Dashboard tests verify exact held text, dim-only styling, attention override, terminal-dependency exclusion, and the combined held-N governor case.",
+  "timestamp": "2026-07-31T23:18:29.327Z"
+}

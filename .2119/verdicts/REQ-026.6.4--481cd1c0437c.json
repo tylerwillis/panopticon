@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.6.4--481cd1c0437c",
+  "requirementId": "REQ-026.6.4",
+  "hash": "481cd1c0437c",
+  "verdict": "pass",
+  "summary": "Sol: Turn-to-user writes are tested with attention both false and true, and the returned marker must remain unchanged.",
+  "timestamp": "2026-07-31T23:18:35.042Z"
+}

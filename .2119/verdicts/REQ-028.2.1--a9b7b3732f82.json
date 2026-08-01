@@ -3,6 +3,6 @@
   "requirementId": "REQ-028.2.1",
   "hash": "a9b7b3732f82",
   "verdict": "pass",
-  "summary": "Exact-string assertion against the real service.skills() path (not mocked, expected text independently duplicated, not imported) verifies both the put_artifact MCP tool and the REST PUT /tasks/{task_id}/artifacts/{name} route are explained; omitting either mechanism from the skill text breaks the equality check, and the REST path matches the real api.py route.",
-  "timestamp": "2026-07-31T23:54:43.122Z"
+  "summary": "Sol: exact artifact guidance requires both put_artifact and the complete REST PUT route.",
+  "timestamp": "2026-07-31T23:19:26.843Z"
 }

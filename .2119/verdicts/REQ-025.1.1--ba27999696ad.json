@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.1.1--ba27999696ad",
-  "requirementId": "REQ-025.1.1",
-  "hash": "ba27999696ad",
-  "verdict": "pass",
-  "summary": "task_context_label pins the exact 'slug [memo]' format and console/attach tests trace it into the literal tmux status-left argv (local and remote); slug-only, memo-only, and neither counterexamples asserted.",
-  "timestamp": "2026-07-31T06:28:37.693Z"
-}

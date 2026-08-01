@@ -3,6 +3,6 @@
   "requirementId": "REQ-028.5.1",
   "hash": "70969ba62b54",
   "verdict": "pass",
-  "summary": "test_2119_skills_publish_spec_and_review_material asserts full-text equality of each of the 3 built-in workflows' spec-2119 and review skill instructions against independently duplicated expected strings ending in the required publish-as-artifact sentences; any omission/alteration of the publish clause fails the exact-match assertion, so verification is genuine, not tautological, mocked, or keyword-only.",
-  "timestamp": "2026-07-31T23:54:53.916Z"
+  "summary": "Sol: every built-in spec and review skill exactly requires the respective published artifacts.",
+  "timestamp": "2026-07-31T23:19:28.210Z"
 }

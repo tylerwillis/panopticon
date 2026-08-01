@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.4.2--8bfa23e6cc09",
-  "requirementId": "REQ-026.4.2",
-  "hash": "8bfa23e6cc09",
-  "verdict": "pass",
-  "summary": "test_set_dependencies_rejects_indirect_cycle_actionably_and_atomically drives the real PUT /dependencies endpoint, asserts the 400 detail names every cycle member (a,b,c of the built a->b->c->a cycle) and contains edit-the-dependencies advice; a bare 'cycle detected' or advice-free message would fail both assertions",
-  "timestamp": "2026-07-31T06:27:32.443Z"
-}

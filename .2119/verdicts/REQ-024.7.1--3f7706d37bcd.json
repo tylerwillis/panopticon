@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-024.7.1--3f7706d37bcd",
+  "requirementId": "REQ-024.7.1",
+  "hash": "3f7706d37bcd",
+  "verdict": "pass",
+  "summary": "Sol: Test rejects wrong case, swapped bindings, and incorrect labels by asserting exact details-hint text plus distinct `y` and `Shift+Y` help entries.",
+  "timestamp": "2026-07-31T23:18:27.417Z"
+}

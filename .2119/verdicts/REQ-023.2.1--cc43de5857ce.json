@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-023.2.1--cc43de5857ce",
+  "requirementId": "REQ-023.2.1",
+  "hash": "cc43de5857ce",
+  "verdict": "pass",
+  "summary": "Sol: Tests verify the slug-prefix markers in both collapsed and expanded states and reject markers that fail to update across repeated toggles, including nested governors.",
+  "timestamp": "2026-07-31T23:18:25.450Z"
+}

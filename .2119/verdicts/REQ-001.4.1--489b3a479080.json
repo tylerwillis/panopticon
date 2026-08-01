@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.4.1--489b3a479080",
-  "requirementId": "REQ-001.4.1",
-  "hash": "489b3a479080",
-  "verdict": "pass",
-  "summary": "Real file removed, sibling untouched, and the table renders a description only the second registry fetch returns (list_calls == 2)",
-  "timestamp": "2026-07-31T05:37:19.911Z"
-}

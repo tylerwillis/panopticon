@@ -12,11 +12,12 @@ from __future__ import annotations
 import asyncio
 from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager, suppress
+from datetime import datetime
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi.responses import JSONResponse, StreamingResponse
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from panopticon.core.artifacts import ArtifactError
 from panopticon.core.models import Actor, LifecyclePhase, Repo, Status, Task
@@ -80,6 +81,7 @@ class TaskSummaryOut(BaseModel):
     initial_prompt: str | None
     slug: str | None
     url: str | None
+    snoozed_until: str | None
     branch: str | None
     clone: str | None
     claimed_by: str | None
@@ -116,6 +118,7 @@ class TaskOut(BaseModel):
     initial_prompt: str | None  # optional text prefilled into Claude's input box on first spawn
     slug: str | None
     url: str | None  # an optional external URL (PR, issue, …); the dashboard's `p` hotkey opens it
+    snoozed_until: str | None  # operator-recorded mute deadline; only display code compares time
     branch: str | None
     clone: str | None
     claimed_by: str | None  # the runner that owns this task (the spawn gate), or None
@@ -303,6 +306,23 @@ class BlockedIn(BaseModel):
 
 class AttentionIn(BaseModel):
     attention: bool
+
+
+class SnoozeIn(BaseModel):
+    until: str | None
+
+    @field_validator("until")
+    @classmethod
+    def validate_until(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        try:
+            datetime.fromisoformat(value)
+        except ValueError as exc:
+            raise ValueError("until must be an ISO-8601 timestamp") from exc
+        if len(value) <= 10:
+            raise ValueError("until must include a time")
+        return value
 
 
 class ClaimIn(BaseModel):
@@ -680,6 +700,10 @@ def create_app(service: TaskService) -> FastAPI:
     @app.put("/tasks/{task_id}/attention")
     async def set_attention(task_id: str, body: AttentionIn) -> TaskOut:
         return await _task_out(await service.set_attention(task_id, body.attention))
+
+    @app.put("/tasks/{task_id}/snooze")
+    async def set_snooze(task_id: str, body: SnoozeIn) -> TaskOut:
+        return await _task_out(await service.set_snooze(task_id, body.until))
 
     @app.put("/tasks/{task_id}/governor")
     async def set_governor(task_id: str, body: GovernorIn) -> TaskOut:

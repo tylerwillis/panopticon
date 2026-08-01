@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.8.1--c1812df4b5bc",
-  "requirementId": "REQ-026.8.1",
-  "hash": "c1812df4b5bc",
-  "verdict": "pass",
-  "summary": "Tests pin Sol honesty review and the intended dual versus Sol-only final review split.",
-  "timestamp": "2026-07-31T07:16:28.190Z"
-}

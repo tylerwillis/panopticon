@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.6.2--0b7fb93b2d79",
+  "requirementId": "REQ-026.6.2",
+  "hash": "0b7fb93b2d79",
+  "verdict": "pass",
+  "summary": "Sol: Both requested attention booleans are persisted while response assertions verify unchanged agent turn and true blocked state.",
+  "timestamp": "2026-07-31T23:18:34.097Z"
+}

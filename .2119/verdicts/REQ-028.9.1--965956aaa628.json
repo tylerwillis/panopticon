@@ -3,6 +3,6 @@
   "requirementId": "REQ-028.9.1",
   "hash": "965956aaa628",
   "verdict": "pass",
-  "summary": "Test exercises real discover_workflows() against every builtin name, asserts exact error text (file path + removal directive) and confirms _skip_duplicates cannot suppress it; only mock is user_config_dir redirection, not the checked logic.",
-  "timestamp": "2026-07-31T23:54:51.324Z"
+  "summary": "Sol: every built-in collision identifies the exact external file and removal remediation.",
+  "timestamp": "2026-07-31T23:19:30.107Z"
 }

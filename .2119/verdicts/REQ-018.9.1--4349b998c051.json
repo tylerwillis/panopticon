@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.9.1--4349b998c051",
+  "requirementId": "REQ-018.9.1",
+  "hash": "4349b998c051",
+  "verdict": "pass",
+  "summary": "Sol: Tests assert the exact 64-column modal width initially and while each model and effort candidate list is visibly available.",
+  "timestamp": "2026-07-31T23:18:16.068Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.4.2--246dbd67c75f",
-  "requirementId": "REQ-012.4.2",
-  "hash": "246dbd67c75f",
-  "verdict": "pass",
-  "summary": "GET-after-change test re-reads repo- and workflow-derived tasks through the real store after a genuine repo PATCH and workflow-default monkeypatch whose new values differ in every field, so read-time re-resolution would fail both assertions; only the explicit-override branch lacks a post-change re-read, a contrived-violation-only gap.",
-  "timestamp": "2026-07-30T23:49:49.518Z"
-}

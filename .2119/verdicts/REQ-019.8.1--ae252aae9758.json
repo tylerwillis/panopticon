@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.8.1--ae252aae9758",
+  "requirementId": "REQ-019.8.1",
+  "hash": "ae252aae9758",
+  "verdict": "pass",
+  "summary": "Sol: Exact ordered model and effort option lists from a multi-suggestion harness reject omissions, additions, substitutions, cross-harness results, and reordering.",
+  "timestamp": "2026-07-31T23:18:24.486Z"
+}

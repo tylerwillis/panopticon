@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.4.1--7fae7c6b3428",
+  "requirementId": "REQ-006.4.1",
+  "hash": "7fae7c6b3428",
+  "verdict": "pass",
+  "summary": "Sol: Confirmation-time checks must release every still-down listed task exactly once while all enumerated non-down statuses are skipped.",
+  "timestamp": "2026-07-31T23:18:01.575Z"
+}

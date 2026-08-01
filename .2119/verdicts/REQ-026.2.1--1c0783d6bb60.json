@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.2.1--1c0783d6bb60",
-  "requirementId": "REQ-026.2.1",
-  "hash": "1c0783d6bb60",
-  "verdict": "pass",
-  "summary": "Tests reject the nearest boundary violations: no blocking dependency queues, terminal tasks show no status, claimed tasks are not gated, and both active non-terminal and DROPPED dependencies keep an unclaimed non-terminal task gated.",
-  "timestamp": "2026-07-31T06:39:29.617Z"
-}

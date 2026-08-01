@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.6.1--4aec09e46f59",
+  "requirementId": "REQ-001.6.1",
+  "hash": "4aec09e46f59",
+  "verdict": "pass",
+  "summary": "Sol: Exact dialog text verifies both required facts: the file is removed and the loaded workflow remains until the running service's next restart.",
+  "timestamp": "2026-07-31T23:17:57.272Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-019.7.1--a884af7c9ce5",
+  "requirementId": "REQ-019.7.1",
+  "hash": "a884af7c9ce5",
+  "verdict": "pass",
+  "summary": "Blocked discovery completes after close without any presentation callback or captured widget-state change.",
+  "timestamp": "2026-07-31T23:25:47.037Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-019.8.1--8dba2562e813",
-  "requirementId": "REQ-019.8.1",
-  "hash": "8dba2562e813",
-  "verdict": "pass",
-  "summary": "Modal's real OptionList prompts asserted list-equal (order, count, model+effort, value+description) to a distinctively-valued fake harness's discoveries, with a second harness present to catch cross-wiring; fake sits at the genuine suggested_models/suggested_efforts seam",
-  "timestamp": "2026-07-31T06:01:47.255Z"
-}

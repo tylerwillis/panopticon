@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.1.1--e9f6f3403944",
+  "requirementId": "REQ-018.1.1",
+  "hash": "e9f6f3403944",
+  "verdict": "pass",
+  "summary": "Sol: Test verifies all three exact labels and current values are visible while focus remains on the memo editor, rejecting missing, mislabeled, stale, hidden, or prematurely focused controls.",
+  "timestamp": "2026-07-31T23:18:12.172Z"
+}

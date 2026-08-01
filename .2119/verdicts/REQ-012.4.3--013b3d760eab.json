@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.4.3--013b3d760eab",
+  "requirementId": "REQ-012.4.3",
+  "hash": "013b3d760eab",
+  "verdict": "pass",
+  "summary": "Sol: The test creates a task under one application default, changes that default, creates another task, and verifies the original retains its materialized harness.",
+  "timestamp": "2026-07-31T23:18:09.312Z"
+}

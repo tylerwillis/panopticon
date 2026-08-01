@@ -3,6 +3,6 @@
   "requirementId": "REQ-028.3.1",
   "hash": "bb7eda5d3ccc",
   "verdict": "pass",
-  "summary": "Service-level exact-string equality test rejects omission of the dashboard a hotkey, the not-a-PR-substitute framing, or any required reviewer-readable example category (spec, review output, triage summary, stage/gate report).",
-  "timestamp": "2026-07-31T23:54:29.889Z"
+  "summary": "Sol: exact guidance requires the a hotkey and every listed non-PR reviewer-material category.",
+  "timestamp": "2026-07-31T23:19:27.309Z"
 }

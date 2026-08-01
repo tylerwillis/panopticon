@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.4.1--aeef55060456",
-  "requirementId": "REQ-026.4.1",
-  "hash": "aeef55060456",
-  "verdict": "pass",
-  "summary": "Tests reject direct self-cycles, multi-hop indirect cycles, and concurrently proposed two- and three-node cycles through both service and REST boundaries.",
-  "timestamp": "2026-07-31T07:32:49.250Z"
-}

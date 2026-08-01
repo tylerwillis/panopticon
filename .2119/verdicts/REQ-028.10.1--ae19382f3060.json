@@ -3,6 +3,6 @@
   "requirementId": "REQ-028.10.1",
   "hash": "ae19382f3060",
   "verdict": "pass",
-  "summary": "Exact-equality pin on ARTIFACT_SKILL instructions includes the complement/not-replace clause verbatim; any regression removing or reversing that framing breaks the string match, so the test genuinely enforces REQ-028.10.1.",
-  "timestamp": "2026-07-31T23:54:24.910Z"
+  "summary": "Sol: exact guidance rejects treating artifacts as replacements for the PR or task URL.",
+  "timestamp": "2026-07-31T23:19:30.600Z"
 }

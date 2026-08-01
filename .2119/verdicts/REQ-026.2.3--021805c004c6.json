@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.2.3--021805c004c6",
-  "requirementId": "REQ-026.2.3",
-  "hash": "021805c004c6",
-  "verdict": "pass",
-  "summary": "REST response tests change referenced tasks from active to DROPPED, COMPLETE, and workflow-defined ARCHIVED states and verify gating is recomputed using current state and workflow terminality.",
-  "timestamp": "2026-07-31T07:21:49.614Z"
-}

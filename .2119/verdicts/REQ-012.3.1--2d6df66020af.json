@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.3.1--2d6df66020af",
-  "requirementId": "REQ-012.3.1",
-  "hash": "2d6df66020af",
-  "verdict": "pass",
-  "summary": "Explicit task harness codex overrides both the app default and a non-null repo claude/opus pair; a chain-wins violation would return claude in either case and fail.",
-  "timestamp": "2026-07-31T00:12:23.383Z"
-}

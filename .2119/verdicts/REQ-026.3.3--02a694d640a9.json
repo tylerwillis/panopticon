@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.3.3--02a694d640a9",
+  "requirementId": "REQ-026.3.3",
+  "hash": "02a694d640a9",
+  "verdict": "pass",
+  "summary": "Sol: The detail-pane test verifies the blocking and total counts plus every dependency slug-state pair across active, COMPLETE, and DROPPED states.",
+  "timestamp": "2026-07-31T23:18:29.830Z"
+}

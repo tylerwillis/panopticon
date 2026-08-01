@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.2.2--99145ea893fa",
-  "requirementId": "REQ-006.2.2",
-  "hash": "99145ea893fa",
-  "verdict": "pass",
-  "summary": "Exact-equality assertion on the real modal's rendered text covers every conjunct with boundary counterexamples: 8-char ID prefix, en-dash for null slug, omitted segment for null memo, collapsed/stripped whitespace, exactly-60 memo without ellipsis, and a 61-char normalized memo cut at 60 with ellipsis; only the HTTP client is faked.",
-  "timestamp": "2026-07-30T23:48:52.215Z"
-}

@@ -835,6 +835,14 @@ class TaskService:
         _log.debug("task %s: url → %s", task_id, url)
         return task
 
+    async def set_snooze(self, task_id: str, until: str | None) -> Task:
+        """Record or clear an operator snooze deadline without interpreting the clock."""
+        task = await self.get_task(task_id)
+        task.snoozed_until = until
+        await self._save_task(task)
+        _log.debug("task %s: snoozed_until → %s", task_id, until)
+        return task
+
     async def set_tokens_used(self, task_id: str, tokens_used: int) -> Task:
         """Record the cumulative tokens the container's claude has used (its Stop hook reports the
         recomputed session total). A plain recorded fact, like the slug — no transition, no git."""

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.10.1--470617931635",
+  "requirementId": "REQ-018.10.1",
+  "hash": "470617931635",
+  "verdict": "pass",
+  "summary": "Sol: For both fields, tests highlight filtered candidates, press Enter, and verify the corresponding value changes while the modal remains open and no task is created.",
+  "timestamp": "2026-07-31T23:18:16.547Z"
+}

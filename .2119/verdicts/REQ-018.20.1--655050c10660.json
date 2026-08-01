@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.20.1--655050c10660",
-  "requirementId": "REQ-018.20.1",
-  "hash": "655050c10660",
-  "verdict": "pass",
-  "summary": "test types a non-matching string into both model and effort fields and asserts option_count==0 with region.width>0 on the still-queryable OptionList, so hiding (display:none zeroes the region), removing, or showing unfiltered candidates on empty results would each fail",
-  "timestamp": "2026-07-30T23:50:15.630Z"
-}

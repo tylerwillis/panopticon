@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-017.3.1--4ebe0c4fe191",
-  "requirementId": "REQ-017.3.1",
-  "hash": "4ebe0c4fe191",
-  "verdict": "pass",
-  "summary": "Dirties the Input then presses real escape; asserts fake.set_slugs == [] and original slug still rendered — submit-on-cancel fails both, dirty buffer rules out the no-op case",
-  "timestamp": "2026-07-31T05:39:34.641Z"
-}

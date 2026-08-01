@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.1.1--8ef804cf21e6",
-  "requirementId": "REQ-001.1.1",
-  "hash": "8ef804cf21e6",
-  "verdict": "pass",
-  "summary": "Real Textual pilot tests: 'x' on the workflows screen opens the delete dialog for the highlighted row (down->x asserts exact 'second' message, default highlight asserts 'first' and not 'second'); wrong key, no-dialog delete, or wrong-row targeting would all fail, and built-in refusal is covered under REQ-001.5.1/8.1.",
-  "timestamp": "2026-07-30T23:45:02.609Z"
-}

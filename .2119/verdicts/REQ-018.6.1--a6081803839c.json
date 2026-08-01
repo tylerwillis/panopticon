@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.6.1--a6081803839c",
+  "requirementId": "REQ-018.6.1",
+  "hash": "a6081803839c",
+  "verdict": "pass",
+  "summary": "Sol: Test compares exact model and effort vocabularies before and after selecting another harness, rejecting stale, incomplete, or mixed candidate sets.",
+  "timestamp": "2026-07-31T23:18:14.677Z"
+}

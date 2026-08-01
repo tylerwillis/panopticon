@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.2.2--3f8740b97e81",
+  "requirementId": "REQ-012.2.2",
+  "hash": "3f8740b97e81",
+  "verdict": "pass",
+  "summary": "Sol: The test omits task and workflow pairs, configures a repository pair distinct from application defaults, and would reject fallback to the application pair.",
+  "timestamp": "2026-07-31T23:18:05.915Z"
+}

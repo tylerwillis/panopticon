@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.6.3--2ded65ae0cee",
+  "requirementId": "REQ-026.6.3",
+  "hash": "2ded65ae0cee",
+  "verdict": "pass",
+  "summary": "Sol: Blocked false-to-true and true-to-false updates are exercised with both attention values, and each must preserve the marker.",
+  "timestamp": "2026-07-31T23:18:34.567Z"
+}

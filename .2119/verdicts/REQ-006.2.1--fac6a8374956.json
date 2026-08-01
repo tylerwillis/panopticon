@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-006.2.1--fac6a8374956",
+  "requirementId": "REQ-006.2.1",
+  "hash": "fac6a8374956",
+  "verdict": "pass",
+  "summary": "Sol: Tests require a modal from the latest snapshot at the one-down boundary and reject omission of down tasks or inclusion of live and failed tasks.",
+  "timestamp": "2026-07-31T23:18:00.058Z"
+}

@@ -3,6 +3,6 @@
   "requirementId": "REQ-028.4.1",
   "hash": "ca542d31ac32",
   "verdict": "pass",
-  "summary": "test_specifying_has_one_artifact_responsibility exercises real discover_workflows() output and asserts an exact, independently-transcribed tuple of SPECIFYING responsibilities (not imported from production), so adding/removing/renaming the spec-artifact responsibility or altering its 'publish as task artifact for review' description would break the equality; verified across all three built-in 2119 workflows.",
-  "timestamp": "2026-07-31T23:54:41.083Z"
+  "summary": "Sol: all three built-ins are checked against the complete SPECIFYING responsibility tuple.",
+  "timestamp": "2026-07-31T23:19:27.756Z"
 }

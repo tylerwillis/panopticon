@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.2.1--56392df05c56",
+  "requirementId": "REQ-007.2.1",
+  "hash": "56392df05c56",
+  "verdict": "pass",
+  "summary": "The open pane asserts the exact trailing hint and a dim span covering its full text.",
+  "timestamp": "2026-07-31T23:25:11.358Z"
+}

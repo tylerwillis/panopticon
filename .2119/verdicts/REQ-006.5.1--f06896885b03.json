@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.5.1--f06896885b03",
-  "requirementId": "REQ-006.5.1",
-  "hash": "f06896885b03",
-  "verdict": "pass",
-  "summary": "Asserted with live/failed/queued present and parametrized stale-down/fresh-non-down snapshots pinning the latest-snapshot clause",
-  "timestamp": "2026-07-31T05:36:11.252Z"
-}

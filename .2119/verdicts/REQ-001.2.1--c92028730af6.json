@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-001.2.1--c92028730af6",
-  "requirementId": "REQ-001.2.1",
-  "hash": "c92028730af6",
-  "verdict": "pass",
-  "summary": "Dialog test asserts real yes/no Buttons by label ('yes'/'no'), visible and enabled, in the live Textual dialog; companion tests click each button and verify its effect (cancel keeps file, yes deletes) — a dialog missing either explicit choice, mislabeled, hidden, or inert would fail.",
-  "timestamp": "2026-07-30T23:44:40.508Z"
-}

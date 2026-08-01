@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-012.3.1--8b8c9d980754",
+  "requirementId": "REQ-012.3.1",
+  "hash": "8b8c9d980754",
+  "verdict": "pass",
+  "summary": "Sol: The test supplies an explicit harness against both application and non-null repository defaults and rejects retaining either default-chain harness.",
+  "timestamp": "2026-07-31T23:18:06.887Z"
+}

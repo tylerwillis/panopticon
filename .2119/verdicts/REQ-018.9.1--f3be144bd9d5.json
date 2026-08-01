@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.9.1--f3be144bd9d5",
-  "requirementId": "REQ-018.9.1",
-  "hash": "f3be144bd9d5",
-  "verdict": "pass",
-  "summary": "Real-layout tests assert #memo-box (the modal container) renders exactly 64 columns while controls and each candidate list are verified visible (region.width > 0), so widening, narrowing, or hiding-to-fit all fail; only the REST client is faked.",
-  "timestamp": "2026-07-30T23:49:43.209Z"
-}
