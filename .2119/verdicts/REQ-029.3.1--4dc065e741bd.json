@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.3.1--4dc065e741bd",
+  "requirementId": "REQ-029.3.1",
+  "hash": "4dc065e741bd",
+  "verdict": "pass",
+  "summary": "Tests comprehensively verify all five conjuncts of the requirement: readiness-wait (with rejection test), text-loading, bracketed-paste flag, single-Enter submission, and ordering. Integration test confirms actual bracketed-paste framing. Counterexamples reject each violation.",
+  "timestamp": "2026-08-01T01:23:04.292Z"
+}

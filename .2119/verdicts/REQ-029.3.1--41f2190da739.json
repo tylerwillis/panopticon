@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-029.3.1--41f2190da739",
-  "requirementId": "REQ-029.3.1",
-  "hash": "41f2190da739",
-  "verdict": "pass",
-  "summary": "Tests pin tmux calls: pipe-pane watch, load-buffer, paste-buffer with -p flag (bracketed mode), and single send-keys Enter in correct order; tests verify real pane with bracketed-paste marker receives full text end-to-end.",
-  "timestamp": "2026-08-01T01:01:46.808Z"
-}

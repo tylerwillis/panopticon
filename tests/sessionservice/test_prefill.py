@@ -207,7 +207,7 @@ def test_already_idle_real_pane_uses_readiness_recorded_at_startup(tmp_path: Pat
         assert pane
         script = (
             "printf '\\033[?2004h'; "
-            f'IFS= read -r line; printf %s "$line" > {shlex.quote(str(received))}; sleep 10'
+            f"head --lines=1 > {shlex.quote(str(received))}; sleep 10"
         )
         run([*prefix, "respawn-pane", "-k", "-t", pane, "bash", "-c", script])
         for _ in range(50):
@@ -233,6 +233,6 @@ def test_already_idle_real_pane_uses_readiness_recorded_at_startup(tmp_path: Pat
             if received.is_file():
                 break
             time.sleep(0.02)
-        assert received.read_bytes() == b"\x1b[200~continue-review\x1b[201~"
+        assert received.read_bytes() == b"\x1b[200~continue-review\x1b[201~\n"
     finally:
         subprocess.run([*prefix, "kill-server"], capture_output=True)
