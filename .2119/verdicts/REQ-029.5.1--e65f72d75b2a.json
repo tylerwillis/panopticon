@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.5.1--e65f72d75b2a",
+  "requirementId": "REQ-029.5.1",
+  "hash": "e65f72d75b2a",
+  "verdict": "pass",
+  "summary": "Advance records only wake_status=pending (delivery-at-transition would fail line 167), subprocess.run is patched to raise so any task-service tmux inspection/injection trips it in-process, and the delivered record survives a fresh DB connection; delivery flips the record only via the session-service StageEntryWaker. Minor: runner.prompts==[] is tautological and Popen is unpatched, but the load-bearing assertions are genuine.",
+  "timestamp": "2026-08-01T00:46:45.691Z"
+}

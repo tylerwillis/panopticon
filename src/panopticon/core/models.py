@@ -35,6 +35,14 @@ class Status(str, Enum):
     FAILED = "failed"  # could not be satisfied; requires a comment
 
 
+class WakeStatus(str, Enum):
+    """Delivery state for the runner-side wake associated with one history entry."""
+
+    PENDING = "pending"
+    DELIVERED = "delivered"
+    SKIPPED = "skipped"
+
+
 class LifecyclePhase(str, Enum):
     """A step the **session service** reports as it brings a task's container up (ADR 0008).
 
@@ -232,8 +240,9 @@ class HistoryEntry:
 
     On entry, ``responsibilities`` is seeded with the destination state's obligations, all
     ``PENDING`` — a promise to fulfil them before leaving. The agent then resolves them **one
-    at a time**, which replaces entries in this list in place; that is the *only* mutable part
-    of an otherwise append-only, frozen record (the transition facts never change).
+    at a time**. ``wake_status`` separately records whether the session service delivered the
+    entry's runner-side stage briefing. Those two delivery/progress facts may settle after entry;
+    the transition facts never change.
     """
 
     at: str  # ISO-8601 timestamp, supplied by the caller
@@ -242,6 +251,7 @@ class HistoryEntry:
     trigger: str | None = None  # what triggered the transition (e.g. "start", "advance")
     note: str | None = None
     responsibilities: list[Responsibility] = field(default_factory=list)
+    wake_status: WakeStatus = WakeStatus.SKIPPED
 
 
 @dataclass

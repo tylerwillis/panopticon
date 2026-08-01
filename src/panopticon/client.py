@@ -291,6 +291,21 @@ class TaskServiceClient:
             JsonObj, self._json(self._http.post(f"/tasks/{task_id}/operations/{operation}"))
         )
 
+    def get_stage_entry_briefing(self, task_id: str, entry_index: int) -> str:
+        response = self._json(self._http.get(f"/tasks/{task_id}/history/{entry_index}/wake"))
+        return str(response["briefing"])
+
+    def record_stage_entry_wake(self, task_id: str, entry_index: int, status: str) -> JsonObj:
+        return cast(
+            JsonObj,
+            self._json(
+                self._http.put(
+                    f"/tasks/{task_id}/history/{entry_index}/wake",
+                    json={"status": status},
+                )
+            ),
+        )
+
     def resolve_responsibility(
         self, task_id: str, key: str, status: Status, comment: str | None = None
     ) -> JsonObj:

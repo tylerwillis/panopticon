@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.2.1--b02ba4a4e928",
+  "requirementId": "REQ-029.2.1",
+  "hash": "b02ba4a4e928",
+  "verdict": "pass",
+  "summary": "Tests verify briefing begins with 'You have entered STATE.' line and includes description, responsibility statuses (with [met]/[pending] prefixes), and skill pointers; determinism checked via repeated calls.",
+  "timestamp": "2026-08-01T01:01:43.694Z"
+}

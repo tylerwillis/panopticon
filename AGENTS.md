@@ -63,10 +63,12 @@ src/panopticon/
                    # (ADR 0011: branch the per-task clone on slug, record it back); clones.py =
                    # per-repo clone cache; spawn.py = spawn-prep (clone --local the per-task
                    # checkout, mounted rw at /workspace); spawner.py = the spawn loop (claim an
-                   # unclaimed task → spawn its container; prefills claude's input box with the
-                   # task memo on a first spawn); prefill.py = the detached input-box prefill
-                   # poller (mirrors cloude-cade: pipe-pane watch for ESC[?2004h → paste-buffer the
-                   # description, unsent); daemon.py = the provision-only pull loop;
+                   # unclaimed task → spawn its container); prefill.py = the tmux input primitive:
+                   # a persistent pipe-pane watch records ESC[?2004h from process startup, then a
+                   # later delivery uses load-buffer → paste-buffer -p → optional Enter;
+                   # stage_entry_wake.py = the nonblocking host-side consumer for pending agent-turn
+                   # state entries (durable per-history-entry dedup + operator opt-out);
+                   # daemon.py = the provision-only pull loop;
                    # host.py = the unified per-host daemon (spawn + provision each pass;
                    # `python -m panopticon.sessionservice.host`); `python -m panopticon.sessionservice`
                    # spawns one task
@@ -239,11 +241,13 @@ on every PR (the same commands the Makefile wraps).
   entrypoint loop (fakes; no Docker/LLM), plus a `skipif` docker integration test.
 - `tests/test_spawn.py` — spawn-prep (ADR 0011): unit tests pin the `clone --local` of the
   per-task checkout and the idempotency gate (skips when the checkout already exists).
-- `tests/test_prefill.py` — the input-box prefill poller: unit tests drive `prefill_pane` with a
-  fake tmux runner + injected `sleep`/raw-log — pin the `pipe-pane`/`load-buffer`/`paste-buffer -p`
-  commands when the box becomes ready, and every best-effort give-up (empty prompt, timeout,
-  vanished session). `test_local_runner.py` covers the first-spawn gate (config-volume probe) +
-  the `PANOPTICON_NO_PREFILL` opt-out.
+- `tests/test_prefill.py` — the task-pane readiness/delivery primitive: unit tests pin the
+  persistent `pipe-pane` watch installed before the agent starts and the later
+  `load-buffer`/`paste-buffer -p`/Enter delivery, including every best-effort give-up; a
+  `skipif`-gated real-tmux test proves a marker recorded at startup wakes an already-idle pane.
+  `tests/test_stage_entry_wake_sessionservice.py` covers asynchronous host-loop dispatch,
+  per-entry dedup/re-entry, multi-entry ordering, skip conditions, and the
+  `PANOPTICON_NO_STAGE_ENTRY_WAKE` opt-out.
 - `tests/test_provisioning_acceptance.py` — Slice 7 acceptance (`skipif` no git): the host-side
   provisioning path with **real git** — clone --local the per-task checkout → set slug → the daemon
   branches it (`panopticon/<slug>`) + repoints origin → the task service records branch + clone path.
@@ -387,7 +391,9 @@ on every PR (the same commands the Makefile wraps).
   and the daemon's watch-set gate on. `core/git.py` `GitClones` is the LLM-free primitive the
   session service drives (`GitWorktrees` remains for non-task local-git use).
 - **Task service** — the deterministic control plane (sole DB authority).
-- **Session service / runner** — spawns task containers (stubbed for now).
+- **Session service / runner** — spawns task containers and observes durable pending stage-entry
+  wakes. It installs each pane's readiness watch before starting the agent, then performs tmux
+  injection asynchronously on the host so a missing pane cannot block spawn/heal/provision work.
 - **Terminal controller** — the user-facing CLI/dashboard (Slice 3).
 - **Artifact** — a durable, file-backed per-task document for user review, reachable via
   REST/FS/MCP and opened from the dashboard with `a`; GitHub URLs remain the substantial exception

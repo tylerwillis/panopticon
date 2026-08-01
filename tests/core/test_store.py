@@ -16,7 +16,15 @@ from typing import Any, get_args, get_origin, get_type_hints
 import pytest
 from sqlalchemy import inspect
 
-from panopticon.core.models import Actor, HistoryEntry, Repo, Responsibility, Status, Task
+from panopticon.core.models import (
+    Actor,
+    HistoryEntry,
+    Repo,
+    Responsibility,
+    Status,
+    Task,
+    WakeStatus,
+)
 from panopticon.core.store import (
     AlreadyExists,
     IntegrityError,
@@ -511,6 +519,7 @@ def _fully_populated_task() -> Task:
                 to_state="WORKING",
                 trigger="advance",
                 note="plan approved",
+                wake_status=WakeStatus.DELIVERED,
                 responsibilities=[
                     Responsibility(
                         key="tests-pass",

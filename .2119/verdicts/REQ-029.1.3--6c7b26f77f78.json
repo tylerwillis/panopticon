@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.1.3--6c7b26f77f78",
+  "requirementId": "REQ-029.1.3",
+  "hash": "6c7b26f77f78",
+  "verdict": "pass",
+  "summary": "Tests confirm down-observed entries settle immediately as SKIPPED and never wake after respawn or heal",
+  "timestamp": "2026-08-01T01:57:54.141Z"
+}

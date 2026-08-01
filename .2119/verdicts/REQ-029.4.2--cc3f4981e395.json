@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.4.2--cc3f4981e395",
+  "requirementId": "REQ-029.4.2",
+  "hash": "cc3f4981e395",
+  "verdict": "pass",
+  "summary": "Tests verify already-delivered entry is not re-delivered on repoll, respawn, or heal; fresh waker honors prior delivery; checks both client.records and runner.prompts remain singleton.",
+  "timestamp": "2026-08-01T01:01:51.799Z"
+}

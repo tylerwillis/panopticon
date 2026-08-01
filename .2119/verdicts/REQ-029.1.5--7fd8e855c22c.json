@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.1.5--7fd8e855c22c",
+  "requirementId": "REQ-029.1.5",
+  "hash": "7fd8e855c22c",
+  "verdict": "pass",
+  "summary": "Tests verify non-empty string suppresses wakes, empty string allows them, and suppression applies across multiple pending entries",
+  "timestamp": "2026-08-01T01:43:16.612Z"
+}

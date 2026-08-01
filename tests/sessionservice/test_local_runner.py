@@ -14,6 +14,7 @@ import pytest
 
 from panopticon.core.models import LifecyclePhase
 from panopticon.sessionservice.local_runner import LocalRunner
+from panopticon.sessionservice.prefill import readiness_log, readiness_watch_command
 from panopticon.sessionservice.runner import Runner
 
 
@@ -34,6 +35,8 @@ class _Recorder:
     ) -> str:
         self.calls.append((list(args), check))
         self.interactive.append(interactive)
+        if "display-message" in args:
+            return "%1\n"
         return ""
 
 
@@ -48,7 +51,15 @@ def test_spawn_runs_detached_container_then_tmux_pane_execing_in() -> None:
     container_id = runner.spawn("t1")
 
     assert container_id == "panopticon-t1"
-    (kill_session, _), (rm, _), (docker_run, _), (tmux_new, _) = rec.calls
+    (
+        (kill_session, _),
+        (rm, _),
+        (docker_run, _),
+        (tmux_new, _),
+        (display, _),
+        (pipe, _),
+        (respawn, _),
+    ) = rec.calls
     # clear any stale tmux session first (idempotent — no-op when nothing exists)
     assert kill_session == ["tmux", "-L", "panopticon", "kill-session", "-t", "panopticon-t1"]
     assert rm == ["docker", "rm", "--force", "panopticon-t1"]  # then clear a stale container
@@ -65,8 +76,50 @@ def test_spawn_runs_detached_container_then_tmux_pane_execing_in() -> None:
     # pane execs the in-container agent launcher (so `tmux attach` reaches the live agent)
     assert tmux_new[:4] == ["tmux", "-L", "panopticon", "new-session"]
     assert tmux_new[tmux_new.index("-s") + 1] == "panopticon-t1"
+    assert tmux_new == [
+        "tmux",
+        "-L",
+        "panopticon",
+        "new-session",
+        "-d",
+        "-s",
+        "panopticon-t1",
+        "sleep 86400",
+    ]
+    assert display == [
+        "tmux",
+        "-L",
+        "panopticon",
+        "display-message",
+        "-p",
+        "-t",
+        "panopticon-t1",
+        "#{pane_id}",
+    ]
+    assert pipe == [
+        "tmux",
+        "-L",
+        "panopticon",
+        "pipe-pane",
+        "-O",
+        "-t",
+        "%1",
+        readiness_watch_command(readiness_log("panopticon-t1")),
+    ]
+    # The watcher is installed before respawn starts the agent, so an idle pane retains the CLI's
+    # first bracketed-paste-ready signal for a later stage-entry wake.
+    assert respawn[:8] == [
+        "tmux",
+        "-L",
+        "panopticon",
+        "respawn-pane",
+        "-k",
+        "-t",
+        "%1",
+        "docker",
+    ]
     # the pane execs in as the unprivileged `panopticon` user (so the agent's whoami isn't root)
-    assert tmux_new[-10:] == [
+    assert respawn[-10:] == [
         "docker",
         "exec",
         "--interactive",
@@ -288,8 +341,8 @@ def test_spawn_uses_the_composed_image_when_given_else_the_base() -> None:
     runner.spawn("t1")  # no override → base
     assert rec.calls[2][0][-1] == "panopticon-base"
     runner.spawn("t2", image="panopticon-github-peer-reviewed-r1")  # composed image (ADR 0005)
-    # each spawn emits 4 calls (kill-session, rm, run, tmux); t2's docker run is calls[6]
-    assert rec.calls[6][0][-1] == "panopticon-github-peer-reviewed-r1"
+    # each spawn emits 7 calls; t2's docker run is calls[9]
+    assert rec.calls[9][0][-1] == "panopticon-github-peer-reviewed-r1"
 
 
 def test_stop_kills_session_and_force_removes_container_idempotently() -> None:

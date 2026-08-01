@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.4.3--d143b8d54a8c",
+  "requirementId": "REQ-029.4.3",
+  "hash": "d143b8d54a8c",
+  "verdict": "pass",
+  "summary": "Tests prove each re-entry creates separate history entries with independent wake_status via array assertions and separate delivery records indexed by entry position.",
+  "timestamp": "2026-08-01T01:34:59.727Z"
+}

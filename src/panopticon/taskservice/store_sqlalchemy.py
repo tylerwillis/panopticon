@@ -42,7 +42,15 @@ from sqlalchemy.orm import (
 )
 from sqlalchemy.pool import StaticPool
 
-from panopticon.core.models import Actor, HistoryEntry, Repo, Responsibility, Status, Task
+from panopticon.core.models import (
+    Actor,
+    HistoryEntry,
+    Repo,
+    Responsibility,
+    Status,
+    Task,
+    WakeStatus,
+)
 from panopticon.core.store import (
     AlreadyExists,
     IntegrityError,
@@ -226,6 +234,7 @@ class _HistoryRow(_Base):
     to_state: Mapped[str]
     trigger: Mapped[str | None]
     note: Mapped[str | None]
+    wake_status: Mapped[str] = mapped_column(default=WakeStatus.SKIPPED.value)
     task: Mapped[_TaskRow] = relationship(back_populates="history")
     responsibilities: Mapped[list[_ResponsibilityRow]] = relationship(
         order_by="_ResponsibilityRow.idx",
@@ -242,6 +251,7 @@ class _HistoryRow(_Base):
             trigger=self.trigger,
             note=self.note,
             responsibilities=[r.to_domain() for r in self.responsibilities],
+            wake_status=WakeStatus(self.wake_status),
         )
 
     @classmethod
@@ -254,6 +264,7 @@ class _HistoryRow(_Base):
             to_state=entry.to_state,
             trigger=entry.trigger,
             note=entry.note,
+            wake_status=entry.wake_status.value,
             responsibilities=[
                 _ResponsibilityRow.from_domain(r, idx)
                 for idx, r in enumerate(entry.responsibilities)
@@ -424,6 +435,9 @@ class SqlAlchemyStore(Store):
             row.governor_task_id = task.governor_task_id
             row.updated_at = task.updated_at
             row.depends_on_task_ids = list(task.depends_on_task_ids)
+            # Wake delivery may settle asynchronously on any stored entry.
+            for seq, entry in enumerate(task.history[: len(stored)]):
+                row.history[seq].wake_status = entry.wake_status.value
             # The current (last stored) entry's promises may have been fulfilled in place.
             if stored:
                 _fulfil_current_promises(

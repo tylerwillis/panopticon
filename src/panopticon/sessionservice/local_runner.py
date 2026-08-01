@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import os
 import subprocess
+import tempfile
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Protocol
@@ -20,6 +21,12 @@ from typing import Protocol
 from panopticon.core.dirs import secrets_file_path
 from panopticon.core.models import LifecyclePhase
 from panopticon.harnesses import CREDENTIALS_MOUNT
+from panopticon.sessionservice.prefill import (
+    DEFAULT_WAKE_TIMEOUT,
+    prefill_pane,
+    readiness_log,
+    watch_pane,
+)
 from panopticon.sessionservice.runner import Runner
 
 #: Default composed image (base layer, ADR 0005); built in a later PR of this slice.
@@ -260,12 +267,22 @@ class LocalRunner(Runner):
         # `docker run --detach` returns once the container is running (the entrypoint has remapped +
         # dropped), so the pane execs in as the unprivileged `panopticon` user — `tmux attach` and
         # the agent's `whoami` see that named user, not root.
+        # Create the pane before starting the agent so its persistent pipe catches the CLI's first
+        # bracketed-paste-ready signal. A wake may arrive much later, after an idle CLI has stopped
+        # producing output; attaching the watcher at delivery time would miss that earlier signal.
+        self._run(self._tmux("new-session", "-d", "-s", container, "sleep 86400"))
+        pane = watch_pane(
+            container,
+            run=self._run,
+            prefix=self._tmux(),
+            raw_log=readiness_log(container),
+        )
         self._run(
             self._tmux(
-                "new-session",
-                "-d",
-                "-s",
-                container,
+                "respawn-pane",
+                "-k",
+                "-t",
+                pane or container,
                 "docker",
                 "exec",
                 "--interactive",
@@ -310,6 +327,33 @@ class LocalRunner(Runner):
         session = session_name(task_id)
         sessions = self._run(self._tmux("list-sessions", "-F", "#{session_name}"), check=False)
         return session in sessions.splitlines()
+
+    def submit_prompt(self, task_id: str, prompt: str) -> bool:
+        """Wait for the task's input box, bracketed-paste ``prompt``, and submit it once."""
+        fd, prompt_file = tempfile.mkstemp(
+            prefix=f"panopticon-stage-entry-{task_id}-", suffix=".txt"
+        )
+        with os.fdopen(fd, "w") as handle:
+            handle.write(prompt)
+        try:
+            timeout = float(
+                os.environ.get("PANOPTICON_STAGE_ENTRY_WAKE_TIMEOUT", DEFAULT_WAKE_TIMEOUT)
+            )
+        except ValueError:
+            timeout = DEFAULT_WAKE_TIMEOUT
+        prefix = ["tmux", *(["-L", self._tmux_socket] if self._tmux_socket else [])]
+        session = session_name(task_id)
+        return prefill_pane(
+            session,
+            prompt_file,
+            run=self._run,
+            prefix=prefix,
+            timeout=timeout,
+            raw_log=readiness_log(session),
+            submit=True,
+            watch=False,
+            settle_delay=0,
+        )
 
     def delete_workspace_contents(self, path: str) -> None:
         """Delete all files inside ``path`` by running a throwaway root Docker container.

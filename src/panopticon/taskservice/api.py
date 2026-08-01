@@ -20,7 +20,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from panopticon.core.artifacts import ArtifactError
-from panopticon.core.models import Actor, LifecyclePhase, Repo, Status, Task
+from panopticon.core.models import Actor, LifecyclePhase, Repo, Status, Task, WakeStatus
 from panopticon.core.store import AlreadyExists, NotFound, StoreError
 from panopticon.core.workflow import IllegalTransition, InvalidWorkflow, ResponsibilitiesNotMet
 from panopticon.taskservice.service import (
@@ -63,6 +63,7 @@ class HistoryOut(BaseModel):
     trigger: str | None = None
     note: str | None = None
     responsibilities: list[ResponsibilityOut] = []
+    wake_status: WakeStatus
 
 
 class TaskSummaryOut(BaseModel):
@@ -255,6 +256,10 @@ class ResponsibilityIn(BaseModel):
     key: str
     status: Status
     comment: str | None = None
+
+
+class StageEntryWakeIn(BaseModel):
+    status: WakeStatus
 
 
 class TransitionIn(BaseModel):
@@ -645,6 +650,24 @@ def create_app(service: TaskService) -> FastAPI:
     async def get_briefing(task_id: str) -> dict[str, str]:
         """The agent's current-phase briefing (the container's user-prompt hook emits it)."""
         return {"briefing": await service.briefing(task_id)}
+
+    @app.get("/tasks/{task_id}/history/{entry_index}/wake")
+    async def get_stage_entry_wake(task_id: str, entry_index: int) -> dict[str, str]:
+        try:
+            briefing = await service.stage_entry_briefing(task_id, entry_index)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        return {"briefing": briefing}
+
+    @app.put("/tasks/{task_id}/history/{entry_index}/wake")
+    async def record_stage_entry_wake(
+        task_id: str, entry_index: int, body: StageEntryWakeIn
+    ) -> TaskOut:
+        try:
+            task = await service.record_stage_entry_wake(task_id, entry_index, body.status)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        return await _task_out(task)
 
     @app.get("/tasks/{task_id}/workflow-overview")
     async def get_workflow_overview(task_id: str) -> dict[str, str]:

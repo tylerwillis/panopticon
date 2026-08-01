@@ -25,7 +25,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Sequence
 
-from panopticon.core.models import HistoryEntry, Repo, Task
+from panopticon.core.models import HistoryEntry, Repo, Task, WakeStatus
 
 
 class StoreError(Exception):
@@ -206,10 +206,10 @@ def validate_history_append_only(
 ) -> None:
     """Check ``incoming`` only extends ``stored``.
 
-    Transition facts are immutable for every recorded entry. The sole permitted in-place
-    change is the **current (last) entry's responsibilities**, which the agent fulfils over
-    the course of that turn (the promise-on-entry model); once an entry is followed by another
-    it is frozen.
+    Transition facts are immutable for every recorded entry. The **current (last) entry's
+    responsibilities** may change while the agent fulfils them. A pending stage-entry wake may
+    settle as delivered or skipped on any entry because the runner records that external effect
+    asynchronously; settled wake facts are immutable.
     """
     if len(incoming) < len(stored):
         raise IntegrityError("history shrank (not append-only)")
@@ -217,6 +217,10 @@ def validate_history_append_only(
         cur = incoming[i]
         if _transition_facts(prev) != _transition_facts(cur):
             raise IntegrityError("existing history was modified (not append-only)")
+        if prev.wake_status != cur.wake_status and (
+            prev.wake_status is not WakeStatus.PENDING or cur.wake_status is WakeStatus.PENDING
+        ):
+            raise IntegrityError("a settled history wake status was modified")
         # Only the current entry's promises may still change; earlier entries are final.
         if i < len(stored) - 1 and list(prev.responsibilities) != list(cur.responsibilities):
             raise IntegrityError("a finalized entry's responsibilities were modified")

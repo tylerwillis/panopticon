@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.1.2--0b3bfc9af4dc",
+  "requirementId": "REQ-029.1.2",
+  "hash": "0b3bfc9af4dc",
+  "verdict": "pass",
+  "summary": "Initial entry of an agent-turn non-terminal InitialState (the exact case eligible under 029.1.1) is asserted SKIPPED after start_task; the SKIPPED->no-submission gate is behaviorally tested at the waker layer (non-pending early return).",
+  "timestamp": "2026-07-31T23:42:30.578Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.3.2--f6670efd2f11",
+  "requirementId": "REQ-029.3.2",
+  "hash": "f6670efd2f11",
+  "verdict": "pass",
+  "summary": "Parametrized test covers three failure modes (missing pane, vanishing pane, timeout) with explicit rejection: no paste or Enter calls, graceful False return, no exceptions raised.",
+  "timestamp": "2026-08-01T01:30:38.424Z"
+}

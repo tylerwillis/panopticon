@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.1.4--b4bff5ad1aad",
+  "requirementId": "REQ-029.1.4",
+  "hash": "b4bff5ad1aad",
+  "verdict": "pass",
+  "summary": "Both conjuncts get true near-miss counterexamples: a non-terminal user-turn state and an agent-turn terminal state (overriding TerminalState's user-turn default) must each independently derive SKIPPED, and the skipped->no-submission gate is behaviorally covered in the sessionservice suite.",
+  "timestamp": "2026-07-31T23:43:13.975Z"
+}
