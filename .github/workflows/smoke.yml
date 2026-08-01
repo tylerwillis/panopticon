@@ -28,6 +28,14 @@ jobs:
         if: runner.os == 'macOS'
         run: brew list tmux 2>/dev/null || brew install tmux
 
+      - name: Install and start Docker (macOS)
+        # macOS runners have no Docker daemon by default; `panopticon host` now preflights it
+        # (REQ-031) and refuses to start without one, so the smoke test needs a real one here.
+        if: runner.os == 'macOS'
+        run: |
+          brew install docker colima
+          colima start
+
       - name: Sync dependencies
         run: uv sync
 
