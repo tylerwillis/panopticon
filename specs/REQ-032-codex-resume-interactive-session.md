@@ -27,11 +27,13 @@ which id to resume.
 
 Resolve the resume target explicitly rather than trusting `--last`: scan
 `$CODEX_HOME/sessions/**/*.jsonl`, read only the first line of each file (codex writes a
-`session_meta` record as a rollout's first line, carrying the session's id and an
-originator/source field distinguishing an interactive `codex-tui` launch from a `codex_exec` /
-`exec` invocation), and resume the newest rollout whose originator identifies an interactive
-session. Reviewer rollouts are skipped by construction, regardless of how recently they were
-written.
+`session_meta` record as a rollout's first line, carrying the session's id, an originator/source
+field distinguishing an interactive `codex-tui` launch from a `codex_exec` / `exec` invocation,
+and a `thread_source` field distinguishing the root user-facing thread from an internal subagent
+thread `codex-tui` can itself spawn, e.g. for compaction), and resume the newest rollout that is
+both an interactive-originator rollout and a root thread. Reviewer rollouts are skipped by
+construction, regardless of how recently they were written; so are `codex-tui`'s own internal
+subagent threads, which can otherwise appear newer than the root session they belong to.
 
 **Rejected alternative:** record the session id at first launch instead of scanning. Rejected
 because codex generates its session id after the process starts, so the id doesn't exist yet at
@@ -53,6 +55,9 @@ migration.
    select the most recently written one.
 3. A rollout file whose first line identifies a non-interactive (`codex exec`) originator MUST
    NOT be selected as the resume target.
+4. A rollout file whose first line identifies an interactive originator but a non-root thread
+   (e.g. an internal subagent thread `codex-tui` spawns for its own use) MUST NOT be selected as
+   the resume target, even when it is the newest such rollout.
 
 ### REQ-032.2: First-run fallback
 
@@ -80,3 +85,18 @@ migration.
    `--dangerously-bypass-hook-trust`, `--no-alt-screen`).
 2. When the codex harness resumes a session on the agent's turn, the launch argv MUST append the
    interrupt prompt exactly as it did before this feature.
+
+## Amendment decisions
+
+- Dual-review (Sol 5.6) found that matching on originator alone is insufficient: codex-cli's own
+  `session_meta` schema carries a `thread_source` field, and `codex-tui` can write rollouts for
+  its own internal subagent threads (e.g. compaction) that still carry `originator: "codex-tui"`.
+  Confirmed against a real rollout emitted in this container (codex-cli 0.144.4) that the
+  `thread_source` field is genuinely present in production output. Added REQ-032.1.4 requiring
+  root-thread matching (`thread_source == "user"`) in addition to the originator check.
+- Dual-review (Sol 5.6) found that comparing `Path.stat().st_mtime` (a `float`) loses precision at
+  the current epoch (sub-microsecond differences can compare equal), which could pick the wrong
+  "newest" rollout under REQ-032.1.2 in a true near-tie. The implementation now compares
+  `st_mtime_ns` (an integer) instead; no requirement text changed, since REQ-032.1.2 already
+  specifies true write-time recency — this was an implementation-precision bug against an
+  existing requirement, not a new one.

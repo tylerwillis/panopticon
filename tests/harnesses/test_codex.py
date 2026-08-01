@@ -229,19 +229,26 @@ _SESSION_FLAGS = [
 
 
 def _seed_rollout(
-    home: Path, session_id: str, originator: str, *, mtime: float, name: str = "rollout.jsonl"
+    home: Path,
+    session_id: str,
+    originator: str,
+    *,
+    mtime: float,
+    name: str = "rollout.jsonl",
+    thread_source: str = "user",
 ) -> Path:
     """A rollout file with a codex-shaped ``session_meta`` first line — the interactive TUI and
     ``codex exec`` (what the dual-review/test-honesty skills dispatch reviewers with, INSIDE the
-    task's own container/CODEX_HOME) write the same record shape, differing only in
-    ``payload.originator``."""
+    task's own container/CODEX_HOME) write the same record shape, differing in
+    ``payload.originator``; ``codex-tui``'s own internal subagent threads (e.g. compaction) share
+    ``originator`` with the root session but differ in ``payload.thread_source``."""
     rollouts = home / ".codex" / "sessions" / "2026" / "07" / "31"
     rollouts.mkdir(parents=True, exist_ok=True)
     path = rollouts / name
     meta = {
         "timestamp": "2026-07-31T00:00:00Z",
         "type": "session_meta",
-        "payload": {"id": session_id, "originator": originator},
+        "payload": {"id": session_id, "originator": originator, "thread_source": thread_source},
     }
     path.write_text(json.dumps(meta) + "\n")
     os.utime(path, (mtime, mtime))
@@ -322,6 +329,42 @@ def test_argv_resume_picks_the_newest_of_several_interactive_sessions(tmp_path: 
     _seed_rollout(tmp_path, "newer", "codex-tui", mtime=200, name="a-created-first.jsonl")
     _seed_rollout(tmp_path, "older", "codex-tui", mtime=100, name="z-created-second.jsonl")
     assert HARNESS.argv(_ctx(tmp_path)) == ["codex", "resume", "newer", *_SESSION_FLAGS]
+
+
+# 2119: REQ-032.1.2
+def test_argv_resume_recency_survives_float_mtime_precision_loss(tmp_path: Path) -> None:
+    # At the current epoch, comparing Path.stat().st_mtime (a float) loses sub-microsecond
+    # differences — two distinct nanosecond-precision mtimes can round to the identical float.
+    # A selection based on that float would treat these as tied (or pick whichever rglob()
+    # happens to see first) rather than the genuinely newest one, violating "most recently
+    # written." Comparing st_mtime_ns (an integer) instead resolves the true ordering.
+    older = _seed_rollout(tmp_path, "older", "codex-tui", mtime=0, name="a.jsonl")
+    newer = _seed_rollout(tmp_path, "newer", "codex-tui", mtime=0, name="b.jsonl")
+    base_ns = 1_800_000_000_000_000_000
+    os.utime(older, ns=(base_ns, base_ns))
+    os.utime(newer, ns=(base_ns + 1, base_ns + 1))
+    assert older.stat().st_mtime == newer.stat().st_mtime  # the float collapses the difference
+    assert older.stat().st_mtime_ns != newer.stat().st_mtime_ns  # ...but the integer doesn't
+    assert HARNESS.argv(_ctx(tmp_path)) == ["codex", "resume", "newer", *_SESSION_FLAGS]
+
+
+# 2119: REQ-032.1.4
+def test_argv_resume_skips_a_newer_subagent_thread_of_the_interactive_session(
+    tmp_path: Path,
+) -> None:
+    # codex-tui can write rollouts for its own internal subagent threads (e.g. compaction) that
+    # still carry originator "codex-tui" but a non-root thread_source — these must not be
+    # mistaken for the root session, even when they're the newest codex-tui-originated rollout.
+    _seed_rollout(tmp_path, "root-session", "codex-tui", mtime=100, thread_source="user")
+    _seed_rollout(
+        tmp_path,
+        "subagent-thread",
+        "codex-tui",
+        mtime=200,
+        name="subagent.jsonl",
+        thread_source="subagent",
+    )
+    assert HARNESS.argv(_ctx(tmp_path)) == ["codex", "resume", "root-session", *_SESSION_FLAGS]
 
 
 # 2119: REQ-032.2.1

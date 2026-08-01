@@ -53,6 +53,11 @@ AUTH_FILE = "auth.json"
 #: a non-resumable ``codex exec`` invocation (``codex_exec``/``exec``) — see ``_resume_target``.
 _INTERACTIVE_ORIGINATOR = "codex-tui"
 
+#: The ``session_meta`` thread_source naming the root, user-facing thread — as opposed to an
+#: internal subagent thread codex-tui can itself spawn (e.g. for compaction), which also carries
+#: ``originator: "codex-tui"`` and is not what an operator means by "resume the session."
+_ROOT_THREAD_SOURCE = "user"
+
 
 def _resume_target(sessions: Path) -> str | None:
     """The session id to resume, or ``None`` for a first run.
@@ -62,28 +67,31 @@ def _resume_target(sessions: Path) -> str | None:
     this same container, sharing this ``CODEX_HOME``, and each invocation writes its own rollout
     file there. Trusting ``codex resume --last`` (the newest file by mtime) can therefore resume
     a reviewer's non-resumable exec thread instead of the task's own session. Each rollout's
-    first line is a ``session_meta`` record naming its originator; only the newest rollout whose
-    originator is the interactive TUI (:data:`_INTERACTIVE_ORIGINATOR`) is eligible. Only that
-    first line is read — never a rollout's full contents — so the scan stays cheap regardless of
-    session length. A rollout with no eligible originator (missing, exec, or unparseable) is
+    first line is a ``session_meta`` record naming its originator and thread_source; only the
+    newest rollout that is both the interactive TUI (:data:`_INTERACTIVE_ORIGINATOR`) and the
+    root user thread (:data:`_ROOT_THREAD_SOURCE`, excluding codex-tui's own internal subagent
+    threads, which share the same originator) is eligible. Only that first line is read — never
+    a rollout's full contents — so the scan stays cheap regardless of session length. A rollout
+    with no eligible originator/thread_source (missing, exec, subagent, or unparseable) is
     silently skipped; if none qualify, the caller falls back to first-run argv.
     """
-    if not sessions.exists():
-        return None
-    newest: tuple[float, str] | None = None
+    newest: tuple[int, str] | None = None
     for path in sessions.rglob("*.jsonl"):
         try:
             with path.open() as f:
                 meta = json.loads(f.readline())
-            payload = meta.get("payload", meta)
-            if payload.get("originator") != _INTERACTIVE_ORIGINATOR:
+            payload = meta["payload"]
+            if (
+                payload["originator"] != _INTERACTIVE_ORIGINATOR
+                or payload["thread_source"] != _ROOT_THREAD_SOURCE
+            ):
                 continue
             session_id = payload["id"]
-        except (OSError, ValueError, AttributeError, KeyError):
-            continue  # empty/malformed first line, or no recognizable originator/id
-        mtime = path.stat().st_mtime
-        if newest is None or mtime > newest[0]:
-            newest = (mtime, session_id)
+            mtime_ns = path.stat().st_mtime_ns
+        except (OSError, ValueError, TypeError, KeyError):
+            continue  # empty/malformed first line, or no recognizable metadata
+        if newest is None or mtime_ns > newest[0]:
+            newest = (mtime_ns, session_id)
     return newest[1] if newest else None
 
 
