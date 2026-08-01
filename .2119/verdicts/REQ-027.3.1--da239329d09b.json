@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.3.1--da239329d09b",
+  "requirementId": "REQ-027.3.1",
+  "hash": "da239329d09b",
+  "verdict": "pass",
+  "summary": "test_2119_skills_publish_spec_and_review_material asserts full string equality of the real dual-review skill instructions against a hardcoded expected constant containing the 'Omit findings rejected as simply wrong' clause; verified in-process that removing that clause from the source text breaks the equality, so the test genuinely rejects the violation.",
+  "timestamp": "2026-07-31T23:59:24.733Z"
+}

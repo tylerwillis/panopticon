@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.4.1--14ec57a8d28b",
+  "requirementId": "REQ-027.4.1",
+  "hash": "14ec57a8d28b",
+  "verdict": "pass",
+  "summary": "test_2119_skills_publish_spec_and_review_material asserts full-string equality of each built-in workflow's review-skill instructions against a golden copy containing the exact 'Frame the section explicitly as recommendations for the user to react to ... at the PR approval gate' clause; constructed counterexamples (mandate-not-recommendation, no-gate-timing, agent-checklist-not-user-reaction phrasings) all fail the equality check, confirming genuine coverage.",
+  "timestamp": "2026-08-01T00:00:44.481Z"
+}

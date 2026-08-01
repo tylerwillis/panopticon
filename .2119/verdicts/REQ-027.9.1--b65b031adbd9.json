@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.9.1--b65b031adbd9",
+  "requirementId": "REQ-027.9.1",
+  "hash": "b65b031adbd9",
+  "verdict": "pass",
+  "summary": "test_babysit_merge_files_deferred_issues_before_the_merge_queue_steps exact-matches the MERGING skill prefix against a fixed string containing all four required body elements (PR link, review-comment reference, deferred rationale, shipping scope) plus the self-contained/title clause; empirically confirmed the test rejects a near-violation dropping the review-comment-reference conjunct",
+  "timestamp": "2026-08-01T00:00:00.641Z"
+}

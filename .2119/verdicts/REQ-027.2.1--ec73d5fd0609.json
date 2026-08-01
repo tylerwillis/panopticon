@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.2.1--ec73d5fd0609",
+  "requirementId": "REQ-027.2.1",
+  "hash": "ec73d5fd0609",
+  "verdict": "pass",
+  "summary": "test_2119_skills_publish_spec_and_review_material asserts exact-string equality of the rendered review-skill instructions against text requiring a one-paragraph entry per genuinely-good deferred/rejected finding covering idea/reason/implementer-context; mutation testing confirms dropping any of the three required elements or the paragraph-format phrase breaks the test.",
+  "timestamp": "2026-07-31T23:59:50.141Z"
+}
