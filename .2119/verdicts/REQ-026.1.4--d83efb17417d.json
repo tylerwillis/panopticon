@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.1.4--d83efb17417d",
+  "requirementId": "REQ-026.1.4",
+  "hash": "d83efb17417d",
+  "verdict": "pass",
+  "summary": "Spawnable-task coverage requires both explicit-empty and omitted dependencies to preserve unclaimed non-terminal eligibility.",
+  "timestamp": "2026-08-01T00:05:21.342Z"
+}

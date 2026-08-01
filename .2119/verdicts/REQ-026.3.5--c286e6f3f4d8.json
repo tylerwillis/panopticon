@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.3.5--c286e6f3f4d8",
+  "requirementId": "REQ-026.3.5",
+  "hash": "c286e6f3f4d8",
+  "verdict": "pass",
+  "summary": "Service, spawner, and dashboard tests keep an unclaimed gated task listed and rendered before spawn, including after a blocked spawner pass.",
+  "timestamp": "2026-08-01T00:05:53.160Z"
+}

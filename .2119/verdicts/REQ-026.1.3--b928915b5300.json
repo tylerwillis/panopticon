@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.1.3--b928915b5300",
+  "requirementId": "REQ-026.1.3",
+  "hash": "b928915b5300",
+  "verdict": "pass",
+  "summary": "Tests reject active and DROPPED dependency cases, prove first-pass eligibility after all dependencies COMPLETE, exercise real claim/spawn, and assert exact initial-prompt delivery.",
+  "timestamp": "2026-08-01T00:05:30.505Z"
+}
