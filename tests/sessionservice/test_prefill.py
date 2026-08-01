@@ -233,6 +233,6 @@ def test_already_idle_real_pane_uses_readiness_recorded_at_startup(tmp_path: Pat
             if received.is_file():
                 break
             time.sleep(0.02)
-        assert received.read_text() == "continue-review"
+        assert received.read_bytes() == b"\x1b[200~continue-review\x1b[201~"
     finally:
         subprocess.run([*prefix, "kill-server"], capture_output=True)
