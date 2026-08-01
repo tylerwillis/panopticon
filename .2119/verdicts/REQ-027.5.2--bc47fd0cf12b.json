@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.5.2--bc47fd0cf12b",
-  "requirementId": "REQ-027.5.2",
-  "hash": "bc47fd0cf12b",
-  "verdict": "pass",
-  "summary": "test_argv_resume_appends_interrupt_prompt_on_agent_turn calls the real HARNESS.argv() (no mocks) with turn='agent' and asserts exact list equality with INTERRUPT_PROMPT appended after the session flags on the session-id resume path; the sibling REQ-027.1.1 test uses the same seeded session with default turn and asserts the identical prefix without the prompt, rejecting the always-append counterexample. Genuine behavioral check, not keyword theater.",
-  "timestamp": "2026-07-31T23:20:31.202Z"
-}

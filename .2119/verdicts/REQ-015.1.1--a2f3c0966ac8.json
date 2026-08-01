@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-015.1.1--a2f3c0966ac8",
-  "requirementId": "REQ-015.1.1",
-  "hash": "a2f3c0966ac8",
-  "verdict": "pass",
-  "summary": "Test asserts --no-alt-screen (a real hardcoded flag in codex.py's argv()) is present in both first-run and resumed-session argv; genuine, unmocked check of production behavior.",
-  "timestamp": "2026-07-31T23:18:56.515Z"
-}

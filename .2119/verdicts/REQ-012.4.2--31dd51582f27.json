@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-012.4.2--31dd51582f27",
-  "requirementId": "REQ-012.4.2",
-  "hash": "31dd51582f27",
-  "verdict": "pass",
-  "summary": "test_created_tasks_keep_launch_values_after_defaults_change genuinely covers repo-, workflow-, and explicit-derived launch values, mutating repo defaults via real PATCH and workflow defaults via monkeypatch post-creation, then confirms re-read tasks retain original values against real store/API — a real counterexample (read-time re-derivation) would fail it.",
-  "timestamp": "2026-07-31T23:13:40.855Z"
-}

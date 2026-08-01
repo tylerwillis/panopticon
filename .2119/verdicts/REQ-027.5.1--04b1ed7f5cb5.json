@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.5.1--04b1ed7f5cb5",
-  "requirementId": "REQ-027.5.1",
-  "hash": "04b1ed7f5cb5",
-  "verdict": "pass",
-  "summary": "test_argv_resume_session_flags_unchanged pins argv[3:] == the exact 3-flag list against real HARNESS.argv output (no mocks); it's derived independently of the id-scan wiring so it correctly catches any reordering/omission/addition on whichever resume path is active, and will keep covering the id-based path once REQ-027.1.x lands.",
-  "timestamp": "2026-07-31T23:20:56.459Z"
-}

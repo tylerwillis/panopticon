@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.1.1--612df25aa1b0",
-  "requirementId": "REQ-027.1.1",
-  "hash": "612df25aa1b0",
-  "verdict": "pass",
-  "summary": "Tests seed real rollout files on disk and call HARNESS.argv() unmocked; they assert resume-by-session-id (not --last) and currently fail against the unmigrated implementation, proving genuine detection of the violation; interactive-vs-exec originator boundary is covered by test_argv_resume_picks_interactive_over_a_newer_exec_rollout.",
-  "timestamp": "2026-07-31T23:19:25.445Z"
-}
