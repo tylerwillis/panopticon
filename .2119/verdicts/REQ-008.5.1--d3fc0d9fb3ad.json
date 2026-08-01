@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.5.1--d3fc0d9fb3ad",
+  "requirementId": "REQ-008.5.1",
+  "hash": "d3fc0d9fb3ad",
+  "verdict": "pass",
+  "summary": "test_config_wires_the_turn_flip_hooks_to_the_shared_callback proves codex's UserPromptSubmit fires the same hook command; test_user_prompt_submit_waits_for_the_turn_write uses threading gates to prove hook.main blocks on set_turn's return (fire-and-forget would fail the is_alive assertion).",
+  "timestamp": "2026-08-01T00:36:37.408Z"
+}

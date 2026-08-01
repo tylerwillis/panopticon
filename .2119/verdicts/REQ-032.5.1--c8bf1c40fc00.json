@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-032.5.1--c8bf1c40fc00",
+  "requirementId": "REQ-032.5.1",
+  "hash": "c8bf1c40fc00",
+  "verdict": "pass",
+  "summary": "test_argv_resume_session_flags_unchanged compares real resume argv[3:] against the exact three flags from the spec text, and that same constant is independently pinned as the first-run flags elsewhere in the file, so any divergence between first-run and resume flags is caught; no mocking, no tautology.",
+  "timestamp": "2026-08-01T00:09:07.492Z"
+}

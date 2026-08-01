@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-032.1.2--9acec2f222f5",
+  "requirementId": "REQ-032.1.2",
+  "hash": "9acec2f222f5",
+  "verdict": "pass",
+  "summary": "Both tests exercise the real CodexHarness.argv() over real rollout files with real os.utime mtimes, no mocking; the new float-precision test independently proves stat().st_mtime collapses two 1ns-apart mtimes to an identical float (confirmed a simulated float-based selector picks the wrong, older session) while st_mtime_ns distinguishes them, and asserts the harness resumes the genuinely newer rollout, directly covering the 'most recently written' boundary; the pre-existing test independently rules out name/creation-order as the ordering signal.",
+  "timestamp": "2026-08-01T00:36:53.251Z"
+}

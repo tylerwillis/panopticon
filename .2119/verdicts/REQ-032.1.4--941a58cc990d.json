@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-032.1.4--941a58cc990d",
+  "requirementId": "REQ-032.1.4",
+  "hash": "941a58cc990d",
+  "verdict": "pass",
+  "summary": "Test seeds a newer codex-tui subagent-thread rollout (thread_source=subagent) alongside an older root rollout (thread_source=user) on real files and asserts resume targets the older root session — genuinely fails without the thread_source==user gate, no mocking of _resume_target.",
+  "timestamp": "2026-08-01T00:36:48.064Z"
+}

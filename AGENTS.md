@@ -177,7 +177,9 @@ on every PR (the same commands the Makefile wraps).
   default, unknown rejection), `test_claude.py` (the Slice-6 argv/rendering expectations carried
   over verbatim — the seam extraction must not change what claude is launched with),
   `test_codex.py` (config.toml validated as real TOML incl. the hook wiring, SKILL.md rendering,
-  the three auth paths incl. the credential-dir symlink, first-run vs `resume --last` argv,
+  the three auth paths incl. the credential-dir symlink, first-run vs explicit-session-id resume
+  argv (the newest interactive rollout, scanned by session_meta — never `--last`, which a
+  reviewer's `codex exec` rollout sharing the same `CODEX_HOME` can poison, REQ-032),
   the pinned-release image layer), and `test_pi.py` (settings.json's `defaultProjectTrust`, the
   workflow-overview file argv reads back via `--append-system-prompt`, the rendered turn-flip
   extension pinned verbatim and loaded via `--extension`, REST-curl operation instructions in

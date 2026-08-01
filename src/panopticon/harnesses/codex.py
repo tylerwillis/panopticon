@@ -49,6 +49,51 @@ CODEX_VERSION = "0.144.4"
 #: The credential file codex expects under ``$CODEX_HOME``.
 AUTH_FILE = "auth.json"
 
+#: The ``session_meta`` originator that names an interactive ``codex-tui`` launch, as opposed to
+#: a non-resumable ``codex exec`` invocation (``codex_exec``/``exec``) — see ``_resume_target``.
+_INTERACTIVE_ORIGINATOR = "codex-tui"
+
+#: The ``session_meta`` thread_source naming the root, user-facing thread — as opposed to an
+#: internal subagent thread codex-tui can itself spawn (e.g. for compaction), which also carries
+#: ``originator: "codex-tui"`` and is not what an operator means by "resume the session."
+_ROOT_THREAD_SOURCE = "user"
+
+
+def _resume_target(sessions: Path) -> str | None:
+    """The session id to resume, or ``None`` for a first run.
+
+    ``$CODEX_HOME/sessions`` is not exclusive to this task's own interactive session: the
+    dual-review/test-honesty skills dispatch fresh-context reviewers via ``codex exec`` inside
+    this same container, sharing this ``CODEX_HOME``, and each invocation writes its own rollout
+    file there. Trusting ``codex resume --last`` (the newest file by mtime) can therefore resume
+    a reviewer's non-resumable exec thread instead of the task's own session. Each rollout's
+    first line is a ``session_meta`` record naming its originator and thread_source; only the
+    newest rollout that is both the interactive TUI (:data:`_INTERACTIVE_ORIGINATOR`) and the
+    root user thread (:data:`_ROOT_THREAD_SOURCE`, excluding codex-tui's own internal subagent
+    threads, which share the same originator) is eligible. Only that first line is read — never
+    a rollout's full contents — so the scan stays cheap regardless of session length. A rollout
+    with no eligible originator/thread_source (missing, exec, subagent, or unparseable) is
+    silently skipped; if none qualify, the caller falls back to first-run argv.
+    """
+    newest: tuple[int, str] | None = None
+    for path in sessions.rglob("*.jsonl"):
+        try:
+            with path.open() as f:
+                meta = json.loads(f.readline())
+            payload = meta["payload"]
+            if (
+                payload["originator"] != _INTERACTIVE_ORIGINATOR
+                or payload["thread_source"] != _ROOT_THREAD_SOURCE
+            ):
+                continue
+            session_id = payload["id"]
+            mtime_ns = path.stat().st_mtime_ns
+        except (OSError, ValueError, TypeError, KeyError):
+            continue  # empty/malformed first line, or no recognizable metadata
+        if newest is None or mtime_ns > newest[0]:
+            newest = (mtime_ns, session_id)
+    return newest[1] if newest else None
+
 
 def _toml_str(value: str) -> str:
     """``value`` as a TOML basic string. JSON string escaping is valid TOML basic-string
@@ -206,24 +251,26 @@ class CodexHarness(Harness):
             os.chmod(auth, 0o600)
 
     def argv(self, ctx: LaunchContext) -> list[str]:
-        """``codex`` argv — resume the config volume's most recent session when one exists.
+        """``codex`` argv — resume the task's own interactive session when one is recorded.
 
         The container is the sandbox (same posture as ``claude --dangerously-skip-permissions``):
         ``--dangerously-bypass-approvals-and-sandbox`` because there is no operator to approve and
         codex's own Linux sandbox (bubblewrap) needs unprivileged user namespaces Docker doesn't
         grant; ``--dangerously-bypass-hook-trust`` because the panopticon-rendered hooks would
         otherwise stop on an interactive per-hash trust prompt. Sessions live under
-        ``$CODEX_HOME/sessions`` — any recorded one means ``resume --last`` (the per-task
-        ``CODEX_HOME`` guarantees "most recent" is this task's); like claude, a resume on the
-        agent's turn gets :data:`INTERRUPT_PROMPT` so it picks up where it left off."""
+        ``$CODEX_HOME/sessions``, but that directory isn't exclusive to this task's own session
+        (reviewer ``codex exec`` rollouts share it — see :func:`_resume_target`), so the resume
+        target is resolved explicitly by session id rather than trusted to ``--last``; like
+        claude, a resume on the agent's turn gets :data:`INTERRUPT_PROMPT` so it picks up where
+        it left off."""
         session_flags = [
             "--dangerously-bypass-approvals-and-sandbox",
             "--dangerously-bypass-hook-trust",
             "--no-alt-screen",
         ]
         sessions = self.config_dir(ctx.home) / "sessions"
-        if sessions.exists() and any(sessions.rglob("*.jsonl")):
-            argv = ["codex", "resume", "--last", *session_flags]
+        if session_id := _resume_target(sessions):
+            argv = ["codex", "resume", session_id, *session_flags]
             if ctx.turn == "agent":
                 argv.append(INTERRUPT_PROMPT)
             return argv

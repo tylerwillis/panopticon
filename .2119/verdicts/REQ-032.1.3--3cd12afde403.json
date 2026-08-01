@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-032.1.3--3cd12afde403",
+  "requirementId": "REQ-032.1.3",
+  "hash": "3cd12afde403",
+  "verdict": "pass",
+  "summary": "test_argv_resume_picks_interactive_over_a_newer_exec_rollout seeds a real newer codex_exec rollout alongside an older interactive one and asserts argv resumes the interactive id via the real _resume_target scan (no mocking); this is the exact MUST-NOT counterexample (non-interactive but newer) and would fail without the originator filter.",
+  "timestamp": "2026-08-01T00:07:54.216Z"
+}
