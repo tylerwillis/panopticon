@@ -205,10 +205,7 @@ def test_already_idle_real_pane_uses_readiness_recorded_at_startup(tmp_path: Pat
         run([*prefix, "new-session", "-d", "-s", session])
         pane = watch_pane(session, run=run, prefix=prefix, raw_log=str(raw))
         assert pane
-        script = (
-            "printf '\\033[?2004h'; "
-            f"head --lines=1 > {shlex.quote(str(received))}; sleep 10"
-        )
+        script = f"printf '\\033[?2004h'; head --lines=1 > {shlex.quote(str(received))}; sleep 10"
         run([*prefix, "respawn-pane", "-k", "-t", pane, "bash", "-c", script])
         for _ in range(50):
             if raw.is_file() and BRACKETED_PASTE_ON in raw.read_bytes():
