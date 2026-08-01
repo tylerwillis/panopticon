@@ -1,5 +1,10 @@
 # panopticon
 
+> This is an experimental fork of [unsupervisedcom/panopticon](https://github.com/Unsupervisedcom/panopticon)
+> that explores new features for my use prior to upstreaming. Usage and reported issues are
+> welcome; PRs are not accepted here and should be directed to the upstream project:
+> [Panopticon](https://github.com/Unsupervisedcom/panopticon).
+
 **Agents write the code, you own what ships.**
 
 That's easy with one agent. Run a fleet of them and it breaks down: the fleet stalls
