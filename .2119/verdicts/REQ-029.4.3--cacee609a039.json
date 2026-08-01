@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-029.4.3--cacee609a039",
-  "requirementId": "REQ-029.4.3",
-  "hash": "cacee609a039",
-  "verdict": "pass",
-  "summary": "Core test verifies re-entering state creates fresh pending entry without changing earlier delivered entries; sessionservice test confirms both entries delivered independently with distinct prompts.",
-  "timestamp": "2026-08-01T01:01:54.547Z"
-}

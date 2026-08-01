@@ -208,16 +208,19 @@ def test_all_pending_entries_are_delivered_in_history_order() -> None:
     assert client.records == [("t1", 1, "delivered"), ("t1", 2, "delivered")]
 
 
-def test_fresh_task_liveness_wins_over_a_stale_snapshot() -> None:
-    # 2119: REQ-029.1.1
-    full = _task(container_status="live")
-    snapshot = {**full, "container_status": "down"}
-    client, runner = _Client(full), _Runner()
+def test_down_observation_is_skipped_even_if_container_heals_before_delivery() -> None:
+    # 2119: REQ-029.1.3
+    task = _task(container_status="down")
+    client, runner = _Client(task), _Runner()
+    queued: list[Callable[[], None]] = []
+    waker = StageEntryWaker(client, runner, runner_id="host-1", dispatch=queued.append)
 
-    StageEntryWaker(client, runner, dispatch=_inline).wake(snapshot)
+    waker.wake(task)
+    task["container_status"] = "live"
+    queued.pop()()
 
-    assert len(runner.prompts) == 1
-    assert client.records == [("t1", 1, "delivered")]
+    assert runner.prompts == []
+    assert client.records == [("t1", 1, "skipped")]
 
 
 def test_delivery_is_dispatched_once_without_blocking_the_observation() -> None:

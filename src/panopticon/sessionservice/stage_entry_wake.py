@@ -61,6 +61,7 @@ class StageEntryWaker:
         if self._runner_id is not None and owner not in (None, self._runner_id):
             return
         observed_at = task.get("updated_at")
+        observed_live = task.get("container_status") == ContainerStatus.LIVE.value
         with self._lock:
             if isinstance(observed_at, str) and self._observed.get(task_id) == observed_at:
                 return
@@ -70,7 +71,7 @@ class StageEntryWaker:
 
         def deliver() -> None:
             try:
-                self._deliver(task)
+                self._deliver(task, observed_live=observed_live)
             except Exception:
                 _log.warning("stage-entry delivery failed for task %s", task_id, exc_info=True)
             finally:
@@ -79,11 +80,9 @@ class StageEntryWaker:
 
         self._dispatch(deliver)
 
-    def _deliver(self, task: JsonObj) -> None:
+    def _deliver(self, task: JsonObj, *, observed_live: bool) -> None:
         task_id = str(task["id"])
         full = self._client.get_task(task_id)
-        if self._runner_id is not None and full.get("claimed_by") != self._runner_id:
-            return
         history = cast(list[JsonObj], full["history"])
         if not history:
             self._remember(task_id, task.get("updated_at"))
@@ -97,6 +96,12 @@ class StageEntryWaker:
             self._remember(task_id, task.get("updated_at"))
             return
 
+        if not observed_live:
+            for entry_index in pending:
+                self._client.record_stage_entry_wake(task_id, entry_index, WakeStatus.SKIPPED.value)
+            return
+        if self._runner_id is not None and full.get("claimed_by") != self._runner_id:
+            return
         if self._environ.get(OPT_OUT_ENV):
             for entry_index in pending:
                 self._client.record_stage_entry_wake(task_id, entry_index, WakeStatus.SKIPPED.value)

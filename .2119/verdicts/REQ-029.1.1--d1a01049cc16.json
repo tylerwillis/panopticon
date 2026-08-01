@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.1.1--d1a01049cc16",
+  "requirementId": "REQ-029.1.1",
+  "hash": "d1a01049cc16",
+  "verdict": "pass",
+  "summary": "Core and integration tests verify live agent-entry wake submission for both transition paths, with comprehensive ownership and async behavior checks",
+  "timestamp": "2026-08-01T01:12:06.100Z"
+}
