@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.3.1--50bf1692994c",
-  "requirementId": "REQ-028.3.1",
-  "hash": "50bf1692994c",
-  "verdict": "pass",
-  "summary": "test_artifact_skill_explains_both_write_mechanisms exact-matches the full skill text (both the 'a' hotkey sentence and the specs/review-outputs/triage/gate-report examples list); in-process mutation counterexamples dropping the hotkey mention or narrowing the examples list are both correctly rejected.",
-  "timestamp": "2026-08-01T00:07:16.683Z"
-}

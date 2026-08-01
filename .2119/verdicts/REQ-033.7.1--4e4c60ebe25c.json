@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.7.1--4e4c60ebe25c",
-  "requirementId": "REQ-033.7.1",
-  "hash": "4e4c60ebe25c",
-  "verdict": "pass",
-  "summary": "test_babysit_merge_files_deferred_issues_before_the_merge_queue_steps exact-matches the real discover_workflows() babysit-merge instructions against the required 'gh issue create' / endorsed-or-unobjected / incorporate-edits directive; mutating any of those clauses in isolation (verified via in-memory counterexamples) breaks the equality assertion, so it's a genuine, unmocked check.",
-  "timestamp": "2026-08-01T00:11:56.900Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.1.1--09051cd51563",
-  "requirementId": "REQ-027.1.1",
-  "hash": "09051cd51563",
-  "verdict": "pass",
-  "summary": "test_2119_skills_publish_spec_and_review_material golden-matches the real generated dual-review/dual-review-sol instructions against an independently written expected string requiring the triage PR comment to 'End...with a Suggested placeholder issues section'; live mutation (swap 'end with' for 'include somewhere', reorder to 'begin', or drop the section) each made the real pytest run fail.",
-  "timestamp": "2026-08-01T00:01:25.024Z"
-}

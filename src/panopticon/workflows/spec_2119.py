@@ -225,10 +225,9 @@ the merge-queue steps below:
    comment it came from, why it was deferred rather than done now, and what implementing it would
    involve.
 3. Skip any suggested issue the user explicitly rejected.
-4. Filing zero issues — because there were no suggestions, or none were endorsed — is a legal
-   outcome. Resolve `deferred-issues-filed` either way once every suggestion has been considered.
-
-"""
+4. Filing zero issues — because there were no suggestions, or every suggestion was explicitly
+   rejected — is a legal outcome. Resolve `deferred-issues-filed` either way once every
+   suggestion has been considered."""
 
 
 class _Spec2119Workflow(GithubForgeWorkflow):
@@ -272,16 +271,18 @@ class _Spec2119Workflow(GithubForgeWorkflow):
             "dashboard's `p` hotkey opens it and the `url-recorded` responsibility can be "
             "resolved.",
         )
-        babysit_ci = forge_skills[1]
-        babysit_merge = forge_skills[2]
+        babysit_merge = next(skill for skill in forge_skills if skill.name == "babysit-merge")
         deferred_issues_merge = Skill(
             babysit_merge.name,
             babysit_merge.description,
-            _DEFERRED_ISSUES_MERGE_INSTRUCTIONS + babysit_merge.instructions,
+            _DEFERRED_ISSUES_MERGE_INSTRUCTIONS + "\n\n" + babysit_merge.instructions,
+        )
+        other_forge_skills = tuple(
+            skill for skill in forge_skills if skill.name not in ("open-pr", "babysit-merge")
         )
         return (
             open_pr,
-            babysit_ci,
+            *other_forge_skills,
             deferred_issues_merge,
             self._spec_skill(),
             self._review_skill(),

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.1.1--a706945955c3",
-  "requirementId": "REQ-033.1.1",
-  "hash": "a706945955c3",
-  "verdict": "pass",
-  "summary": "test_2119_skills_publish_spec_and_review_material asserts each built-in workflow's review-skill instructions equal a golden string requiring the triage PR comment to end with a 'Suggested placeholder issues' section; monkeypatch counterexample removing that phrasing breaks the exact-match assertion, confirming genuine detection.",
-  "timestamp": "2026-08-01T00:11:33.737Z"
-}

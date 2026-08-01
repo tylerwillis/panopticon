@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.7.1--1fe79f775dac",
-  "requirementId": "REQ-027.7.1",
-  "hash": "1fe79f775dac",
-  "verdict": "pass",
-  "summary": "test_babysit_merge_files_deferred_issues_before_the_merge_queue_steps pins the exact MERGING skill text via real workflow discovery (no mocks); mutation-tested by removing 'or left without objection'/'incorporating any user edits' from the source, confirmed the assertion fails, then confirmed it passes on the restored text.",
-  "timestamp": "2026-08-01T00:00:26.110Z"
-}

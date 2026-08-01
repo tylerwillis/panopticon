@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.5.1--99346e4ec704",
-  "requirementId": "REQ-027.5.1",
-  "hash": "99346e4ec704",
-  "verdict": "pass",
-  "summary": "test_merging_gains_deferred_issues_filed_before_pr_merged exercises real discover_workflows/State.responsibilities (no mocking) and asserts exact key order [deferred-issues-filed, pr-merged] for all 3 built-in 2119 workflows; mutation-tested: flipping the order or deleting deferred-issues-filed each make the test fail.",
-  "timestamp": "2026-08-01T00:00:48.206Z"
-}

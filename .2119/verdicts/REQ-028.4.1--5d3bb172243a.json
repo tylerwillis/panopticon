@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.4.1--5d3bb172243a",
+  "requirementId": "REQ-028.4.1",
+  "hash": "5d3bb172243a",
+  "verdict": "pass",
+  "summary": "test_specifying_has_one_artifact_responsibility pins the exact 4-item SPECIFYING responsibility tuple (incl. the single spec-artifact publish-to-artifact item) for all 3 built-in 2119 workflows; confirmed via in-process mutation that removing spec-artifact (0 artifact responsibilities) or adding a duplicate (2) both fail the test.",
+  "timestamp": "2026-08-01T00:39:41.333Z"
+}

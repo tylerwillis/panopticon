@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.4.1--a44330e31dac",
+  "requirementId": "REQ-033.4.1",
+  "hash": "a44330e31dac",
+  "verdict": "pass",
+  "summary": "Golden-text test asserts the review skill instructions verbatim, including the exact framing sentence ('Frame the section explicitly as recommendations for the user to react to ... at the PR approval gate'); confirmed via monkeypatch that omitting that sentence breaks the assertion.",
+  "timestamp": "2026-08-01T00:40:21.746Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.9.1--4d05b010bdc5",
+  "requirementId": "REQ-028.9.1",
+  "hash": "4d05b010bdc5",
+  "verdict": "pass",
+  "summary": "Test writes a real duplicate-named external workflow file and asserts the exact ValueError text (file path + 'remove this external workflow file'), even under _skip_duplicates; mutation testing (silent-skip, no-file-id, no-remediation) confirms each requirement conjunct is genuinely enforced, not tautological.",
+  "timestamp": "2026-08-01T00:40:12.653Z"
+}

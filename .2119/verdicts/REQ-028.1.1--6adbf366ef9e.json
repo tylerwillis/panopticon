@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.1.1--6adbf366ef9e",
+  "requirementId": "REQ-028.1.1",
+  "hash": "6adbf366ef9e",
+  "verdict": "pass",
+  "summary": "test_every_task_exposes_the_core_artifact_skill iterates every discovered built-in workflow plus edge-case zero-skill/one-skill workflows via a real TaskService+SQLite+FS store (no mocking), asserting each task's skill list is exactly [provision, artifacts, ...workflow skills]; confirmed by injecting a real omission (dropping 'artifacts' for one workflow) that the test genuinely fails, and the collision tests (direct + rescan) confirm a workflow-declared 'artifacts' skill/operation is rejected rather than silently shadowing the core one.",
+  "timestamp": "2026-08-01T00:39:27.669Z"
+}

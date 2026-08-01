@@ -115,10 +115,9 @@ the merge-queue steps below:
    comment it came from, why it was deferred rather than done now, and what implementing it would
    involve.
 3. Skip any suggested issue the user explicitly rejected.
-4. Filing zero issues — because there were no suggestions, or none were endorsed — is a legal
-   outcome. Resolve `deferred-issues-filed` either way once every suggestion has been considered.
-
-"""
+4. Filing zero issues — because there were no suggestions, or every suggestion was explicitly
+   rejected — is a legal outcome. Resolve `deferred-issues-filed` either way once every
+   suggestion has been considered."""
 EXPECTED_SOL_SPEC_INSTRUCTIONS = """The spec is the contract: requirements first, tests second,
 code later.
 
@@ -451,7 +450,7 @@ def test_babysit_merge_files_deferred_issues_before_the_merge_queue_steps() -> N
         # exactly the required text — not merely a superset containing the right words.
         assert instructions.endswith(base_instructions)
         prefix = instructions[: -len(base_instructions)]
-        assert prefix == EXPECTED_DEFERRED_ISSUES_MERGE_INSTRUCTIONS
+        assert prefix == EXPECTED_DEFERRED_ISSUES_MERGE_INSTRUCTIONS + "\n\n"
 
 
 def test_duplicate_error_identifies_external_file_and_remediation(

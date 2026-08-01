@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.9.1--abf6560a9f9e",
-  "requirementId": "REQ-033.9.1",
-  "hash": "abf6560a9f9e",
-  "verdict": "pass",
-  "summary": "test_babysit_merge_files_deferred_issues_before_the_merge_queue_steps exercises real discover_workflows()/skills() output (no mocks) and exact-matches the full instruction text against an independently pinned constant; in-memory mutation of each required clause (PR link, review-comment reference, why-deferred, implementing-effort, self-contained/title framing) breaks the equality, confirming the test would fail on a genuine violation. Requirement text is a clear, testable content constraint.",
-  "timestamp": "2026-08-01T00:12:35.532Z"
-}

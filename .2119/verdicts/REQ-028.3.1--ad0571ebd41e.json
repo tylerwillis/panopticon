@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.3.1--ad0571ebd41e",
+  "requirementId": "REQ-028.3.1",
+  "hash": "ad0571ebd41e",
+  "verdict": "pass",
+  "summary": "Exact-string test against the real ARTIFACT_SKILL instructions (via TaskService.skills, no mocks) covers both the 'a' hotkey and all four example categories; monkeypatch counterexamples dropping the hotkey mention or narrowing the examples both broke the assertion, confirming genuine coverage.",
+  "timestamp": "2026-08-01T00:39:40.322Z"
+}

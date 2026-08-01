@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.6.1--6305b2eb8c51",
-  "requirementId": "REQ-027.6.1",
-  "hash": "6305b2eb8c51",
-  "verdict": "pass",
-  "summary": "test_babysit_merge_files_deferred_issues_before_the_merge_queue_steps exact-matches the merge-stage instruction text (incl. the re-read-triage-summary-and-user-comments clause) prefixed before the untouched base merge-queue instructions, across all 3 built-in 2119 workflows; monkeypatch counterexamples dropping the user-PR-comments clause and reordering re-read-after-merge both correctly fail the test.",
-  "timestamp": "2026-07-31T23:59:38.813Z"
-}

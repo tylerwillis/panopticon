@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.7.1--87d348242310",
+  "requirementId": "REQ-028.7.1",
+  "hash": "87d348242310",
+  "verdict": "pass",
+  "summary": "test_discovers_all_three_builtin_2119_workflows calls the real discover_workflows with no external/home workflow dir and asserts exact name->class mapping for all three 2119 workflows; confirmed via mutation that a missing or mislabeled workflow raises KeyError/AssertionError.",
+  "timestamp": "2026-08-01T00:39:57.215Z"
+}

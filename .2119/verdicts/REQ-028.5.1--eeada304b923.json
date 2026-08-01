@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.5.1--eeada304b923",
+  "requirementId": "REQ-028.5.1",
+  "hash": "eeada304b923",
+  "verdict": "pass",
+  "summary": "test_2119_skills_publish_spec_and_review_material does exact-string equality against real workflow.skills() output for all three built-ins; confirmed via monkeypatch counterexamples that dropping the 'publish as artifact' sentence, dropping 'triage summary', or redirecting to 'PR comment' wording all break the equality check, so it genuinely enforces the requirement.",
+  "timestamp": "2026-08-01T00:39:32.944Z"
+}

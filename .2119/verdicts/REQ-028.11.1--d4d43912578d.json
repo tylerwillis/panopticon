@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.11.1--d4d43912578d",
+  "requirementId": "REQ-028.11.1",
+  "hash": "d4d43912578d",
+  "verdict": "pass",
+  "summary": "test_artifact_skill_explains_both_write_mechanisms exact-matches the real skill instructions end-to-end (no mocks); counterexamples dropping the GitHub-URL exception clause and narrowing 'regardless of document type' to spec-only both fail the assertion, confirming genuine coverage of all three conjuncts.",
+  "timestamp": "2026-08-01T00:40:09.641Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.2.1--aa5fc12b494d",
-  "requirementId": "REQ-028.2.1",
-  "hash": "aa5fc12b494d",
-  "verdict": "pass",
-  "summary": "test_artifact_skill_explains_both_write_mechanisms exact-matches the real, service-fetched artifacts skill instructions against a golden string that names both put_artifact (MCP) and PUT /tasks/{task_id}/artifacts/{name} (REST); monkeypatch counterexamples dropping either mechanism, or altering the REST path, all fail the assertion as expected.",
-  "timestamp": "2026-08-01T00:07:04.718Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.12.1--29742ac2674e",
-  "requirementId": "REQ-028.12.1",
-  "hash": "29742ac2674e",
-  "verdict": "pass",
-  "summary": "Exact-string assertions on the rendered spec/review skill text (independently authored EXPECTED_* constants) genuinely require the codex --dangerously-bypass-approvals-and-sandbox invocation, the forbid-edits/read-only clause, and the per-run git status --porcelain check; mutation testing confirmed each conjunct's nearest violation is rejected. Minor note: _honesty_reviewer_cmd() is dead code (unused by the actual instructions), but the substantive text-equality checks stand independently.",
-  "timestamp": "2026-08-01T00:08:57.447Z"
-}

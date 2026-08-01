@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-027.8.1--a3f4a1835fd5",
-  "requirementId": "REQ-027.8.1",
-  "hash": "a3f4a1835fd5",
-  "verdict": "pass",
-  "summary": "test_babysit_merge_files_deferred_issues_before_the_merge_queue_steps exact-matches the rendered MERGING-stage instructions against a golden string containing 'Skip any suggested issue the user explicitly rejected.'; removing/altering that line (verified via monkeypatch) breaks the assertion for all 3 built-in workflows.",
-  "timestamp": "2026-08-01T00:01:02.251Z"
-}

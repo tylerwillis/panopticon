@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.6.1--b42ef1a3ce0b",
-  "requirementId": "REQ-028.6.1",
-  "hash": "b42ef1a3ce0b",
-  "verdict": "pass",
-  "summary": "test_building_retains_the_external_pr_url_responsibility checks all 3 built-in 2119 workflows' real (unmocked) BUILDING responsibilities for the exact url-recorded key/description; confirmed via monkeypatch counterexamples that dropping the responsibility or weakening its description text is rejected.",
-  "timestamp": "2026-08-01T00:07:23.443Z"
-}

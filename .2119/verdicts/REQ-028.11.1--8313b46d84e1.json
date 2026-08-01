@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.11.1--8313b46d84e1",
-  "requirementId": "REQ-028.11.1",
-  "hash": "8313b46d84e1",
-  "verdict": "pass",
-  "summary": "test_artifact_skill_explains_both_write_mechanisms asserts exact equality of the real ARTIFACT_SKILL.instructions text against a literal expected string covering all three conjuncts (durable-document definition, publish-anything-regardless-of-type direction, GitHub-URL exception); confirmed via monkeypatched counterexamples (dropped/inverted/narrowed clauses) that each fails the equality check, and the source is fetched through a real TaskService/discover_workflows/service.skills path with no mocking.",
-  "timestamp": "2026-08-01T00:07:33.750Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.12.1--f4ad27212354",
+  "requirementId": "REQ-028.12.1",
+  "hash": "f4ad27212354",
+  "verdict": "pass",
+  "summary": "All 3 built-in 2119 skills that invoke Codex (spec-2119, dual-review, dual-review-sol) are checked by exact-string equality against instructions containing the literal 'codex exec --dangerously-bypass-approvals-and-sandbox' command, the 'forbid edits' read-only directive, and the 'git status --porcelain unchanged' verification step; monkeypatch counterexamples removing each conjunct were confirmed to break the tests, and no other codex invocation site exists in the 2119 workflow family to leave uncovered.",
+  "timestamp": "2026-08-01T00:41:26.564Z"
+}

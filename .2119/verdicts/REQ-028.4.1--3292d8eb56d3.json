@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.4.1--3292d8eb56d3",
-  "requirementId": "REQ-028.4.1",
-  "hash": "3292d8eb56d3",
-  "verdict": "pass",
-  "summary": "test_specifying_has_one_artifact_responsibility pins the exact SPECIFYING responsibility tuple (key+description) for all 3 built-in 2119 workflows; mutation testing confirms it fails when spec-artifact is removed, duplicated, or its description is weakened while keeping the key.",
-  "timestamp": "2026-08-01T00:07:34.002Z"
-}

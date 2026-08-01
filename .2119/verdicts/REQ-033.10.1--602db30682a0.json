@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.10.1--602db30682a0",
-  "requirementId": "REQ-033.10.1",
-  "hash": "602db30682a0",
-  "verdict": "pass",
-  "summary": "Test asserts the literal 'Filing zero issues is a legal outcome.' sentence is present in the deferred-issues-filed responsibility description across all 3 built-in 2119 workflows; confirmed via in-process monkeypatch that removing the sentence fails the assertion for all variants (genuine, non-tautological).",
-  "timestamp": "2026-08-01T00:11:59.054Z"
-}

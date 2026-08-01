@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.3.1--d728c2784a5f",
+  "requirementId": "REQ-033.3.1",
+  "hash": "d728c2784a5f",
+  "verdict": "pass",
+  "summary": "Exact-text pin of the rendered review-skill instructions includes the 'Omit findings rejected as simply wrong' sentence; removing it (verified via string-diff) breaks the equality assertion, so the test genuinely catches the violation.",
+  "timestamp": "2026-08-01T00:40:21.340Z"
+}
