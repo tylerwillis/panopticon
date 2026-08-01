@@ -62,12 +62,6 @@ class StageEntryWaker:
             return
         observed_at = task.get("updated_at")
         observed_live = task.get("container_status") == ContainerStatus.LIVE.value
-        observed_history = cast(list[JsonObj], task.get("history", []))
-        observed_pending = tuple(
-            index
-            for index, entry in enumerate(observed_history)
-            if entry.get("wake_status") == WakeStatus.PENDING.value
-        )
         with self._lock:
             if isinstance(observed_at, str) and self._observed.get(task_id) == observed_at:
                 return
@@ -80,7 +74,7 @@ class StageEntryWaker:
                 self._deliver(
                     task,
                     observed_live=observed_live,
-                    observed_pending=observed_pending,
+                    observed_at=observed_at if isinstance(observed_at, str) else None,
                 )
             except Exception:
                 _log.warning("stage-entry delivery failed for task %s", task_id, exc_info=True)
@@ -95,7 +89,7 @@ class StageEntryWaker:
         task: JsonObj,
         *,
         observed_live: bool,
-        observed_pending: tuple[int, ...],
+        observed_at: str | None,
     ) -> None:
         task_id = str(task["id"])
         full = self._client.get_task(task_id)
@@ -105,9 +99,11 @@ class StageEntryWaker:
             return
         pending = [
             index
-            for index in observed_pending
-            if index < len(history)
-            and history[index].get("wake_status") == WakeStatus.PENDING.value
+            for index, entry in enumerate(history)
+            if entry.get("wake_status") == WakeStatus.PENDING.value
+            and observed_at is not None
+            and isinstance(entry.get("at"), str)
+            and str(entry["at"]) <= observed_at
         ]
         if not pending:
             self._remember(task_id, task.get("updated_at"))

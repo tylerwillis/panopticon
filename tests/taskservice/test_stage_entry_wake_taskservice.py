@@ -128,12 +128,15 @@ def test_live_agent_state_entry_is_submitted_on_the_next_runner_observation(
             client.set_state(task_id, "WORKING")
 
         runner = _Runner()
+        summaries, _ = client.list_tasks_versioned()
+        observed = next(task for task in summaries if task["id"] == task_id)
+        assert "history" not in observed
         StageEntryWaker(
             client,
             runner,
             runner_id="host-1",
             dispatch=lambda delivery: delivery(),
-        ).wake(client.get_task(task_id))
+        ).wake(observed)
 
     assert len(runner.prompts) == 1
     assert runner.prompts[0].startswith("You have entered WORKING.\n")

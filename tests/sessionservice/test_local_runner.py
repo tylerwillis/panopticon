@@ -76,7 +76,16 @@ def test_spawn_runs_detached_container_then_tmux_pane_execing_in() -> None:
     # pane execs the in-container agent launcher (so `tmux attach` reaches the live agent)
     assert tmux_new[:4] == ["tmux", "-L", "panopticon", "new-session"]
     assert tmux_new[tmux_new.index("-s") + 1] == "panopticon-t1"
-    assert tmux_new == ["tmux", "-L", "panopticon", "new-session", "-d", "-s", "panopticon-t1"]
+    assert tmux_new == [
+        "tmux",
+        "-L",
+        "panopticon",
+        "new-session",
+        "-d",
+        "-s",
+        "panopticon-t1",
+        "sleep 86400",
+    ]
     assert display == [
         "tmux",
         "-L",

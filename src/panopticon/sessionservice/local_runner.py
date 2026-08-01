@@ -270,7 +270,7 @@ class LocalRunner(Runner):
         # Create the pane before starting the agent so its persistent pipe catches the CLI's first
         # bracketed-paste-ready signal. A wake may arrive much later, after an idle CLI has stopped
         # producing output; attaching the watcher at delivery time would miss that earlier signal.
-        self._run(self._tmux("new-session", "-d", "-s", container))
+        self._run(self._tmux("new-session", "-d", "-s", container, "sleep 86400"))
         pane = watch_pane(
             container,
             run=self._run,

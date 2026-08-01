@@ -9,7 +9,9 @@ from __future__ import annotations
 
 import os
 import shlex
+import stat
 import subprocess
+import sys
 import tempfile
 import time
 from collections.abc import Callable, Sequence
@@ -47,7 +49,13 @@ def _unlink(path: str) -> None:
 
 def readiness_log(session: str) -> str:
     """Return the stable raw-output log used to remember one task pane's readiness."""
-    return str(Path(tempfile.gettempdir()) / f"panopticon-prefill-{session}.raw")
+    root = Path(os.environ.get("XDG_RUNTIME_DIR", tempfile.gettempdir()))
+    directory = root / f"panopticon-prefill-{os.getuid()}"
+    directory.mkdir(mode=0o700, exist_ok=True)
+    details = directory.stat()
+    if details.st_uid != os.getuid() or stat.S_IMODE(details.st_mode) != 0o700:
+        raise OSError(f"unsafe readiness directory: {directory}")
+    return str(directory / f"{session}.raw")
 
 
 def readiness_watch_command(raw: str) -> str:
@@ -69,7 +77,7 @@ def readiness_watch_command(raw: str) -> str:
         "os.write(fd, marker)\n"
         "os.close(fd)"
     )
-    return f"python -c {shlex.quote(code)}"
+    return f"{shlex.quote(sys.executable)} -c {shlex.quote(code)}"
 
 
 def watch_pane(

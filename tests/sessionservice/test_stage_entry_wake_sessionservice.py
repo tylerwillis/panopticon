@@ -293,6 +293,29 @@ def test_down_observation_cannot_be_settled_after_ownership_transfers() -> None:
     ]
 
 
+def test_observation_does_not_settle_an_entry_created_after_its_timestamp() -> None:
+    # 2119: REQ-029.1.1
+    # 2119: REQ-029.1.3
+    task = _task(container_status="down")
+    task["history"][1]["at"] = "2026-08-01T01:00:00+00:00"  # type: ignore[index]
+    task["updated_at"] = "2026-08-01T01:00:00+00:00"
+    observed = {key: value for key, value in task.items() if key != "history"}
+    client, runner = _Client(task), _Runner()
+    queued: list[Callable[[], None]] = []
+    waker = StageEntryWaker(client, runner, runner_id="host-1", dispatch=queued.append)
+
+    waker.wake(observed)
+    later = _entry("REVIEWING", trigger="set-state")
+    later["at"] = "2026-08-01T01:00:01+00:00"
+    task["history"].append(later)  # type: ignore[union-attr]
+    task["updated_at"] = later["at"]
+    queued.pop()()
+
+    assert runner.prompts == []
+    assert client.records == [("t1", 1, "skipped")]
+    assert task["history"][2]["wake_status"] == "pending"  # type: ignore[index]
+
+
 def test_delivery_is_dispatched_once_without_blocking_the_observation() -> None:
     # 2119: REQ-029.1.1
     task = _task()

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-029.1.3--294adfd025e1",
-  "requirementId": "REQ-029.1.3",
-  "hash": "294adfd025e1",
-  "verdict": "pass",
-  "summary": "Tests verify critical durable observation gates later delivery: down-container entries skipped at wake() time remain skipped even if container heals before deferred delivery runs, preventing later spawns/heals from resurrecting skipped entries",
-  "timestamp": "2026-08-01T01:38:55.360Z"
-}

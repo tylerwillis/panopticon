@@ -629,12 +629,12 @@ class TaskService:
     async def stage_entry_briefing(self, task_id: str, entry_index: int) -> str:
         """Render the deterministic agent briefing for one recorded state entry."""
         task = await self.get_task(task_id)
+        if entry_index < 0:
+            raise ValueError("history entry index must be non-negative")
         try:
             entry = task.history[entry_index]
         except IndexError:
             raise ValueError(f"history entry {entry_index} does not exist") from None
-        if entry_index < 0:
-            raise ValueError("history entry index must be non-negative")
         entry_task = replace(
             task,
             state=entry.to_state,

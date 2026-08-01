@@ -160,6 +160,17 @@ def test_persistent_watch_is_attached_before_a_later_delivery(tmp_path: Path) ->
     ]
 
 
+def test_readiness_log_uses_an_owner_only_runtime_directory(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("XDG_RUNTIME_DIR", str(tmp_path))
+
+    marker = Path(readiness_log("sess"))
+
+    assert marker.parent.parent == tmp_path
+    assert stat.S_IMODE(marker.parent.stat().st_mode) == 0o700
+
+
 def test_readiness_marker_creation_refuses_a_symlink(tmp_path: Path) -> None:
     target = tmp_path / "target"
     target.write_text("keep-me")
@@ -226,7 +237,7 @@ def test_already_idle_real_pane_uses_readiness_recorded_at_startup(tmp_path: Pat
         return subprocess.run(list(args), check=check, capture_output=True, text=True).stdout
 
     try:
-        run([*prefix, "new-session", "-d", "-s", session])
+        run([*prefix, "new-session", "-d", "-s", session, "sleep 86400"])
         pane = watch_pane(session, run=run, prefix=prefix, raw_log=str(raw))
         assert pane
         script = (
