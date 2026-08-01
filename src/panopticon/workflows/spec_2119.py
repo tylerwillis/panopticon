@@ -42,6 +42,14 @@ FINDINGS_TRIAGED = Responsibility(
         "accepted (2 rounds max); the triage summary is a PR comment."
     ),
 )
+DEFERRED_ISSUES_FILED = Responsibility(
+    key="deferred-issues-filed",
+    description=(
+        "Every suggested placeholder issue from the triage summary has been weighed against the "
+        "PR's comments — filed with `gh issue create` if the user endorsed it or left it "
+        "unaddressed, skipped if the user rejected it. Filing zero issues is a legal outcome."
+    ),
+)
 
 
 class _Specifying(InitialState):
@@ -145,7 +153,10 @@ class _Merging(State):
     label = "MERGING"
     description = "Shepherd the PR through the merge queue."
     advanced_by = Actor.AGENT
-    responsibilities = (Responsibility(key="pr-merged", description="The PR is merged."),)
+    responsibilities = (
+        DEFERRED_ISSUES_FILED,
+        Responsibility(key="pr-merged", description="The PR is merged."),
+    )
     transitions = (Complete,)
 
 
@@ -163,7 +174,15 @@ code later.
 
 Also publish the specification as a task artifact for the operator to review."""
 
-_FABLE_SOL_REVIEW_INSTRUCTIONS = """Run two independent fresh-context reviews of the final
+_DEFERRED_ISSUES_TRIAGE_INSTRUCTIONS = """End the triage summary PR comment with a
+"Suggested placeholder issues" section. For each finding you rejected or deferred that is
+nonetheless a genuinely good idea, add a one-paragraph entry: what the idea is, why it was
+deferred rather than done now, and what an implementer would need to know. Omit findings
+rejected as simply wrong — this section captures deferred value, not a changelog of the review.
+Frame the section explicitly as recommendations for the user to react to (endorse, reject, or
+edit) at the PR approval gate; `MERGING` reads this section back before filing issues."""
+
+_FABLE_SOL_REVIEW_INSTRUCTIONS = f"""Run two independent fresh-context reviews of the final
 diff: Fable 5 through the Claude CLI and Sol 5.6 with
 `codex exec --dangerously-bypass-approvals-and-sandbox -m gpt-5.6-sol`. Each review covers
 correctness, simplicity, scope, and spec/test honesty. Reviewer prompts must forbid edits. After
@@ -174,9 +193,11 @@ Triage every finding against the code. Accept or reject each finding with a reas
 accepted fix, and re-run the TESTING gates. If a MUST-FIX was accepted, run one fresh review round;
 never exceed two rounds. Post the final triage as a PR comment.
 
+{_DEFERRED_ISSUES_TRIAGE_INSTRUCTIONS}
+
 Also publish the final review outputs and triage summary as task artifacts."""
 
-_SOL_ONLY_REVIEW_INSTRUCTIONS = """Run two independent fresh-context Sol 5.6 reviews of the
+_SOL_ONLY_REVIEW_INSTRUCTIONS = f"""Run two independent fresh-context Sol 5.6 reviews of the
 final diff with `codex exec --dangerously-bypass-approvals-and-sandbox -m gpt-5.6-sol`. Each review
 covers correctness, simplicity, scope, and spec/test honesty. Reviewer prompts must forbid edits.
 After each reviewer run, you MUST verify `git status --porcelain` is unchanged. Post both final
@@ -186,7 +207,28 @@ Triage every finding against the code. Accept or reject each finding with a reas
 accepted fix, and re-run the TESTING gates. If a MUST-FIX was accepted, run one fresh review round;
 never exceed two rounds. Post the final triage as a PR comment.
 
+{_DEFERRED_ISSUES_TRIAGE_INSTRUCTIONS}
+
 Also publish the final review outputs and triage summary as task artifacts."""
+
+_DEFERRED_ISSUES_MERGE_INSTRUCTIONS = """## Before merging: file deferred-work issues
+
+The `deferred-issues-filed` responsibility gates this stage ahead of `pr-merged`. Before running
+the merge-queue steps below:
+
+1. Re-read your triage summary PR comment's "Suggested placeholder issues" section (posted at the
+   end of `REVIEWING`) together with any user comments left on the PR reacting to those
+   suggestions.
+2. For each suggested issue the user endorsed, or left without objection, file it with
+   `gh issue create`, incorporating any user edits. Each issue MUST be self-contained: a title
+   stating the idea, and a body carrying context — a link to the PR, a reference to the review
+   comment it came from, why it was deferred rather than done now, and what implementing it would
+   involve.
+3. Skip any suggested issue the user explicitly rejected.
+4. Filing zero issues — because there were no suggestions, or none were endorsed — is a legal
+   outcome. Resolve `deferred-issues-filed` either way once every suggestion has been considered.
+
+"""
 
 
 class _Spec2119Workflow(GithubForgeWorkflow):
@@ -230,7 +272,20 @@ class _Spec2119Workflow(GithubForgeWorkflow):
             "dashboard's `p` hotkey opens it and the `url-recorded` responsibility can be "
             "resolved.",
         )
-        return (open_pr, *forge_skills[1:], self._spec_skill(), self._review_skill())
+        babysit_ci = forge_skills[1]
+        babysit_merge = forge_skills[2]
+        deferred_issues_merge = Skill(
+            babysit_merge.name,
+            babysit_merge.description,
+            _DEFERRED_ISSUES_MERGE_INSTRUCTIONS + babysit_merge.instructions,
+        )
+        return (
+            open_pr,
+            babysit_ci,
+            deferred_issues_merge,
+            self._spec_skill(),
+            self._review_skill(),
+        )
 
     def image_layer(self) -> str:
         """Install the Codex reviewer CLI regardless of the task's primary harness."""
