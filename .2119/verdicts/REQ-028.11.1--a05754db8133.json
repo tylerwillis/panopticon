@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.11.1--a05754db8133",
-  "requirementId": "REQ-028.11.1",
-  "hash": "a05754db8133",
-  "verdict": "pass",
-  "summary": "Sol: exact guidance covers durability, all document types, URL exception, and p/a hotkeys.",
-  "timestamp": "2026-07-31T23:19:31.060Z"
-}

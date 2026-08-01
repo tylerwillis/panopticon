@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.5.1--debacd0cc986",
-  "requirementId": "REQ-033.5.1",
-  "hash": "debacd0cc986",
-  "verdict": "pass",
-  "summary": "test_merging_gains_deferred_issues_filed_before_pr_merged asserts exact key order ['deferred-issues-filed','pr-merged'] via real discover_workflows for all 3 built-in 2119 workflows; monkeypatch counterexamples (reversed order, and single-workflow omission) both correctly fail the assertion.",
-  "timestamp": "2026-08-01T00:40:10.517Z"
-}

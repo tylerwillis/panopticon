@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.8.1--bbe0ada2fbb8",
-  "requirementId": "REQ-033.8.1",
-  "hash": "bbe0ada2fbb8",
-  "verdict": "pass",
-  "summary": "Exact-string pin of the real (unmocked) babysit-merge instructions catches both bullet removal and the subtler 'explicitly' qualifier drop; verified via in-process counterexample.",
-  "timestamp": "2026-08-01T00:40:59.447Z"
-}

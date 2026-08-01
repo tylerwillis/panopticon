@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.12.1--32548aee1fd9",
-  "requirementId": "REQ-028.12.1",
-  "hash": "32548aee1fd9",
-  "verdict": "pass",
-  "summary": "Sol: every built-in reviewer skill is enumerated and exact snapshots require isolation, read-only prompts, and tree checks.",
-  "timestamp": "2026-07-31T23:19:31.513Z"
-}

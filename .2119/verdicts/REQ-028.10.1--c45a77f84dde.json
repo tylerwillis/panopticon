@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.10.1--c45a77f84dde",
-  "requirementId": "REQ-028.10.1",
-  "hash": "c45a77f84dde",
-  "verdict": "pass",
-  "summary": "Exact-equality assertion on the real artifacts-skill instructions embeds the 'complement, not replacement' sentence; monkeypatch counterexamples (omitting/contradicting that clause) confirm the test rejects both violations.",
-  "timestamp": "2026-08-01T00:40:07.638Z"
-}

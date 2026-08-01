@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.7.1--fee5a16ce8de",
-  "requirementId": "REQ-028.7.1",
-  "hash": "fee5a16ce8de",
-  "verdict": "pass",
-  "summary": "Sol: discovery without an external directory returns all three exact built-ins and classes.",
-  "timestamp": "2026-07-31T23:19:29.132Z"
-}

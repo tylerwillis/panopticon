@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.4.1--44598b23f188",
+  "requirementId": "REQ-028.4.1",
+  "hash": "44598b23f188",
+  "verdict": "pass",
+  "summary": "test_specifying_has_one_artifact_responsibility reads live discover_workflows() output (no mocks) and asserts an exact 4-item SPECIFYING responsibility tuple for all 3 built-ins; in-process monkeypatch counterexamples (remove spec-artifact, duplicate it, weaken its description, relocate it to BUILDING) each broke the assertion, confirming exactly-one/artifact-related/human-review conjuncts are all genuinely enforced.",
+  "timestamp": "2026-08-01T00:59:34.690Z"
+}

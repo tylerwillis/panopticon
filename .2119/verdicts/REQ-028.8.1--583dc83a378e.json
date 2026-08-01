@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.8.1--583dc83a378e",
+  "requirementId": "REQ-028.8.1",
+  "hash": "583dc83a378e",
+  "verdict": "pass",
+  "summary": "test_auto_sol_uses_sol_for_both_review_layers exercises real (unmocked) discover_workflows output and catches all three conjuncts via targeted monkeypatch counterexamples (auto-sol regressing to Fable+Sol, auto-spec regressing to Sol-only, and a per-workflow Sol->Fable honesty-reviewer swap all fail the assertions); minor note: _honesty_reviewer_cmd() is dead code disconnected from the rendered spec-2119 instructions, but the instructions-equality assertion independently verifies the real behavior so coverage holds.",
+  "timestamp": "2026-08-01T01:00:14.497Z"
+}

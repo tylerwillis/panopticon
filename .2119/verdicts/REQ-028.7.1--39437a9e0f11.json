@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.7.1--39437a9e0f11",
+  "requirementId": "REQ-028.7.1",
+  "hash": "39437a9e0f11",
+  "verdict": "pass",
+  "summary": "test_discovers_all_three_builtin_2119_workflows uses real discover_workflows() (only _home_workflows overridden for isolation, no path arg) and asserts registry[name]->class identity for all 3 names; confirmed via monkeypatch counterexamples that dropping Spec2119AutoSol or renaming it to a near-miss key both raise KeyError, so the test genuinely rejects violations.",
+  "timestamp": "2026-08-01T01:00:00.970Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.9.1--965956aaa628",
-  "requirementId": "REQ-028.9.1",
-  "hash": "965956aaa628",
-  "verdict": "pass",
-  "summary": "Sol: every built-in collision identifies the exact external file and removal remediation.",
-  "timestamp": "2026-07-31T23:19:30.107Z"
-}

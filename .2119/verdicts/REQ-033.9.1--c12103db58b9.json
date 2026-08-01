@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.9.1--c12103db58b9",
-  "requirementId": "REQ-033.9.1",
-  "hash": "c12103db58b9",
-  "verdict": "pass",
-  "summary": "test_babysit_merge_files_deferred_issues_before_the_merge_queue_steps does exact-string verification (no mocking) of the rendered MERGING babysit-merge instructions across all 3 builtin workflows; confirmed via monkeypatch mutation that dropping any conjunct (title, PR link, review-comment reference, why-deferred, shipping-scope) breaks the test.",
-  "timestamp": "2026-08-01T00:41:50.264Z"
-}

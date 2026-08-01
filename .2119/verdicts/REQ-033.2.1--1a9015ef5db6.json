@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.2.1--1a9015ef5db6",
-  "requirementId": "REQ-033.2.1",
-  "hash": "1a9015ef5db6",
-  "verdict": "pass",
-  "summary": "Verbatim-pin test compares real workflow.skills() output (no mocks) against a golden string containing all REQ-033.2.1 elements; monkeypatch mutations dropping 'one-paragraph', collapsing per-finding structure, or removing the 'why deferred' conjunct each broke the assertion, confirming genuine detection.",
-  "timestamp": "2026-08-01T00:40:50.492Z"
-}

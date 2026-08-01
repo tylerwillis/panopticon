@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.6.1--a06f8ecab7d4",
+  "requirementId": "REQ-028.6.1",
+  "hash": "a06f8ecab7d4",
+  "verdict": "pass",
+  "summary": "test_building_retains_the_external_pr_url_responsibility reads the real discover_workflows() registry and each built-in's actual BUILDING.responsibilities (the same tuple the engine seeds/gates on); mutation-tested by removing url-recorded from the shared base state (all three) and from a single workflow's own override -- both fail with KeyError, confirming genuine detection, not tautology or keyword matching.",
+  "timestamp": "2026-08-01T01:00:23.855Z"
+}

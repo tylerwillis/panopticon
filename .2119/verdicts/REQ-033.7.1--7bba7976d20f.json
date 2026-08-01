@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.7.1--7bba7976d20f",
-  "requirementId": "REQ-033.7.1",
-  "hash": "7bba7976d20f",
-  "verdict": "pass",
-  "summary": "Exact-string test (test_babysit_merge_files_deferred_issues_before_the_merge_queue_steps) diffs real skills() output against a hand-copied constant with no mocking; verified mutation removing the 'or left without objection' clause breaks the equality, so the test genuinely rejects violations of the endorsed-or-unaddressed / gh issue create / user-edits conjuncts.",
-  "timestamp": "2026-08-01T00:40:37.047Z"
-}

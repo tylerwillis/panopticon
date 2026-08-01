@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.6.1--3d3e297b8dcf",
-  "requirementId": "REQ-028.6.1",
-  "hash": "3d3e297b8dcf",
-  "verdict": "pass",
-  "summary": "Test asserts the exact BUILDING responsibility text is present per built-in 2119 workflow; verified via monkeypatch counterexamples that removal, description-weakening, and relocation to another state each break the test.",
-  "timestamp": "2026-08-01T00:39:39.914Z"
-}

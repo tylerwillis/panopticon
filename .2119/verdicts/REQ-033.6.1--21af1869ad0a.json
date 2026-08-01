@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.6.1--21af1869ad0a",
-  "requirementId": "REQ-033.6.1",
-  "hash": "21af1869ad0a",
-  "verdict": "pass",
-  "summary": "Exact-text-pin test (test_babysit_merge_files_deferred_issues_before_the_merge_queue_steps) verifies the re-read-suggestions-and-comments instruction is present verbatim and precedes the unmodified base merge-queue instructions across all 3 built-in workflows; confirmed via monkeypatch counterexamples that dropping the re-read step, dropping the user-comments clause, or reordering it after the merge steps all break the assertion.",
-  "timestamp": "2026-08-01T00:41:01.494Z"
-}

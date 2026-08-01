@@ -216,16 +216,18 @@ _DEFERRED_ISSUES_MERGE_INSTRUCTIONS = """## Before merging: file deferred-work i
 The `deferred-issues-filed` responsibility gates this stage ahead of `pr-merged`. Before running
 the merge-queue steps below:
 
-1. Re-read your triage summary PR comment's "Suggested placeholder issues" section (posted at the
-   end of `REVIEWING`) together with any user comments left on the PR reacting to those
-   suggestions.
-2. For each suggested issue the user endorsed, or left without objection, file it with
+1. If `deferred-issues-filed` is already resolved — this is a re-invocation, e.g. while a merge
+   watcher waits on CI — skip straight to the merge-queue steps below; do not re-file.
+2. Otherwise, re-read your triage summary PR comment's "Suggested placeholder issues" section
+   (posted at the end of `REVIEWING`) together with any user comments left on the PR reacting to
+   those suggestions.
+3. For each suggested issue the user endorsed, or left without objection, file it with
    `gh issue create`, incorporating any user edits. Each issue MUST be self-contained: a title
    stating the idea, and a body carrying context — a link to the PR, a reference to the review
    comment it came from, why it was deferred rather than done now, and what implementing it would
    involve.
-3. Skip any suggested issue the user explicitly rejected.
-4. Filing zero issues — because there were no suggestions, or every suggestion was explicitly
+4. Skip any suggested issue the user explicitly rejected.
+5. Filing zero issues — because there were no suggestions, or every suggestion was explicitly
    rejected — is a legal outcome. Resolve `deferred-issues-filed` either way once every
    suggestion has been considered."""
 

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.5.1--75aebd071b2f",
+  "requirementId": "REQ-033.5.1",
+  "hash": "75aebd071b2f",
+  "verdict": "pass",
+  "summary": "test_merging_gains_deferred_issues_filed_before_pr_merged uses real discover_workflows (no mocking) and asserts the exact ordered key list + description for all 3 builtin 2119 workflows' MERGING state; verified via monkeypatch counterexamples that reversed order, a missing responsibility, a wedged extra item, and a weakened description are all rejected.",
+  "timestamp": "2026-08-01T01:00:29.168Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.8.1--a33d9bb6174e",
-  "requirementId": "REQ-028.8.1",
-  "hash": "a33d9bb6174e",
-  "verdict": "pass",
-  "summary": "test_auto_sol_uses_sol_for_both_review_layers genuinely verifies real rendered Skill.instructions/fable_reviews via discover_workflows against independently-authored expected literals; counterexamples (auto-sol using Fable, human/auto-spec using Sol-only, test-honesty routed to Fable) are all rejected. Minor nit: the _honesty_reviewer_cmd() assertion checks a method never called by production code (dead code), but this is redundant with the real instructions-comparison assertions, not load-bearing.",
-  "timestamp": "2026-08-01T00:41:12.401Z"
-}

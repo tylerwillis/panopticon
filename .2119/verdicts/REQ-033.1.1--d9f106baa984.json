@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.1.1--d9f106baa984",
-  "requirementId": "REQ-033.1.1",
-  "hash": "d9f106baa984",
-  "verdict": "pass",
-  "summary": "test_2119_skills_publish_spec_and_review_material does exact-string equality of each built-in workflow's review-skill instructions against a hardcoded expected string containing the verbatim 'End the triage summary PR comment with a \"Suggested placeholder issues\" section' clause; in-process mutation removing the end-with requirement (replacing it with 'include somewhere') produces instructions that fail the equality check, confirming genuine detection.",
-  "timestamp": "2026-08-01T00:40:39.193Z"
-}

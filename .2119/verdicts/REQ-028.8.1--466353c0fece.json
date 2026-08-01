@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.8.1--466353c0fece",
-  "requirementId": "REQ-028.8.1",
-  "hash": "466353c0fece",
-  "verdict": "pass",
-  "summary": "Sol: tests reject wrong honesty/final reviewer assignments and extra or missing review skills.",
-  "timestamp": "2026-07-31T23:19:29.622Z"
-}

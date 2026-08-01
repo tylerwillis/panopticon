@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.10.1--96da3737051c",
+  "requirementId": "REQ-028.10.1",
+  "hash": "96da3737051c",
+  "verdict": "pass",
+  "summary": "Exact-string-equality test on ARTIFACT_SKILL.instructions embeds the required complement-not-replacement sentence; monkeypatch counterexample with a 'artifact supersedes the PR' framing was confirmed to break the assertion.",
+  "timestamp": "2026-08-01T01:00:18.316Z"
+}

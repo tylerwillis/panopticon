@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.2.1--3aa700290501",
-  "requirementId": "REQ-028.2.1",
-  "hash": "3aa700290501",
-  "verdict": "pass",
-  "summary": "Exact-string assertion against the real (unmocked) ARTIFACT_SKILL.instructions genuinely requires both the put_artifact MCP tool and PUT /tasks/{task_id}/artifacts/{name} REST mention; counterexamples removing either mechanism or swapping PUT for POST are rejected by the equality check.",
-  "timestamp": "2026-08-01T00:39:05.266Z"
-}
