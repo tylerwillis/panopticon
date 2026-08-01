@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.3.3--3f172364a98c",
+  "requirementId": "REQ-025.3.3",
+  "hash": "3f172364a98c",
+  "verdict": "pass",
+  "summary": "attach_command tests assert exact-list/string equality using the original session id as the -t target for both set-option and attach with no rename-session call, so renaming the session would break the equality check.",
+  "timestamp": "2026-08-01T00:33:31.671Z"
+}

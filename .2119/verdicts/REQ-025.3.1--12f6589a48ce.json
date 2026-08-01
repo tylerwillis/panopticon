@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.3.1--12f6589a48ce",
-  "requirementId": "REQ-025.3.1",
-  "hash": "12f6589a48ce",
-  "verdict": "pass",
-  "summary": "Exact local and remote command assertions require status-left to be set on the target before the attach command.",
-  "timestamp": "2026-07-31T05:57:51.129Z"
-}

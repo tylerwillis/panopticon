@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.1.3--e49f7f720647",
+  "requirementId": "REQ-030.1.3",
+  "hash": "e49f7f720647",
+  "verdict": "pass",
+  "summary": "Pure test asserts the exact 'set-option -g set-clipboard on' line from the real production generator; the line's tmux syntax is also proven valid as part of the same aggregate config successfully loaded by the real-tmux integration test in this file.",
+  "timestamp": "2026-08-01T00:34:58.219Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.1.1--6bb3f81af32a",
+  "requirementId": "REQ-030.1.1",
+  "hash": "6bb3f81af32a",
+  "verdict": "pass",
+  "summary": "Real-tmux tests (test_tmux_defaults.py, test_shell_runner.py, test_local_runner.py) start genuinely fresh sockets and assert 'show-options -g/-A mouse' == mouse on, both declared and effective on the created session; no mocking of the assertion itself.",
+  "timestamp": "2026-08-01T03:02:29.176Z"
+}

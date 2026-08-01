@@ -18,7 +18,8 @@ from __future__ import annotations
 import argparse
 import contextlib
 import os
-from collections.abc import Sequence
+import subprocess
+from collections.abc import Callable, Sequence
 from pathlib import Path
 
 import httpx
@@ -38,10 +39,14 @@ def _run_migrate() -> None:
         alembic.config.main(argv=["--config", str(ini_path), "upgrade", "head"])
 
 
-def _start_sessions() -> None:
-    import subprocess
+def _start_sessions(
+    *, run: Callable[..., subprocess.CompletedProcess[bytes]] | None = None
+) -> None:
     import sys
 
+    from panopticon.sessionservice.tmux_defaults import defaults_argv
+
+    do_run = run or subprocess.run
     python = sys.executable
     for name, cmd in [
         ("service", f"{python} -m panopticon.taskservice 2>&1 | tee /tmp/panopticon-service.log"),
@@ -55,15 +60,28 @@ def _start_sessions() -> None:
         # healthy service would find no container to join until every task reconnects its /live
         # stream — the join races the reconnect and falls back to the dashboard. Leave it be.
         if (
-            subprocess.run(
+            do_run(
                 ["tmux", "-L", "panopticon", "has-session", "-t", name],
                 capture_output=True,
             ).returncode
             == 0
         ):
             continue
-        subprocess.run(
-            ["tmux", "-L", "panopticon", "new-session", "-d", "-s", name, cmd],
+        # `panopticon start`/`host` typically run before the dashboard or any task container, so
+        # this is often the actual first touch of a fresh socket — load the shipped tmux defaults
+        # (REQ-030) via `-f` here too, not just at the dashboard/task-spawn call sites.
+        do_run(
+            [
+                "tmux",
+                "-L",
+                "panopticon",
+                *defaults_argv("panopticon"),
+                "new-session",
+                "-d",
+                "-s",
+                name,
+                cmd,
+            ],
             check=True,
         )
 

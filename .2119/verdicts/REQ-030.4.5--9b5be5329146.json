@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.4.5--9b5be5329146",
+  "requirementId": "REQ-030.4.5",
+  "hash": "9b5be5329146",
+  "verdict": "pass",
+  "summary": "test_clipboard_tool_falls_back_to_xsel_without_wl_copy_or_xclip asserts the exact command 'xsel --clipboard --input' when only xsel is present on a non-darwin platform, matching the requirement's fallback-order boundary.",
+  "timestamp": "2026-08-01T00:34:36.987Z"
+}

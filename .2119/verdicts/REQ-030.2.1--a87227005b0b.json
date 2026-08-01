@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.2.1--a87227005b0b",
+  "requirementId": "REQ-030.2.1",
+  "hash": "a87227005b0b",
+  "verdict": "pass",
+  "summary": "Test asserts the exact copy-mode MouseDragEnd1Pane bind-key line invoking copy-pipe-and-cancel with the resolved clipboard tool; precise key-table/event/action/argument match, not vague keyword matching, and the line's syntax validity is exercised by the file's real-tmux config-load test.",
+  "timestamp": "2026-08-01T00:34:58.703Z"
+}

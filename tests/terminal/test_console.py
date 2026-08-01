@@ -11,9 +11,11 @@ from typing import Any
 
 import pytest
 
+from panopticon.sessionservice.tmux_defaults import server_default_config_text
 from panopticon.terminal.console import (
     attach_target,
     decode_switch_target,
+    ensure_dashboard_session,
     resolve_join,
     run_console,
     switch_file_path,
@@ -355,6 +357,60 @@ def test_make_service_switch_only_switches_when_a_service_session_exists(tmp_pat
     absent = make_service_switch(switch, exists=lambda: False, detach=lambda: None)
     assert absent() is False
     assert switch.read_text() == ""
+
+
+# 2119: REQ-030.3.1
+def test_ensure_dashboard_session_loads_every_shipped_default_via_dash_f(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # The dashboard may be the very first thing to touch a fresh `-L panopticon` socket (e.g. a
+    # bare `panopticon console` with no runner/task ever spawned yet) — same obligation as a task
+    # session.
+    monkeypatch.setattr("shutil.which", lambda _tool: None)
+    calls: list[list[str]] = []
+
+    def run(command: list[str], *, check: bool) -> None:
+        calls.append(command)
+
+    ensure_dashboard_session(["python", "-m", "panopticon.terminal"], exists=lambda: False, run=run)
+
+    assert len(calls) == 1
+    tmux_new = calls[0]
+    assert tmux_new[:3] == ["tmux", "-L", "panopticon"]
+    assert tmux_new[3] == "-f"
+    config_path = Path(tmux_new[4])
+    assert tmux_new[5] == "new-session"
+    assert config_path.read_text() == server_default_config_text(clipboard=None)
+    assert tmux_new[-3:] == ["python", "-m", "panopticon.terminal"]
+
+
+# 2119: REQ-030.3.2
+def test_ensure_dashboard_session_places_dash_f_before_new_session(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr("shutil.which", lambda _tool: None)
+    calls: list[list[str]] = []
+
+    ensure_dashboard_session(
+        ["python", "-m", "panopticon.terminal"],
+        exists=lambda: False,
+        run=lambda command, **_kwargs: calls.append(command),
+    )
+
+    tmux_new = calls[0]
+    assert tmux_new.index("-f") < tmux_new.index("new-session")
+
+
+def test_ensure_dashboard_session_does_nothing_when_already_running() -> None:
+    calls: list[list[str]] = []
+
+    ensure_dashboard_session(
+        ["python", "-m", "panopticon.terminal"],
+        exists=lambda: True,
+        run=lambda command, **_kwargs: calls.append(command),
+    )
+
+    assert calls == []  # no defaults re-applied, no session re-created
 
 
 def test_make_runner_switch_only_switches_when_a_runner_session_exists(tmp_path: Path) -> None:

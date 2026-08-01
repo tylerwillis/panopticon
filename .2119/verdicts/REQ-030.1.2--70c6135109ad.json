@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.1.2--70c6135109ad",
+  "requirementId": "REQ-030.1.2",
+  "hash": "70c6135109ad",
+  "verdict": "pass",
+  "summary": "Pure test asserts the exact history-limit line and the HISTORY_LIMIT=50000 constant; real-tmux integration test confirms 'show-options -g history-limit' == 'history-limit 50000' after -f + new-session on a fresh socket, matching the pane-creation-time requirement.",
+  "timestamp": "2026-08-01T00:34:57.750Z"
+}

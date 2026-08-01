@@ -33,6 +33,7 @@ import httpx
 
 from panopticon.client import TaskServiceClient
 from panopticon.sessionservice.local_runner import TMUX_SOCKET
+from panopticon.sessionservice.tmux_defaults import defaults_argv
 from panopticon.terminal.attach import attach_command, task_context_label
 
 #: tmux session name the dashboard runs in (on the panopticon socket, beside the task sessions).
@@ -122,6 +123,35 @@ def session_exists(session: str, *, socket: str = TMUX_SOCKET) -> bool:
             ["tmux", "-L", socket, "has-session", "-t", session], capture_output=True
         ).returncode
         == 0
+    )
+
+
+def ensure_dashboard_session(
+    dashboard: list[str],
+    *,
+    socket: str = TMUX_SOCKET,
+    exists: Callable[[], bool] | None = None,
+    run: CommandExecutor = subprocess.run,
+) -> None:
+    """Idempotently start the persistent ``dashboard`` session: when it isn't already running,
+    create it loading panopticon's shipped tmux server defaults (REQ-030) via ``-f`` — a bare
+    `panopticon console` may be the very first thing to touch a fresh socket."""
+    is_running = exists or (lambda: session_exists(DASHBOARD_SESSION, socket=socket))
+    if is_running():
+        return
+    run(
+        [
+            "tmux",
+            "-L",
+            socket,
+            *defaults_argv(socket),
+            "new-session",
+            "-d",
+            "-s",
+            DASHBOARD_SESSION,
+            *dashboard,
+        ],
+        check=False,
     )
 
 
@@ -299,10 +329,7 @@ def run_console_local(
 
     def show_dashboard() -> str | None:
         switch_file.write_text("")  # clear last round's pick
-        if _tmux("has-session", "-t", DASHBOARD_SESSION).returncode != 0:
-            _tmux(
-                "new-session", "-d", "-s", DASHBOARD_SESSION, *dashboard
-            )  # start it once, detached
+        ensure_dashboard_session(dashboard, socket=socket)  # start it once, detached
         _tmux("attach", "-t", DASHBOARD_SESSION)  # blocks until `t` detaches (or `q` ends it)
         return switch_file.read_text().strip() or None
 

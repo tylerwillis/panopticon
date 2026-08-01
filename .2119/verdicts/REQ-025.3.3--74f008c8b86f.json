@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.3.3--74f008c8b86f",
-  "requirementId": "REQ-025.3.3",
-  "hash": "74f008c8b86f",
-  "verdict": "pass",
-  "summary": "Exact command assertions permit only targeted status decoration followed by attach to the unchanged session name.",
-  "timestamp": "2026-07-31T05:57:51.122Z"
-}

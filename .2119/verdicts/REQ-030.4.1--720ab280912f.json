@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.4.1--720ab280912f",
+  "requirementId": "REQ-030.4.1",
+  "hash": "720ab280912f",
+  "verdict": "pass",
+  "summary": "test_clipboard_tool_selects_pbcopy_on_darwin_when_present asserts exact equality to pbcopy given darwin+pbcopy-present via an injected which; a second test proves the default which=None path genuinely re-resolves shutil.which per call (regression test for the eager-binding bug), not a stale import-time capture.",
+  "timestamp": "2026-08-01T00:34:30.836Z"
+}

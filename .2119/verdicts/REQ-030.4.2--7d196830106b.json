@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.4.2--7d196830106b",
+  "requirementId": "REQ-030.4.2",
+  "hash": "7d196830106b",
+  "verdict": "pass",
+  "summary": "test_clipboard_tool_selects_nothing_on_darwin_without_pbcopy asserts None for darwin+no-pbcopy AND, as a genuine counterexample, that a linux-only toolset present on darwin still yields None, so cross-platform leakage is rejected.",
+  "timestamp": "2026-08-01T00:34:32.589Z"
+}

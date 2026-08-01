@@ -8,6 +8,7 @@ from typing import Any
 
 import pytest
 
+from panopticon.sessionservice.tmux_defaults import server_default_config_text
 from panopticon.terminal import __main__ as cli
 
 
@@ -21,6 +22,64 @@ def test_cli_tasks_lists(capsys: pytest.CaptureFixture[str]) -> None:
     out = capsys.readouterr().out
     assert rc == 0
     assert "t1" in out and "ITERATING" in out and "agent" in out
+
+
+class _FakeCompletedProcess:
+    def __init__(self, returncode: int) -> None:
+        self.returncode = returncode
+
+
+# 2119: REQ-030.3.1
+def test_start_sessions_loads_shipped_tmux_defaults_via_dash_f_for_service_and_runner(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # `panopticon start`/`host` run this before the dashboard or any task spawn — in the normal
+    # startup flow it's the actual first thing to touch a fresh `-L panopticon` socket, so it must
+    # carry the same shipped defaults (REQ-030) as the other three new-session call sites.
+    monkeypatch.setattr("shutil.which", lambda _tool: None)
+    calls: list[list[str]] = []
+
+    def fake_run(args: list[str], **_kwargs: object) -> _FakeCompletedProcess:
+        calls.append(args)
+        return _FakeCompletedProcess(returncode=1)  # no session exists yet -> create it
+
+    cli._start_sessions(run=fake_run)
+
+    new_session_calls = [c for c in calls if "new-session" in c]
+    assert len(new_session_calls) == 2  # "service" and "runner"
+    for tmux_new in new_session_calls:
+        assert tmux_new[:3] == ["tmux", "-L", "panopticon"]
+        assert tmux_new[3] == "-f"
+        config_path = Path(tmux_new[4])
+        assert tmux_new[5] == "new-session"
+        assert config_path.read_text() == server_default_config_text(clipboard=None)
+
+
+# 2119: REQ-030.3.2
+def test_start_sessions_places_dash_f_before_new_session(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("shutil.which", lambda _tool: None)
+    calls: list[list[str]] = []
+
+    def fake_run(args: list[str], **_kwargs: object) -> _FakeCompletedProcess:
+        calls.append(args)
+        return _FakeCompletedProcess(returncode=1)
+
+    cli._start_sessions(run=fake_run)
+
+    for tmux_new in (c for c in calls if "new-session" in c):
+        assert tmux_new.index("-f") < tmux_new.index("new-session")
+
+
+def test_start_sessions_skips_an_already_running_session(monkeypatch: pytest.MonkeyPatch) -> None:
+    calls: list[list[str]] = []
+
+    def fake_run(args: list[str], **_kwargs: object) -> _FakeCompletedProcess:
+        calls.append(args)
+        return _FakeCompletedProcess(returncode=0)  # both already running
+
+    cli._start_sessions(run=fake_run)
+
+    assert not any("new-session" in c for c in calls)  # neither bounced
 
 
 def test_dashboard_under_supervisor_wires_the_switch_hooks(monkeypatch: pytest.MonkeyPatch) -> None:

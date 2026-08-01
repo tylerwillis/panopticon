@@ -16,6 +16,7 @@ from panopticon.core.models import LifecyclePhase
 from panopticon.sessionservice.local_runner import LocalRunner
 from panopticon.sessionservice.prefill import readiness_log, readiness_watch_command
 from panopticon.sessionservice.runner import Runner
+from panopticon.sessionservice.tmux_defaults import server_default_config_text
 
 
 class _Recorder:
@@ -73,13 +74,17 @@ def test_spawn_runs_detached_container_then_tmux_pane_execing_in() -> None:
     # container -> host addressing so the container can reach the task service
     assert docker_run[docker_run.index("--add-host") + 1] == "host.docker.internal:host-gateway"
     # the tmux session (on the default `panopticon` socket) shares the container name; its
-    # pane execs the in-container agent launcher (so `tmux attach` reaches the live agent)
-    assert tmux_new[:4] == ["tmux", "-L", "panopticon", "new-session"]
+    # pane execs the in-container agent launcher (so `tmux attach` reaches the live agent).
+    # This is also the session-creating call, so it carries the shipped tmux defaults (REQ-030)
+    # via `-f` — the inert placeholder command (`sleep`, not a shell) is unaffected.
+    assert tmux_new[:3] == ["tmux", "-L", "panopticon"]
+    assert tmux_new[tmux_new.index("new-session") + 1 :][:2] == ["-d", "-s"]
     assert tmux_new[tmux_new.index("-s") + 1] == "panopticon-t1"
-    assert tmux_new == [
-        "tmux",
-        "-L",
-        "panopticon",
+    assert tmux_new[3] == "-f"
+    assert Path(
+        tmux_new[4]
+    ).is_file()  # exact defaults-content coverage lives in test_tmux_defaults.py
+    assert tmux_new[5:] == [
         "new-session",
         "-d",
         "-s",
@@ -340,9 +345,10 @@ def test_spawn_uses_the_composed_image_when_given_else_the_base() -> None:
     runner = LocalRunner("http://svc", image="panopticon-base", run=rec)
     runner.spawn("t1")  # no override → base
     assert rec.calls[2][0][-1] == "panopticon-base"
+    first_spawn_calls = len(rec.calls)
     runner.spawn("t2", image="panopticon-github-peer-reviewed-r1")  # composed image (ADR 0005)
-    # each spawn emits 7 calls; t2's docker run is calls[9]
-    assert rec.calls[9][0][-1] == "panopticon-github-peer-reviewed-r1"
+    # t2's docker run is the 3rd call of its own spawn (kill-session, rm, run, ...)
+    assert rec.calls[first_spawn_calls + 2][0][-1] == "panopticon-github-peer-reviewed-r1"
 
 
 def test_stop_kills_session_and_force_removes_container_idempotently() -> None:
@@ -379,12 +385,54 @@ def test_delete_workspace_contents_runs_root_container_to_empty_directory() -> N
 def test_tmux_socket_can_be_overridden() -> None:
     rec = _Recorder()
     LocalRunner("http://svc", tmux_socket="panopt", run=rec).spawn("t1")
-    assert rec.calls[3][0][:4] == [
-        "tmux",
-        "-L",
-        "panopt",
-        "new-session",
-    ]  # kill-session, rm, run, tmux
+    tmux_new = next(c for c, _ in rec.calls if "new-session" in c)
+    assert tmux_new[:3] == ["tmux", "-L", "panopt"]
+    assert "new-session" in tmux_new
+
+
+# 2119: REQ-030.3.1
+def test_spawn_loads_every_shipped_tmux_server_default_via_dash_f_on_its_own_new_session(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # A task container spawn may be the very first thing to touch a fresh `-L panopticon` socket
+    # (e.g. the runner daemon spawning ahead of any dashboard) — it must not rely on some other
+    # process having set these up first. Separate `tmux set-option ...` calls do not persist on a
+    # fresh socket (tmux tears a sessionless server back down between client invocations), so `-f`
+    # must be threaded onto THIS spawn's own new-session, loading every REQ-030.1/.2 default (not
+    # just one) atomically with the session it creates.
+    monkeypatch.setattr("shutil.which", lambda _tool: None)  # deterministic: no clipboard tool
+    rec = _Recorder()
+    LocalRunner("http://svc", run=rec).spawn("t1")
+    tmux_new = next(c for c, _ in rec.calls if "new-session" in c)
+    assert tmux_new[:3] == ["tmux", "-L", "panopticon"]
+    assert tmux_new[3] == "-f"
+    config_path = Path(tmux_new[4])
+    assert tmux_new[5] == "new-session"
+    assert config_path.read_text() == server_default_config_text(clipboard=None)
+
+
+# 2119: REQ-030.3.2
+def test_spawn_places_dash_f_before_new_session_so_it_applies_at_server_startup(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # `-f` only takes effect when it precedes the subcommand that starts a brand-new server;
+    # placed after `new-session` it has no effect on that session's server at all, and
+    # history-limit (bound per-pane at creation, never retroactively) would silently fall back to
+    # tmux's stock 2000.
+    monkeypatch.setattr("shutil.which", lambda _tool: None)
+    rec = _Recorder()
+    LocalRunner("http://svc", run=rec).spawn("t1")
+    tmux_new = next(c for c, _ in rec.calls if "new-session" in c)
+    assert tmux_new.index("-f") < tmux_new.index("new-session")
+
+
+# 2119: REQ-030.5.1
+def test_spawn_applies_no_shipped_defaults_without_a_dedicated_socket() -> None:
+    # tmux_socket=None means "talk to the ambient default tmux server" (no -L) — that could be an
+    # operator's own personal server, which panopticon's shipped defaults must never touch.
+    rec = _Recorder()
+    LocalRunner("http://svc", tmux_socket=None, run=rec).spawn("t1")
+    assert not any("-f" in c for c, _ in rec.calls)
 
 
 # -- integration: real docker + tmux ------------------------------------------------
@@ -399,6 +447,8 @@ def _docker_running() -> bool:
     )
 
 
+# 2119: REQ-030.1.1
+# 2119: REQ-030.3.1
 @pytest.mark.skipif(not _docker_running(), reason="needs a working docker daemon + tmux")
 def test_spawn_and_stop_real_container_and_session() -> None:
     image = "panopticon-itest:latest"
@@ -434,6 +484,11 @@ def test_spawn_and_stop_real_container_and_session() -> None:
             ).returncode
             == 0
         )
+        # the shipped tmux defaults (REQ-030) landed on this genuinely fresh socket's server
+        mouse = subprocess.run(
+            ["tmux", "-L", socket, "show-options", "-g", "mouse"], capture_output=True, text=True
+        ).stdout.strip()
+        assert mouse == "mouse on"
 
         runner.stop(cid)
         assert subprocess.run(["docker", "inspect", cid], capture_output=True).returncode != 0

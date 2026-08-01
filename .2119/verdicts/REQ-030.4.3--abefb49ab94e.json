@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.4.3--abefb49ab94e",
+  "requirementId": "REQ-030.4.3",
+  "hash": "abefb49ab94e",
+  "verdict": "pass",
+  "summary": "test_clipboard_tool_selects_wl_copy_on_linux_when_present asserts exact selection of wl-copy on non-darwin, and covers the priority counterexample (wl-copy still wins with xclip/xsel also present).",
+  "timestamp": "2026-08-01T00:34:34.138Z"
+}

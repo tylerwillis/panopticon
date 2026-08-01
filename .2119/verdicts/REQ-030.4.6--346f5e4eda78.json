@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.4.6--346f5e4eda78",
+  "requirementId": "REQ-030.4.6",
+  "hash": "346f5e4eda78",
+  "verdict": "pass",
+  "summary": "test_clipboard_tool_selects_nothing_on_linux_with_no_candidate_present asserts None with nothing present AND the darwin-only-tool-present counterexample (pbcopy on PATH still yields None on linux), rejecting cross-platform leakage.",
+  "timestamp": "2026-08-01T00:34:38.483Z"
+}
