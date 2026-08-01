@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.5.1--a87fe2a51e59",
+  "requirementId": "REQ-008.5.1",
+  "hash": "a87fe2a51e59",
+  "verdict": "pass",
+  "summary": "test_user_prompt_submit_waits_for_the_turn_write gates the client's set_turn with threading events and asserts the hook thread stays alive until the write returns (rejects fire-and-forget); test_config_wires_the_turn_flip_hooks_to_the_shared_callback confirms codex's UserPromptSubmit hook invokes that exact callback.",
+  "timestamp": "2026-08-01T00:07:36.334Z"
+}

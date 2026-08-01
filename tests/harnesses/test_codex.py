@@ -2,7 +2,7 @@
 
 Facts pinned against codex-cli 0.144.4: the config keys come from its published config schema;
 the api-key ``auth.json`` shape is what ``codex login --with-api-key`` writes; ``codex resume``
-takes an explicit session id (scanned from the newest interactive rollout — see REQ-027, not
+takes an explicit session id (scanned from the newest interactive rollout — see REQ-032, not
 ``--last``, which reviewer ``codex exec`` rollouts sharing the same ``CODEX_HOME`` can poison),
 the bypass flags, and a positional prompt.
 """
@@ -283,13 +283,13 @@ def test_argv_splits_an_effort_suffix_into_a_config_override(tmp_path: Path) -> 
     ]
 
 
-# 2119: REQ-027.1.1
+# 2119: REQ-032.1.1
 def test_argv_resumes_the_recorded_interactive_session_by_id(tmp_path: Path) -> None:
     _seed_session(tmp_path)
     assert HARNESS.argv(_ctx(tmp_path)) == ["codex", "resume", "interactive-1", *_SESSION_FLAGS]
 
 
-# 2119: REQ-027.5.2
+# 2119: REQ-032.5.2
 def test_argv_resume_appends_interrupt_prompt_on_agent_turn(tmp_path: Path) -> None:
     _seed_session(tmp_path)
     argv = HARNESS.argv(_ctx(tmp_path, turn="agent"))
@@ -302,8 +302,8 @@ def test_argv_resume_omits_model_and_initial_prompt(tmp_path: Path) -> None:
     assert "--model" not in argv and "start now" not in argv
 
 
-# 2119: REQ-027.1.1
-# 2119: REQ-027.1.3
+# 2119: REQ-032.1.1
+# 2119: REQ-032.1.3
 def test_argv_resume_picks_interactive_over_a_newer_exec_rollout(tmp_path: Path) -> None:
     # The exact live failure mode: a reviewer's `codex exec` rollout, dispatched by the
     # dual-review/test-honesty skills INSIDE this same task container, lands newer than the
@@ -313,7 +313,7 @@ def test_argv_resume_picks_interactive_over_a_newer_exec_rollout(tmp_path: Path)
     assert HARNESS.argv(_ctx(tmp_path)) == ["codex", "resume", "interactive-1", *_SESSION_FLAGS]
 
 
-# 2119: REQ-027.1.2
+# 2119: REQ-032.1.2
 def test_argv_resume_picks_the_newest_of_several_interactive_sessions(tmp_path: Path) -> None:
     # Filename order, on-disk creation order, AND mtime order are deliberately all different, so
     # selecting by name/glob order or creation order rather than genuine recency (the recorded
@@ -324,19 +324,19 @@ def test_argv_resume_picks_the_newest_of_several_interactive_sessions(tmp_path: 
     assert HARNESS.argv(_ctx(tmp_path)) == ["codex", "resume", "newer", *_SESSION_FLAGS]
 
 
-# 2119: REQ-027.2.1
+# 2119: REQ-032.2.1
 def test_argv_resume_stays_fresh_when_no_rollouts_recorded(tmp_path: Path) -> None:
     assert HARNESS.argv(_ctx(tmp_path)) == ["codex", *_SESSION_FLAGS]
 
 
-# 2119: REQ-027.2.2
+# 2119: REQ-032.2.2
 def test_argv_resume_falls_back_to_fresh_when_every_rollout_is_exec(tmp_path: Path) -> None:
     _seed_rollout(tmp_path, "reviewer-1", "codex_exec", mtime=100, name="a.jsonl")
     _seed_rollout(tmp_path, "reviewer-2", "exec", mtime=200, name="b.jsonl")
     assert HARNESS.argv(_ctx(tmp_path)) == ["codex", *_SESSION_FLAGS]
 
 
-# 2119: REQ-027.3.1
+# 2119: REQ-032.3.1
 def test_argv_resume_skips_malformed_rollouts_but_still_finds_the_interactive_one(
     tmp_path: Path,
 ) -> None:
@@ -351,8 +351,8 @@ def test_argv_resume_skips_malformed_rollouts_but_still_finds_the_interactive_on
     assert HARNESS.argv(_ctx(tmp_path)) == ["codex", "resume", "interactive-1", *_SESSION_FLAGS]
 
 
-# 2119: REQ-027.3.1
-# 2119: REQ-027.2.2
+# 2119: REQ-032.3.1
+# 2119: REQ-032.2.2
 def test_argv_resume_treats_all_malformed_rollouts_as_fresh(tmp_path: Path) -> None:
     rollouts = tmp_path / ".codex" / "sessions"
     rollouts.mkdir(parents=True)
@@ -405,7 +405,7 @@ class _FirstLineOnly:
         return getattr(self._fh, name)
 
 
-# 2119: REQ-027.4.1
+# 2119: REQ-032.4.1
 def test_argv_resume_reads_only_the_first_line_of_each_rollout(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -430,7 +430,7 @@ def test_argv_resume_reads_only_the_first_line_of_each_rollout(
     assert HARNESS.argv(_ctx(tmp_path)) == ["codex", "resume", "interactive-1", *_SESSION_FLAGS]
 
 
-# 2119: REQ-027.5.1
+# 2119: REQ-032.5.1
 def test_argv_resume_session_flags_unchanged(tmp_path: Path) -> None:
     _seed_session(tmp_path)
     argv = HARNESS.argv(_ctx(tmp_path))

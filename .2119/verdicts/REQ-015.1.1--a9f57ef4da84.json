@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-015.1.1--a9f57ef4da84",
+  "requirementId": "REQ-015.1.1",
+  "hash": "a9f57ef4da84",
+  "verdict": "pass",
+  "summary": "test_argv_preserves_scrollback_for_new_and_resumed_sessions asserts --no-alt-screen is present in the real HARNESS.argv() output for both new and resumed sessions (unmocked session_flags list); genuinely fails if the flag is dropped or made resume-only.",
+  "timestamp": "2026-08-01T00:07:28.200Z"
+}

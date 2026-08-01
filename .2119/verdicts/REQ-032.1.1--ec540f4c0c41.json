@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-032.1.1--ec540f4c0c41",
+  "requirementId": "REQ-032.1.1",
+  "hash": "ec540f4c0c41",
+  "verdict": "pass",
+  "summary": "Both tests exercise the real _resume_target scan against real tmp_path rollout files with exact-argv equality (no mocking); the base case proves session-id resume replaces --last, and the interactive-over-newer-exec case rejects the nearest violating counterexample for the 'newest such [interactive]' qualifier.",
+  "timestamp": "2026-08-01T00:08:13.132Z"
+}

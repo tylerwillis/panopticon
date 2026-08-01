@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-032.2.2--35d3e29b4ec8",
+  "requirementId": "REQ-032.2.2",
+  "hash": "35d3e29b4ec8",
+  "verdict": "pass",
+  "summary": "Real-filesystem test drives HARNESS.argv against genuine _resume_target with all-exec and all-malformed rollout boundary cases, asserting fallback to exact first-run argv; no mocking of the scan logic, not tautological.",
+  "timestamp": "2026-08-01T00:07:59.750Z"
+}

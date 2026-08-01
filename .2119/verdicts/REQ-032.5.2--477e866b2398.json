@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-032.5.2--477e866b2398",
+  "requirementId": "REQ-032.5.2",
+  "hash": "477e866b2398",
+  "verdict": "pass",
+  "summary": "test_argv_resume_appends_interrupt_prompt_on_agent_turn asserts exact argv equality (INTERRUPT_PROMPT as the final element after session flags, via HARNESS.argv with no mocking); paired with the turn-unset test's exact equality (no prompt), this pins both the append position and its absence, and git history confirms the append logic is byte-for-byte unchanged from before REQ-032, only the resume target changed.",
+  "timestamp": "2026-08-01T00:08:22.615Z"
+}

@@ -1,4 +1,4 @@
-# REQ-027: Codex resume targets the interactive session, not a reviewer rollout
+# REQ-032: Codex resume targets the interactive session, not a reviewer rollout
 
 ## Overview
 
@@ -44,7 +44,7 @@ migration.
 
 ## Requirements
 
-### REQ-027.1: Resume target selection
+### REQ-032.1: Resume target selection
 
 1. When `$CODEX_HOME/sessions` contains at least one rollout file whose first line identifies an
    interactive originator, the codex harness's launch argv MUST resume the newest such rollout by
@@ -54,7 +54,7 @@ migration.
 3. A rollout file whose first line identifies a non-interactive (`codex exec`) originator MUST
    NOT be selected as the resume target.
 
-### REQ-027.2: First-run fallback
+### REQ-032.2: First-run fallback
 
 1. When `$CODEX_HOME/sessions` contains no rollout files at all, the codex harness's launch argv
    MUST be the same first-run argv produced before this scan existed (no `resume` subcommand).
@@ -62,17 +62,17 @@ migration.
    interactive originator, the codex harness's launch argv MUST fall back to first-run argv
    rather than raising an error or resuming a non-interactive session.
 
-### REQ-027.3: Malformed rollout tolerance
+### REQ-032.3: Malformed rollout tolerance
 
 1. A rollout file whose first line is empty, not valid JSON, or lacks a recognizable originator
    field MUST be excluded from resume-target selection without the harness raising an error.
 
-### REQ-027.4: Scan cost
+### REQ-032.4: Scan cost
 
 1. Resume-target selection MUST determine each rollout file's originator by reading only that
    file's first line, never the file's full contents.
 
-### REQ-027.5: Unchanged resume behavior otherwise
+### REQ-032.5: Unchanged resume behavior otherwise
 
 1. When the codex harness resumes a session (by either the newly-scanned interactive session id
    or, before this feature, `--last`), the flags accompanying the `resume` subcommand MUST be the

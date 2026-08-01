@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-032.2.1--5aabc9042294",
+  "requirementId": "REQ-032.2.1",
+  "hash": "5aabc9042294",
+  "verdict": "pass",
+  "summary": "test_argv_resume_stays_fresh_when_no_rollouts_recorded calls the real HARNESS.argv against an untouched tmp_path (no mocking); it hits _resume_target's not sessions.exists() branch and asserts the exact pre-scan first-run argv, and the adjacent one-file-seeded test (REQ-032.1.1) proves the suite discriminates the true boundary (zero vs one rollout).",
+  "timestamp": "2026-08-01T00:08:04.696Z"
+}

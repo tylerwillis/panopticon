@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-032.4.1--92d135e02363",
+  "requirementId": "REQ-032.4.1",
+  "hash": "92d135e02363",
+  "verdict": "pass",
+  "summary": "The _FirstLineOnly proxy genuinely enforces the first-line-only bound (verified by mutation: reverting to a full-file read makes the test fail); the appended 5000-line garbage tail supplies the required near-violation counterexample for 'only'/'never full contents'.",
+  "timestamp": "2026-08-01T00:08:35.629Z"
+}

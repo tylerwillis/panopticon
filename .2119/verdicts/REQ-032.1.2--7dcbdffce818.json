@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-032.1.2--7dcbdffce818",
+  "requirementId": "REQ-032.1.2",
+  "hash": "7dcbdffce818",
+  "verdict": "pass",
+  "summary": "test_argv_resume_picks_the_newest_of_several_interactive_sessions genuinely verifies recency: two interactive rollouts with filename, creation order, and mtime all deliberately diverging; asserts the mtime-latest one wins, rejecting a name/creation-order-based counterexample. Matches the implementation's actual path.stat().st_mtime comparison, not keyword theater or mocking.",
+  "timestamp": "2026-08-01T00:08:40.541Z"
+}
