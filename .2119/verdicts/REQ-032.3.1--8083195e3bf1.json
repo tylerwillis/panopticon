@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-032.3.1--8083195e3bf1",
+  "requirementId": "REQ-032.3.1",
+  "hash": "8083195e3bf1",
+  "verdict": "pass",
+  "summary": "Genuinely verifies the requirement: HARNESS.argv() (real CodexHarness, no mocks) is exercised against empty/not-json/no-payload/no-originator rollout files, all made newer than a valid interactive rollout; the no-originator case now seeds a payload with id+thread_source but no originator key (the round-2 fix), the exact nearest violating input for 'lacks a recognizable originator field' — a .get()-with-default implementation bug would resume the wrong session, so the assertion is a real counterexample, not keyword theater.",
+  "timestamp": "2026-08-01T00:51:29.193Z"
+}

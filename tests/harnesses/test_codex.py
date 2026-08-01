@@ -387,8 +387,12 @@ def test_argv_resume_skips_malformed_rollouts_but_still_finds_the_interactive_on
     rollouts.mkdir(parents=True)
     (rollouts / "empty.jsonl").write_text("")
     (rollouts / "not-json.jsonl").write_text("not json at all\n")
-    (rollouts / "no-originator.jsonl").write_text(json.dumps({"type": "session_meta"}) + "\n")
-    for name in ("empty.jsonl", "not-json.jsonl", "no-originator.jsonl"):
+    (rollouts / "no-payload.jsonl").write_text(json.dumps({"type": "session_meta"}) + "\n")
+    no_originator = {
+        "payload": {"id": "no-originator", "thread_source": "user"}
+    }  # a payload present, but its originator field itself is missing
+    (rollouts / "no-originator.jsonl").write_text(json.dumps(no_originator) + "\n")
+    for name in ("empty.jsonl", "not-json.jsonl", "no-payload.jsonl", "no-originator.jsonl"):
         os.utime(rollouts / name, (300, 300))  # newer than the interactive rollout below
     _seed_rollout(tmp_path, "interactive-1", "codex-tui", mtime=100)
     assert HARNESS.argv(_ctx(tmp_path)) == ["codex", "resume", "interactive-1", *_SESSION_FLAGS]
