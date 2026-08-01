@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.1.1--55d6dd3d0c70",
+  "requirementId": "REQ-029.1.1",
+  "hash": "55d6dd3d0c70",
+  "verdict": "pass",
+  "summary": "Tests verify live container, agent turn, non-terminal states, both entry paths, and per-entry ownership with no tautologies",
+  "timestamp": "2026-08-01T01:43:13.235Z"
+}

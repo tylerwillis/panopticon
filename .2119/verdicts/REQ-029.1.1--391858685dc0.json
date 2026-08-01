@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-029.1.1--391858685dc0",
-  "requirementId": "REQ-029.1.1",
-  "hash": "391858685dc0",
-  "verdict": "pass",
-  "summary": "Tests verify genuine eligibility: marked PENDING in core when entering agent nonterminal state via declared or free move, delivered to live containers, with ownership rechecked per entry across multi-entry sequences",
-  "timestamp": "2026-08-01T01:38:51.921Z"
-}

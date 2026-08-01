@@ -122,6 +122,33 @@ def test_opt_out_set_to_the_empty_string_does_not_suppress_wakes() -> None:
     assert client.records == [("t1", 1, "delivered")]
 
 
+def test_opt_out_rechecks_ownership_between_pending_entries() -> None:
+    # 2119: REQ-029.1.1
+    # 2119: REQ-029.1.5
+    task = _task()
+    task["history"].append(_entry("REVIEWING", trigger="set-state"))  # type: ignore[union-attr]
+
+    class _TransferClient(_Client):
+        def record_stage_entry_wake(self, task_id: str, entry_index: int, status: str) -> JsonObj:
+            result = super().record_stage_entry_wake(task_id, entry_index, status)
+            task["claimed_by"] = "host-2"
+            return result
+
+    client, runner = _TransferClient(task), _Runner()
+
+    StageEntryWaker(
+        client,
+        runner,
+        runner_id="host-1",
+        environ={"PANOPTICON_NO_STAGE_ENTRY_WAKE": "1"},
+        dispatch=_inline,
+    ).wake(task)
+
+    assert runner.prompts == []
+    assert client.records == [("t1", 1, "skipped")]
+    assert task["history"][2]["wake_status"] == "pending"  # type: ignore[index]
+
+
 def test_runner_does_not_wake_a_task_claimed_by_another_host() -> None:
     # 2119: REQ-029.1.1
     task = _task()

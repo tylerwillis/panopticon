@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-029.1.5--9976b6518f43",
-  "requirementId": "REQ-029.1.5",
-  "hash": "9976b6518f43",
-  "verdict": "pass",
-  "summary": "Tests distinguish env var non-empty ('1') suppresses wakes vs empty string ('') allows delivery; both paths recorded in client records.",
-  "timestamp": "2026-08-01T01:01:40.828Z"
-}

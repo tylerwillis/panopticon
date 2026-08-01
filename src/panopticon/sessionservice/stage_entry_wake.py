@@ -116,21 +116,10 @@ class StageEntryWaker:
         if self._runner_id is not None and full.get("claimed_by") != self._runner_id:
             return
         if not observed_live:
-            for entry_index in pending:
-                current = self._client.get_task(task_id)
-                if self._runner_id is not None and current.get("claimed_by") != self._runner_id:
-                    return
-                current_history = cast(list[JsonObj], current["history"])
-                if (
-                    entry_index >= len(current_history)
-                    or current_history[entry_index].get("wake_status") != WakeStatus.PENDING.value
-                ):
-                    continue
-                self._client.record_stage_entry_wake(task_id, entry_index, WakeStatus.SKIPPED.value)
+            self._settle(task_id, pending, WakeStatus.SKIPPED)
             return
         if self._environ.get(OPT_OUT_ENV):
-            for entry_index in pending:
-                self._client.record_stage_entry_wake(task_id, entry_index, WakeStatus.SKIPPED.value)
+            self._settle(task_id, pending, WakeStatus.SKIPPED)
             return
         if full.get("container_status") != ContainerStatus.LIVE.value:
             return
@@ -151,6 +140,19 @@ class StageEntryWaker:
             if not self._runner.submit_prompt(task_id, prompt):
                 return
             self._client.record_stage_entry_wake(task_id, entry_index, WakeStatus.DELIVERED.value)
+
+    def _settle(self, task_id: str, pending: list[int], status: WakeStatus) -> None:
+        for entry_index in pending:
+            current = self._client.get_task(task_id)
+            if self._runner_id is not None and current.get("claimed_by") != self._runner_id:
+                return
+            current_history = cast(list[JsonObj], current["history"])
+            if (
+                entry_index >= len(current_history)
+                or current_history[entry_index].get("wake_status") != WakeStatus.PENDING.value
+            ):
+                continue
+            self._client.record_stage_entry_wake(task_id, entry_index, status.value)
 
     def _remember(self, task_id: str, observed_at: object) -> None:
         if isinstance(observed_at, str):
