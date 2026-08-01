@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.3.5--aca898a8fdac",
+  "requirementId": "REQ-026.3.5",
+  "hash": "aca898a8fdac",
+  "verdict": "pass",
+  "summary": "Real API/service and dashboard tests keep a gated task unclaimed, listed, and rendered as a task row before spawning.",
+  "timestamp": "2026-08-01T00:38:25.260Z"
+}

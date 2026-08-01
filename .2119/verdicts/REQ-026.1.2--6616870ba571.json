@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.1.2--6616870ba571",
-  "requirementId": "REQ-026.1.2",
-  "hash": "6616870ba571",
-  "verdict": "pass",
-  "summary": "Candidate filtering omits an unclaimed non-terminal task with a DROPPED dependency while admitting no-dependency and COMPLETE-dependency controls; claim-time recheck also rejects the DROPPED race.",
-  "timestamp": "2026-08-01T00:05:22.727Z"
-}

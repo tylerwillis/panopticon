@@ -402,14 +402,21 @@ class Spawner:
         An unreachable Docker daemon is environmental, not this task's fault (REQ-031.3): the
         respawn is deferred without touching the crash-loop budget or reporting ``failed``, so the
         task self-recovers with its prior budget intact once the daemon returns — no state for the
-        operator to hand-clear. ``_is_orphan`` already excludes shell tasks, which never touch
-        Docker, so this only defers a container-backed orphan."""
+        operator to hand-clear. A deferred check also refreshes the budget's timestamp (without
+        touching its count) so a long outage isn't misread by :meth:`_respawn_count` as the task
+        having *survived* :data:`RESPAWN_RESET_SECONDS` — an outage proves nothing about whether
+        the task would actually stay up, so it must not reset the crash-loop budget either.
+        ``_is_orphan`` already excludes shell tasks, which never touch Docker, so this only defers
+        a container-backed orphan."""
         task_id = task["id"]
         if task["state"] in TERMINAL_LABELS and task.get("claimed_by") == self._runner_id:
             self._respawns.pop(task_id, None)  # our task is done — forget any crash-loop tracking
         if not self._is_orphan(task):
             return None  # not ours / terminal / a session is up — nothing to heal
         if not self._daemon_reachable():
+            if task_id in self._respawns:
+                count, _ = self._respawns[task_id]
+                self._respawns[task_id] = (count, self._now())  # keep the budget fresh, not reset
             _log.error(
                 "docker daemon unreachable — deferring respawn of task %s until it returns", task_id
             )

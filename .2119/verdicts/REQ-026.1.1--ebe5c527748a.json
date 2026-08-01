@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.1.1--ebe5c527748a",
-  "requirementId": "REQ-026.1.1",
-  "hash": "ebe5c527748a",
-  "verdict": "pass",
-  "summary": "Candidate and host-loop tests exclude an unclaimed active task with one active dependency and with mixed terminal/active dependencies; claim recheck rejects stale candidates.",
-  "timestamp": "2026-08-01T00:05:26.877Z"
-}

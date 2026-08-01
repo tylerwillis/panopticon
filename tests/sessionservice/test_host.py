@@ -549,9 +549,11 @@ def test_main_proceeds_to_migrate_and_build_runners_when_docker_is_reachable(
     monkeypatch.setattr(host_module, "LocalRunner", MagicMock())
     monkeypatch.setattr(host_module, "ShellRunner", MagicMock())
     monkeypatch.setattr(host_module.threading, "Thread", MagicMock())
-    monkeypatch.setattr(host_module, "run_host", MagicMock())
+    mock_run_host = MagicMock()
+    monkeypatch.setattr(host_module, "run_host", mock_run_host)
     host_module.main([], client=MagicMock())  # a client bypasses building a real TaskServiceClient
     mock_migrate.assert_called_once_with(host_module.CLONE_CACHE_DIR, host_module.TASKS_DIR)
+    mock_run_host.assert_called_once()  # actually enters the spawn/heal loop, not just migrates
 
 
 def test_run_host_spawns_then_provisions_end_to_end(tmp_path: Path) -> None:
@@ -602,6 +604,54 @@ def test_run_host_spawns_then_provisions_end_to_end(tmp_path: Path) -> None:
         got = client.get_task(task_id)
         assert runner.spawned == [task_id]  # not spawned again
         assert got["branch"] == "panopticon/fix-widget" and got["clone"] == f"/clones/{task_id}"
+
+
+def test_run_host_forwards_daemon_reachable_to_the_real_spawner(tmp_path: Path) -> None:
+    # `run_host` wires its `daemon_reachable` parameter straight into the `Spawner` it builds
+    # (REQ-031.3) — this proves that wiring holds through a real `run_host` call, not just a
+    # directly-constructed `Spawner` in the spawner-level tests: dropping that forwarding line
+    # would leave this task claimable and spawned even with the daemon reported unreachable.
+    # 2119: REQ-031.3.1
+    service = TaskService(SqlAlchemyStore(), {"spike": Spike()}, FilesystemArtifactStore(tmp_path))
+    asyncio.run(service.init())
+    asyncio.run(
+        service.create_repo(
+            Repo(id="r1", name="acme/widgets", git_url="https://forge/r1.git", default_base="trunk")
+        )
+    )
+    with TestClient(create_app(service)) as http:
+        client = TaskServiceClient(http)
+        task_id = client.create_task("r1", "spike")["id"]
+        runner = _FakeRunner()
+
+        def one_pass() -> Callable[[], bool]:
+            calls = {"n": 0}
+
+            def until() -> bool:
+                done = calls["n"] >= 1
+                calls["n"] += 1
+                return done
+
+            return until
+
+        run_host(
+            client,
+            runner,  # type: ignore[arg-type]
+            runner_id="host-1",
+            tasks_root="/clones",
+            cache=CloneCache(
+                "/cache", run=_no_op_run, exists=lambda _p: True, makedirs=lambda _p: None
+            ),
+            git=GitClones(run=_no_op_run),
+            images=_FakeImageBuilder(),  # type: ignore[arg-type]
+            makedirs=lambda _p: None,
+            sleep=lambda _s: None,
+            until=one_pass(),
+            daemon_reachable=lambda: False,
+        )
+        got = client.get_task(task_id)
+        assert runner.spawned == []  # deferred, not spawned
+        assert got["claimed_by"] is None  # left unclaimed for a later pass to retry
 
 
 def test_tick_cleans_up_each_task() -> None:

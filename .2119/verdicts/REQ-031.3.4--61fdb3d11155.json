@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-031.3.4--61fdb3d11155",
-  "requirementId": "REQ-031.3.4",
-  "hash": "61fdb3d11155",
-  "verdict": "pass",
-  "summary": "A shell task still claims and spawns while Docker is down, and shell healing never consults the daemon probe.",
-  "timestamp": "2026-07-31T23:54:26.972Z"
-}

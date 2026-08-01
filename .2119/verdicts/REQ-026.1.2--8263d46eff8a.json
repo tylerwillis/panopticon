@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.1.2--8263d46eff8a",
-  "requirementId": "REQ-026.1.2",
-  "hash": "8263d46eff8a",
-  "verdict": "pass",
-  "summary": "Spawner and host tests cover unclaimed non-terminal dependents with DROPPED-only and mixed dependencies and verify exclusion from candidates and spawning, with a service-level stale-claim rejection.",
-  "timestamp": "2026-07-31T07:32:48.338Z"
-}

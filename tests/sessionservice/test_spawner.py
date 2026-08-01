@@ -5,6 +5,7 @@ service over REST. No Docker, no LLM — `git`/runner are fakes."""
 from __future__ import annotations
 
 import asyncio
+import logging
 from collections.abc import Callable
 from pathlib import Path
 
@@ -15,6 +16,8 @@ from fastapi.testclient import TestClient
 from panopticon.client import JsonObj, TaskServiceClient
 from panopticon.core.git import GitClones
 from panopticon.core.models import LifecyclePhase, Repo
+from panopticon.core.state import InitialState, TerminalState
+from panopticon.core.workflow import Workflow
 from panopticon.sessionservice.clones import CloneCache
 from panopticon.sessionservice.spawner import Spawner, spawnable_tasks
 from panopticon.taskservice.api import create_app
@@ -22,6 +25,23 @@ from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
 from panopticon.taskservice.service import TaskService
 from panopticon.taskservice.store_sqlalchemy import SqlAlchemyStore
 from panopticon.workflows import Spike
+
+
+class _ArchivedWorkflow(Workflow):
+    """A workflow whose terminal state isn't the built-in `COMPLETE` — proves dependency gating
+    (REQ-026.1.3) clears via the generic per-workflow terminal check, not a hardcoded `COMPLETE`
+    comparison."""
+
+    name = "archived"
+
+    class Active(InitialState):
+        label = "ACTIVE"
+        transitions = ("ARCHIVED",)
+
+    class Archived(TerminalState):
+        label = "ARCHIVED"
+
+    initial = Active
 
 
 def _no_op_run(args: object, *, check: bool = True) -> str:
@@ -799,6 +819,26 @@ def test_spawn_one_defers_a_container_task_without_claiming_when_daemon_is_unrea
     assert client.phases == []  # not reported failed either
 
 
+def test_spawn_one_and_heal_log_the_deferral_as_a_daemon_condition_not_a_task_failure(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    # 2119: REQ-031.3.6
+    caplog.set_level(logging.ERROR, logger="panopticon.sessionservice.spawner")
+    client, runner = _FakeClient(repo=_REPO), _FakeRunner(session=False)
+    spawner = _spawner(client, runner, daemon_reachable=lambda: False)
+
+    spawner.spawn_one(
+        {"id": "t1", "repo_id": "r1", "workflow": "spike", "state": "ITERATING", "claimed_by": None}
+    )
+    spawner.heal(_orphan("t2"))
+
+    messages = [record.message for record in caplog.records]
+    assert any("docker daemon unreachable" in m and "t1" in m for m in messages)
+    assert any("docker daemon unreachable" in m and "t2" in m for m in messages)
+    # distinct wording from a real per-task spawn failure — never "failed" for a deferral
+    assert not any("failed" in m.lower() for m in messages)
+
+
 def test_spawn_one_resumes_once_the_daemon_is_reachable_again() -> None:
     # 2119: REQ-031.3.1
     client, runner = _FakeClient(repo=_REPO), _FakeRunner()
@@ -891,9 +931,11 @@ def test_heal_resumes_with_its_prior_budget_once_the_daemon_returns() -> None:
     assert len(runner.spawned) == 1
 
     reachable["ok"] = False
-    for _ in range(10):  # the daemon stays down for many ticks — none of these count as respawns
+    # The outage outlasts the 60s survivor-window reset — proving the deferral doesn't let the
+    # elapsed *outage* time masquerade as the task having survived and earned a fresh budget.
+    for _ in range(10):
         spawner.heal(_orphan())
-        clock["t"] += 1.0
+        clock["t"] += 10.0
     assert len(runner.spawned) == 1  # still just the one respawn from before the outage
 
     reachable["ok"] = True
@@ -1489,3 +1531,47 @@ def test_next_spawner_pass_starts_dependent_with_initial_prompt_when_last_dep_co
         assert spawner.spawn_one(ready[dependent_id]) == f"panopticon-{dependent_id}"
         assert client.get_task(dependent_id)["claimed_by"] == "host-1"
         assert runner.spawned[-1]["initial_prompt"] == "synthesize the audit results"
+
+
+# 2119: REQ-026.1.3
+def test_spawner_pass_starts_dependent_when_dependency_reaches_a_custom_terminal_state(
+    tmp_path: Path,
+) -> None:
+    # The requirement says "a workflow terminal state" generically, not `COMPLETE` specifically —
+    # a hardcoded `state == "COMPLETE"` check would pass every other REQ-026.1.3 test (they all use
+    # `COMPLETE`) while failing here, since `_ArchivedWorkflow`'s terminal label is `ARCHIVED`.
+    service = TaskService(
+        SqlAlchemyStore(), {"archived": _ArchivedWorkflow()}, FilesystemArtifactStore(tmp_path)
+    )
+    asyncio.run(service.init())
+    asyncio.run(
+        service.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://forge/r1.git"))
+    )
+    with TestClient(create_app(service)) as http:
+        client = TaskServiceClient(http)
+        dependency_id = client.create_task("r1", "archived")["id"]
+        dependent_id = client.create_task("r1", "archived")["id"]
+        client.set_dependencies(dependent_id, [dependency_id])
+
+        runner = _FakeRunner()
+        spawner = Spawner(
+            client,
+            runner,
+            runner_id="host-1",  # type: ignore[arg-type]
+            cache=CloneCache(
+                "/cache", run=_no_op_run, exists=lambda _p: True, makedirs=lambda _p: None
+            ),
+            tasks_root="/tasks",
+            git=GitClones(run=_no_op_run),
+            images=_FakeImageBuilder(),  # type: ignore[arg-type]
+            makedirs=lambda _p: None,
+        )
+
+        assert dependent_id not in {task["id"] for task in spawnable_tasks(client)()}
+
+        client.request_transition(dependency_id, "ARCHIVED", trigger="advance")
+        ready = {task["id"]: task for task in spawnable_tasks(client)()}
+        assert dependent_id in ready
+
+        assert spawner.spawn_one(ready[dependent_id]) == f"panopticon-{dependent_id}"
+        assert client.get_task(dependent_id)["claimed_by"] == "host-1"
