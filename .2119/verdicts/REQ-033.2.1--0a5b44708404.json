@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.2.1--0a5b44708404",
+  "requirementId": "REQ-033.2.1",
+  "hash": "0a5b44708404",
+  "verdict": "pass",
+  "summary": "test_2119_skills_publish_spec_and_review_material pins the review-skill instructions verbatim via strict string equality against a hand-copied golden constant containing the exact one-paragraph/why-deferred/implementer-info requirement text; confirmed via isolated string-reconstruction counterexamples (dropping 'one-paragraph', the why-deferred clause, the implementer-info clause, or the 'genuinely good idea' filter) that each violation breaks the equality assertion; no mocks, wiring into workflow.skills() confirmed non-dead-code.",
+  "timestamp": "2026-08-01T00:12:11.566Z"
+}

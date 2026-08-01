@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.6.1--fdd4a9ba9e8f",
+  "requirementId": "REQ-033.6.1",
+  "hash": "fdd4a9ba9e8f",
+  "verdict": "pass",
+  "summary": "test_babysit_merge_files_deferred_issues_before_the_merge_queue_steps does exact-text + structural (endswith/prefix) verification across all 3 builtin 2119 workflows; monkeypatch counterexamples dropping the user-reactions clause or reordering the re-read step correctly fail the assertion.",
+  "timestamp": "2026-08-01T00:11:38.642Z"
+}

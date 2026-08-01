@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.8.1--b8619c7e7fca",
+  "requirementId": "REQ-028.8.1",
+  "hash": "b8619c7e7fca",
+  "verdict": "pass",
+  "summary": "test_auto_sol_uses_sol_for_both_review_layers genuinely verifies both conjuncts via direct string equality against independently-declared expected constants; monkeypatch counterexamples for all three sub-requirements (non-Sol spec instructions, auto-spec downgraded to Sol-only, auto-sol upgraded to Fable+Sol) were confirmed to fail the test. Minor note: the _honesty_reviewer_cmd() assertions test a helper method that is not actually wired into _spec_skill (dead code), but this doesn't weaken coverage since the direct instructions-string comparison independently catches every constructed violation.",
+  "timestamp": "2026-08-01T00:07:39.587Z"
+}

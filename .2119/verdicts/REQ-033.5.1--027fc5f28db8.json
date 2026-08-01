@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.5.1--027fc5f28db8",
+  "requirementId": "REQ-033.5.1",
+  "hash": "027fc5f28db8",
+  "verdict": "pass",
+  "summary": "test_merging_gains_deferred_issues_filed_before_pr_merged exercises real discover_workflows + Workflow.responsibilities() (no mocking) and asserts exact key order [deferred-issues-filed, pr-merged] for all three built-in 2119 workflows; monkeypatch counterexamples (reversed order, missing responsibility, inserted intervening item) all correctly fail the assertion.",
+  "timestamp": "2026-08-01T00:11:30.927Z"
+}

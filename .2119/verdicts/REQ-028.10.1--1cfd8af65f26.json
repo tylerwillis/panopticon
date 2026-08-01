@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.10.1--1cfd8af65f26",
+  "requirementId": "REQ-028.10.1",
+  "hash": "1cfd8af65f26",
+  "verdict": "pass",
+  "summary": "test_artifact_skill_explains_both_write_mechanisms exact-matches the real (unmocked) artifact-skill instructions returned by TaskService.skills(); confirmed via in-process mutation that both a silent-omission and a contradicting variant of the complementarity clause are rejected by the assertion.",
+  "timestamp": "2026-08-01T00:07:36.475Z"
+}

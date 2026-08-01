@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.3.1--5dcce4722e70",
+  "requirementId": "REQ-033.3.1",
+  "hash": "5dcce4722e70",
+  "verdict": "pass",
+  "summary": "Exact-string-equality test compares real discover_workflows() output against a hand-authored expected constant containing the 'Omit findings rejected as simply wrong' clause; monkeypatch counterexample removing that clause breaks the assertion, confirming genuine coverage.",
+  "timestamp": "2026-08-01T00:11:27.436Z"
+}

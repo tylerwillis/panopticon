@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.9.1--12d123fd3135",
+  "requirementId": "REQ-028.9.1",
+  "hash": "12d123fd3135",
+  "verdict": "pass",
+  "summary": "test_duplicate_error_identifies_external_file_and_remediation genuinely verifies the requirement: it writes a real external file under the (monkeypatched) home workflows dir with a duplicate builtin name, calls the real discover_workflows(), and asserts the exact error text identifies the actual file path and says to remove it; mutation testing (removing the special-case raise, and silently skipping duplicates) confirms the test rejects both a non-identifying error and a silent no-op.",
+  "timestamp": "2026-08-01T00:08:28.701Z"
+}

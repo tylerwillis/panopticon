@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.1.1--456b854bc486",
+  "requirementId": "REQ-028.1.1",
+  "hash": "456b854bc486",
+  "verdict": "pass",
+  "summary": "test_every_task_exposes_the_core_artifact_skill exercises the real TaskService/discover_workflows path (no mocks) across zero-skill, one-skill, and governed built-in workflows, and a monkeypatch check confirms both dropping the artifacts skill and letting it replace workflow skills breaks the assertion; the reserved-surface tests confirm no workflow can shadow it.",
+  "timestamp": "2026-08-01T00:07:44.443Z"
+}

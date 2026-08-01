@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.5.1--ccebd0a08c6b",
+  "requirementId": "REQ-028.5.1",
+  "hash": "ccebd0a08c6b",
+  "verdict": "pass",
+  "summary": "test_2119_skills_publish_spec_and_review_material exact-matches real (unmocked) skill instructions against expected text containing the required publish-as-artifact clauses; verified via counterexample that stripping the spec-artifact clause, the review+triage-artifact clause, or just 'and triage summary' each independently breaks the equality and is rejected.",
+  "timestamp": "2026-08-01T00:07:55.709Z"
+}

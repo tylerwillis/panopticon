@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.8.1--a5edf2273855",
+  "requirementId": "REQ-033.8.1",
+  "hash": "a5edf2273855",
+  "verdict": "pass",
+  "summary": "test_babysit_merge_files_deferred_issues_before_the_merge_queue_steps does exact-text equality on the real composed babysit-merge instructions (via discover_workflows -> workflow.skills(), no mocks) for all 3 built-in 2119 workflows; monkeypatch counterexample removing item 3 ('Skip any suggested issue the user explicitly rejected.') from the source constant makes the assertion fail as expected, confirming it's a genuine behavioral check, not keyword theater.",
+  "timestamp": "2026-08-01T00:12:07.053Z"
+}

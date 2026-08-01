@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.4.1--117be4cfab6a",
+  "requirementId": "REQ-033.4.1",
+  "hash": "117be4cfab6a",
+  "verdict": "pass",
+  "summary": "test_2119_skills_publish_spec_and_review_material asserts exact-text equality of each built-in workflow's real review-skill instructions against a hand-typed golden string containing the 'Frame the section explicitly as recommendations for the user to react to ... at the PR approval gate' sentence; monkeypatching that sentence out of the production _DEFERRED_ISSUES_TRIAGE_INSTRUCTIONS (no mocks, real discover_workflows) made the test fail as expected, confirming genuine coverage.",
+  "timestamp": "2026-08-01T00:12:07.999Z"
+}

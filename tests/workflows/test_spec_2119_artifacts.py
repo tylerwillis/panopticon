@@ -298,10 +298,10 @@ def test_specifying_has_one_artifact_responsibility() -> None:
 def test_2119_skills_publish_spec_and_review_material() -> None:
     # 2119: REQ-028.5.1
     # 2119: REQ-028.12.1
-    # 2119: REQ-029.1.1
-    # 2119: REQ-029.2.1
-    # 2119: REQ-029.3.1
-    # 2119: REQ-029.4.1
+    # 2119: REQ-033.1.1
+    # 2119: REQ-033.2.1
+    # 2119: REQ-033.3.1
+    # 2119: REQ-033.4.1
     registry = discover_workflows(_home_workflows=Path("/nonexistent"))
     builtins = [workflow for name, workflow in registry.items() if name.startswith("2119-")]
 
@@ -420,8 +420,8 @@ def test_2119_open_pr_and_reviewer_cli_match_the_workflow_contract() -> None:
 
 
 def test_merging_gains_deferred_issues_filed_before_pr_merged() -> None:
-    # 2119: REQ-029.5.1
-    # 2119: REQ-029.10.1
+    # 2119: REQ-033.5.1
+    # 2119: REQ-033.10.1
     registry = discover_workflows(_home_workflows=Path("/nonexistent"))
     builtins = [workflow for name, workflow in registry.items() if name.startswith("2119-")]
     assert {workflow.name for workflow in builtins} == set(WORKFLOW_NAMES)
@@ -433,10 +433,10 @@ def test_merging_gains_deferred_issues_filed_before_pr_merged() -> None:
 
 
 def test_babysit_merge_files_deferred_issues_before_the_merge_queue_steps() -> None:
-    # 2119: REQ-029.6.1
-    # 2119: REQ-029.7.1
-    # 2119: REQ-029.8.1
-    # 2119: REQ-029.9.1
+    # 2119: REQ-033.6.1
+    # 2119: REQ-033.7.1
+    # 2119: REQ-033.8.1
+    # 2119: REQ-033.9.1
     registry = discover_workflows(_home_workflows=Path("/nonexistent"))
     builtins = [workflow for name, workflow in registry.items() if name.startswith("2119-")]
     assert {workflow.name for workflow in builtins} == set(WORKFLOW_NAMES)
