@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import shlex
 import shutil
+import stat
 import subprocess
 import time
 import uuid
@@ -17,6 +18,7 @@ from panopticon.sessionservice.prefill import (
     BRACKETED_PASTE_ON,
     prefill_pane,
     readiness_log,
+    readiness_watch_command,
     watch_pane,
 )
 
@@ -65,6 +67,10 @@ def _prompt(tmp_path: Path, text: str = "You have entered WORKING.\nBuild the fe
     return path
 
 
+def _watch_command(raw: Path) -> str:
+    return readiness_watch_command(str(raw))
+
+
 def test_ready_pane_gets_one_bracketed_paste_and_one_submit(tmp_path: Path) -> None:
     # 2119: REQ-029.3.1
     prompt, raw = _prompt(tmp_path), tmp_path / "raw.log"
@@ -93,7 +99,7 @@ def test_ready_pane_gets_one_bracketed_paste_and_one_submit(tmp_path: Path) -> N
         "-O",
         "-t",
         "%1",
-        f"cat >> {shlex.quote(str(raw))}",
+        _watch_command(raw),
     ] in tmux.calls
     assert ["tmux", "load-buffer", "-b", "panopticon-prefill-sess", str(prompt)] in tmux.calls
     paste = ["tmux", "paste-buffer", "-p", "-d", "-b", "panopticon-prefill-sess", "-t", "%1"]
@@ -140,7 +146,7 @@ def test_persistent_watch_is_attached_before_a_later_delivery(tmp_path: Path) ->
 
     assert watch_pane("sess", run=tmux, raw_log=str(raw)) == "%1"
 
-    assert raw.is_file()
+    assert not raw.exists()
     assert tmux.calls == [
         ["tmux", "display-message", "-p", "-t", "sess", "#{pane_id}"],
         [
@@ -149,7 +155,7 @@ def test_persistent_watch_is_attached_before_a_later_delivery(tmp_path: Path) ->
             "-O",
             "-t",
             "%1",
-            f"cat >> {shlex.quote(str(raw))}",
+            _watch_command(raw),
         ],
     ]
 
@@ -205,7 +211,10 @@ def test_already_idle_real_pane_uses_readiness_recorded_at_startup(tmp_path: Pat
         run([*prefix, "new-session", "-d", "-s", session])
         pane = watch_pane(session, run=run, prefix=prefix, raw_log=str(raw))
         assert pane
-        script = f"printf '\\033[?2004h'; head --lines=1 > {shlex.quote(str(received))}; sleep 10"
+        script = (
+            "printf '\\033[?2004h'; printf 'secret transcript after readiness'; "
+            f"head --lines=1 > {shlex.quote(str(received))}; sleep 10"
+        )
         run([*prefix, "respawn-pane", "-k", "-t", pane, "bash", "-c", script])
         for _ in range(50):
             if raw.is_file() and BRACKETED_PASTE_ON in raw.read_bytes():
@@ -213,6 +222,8 @@ def test_already_idle_real_pane_uses_readiness_recorded_at_startup(tmp_path: Pat
             time.sleep(0.02)
         else:
             pytest.fail("pane never recorded bracketed-paste readiness")
+        assert raw.read_bytes() == BRACKETED_PASTE_ON
+        assert stat.S_IMODE(raw.stat().st_mode) == 0o600
 
         # The process is now idle in read(1); no new pane output is needed at delivery time.
         assert prefill_pane(

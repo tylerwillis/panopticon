@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-029.3.2--ece195c1ad2c",
-  "requirementId": "REQ-029.3.2",
-  "hash": "ece195c1ad2c",
-  "verdict": "pass",
-  "summary": "Parametrized missing/vanished/timeout cases each assert False return and zero paste-buffer/send-keys calls; mutations (paste-on-timeout, raise-on-missing-pane, deliver-to-vanished-pane) all fail the matching case, and non-raising False is what keeps the host pass alive.",
-  "timestamp": "2026-08-01T00:41:04.202Z"
-}

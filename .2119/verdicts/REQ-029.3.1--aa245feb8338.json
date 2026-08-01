@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-029.3.1--aa245feb8338",
-  "requirementId": "REQ-029.3.1",
-  "hash": "aa245feb8338",
-  "verdict": "pass",
-  "summary": "Unit tests verify paste/Enter presence and ordering; integration test verifies bracketed-paste semantic behavior and complete delivery sequence with real tmux",
-  "timestamp": "2026-08-01T01:24:12.153Z"
-}

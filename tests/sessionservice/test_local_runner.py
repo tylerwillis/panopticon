@@ -14,7 +14,7 @@ import pytest
 
 from panopticon.core.models import LifecyclePhase
 from panopticon.sessionservice.local_runner import LocalRunner
-from panopticon.sessionservice.prefill import readiness_log
+from panopticon.sessionservice.prefill import readiness_log, readiness_watch_command
 from panopticon.sessionservice.runner import Runner
 
 
@@ -95,7 +95,7 @@ def test_spawn_runs_detached_container_then_tmux_pane_execing_in() -> None:
         "-O",
         "-t",
         "%1",
-        f"cat >> {readiness_log('panopticon-t1')}",
+        readiness_watch_command(readiness_log("panopticon-t1")),
     ]
     # The watcher is installed before respawn starts the agent, so an idle pane retains the CLI's
     # first bracketed-paste-ready signal for a later stage-entry wake.

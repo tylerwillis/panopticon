@@ -50,6 +50,27 @@ def readiness_log(session: str) -> str:
     return str(Path(tempfile.gettempdir()) / f"panopticon-prefill-{session}.raw")
 
 
+def readiness_watch_command(raw: str) -> str:
+    """Consume pane output only until readiness, then persist one owner-only marker."""
+    code = (
+        "import os, sys\n"
+        "marker = b'\\x1b[?2004h'\n"
+        "seen = b''\n"
+        "while True:\n"
+        "    chunk = sys.stdin.buffer.read1(4096)\n"
+        "    if not chunk:\n"
+        "        raise SystemExit(1)\n"
+        "    seen += chunk\n"
+        "    if marker in seen:\n"
+        "        break\n"
+        "    seen = seen[-(len(marker) - 1):]\n"
+        f"fd = os.open({raw!r}, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)\n"
+        "os.write(fd, marker)\n"
+        "os.close(fd)"
+    )
+    return f"python -c {shlex.quote(code)}"
+
+
 def watch_pane(
     session: str,
     *,
@@ -64,7 +85,6 @@ def watch_pane(
     raw = raw_log or readiness_log(session)
     try:
         _unlink(raw)
-        Path(raw).touch()
         run(
             _tmux(
                 prefix,
@@ -72,7 +92,7 @@ def watch_pane(
                 "-O",
                 "-t",
                 pane,
-                f"cat >> {shlex.quote(raw)}",
+                readiness_watch_command(raw),
             ),
             check=False,
         )
@@ -114,6 +134,7 @@ def prefill_pane(
         buf = buffer or f"panopticon-prefill-{session}"
         try:
             if watch:
+                _unlink(raw)
                 run(
                     _tmux(
                         prefix,
@@ -121,7 +142,7 @@ def prefill_pane(
                         "-O",
                         "-t",
                         pane,
-                        f"cat >> {shlex.quote(raw)}",
+                        readiness_watch_command(raw),
                     ),
                     check=False,
                 )
@@ -129,7 +150,7 @@ def prefill_pane(
             for _ in range(max(0, int(timeout))):
                 if not _pane_id(session, prefix=prefix, run=run):
                     return False
-                if BRACKETED_PASTE_ON in Path(raw).read_bytes():
+                if Path(raw).is_file() and BRACKETED_PASTE_ON in Path(raw).read_bytes():
                     ready = True
                     break
                 sleep(1.0)
