@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.2.2--3e9b621c8618",
+  "requirementId": "REQ-030.2.2",
+  "hash": "3e9b621c8618",
+  "verdict": "pass",
+  "summary": "Same genuine exact-line verification as REQ-030.2.1, applied to the copy-mode-vi table with a different clipboard tool (xclip), confirming the table-specific binding is distinct and correct.",
+  "timestamp": "2026-08-01T00:34:59.191Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.1.4--2e007d1aee0e",
-  "requirementId": "REQ-025.1.4",
-  "hash": "2e007d1aee0e",
-  "verdict": "pass",
-  "summary": "The neither-present boundary is exercised and the existing session name is verified as the emitted local tmux status-left fallback.",
-  "timestamp": "2026-07-31T05:59:56.750Z"
-}

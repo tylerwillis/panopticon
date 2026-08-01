@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.2.5--468aef0ea7e6",
+  "requirementId": "REQ-030.2.5",
+  "hash": "468aef0ea7e6",
+  "verdict": "pass",
+  "summary": "Unit test on server_default_config_text(clipboard=None) checks exact fallback bindings (copy-selection-and-cancel, tmux's own paste-buffer primitive) for both drag-release binds and the double-click copy action, and asserts no copy-pipe-and-cancel remains anywhere; the same clipboard=None config is separately proven to be valid, loadable tmux syntax by a real-tmux test elsewhere in the file.",
+  "timestamp": "2026-08-01T01:02:57.827Z"
+}

@@ -14,6 +14,7 @@ import pytest
 from panopticon.core.models import LifecyclePhase
 from panopticon.sessionservice.runner import Runner
 from panopticon.sessionservice.shell_runner import ShellRunner, _minify_shell
+from panopticon.sessionservice.tmux_defaults import server_default_config_text
 
 
 class _Recorder:
@@ -46,13 +47,15 @@ def test_spawn_kills_stale_session_then_starts_the_script_in_the_task_dir() -> N
     session = runner.spawn("t1", script="claude setup-token", workdir="/tasks/t1")
 
     assert session == "panopticon-t1"
-    kill, new_session = rec.calls
+    kill = rec.calls[0]
+    new_session = rec.calls[-1]
     # a stale session of the same name is cleared first (idempotent restart)
     assert kill == ["tmux", "-L", "panopticon", "kill-session", "-t", "panopticon-t1"]
-    assert new_session[:6] == ["tmux", "-L", "panopticon", "new-session", "-d", "-s"]
-    assert new_session[6] == "panopticon-t1"
-    assert new_session[7:9] == ["-c", "/tasks/t1"]  # the pane starts in the task's own directory
-    assert new_session[9:11] == ["sh", "-c"]  # the pane runs the assembled script under sh -c
+    assert new_session[:3] == ["tmux", "-L", "panopticon"]
+    tail = new_session[new_session.index("new-session") :]
+    assert tail[:4] == ["new-session", "-d", "-s", "panopticon-t1"]
+    assert tail[4:6] == ["-c", "/tasks/t1"]  # the pane starts in the task's own directory
+    assert tail[6:8] == ["sh", "-c"]  # the pane runs the assembled script under sh -c
 
 
 def test_spawn_falls_back_to_the_operator_home_without_a_workdir() -> None:
@@ -236,14 +239,52 @@ def test_stop_kills_the_session() -> None:
     assert rec.calls == [["tmux", "-L", "panopticon", "kill-session", "-t", "panopticon-t1"]]
 
 
+# 2119: REQ-030.3.1
+def test_spawn_loads_every_shipped_tmux_server_default_via_dash_f_on_its_own_new_session(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # A shell task (e.g. setup-repo's `claude setup-token`) may be the very first thing to touch a
+    # fresh `-L panopticon` socket, exactly like a container task — same obligation applies.
+    monkeypatch.setattr("shutil.which", lambda _tool: None)
+    rec = _Recorder()
+    ShellRunner("http://svc:8000", run=rec).spawn("t1", script="echo hi")
+    tmux_new = rec.calls[-1]
+    assert tmux_new[:3] == ["tmux", "-L", "panopticon"]
+    assert tmux_new[3] == "-f"
+    config_path = Path(tmux_new[4])
+    assert tmux_new[5] == "new-session"
+    assert config_path.read_text() == server_default_config_text(clipboard=None)
+
+
+# 2119: REQ-030.3.2
+def test_spawn_places_dash_f_before_new_session_so_it_applies_at_server_startup(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr("shutil.which", lambda _tool: None)
+    rec = _Recorder()
+    ShellRunner("http://svc:8000", run=rec).spawn("t1", script="echo hi")
+    tmux_new = rec.calls[-1]
+    assert tmux_new.index("-f") < tmux_new.index("new-session")
+
+
+# 2119: REQ-030.5.1
+def test_spawn_applies_no_shipped_defaults_without_a_dedicated_socket() -> None:
+    rec = _Recorder()
+    ShellRunner("http://svc:8000", tmux_socket=None, run=rec).spawn("t1", script="echo hi")
+    assert not any("-f" in c for c in rec.calls)
+
+
 # -- integration: a real host tmux session (no container) ---------------------------
 
 
+# 2119: REQ-030.1.1
+# 2119: REQ-030.3.1
 @pytest.mark.skipif(not shutil.which("tmux"), reason="needs tmux")
 def test_spawn_runs_the_script_in_a_real_tmux_session(tmp_path: Path) -> None:
     # Proves a shell task runs in a live host tmux session (no container): the script executes in
     # the pane (drops a marker), the session is attachable while it runs, and stop() tears it down.
     socket = "panopticon-shelltest"
+    subprocess.run(["tmux", "-L", socket, "kill-server"], capture_output=True)  # genuinely fresh
     runner = ShellRunner("http://unused", tmux_socket=socket)
     marker = tmp_path / "ran"
     session = "panopticon-itest1"
@@ -260,6 +301,11 @@ def test_spawn_runs_the_script_in_a_real_tmux_session(tmp_path: Path) -> None:
         assert runner.has_session("itest1")  # a live tmux session the operator could `t`-attach to
         assert runner.is_running("itest1")  # the session is the shell task's liveness
         assert marker.exists()  # the script executed inside the pane
+        # the shipped tmux defaults (REQ-030) landed on this genuinely fresh socket's server
+        mouse = subprocess.run(
+            ["tmux", "-L", socket, "show-options", "-g", "mouse"], capture_output=True, text=True
+        ).stdout.strip()
+        assert mouse == "mouse on"
     finally:
         runner.stop(session)
         subprocess.run(["tmux", "-L", socket, "kill-server"], capture_output=True)

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.1.2--65c00174c99d",
+  "requirementId": "REQ-025.1.2",
+  "hash": "65c00174c99d",
+  "verdict": "pass",
+  "summary": "task_context_label and the parametrized local-attach pipeline test assert slug-only yields the bare slug, distinct from the both/memo-only/neither cases.",
+  "timestamp": "2026-08-01T00:33:25.186Z"
+}

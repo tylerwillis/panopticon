@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.2.3--a491d0cb6dcc",
+  "requirementId": "REQ-030.2.3",
+  "hash": "a491d0cb6dcc",
+  "verdict": "pass",
+  "summary": "Pure test pins the exact chained bind-key line; real-tmux test proves via list-keys that copy-mode/select-word/copy-pipe-and-cancel land on ONE binding. Empirically reproduced the historical bug myself: bare CLI ';' only binds 'copy-mode -M' (the rest fire immediately and error), while the config-file '\\;' form used here binds all three together — confirming this test suite would catch a regression.",
+  "timestamp": "2026-08-01T00:34:59.842Z"
+}

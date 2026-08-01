@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.1.1--d8824f9fecd1",
+  "requirementId": "REQ-025.1.1",
+  "hash": "d8824f9fecd1",
+  "verdict": "pass",
+  "summary": "task_context_label + full attach-command pipeline (test_attach.py, test_console.py, test_dashboard.py) assert the exact 'slug [memo]' string end-to-end, distinguishing it from the slug-only/memo-only/neither branches in the same tests.",
+  "timestamp": "2026-08-01T00:33:23.703Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.4.4--c46965c55bfa",
+  "requirementId": "REQ-030.4.4",
+  "hash": "c46965c55bfa",
+  "verdict": "pass",
+  "summary": "test_clipboard_tool_falls_back_to_xclip_without_wl_copy asserts the exact command 'xclip -selection clipboard' when only xclip is present, and the fallback-priority counterexample (xclip still wins over xsel when both present).",
+  "timestamp": "2026-08-01T00:34:35.514Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.5.2--7e51e19d2c88",
+  "requirementId": "REQ-030.5.2",
+  "hash": "7e51e19d2c88",
+  "verdict": "pass",
+  "summary": "test_dash_f_skips_the_operators_own_tmux_conf uses a real tmux binary with a genuinely fresh socket, a fake HOME with a distinguishing ~/.tmux.conf marker, and a negative control (same fake HOME, no -f) proving the marker WOULD load without -f, then shows it does not appear when -f is used -- a real behavioral, non-vacuous isolation proof.",
+  "timestamp": "2026-08-01T01:03:02.589Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.1.4--2b20ab505dc8",
+  "requirementId": "REQ-025.1.4",
+  "hash": "2b20ab505dc8",
+  "verdict": "pass",
+  "summary": "task_context_label and the parametrized local-attach pipeline test assert the fallback equals the actual registered container/session id when slug and memo are both absent.",
+  "timestamp": "2026-08-01T00:33:27.408Z"
+}

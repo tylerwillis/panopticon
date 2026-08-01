@@ -33,6 +33,7 @@ from panopticon.sessionservice.local_runner import (
     session_name,
 )
 from panopticon.sessionservice.runner import Runner
+from panopticon.sessionservice.tmux_defaults import defaults_argv
 
 #: The panopticon shell lib (``task_lib.sh``): functions a shell workflow's script uses to drive its
 #: task over REST (``panopticon_advance``/``_drop``/``_set_slug``/…) instead of hand-rolling curl.
@@ -168,7 +169,18 @@ class ShellRunner(Runner):
         _report(LifecyclePhase.STARTING)
         # -c sets the pane's start directory (the task's own dir) so the script runs in a known place.
         self._run(
-            self._tmux("new-session", "-d", "-s", session, "-c", start_dir, "sh", "-c", command)
+            self._tmux(
+                *defaults_argv(self._tmux_socket),
+                "new-session",
+                "-d",
+                "-s",
+                session,
+                "-c",
+                start_dir,
+                "sh",
+                "-c",
+                command,
+            )
         )
         _report(LifecyclePhase.AWAITING)
         return session

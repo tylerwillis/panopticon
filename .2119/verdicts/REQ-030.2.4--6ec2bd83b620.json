@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.2.4--6ec2bd83b620",
+  "requirementId": "REQ-030.2.4",
+  "hash": "6ec2bd83b620",
+  "verdict": "pass",
+  "summary": "Covered by the same chained-binding assertion as REQ-030.2.3 (copy-pipe-and-cancel is the third sub-command on the same bound-together DoubleClick1Pane line); empirically confirmed the chaining mechanism actually works against real tmux and that the old bare-';' bug would be caught.",
+  "timestamp": "2026-08-01T00:35:00.337Z"
+}

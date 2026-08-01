@@ -28,6 +28,7 @@ from panopticon.sessionservice.prefill import (
     watch_pane,
 )
 from panopticon.sessionservice.runner import Runner
+from panopticon.sessionservice.tmux_defaults import defaults_argv
 
 #: Default composed image (base layer, ADR 0005); built in a later PR of this slice.
 DEFAULT_IMAGE = "panopticon-base"
@@ -270,7 +271,20 @@ class LocalRunner(Runner):
         # Create the pane before starting the agent so its persistent pipe catches the CLI's first
         # bracketed-paste-ready signal. A wake may arrive much later, after an idle CLI has stopped
         # producing output; attaching the watcher at delivery time would miss that earlier signal.
-        self._run(self._tmux("new-session", "-d", "-s", container, "sleep 86400"))
+        # The placeholder command (`sleep`, not a shell) must stay inert — a shell here could echo
+        # its own bracketed-paste-ready marker before the agent CLI ever starts. This is also the
+        # session-creating call, so it's the one that must carry the shipped tmux defaults (REQ-030)
+        # via `-f`: a fresh socket's server only picks them up from whichever call starts it.
+        self._run(
+            self._tmux(
+                *defaults_argv(self._tmux_socket),
+                "new-session",
+                "-d",
+                "-s",
+                container,
+                "sleep 86400",
+            )
+        )
         pane = watch_pane(
             container,
             run=self._run,
