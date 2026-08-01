@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.1.5--a22e91a73243",
+  "requirementId": "REQ-029.1.5",
+  "hash": "a22e91a73243",
+  "verdict": "pass",
+  "summary": "Kill-switch test suppresses on '1' asserting empty submit_prompt calls, with an identical-task empty-string control proving non-vacuity; environ seam matches production os.environ default (host.py:212).",
+  "timestamp": "2026-08-01T00:37:59.101Z"
+}

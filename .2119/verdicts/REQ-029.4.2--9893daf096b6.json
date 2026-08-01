@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.4.2--9893daf096b6",
+  "requirementId": "REQ-029.4.2",
+  "hash": "9893daf096b6",
+  "verdict": "pass",
+  "summary": "Repoll and down/live-cycle dedup verified behaviorally: re-wakes after a recorded delivery submit no second prompt, and a fresh waker with no in-memory state honors the persisted 'delivered' record (rejects memory-only dedup).",
+  "timestamp": "2026-08-01T00:42:23.286Z"
+}

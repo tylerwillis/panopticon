@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-029.4.1--5137aa3c0109",
-  "requirementId": "REQ-029.4.1",
-  "hash": "5137aa3c0109",
-  "verdict": "pass",
-  "summary": "Taskservice test proves durability via fresh SqlAlchemyStore over the same sqlite file and per-entry specificity (causal entry 'delivered' while entry 0 stays 'skipped'); sessionservice test pins the exact causal entry index in the record call.",
-  "timestamp": "2026-07-31T23:54:28.749Z"
-}

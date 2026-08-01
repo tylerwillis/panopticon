@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Protocol
 
 DEFAULT_TIMEOUT = 300.0
+DEFAULT_WAKE_TIMEOUT = 5.0
 BRACKETED_PASTE_ON = b"\x1b[?2004h"
 
 
@@ -44,6 +45,42 @@ def _unlink(path: str) -> None:
         os.unlink(path)
 
 
+def readiness_log(session: str) -> str:
+    """Return the stable raw-output log used to remember one task pane's readiness."""
+    return str(Path(tempfile.gettempdir()) / f"panopticon-prefill-{session}.raw")
+
+
+def watch_pane(
+    session: str,
+    *,
+    run: CommandRunner,
+    prefix: Sequence[str] = ("tmux",),
+    raw_log: str | None = None,
+) -> str:
+    """Start a persistent readiness watch and return the pane id, or ``""`` on failure."""
+    pane = _pane_id(session, prefix=prefix, run=run)
+    if not pane:
+        return ""
+    raw = raw_log or readiness_log(session)
+    try:
+        _unlink(raw)
+        Path(raw).touch()
+        run(
+            _tmux(
+                prefix,
+                "pipe-pane",
+                "-O",
+                "-t",
+                pane,
+                f"cat >> {shlex.quote(raw)}",
+            ),
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return ""
+    return pane
+
+
 def prefill_pane(
     session: str,
     prompt_file: str,
@@ -55,6 +92,8 @@ def prefill_pane(
     raw_log: str | None = None,
     buffer: str | None = None,
     submit: bool = False,
+    watch: bool = True,
+    settle_delay: float = 1.0,
 ) -> bool:
     """Paste ``prompt_file`` after bracketed-paste readiness and optionally submit it."""
     prompt = Path(prompt_file)
@@ -74,17 +113,18 @@ def prefill_pane(
             created_raw = False
         buf = buffer or f"panopticon-prefill-{session}"
         try:
-            run(
-                _tmux(
-                    prefix,
-                    "pipe-pane",
-                    "-O",
-                    "-t",
-                    pane,
-                    f"cat >> {shlex.quote(raw)}",
-                ),
-                check=False,
-            )
+            if watch:
+                run(
+                    _tmux(
+                        prefix,
+                        "pipe-pane",
+                        "-O",
+                        "-t",
+                        pane,
+                        f"cat >> {shlex.quote(raw)}",
+                    ),
+                    check=False,
+                )
             ready = False
             for _ in range(max(0, int(timeout))):
                 if not _pane_id(session, prefix=prefix, run=run):
@@ -95,14 +135,16 @@ def prefill_pane(
                 sleep(1.0)
             if not ready:
                 return False
-            sleep(1.0)
+            if settle_delay:
+                sleep(settle_delay)
             run(_tmux(prefix, "load-buffer", "-b", buf, str(prompt)))
             run(_tmux(prefix, "paste-buffer", "-p", "-d", "-b", buf, "-t", pane))
             if submit:
                 run(_tmux(prefix, "send-keys", "-t", pane, "Enter"))
             return True
         finally:
-            run(_tmux(prefix, "pipe-pane", "-t", pane), check=False)
+            if watch:
+                run(_tmux(prefix, "pipe-pane", "-t", pane), check=False)
             if created_raw:
                 _unlink(raw)
     except (OSError, subprocess.SubprocessError):

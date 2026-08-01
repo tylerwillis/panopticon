@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-029.2.2--d7bafa492a62",
-  "requirementId": "REQ-029.2.2",
-  "hash": "d7bafa492a62",
-  "verdict": "pass",
-  "summary": "Double-call equality over the real REST path plus exact-content assertions pinned to a test-local workflow (description, [met] responsibility, /do-work skill) verify deterministic rendering from recorded metadata; the service is built hermetically from store+workflows+artifacts with no LLM dependency, so an LLM-backed renderer could not satisfy the assertions.",
-  "timestamp": "2026-07-31T23:44:45.847Z"
-}

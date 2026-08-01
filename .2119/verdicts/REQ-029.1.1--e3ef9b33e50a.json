@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-029.1.1--e3ef9b33e50a",
-  "requirementId": "REQ-029.1.1",
-  "hash": "e3ef9b33e50a",
-  "verdict": "pass",
-  "summary": "Positive path proven end-to-end (real service+REST+waker, only tmux runner stubbed) for both advance and free-move; boundary violations each rejected: foreign-host claim, non-live container, already-delivered entry, user-turn and agent-turn-terminal states; daemon tick + run_host wiring close the observation-pass chain.",
-  "timestamp": "2026-07-31T23:51:00.995Z"
-}

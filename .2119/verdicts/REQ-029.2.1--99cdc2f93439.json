@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-029.2.1--99cdc2f93439",
-  "requirementId": "REQ-029.2.1",
-  "hash": "99cdc2f93439",
-  "verdict": "pass",
-  "summary": "Real REST briefing test pins exact first line 'You have entered WORKING.', description, [met] status, and /do-work pointer; waker test pins verbatim submission; 5 mutations (reworded header, dropped body, dropped skills, stale status, waker preamble) all caught.",
-  "timestamp": "2026-07-31T23:51:25.410Z"
-}

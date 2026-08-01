@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.2.2--d9f0c6947692",
+  "requirementId": "REQ-029.2.2",
+  "hash": "d9f0c6947692",
+  "verdict": "pass",
+  "summary": "Byte-equality of two full-stack REST renders rejects nondeterministic/LLM-sampled text; content assertions pin output to workflow metadata (exact header, description, [met] responsibility, skill pointer) with no mocks, and the hermetic LLM-free service wiring means any LLM call would fail the test.",
+  "timestamp": "2026-08-01T00:45:59.277Z"
+}

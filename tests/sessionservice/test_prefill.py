@@ -3,13 +3,22 @@
 from __future__ import annotations
 
 import shlex
+import shutil
+import subprocess
+import time
+import uuid
 from collections.abc import Sequence
 from pathlib import Path
 
 import pytest
 
 from panopticon.sessionservice.local_runner import LocalRunner
-from panopticon.sessionservice.prefill import BRACKETED_PASTE_ON, prefill_pane
+from panopticon.sessionservice.prefill import (
+    BRACKETED_PASTE_ON,
+    prefill_pane,
+    readiness_log,
+    watch_pane,
+)
 
 
 class _Tmux:
@@ -99,8 +108,13 @@ def test_local_runner_submits_the_wake_through_its_real_tmux_path() -> None:
     tmux = _ReadyTmux()
     runner = LocalRunner("http://svc", tmux_socket="wake-test", run=tmux)
     prompt = "You have entered WORKING.\nBuild the feature."
+    raw = Path(readiness_log("panopticon-t1"))
+    raw.write_bytes(BRACKETED_PASTE_ON)
 
-    assert runner.submit_prompt("t1", prompt) is True
+    try:
+        assert runner.submit_prompt("t1", prompt) is True
+    finally:
+        raw.unlink(missing_ok=True)
 
     assert tmux.loaded_text == prompt
     prefix = ["tmux", "-L", "wake-test"]
@@ -117,6 +131,27 @@ def test_local_runner_submits_the_wake_through_its_real_tmux_path() -> None:
     submit = [*prefix, "send-keys", "-t", "%1", "Enter"]
     assert tmux.calls.count(paste) == 1
     assert tmux.calls.count(submit) == 1
+
+
+def test_persistent_watch_is_attached_before_a_later_delivery(tmp_path: Path) -> None:
+    # 2119: REQ-029.3.1
+    raw = tmp_path / "ready.raw"
+    tmux = _Tmux(panes=["%1"])
+
+    assert watch_pane("sess", run=tmux, raw_log=str(raw)) == "%1"
+
+    assert raw.is_file()
+    assert tmux.calls == [
+        ["tmux", "display-message", "-p", "-t", "sess", "#{pane_id}"],
+        [
+            "tmux",
+            "pipe-pane",
+            "-O",
+            "-t",
+            "%1",
+            f"cat >> {shlex.quote(str(raw))}",
+        ],
+    ]
 
 
 @pytest.mark.parametrize(
@@ -148,3 +183,56 @@ def test_unavailable_pane_never_pastes_or_submits(
 
     assert ok is False
     assert not any("paste-buffer" in call or "send-keys" in call for call in tmux.calls)
+
+
+_HAVE_TMUX = shutil.which("tmux") is not None
+
+
+@pytest.mark.skipif(not _HAVE_TMUX, reason="needs tmux")
+def test_already_idle_real_pane_uses_readiness_recorded_at_startup(tmp_path: Path) -> None:
+    # 2119: REQ-029.3.1
+    socket = f"prefill-itest-{uuid.uuid4().hex}"
+    session = "idle-agent"
+    prefix = ["tmux", "-L", socket]
+    raw = tmp_path / "ready.raw"
+    received = tmp_path / "received.txt"
+    prompt = _prompt(tmp_path, "continue-review")
+
+    def run(args: Sequence[str], *, check: bool = True) -> str:
+        return subprocess.run(list(args), check=check, capture_output=True, text=True).stdout
+
+    try:
+        run([*prefix, "new-session", "-d", "-s", session])
+        pane = watch_pane(session, run=run, prefix=prefix, raw_log=str(raw))
+        assert pane
+        script = (
+            "printf '\\033[?2004h'; "
+            f'IFS= read -r line; printf %s "$line" > {shlex.quote(str(received))}; sleep 10'
+        )
+        run([*prefix, "respawn-pane", "-k", "-t", pane, "bash", "-c", script])
+        for _ in range(50):
+            if raw.is_file() and BRACKETED_PASTE_ON in raw.read_bytes():
+                break
+            time.sleep(0.02)
+        else:
+            pytest.fail("pane never recorded bracketed-paste readiness")
+
+        # The process is now idle in read(1); no new pane output is needed at delivery time.
+        assert prefill_pane(
+            session,
+            str(prompt),
+            run=run,
+            prefix=prefix,
+            raw_log=str(raw),
+            timeout=2,
+            submit=True,
+            watch=False,
+            settle_delay=0,
+        )
+        for _ in range(50):
+            if received.is_file():
+                break
+            time.sleep(0.02)
+        assert received.read_text() == "continue-review"
+    finally:
+        subprocess.run([*prefix, "kill-server"], capture_output=True)

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-029.4.4--49f447314d86",
-  "requirementId": "REQ-029.4.4",
-  "hash": "49f447314d86",
-  "verdict": "pass",
-  "summary": "test_failed_delivery_is_left_pending_for_retry forces submit_prompt=False after a real attempt (asserts 1 prompt sent), and asserts no record call and wake_status still pending; mutation run confirmed recording 'delivered' on failure fails the test, and the stubbed runner seam matches LocalRunner's bool contract (tmux failures->False covered under REQ-029.3.2).",
-  "timestamp": "2026-07-31T23:53:02.019Z"
-}

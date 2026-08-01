@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.1.1--891d9209e544",
+  "requirementId": "REQ-029.1.1",
+  "hash": "891d9209e544",
+  "verdict": "pass",
+  "summary": "Each conjunct has a rejecting counterexample: non-owner host (claimed_by=host-2) not woken, down container skipped and not revived, terminal-but-agent AGENT_TERMINAL and non-terminal USER_TURN both SKIPPED, initial entry SKIPPED; advance vs set-state parametrized end-to-end through real REST with real StageEntryWaker asserting the submitted prompt; tick/run_host link tests cover the observation-pass path.",
+  "timestamp": "2026-08-01T00:46:36.465Z"
+}

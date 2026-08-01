@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.4.4--45211ec5303c",
+  "requirementId": "REQ-029.4.4",
+  "hash": "45211ec5303c",
+  "verdict": "pass",
+  "summary": "Real failed attempt (prompt sent, runner returns False) asserts no record call and wake_status stays pending; tmux-failure->False contract independently proven in test_prefill.py:166",
+  "timestamp": "2026-08-01T00:42:33.731Z"
+}

@@ -34,6 +34,12 @@ class _Workflow(Workflow):
         responsibilities = (
             Responsibility(key="implementation", description="The implementation is complete."),
         )
+        transitions = ("REVIEWING",)
+
+    class Reviewing(State):
+        label = "REVIEWING"
+        description = "Review the completed change."
+        responsibilities = (Responsibility(key="review", description="The review is complete."),)
         transitions = (Complete,)
 
     initial = Waiting
@@ -85,6 +91,26 @@ def test_stage_entry_briefing_contains_recorded_phase_context_and_is_determinist
     assert "/do-work" in first
 
 
+def test_stage_entry_briefing_uses_historical_state_after_a_later_transition(
+    tmp_path: Path,
+) -> None:
+    # 2119: REQ-029.2.1
+    service = _service(tmp_path, SqlAlchemyStore())
+    with TestClient(create_app(service)) as http:
+        client = TaskServiceClient(http)
+        task_id = str(client.create_task("r1", _Workflow.name)["id"])
+        client.apply_operation(task_id, "advance")
+        client.set_state(task_id, "REVIEWING")
+
+        working = client.get_stage_entry_briefing(task_id, 1)
+
+    assert working.splitlines()[0] == "You have entered WORKING."
+    assert "Implement the approved change." in working
+    assert "[pending] implementation: The implementation is complete." in working
+    assert "Review the completed change." not in working
+    assert "review: The review is complete." not in working
+
+
 @pytest.mark.parametrize("entry_path", ["advance", "free-move"])
 def test_live_agent_state_entry_is_submitted_on_the_next_runner_observation(
     tmp_path: Path, entry_path: str
@@ -102,7 +128,12 @@ def test_live_agent_state_entry_is_submitted_on_the_next_runner_observation(
             client.set_state(task_id, "WORKING")
 
         runner = _Runner()
-        StageEntryWaker(client, runner, runner_id="host-1").wake(client.get_task(task_id))
+        StageEntryWaker(
+            client,
+            runner,
+            runner_id="host-1",
+            dispatch=lambda delivery: delivery(),
+        ).wake(client.get_task(task_id))
 
     assert len(runner.prompts) == 1
     assert runner.prompts[0].startswith("You have entered WORKING.\n")
@@ -137,7 +168,9 @@ def test_rest_advance_to_live_agent_state_is_runner_delivered_and_recorded(
 
         runner = _Runner()
         assert runner.prompts == []  # no control-plane injection
-        StageEntryWaker(client, runner).wake(client.get_task(task_id))
+        StageEntryWaker(client, runner, dispatch=lambda delivery: delivery()).wake(
+            client.get_task(task_id)
+        )
 
         delivered = client.get_task(task_id)
         assert runner.prompts[0].startswith("You have entered WORKING.\n")

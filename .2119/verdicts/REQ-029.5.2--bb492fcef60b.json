@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.5.2--bb492fcef60b",
+  "requirementId": "REQ-029.5.2",
+  "hash": "bb492fcef60b",
+  "verdict": "pass",
+  "summary": "File-backed SQLite + closed/reopened fresh engine proves persistence of non-default per-entry wake_status (skipped vs delivered), and REST history entries assert wake_status via real HTTP; missing serialization or dropped persistence would fail concretely.",
+  "timestamp": "2026-08-01T00:46:21.123Z"
+}
