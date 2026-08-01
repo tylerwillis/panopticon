@@ -208,6 +208,28 @@ def test_all_pending_entries_are_delivered_in_history_order() -> None:
     assert client.records == [("t1", 1, "delivered"), ("t1", 2, "delivered")]
 
 
+def test_each_pending_entry_rechecks_runner_ownership_before_submission() -> None:
+    # 2119: REQ-029.1.1
+    task = _task()
+    task["history"].append(_entry("REVIEWING", trigger="set-state"))  # type: ignore[union-attr]
+    task["state"] = "REVIEWING"
+    client = _Client(task)
+
+    class _TransferRunner(_Runner):
+        def submit_prompt(self, task_id: str, prompt: str) -> bool:
+            result = super().submit_prompt(task_id, prompt)
+            task["claimed_by"] = "host-2"
+            return result
+
+    runner = _TransferRunner()
+
+    StageEntryWaker(client, runner, runner_id="host-1", dispatch=_inline).wake(task)
+
+    assert runner.prompts == [("t1", "You have entered WORKING.\nDo the phase work. See /do-work.")]
+    assert client.records == [("t1", 1, "delivered")]
+    assert task["history"][2]["wake_status"] == "pending"  # type: ignore[index]
+
+
 def test_down_observation_is_skipped_even_if_container_heals_before_delivery() -> None:
     # 2119: REQ-029.1.3
     task = _task(container_status="down")

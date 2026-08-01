@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.3.1--5e0699a83118",
+  "requirementId": "REQ-029.3.1",
+  "hash": "5e0699a83118",
+  "verdict": "pass",
+  "summary": "Tests directly assert tmux command sequence order (pipe-pane, load-buffer, paste-buffer, send-keys with Enter exactly once); real-tmux integration test validates bracketed-paste protocol actually transmitted.",
+  "timestamp": "2026-08-01T01:34:59.032Z"
+}

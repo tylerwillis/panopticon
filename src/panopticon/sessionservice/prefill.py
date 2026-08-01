@@ -64,7 +64,8 @@ def readiness_watch_command(raw: str) -> str:
         "    if marker in seen:\n"
         "        break\n"
         "    seen = seen[-(len(marker) - 1):]\n"
-        f"fd = os.open({raw!r}, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)\n"
+        "flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, 'O_NOFOLLOW', 0)\n"
+        f"fd = os.open({raw!r}, flags, 0o600)\n"
         "os.write(fd, marker)\n"
         "os.close(fd)"
     )

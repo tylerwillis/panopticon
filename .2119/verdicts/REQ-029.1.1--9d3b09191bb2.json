@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.1.1--9d3b09191bb2",
+  "requirementId": "REQ-029.1.1",
+  "hash": "9d3b09191bb2",
+  "verdict": "pass",
+  "summary": "Tests verify agent-turn state entries trigger wake when observed live and owned, with per-entry ownership revalidation. Multiple counterexamples confirm skip behavior for non-owned, down, user-turn, and terminal entries.",
+  "timestamp": "2026-08-01T01:34:58.069Z"
+}

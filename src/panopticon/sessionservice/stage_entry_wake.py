@@ -107,11 +107,20 @@ class StageEntryWaker:
                 self._client.record_stage_entry_wake(task_id, entry_index, WakeStatus.SKIPPED.value)
             return
         if full.get("container_status") != ContainerStatus.LIVE.value:
-            for entry_index in pending:
-                self._client.record_stage_entry_wake(task_id, entry_index, WakeStatus.SKIPPED.value)
             return
 
         for entry_index in pending:
+            current = self._client.get_task(task_id)
+            if self._runner_id is not None and current.get("claimed_by") != self._runner_id:
+                return
+            if current.get("container_status") != ContainerStatus.LIVE.value:
+                return
+            current_history = cast(list[JsonObj], current["history"])
+            if (
+                entry_index >= len(current_history)
+                or current_history[entry_index].get("wake_status") != WakeStatus.PENDING.value
+            ):
+                continue
             prompt = self._client.get_stage_entry_briefing(task_id, entry_index)
             if not self._runner.submit_prompt(task_id, prompt):
                 return

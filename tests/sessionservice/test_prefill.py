@@ -160,6 +160,24 @@ def test_persistent_watch_is_attached_before_a_later_delivery(tmp_path: Path) ->
     ]
 
 
+def test_readiness_marker_creation_refuses_a_symlink(tmp_path: Path) -> None:
+    target = tmp_path / "target"
+    target.write_text("keep-me")
+    marker = tmp_path / "ready.raw"
+    marker.symlink_to(target)
+
+    result = subprocess.run(
+        ["sh", "-c", readiness_watch_command(str(marker))],
+        input=BRACKETED_PASTE_ON,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode != 0
+    assert target.read_text() == "keep-me"
+    assert marker.is_symlink()
+
+
 @pytest.mark.parametrize(
     "panes,ready",
     [
