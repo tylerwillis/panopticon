@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-031.1.2--8185ce65bff2",
-  "requirementId": "REQ-031.1.2",
-  "hash": "8185ce65bff2",
-  "verdict": "pass",
-  "summary": "Real docker-info failure is exercised through host and both background session startups are asserted absent.",
-  "timestamp": "2026-07-31T23:54:22.108Z"
-}

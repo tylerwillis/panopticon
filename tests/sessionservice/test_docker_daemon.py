@@ -41,21 +41,20 @@ def test_preflight_message_is_none_when_reachable() -> None:
 
 
 def test_preflight_message_names_the_fix_and_the_command_when_unreachable() -> None:
+    # Full-string equality, not a substring check: a substring check is a keyword-theater
+    # trap — it would pass a *negated* remediation ("Never start OrbStack or Docker Desktop
+    # (macOS)") just as readily as the real, actionable one.
     # 2119: REQ-031.1.3
-    message = preflight_message("start", run=_run_fail)
-    assert message is not None
-    assert "unreachable" in message.lower()
-    assert "orbstack" in message.lower() or "docker desktop" in message.lower()  # macOS fix
-    assert "systemctl start docker" in message  # Linux fix
-    assert "panopticon start" in message  # names the exact rerun command
+    assert preflight_message("start", run=_run_fail) == (
+        "Docker daemon unreachable — start OrbStack or Docker Desktop (macOS), or "
+        "`systemctl start docker` (Linux), then rerun `panopticon start`."
+    )
 
 
 def test_preflight_message_names_the_host_command_when_refusing_host() -> None:
     # 2119: REQ-031.1.3
     # 2119: REQ-031.2.2
-    message = preflight_message("host", run=_run_fail)
-    assert message is not None
-    assert "unreachable" in message.lower()
-    assert "orbstack" in message.lower() or "docker desktop" in message.lower()  # macOS fix
-    assert "systemctl start docker" in message  # Linux fix
-    assert "panopticon host" in message  # names the exact rerun command
+    assert preflight_message("host", run=_run_fail) == (
+        "Docker daemon unreachable — start OrbStack or Docker Desktop (macOS), or "
+        "`systemctl start docker` (Linux), then rerun `panopticon host`."
+    )

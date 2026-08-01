@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import os
+import subprocess
 import sys
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+from panopticon.sessionservice.tmux_defaults import defaults_argv
 from panopticon.terminal.__main__ import main
 
 
@@ -102,12 +106,15 @@ def test_start_with_a_task_arg_joins_it() -> None:
     assert mock_console.call_args.kwargs["join"] == "fix-login"
 
 
-def _assert_names_the_fix(message: str) -> None:
-    assert "docker daemon unreachable" in message.lower()  # names *what* is unreachable
-    # The literal, complete actionable phrase for both platforms — not a loose keyword check, so
-    # a negated or unrelated mention of "OrbStack"/"systemctl" can't slip a test through.
-    assert "start OrbStack or Docker Desktop (macOS)" in message
-    assert "systemctl start docker` (Linux)" in message
+def _expected_refusal_message(command: str) -> str:
+    """The exact refusal text `preflight_message` produces — pinned literally (not re-derived
+    from `docker_daemon.FIX_HINT`) so the test can assert full-string equality. A substring check
+    here is a keyword-theater trap: it would pass a *negated* remediation ("Never start OrbStack
+    or Docker Desktop (macOS)") just as readily as the real, actionable one."""
+    return (
+        "Docker daemon unreachable — start OrbStack or Docker Desktop (macOS), or "
+        f"`systemctl start docker` (Linux), then rerun `panopticon {command}`."
+    )
 
 
 def test_start_refuses_when_docker_daemon_is_unreachable() -> None:
@@ -163,32 +170,40 @@ def test_no_arg_refuses_when_docker_daemon_is_unreachable() -> None:
     mock_console.assert_not_called()
 
 
-#: The exact `tmux new-session` invocations `_start_sessions` runs for each real session —
-#: reproduced here (not derived from the source) so an exact-list comparison catches a mutant
-#: that keeps the right session name but starts the wrong module, drops the log redirection, or
-#: drops `-d` (detached — a foregrounded session would hang `panopticon start`/`host`).
-_EXPECTED_NEW_SESSION_COMMANDS = [
-    [
-        "tmux",
-        "-L",
-        "panopticon",
-        "new-session",
-        "-d",
-        "-s",
-        "service",
-        f"{sys.executable} -m panopticon.taskservice 2>&1 | tee /tmp/panopticon-service.log",
-    ],
-    [
-        "tmux",
-        "-L",
-        "panopticon",
-        "new-session",
-        "-d",
-        "-s",
-        "runner",
-        f"{sys.executable} -m panopticon.sessionservice.host 2>&1 | tee /tmp/panopticon-runner.log",
-    ],
-]
+def _expected_new_session_commands() -> list[list[str]]:
+    """The exact `tmux new-session` invocations `_start_sessions` runs for each real session —
+    reproduced here (not derived from the source, except `defaults_argv` itself — REQ-030's own
+    tests own proving *that* function's content; this pins that `_start_sessions` passes it at
+    the right position) so an exact-list comparison catches a mutant that keeps the right session
+    name but starts the wrong module, drops the log redirection, or drops `-d` (detached — a
+    foregrounded session would hang `panopticon start`/`host`). A function, not a module-level
+    constant, so its `defaults_argv` call (which writes a config file as a side effect) only runs
+    for the tests that need it."""
+    defaults = defaults_argv("panopticon")
+    return [
+        [
+            "tmux",
+            "-L",
+            "panopticon",
+            *defaults,
+            "new-session",
+            "-d",
+            "-s",
+            "service",
+            f"{sys.executable} -m panopticon.taskservice 2>&1 | tee /tmp/panopticon-service.log",
+        ],
+        [
+            "tmux",
+            "-L",
+            "panopticon",
+            *defaults,
+            "new-session",
+            "-d",
+            "-s",
+            "runner",
+            f"{sys.executable} -m panopticon.sessionservice.host 2>&1 | tee /tmp/panopticon-runner.log",
+        ],
+    ]
 
 
 def _fake_subprocess_run(cmd: list[str], **kwargs: object) -> MagicMock:
@@ -217,7 +232,7 @@ def test_start_actually_starts_both_sessions_with_their_real_commands_when_reach
     ):
         assert main(["start"]) == 0
     new_session_calls = [c.args[0] for c in mock_run.call_args_list if "new-session" in c.args[0]]
-    assert sorted(new_session_calls) == sorted(_EXPECTED_NEW_SESSION_COMMANDS)
+    assert sorted(new_session_calls) == sorted(_expected_new_session_commands())
 
 
 def test_host_actually_starts_both_sessions_with_their_real_commands_when_reachable() -> None:
@@ -230,7 +245,7 @@ def test_host_actually_starts_both_sessions_with_their_real_commands_when_reacha
     ):
         assert main(["host"]) == 0
     new_session_calls = [c.args[0] for c in mock_run.call_args_list if "new-session" in c.args[0]]
-    assert sorted(new_session_calls) == sorted(_EXPECTED_NEW_SESSION_COMMANDS)
+    assert sorted(new_session_calls) == sorted(_expected_new_session_commands())
 
 
 def test_start_refuses_via_the_real_docker_probe_when_docker_info_fails() -> None:
@@ -253,9 +268,7 @@ def test_start_refuses_via_the_real_docker_probe_when_docker_info_fails() -> Non
     mock_migrate.assert_not_called()
     mock_sessions.assert_not_called()
     mock_console.assert_not_called()
-    message = mock_print.call_args.args[0]
-    _assert_names_the_fix(message)
-    assert "panopticon start" in message
+    assert mock_print.call_args.args[0] == _expected_refusal_message("start")
 
 
 def test_host_refuses_via_the_real_docker_probe_when_docker_info_fails() -> None:
@@ -273,9 +286,48 @@ def test_host_refuses_via_the_real_docker_probe_when_docker_info_fails() -> None
     mock_run.assert_called_once_with(["docker", "info"], capture_output=True)
     mock_migrate.assert_not_called()
     mock_sessions.assert_not_called()
-    message = mock_print.call_args.args[0]
-    _assert_names_the_fix(message)
-    assert "panopticon host" in message
+    assert mock_print.call_args.args[0] == _expected_refusal_message("host")
+
+
+def _run_cli_with_no_docker_on_path(
+    tmp_path: Path, command: str
+) -> subprocess.CompletedProcess[str]:
+    """Spawn the real CLI entry point (`python -m panopticon.terminal`, the same module
+    `raise SystemExit(main())` guard the packaged `panopticon` console-script wraps) as a genuine
+    subprocess, with a fake `docker` shim on PATH that always fails — so the caller can assert on
+    the process's *real* exit code, not just `main()`'s Python return value."""
+    fake_docker = tmp_path / "docker"
+    fake_docker.write_text("#!/bin/sh\nexit 1\n")
+    fake_docker.chmod(0o755)
+    env = {**os.environ, "PATH": f"{tmp_path}{os.pathsep}{os.environ['PATH']}"}
+    return subprocess.run(
+        [sys.executable, "-m", "panopticon.terminal", command],
+        env=env,
+        capture_output=True,
+        text=True,
+        cwd=Path(__file__).resolve().parents[2],
+        timeout=15,
+    )
+
+
+def test_start_process_exits_nonzero_when_docker_daemon_is_unreachable(tmp_path: Path) -> None:
+    # Every other REQ-031.1.4 test asserts `main()`'s Python return value, not the actual OS
+    # process exit status a real `panopticon start` invocation produces — a wrapper that called
+    # `main()` and discarded its return value would still pass those.
+    # 2119: REQ-031.1.4
+    result = _run_cli_with_no_docker_on_path(tmp_path, "start")
+    assert result.returncode != 0
+    assert result.stdout.strip() == _expected_refusal_message("start")
+
+
+def test_host_process_exits_nonzero_when_docker_daemon_is_unreachable(tmp_path: Path) -> None:
+    # Same as above for `panopticon host` — REQ-031.1.4 covers both refusal paths, and a `host`
+    # process that refused yet exited 0 wouldn't be caught by the `start`-only version of this
+    # test.
+    # 2119: REQ-031.1.4
+    result = _run_cli_with_no_docker_on_path(tmp_path, "host")
+    assert result.returncode != 0
+    assert result.stdout.strip() == _expected_refusal_message("host")
 
 
 def test_console_does_not_preflight_docker() -> None:

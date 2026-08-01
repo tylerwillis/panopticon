@@ -476,13 +476,13 @@ def test_preflight_or_exit_names_the_real_fix_when_the_real_docker_probe_fails(
     monkeypatch.setattr("subprocess.run", MagicMock(return_value=docker_info_failed))
     with pytest.raises(SystemExit) as exc_info:
         preflight_or_exit()
-    message = str(exc_info.value)
-    assert "docker daemon unreachable" in message.lower()
-    # The literal, complete actionable phrase for both platforms — not a loose keyword check, so
-    # a negated or unrelated mention of "OrbStack"/"systemctl" can't slip a test through.
-    assert "start OrbStack or Docker Desktop (macOS)" in message
-    assert "systemctl start docker` (Linux)" in message
-    assert "panopticon host" in message  # names the exact rerun command
+    # Full-string equality, not a substring check: a substring check is a keyword-theater trap
+    # here — it would pass a *negated* remediation ("Never start OrbStack or Docker Desktop
+    # (macOS)") just as readily as the real, actionable one.
+    assert str(exc_info.value) == (
+        "Docker daemon unreachable — start OrbStack or Docker Desktop (macOS), or "
+        "`systemctl start docker` (Linux), then rerun `panopticon host`."
+    )
 
 
 def test_preflight_or_exit_is_a_no_op_when_docker_is_reachable(

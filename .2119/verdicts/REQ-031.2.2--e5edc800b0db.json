@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.2.2--e5edc800b0db",
+  "requirementId": "REQ-031.2.2",
+  "hash": "e5edc800b0db",
+  "verdict": "pass",
+  "summary": "Daemon-down host tests require refusal via SystemExit with exact unreachable, macOS, and Linux remediation text.",
+  "timestamp": "2026-08-01T05:03:12.593Z"
+}

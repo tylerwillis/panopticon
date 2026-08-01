@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-031.1.1--f5c07e2ebe35",
-  "requirementId": "REQ-031.1.1",
-  "hash": "f5c07e2ebe35",
-  "verdict": "pass",
-  "summary": "Real docker-info failure is exercised through start and both task-service and runner startup are asserted absent.",
-  "timestamp": "2026-07-31T23:54:21.591Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-031.1.4--37a3377698ce",
-  "requirementId": "REQ-031.1.4",
-  "hash": "37a3377698ce",
-  "verdict": "pass",
-  "summary": "Start, its no-argument alias, and host each assert exit status 1 on refusal.",
-  "timestamp": "2026-07-31T23:54:23.126Z"
-}
