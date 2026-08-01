@@ -87,6 +87,8 @@ def _resume_target(sessions: Path) -> str | None:
             ):
                 continue
             session_id = payload["id"]
+            if not isinstance(session_id, str):
+                continue
             mtime_ns = path.stat().st_mtime_ns
         except (OSError, ValueError, TypeError, KeyError):
             continue  # empty/malformed first line, or no recognizable metadata

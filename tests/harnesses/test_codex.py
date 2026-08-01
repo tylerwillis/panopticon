@@ -408,6 +408,22 @@ def test_argv_resume_treats_all_malformed_rollouts_as_fresh(tmp_path: Path) -> N
     assert HARNESS.argv(_ctx(tmp_path)) == ["codex", *_SESSION_FLAGS]
 
 
+# 2119: REQ-032.3.1
+def test_argv_resume_skips_rollout_with_non_string_id(tmp_path: Path) -> None:
+    rollouts = tmp_path / ".codex" / "sessions" / "2026" / "07" / "31"
+    rollouts.mkdir(parents=True)
+    int_id_meta = {
+        "timestamp": "2026-07-31T00:00:00Z",
+        "type": "session_meta",
+        "payload": {"id": 123, "originator": "codex-tui", "thread_source": "user"},
+    }
+    path = rollouts / "int-id.jsonl"
+    path.write_text(json.dumps(int_id_meta) + "\n")
+    os.utime(path, (300, 300))  # newer than interactive rollout below
+    _seed_rollout(tmp_path, "interactive-1", "codex-tui", mtime=100)
+    assert HARNESS.argv(_ctx(tmp_path)) == ["codex", "resume", "interactive-1", *_SESSION_FLAGS]
+
+
 class _FirstLineOnly:
     """Wraps an open rollout file so any read reaching past its first line raises — a naive
     ``path.read_text()``/``readlines()`` whole-file slurp fails immediately, so a passing test
