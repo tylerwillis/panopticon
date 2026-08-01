@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.4.4--1723a9797cff",
+  "requirementId": "REQ-029.4.4",
+  "hash": "1723a9797cff",
+  "verdict": "pass",
+  "summary": "Test verifies failed submit_prompt (returns False) leaves entry at pending status; history retains pending rather than falsely recording delivered.",
+  "timestamp": "2026-08-01T01:01:58.567Z"
+}

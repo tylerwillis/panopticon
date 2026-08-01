@@ -82,6 +82,8 @@ class StageEntryWaker:
     def _deliver(self, task: JsonObj) -> None:
         task_id = str(task["id"])
         full = self._client.get_task(task_id)
+        if self._runner_id is not None and full.get("claimed_by") != self._runner_id:
+            return
         history = cast(list[JsonObj], full["history"])
         if not history:
             self._remember(task_id, task.get("updated_at"))

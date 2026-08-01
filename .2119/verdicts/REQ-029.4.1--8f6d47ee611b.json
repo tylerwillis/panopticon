@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-029.4.1--8f6d47ee611b",
-  "requirementId": "REQ-029.4.1",
-  "hash": "8f6d47ee611b",
-  "verdict": "pass",
-  "summary": "Real REST+sqlite test reloads a fresh store and asserts entry-level wake_status (entry 0 'skipped' vs causing entry 'delivered'), catching non-durable or task-level recording; waker unit tests pin the exact (task, entry_index, 'delivered') record call, and sibling tests reject wrong-index and failure-marked-delivered near-misses.",
-  "timestamp": "2026-08-01T00:45:21.051Z"
-}

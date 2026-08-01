@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-029.3.1--4d1ec44f4b10",
-  "requirementId": "REQ-029.3.1",
-  "hash": "4d1ec44f4b10",
-  "verdict": "pass",
-  "summary": "Mutation-verified: dropping paste-buffer -p, doubling Enter, or bypassing load-buffer each fail the 3.1-tagged tests; paste-without-readiness-wait is rejected by the sibling 3.2 timeout/vanished cases in the same file; LocalRunner path asserts loaded buffer content equals the wake text.",
-  "timestamp": "2026-08-01T00:41:30.274Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-029.2.1--d74d1eee2023",
-  "requirementId": "REQ-029.2.1",
-  "hash": "d74d1eee2023",
-  "verdict": "pass",
-  "summary": "Real-service briefing tests assert exact first line, state description, live [met]/[pending] responsibility status, and /do-work skill pointer (with wrong-state content rejected); sessionservice exact-equality test pins the waker to submit the briefing verbatim, closing the submitted-wake conjunct.",
-  "timestamp": "2026-08-01T00:45:07.979Z"
-}

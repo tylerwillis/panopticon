@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-029.1.3--c2f732882e66",
-  "requirementId": "REQ-029.1.3",
-  "hash": "c2f732882e66",
-  "verdict": "pass",
-  "summary": "Behavioral test on real StageEntryWaker: entry observed while container down is durably recorded skipped and a second observation after the container goes live re-enters the delivery path yet submits no prompt; leave-pending and revive-skipped mutants both fail the test.",
-  "timestamp": "2026-08-01T00:38:55.750Z"
-}

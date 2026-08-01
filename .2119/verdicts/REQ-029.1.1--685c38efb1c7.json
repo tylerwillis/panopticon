@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.1.1--685c38efb1c7",
+  "requirementId": "REQ-029.1.1",
+  "hash": "685c38efb1c7",
+  "verdict": "pass",
+  "summary": "Tests verify both declared transitions and free moves to agent non-terminal states trigger pending wakes; verify live container and claimed_by runner gating; verify runner delivery through semantic assertions on prompt text and recording.",
+  "timestamp": "2026-08-01T01:01:33.243Z"
+}

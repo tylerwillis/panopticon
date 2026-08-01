@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-029.4.3--6132af679202",
-  "requirementId": "REQ-029.4.3",
-  "hash": "6132af679202",
-  "verdict": "pass",
-  "summary": "Core test re-enters WORKING with identical trigger and asserts exact per-entry statuses [SKIPPED, DELIVERED, SKIPPED, PENDING]; sessionservice test delivers a second wake and records it at the new entry index despite the earlier same-state entry being delivered — state-label or (state,trigger) dedup implementations are both rejected.",
-  "timestamp": "2026-08-01T00:41:16.784Z"
-}

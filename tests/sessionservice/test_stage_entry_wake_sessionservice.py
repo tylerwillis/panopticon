@@ -37,6 +37,7 @@ def _task(*, container_status: str = "live", entry: JsonObj | None = None) -> Js
         "state": current["to_state"],
         "turn": "agent",
         "updated_at": "u1",
+        "claimed_by": "host-1",
         "container_status": container_status,
         "history": [
             {
@@ -233,6 +234,22 @@ def test_delivery_is_dispatched_once_without_blocking_the_observation() -> None:
     assert runner.prompts == []
     queued.pop()()
     assert len(runner.prompts) == 1
+
+
+def test_deferred_delivery_rechecks_runner_ownership() -> None:
+    # 2119: REQ-029.1.1
+    task = _task()
+    task["claimed_by"] = "host-1"
+    client, runner = _Client(task), _Runner()
+    queued: list[Callable[[], None]] = []
+    waker = StageEntryWaker(client, runner, runner_id="host-1", dispatch=queued.append)
+
+    waker.wake(task)
+    task["claimed_by"] = "host-2"
+    queued.pop()()
+
+    assert runner.prompts == []
+    assert client.records == []
 
 
 def test_unchanged_settled_entry_avoids_another_full_task_fetch() -> None:
