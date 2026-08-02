@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.1.1--89071d456bfb",
+  "requirementId": "REQ-034.1.1",
+  "hash": "89071d456bfb",
+  "verdict": "pass",
+  "summary": "Letters, punctuation, digits and symbols prove query accumulation; decoys prove full case-insensitive prefix-only filtering.",
+  "timestamp": "2026-08-02T19:45:55.934Z"
+}
