@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-007.3.1--d553f8c05942",
+  "requirementId": "REQ-007.3.1",
+  "hash": "d553f8c05942",
+  "verdict": "pass",
+  "summary": "Annotated test calls render_detail on a task with no hint-bearing field and rejects the exact hint as any output line, so an added hint line fails.",
+  "timestamp": "2026-08-02T19:32:57.793Z"
+}
