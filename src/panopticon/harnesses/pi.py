@@ -190,16 +190,16 @@ def operation_instructions(
     """The procedure body for a core operation (advance/drop/…) — a direct REST call, since pi
     has no MCP client to invoke ``apply_operation`` through (claude/codex's approach)."""
     url = f"{service_url.rstrip('/')}/tasks/{task_id}/operations/{name}"
+    curl = (
+        "printf 'header = \"Authorization: Bearer %s\"\\n' "
+        '"$PANOPTICON_SERVICE_AUTH_TOKEN" | curl --config - '
+        if authenticated
+        else "curl "
+    )
     return (
         f"Apply this workflow's `{name}` operation — it moves the task to **{target_state}**. "
         "pi has no MCP client, so call the task service's REST API directly (no request body "
-        "needed): `curl --fail --silent --show-error "
-        + (
-            '--header "Authorization: Bearer $PANOPTICON_SERVICE_AUTH_TOKEN" '
-            if authenticated
-            else ""
-        )
-        + "--request POST "
+        "needed): `" + curl + "--fail --silent --show-error --request POST "
         f'"{url}"`. '
         "Don't edit the state directly. It's gated on the current state's responsibilities and "
         "starts a new turn."

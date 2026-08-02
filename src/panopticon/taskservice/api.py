@@ -494,7 +494,9 @@ def create_app(
             and path_parts[0] in {"tasks", "runners"}
             and path_parts[2] == "live"
         )
-        mutating = request.method != "GET" or request.url.path.startswith("/mcp") or liveness
+        mutating = (
+            request.method not in {"GET", "HEAD"} or request.url.path.startswith("/mcp") or liveness
+        )
         if not write and (mutating or not read):
             return JSONResponse(
                 status_code=401,

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -11,6 +12,7 @@ from typing import Literal
 from panopticon.core.dirs import _secrets_dir
 
 AuthMode = Literal["disabled", "permissive", "enforced"]
+_BEARER_TOKEN = re.compile(r"[A-Za-z0-9._~+/-]+=*\Z")
 
 
 @dataclass(frozen=True)
@@ -43,7 +45,9 @@ def _parse_tokens(contents: str) -> AuthTokens:
         read, write = raw["read"], raw["write"]
         if not all(isinstance(values, list) and values for values in (read, write)):
             raise _credential_error()
-        if not all(isinstance(token, str) and token for token in [*read, *write]):
+        if not all(
+            isinstance(token, str) and _BEARER_TOKEN.fullmatch(token) for token in [*read, *write]
+        ):
             raise _credential_error()
         if len(set(read)) != len(read) or len(set(write)) != len(write) or set(read) & set(write):
             raise _credential_error()

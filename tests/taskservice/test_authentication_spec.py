@@ -30,9 +30,15 @@ READ_TOKEN = "phone-reader-token"
 WRITE_TOKEN = "fleet-writer-token"
 NEXT_WRITE_TOKEN = "fleet-writer-token-next"
 NEXT_READ_TOKEN = "phone-reader-token-next"
-OPAQUE_READ_TOKEN = "opaque.!~*'()-_+:/@"
-OPAQUE_WRITE_TOKEN = "write.!~*'()-_+:/@"
+OPAQUE_READ_TOKEN = "opaque._~+-/=="
+OPAQUE_WRITE_TOKEN = "write._~+-/=="
 GENERIC_FAILURE = {"detail": "authentication required"}
+TOKEN_GRAMMAR = re.compile(r"[A-Za-z0-9._~+/-]+=*\Z")
+INVALID_TOKEN_VALUES = [
+    f"a{character}b"
+    for character in map(chr, range(128))
+    if TOKEN_GRAMMAR.fullmatch(f"a{character}b") is None
+] + ["", "=", "==", "é", "λ", "😀", "Ａ"]
 
 
 def _service(tmp_path: Path) -> TaskService:
@@ -94,7 +100,7 @@ def _rest_operations(client: TestClient) -> list[tuple[str, str]]:
 
 
 def _is_mutating(method: str, path: str) -> bool:
-    return method != "GET" or path.endswith("/live")
+    return method not in {"GET", "HEAD"} or path.endswith("/live")
 
 
 def _asgi_status(
@@ -236,6 +242,8 @@ def test_tokens_are_host_local_and_never_serialized(
         (tmp_path / "secrets" / "task-service-auth.json").resolve(),
         (tmp_path / "bad-secrets" / "bad.json").resolve(),
     }
+    # Inspect every SQLite/artifact/log file produced by the production adapters, not merely API
+    # serialization, so a copied credential value cannot hide in durable service state.
     for path in tmp_path.rglob("*"):
         if path.is_file() and path.resolve() not in credential_paths:
             assert READ_TOKEN.encode() not in path.read_bytes()
@@ -483,6 +491,27 @@ def test_non_ascii_bearer_token_receives_generic_failure(tmp_path: Path) -> None
         assert json.loads(body) == GENERIC_FAILURE
 
 
+def test_read_token_can_reach_safe_head_route(tmp_path: Path) -> None:
+    # 2119: REQ-034.3.1
+    # 2119: REQ-034.23.1
+    with _client(tmp_path) as client:
+        assert client.head("/openapi.json").status_code == 401
+        assert client.head("/openapi.json", headers=_bearer(READ_TOKEN)).status_code == 200
+        assert client.head("/openapi.json", headers=_bearer(WRITE_TOKEN)).status_code == 200
+
+
+def test_read_and_write_tokens_reach_framework_documentation_reads(tmp_path: Path) -> None:
+    # 2119: REQ-034.3.1
+    with _client(tmp_path) as client:
+        for path in ["/openapi.json", "/docs", "/docs/oauth2-redirect", "/redoc"]:
+            for method in ["GET", "HEAD"]:
+                for token in [READ_TOKEN, WRITE_TOKEN]:
+                    response = client.request(method, path, headers=_bearer(token))
+                    assert not (
+                        response.status_code == 401 and response.json() == GENERIC_FAILURE
+                    ), (method, path, token)
+
+
 def test_authentication_precedes_route_and_resource_disclosure(tmp_path: Path) -> None:
     # 2119: REQ-034.8.1
     service = _service(tmp_path)
@@ -635,8 +664,19 @@ def test_source_address_never_exempts_authentication(tmp_path: Path) -> None:
     # 2119: REQ-034.11.1
     outcomes: list[tuple[int, ...]] = []
     route_outcomes: list[tuple[tuple[int, int, int], ...]] = []
+    mcp_method_outcomes: list[tuple[tuple[int, int, int], ...]] = []
     for index, address in enumerate(
-        ["127.0.0.1", "::1", "100.64.1.2", "fd7a:115c:a1e0::2", "203.0.113.9"]
+        [
+            "127.0.0.1",
+            "127.0.0.2",
+            "127.255.255.255",
+            "::1",
+            "100.64.0.0",
+            "100.64.1.2",
+            "100.127.255.255",
+            "fd7a:115c:a1e0::2",
+            "203.0.113.9",
+        ]
     ):
         case_dir = tmp_path / str(index)
         case_dir.mkdir()
@@ -691,8 +731,19 @@ def test_source_address_never_exempts_authentication(tmp_path: Path) -> None:
                     for method, path in _rest_operations(client)
                 )
             )
+            mcp_method_outcomes.append(
+                tuple(
+                    (
+                        client.request(method, "/mcp").status_code,
+                        client.request(method, "/mcp", headers=_bearer(READ_TOKEN)).status_code,
+                        client.request(method, "/mcp", headers=_bearer(WRITE_TOKEN)).status_code,
+                    )
+                    for method in ["GET", "POST", "DELETE"]
+                )
+            )
     assert len(set(outcomes)) == 1
     assert len(set(route_outcomes)) == 1
+    assert len(set(mcp_method_outcomes)) == 1
     assert outcomes[0][:7] == (401, 200, 200, 401, 401, 201, 401)
 
 
@@ -779,6 +830,12 @@ def test_permissive_mode_accepts_legacy_and_authenticated_callers(tmp_path: Path
                 client.post("/mcp", json=payload).status_code
                 == client.post("/mcp", headers=_bearer(WRITE_TOKEN), json=payload).status_code
             )
+            # The mounted MCP transport is write-privileged even for protocol discovery; a read
+            # token is therefore insufficient, rather than an upgraded credential REQ-034.13
+            # promises to admit.
+            reader = client.post("/mcp", headers=_bearer(READ_TOKEN), json=payload)
+            assert reader.status_code == 401
+            assert reader.json() == GENERIC_FAILURE
         for method in ["GET", "DELETE"]:
             for headers in ({}, _bearer(WRITE_TOKEN)):
                 response = client.request(method, "/mcp", headers=headers)
@@ -796,7 +853,6 @@ def test_permissive_mode_accepts_legacy_and_authenticated_callers(tmp_path: Path
 
 
 def test_permissive_mode_requires_a_credential_file() -> None:
-    # 2119: REQ-034.13.1
     with pytest.raises(ValueError, match="credential file is required in permissive mode"):
         create_app(object(), auth_mode="permissive")  # type: ignore[arg-type]
 
@@ -815,6 +871,8 @@ def test_permissive_mode_requires_a_credential_file() -> None:
         json.dumps({"write": [WRITE_TOKEN]}),
         json.dumps({"read": [READ_TOKEN], "write": []}),
         json.dumps({"read": [READ_TOKEN], "write": [READ_TOKEN]}),
+        *[json.dumps({"read": [READ_TOKEN], "write": [token]}) for token in INVALID_TOKEN_VALUES],
+        *[json.dumps({"read": [token], "write": [WRITE_TOKEN]}) for token in INVALID_TOKEN_VALUES],
         json.dumps(
             {
                 "read": [READ_TOKEN, "shared-token"],
@@ -826,6 +884,7 @@ def test_permissive_mode_requires_a_credential_file() -> None:
 def test_enforced_mode_rejects_invalid_credential_files(tmp_path: Path, contents: str) -> None:
     # 2119: REQ-034.2.1
     # 2119: REQ-034.14.1
+    # 2119: REQ-034.24.1
     secrets = tmp_path / "secrets"
     secrets.mkdir()
     (secrets / "bad.json").write_text(contents)
@@ -1128,7 +1187,7 @@ def test_container_python_callers_and_shell_library_use_injected_auth_file(
     from panopticon.container.entrypoint import _make_client
     from panopticon.harnesses.claude import write_mcp_config
     from panopticon.harnesses.codex import render_config
-    from panopticon.harnesses.pi import TURN_EXTENSION, operation_instructions
+    from panopticon.harnesses.pi import TURN_EXTENSION
     from panopticon.sessionservice.shell_runner import _TASK_LIB
 
     reference = _credential_file(tmp_path)
@@ -1144,9 +1203,6 @@ def test_container_python_callers_and_shell_library_use_injected_auth_file(
     }
     assert 'bearer_token_env_var = "PANOPTICON_SERVICE_AUTH_TOKEN"' in render_config(
         "http://service", "", tmp_path, authenticated=True
-    )
-    assert "Authorization: Bearer $PANOPTICON_SERVICE_AUTH_TOKEN" in operation_instructions(
-        "advance", "COMPLETE", "task", "http://service", authenticated=True
     )
     assert "const token = process.env.PANOPTICON_SERVICE_AUTH_TOKEN" in TURN_EXTENSION
     assert '...(token ? { "authorization": `Bearer ${token}` } : {})' in TURN_EXTENSION
@@ -1170,3 +1226,27 @@ panopticon_advance
     assert WRITE_TOKEN not in arguments
     assert "Authorization: Bearer" in recorded_input.read_text()
     assert WRITE_TOKEN in recorded_input.read_text()
+
+
+def test_pi_operation_keeps_runtime_token_out_of_curl_argv(tmp_path: Path) -> None:
+    # 2119: REQ-034.18.1
+    # 2119: REQ-034.21.1
+    from panopticon.harnesses.pi import operation_instructions
+
+    instructions = operation_instructions(
+        "advance", "COMPLETE", "task", "http://service", authenticated=True
+    )
+    command = instructions.split("needed): `", 1)[1].split("`. ", 1)[0]
+    argv = tmp_path / "curl-argv"
+    stdin = tmp_path / "curl-stdin"
+    shell = f"""curl() {{ cat > {stdin}; printf '%s\\n' "$@" > {argv}; }}
+{command}
+"""
+    env = {
+        "PATH": "/usr/bin:/bin",
+        "PANOPTICON_SERVICE_AUTH_TOKEN": WRITE_TOKEN,
+    }
+    subprocess.run(["sh", "-c", shell], env=env, check=True)
+    assert WRITE_TOKEN not in argv.read_text()
+    assert "--config\n-\n" in argv.read_text()
+    assert stdin.read_text() == f'header = "Authorization: Bearer {WRITE_TOKEN}"\n'

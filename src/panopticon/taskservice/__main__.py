@@ -137,14 +137,19 @@ def build_app(
             _skip_duplicates=True,
         ),
     )
+    resolved_auth_file = (
+        auth_file if auth_file is not None else os.environ.get("PANOPTICON_SERVICE_AUTH_FILE")
+    )
+    resolved_auth_mode = (
+        auth_mode if auth_mode is not None else os.environ.get("PANOPTICON_SERVICE_AUTH_MODE")
+    )
+    effective_mode = resolved_auth_mode or ("enforced" if resolved_auth_file else "disabled")
+    log = logging.warning if effective_mode in {"disabled", "permissive"} else logging.info
+    log("panopticon: task-service authentication mode: %s", effective_mode)
     return create_app(
         service,
-        auth_file=auth_file
-        if auth_file is not None
-        else os.environ.get("PANOPTICON_SERVICE_AUTH_FILE"),
-        auth_mode=auth_mode
-        if auth_mode is not None
-        else os.environ.get("PANOPTICON_SERVICE_AUTH_MODE"),
+        auth_file=resolved_auth_file,
+        auth_mode=resolved_auth_mode,
         secrets_dir=secrets_dir,
     )
 
@@ -156,7 +161,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     parser = argparse.ArgumentParser(
         prog="python -m panopticon.taskservice", description="Run the task service over HTTP."
     )
-    parser.add_argument("--host", default=os.environ.get("PANOPTICON_HOST", "0.0.0.0"))
+    parser.add_argument("--host", default=os.environ.get("PANOPTICON_HOST", "127.0.0.1"))
     parser.add_argument("--port", type=int, default=int(os.environ.get("PANOPTICON_PORT", "8000")))
     parser.add_argument("--db", default=os.environ.get("PANOPTICON_DB", DB_URL))
     parser.add_argument(
@@ -173,7 +178,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         layers_root=LAYERS_DIR,
         workflows_path=args.workflows_path,
     )
-    uvicorn.run(app, host=args.host, port=args.port)
+    uvicorn.run(app, host=args.host, port=args.port, access_log=False)
 
 
 if __name__ == "__main__":

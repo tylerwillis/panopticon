@@ -14,14 +14,21 @@ the read-only dashboard and for clients that mutate control-plane state:
 }
 ```
 
-The arrays may contain multiple tokens for rotation, but must be nonempty, contain only nonempty
-strings, have no duplicates, and never overlap. Configure every task-service and runner host with
-the same filename reference:
+The arrays may contain multiple tokens for rotation, but must be nonempty, have no duplicates, and
+never overlap. Tokens use the transport-safe ASCII bearer grammar: letters, digits,
+`-._~+/`, followed by optional `=` padding. Generate long random values using that alphabet; spaces,
+control characters, non-ASCII text, quotes, and backslashes are rejected at startup. Keep the file
+mode `0600`. Configure every task-service and runner host with the same filename reference.
+The required steady-state configuration is enforced mode:
 
 ```sh
 export PANOPTICON_SERVICE_AUTH_FILE=task-service-auth.json
-export PANOPTICON_SERVICE_AUTH_MODE=permissive
+export PANOPTICON_SERVICE_AUTH_MODE=enforced
 ```
+
+The service binds to `127.0.0.1` by default. To expose it on a tailnet, explicitly set
+`PANOPTICON_HOST` to that machine's tailnet address (preferred) or another intended interface.
+Authentication mode is reported at startup; disabled and permissive modes produce warnings.
 
 Host clients (runner, dashboard, and CLI) resolve the file against their own secrets directory.
 The runner separately mounts it read-only into every Docker task—even one whose repo has no
@@ -38,7 +45,9 @@ does not revoke a next-generation token that the container could already read.
 
 Roll a live fleet out without killing existing containers:
 
-1. Put the old write token in the credential file and start the service in `permissive` mode.
+1. Put the old write token in the credential file and temporarily start the service in
+   `permissive` mode. Do not expose this grace mode to an untrusted interface: a request that omits
+   Authorization has full legacy access. The startup warning remains until migration is complete.
    Restart each runner, dashboard, and CLI host so new containers receive the credential mount;
    existing unauthenticated containers continue working.
 2. Respawn or naturally replace the in-flight containers until all callers send the token, then

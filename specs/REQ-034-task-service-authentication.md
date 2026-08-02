@@ -28,7 +28,7 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 
 ### REQ-034.4: Mutations
 
-1. Every non-GET protected REST operation exposed in the service's OpenAPI surface plus `GET /tasks/{task_id}/live` and `GET /runners/{runner_id}/live` MUST return the generic authentication failure when presented with a read token.
+1. Every mutating protected REST operation exposed in the service's OpenAPI surface plus `GET /tasks/{task_id}/live` and `GET /runners/{runner_id}/live` MUST return the generic authentication failure when presented with a read token.
 
 ### REQ-034.5: Write access
 
@@ -89,3 +89,35 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 ### REQ-034.19: Rotation continuity
 
 1. Restarting with overlapping old and new tokens MUST allow both token sets until the old token is removed from the credential file and the service restarts again.
+
+### REQ-034.20: Setup-repo caller propagation
+
+1. An authenticated setup-repo shell workflow MUST use the injected task-service write credential for its task read, repo read, and repo credential-directory update without placing the token in process arguments.
+
+### REQ-034.21: Pi operation secrecy
+
+1. An authenticated Pi REST operation MUST deliver its task-service write credential outside the spawned curl process arguments.
+
+### REQ-034.22: Access-log secrecy
+
+1. The production task-service launcher MUST omit raw request query strings that may contain rejected credential values from its stdout and stderr logs.
+
+### REQ-034.23: Safe HEAD access
+
+1. A read-token request to a protected route that supports HEAD MUST reach that route without the generic task-service authentication-failure response.
+
+### REQ-034.24: Transport-safe token grammar
+
+1. Authentication startup MUST reject configured token values outside the documented ASCII grammar `[A-Za-z0-9._~+/-]+=*`, where `=` occurs only as trailing padding.
+
+### REQ-034.25: Conservative bind default
+
+1. The production task-service launcher MUST bind to loopback by default and expose another interface only when the operator explicitly configures a host.
+
+### REQ-034.26: Production composition
+
+1. Production application composition MUST honor the host-local authentication environment so an enforced service rejects a header-less protected request.
+
+### REQ-034.27: Visible secure operating mode
+
+1. Production startup MUST report the resolved authentication mode, warn when it is disabled or permissive, and document enforced mode as the required steady-state configuration.

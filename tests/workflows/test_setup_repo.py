@@ -7,6 +7,7 @@ import importlib.resources
 import shlex
 import stat
 import subprocess
+import sys
 from pathlib import Path
 
 from panopticon.core import Actor
@@ -20,6 +21,7 @@ WF = SetupRepo()
 # functional tests exercise in a real `sh`, no LLM — the token is a literal fixture, `claude`/`gh`/
 # `script` are never invoked.
 _LIB = (importlib.resources.files("panopticon.workflows") / "setup_repo_lib.sh").read_text()
+_TASK_LIB = (importlib.resources.files("panopticon.sessionservice") / "task_lib.sh").read_text()
 _FULL_SCRIPT = WF.shell_script()
 
 
@@ -100,6 +102,51 @@ def test_shell_script_runs_setup_repo_and_advances() -> None:
     assert "claude setup-token" in script
     # completes the task via the panopticon shell lib (loaded by the shell runner), not raw curl
     assert "panopticon_advance" in script
+
+
+def test_setup_repo_control_plane_calls_use_runtime_auth_without_argv_leak(tmp_path: Path) -> None:
+    # 2119: REQ-034.17.1
+    # 2119: REQ-034.20.1
+    token = "setup-repo-write-token"
+    credential = tmp_path / "task-service-auth.json"
+    credential.write_text('{"read":["setup-repo-read-token"],"write":["' + token + '"]}')
+    argv = tmp_path / "curl-argv"
+    stdin = tmp_path / "curl-stdin"
+    shell = f"""
+curl() {{
+    cat >> {stdin}
+    printf 'CALL\\n%s\\n' "$*" >> {argv}
+    case "$*" in
+        *'/tasks/task'*) printf '%s' '{{"repo_id":"repo"}}' ;;
+        *'/repos/repo'*'PATCH'*) ;;
+        *'/repos/repo'*) printf '%s' '{{"default_harness":"codex","credential_dir":""}}' ;;
+    esac
+}}
+{_TASK_LIB}
+{_LIB}
+load_repo_auth_context
+set_repo_credential_dir openai.d
+printf '%s\\n' "$repo_id:$default_harness"
+"""
+    env = {
+        "PATH": "/usr/bin:/bin",
+        "PANOPTICON_PYTHON": sys.executable,
+        "PANOPTICON_SERVICE_URL": "http://service",
+        "PANOPTICON_TASK_ID": "task",
+        "PANOPTICON_SERVICE_AUTH_FILE": str(credential),
+    }
+    completed = subprocess.run(
+        ["sh", "-c", shell], env=env, check=True, capture_output=True, text=True
+    )
+    assert completed.stdout == "repo:codex\n"
+    calls = argv.read_text().split("CALL\n")[1:]
+    assert len(calls) == 3
+    assert "/tasks/task" in calls[0] and "--request" not in calls[0]
+    assert "/repos/repo" in calls[1] and "--request" not in calls[1]
+    assert "/repos/repo" in calls[2] and "--request PATCH" in calls[2]
+    assert '--data {"credential_dir": "openai.d"}' in calls[2]
+    assert token not in "".join(calls)
+    assert stdin.read_text().count(f'header = "Authorization: Bearer {token}"') == 3
 
 
 def test_harness_auth_dispatch_routes_the_approved_harnesses() -> None:
