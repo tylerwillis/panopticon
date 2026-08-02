@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.11.1--a027ccf4d0be",
-  "requirementId": "REQ-034.11.1",
-  "hash": "a027ccf4d0be",
-  "verdict": "pass",
-  "summary": "Exercises the full REST and MCP method matrices with unauthenticated, read-token, and write-token requests across IPv4/IPv6 loopback, tailnet boundary/interior, and non-tailnet addresses; any source-specific exemption or denial changes a compared outcome.",
-  "timestamp": "2026-08-02T19:52:22.971Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.28.1--4573a5a44514",
-  "requirementId": "REQ-034.28.1",
-  "hash": "4573a5a44514",
-  "verdict": "pass",
-  "summary": "Parameterized missing-path and directory counterexamples both raise before any command-runner invocation; the missing entry stays absent and the non-file entry remains a directory.",
-  "timestamp": "2026-08-02T20:20:41.266Z"
-}

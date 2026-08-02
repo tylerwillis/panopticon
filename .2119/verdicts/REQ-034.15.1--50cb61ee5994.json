@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.15.1--50cb61ee5994",
-  "requirementId": "REQ-034.15.1",
-  "hash": "50cb61ee5994",
-  "verdict": "pass",
-  "summary": "Captured transport requests reject missing or incorrect bearer headers for ordinary GET, ordinary PUT, task liveness, and runner liveness, and reject token presence in every request URL.",
-  "timestamp": "2026-08-02T19:49:59.865Z"
-}

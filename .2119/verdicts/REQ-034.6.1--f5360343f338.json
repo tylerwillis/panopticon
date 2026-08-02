@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.6.1--f5360343f338",
-  "requirementId": "REQ-034.6.1",
-  "hash": "f5360343f338",
-  "verdict": "pass",
-  "summary": "Mounted /mcp tests send both tools/call and resources/read requests, require HTTP 401 for a read token, and confirm the corresponding write-token requests cross the authentication boundary.",
-  "timestamp": "2026-08-02T19:49:17.280Z"
-}

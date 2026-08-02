@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.7.1--e3179b1c1701",
+  "requirementId": "REQ-035.7.1",
+  "hash": "e3179b1c1701",
+  "verdict": "pass",
+  "summary": "Tests cover every protected REST/MCP operation and reject missing, malformed (scheme/casing/arity/non-ASCII), unknown (including near-prefix/suffix), and read-token-on-write credentials with exact 401, Bearer challenge, and one identical JSON body.",
+  "timestamp": "2026-08-02T22:04:13.850Z"
+}

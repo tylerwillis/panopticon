@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.24.1--aad8a3cd7a84",
-  "requirementId": "REQ-034.24.1",
-  "hash": "aad8a3cd7a84",
-  "verdict": "pass",
-  "summary": "Startup test rejects empty and padding-only tokens, every disallowed ASCII code point in a valid-token context (including internal '='), and representative non-ASCII values through the real create_app boundary.",
-  "timestamp": "2026-08-02T19:52:27.643Z"
-}

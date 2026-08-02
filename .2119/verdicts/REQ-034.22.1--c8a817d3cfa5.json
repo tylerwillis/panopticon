@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.22.1--c8a817d3cfa5",
-  "requirementId": "REQ-034.22.1",
-  "hash": "c8a817d3cfa5",
-  "verdict": "pass",
-  "summary": "Real production launcher test rejects a query credential with 401 and captures merged stdout/stderr, failing if the raw rejected value is emitted.",
-  "timestamp": "2026-08-02T19:43:58.425Z"
-}

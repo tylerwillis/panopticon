@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.8.1--e090c5259aea",
+  "requirementId": "REQ-035.8.1",
+  "hash": "e090c5259aea",
+  "verdict": "pass",
+  "summary": "Existing and missing routes, resources, workflows, and MCP methods are crossed with all five required verbs and must match exact 401 status, generic JSON body, and Bearer challenge.",
+  "timestamp": "2026-08-02T22:04:25.587Z"
+}

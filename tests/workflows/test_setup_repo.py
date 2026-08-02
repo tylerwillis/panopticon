@@ -105,8 +105,8 @@ def test_shell_script_runs_setup_repo_and_advances() -> None:
 
 
 def test_setup_repo_control_plane_calls_use_runtime_auth_without_argv_leak(tmp_path: Path) -> None:
-    # 2119: REQ-034.17.1
-    # 2119: REQ-034.20.1
+    # 2119: REQ-035.17.1
+    # 2119: REQ-035.20.1
     token = "setup-repo-write-token"
     credential = tmp_path / "task-service-auth.json"
     credential.write_text('{"read":["setup-repo-read-token"],"write":["' + token + '"]}')

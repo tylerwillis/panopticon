@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.31.1--34054ff8c9c0",
-  "requirementId": "REQ-034.31.1",
-  "hash": "34054ff8c9c0",
-  "verdict": "pass",
-  "summary": "Tests cover both newly created service and runner sessions, all three invoking-process values, and absent-value stale clearing; a real tmux child rejects mixed and fully stale inheritance counterexamples.",
-  "timestamp": "2026-08-02T21:51:56.813Z"
-}

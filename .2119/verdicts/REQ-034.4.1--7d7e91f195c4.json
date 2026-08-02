@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.4.1--7d7e91f195c4",
-  "requirementId": "REQ-034.4.1",
-  "hash": "7d7e91f195c4",
-  "verdict": "pass",
-  "summary": "OpenAPI-wide iteration plus an exact two-route live assertion rejects any mutating operation that accepts a read token or returns a non-generic 401 response.",
-  "timestamp": "2026-08-02T19:49:36.396Z"
-}

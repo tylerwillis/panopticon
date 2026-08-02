@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.10.1--5522c40e10c3",
+  "requirementId": "REQ-035.10.1",
+  "hash": "5522c40e10c3",
+  "verdict": "pass",
+  "summary": "Behavioral tests reject credential-gating, non-200 availability, and any missing, changed, or extra readiness payload field, including the configured root-path case.",
+  "timestamp": "2026-08-02T22:04:53.502Z"
+}

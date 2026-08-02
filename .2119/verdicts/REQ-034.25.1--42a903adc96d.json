@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.25.1--42a903adc96d",
-  "requirementId": "REQ-034.25.1",
-  "hash": "42a903adc96d",
-  "verdict": "pass",
-  "summary": "The launcher test rejects a non-loopback default by requiring 127.0.0.1 with PANOPTICON_HOST absent, and verifies a non-loopback interface is used only after explicit host configuration.",
-  "timestamp": "2026-08-02T19:38:56.763Z"
-}

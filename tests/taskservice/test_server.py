@@ -26,8 +26,8 @@ from panopticon.taskservice.__main__ import build_app
 def test_build_app_honors_production_auth_environment(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
 ) -> None:
-    # 2119: REQ-034.26.1
-    # 2119: REQ-034.27.1
+    # 2119: REQ-035.26.1
+    # 2119: REQ-035.27.1
     config = tmp_path / "config"
     secrets = config / "secrets"
     secrets.mkdir(parents=True)
@@ -54,7 +54,7 @@ def test_build_app_honors_production_auth_environment(
 def test_main_defaults_to_loopback_and_disables_raw_access_log(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # 2119: REQ-034.25.1
+    # 2119: REQ-035.25.1
     import panopticon.taskservice.__main__ as server
 
     calls: list[dict[str, object]] = []
@@ -76,7 +76,7 @@ def test_main_defaults_to_loopback_and_disables_raw_access_log(
 
 
 def test_production_launcher_does_not_persist_rejected_query_credentials(tmp_path: Path) -> None:
-    # 2119: REQ-034.22.1
+    # 2119: REQ-035.22.1
     config = tmp_path / "config"
     secrets = config / "secrets"
     secrets.mkdir(parents=True)
@@ -132,7 +132,7 @@ def test_production_launcher_does_not_persist_rejected_query_credentials(tmp_pat
 def test_build_app_warns_for_non_enforced_modes(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
-    # 2119: REQ-034.27.1
+    # 2119: REQ-035.27.1
     caplog.set_level(logging.WARNING)
     build_app(
         db="sqlite://",
@@ -157,7 +157,7 @@ def test_build_app_warns_for_non_enforced_modes(
 
 
 def test_auth_documentation_presents_enforced_as_steady_state() -> None:
-    # 2119: REQ-034.27.1
+    # 2119: REQ-035.27.1
     documentation = Path("docs/auth.md").read_text()
     steady_state, migration = documentation.split(
         "Roll a live fleet out without killing existing containers:", 1

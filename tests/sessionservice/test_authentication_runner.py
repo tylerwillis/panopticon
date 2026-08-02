@@ -31,7 +31,7 @@ class _Recorder:
 def test_spawn_rejects_missing_service_credential_before_docker(
     tmp_path: Path, existing_kind: str
 ) -> None:
-    # 2119: REQ-034.28.1
+    # 2119: REQ-035.28.1
     secrets = tmp_path / "secrets"
     secrets.mkdir()
     credential = secrets / "task-service-auth.json"

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.1.1--5f64df157632",
+  "requirementId": "REQ-035.1.1",
+  "hash": "5f64df157632",
+  "verdict": "pass",
+  "summary": "Valid relative credential files are startup-loaded, while raw/absolute/traversal/symlink references are rejected and loaded tokens are absent from repo/task responses, logs, SQLite, and artifacts.",
+  "timestamp": "2026-08-02T22:04:07.880Z"
+}

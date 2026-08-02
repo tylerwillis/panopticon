@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.31.1--5b90537fe8ec",
+  "requirementId": "REQ-035.31.1",
+  "hash": "5b90537fe8ec",
+  "verdict": "pass",
+  "summary": "Both service and runner startup are checked for all three invoking-process values, while real-tmux tests reject stale inheritance and verify exact present/absent child environments.",
+  "timestamp": "2026-08-02T22:07:00.904Z"
+}

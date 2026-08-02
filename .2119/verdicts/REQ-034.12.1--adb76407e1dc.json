@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.12.1--adb76407e1dc",
-  "requirementId": "REQ-034.12.1",
-  "hash": "adb76407e1dc",
-  "verdict": "pass",
-  "summary": "No-auth app coverage rejects the generic 401 failure across every documented REST operation and MCP GET, POST, and DELETE, including invalid-resource and validation-boundary requests.",
-  "timestamp": "2026-08-02T19:49:59.955Z"
-}

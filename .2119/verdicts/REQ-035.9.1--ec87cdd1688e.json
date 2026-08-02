@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.9.1--ec87cdd1688e",
+  "requirementId": "REQ-035.9.1",
+  "hash": "ec87cdd1688e",
+  "verdict": "pass",
+  "summary": "Tests accept exact Authorization: Bearer credentials and reject every specified query, cookie, JSON, and alternate-header carrier plus malformed Bearer boundary variants across all REST and MCP endpoints.",
+  "timestamp": "2026-08-02T22:05:00.173Z"
+}

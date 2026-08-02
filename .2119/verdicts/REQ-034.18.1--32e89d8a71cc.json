@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.18.1--32e89d8a71cc",
-  "requirementId": "REQ-034.18.1",
-  "hash": "32e89d8a71cc",
-  "verdict": "pass",
-  "summary": "Configured read/write token counterexamples are rejected across failure and validation bodies, panopticon logs, emitted runner and pi argv, task/repo serialization, SQLite state, and artifact files.",
-  "timestamp": "2026-08-02T19:50:40.419Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.16.1--92cf0e05c79b",
-  "requirementId": "REQ-034.16.1",
-  "hash": "92cf0e05c79b",
-  "verdict": "pass",
-  "summary": "Covers all three factories: each resolves the credential-file write token, returns TaskServiceClient, and sends authenticated requests that the test transport rejects for any missing or wrong bearer token.",
-  "timestamp": "2026-08-02T19:50:21.602Z"
-}

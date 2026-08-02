@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.1.1--57e243e2b69b",
-  "requirementId": "REQ-034.1.1",
-  "hash": "57e243e2b69b",
-  "verdict": "pass",
-  "summary": "Behaviorally verifies startup loading from a relative secrets-dir credential reference, rejects traversal/absolute/escaping-symlink counterexamples, and scans API, logs, SQLite, and artifacts to reject token copying.",
-  "timestamp": "2026-08-02T19:49:14.069Z"
-}

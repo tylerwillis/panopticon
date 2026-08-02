@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.32.1--ca23b9ff65ef",
-  "requirementId": "REQ-034.32.1",
-  "hash": "ca23b9ff65ef",
-  "verdict": "pass",
-  "summary": "Covers both restarted Python and shell clients selecting the appended final write token; explicit final-token assertions and successful requests after removing old generations reject first/penultimate-token selection and disconnection after convergence.",
-  "timestamp": "2026-08-02T21:49:30.529Z"
-}

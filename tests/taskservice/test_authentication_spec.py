@@ -1,4 +1,4 @@
-"""Executable contract for REQ-034 task-service authentication.
+"""Executable contract for REQ-035 task-service authentication.
 
 These tests intentionally describe the public seam before its implementation. Authentication is
 configured with the same host-local filename reference operators use at runtime; tests never rely
@@ -156,9 +156,9 @@ def _asgi_status(
 def test_tokens_are_host_local_and_never_serialized(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
-    # 2119: REQ-034.1.1
-    # 2119: REQ-034.14.1
-    # 2119: REQ-034.18.1
+    # 2119: REQ-035.1.1
+    # 2119: REQ-035.14.1
+    # 2119: REQ-035.18.1
     caplog.set_level("DEBUG", logger="panopticon")
     with _client(tmp_path) as client:
         repo = client.get("/repos/r1", headers=_bearer(WRITE_TOKEN))
@@ -282,7 +282,7 @@ def test_tokens_are_host_local_and_never_serialized(
 
 
 def test_tokens_never_reach_any_failure_body_or_spawned_command(tmp_path: Path) -> None:
-    # 2119: REQ-034.18.1
+    # 2119: REQ-035.18.1
     with _client(tmp_path) as client:
         for method, path in _rest_operations(client):
             body = client.request(method, path).content
@@ -311,11 +311,11 @@ def test_tokens_never_reach_any_failure_body_or_spawned_command(tmp_path: Path) 
 
 
 def test_read_and_write_tokens_can_read_but_only_write_token_can_mutate(tmp_path: Path) -> None:
-    # 2119: REQ-034.2.1
-    # 2119: REQ-034.3.1
-    # 2119: REQ-034.4.1
-    # 2119: REQ-034.5.1
-    # 2119: REQ-034.9.1
+    # 2119: REQ-035.2.1
+    # 2119: REQ-035.3.1
+    # 2119: REQ-035.4.1
+    # 2119: REQ-035.5.1
+    # 2119: REQ-035.9.1
     with TestClient(
         create_app(
             _service(tmp_path),
@@ -465,7 +465,7 @@ def test_read_and_write_tokens_can_read_but_only_write_token_can_mutate(tmp_path
 def test_all_authentication_failures_are_indistinguishable(
     tmp_path: Path, headers: dict[str, str]
 ) -> None:
-    # 2119: REQ-034.7.1
+    # 2119: REQ-035.7.1
     with _client(tmp_path) as client:
         operations = [
             *_rest_operations(client),
@@ -483,7 +483,7 @@ def test_all_authentication_failures_are_indistinguishable(
 
 
 def test_non_ascii_bearer_token_receives_generic_failure(tmp_path: Path) -> None:
-    # 2119: REQ-034.7.1
+    # 2119: REQ-035.7.1
     with _client(tmp_path) as client:
         status, headers, body = _asgi_status(client.app, "/tasks", token="täken")
         assert status == 401
@@ -492,8 +492,8 @@ def test_non_ascii_bearer_token_receives_generic_failure(tmp_path: Path) -> None
 
 
 def test_read_token_can_reach_safe_head_route(tmp_path: Path) -> None:
-    # 2119: REQ-034.3.1
-    # 2119: REQ-034.23.1
+    # 2119: REQ-035.3.1
+    # 2119: REQ-035.23.1
     with _client(tmp_path) as client:
         assert client.head("/openapi.json").status_code == 401
         assert client.head("/openapi.json", headers=_bearer(READ_TOKEN)).status_code == 200
@@ -501,7 +501,7 @@ def test_read_token_can_reach_safe_head_route(tmp_path: Path) -> None:
 
 
 def test_read_and_write_tokens_reach_framework_documentation_reads(tmp_path: Path) -> None:
-    # 2119: REQ-034.3.1
+    # 2119: REQ-035.3.1
     with _client(tmp_path) as client:
         for path in ["/openapi.json", "/docs", "/docs/oauth2-redirect", "/redoc"]:
             for method in ["GET", "HEAD"]:
@@ -513,7 +513,7 @@ def test_read_and_write_tokens_reach_framework_documentation_reads(tmp_path: Pat
 
 
 def test_authentication_precedes_route_and_resource_disclosure(tmp_path: Path) -> None:
-    # 2119: REQ-034.8.1
+    # 2119: REQ-035.8.1
     service = _service(tmp_path)
     asyncio.run(service.register_runner("present-runner", host="runner.example"))
     app = create_app(
@@ -641,7 +641,7 @@ def test_authentication_precedes_route_and_resource_disclosure(tmp_path: Path) -
     ],
 )
 def test_only_authorization_bearer_is_accepted(tmp_path: Path, kwargs: dict[str, object]) -> None:
-    # 2119: REQ-034.9.1
+    # 2119: REQ-035.9.1
     with _client(tmp_path) as client:
         for method, path in [
             *_rest_operations(client),
@@ -653,7 +653,7 @@ def test_only_authorization_bearer_is_accepted(tmp_path: Path, kwargs: dict[str,
 
 
 def test_health_is_the_only_open_readiness_surface(tmp_path: Path) -> None:
-    # 2119: REQ-034.10.1
+    # 2119: REQ-035.10.1
     with _client(tmp_path) as client:
         response = client.get("/healthz")
         assert response.status_code == 200
@@ -661,7 +661,7 @@ def test_health_is_the_only_open_readiness_surface(tmp_path: Path) -> None:
 
 
 def test_source_address_never_exempts_authentication(tmp_path: Path) -> None:
-    # 2119: REQ-034.11.1
+    # 2119: REQ-035.11.1
     outcomes: list[tuple[int, ...]] = []
     route_outcomes: list[tuple[tuple[int, int, int], ...]] = []
     mcp_method_outcomes: list[tuple[tuple[int, int, int], ...]] = []
@@ -748,7 +748,7 @@ def test_source_address_never_exempts_authentication(tmp_path: Path) -> None:
 
 
 def test_absent_configuration_preserves_legacy_callers(tmp_path: Path) -> None:
-    # 2119: REQ-034.12.1
+    # 2119: REQ-035.12.1
     with TestClient(create_app(_service(tmp_path))) as client:
         for method, path in _rest_operations(client):
             if path.endswith("/live"):
@@ -787,7 +787,7 @@ def test_absent_configuration_preserves_legacy_callers(tmp_path: Path) -> None:
 
 
 def test_permissive_mode_accepts_legacy_and_authenticated_callers(tmp_path: Path) -> None:
-    # 2119: REQ-034.13.1
+    # 2119: REQ-035.13.1
     with _client(tmp_path, mode="permissive") as client:
         for method, path in _rest_operations(client):
             if path.endswith("/live"):
@@ -831,7 +831,7 @@ def test_permissive_mode_accepts_legacy_and_authenticated_callers(tmp_path: Path
                 == client.post("/mcp", headers=_bearer(WRITE_TOKEN), json=payload).status_code
             )
             # The mounted MCP transport is write-privileged even for protocol discovery; a read
-            # token is therefore insufficient, rather than an upgraded credential REQ-034.13
+            # token is therefore insufficient, rather than an upgraded credential REQ-035.13
             # promises to admit.
             reader = client.post("/mcp", headers=_bearer(READ_TOKEN), json=payload)
             assert reader.status_code == 401
@@ -882,9 +882,9 @@ def test_permissive_mode_requires_a_credential_file() -> None:
     ],
 )
 def test_enforced_mode_rejects_invalid_credential_files(tmp_path: Path, contents: str) -> None:
-    # 2119: REQ-034.2.1
-    # 2119: REQ-034.14.1
-    # 2119: REQ-034.24.1
+    # 2119: REQ-035.2.1
+    # 2119: REQ-035.14.1
+    # 2119: REQ-035.24.1
     secrets = tmp_path / "secrets"
     secrets.mkdir()
     (secrets / "bad.json").write_text(contents)
@@ -898,7 +898,7 @@ def test_enforced_mode_rejects_invalid_credential_files(tmp_path: Path, contents
 
 
 def test_enforced_mode_rejects_escaping_reference(tmp_path: Path) -> None:
-    # 2119: REQ-034.14.1
+    # 2119: REQ-035.14.1
     secrets = tmp_path / "secrets"
     secrets.mkdir()
     outside = tmp_path / "outside.json"
@@ -916,7 +916,7 @@ def test_enforced_mode_rejects_escaping_reference(tmp_path: Path) -> None:
 
 
 def test_enforced_mode_rejects_absent_reference(tmp_path: Path) -> None:
-    # 2119: REQ-034.14.1
+    # 2119: REQ-035.14.1
     with pytest.raises(ValueError, match="authentication credential"):
         create_app(
             _service(tmp_path),
@@ -930,7 +930,7 @@ def test_enforced_mode_rejects_absent_reference(tmp_path: Path) -> None:
 def test_enforced_mode_rejects_missing_or_unreadable_reference(
     tmp_path: Path, reference: str
 ) -> None:
-    # 2119: REQ-034.14.1
+    # 2119: REQ-035.14.1
     secrets = tmp_path / "secrets"
     secrets.mkdir()
     if reference == "unreadable.json":
@@ -950,8 +950,8 @@ def test_enforced_mode_rejects_missing_or_unreadable_reference(
 
 
 def test_mcp_requires_a_write_token(tmp_path: Path) -> None:
-    # 2119: REQ-034.6.1
-    # 2119: REQ-034.9.1
+    # 2119: REQ-035.6.1
+    # 2119: REQ-035.9.1
     with _client(tmp_path) as client:
         for method in ["GET", "DELETE"]:
             assert client.request(method, "/mcp", headers=_bearer(READ_TOKEN)).status_code == 401
@@ -972,8 +972,8 @@ def test_mcp_requires_a_write_token(tmp_path: Path) -> None:
 
 
 def test_overlapping_tokens_support_rotation(tmp_path: Path) -> None:
-    # 2119: REQ-034.2.1
-    # 2119: REQ-034.19.1
+    # 2119: REQ-035.2.1
+    # 2119: REQ-035.19.1
     with _client(tmp_path) as old_client:
         assert old_client.get("/tasks", headers=_bearer(WRITE_TOKEN)).status_code == 200
         assert old_client.get("/tasks", headers=_bearer(NEXT_WRITE_TOKEN)).status_code == 401
@@ -1036,8 +1036,8 @@ def test_overlapping_tokens_support_rotation(tmp_path: Path) -> None:
 
 
 def test_shared_client_authenticates_requests_without_url_leakage() -> None:
-    # 2119: REQ-034.15.1
-    # 2119: REQ-034.17.1
+    # 2119: REQ-035.15.1
+    # 2119: REQ-035.17.1
     seen: list[httpx.Request] = []
 
     def respond(request: httpx.Request) -> httpx.Response:
@@ -1061,7 +1061,7 @@ def test_shared_client_authenticates_requests_without_url_leakage() -> None:
 def test_host_client_factories_resolve_and_send_the_local_write_token(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # 2119: REQ-034.16.1
+    # 2119: REQ-035.16.1
     reference = _credential_file(tmp_path)
     unique_write_token = f"host-factory-{tmp_path.name}"
     (tmp_path / "secrets" / reference).write_text(
@@ -1116,8 +1116,8 @@ def test_host_client_factories_resolve_and_send_the_local_write_token(
 def test_runner_injects_write_token_into_docker_and_shell_tasks_without_command_line_leak(
     tmp_path: Path,
 ) -> None:
-    # 2119: REQ-034.17.1
-    # 2119: REQ-034.18.1
+    # 2119: REQ-035.17.1
+    # 2119: REQ-035.18.1
     from panopticon.sessionservice.local_runner import LocalRunner
     from panopticon.sessionservice.shell_runner import ShellRunner
 
@@ -1182,7 +1182,7 @@ def test_runner_injects_write_token_into_docker_and_shell_tasks_without_command_
 def test_container_python_callers_and_shell_library_use_injected_auth_file(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # 2119: REQ-034.17.1
+    # 2119: REQ-035.17.1
     from panopticon.container.agent import _default_client
     from panopticon.container.entrypoint import _make_client
     from panopticon.harnesses.claude import write_mcp_config
@@ -1229,8 +1229,8 @@ panopticon_advance
 
 
 def test_pi_operation_keeps_runtime_token_out_of_curl_argv(tmp_path: Path) -> None:
-    # 2119: REQ-034.18.1
-    # 2119: REQ-034.21.1
+    # 2119: REQ-035.18.1
+    # 2119: REQ-035.21.1
     from panopticon.harnesses.pi import operation_instructions
 
     instructions = operation_instructions(

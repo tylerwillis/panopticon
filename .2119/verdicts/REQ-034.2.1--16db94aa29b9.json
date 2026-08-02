@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.2.1--16db94aa29b9",
-  "requirementId": "REQ-034.2.1",
-  "hash": "16db94aa29b9",
-  "verdict": "pass",
-  "summary": "Public-boundary test proves distinct read/write privileges, accepts multiple and punctuation-opaque tokens per privilege, and rejects a truncated near-match.",
-  "timestamp": "2026-08-02T19:49:10.793Z"
-}

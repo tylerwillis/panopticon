@@ -29,7 +29,7 @@ class _Completed:
 
 
 def test_integrated_stack_explicitly_exposes_service_to_linux_containers() -> None:
-    # 2119: REQ-034.29.1
+    # 2119: REQ-035.29.1
     calls: list[list[str]] = []
 
     def record(args: list[str], **_kwargs: object) -> _Completed:
@@ -47,7 +47,7 @@ def test_integrated_stack_explicitly_exposes_service_to_linux_containers() -> No
 def test_integrated_sessions_pin_current_auth_environment(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    # 2119: REQ-034.31.1
+    # 2119: REQ-035.31.1
     monkeypatch.setenv("PANOPTICON_SERVICE_AUTH_FILE", "current-auth.json")
     monkeypatch.setenv("PANOPTICON_SERVICE_AUTH_MODE", "enforced")
     monkeypatch.setenv("PANOPTICON_CONFIG", "/current/config")
@@ -93,7 +93,7 @@ def test_integrated_sessions_pin_current_auth_environment(
 def test_session_command_replaces_stale_real_tmux_environment(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # 2119: REQ-034.31.1
+    # 2119: REQ-035.31.1
     socket_name = f"pan-auth-{os.getpid()}"
     output = tmp_path / "environment.json"
     subprocess.run(
@@ -164,7 +164,7 @@ def test_session_command_replaces_stale_real_tmux_environment(
 def test_overlap_clients_select_the_appended_token(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # 2119: REQ-034.32.1
+    # 2119: REQ-035.32.1
     credential = tmp_path / "auth.json"
     credential.write_text(
         json.dumps({"read": ["oldest-read", "old-read"], "write": ["oldest", "old"]})
@@ -228,7 +228,7 @@ _panopticon_curl --silent http://service
 def test_standalone_service_retains_loopback_default(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # 2119: REQ-034.29.1
+    # 2119: REQ-035.29.1
     calls: list[dict[str, object]] = []
     monkeypatch.delenv("PANOPTICON_HOST", raising=False)
     monkeypatch.setattr(taskservice_main, "user_data_dir", lambda: tmp_path)
@@ -245,7 +245,7 @@ def test_standalone_service_retains_loopback_default(
 
 
 def test_root_path_does_not_downgrade_write_only_routes(tmp_path: Path) -> None:
-    # 2119: REQ-034.30.1
+    # 2119: REQ-035.30.1
     secrets = tmp_path / "secrets"
     secrets.mkdir()
     (secrets / "auth.json").write_text(
@@ -260,7 +260,7 @@ def test_root_path_does_not_downgrade_write_only_routes(tmp_path: Path) -> None:
         _home_workflows=tmp_path / "workflows",
     )
     with TestClient(app, root_path="/proxy") as client:
-        # 2119: REQ-034.10.1
+        # 2119: REQ-035.10.1
         assert client.get("/proxy/healthz").status_code == 200
         for method, path in [("GET", "/proxy/tasks/missing/live"), ("GET", "/proxy/mcp")]:
             reader = client.request(method, path, headers={"Authorization": "Bearer read-token"})
@@ -283,7 +283,7 @@ def test_root_path_does_not_downgrade_write_only_routes(tmp_path: Path) -> None:
 
 
 def test_production_process_reports_enforced_mode(tmp_path: Path) -> None:
-    # 2119: REQ-034.27.1
+    # 2119: REQ-035.27.1
     config = tmp_path / "config"
     secrets = config / "secrets"
     secrets.mkdir(parents=True)
@@ -333,7 +333,7 @@ def test_production_process_reports_enforced_mode(tmp_path: Path) -> None:
 def test_non_enforced_modes_log_warning_level(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
-    # 2119: REQ-034.27.1
+    # 2119: REQ-035.27.1
     caplog.set_level(logging.DEBUG)
     build_app(
         db="sqlite://",

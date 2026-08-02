@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.20.1--da7f62a5803e",
+  "requirementId": "REQ-035.20.1",
+  "hash": "da7f62a5803e",
+  "verdict": "pass",
+  "summary": "Real shell-helper execution verifies the distinct injected write token authenticates task GET, repo GET, and credential-dir PATCH via curl stdin config while never appearing in argv.",
+  "timestamp": "2026-08-02T22:05:48.459Z"
+}

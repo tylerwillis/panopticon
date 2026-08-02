@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.26.1--1b98dd338fa4",
-  "requirementId": "REQ-034.26.1",
-  "hash": "1b98dd338fa4",
-  "verdict": "pass",
-  "summary": "The build_app test supplies host-local auth file and enforced-mode environment, rejects a header-less protected /tasks request with 401, and uses an authorized 200 control; ignoring production auth composition would fail it.",
-  "timestamp": "2026-08-02T19:39:05.766Z"
-}

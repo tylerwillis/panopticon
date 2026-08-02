@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.25.1--8eb365e3e589",
+  "requirementId": "REQ-035.25.1",
+  "hash": "8eb365e3e589",
+  "verdict": "pass",
+  "summary": "Exact uvicorn-call assertions reject the nearest default violation (0.0.0.0 instead of 127.0.0.1) and verify a non-loopback host is used only after explicit PANOPTICON_HOST configuration.",
+  "timestamp": "2026-08-02T22:06:19.991Z"
+}

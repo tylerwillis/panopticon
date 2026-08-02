@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.5.1--45865f2ee769",
-  "requirementId": "REQ-034.5.1",
-  "hash": "45865f2ee769",
-  "verdict": "pass",
-  "summary": "Dynamic OpenAPI-wide coverage proves all write-token variants bypass the generic 401 while authenticated validation/workflow failures remain 404/400 and near-miss credentials are rejected.",
-  "timestamp": "2026-08-02T19:49:18.747Z"
-}

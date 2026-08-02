@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.7.1--9c0029ba89a2",
-  "requirementId": "REQ-034.7.1",
-  "hash": "9c0029ba89a2",
-  "verdict": "pass",
-  "summary": "Tests reject missing, malformed (including non-ASCII), unknown, near-match, and insufficient tokens across protected REST/MCP routes, asserting exact 401, Bearer challenge, and one identical generic JSON body.",
-  "timestamp": "2026-08-02T19:49:14.067Z"
-}

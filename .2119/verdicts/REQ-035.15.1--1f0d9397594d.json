@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.15.1--1f0d9397594d",
+  "requirementId": "REQ-035.15.1",
+  "hash": "1f0d9397594d",
+  "verdict": "pass",
+  "summary": "Behavioral request capture rejects a missing bearer header on ordinary GET, PUT, task-live, or runner-live calls and rejects placing the configured token in any request URL.",
+  "timestamp": "2026-08-02T22:05:22.708Z"
+}
