@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.2.1--0066a2bfb537",
-  "requirementId": "REQ-034.2.1",
-  "hash": "0066a2bfb537",
-  "verdict": "pass",
-  "summary": "Fresh-context gpt-5.6-sol reviewer verified the annotated test covers the requirement and nearest counterexamples.",
-  "timestamp": "2026-08-02T03:58:12.443Z"
-}

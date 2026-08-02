@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.10.1--0673bd29a565",
+  "requirementId": "REQ-034.10.1",
+  "hash": "0673bd29a565",
+  "verdict": "pass",
+  "summary": "Enforced-auth test calls GET /healthz without credentials, requires 200, and exact payload equality rejects credential gating, unavailability, altered status, or extra readiness fields.",
+  "timestamp": "2026-08-02T04:43:36.326Z"
+}

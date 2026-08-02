@@ -178,15 +178,27 @@ def _subprocess_run(args: Sequence[str], *, check: bool = True) -> str:
     return subprocess.run(list(args), check=check, capture_output=True, text=True).stdout
 
 
-def operation_instructions(name: str, target_state: str, task_id: str, service_url: str) -> str:
+def operation_instructions(
+    name: str,
+    target_state: str,
+    task_id: str,
+    service_url: str,
+    *,
+    authenticated: bool = False,
+) -> str:
     """The procedure body for a core operation (advance/drop/…) — a direct REST call, since pi
     has no MCP client to invoke ``apply_operation`` through (claude/codex's approach)."""
     url = f"{service_url.rstrip('/')}/tasks/{task_id}/operations/{name}"
     return (
         f"Apply this workflow's `{name}` operation — it moves the task to **{target_state}**. "
         "pi has no MCP client, so call the task service's REST API directly (no request body "
-        "needed): `curl --fail --silent --show-error --header "
-        '"Authorization: Bearer $PANOPTICON_SERVICE_AUTH_TOKEN" --request POST '
+        "needed): `curl --fail --silent --show-error "
+        + (
+            '--header "Authorization: Bearer $PANOPTICON_SERVICE_AUTH_TOKEN" '
+            if authenticated
+            else ""
+        )
+        + "--request POST "
         f'"{url}"`. '
         "Don't edit the state directly. It's gated on the current state's responsibilities and "
         "starts a new turn."
@@ -294,7 +306,11 @@ class PiHarness(Harness):
                 name=name,
                 description=f"Apply the workflow's '{name}' operation.",
                 instructions=operation_instructions(
-                    name, target_state, ctx.task_id, ctx.service_url
+                    name,
+                    target_state,
+                    ctx.task_id,
+                    ctx.service_url,
+                    authenticated=bool(ctx.environ.get("PANOPTICON_SERVICE_AUTH_TOKEN")),
                 ),
             )
             for name, target_state in ctx.operations.items()

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.6.1--19a05b75cbc2",
+  "requirementId": "REQ-034.6.1",
+  "hash": "19a05b75cbc2",
+  "verdict": "pass",
+  "summary": "Mounted /mcp tests send both tools/call and resources/read with a read token and require 401, while the same requests with a write token are not authentication-rejected.",
+  "timestamp": "2026-08-02T04:43:30.568Z"
+}

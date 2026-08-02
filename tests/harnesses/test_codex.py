@@ -62,10 +62,7 @@ def _bootstrap_ctx(home: Path, **kwargs: object) -> BootstrapContext:
 
 def test_config_is_valid_toml_with_the_panopticon_mcp_server() -> None:
     cfg = tomllib.loads(render_config("http://svc:8000", "# map", Path("/workspace")))
-    assert cfg["mcp_servers"]["panopticon"] == {
-        "url": "http://svc:8000/mcp",
-        "bearer_token_env_var": "PANOPTICON_SERVICE_AUTH_TOKEN",
-    }
+    assert cfg["mcp_servers"]["panopticon"] == {"url": "http://svc:8000/mcp"}
 
 
 def test_config_carries_the_overview_as_developer_instructions() -> None:

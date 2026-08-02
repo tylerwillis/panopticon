@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.14.1--245088d627e0",
+  "requirementId": "REQ-034.14.1",
+  "hash": "245088d627e0",
+  "verdict": "pass",
+  "summary": "Startup construction rejects absent, missing, escaping (including symlink), unreadable, malformed/non-object, wrong or empty arrays, and overlapping privilege tokens.",
+  "timestamp": "2026-08-02T04:43:56.856Z"
+}

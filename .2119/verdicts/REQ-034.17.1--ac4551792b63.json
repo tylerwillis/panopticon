@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.17.1--ac4551792b63",
+  "requirementId": "REQ-034.17.1",
+  "hash": "ac4551792b63",
+  "verdict": "pass",
+  "summary": "Covers Docker and shell no-env-file spawns, separate runtime-secret injection, and authenticated shared-client, liveness, and shell-library requests; missing/wrong/leaked credentials are rejected.",
+  "timestamp": "2026-08-02T04:43:56.466Z"
+}

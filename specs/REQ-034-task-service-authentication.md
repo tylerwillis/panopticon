@@ -28,7 +28,7 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 
 ### REQ-034.4: Mutations
 
-1. Every non-GET REST operation plus `GET /tasks/{task_id}/live` and `GET /runners/{runner_id}/live` MUST return the generic authentication failure when presented with a read token.
+1. Every non-GET protected REST operation exposed in the service's OpenAPI surface plus `GET /tasks/{task_id}/live` and `GET /runners/{runner_id}/live` MUST return the generic authentication failure when presented with a read token.
 
 ### REQ-034.5: Write access
 
@@ -48,7 +48,7 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 
 ### REQ-034.9: Bearer header only
 
-1. Protected endpoints MUST accept credentials from an exact HTTP `Authorization: Bearer <token>` header and reject the same value when supplied under common token, access-token, auth-token, API-key, or authorization names in query parameters, cookies, JSON bodies, or alternate authentication headers.
+1. Protected endpoints MUST accept credentials from an exact HTTP `Authorization: Bearer <token>` header and reject the same value under `token`, `access_token`, `access-token`, `accessToken`, `auth_token`, `auth-token`, `authToken`, `api_key`, `api-key`, `apiKey`, or `authorization` names in query parameters, cookies, or JSON bodies, and under `X-API-Key`, `X-Auth-Token`, `X-Access-Token`, `Authentication`, or `Proxy-Authorization` headers.
 
 ### REQ-034.10: Public health probe
 
@@ -88,4 +88,4 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 
 ### REQ-034.19: Rotation continuity
 
-1. Reloading or restarting with overlapping old and new tokens MUST allow both token sets until the old token is removed from the credential file and the service reloads or restarts again.
+1. Restarting with overlapping old and new tokens MUST allow both token sets until the old token is removed from the credential file and the service restarts again.

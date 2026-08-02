@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.11.1--07800fb82739",
+  "requirementId": "REQ-034.11.1",
+  "hash": "07800fb82739",
+  "verdict": "pass",
+  "summary": "Exercises IPv4/IPv6 loopback and tailnet plus non-tailnet sources, comparing unauthenticated, read-token, and write-token authorization outcomes across every REST operation and MCP.",
+  "timestamp": "2026-08-02T04:43:37.594Z"
+}

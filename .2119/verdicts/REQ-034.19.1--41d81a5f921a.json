@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.19.1--41d81a5f921a",
+  "requirementId": "REQ-034.19.1",
+  "hash": "41d81a5f921a",
+  "verdict": "pass",
+  "summary": "Behaviorally verifies both read/write token sets survive the overlap restart and file removal in-process, then rejects old tokens only after the subsequent restart.",
+  "timestamp": "2026-08-02T04:43:33.547Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.15.1--f1733932e607",
+  "requirementId": "REQ-034.15.1",
+  "hash": "f1733932e607",
+  "verdict": "pass",
+  "summary": "Transport-level assertions reject missing or incorrect bearer headers for ordinary GET/PUT and both liveness calls, and reject token leakage in every request URL.",
+  "timestamp": "2026-08-02T04:43:40.561Z"
+}

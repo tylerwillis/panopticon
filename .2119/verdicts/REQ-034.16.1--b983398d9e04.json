@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.16.1--b983398d9e04",
+  "requirementId": "REQ-034.16.1",
+  "hash": "b983398d9e04",
+  "verdict": "pass",
+  "summary": "All three host factories resolve the unique write token from the configured local file reference, return TaskServiceClient, and pass a transport that rejects missing or wrong bearer authentication.",
+  "timestamp": "2026-08-02T04:43:47.451Z"
+}

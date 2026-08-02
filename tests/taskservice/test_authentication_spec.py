@@ -84,21 +84,67 @@ def _route_path(path: str) -> str:
 
 
 def _rest_operations(client: TestClient) -> list[tuple[str, str]]:
-    operations: list[tuple[str, str]] = []
-    for route in client.app.routes:
-        path = getattr(route, "path", "")
-        if not path or path == "/healthz" or path.startswith("/mcp"):
-            continue
-        operations.extend(
-            (method, _route_path(path))
-            for method in getattr(route, "methods", ())
-            if method in {"GET", "POST", "PUT", "PATCH", "DELETE"}
-        )
-    return operations
+    return [
+        (method.upper(), _route_path(path))
+        for path, path_item in client.app.openapi()["paths"].items()
+        if path != "/healthz" and not path.startswith("/mcp")
+        for method in path_item
+        if method.upper() in {"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "TRACE"}
+    ]
 
 
 def _is_mutating(method: str, path: str) -> bool:
     return method != "GET" or path.endswith("/live")
+
+
+def _asgi_status(
+    app: object,
+    path: str,
+    *,
+    token: str | None = None,
+    client_host: str = "testclient",
+) -> tuple[int, dict[str, str], bytes]:
+    """Call a streaming route until response start, then disconnect without buffering forever."""
+    sent: list[dict[str, object]] = []
+    first = True
+
+    async def receive() -> dict[str, object]:
+        nonlocal first
+        if first:
+            first = False
+            return {"type": "http.request", "body": b"", "more_body": False}
+        return {"type": "http.disconnect"}
+
+    async def send(message: dict[str, object]) -> None:
+        sent.append(message)
+
+    headers = [] if token is None else [(b"authorization", f"Bearer {token}".encode())]
+    scope = {
+        "type": "http",
+        "asgi": {"version": "3.0"},
+        "http_version": "1.1",
+        "method": "GET",
+        "scheme": "http",
+        "path": path,
+        "raw_path": path.encode(),
+        "query_string": b"",
+        "headers": headers,
+        "client": (client_host, 12345),
+        "server": ("testserver", 80),
+        "root_path": "",
+    }
+    asyncio.run(app(scope, receive, send))  # type: ignore[operator]
+    start = next(message for message in sent if message["type"] == "http.response.start")
+    response_headers = {
+        key.decode().lower(): value.decode()
+        for key, value in start.get("headers", [])  # type: ignore[union-attr]
+    }
+    body = b"".join(
+        message.get("body", b"")  # type: ignore[arg-type]
+        for message in sent
+        if message["type"] == "http.response.body"
+    )
+    return int(start["status"]), response_headers, body
 
 
 def test_tokens_are_host_local_and_never_serialized(
@@ -107,6 +153,7 @@ def test_tokens_are_host_local_and_never_serialized(
     # 2119: REQ-034.1.1
     # 2119: REQ-034.14.1
     # 2119: REQ-034.18.1
+    caplog.set_level("DEBUG", logger="panopticon")
     with _client(tmp_path) as client:
         repo = client.get("/repos/r1", headers=_bearer(WRITE_TOKEN))
         assert repo.status_code == 200
@@ -166,6 +213,10 @@ def test_tokens_are_host_local_and_never_serialized(
         auth_mode="enforced",
         secrets_dir=tmp_path / "secrets",
     )
+    # Loading is a startup boundary: later file edits do not affect this running app.
+    (tmp_path / "secrets" / "task-service-auth.json").write_text(
+        json.dumps({"read": ["later-token"], "write": ["later-write-token"]})
+    )
     with TestClient(file_loaded_app) as file_loaded_client:
         assert file_loaded_client.get("/tasks", headers=_bearer(file_only_token)).status_code == 200
         assert file_loaded_client.get("/tasks", headers=_bearer(READ_TOKEN)).status_code == 401
@@ -178,6 +229,9 @@ def test_tokens_are_host_local_and_never_serialized(
             assert READ_TOKEN.encode() not in path.read_bytes()
             assert WRITE_TOKEN.encode() not in path.read_bytes()
             assert file_only_token.encode() not in path.read_bytes()
+    assert READ_TOKEN not in caplog.text
+    assert WRITE_TOKEN not in caplog.text
+    assert file_only_token not in caplog.text
     with pytest.raises(ValueError, match="authentication credential"):
         create_app(
             _service(tmp_path / "escape"),
@@ -205,6 +259,35 @@ def test_tokens_are_host_local_and_never_serialized(
                 auth_mode="enforced",
                 secrets_dir=symlink_root,
             )
+
+
+def test_tokens_never_reach_any_failure_body_or_spawned_command(tmp_path: Path) -> None:
+    # 2119: REQ-034.18.1
+    with _client(tmp_path) as client:
+        for method, path in _rest_operations(client):
+            body = client.request(method, path).content
+            assert READ_TOKEN.encode() not in body
+            assert WRITE_TOKEN.encode() not in body
+
+    from panopticon.sessionservice.local_runner import LocalRunner
+    from panopticon.sessionservice.shell_runner import ShellRunner
+
+    calls: list[list[str]] = []
+
+    def record(args: object, **_kwargs: object) -> str:
+        calls.append(list(args))  # type: ignore[arg-type]
+        return "%1\n" if "display-message" in calls[-1] else ""
+
+    reference = "task-service-auth.json"
+    LocalRunner(
+        "http://service", auth_file=reference, secrets_dir=tmp_path / "secrets", run=record
+    ).spawn("docker-task")
+    ShellRunner(
+        "http://service", auth_file=reference, secrets_dir=tmp_path / "secrets", run=record
+    ).spawn("shell-task", script="true")
+    emitted = "\n".join(" ".join(call) for call in calls)
+    assert READ_TOKEN not in emitted
+    assert WRITE_TOKEN not in emitted
 
 
 def test_read_and_write_tokens_can_read_but_only_write_token_can_mutate(tmp_path: Path) -> None:
@@ -237,7 +320,15 @@ def test_read_and_write_tokens_can_read_but_only_write_token_can_mutate(tmp_path
             # intentionally never complete. Their rejection boundary is observable here, while
             # successful header propagation is covered by the shared-client transport test.
             if path.endswith("/live"):
-                assert all(response.status_code == 401 for response in read_responses)
+                assert all(
+                    response.status_code == 401
+                    and response.json() == GENERIC_FAILURE
+                    and response.headers["www-authenticate"] == "Bearer"
+                    for response in read_responses
+                )
+                for write_token in [WRITE_TOKEN, NEXT_WRITE_TOKEN, OPAQUE_WRITE_TOKEN]:
+                    status, _, _ = _asgi_status(client.app, path, token=write_token)
+                    assert status != 401
                 continue
             for write_token in [WRITE_TOKEN, NEXT_WRITE_TOKEN, OPAQUE_WRITE_TOKEN]:
                 write_response = client.request(method, path, headers=_bearer(write_token))
@@ -318,6 +409,8 @@ def test_read_and_write_tokens_can_read_but_only_write_token_can_mutate(tmp_path
         {"Authorization": "Bearer one two"},
         {"Authorization": f"bearer {WRITE_TOKEN}"},
         _bearer("unknown"),
+        _bearer(WRITE_TOKEN[:-1]),
+        _bearer(WRITE_TOKEN + "x"),
         _bearer(READ_TOKEN),
     ],
 )
@@ -408,7 +501,11 @@ def test_authentication_precedes_route_and_resource_disclosure(tmp_path: Path) -
             "auth-token",
             "api_key",
             "api-key",
+            "accessToken",
+            "authToken",
+            "apiKey",
             "authorization",
+            "Authorization",
         ]
     ]
     + [
@@ -421,6 +518,9 @@ def test_authentication_precedes_route_and_resource_disclosure(tmp_path: Path) -
             "auth-token",
             "api_key",
             "api-key",
+            "accessToken",
+            "authToken",
+            "apiKey",
             "authorization",
         ]
     ]
@@ -442,6 +542,8 @@ def test_authentication_precedes_route_and_resource_disclosure(tmp_path: Path) -
         {"headers": {"Authorization": f"Bearer {WRITE_TOKEN} extra"}},
         {"headers": {"Authorization": f" Bearer {WRITE_TOKEN}"}},
         {"headers": {"Authorization": f"Bearer  {WRITE_TOKEN}"}},
+        {"headers": {"Authorization": f"Bearer {WRITE_TOKEN}\t"}},
+        {"headers": {"Authorization": f"Bearer {WRITE_TOKEN} "}},
     ]
     + [
         {"json": {name: WRITE_TOKEN}}
@@ -453,6 +555,9 @@ def test_authentication_precedes_route_and_resource_disclosure(tmp_path: Path) -
             "auth-token",
             "api_key",
             "api-key",
+            "accessToken",
+            "authToken",
+            "apiKey",
             "authorization",
         ]
     ],
@@ -480,6 +585,7 @@ def test_health_is_the_only_open_readiness_surface(tmp_path: Path) -> None:
 def test_source_address_never_exempts_authentication(tmp_path: Path) -> None:
     # 2119: REQ-034.11.1
     outcomes: list[tuple[int, ...]] = []
+    route_outcomes: list[tuple[tuple[int, int, int], ...]] = []
     for index, address in enumerate(
         ["127.0.0.1", "::1", "100.64.1.2", "fd7a:115c:a1e0::2", "203.0.113.9"]
     ):
@@ -518,7 +624,26 @@ def test_source_address_never_exempts_authentication(tmp_path: Path) -> None:
                     ).status_code,
                 )
             )
+            route_outcomes.append(
+                tuple(
+                    (
+                        client.request(method, path).status_code,
+                        client.request(method, path, headers=_bearer(READ_TOKEN)).status_code,
+                        (
+                            _asgi_status(client.app, path, token=WRITE_TOKEN, client_host=address)[
+                                0
+                            ]
+                            if path.endswith("/live")
+                            else client.request(
+                                method, path, headers=_bearer(WRITE_TOKEN)
+                            ).status_code
+                        ),
+                    )
+                    for method, path in _rest_operations(client)
+                )
+            )
     assert len(set(outcomes)) == 1
+    assert len(set(route_outcomes)) == 1
     assert outcomes[0][:7] == (401, 200, 200, 401, 401, 201, 401)
 
 
@@ -529,6 +654,9 @@ def test_absent_configuration_preserves_legacy_callers(tmp_path: Path) -> None:
             if path.endswith("/live"):
                 if path.startswith("/tasks/"):
                     assert client.get(path, params={"container_id": "c"}).status_code == 404
+                else:
+                    status, _, _ = _asgi_status(client.app, path)
+                    assert status != 401
                 continue
             response = client.request(method, path)
             assert not (response.status_code == 401 and response.json() == GENERIC_FAILURE)
@@ -566,14 +694,14 @@ def test_permissive_mode_accepts_legacy_and_authenticated_callers(tmp_path: Path
                 continue
             legacy = client.request(method, path)
             authenticated = client.request(method, path, headers=_bearer(WRITE_TOKEN))
-            assert not (legacy.status_code == 401 and legacy.json() == GENERIC_FAILURE)
+            assert not (legacy.status_code in {401, 403} and legacy.json() == GENERIC_FAILURE)
             assert not (
-                authenticated.status_code == 401 and authenticated.json() == GENERIC_FAILURE
+                authenticated.status_code in {401, 403} and authenticated.json() == GENERIC_FAILURE
             )
             assert authenticated.status_code == legacy.status_code
             if not _is_mutating(method, path):
                 reader = client.request(method, path, headers=_bearer(READ_TOKEN))
-                assert not (reader.status_code == 401 and reader.json() == GENERIC_FAILURE)
+                assert not (reader.status_code in {401, 403} and reader.json() == GENERIC_FAILURE)
         for payload in [
             {"jsonrpc": "2.0", "id": 1, "method": "tools/list"},
             {"jsonrpc": "2.0", "id": 3, "method": "ping"},
@@ -593,7 +721,9 @@ def test_permissive_mode_accepts_legacy_and_authenticated_callers(tmp_path: Path
         ]:
             for headers in ({}, _bearer(WRITE_TOKEN)):
                 response = client.post("/mcp", headers=headers, json=payload)
-                assert not (response.status_code == 401 and response.json() == GENERIC_FAILURE)
+                assert not (
+                    response.status_code in {401, 403} and response.json() == GENERIC_FAILURE
+                )
             assert (
                 client.post("/mcp", json=payload).status_code
                 == client.post("/mcp", headers=_bearer(WRITE_TOKEN), json=payload).status_code
@@ -601,12 +731,17 @@ def test_permissive_mode_accepts_legacy_and_authenticated_callers(tmp_path: Path
         for method in ["GET", "DELETE"]:
             for headers in ({}, _bearer(WRITE_TOKEN)):
                 response = client.request(method, "/mcp", headers=headers)
-                assert not (response.status_code == 401 and response.json() == GENERIC_FAILURE)
+                assert not (
+                    response.status_code in {401, 403} and response.json() == GENERIC_FAILURE
+                )
         for headers in ({}, _bearer(WRITE_TOKEN)):
             response = client.get(
                 "/tasks/missing/live", params={"container_id": "c"}, headers=headers
             )
             assert response.status_code == 404
+        for token in [None, WRITE_TOKEN]:
+            status, _, body = _asgi_status(client.app, "/runners/missing/live", token=token)
+            assert status not in {401, 403}, body
 
 
 @pytest.mark.parametrize(
@@ -721,6 +856,7 @@ def test_mcp_requires_a_write_token(tmp_path: Path) -> None:
 
 
 def test_overlapping_tokens_support_rotation(tmp_path: Path) -> None:
+    # 2119: REQ-034.2.1
     # 2119: REQ-034.19.1
     with _client(tmp_path) as old_client:
         assert old_client.get("/tasks", headers=_bearer(WRITE_TOKEN)).status_code == 200
@@ -914,7 +1050,6 @@ def test_runner_injects_write_token_into_docker_and_shell_tasks_without_command_
         "PATH": "/usr/bin:/bin",
         "PANOPTICON_SERVICE_URL": "http://service",
         "PANOPTICON_TASK_ID": "t2",
-        "PANOPTICON_SERVICE_AUTH_FILE": str(tmp_path / "secrets" / reference),
     }
     recorded_live_input = tmp_path / "shell-live-curl-input"
     executable_command = f"""curl() {{ cat >> {recorded_live_input}; printf 'CALL\\n'; printf '%s\\n' "$@"; }} >> {recorded_live}
@@ -934,6 +1069,9 @@ def test_container_python_callers_and_shell_library_use_injected_auth_file(
     # 2119: REQ-034.17.1
     from panopticon.container.agent import _default_client
     from panopticon.container.entrypoint import _make_client
+    from panopticon.harnesses.claude import write_mcp_config
+    from panopticon.harnesses.codex import render_config
+    from panopticon.harnesses.pi import operation_instructions
     from panopticon.sessionservice.shell_runner import _TASK_LIB
 
     reference = _credential_file(tmp_path)
@@ -941,6 +1079,18 @@ def test_container_python_callers_and_shell_library_use_injected_auth_file(
     monkeypatch.setenv("PANOPTICON_CONFIG", str(tmp_path))
     for client in [_default_client("http://service"), _make_client("http://service")]:
         assert client._http.headers["authorization"] == f"Bearer {WRITE_TOKEN}"
+    claude_mcp = json.loads(
+        write_mcp_config(tmp_path / "claude", "http://service", authenticated=True).read_text()
+    )
+    assert claude_mcp["mcpServers"]["panopticon"]["headers"] == {
+        "Authorization": "Bearer ${PANOPTICON_SERVICE_AUTH_TOKEN}"
+    }
+    assert 'bearer_token_env_var = "PANOPTICON_SERVICE_AUTH_TOKEN"' in render_config(
+        "http://service", "", tmp_path, authenticated=True
+    )
+    assert "Authorization: Bearer $PANOPTICON_SERVICE_AUTH_TOKEN" in operation_instructions(
+        "advance", "COMPLETE", "task", "http://service", authenticated=True
+    )
     assert "PANOPTICON_SERVICE_AUTH_FILE" in _TASK_LIB
     assert "Authorization: Bearer" in _TASK_LIB
     recorded = tmp_path / "curl-arguments"

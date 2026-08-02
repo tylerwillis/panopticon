@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.8.1--d1faf9ee9828",
+  "requirementId": "REQ-034.8.1",
+  "hash": "d1faf9ee9828",
+  "verdict": "pass",
+  "summary": "Covers all five verbs and present/missing route, task, repo, runner, registration, artifact, workflow, and MCP-method boundaries, asserting identical 401 status, generic JSON body, and Bearer challenge.",
+  "timestamp": "2026-08-02T04:43:56.532Z"
+}

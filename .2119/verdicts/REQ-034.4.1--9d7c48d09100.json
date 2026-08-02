@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.4.1--9d7c48d09100",
+  "requirementId": "REQ-034.4.1",
+  "hash": "9d7c48d09100",
+  "verdict": "pass",
+  "summary": "Dynamic OpenAPI enumeration sends every configured read token through the real app and requires exact 401 generic body and Bearer challenge for all non-GET operations and both explicitly asserted liveness GETs.",
+  "timestamp": "2026-08-02T04:45:50.432Z"
+}

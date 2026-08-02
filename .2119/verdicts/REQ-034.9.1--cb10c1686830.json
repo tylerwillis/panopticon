@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.9.1--cb10c1686830",
+  "requirementId": "REQ-034.9.1",
+  "hash": "cb10c1686830",
+  "verdict": "pass",
+  "summary": "Behavioral tests accept configured credentials via exact Authorization: Bearer syntax across REST and MCP, and reject every named query, cookie, JSON, alternate-header carrier plus malformed Bearer near-misses.",
+  "timestamp": "2026-08-02T04:45:44.425Z"
+}
