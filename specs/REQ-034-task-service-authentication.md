@@ -121,3 +121,7 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 ### REQ-034.27: Visible secure operating mode
 
 1. Production startup MUST report the resolved authentication mode, warn when it is disabled or permissive, and document enforced mode as the required steady-state configuration.
+
+### REQ-034.28: Missing runner credential
+
+1. A container runner configured with a missing or non-file task-service credential reference MUST fail before invoking Docker without creating the referenced filesystem entry.

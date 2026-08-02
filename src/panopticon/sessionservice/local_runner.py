@@ -247,6 +247,10 @@ class LocalRunner(Runner):
             docker_run += ["--env-file", env_path]  # per-repo secrets, resolved host-locally
         if self._auth_file:
             auth_path = service_credential_path(self._auth_file, secrets_dir=self._secrets_dir)
+            if not auth_path.is_file():
+                raise ValueError(
+                    "task-service authentication credential must be an existing regular file"
+                )
             docker_run += ["--volume", f"{auth_path}:{SERVICE_AUTH_MOUNT}:ro"]
             env["PANOPTICON_SERVICE_AUTH_FILE"] = SERVICE_AUTH_MOUNT
         if workspace:  # the per-task clone — the agent's writable working dir (ADR 0011)
