@@ -479,6 +479,8 @@ def create_app(
         route_path = (
             raw_path[len(root_path) :] if root_path and raw_path.startswith(root_path) else raw_path
         )
+        if not route_path.startswith("/"):
+            route_path = f"/{route_path}"
         if mode == "disabled" or (request.method == "GET" and route_path == "/healthz"):
             return await call_next(request)
         authorization = request.headers.get("authorization")

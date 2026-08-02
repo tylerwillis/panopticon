@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.27.1--342b7415c1ff",
-  "requirementId": "REQ-034.27.1",
-  "hash": "342b7415c1ff",
-  "verdict": "pass",
-  "summary": "Tests reject missing or misresolved startup mode reports, non-WARNING disabled/permissive reports, and documentation that presents permissive rather than enforced mode as steady state.",
-  "timestamp": "2026-08-02T20:45:05.771Z"
-}

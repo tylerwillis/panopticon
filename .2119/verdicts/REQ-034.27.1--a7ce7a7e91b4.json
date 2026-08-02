@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.27.1--a7ce7a7e91b4",
+  "requirementId": "REQ-034.27.1",
+  "hash": "a7ce7a7e91b4",
+  "verdict": "pass",
+  "summary": "Tests exercise real startup reporting for enforced mode, require WARNING-level disabled/permissive reports, and constrain steady-state docs to enforced while reserving permissive for migration.",
+  "timestamp": "2026-08-02T21:49:19.131Z"
+}

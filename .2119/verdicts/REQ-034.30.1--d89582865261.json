@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.30.1--d89582865261",
+  "requirementId": "REQ-034.30.1",
+  "hash": "d89582865261",
+  "verdict": "pass",
+  "summary": "Under a non-empty ASGI root path, the test rejects the nearest violations for both liveness and MCP: read-only access succeeding or write-token access being denied.",
+  "timestamp": "2026-08-02T21:49:20.036Z"
+}

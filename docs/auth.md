@@ -56,9 +56,10 @@ Roll a live fleet out without killing existing containers:
    existing unauthenticated containers continue working.
 2. Respawn or naturally replace the in-flight containers until all callers send the token, then
    restart the service with `PANOPTICON_SERVICE_AUTH_MODE=enforced`.
-3. To rotate, add the next read/write tokens beside the old tokens and restart the service. Update
-   all hosts and containers while both generations work. Remove the old tokens only after the
-   fleet has converged, then restart the service again.
+3. To rotate, append the next read/write tokens after the old tokens in their arrays; the last
+   token is the active token selected by clients. Restart the service, then restart all hosts and
+   respawn containers so callers select the new last token while both generations work. Remove the
+   old tokens only after the fleet has converged, then restart the service again.
 
 An enforced service refuses to start when the reference is absent or invalid. Authentication
 failures always return `401`, `WWW-Authenticate: Bearer`, and
@@ -103,14 +104,8 @@ survives concurrent tasks and respawns. There is no Claude `login` command; use 
 
    Keep the file `0600` and out of version control. If the repo has no `env_file` yet, create one
    under the secrets dir (e.g. `~/.config/panopticon/secrets/<repo>.env`) and set the repo's
-   `env_file` to its **name** (`<repo>.env`) — in the dashboard's repo form (which accepts an
-   absolute or relative path and normalizes it to a name), or via the API:
-
-   ```sh
-   curl -X PATCH "$PANOPTICON_SERVICE_URL/repos/<repo-id>" \
-     -H 'content-type: application/json' \
-     -d '{"env_file": "<repo>.env"}'
-   ```
+   `env_file` to its **name** (`<repo>.env`) in the dashboard's repo form, which accepts an
+   absolute or relative path and normalizes it to a name.
 
 That's it — new task containers for that repo now authenticate from the token.
 
@@ -194,10 +189,7 @@ OpenAI's Codex CLI in its container. Three credential tiers, in order of setup e
    mkdir -p ~/.config/panopticon/secrets/openai.d
    cp ~/.codex/auth.json ~/.config/panopticon/secrets/openai.d/
    chmod 0600 ~/.config/panopticon/secrets/openai.d/auth.json
-   # then point the repo at it:
-   curl -X PATCH "$PANOPTICON_SERVICE_URL/repos/<repo-id>" \
-     -H 'content-type: application/json' \
-     -d '{"credential_dir": "openai.d"}'
+   # then set credential_dir to openai.d in the dashboard's repo form
    ```
 
    The runner mounts the dir **read-write and shared** into that repo's task containers; the
@@ -244,10 +236,7 @@ environment variable itself — so the harness usually renders nothing at all:
    mkdir -p ~/.config/panopticon/secrets/pi.d
    cp ~/.pi/agent/auth.json ~/.config/panopticon/secrets/pi.d/
    chmod 0600 ~/.config/panopticon/secrets/pi.d/auth.json
-   # then point the repo at it:
-   curl -X PATCH "$PANOPTICON_SERVICE_URL/repos/<repo-id>" \
-     -H 'content-type: application/json' \
-     -d '{"credential_dir": "pi.d"}'
+   # then set credential_dir to pi.d in the dashboard's repo form
    ```
 
    The runner mounts the dir **read-write and shared** into that repo's task containers; the

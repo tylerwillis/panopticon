@@ -68,7 +68,7 @@ def load_client_token(
 ) -> str:
     tokens = load_tokens(reference, secrets_dir=secrets_dir)
     values = tokens.read if privilege == "read" else tokens.write
-    return values[0]
+    return values[-1]
 
 
 def environment_token(*, privilege: Literal["read", "write"] = "write") -> str | None:

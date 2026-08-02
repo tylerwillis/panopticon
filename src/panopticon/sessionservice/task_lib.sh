@@ -13,7 +13,7 @@ import json
 import sys
 
 with open(sys.argv[1]) as credential_file:
-    token = json.load(credential_file)["write"][0]
+    token = json.load(credential_file)["write"][-1]
 print(f'header = "Authorization: Bearer {token}"')
 PY
     else

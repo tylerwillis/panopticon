@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.29.1--e93787f18948",
+  "requirementId": "REQ-034.29.1",
+  "hash": "e93787f18948",
+  "verdict": "pass",
+  "summary": "Integrated startup rejects missing, duplicate, or non-0.0.0.0 --host arguments, and standalone startup independently rejects any default other than 127.0.0.1 with PANOPTICON_HOST absent.",
+  "timestamp": "2026-08-02T21:49:20.563Z"
+}

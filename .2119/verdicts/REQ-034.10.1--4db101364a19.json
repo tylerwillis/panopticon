@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.10.1--4db101364a19",
+  "requirementId": "REQ-034.10.1",
+  "hash": "4db101364a19",
+  "verdict": "pass",
+  "summary": "Enforced-auth tests reject credential-gating (unauthenticated GET must return 200) and exact JSON equality rejects altered or extra readiness payload fields; proxy-root availability is also exercised.",
+  "timestamp": "2026-08-02T21:49:25.607Z"
+}

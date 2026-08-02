@@ -133,3 +133,11 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 ### REQ-034.30: Root-path authorization
 
 1. Authorization MUST apply the same write privilege to liveness and MCP requests when the application is deployed beneath an ASGI root path.
+
+### REQ-034.31: Tmux environment convergence
+
+1. Integrated stack startup MUST give newly created service and runner sessions the invoking process's task-service authentication reference, mode, and config root while clearing stale values absent from that process.
+
+### REQ-034.32: Rotation selection
+
+1. After a new token is appended to an overlap array, restarted Python and shell clients MUST select that final token so the old generation can later be removed without disconnecting converged callers.
