@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import asyncio
 import hmac
-from collections.abc import AsyncIterator, Callable
+from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager, suppress
 from datetime import datetime
 from pathlib import Path
@@ -463,7 +463,9 @@ def create_app(
         )
 
     @app.middleware("http")
-    async def authenticate(request: Request, call_next: Callable[[Request], Any]) -> Response:
+    async def authenticate(
+        request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         if mode == "disabled" or (request.method == "GET" and request.url.path == "/healthz"):
             return await call_next(request)
         authorization = request.headers.get("authorization")

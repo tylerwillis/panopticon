@@ -62,7 +62,8 @@ def load_tokens(reference: str, *, secrets_dir: str | Path | None = None) -> Aut
 def load_client_token(
     reference: str, *, privilege: Literal["read", "write"], secrets_dir: str | Path | None = None
 ) -> str:
-    values = getattr(load_tokens(reference, secrets_dir=secrets_dir), privilege)
+    tokens = load_tokens(reference, secrets_dir=secrets_dir)
+    values = tokens.read if privilege == "read" else tokens.write
     return values[0]
 
 
@@ -76,5 +77,5 @@ def environment_token(*, privilege: Literal["read", "write"] = "write") -> str |
             tokens = _parse_tokens(path.read_text())
         except OSError as exc:
             raise _credential_error() from exc
-        return getattr(tokens, privilege)[0]
+        return (tokens.read if privilege == "read" else tokens.write)[0]
     return load_client_token(reference, privilege=privilege)

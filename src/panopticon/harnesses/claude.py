@@ -143,7 +143,7 @@ def write_mcp_config(config_dir: Path, service_url: str, *, authenticated: bool 
 
     config_dir.mkdir(parents=True, exist_ok=True)
     path = config_dir / MCP_CONFIG_FILE
-    server = {"type": "http", "url": f"{service_url.rstrip('/')}/mcp"}
+    server: dict[str, Any] = {"type": "http", "url": f"{service_url.rstrip('/')}/mcp"}
     if authenticated:
         server["headers"] = {"Authorization": "Bearer ${PANOPTICON_SERVICE_AUTH_TOKEN}"}
     path.write_text(json.dumps({"mcpServers": {"panopticon": server}}, indent=2))
