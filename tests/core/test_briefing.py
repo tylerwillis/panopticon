@@ -25,6 +25,24 @@ from panopticon.workflows import GithubPeerReviewed, Spike
 #: intentional wording change with ``UPDATE_FIXTURES=1 uv run pytest tests/core/test_briefing.py`` and commit the diff.
 FIXTURES = Path(__file__).parent.parent / "fixtures" / "briefing"
 
+EXPECTED_PANOPTICON_ORIENTATION = """## Working in panopticon
+
+You are working inside a panopticon task container. Panopticon gives you durable control-plane
+surfaces for collaborating with the operator:
+
+- **Task artifacts** hold reviewable documents. Publish each reviewable document as a task
+  artifact when you produce it, without waiting for the user to ask. The operator opens artifacts
+  with the dashboard `a` hotkey. The system prompt states this standing expectation; use the
+  universal `artifacts` skill for the publishing procedure. Don't print non-code deliverables
+  inline or leave them solely in the ephemeral container filesystem.
+- **The task external URL** points to the pull request or other primary external work. The
+  operator opens it with the dashboard `p` hotkey; GitHub URLs belong there rather than in the
+  artifact list.
+- **Responsibilities** are durable promises for the current phase. Their status is visible to the
+  operator and gates `advance` when the workflow declares them.
+- **`advance` and `drop`** are durable lifecycle operations. The operator sees the resulting task
+  state; `advance` follows the governed path and `drop` abandons the task."""
+
 
 def _artifacts(tmp_path: Path) -> ArtifactStore:
     return FilesystemArtifactStore(tmp_path)
@@ -121,7 +139,21 @@ def test_workflow_overview_maps_the_ordered_phases() -> None:
     assert "## Tools" in text and "`gh`" in text and "GitHub CLI" in text
 
 
+# 2119: REQ-030.1.1
+# 2119: REQ-030.2.1
+# 2119: REQ-030.5.1
+# 2119: REQ-030.6.1
+# 2119: REQ-030.7.1
+# 2119: REQ-030.8.1
+def test_workflow_overview_sets_the_panopticon_working_norms() -> None:
+    text = Workflow.overview(GithubPeerReviewed())
+
+    assert EXPECTED_PANOPTICON_ORIENTATION in text
+    assert "When the user requests" not in text
+
+
 def test_workflow_overview_handles_a_phase_with_no_responsibilities() -> None:
+    # 2119: REQ-030.6.1
     # spike's ITERATING declares no responsibilities — the line must not dangle a colon + empty list.
     text = Spike().overview()
     assert "ITERATING" in text
@@ -134,6 +166,8 @@ def test_workflow_overview_handles_a_phase_with_no_responsibilities() -> None:
         "responsibilities before ending your turn" not in text
     )  # no gate sentence with nothing listed
     assert "## Tools" not in text  # spike declares no tools → the section is omitted
+    assert EXPECTED_PANOPTICON_ORIENTATION in text
+    assert tuple(Spike().responsibilities("ITERATING")) == ()
 
 
 # -- the extension seam: a workflow injects/overrides briefing pieces ----------------------
@@ -191,6 +225,9 @@ def test_default_extras_leave_the_output_unchanged(tmp_path: Path) -> None:
 
 
 def test_github_peer_reviewed_system_prompt_matches_fixture() -> None:
+    # 2119: REQ-030.1.1
+    # 2119: REQ-030.2.1
+    # 2119: REQ-030.5.1
     # The whole-workflow system prompt (the map + tools), captured verbatim.
     _assert_matches_fixture(
         "github_peer_reviewed_system_prompt.md", GithubPeerReviewed().overview()

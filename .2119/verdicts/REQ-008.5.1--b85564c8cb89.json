@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.5.1--b85564c8cb89",
+  "requirementId": "REQ-008.5.1",
+  "hash": "b85564c8cb89",
+  "verdict": "pass",
+  "summary": "Codex wiring targets the synchronous callback, and the gated test proves it cannot exit before the turn write completes.",
+  "timestamp": "2026-08-02T23:47:04.713Z"
+}

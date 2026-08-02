@@ -18,8 +18,10 @@ from panopticon.workflows.spec_2119 import _VERIFIED_REVIEW_INSTRUCTIONS
 
 WORKFLOW_NAMES = ("2119-human-spec", "2119-auto-spec", "2119-auto-sol")
 EXPECTED_ARTIFACT_INSTRUCTIONS = (
-    "An artifact is a durable task document that the user can review. Publish anything you want "
-    "the user to review as an artifact, regardless of document type. Examples include a "
+    "The system prompt establishes a standing expectation: publish each reviewable document as "
+    "a task artifact when you produce it, without waiting for the user to ask. This skill is the "
+    "procedure for fulfilling that expectation. An artifact is a durable task document that the "
+    "user can review. Examples include a "
     "specification or spec summary, review outputs, a triage summary, and stage or gate reports, "
     "but these examples are not exhaustive. "
     "Use the `put_artifact` MCP tool, or send the artifact bytes with "
@@ -197,6 +199,8 @@ async def test_artifact_skill_explains_both_write_mechanisms(tmp_path: Path) -> 
     # 2119: REQ-028.3.1
     # 2119: REQ-028.10.1
     # 2119: REQ-028.11.1
+    # 2119: REQ-030.3.1
+    # 2119: REQ-030.4.1
     service = TaskService(
         SqlAlchemyStore(),
         {"spike": discover_workflows(_home_workflows=Path("/nonexistent"))["spike"]},

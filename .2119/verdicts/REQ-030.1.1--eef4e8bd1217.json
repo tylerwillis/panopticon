@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.1.1--eef4e8bd1217",
+  "requirementId": "REQ-030.1.1",
+  "hash": "eef4e8bd1217",
+  "verdict": "pass",
+  "summary": "Exact overview fixture requires each reviewable document to be published when produced without waiting for a request.",
+  "timestamp": "2026-08-02T23:47:11.422Z"
+}

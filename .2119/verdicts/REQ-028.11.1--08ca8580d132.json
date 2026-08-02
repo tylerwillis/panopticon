@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.11.1--08ca8580d132",
+  "requirementId": "REQ-028.11.1",
+  "hash": "08ca8580d132",
+  "verdict": "pass",
+  "summary": "Exact instructions cover durability, the publishing boundary, and GitHub URL exception.",
+  "timestamp": "2026-08-02T23:47:10.457Z"
+}

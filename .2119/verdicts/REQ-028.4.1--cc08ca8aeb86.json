@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.4.1--cc08ca8aeb86",
+  "requirementId": "REQ-028.4.1",
+  "hash": "cc08ca8aeb86",
+  "verdict": "pass",
+  "summary": "All built-in 2119 workflows require exactly the expected specification artifact responsibility.",
+  "timestamp": "2026-08-02T23:47:07.176Z"
+}

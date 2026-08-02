@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.5.1--353e191a6ea2",
+  "requirementId": "REQ-028.5.1",
+  "hash": "353e191a6ea2",
+  "verdict": "pass",
+  "summary": "Exact built-in skill assertions reject omitted specification and final-review artifact guidance.",
+  "timestamp": "2026-08-02T23:47:07.639Z"
+}

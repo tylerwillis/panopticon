@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.4.1--2732f3d2af1f",
+  "requirementId": "REQ-008.4.1",
+  "hash": "2732f3d2af1f",
+  "verdict": "pass",
+  "summary": "Claude wiring targets the synchronous callback, and the gated test proves the command itself cannot exit before its task-service write completes.",
+  "timestamp": "2026-08-02T23:47:04.257Z"
+}

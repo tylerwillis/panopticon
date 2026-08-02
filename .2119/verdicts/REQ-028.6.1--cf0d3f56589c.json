@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.6.1--cf0d3f56589c",
+  "requirementId": "REQ-028.6.1",
+  "hash": "cf0d3f56589c",
+  "verdict": "pass",
+  "summary": "Every built-in 2119 workflow retains the exact PR external-URL responsibility.",
+  "timestamp": "2026-08-02T23:47:08.132Z"
+}

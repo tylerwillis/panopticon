@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.12.1--993bddf66a61",
+  "requirementId": "REQ-028.12.1",
+  "hash": "993bddf66a61",
+  "verdict": "pass",
+  "summary": "All review skills are enumerated and pinned to read-only isolated reviewer invocation guidance.",
+  "timestamp": "2026-08-02T23:47:10.936Z"
+}
