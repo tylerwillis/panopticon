@@ -801,6 +801,8 @@ def create_app(service: TaskService) -> FastAPI:
             )
         except ValueError as exc:  # slug not set yet
             raise HTTPException(status_code=400, detail=str(exc)) from exc
+        except NotReady as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
         return await _task_out(task)
 
     @app.put("/tasks/{task_id}/migration")

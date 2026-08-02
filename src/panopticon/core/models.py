@@ -363,8 +363,12 @@ class Task:
         """True once the session service has provisioned this task — its branch (and per-task
         clone) are recorded (ADR 0011). Until then the task has at most a slug, no working branch.
         """
+        migration_ready = (
+            self.migration is None or self.migration.workspace_disposition == "accepted"
+        )
         return bool(
-            self.branch
+            migration_ready
+            and self.branch
             and self.clone
             and self.claimed_by
             and self.claimed_by == self.provisioned_by == self.workspace_verified_by

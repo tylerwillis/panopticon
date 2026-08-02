@@ -306,6 +306,11 @@ def restore_config_volume(task_id: str, archive: Path, *, image: str = DEFAULT_I
         )
 
 
+def remove_config_volume(task_id: str) -> None:
+    """Ensure an omitted session starts fresh instead of discovering stale host-local history."""
+    subprocess.run(["docker", "volume", "rm", "--force", config_volume_name(task_id)], check=True)
+
+
 def request_migration(
     client: TaskServiceClient,
     task_id: str,
@@ -313,11 +318,41 @@ def request_migration(
     destination_runner: str,
     workspace_method: str,
     transfer_session: bool,
+    tasks_root: Path = Path(TASKS_DIR),
+    discard_changes: tuple[str, ...] = (),
 ) -> Mapping[str, object]:
     task = client.get_task(task_id)
     source = task.get("provisioned_by")
     if not isinstance(source, str):
         raise MigrationConflict("task has no recorded workspace owner")
+    discarded: list[str] = []
+    if workspace_method == "forge-first":
+        checkout = tasks_root / task_id
+        dirty = subprocess.run(
+            ["git", "-C", str(checkout), "status", "--porcelain"],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.splitlines()
+        dirty_paths = [line[3:] for line in dirty if len(line) > 3]
+        unpushed = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(checkout),
+                "rev-list",
+                str(task["branch"]),
+                "--not",
+                f"origin/{task['branch']}",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.splitlines()
+        losses = [*dirty_paths, *(f"commit:{commit}" for commit in unpushed)]
+        if set(discard_changes) != set(losses):
+            raise MigrationConflict("forge-first requires explicit discard of every local change")
+        discarded = losses
     return client.record_migration(
         task_id,
         source_runner=source,
@@ -325,8 +360,8 @@ def request_migration(
         workspace_disposition="pending",
         workspace_method=workspace_method,
         session_history_disposition="requested" if transfer_session else "omitted",
-        discarded_changes=[],
-        discard_authorized_by=None,
+        discarded_changes=discarded,
+        discard_authorized_by="user" if discarded else None,
     )
 
 
@@ -345,6 +380,7 @@ def accept_migration(
     migration = task.get("migration")
     if not isinstance(migration, Mapping) or migration.get("workspace_disposition") not in {
         "pending",
+        "installed",
         "accepted",
     }:
         raise MigrationConflict("task has no pending or accepted migration")
@@ -354,9 +390,12 @@ def accept_migration(
     canonical = tasks_root / task_id
     method = migration.get("workspace_method", "archive")
     already_accepted = migration.get("workspace_disposition") == "accepted"
+    already_installed = migration.get("workspace_disposition") == "installed"
     canonical_preexisting = canonical.exists()
-    if already_accepted or canonical_preexisting:
+    if already_accepted or already_installed:
         staged = canonical
+    elif canonical_preexisting:
+        raise MigrationConflict("canonical destination workspace already exists")
     elif method == "archive":
         if workspace_archive is None:
             raise MigrationConflict("archive migration requires --workspace-archive")
@@ -397,27 +436,46 @@ def accept_migration(
                 raise MigrationConflict("requested session transfer requires --session-archive")
             restore_config_volume(task_id, session_archive, image=image)
             session = "accepted"
-        accepted = (
+        elif session == "omitted":
+            remove_config_volume(task_id)
+        installed = (
             task
-            if already_accepted
+            if already_accepted or already_installed
             else client.record_migration(
                 task_id,
                 source_runner=str(migration["source_runner"]),
                 destination_runner=runner_id,
-                workspace_disposition="accepted",
+                workspace_disposition="installed",
                 workspace_method=str(method),
                 session_history_disposition=session,
                 discarded_changes=list(migration.get("discarded_changes", [])),
                 discard_authorized_by=migration.get("discard_authorized_by"),
             )
         )
+        if task.get("claimed_by") not in (None, runner_id):
+            raise MigrationConflict("source claim must be released after its container is stopped")
         if task.get("claimed_by") != runner_id:
-            client.release(task_id)
             client.claim(task_id, runner_id)
         client.record_provisioning(task_id, str(task["branch"]), str(canonical), runner_id, True)
-        return accepted
+        if already_accepted:
+            return installed
+        return client.record_migration(
+            task_id,
+            source_runner=str(migration["source_runner"]),
+            destination_runner=runner_id,
+            workspace_disposition="accepted",
+            workspace_method=str(method),
+            session_history_disposition=session,
+            discarded_changes=list(migration.get("discarded_changes", [])),
+            discard_authorized_by=migration.get("discard_authorized_by"),
+        )
     except Exception:
-        if not already_accepted and not canonical_preexisting and staged.exists():
+        if (
+            not already_accepted
+            and not already_installed
+            and not canonical_preexisting
+            and staged.exists()
+        ):
             shutil.rmtree(staged, ignore_errors=True)
         raise
 
@@ -437,6 +495,8 @@ def main(argv: list[str] | None = None) -> None:
         "--workspace-method", choices=("archive", "forge-first"), default="archive"
     )
     request.add_argument("--transfer-session", action="store_true")
+    request.add_argument("--tasks-root", default=TASKS_DIR, type=Path)
+    request.add_argument("--discard-change", action="append", default=[])
     export = sub.add_parser("export")
     export.add_argument("task_id")
     export.add_argument("--tasks-root", default=TASKS_DIR)
@@ -458,6 +518,8 @@ def main(argv: list[str] | None = None) -> None:
             destination_runner=args.destination_runner,
             workspace_method=args.workspace_method,
             transfer_session=args.transfer_session,
+            tasks_root=args.tasks_root,
+            discard_changes=tuple(args.discard_change),
         )
     elif args.command == "export":
         args.workspace_archive.write_bytes(
