@@ -11,9 +11,9 @@ cancel interaction intact.
 
 ### REQ-034.1: Prefix filtering
 
-1. While the new-task repository picker is open, typing a printable character MUST append it to a
-   visible search query and show only repository IDs whose prefix matches the complete query
-   without regard to letter case.
+1. While the new-task repository picker is open, typing an unbound printable character MUST append
+   it to a visible search query and show only repository IDs whose prefix matches the complete
+   query without regard to letter case.
 
 2. While the new-task repository picker has a non-empty search query, pressing Backspace MUST
    remove the query's final character and recompute the visible repository IDs.

@@ -1555,23 +1555,23 @@ async def test_pressing_n_creates_a_task_via_repo_workflow_then_memo() -> None:
 async def test_new_task_repo_picker_filters_case_insensitive_id_prefix_as_user_types() -> None:
     fake = _FakeClient(
         [],
-        repos=["a-one", "ax-other", "xa-one", "beta"],
+        repos=["a-1@one", "ax-1@other", "xa-1@one", "beta"],
         workflows=[{"name": "spike", "when_to_use": ""}],
     )
     app = Dashboard(fake)  # type: ignore[arg-type]
     async with app.run_test() as pilot:
         await pilot.pause()
-        await pilot.press("n", "A", "-")
+        await pilot.press("n", "A", "-", "1", "@")
         await pilot.pause()
 
         picker = app.screen
         assert isinstance(picker, dashboard.ChoiceScreen)
-        assert str(picker.query_one(Label).render()) == "repo — search: A-"
+        assert str(picker.query_one(Label).render()) == "repo — search: A-1@"
         options = picker.query_one(OptionList)
         assert [
             str(options.get_option_at_index(i).prompt) for i in range(options.option_count)
         ] == [
-            "a-one",
+            "a-1@one",
         ]
 
 
