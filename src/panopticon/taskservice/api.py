@@ -120,6 +120,7 @@ class TaskSummaryOut(BaseModel):
     runner_host: str | None = (
         None  # hostname the claiming runner registered with (M5: remote attach)
     )
+    has_artifacts: bool = False
 
 
 class TaskOut(BaseModel):
@@ -477,7 +478,9 @@ def create_app(service: TaskService) -> FastAPI:
             out.runner_host = service.runner_host(task.claimed_by)
         return out
 
-    def _task_summary_out(task: Task, tasks_by_id: dict[str, Task]) -> TaskSummaryOut:
+    def _task_summary_out(
+        task: Task, tasks_by_id: dict[str, Task], *, has_artifacts: bool
+    ) -> TaskSummaryOut:
         """Serialize a task to the cheap summary shape (no history), with computed status fields."""
         out = TaskSummaryOut.model_validate(task)
         out.terminal = service.task_is_terminal(task)
@@ -489,6 +492,7 @@ def create_app(service: TaskService) -> FastAPI:
         out.lifecycle_detail = lifecycle.detail if lifecycle is not None else None
         if task.claimed_by is not None:
             out.runner_host = service.runner_host(task.claimed_by)
+        out.has_artifacts = has_artifacts
         return out
 
     # -- error mapping: domain exceptions -> HTTP status --------------------------
@@ -653,7 +657,13 @@ def create_app(service: TaskService) -> FastAPI:
             if terminal is None
             else [task for task in all_tasks if service.task_is_terminal(task) == terminal]
         )
-        tasks = [_task_summary_out(task, tasks_by_id) for task in tasks_raw]
+        artifact_names = await asyncio.gather(
+            *(service.list_artifacts(task.id) for task in tasks_raw)
+        )
+        tasks = [
+            _task_summary_out(task, tasks_by_id, has_artifacts=bool(names))
+            for task, names in zip(tasks_raw, artifact_names, strict=True)
+        ]
         response.headers[TASKS_VERSION_HEADER] = str(version)
         return tasks
 

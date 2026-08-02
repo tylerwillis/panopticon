@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-039.2.1--6beb7763f2a9",
+  "requirementId": "REQ-039.2.1",
+  "hash": "6beb7763f2a9",
+  "verdict": "pass",
+  "summary": "Mounted dashboard rows verify valid and nested GitHub PR numbers and reject malformed, deceptive-host, unsupported-scheme, missing, and non-decimal URLs.",
+  "timestamp": "2026-08-02T23:50:44.214Z"
+}

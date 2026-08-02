@@ -4101,7 +4101,8 @@ def test_slug_cell_combines_slug_and_memo() -> None:
 
 # 2119: REQ-039.1
 async def test_dashboard_slug_prefix_identifies_a_task_with_artifacts() -> None:
-    fake = _FakeClient([_TASK], artifacts={_TASK["id"]: ["specification.md"]})
+    task = {**_TASK, "has_artifacts": True}
+    fake = _FakeClient([task], artifacts={_TASK["id"]: ["specification.md"]})
     app = Dashboard(fake)  # type: ignore[arg-type]
     async with app.run_test() as pilot:
         await pilot.pause()
@@ -4111,19 +4112,47 @@ async def test_dashboard_slug_prefix_identifies_a_task_with_artifacts() -> None:
 
 
 # 2119: REQ-039.2
-def test_slug_cell_prefix_identifies_github_pull_request_number() -> None:
-    task = {**_TASK, "url": "https://github.com/acme/widgets/pull/123"}
-    assert _slug_cell(task).plain == "*PR123 | fix-widget"
-    nested = {**task, "url": "http://github.com/acme/widgets/pull/456/files?diff=split#top"}
-    assert _slug_cell(nested).plain == "*PR456 | fix-widget"
-    for non_pr_url in (
-        "https://example.com/acme/widgets/pull/123",
-        "ssh://github.com/acme/widgets/pull/123",
-        "https://github.com.example/acme/widgets/pull/123",
-        "https://github.com/acme/widgets/pull/123abc",
-        "https://github.com/acme/widgets/pull/",
-    ):
-        assert _slug_cell({**task, "url": non_pr_url}).plain == "fix-widget"
+async def test_dashboard_slug_prefix_identifies_github_pull_request_number() -> None:
+    urls_and_labels = [
+        ("https://github.com/acme/widgets/pull/123", "*PR123 | fix-widget"),
+        ("http://github.com/acme/widgets/pull/456/files?diff=split#top", "*PR456 | fix-widget"),
+        ("https://example.com/acme/widgets/pull/123", "fix-widget"),
+        ("ssh://github.com/acme/widgets/pull/123", "fix-widget"),
+        ("https://github.com.example/acme/widgets/pull/123", "fix-widget"),
+        ("https://github.com/acme/widgets/pull/123abc", "fix-widget"),
+        ("https://github.com/acme/widgets/pull/", "fix-widget"),
+        ("http://[", "fix-widget"),
+        ("https://github.com／evil/acme/widgets/pull/123", "fix-widget"),
+    ]
+    tasks = [
+        {**_TASK, "id": f"task-url-{number}", "url": url}
+        for number, (url, _) in enumerate(urls_and_labels)
+    ]
+    app = Dashboard(_FakeClient(tasks), refresh_interval=0)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        table = app.query_one("#tasks", DataTable)
+        for number, (_, expected) in enumerate(urls_and_labels):
+            assert table.get_row(f"task-url-{number}")[4].plain == expected
+
+
+async def test_dashboard_task_refresh_does_not_list_artifacts_per_task() -> None:
+    class NoArtifactListingClient(_FakeClient):
+        def list_artifacts(self, task_id: str) -> list[str]:
+            raise AssertionError(f"unexpected per-task artifact request for {task_id}")
+
+    tasks = [
+        {**_TASK, "id": f"task-{number}", "has_artifacts": number == 7} for number in range(20)
+    ]
+    app = Dashboard(
+        NoArtifactListingClient(tasks, artifacts={"task-7": ["review.md"]}),
+        refresh_interval=0,
+    )  # type: ignore[arg-type]
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        table = app.query_one("#tasks", DataTable)
+        assert table.get_row("task-7")[4].plain == "*a | fix-widget"
 
 
 # 2119: REQ-039.3

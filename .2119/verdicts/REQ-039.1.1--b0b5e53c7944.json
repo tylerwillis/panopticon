@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-039.1.1--b0b5e53c7944",
+  "requirementId": "REQ-039.1.1",
+  "hash": "b0b5e53c7944",
+  "verdict": "pass",
+  "summary": "Mounted dashboard test carries one-artifact summary state without a PR and requires the exact '*a | fix-widget' row label.",
+  "timestamp": "2026-08-02T23:50:16.483Z"
+}
