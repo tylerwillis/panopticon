@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.1.2--6f35b50937ed",
+  "requirementId": "REQ-034.1.2",
+  "hash": "6f35b50937ed",
+  "verdict": "pass",
+  "summary": "Real picker interaction proves final-character deletion, exact query update, recomputed matches, and restoration at empty query.",
+  "timestamp": "2026-08-02T19:45:24.842Z"
+}
