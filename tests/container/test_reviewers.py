@@ -403,7 +403,7 @@ def test_codex_dispatch_uses_isolated_command_and_never_publishes_failures(
             },
             "gpt-5.6-sol",
             "command",
-            "Codex reviewer output did not contain exactly one final agent message.",
+            "Codex reviewer output did not contain a final agent message.",
         ),
     ):
         posted.clear()
@@ -463,6 +463,49 @@ def test_codex_dispatch_uses_isolated_command_and_never_publishes_failures(
         )
     assert posted == []
     assert artifacts == []
+
+
+def test_codex_dispatch_uses_the_last_completed_agent_message(tmp_path: Path) -> None:
+    sessions = tmp_path / "sessions"
+    sessions.mkdir()
+    (sessions / "review.jsonl").write_text(
+        "\n".join(
+            (
+                json.dumps({"type": "session_meta", "payload": {"id": "thread-1"}}),
+                json.dumps({"type": "turn_context", "payload": {"model": "gpt-5.6-sol"}}),
+            )
+        )
+    )
+    events = "\n".join(
+        (
+            json.dumps({"type": "thread.started", "thread_id": "thread-1"}),
+            json.dumps(
+                {
+                    "type": "item.completed",
+                    "item": {"type": "agent_message", "text": "Progress update."},
+                }
+            ),
+            json.dumps(
+                {
+                    "type": "item.completed",
+                    "item": {"type": "agent_message", "text": "Final verdict."},
+                }
+            ),
+        )
+    )
+    posted: list[str] = []
+    dispatch_review(
+        ReviewerConfig("codex", "gpt-5.6-sol"),
+        prompt=reviewer_prompt(),
+        commit="abc123",
+        round_number=1,
+        run=lambda argv, prompt: {"exit_code": 0, "stdout": events},
+        post_comment=posted.append,
+        config_root=tmp_path,
+        git_head=lambda: "abc123",
+    )
+    assert posted[0].endswith("Final verdict.")
+    assert "Progress update." not in posted[0]
 
 
 def test_dispatch_verifies_before_posting_and_derives_evidence_comment() -> None:

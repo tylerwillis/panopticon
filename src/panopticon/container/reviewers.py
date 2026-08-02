@@ -312,14 +312,14 @@ def _codex_body(events: list[dict[str, Any]], requested_model: str) -> str:
         and isinstance(item.get("item"), dict)
         and item["item"].get("type") == "agent_message"
     ]
-    if len(bodies) != 1 or not isinstance(bodies[0], str):
+    if not bodies or not isinstance(bodies[-1], str):
         raise ReviewerDispatchError(
-            "Codex reviewer output did not contain exactly one final agent message.",
+            "Codex reviewer output did not contain a final agent message.",
             kind="command",
             requested_model=requested_model,
             remediation="Retry the requested model and inspect its reviewer JSONL output.",
         )
-    return bodies[0]
+    return bodies[-1]
 
 
 def dispatch_review(
