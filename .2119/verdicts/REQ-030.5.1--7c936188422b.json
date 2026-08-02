@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.5.1--7c936188422b",
+  "requirementId": "REQ-030.5.1",
+  "hash": "7c936188422b",
+  "verdict": "pass",
+  "summary": "Both runner-host message branches are exact and reject opening a missing local directory.",
+  "timestamp": "2026-08-02T23:39:55.879Z"
+}
