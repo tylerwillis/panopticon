@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.3.2--14f66a0b0613",
+  "requirementId": "REQ-014.3.2",
+  "hash": "14f66a0b0613",
+  "verdict": "pass",
+  "summary": "Covers responsibility-driven entry, free moves, declared/explicit transitions, drop cascades, and unrelated writes, asserting no newly entered eligible state cascades.",
+  "timestamp": "2026-08-02T18:46:21.149Z"
+}

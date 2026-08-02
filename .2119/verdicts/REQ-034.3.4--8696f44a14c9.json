@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.3.4--8696f44a14c9",
+  "requirementId": "REQ-034.3.4",
+  "hash": "8696f44a14c9",
+  "verdict": "pass",
+  "summary": "All four required migration fields are asserted and reloaded from a fresh task-service instance backed by the same SQLite database.",
+  "timestamp": "2026-08-02T18:46:14.958Z"
+}

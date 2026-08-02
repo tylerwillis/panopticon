@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.4.2--67857ebb852b",
+  "requirementId": "REQ-034.4.2",
+  "hash": "67857ebb852b",
+  "verdict": "pass",
+  "summary": "Uncommitted and unpushed losses are each refused; partial or incorrectly identified discard sets are refused, while an exact explicit set permits migration.",
+  "timestamp": "2026-08-02T18:46:15.411Z"
+}

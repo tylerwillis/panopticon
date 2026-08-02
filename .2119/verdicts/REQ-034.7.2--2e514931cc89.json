@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.7.2--2e514931cc89",
+  "requirementId": "REQ-034.7.2",
+  "hash": "2e514931cc89",
+  "verdict": "pass",
+  "summary": "Requested restoration blocks spawn; silent or agent omission is rejected, while accepted restore or explicit user omission permits it.",
+  "timestamp": "2026-08-02T18:46:23.732Z"
+}

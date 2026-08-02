@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.4.3--b568b5e9e062",
+  "requirementId": "REQ-034.4.3",
+  "hash": "b568b5e9e062",
+  "verdict": "pass",
+  "summary": "Acceptance and claim preserve discarded paths and user authorization through durable store reloads.",
+  "timestamp": "2026-08-02T18:46:20.494Z"
+}

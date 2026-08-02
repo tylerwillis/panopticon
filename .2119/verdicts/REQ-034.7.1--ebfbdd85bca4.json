@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.7.1--ebfbdd85bca4",
+  "requirementId": "REQ-034.7.1",
+  "hash": "ebfbdd85bca4",
+  "verdict": "pass",
+  "summary": "Spawn is absent on acceptance-persistence or canonical-reverification failure, and audit order puts both gates before spawn.",
+  "timestamp": "2026-08-02T18:46:23.248Z"
+}

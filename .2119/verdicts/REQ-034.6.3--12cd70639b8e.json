@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.6.3--12cd70639b8e",
+  "requirementId": "REQ-034.6.3",
+  "hash": "12cd70639b8e",
+  "verdict": "pass",
+  "summary": "Restore targets the standard task volume and drives the real Codex resume selector, while omission selects first run.",
+  "timestamp": "2026-08-02T18:46:21.844Z"
+}

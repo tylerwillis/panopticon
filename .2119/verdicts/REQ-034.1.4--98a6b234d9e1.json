@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.1.4--98a6b234d9e1",
+  "requirementId": "REQ-034.1.4",
+  "hash": "98a6b234d9e1",
+  "verdict": "pass",
+  "summary": "Both allowed and denied migration/provisioning decisions remain equal across independently varied timestamps and live-runner sets.",
+  "timestamp": "2026-08-02T18:46:22.968Z"
+}

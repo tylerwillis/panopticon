@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.3.1--b3fe25aeb03d",
+  "requirementId": "REQ-034.3.1",
+  "hash": "b3fe25aeb03d",
+  "verdict": "pass",
+  "summary": "The real task service refuses cross-runner claims for absent, pending, wrong-source, and wrong-destination records, then permits only accepted migration to that runner.",
+  "timestamp": "2026-08-02T18:46:14.506Z"
+}

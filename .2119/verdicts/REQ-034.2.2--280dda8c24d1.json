@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.2.2--280dda8c24d1",
+  "requirementId": "REQ-034.2.2",
+  "hash": "280dda8c24d1",
+  "verdict": "pass",
+  "summary": "Real installed checkouts on the wrong branch are rejected and provisioning remains unrecorded, while the recorded branch is accepted.",
+  "timestamp": "2026-08-02T18:46:13.143Z"
+}

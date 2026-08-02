@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.5.1--87dee59fb857",
+  "requirementId": "REQ-034.5.1",
+  "hash": "87dee59fb857",
+  "verdict": "pass",
+  "summary": "Archive round-trip compares every workspace entry and preserves git metadata, dirty files, modes, and symlinks.",
+  "timestamp": "2026-08-02T18:46:20.941Z"
+}
