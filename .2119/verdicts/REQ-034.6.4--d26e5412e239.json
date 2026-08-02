@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.6.4--d26e5412e239",
-  "requirementId": "REQ-034.6.4",
-  "hash": "d26e5412e239",
-  "verdict": "pass",
-  "summary": "Tests genuinely verify symlinks preserved without dereferencing and credential targets excluded",
-  "timestamp": "2026-08-02T20:11:03.814Z"
-}

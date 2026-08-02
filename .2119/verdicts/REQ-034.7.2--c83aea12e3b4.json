@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.7.2--c83aea12e3b4",
-  "requirementId": "REQ-034.7.2",
-  "hash": "c83aea12e3b4",
-  "verdict": "pass",
-  "summary": "Spawn gate correctly blocks requested status, rejects agent-silenced omissions, and gates on operator authorization marker",
-  "timestamp": "2026-08-02T20:03:25.720Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.6.4--7cc409180844",
-  "requirementId": "REQ-034.6.4",
-  "hash": "7cc409180844",
-  "verdict": "pass",
-  "summary": "Test uses real symlinks and files to verify credential symlinks preserved without dereferencing, credential mount excluded, and secret content never archived.",
-  "timestamp": "2026-08-02T20:01:27.654Z"
-}

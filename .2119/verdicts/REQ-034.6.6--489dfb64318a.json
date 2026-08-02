@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.6.6--489dfb64318a",
-  "requirementId": "REQ-034.6.6",
-  "hash": "489dfb64318a",
-  "verdict": "pass",
-  "summary": "Subprocess inspection and mock host tracking verify no docker commit/cp/export/import or container operation calls occur during full migration lifecycle; all boundary terms covered by explicit counterexamples",
-  "timestamp": "2026-08-02T20:11:49.540Z"
-}

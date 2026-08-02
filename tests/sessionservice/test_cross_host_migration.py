@@ -89,7 +89,9 @@ def test_full_migration_never_invokes_docker_container_snapshot_at_subprocess_le
     calls: list[list[str]] = []
     real_run = subprocess.run
 
-    def run(args: list[str], *, check: bool = True, **kwargs: object) -> subprocess.CompletedProcess[str]:
+    def run(
+        args: list[str], *, check: bool = True, **kwargs: object
+    ) -> subprocess.CompletedProcess[str]:
         calls.append(args)
         # Verify no forbidden docker container operations in the command
         if len(args) > 1 and args[0] == "docker":
