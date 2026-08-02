@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.10.1--1158ab993f23",
+  "requirementId": "REQ-035.10.1",
+  "hash": "1158ab993f23",
+  "verdict": "pass",
+  "summary": "An enforced-auth TestClient sends credential-free GET /healthz and requires 200 with the exact existing {'status': 'ok'} JSON object, rejecting auth gating, wrong routes/statuses, missing fields, and extra payload fields; the root-path test additionally preserves availability behind a proxy prefix.",
+  "timestamp": "2026-08-02T22:30:38.204Z"
+}

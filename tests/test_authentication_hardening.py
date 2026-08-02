@@ -18,6 +18,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from panopticon.client import TaskServiceClient
+from panopticon.sessionservice.shell_runner import ShellRunner
 from panopticon.taskservice import __main__ as taskservice_main
 from panopticon.taskservice.__main__ import build_app
 from panopticon.taskservice.auth import load_client_token
@@ -26,6 +27,32 @@ from panopticon.terminal import __main__ as terminal_cli
 
 class _Completed:
     returncode = 1
+
+
+@pytest.mark.parametrize("invalid_kind", ["missing", "directory"])
+def test_shell_runner_rejects_an_invalid_service_credential_before_tmux(
+    tmp_path: Path, invalid_kind: str
+) -> None:
+    # 2119: REQ-035.28.1
+    calls: list[list[str]] = []
+    invalid = tmp_path / "invalid.json"
+    if invalid_kind == "directory":
+        invalid.mkdir()
+
+    def record(args: list[str], **_kwargs: object) -> str:
+        calls.append(args)
+        return ""
+
+    with pytest.raises(ValueError, match="existing regular file"):
+        ShellRunner(
+            "http://svc:8000",
+            secrets_dir=tmp_path,
+            auth_file=invalid.name,
+            run=record,
+        ).spawn("t1", script="echo hi")
+
+    assert calls == []
+    assert invalid.exists() is (invalid_kind == "directory")
 
 
 def test_integrated_stack_explicitly_exposes_service_to_linux_containers() -> None:
@@ -191,6 +218,7 @@ def test_overlap_clients_select_the_appended_token(
     )
     with TestClient(overlap_app) as http:
         restarted_python = TaskServiceClient(http)
+        assert restarted_python._http.headers["authorization"] == "Bearer new"
         assert restarted_python.list_tasks() == []
 
     recorded = tmp_path / "curl-config"
@@ -221,6 +249,9 @@ _panopticon_curl --silent http://service
         _home_workflows=tmp_path / "workflows",
     )
     with TestClient(converged_app) as http:
+        converged_python = TaskServiceClient(http)
+        assert converged_python._http.headers["authorization"] == "Bearer new"
+        assert converged_python.list_tasks() == []
         assert TaskServiceClient(http, token=restarted_token).list_tasks() == []
         assert TaskServiceClient(http, token=shell_token).list_tasks() == []
 

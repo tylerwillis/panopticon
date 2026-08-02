@@ -124,7 +124,7 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 
 ### REQ-035.28: Missing runner credential
 
-1. A container runner configured with a missing or non-file task-service credential reference MUST fail before invoking Docker without creating the referenced filesystem entry.
+1. A task runner configured with a missing or non-file task-service credential reference MUST fail before invoking Docker or tmux without creating the referenced filesystem entry.
 
 ### REQ-035.29: Integrated Linux container reachability
 

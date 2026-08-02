@@ -28,11 +28,15 @@ export PANOPTICON_SERVICE_AUTH_MODE=enforced
 
 The service binds to `127.0.0.1` by default. To expose it on a tailnet, explicitly set
 `PANOPTICON_HOST` to that machine's tailnet address (preferred) or another intended interface.
+Bearer tokens are sent over HTTP, so do not bind the service to a plain LAN or other interface
+whose transport is not independently encrypted and access-controlled.
 Authentication mode is reported at startup; disabled and permissive modes produce warnings.
 The integrated `panopticon start` and `panopticon host` commands deliberately bind `0.0.0.0` so
 native Linux Docker containers can reach the service through `host.docker.internal`; run the
 documented enforced authentication configuration before using that integrated multi-container
-stack.
+stack. This broad integrated bind remains an explicit compatibility exception—not a safe
+unauthenticated default—because binding it to loopback would lock Linux task containers out of the
+control plane. Disabled mode exists only for the staged live-fleet migration below.
 
 Host clients (runner, dashboard, and CLI) resolve the file against their own secrets directory.
 The runner separately mounts it read-only into every Docker task—even one whose repo has no

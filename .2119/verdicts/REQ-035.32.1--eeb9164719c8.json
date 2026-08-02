@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.32.1--eeb9164719c8",
-  "requirementId": "REQ-035.32.1",
-  "hash": "eeb9164719c8",
-  "verdict": "pass",
-  "summary": "Three-token overlap tests reject penultimate-token selection for both Python and shell clients, then remove both older generations and prove each selected final token remains authorized.",
-  "timestamp": "2026-08-02T22:07:09.869Z"
-}

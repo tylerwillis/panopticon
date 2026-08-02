@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.28.1--3ddcb592012b",
-  "requirementId": "REQ-035.28.1",
-  "hash": "3ddcb592012b",
-  "verdict": "pass",
-  "summary": "Parameterized missing-path and directory cases assert ValueError, zero runner calls before Docker, and no creation or replacement of the referenced entry.",
-  "timestamp": "2026-08-02T22:06:23.368Z"
-}

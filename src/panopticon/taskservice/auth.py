@@ -81,5 +81,5 @@ def environment_token(*, privilege: Literal["read", "write"] = "write") -> str |
             tokens = _parse_tokens(path.read_text())
         except OSError as exc:
             raise _credential_error() from exc
-        return (tokens.read if privilege == "read" else tokens.write)[0]
+        return (tokens.read if privilege == "read" else tokens.write)[-1]
     return load_client_token(reference, privilege=privilege)

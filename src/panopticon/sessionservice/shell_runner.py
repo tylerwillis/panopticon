@@ -127,6 +127,13 @@ class ShellRunner(Runner):
 
         start_dir = workdir or os.path.expanduser("~")
         session = session_name(task_id)
+        auth_path = (
+            credential_path(self._auth_file, secrets_dir=self._secrets_dir)
+            if self._auth_file
+            else None
+        )
+        if auth_path is not None and not auth_path.is_file():
+            raise ValueError("task-service credential must be an existing regular file")
         # A shell task runs no agent to open its own `/live` registration, so the dashboard would
         # read it as `awaiting` for its whole life. Hold the liveness stream open in the background
         # for the session's lifetime instead — the task then composes as `live` while the script
@@ -144,13 +151,8 @@ class ShellRunner(Runner):
             f"export PANOPTICON_PYTHON={shlex.quote(sys.executable)}",
             f"export PANOPTICON_SECRETS_DIR={shlex.quote(str(self._secrets_dir or _secrets_dir()))}",
             *(
-                [
-                    "export PANOPTICON_SERVICE_AUTH_FILE="
-                    + shlex.quote(
-                        str(credential_path(self._auth_file, secrets_dir=self._secrets_dir))
-                    )
-                ]
-                if self._auth_file
+                ["export PANOPTICON_SERVICE_AUTH_FILE=" + shlex.quote(str(auth_path))]
+                if auth_path is not None
                 else []
             ),
             *([f"export PANOPTICON_GIT_URL={shlex.quote(git_url)}"] if git_url else []),
