@@ -125,3 +125,11 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 ### REQ-034.28: Missing runner credential
 
 1. A container runner configured with a missing or non-file task-service credential reference MUST fail before invoking Docker without creating the referenced filesystem entry.
+
+### REQ-034.29: Integrated Linux container reachability
+
+1. The integrated local stack MUST launch the task service with an explicit `0.0.0.0` bind while standalone service startup retains its `127.0.0.1` default.
+
+### REQ-034.30: Root-path authorization
+
+1. Authorization MUST apply the same write privilege to liveness and MCP requests when the application is deployed beneath an ASGI root path.

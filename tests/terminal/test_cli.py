@@ -190,7 +190,8 @@ def _expected_new_session_commands() -> list[list[str]]:
             "-d",
             "-s",
             "service",
-            f"{sys.executable} -m panopticon.taskservice 2>&1 | tee /tmp/panopticon-service.log",
+            f"{sys.executable} -m panopticon.taskservice --host 0.0.0.0 "
+            "2>&1 | tee /tmp/panopticon-service.log",
         ],
         [
             "tmux",

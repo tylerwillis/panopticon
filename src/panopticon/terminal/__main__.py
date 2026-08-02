@@ -56,7 +56,11 @@ def _start_sessions(
     do_run = run or subprocess.run
     python = sys.executable
     for name, cmd in [
-        ("service", f"{python} -m panopticon.taskservice 2>&1 | tee /tmp/panopticon-service.log"),
+        (
+            "service",
+            f"{python} -m panopticon.taskservice --host 0.0.0.0 "
+            "2>&1 | tee /tmp/panopticon-service.log",
+        ),
         (
             "runner",
             f"{python} -m panopticon.sessionservice.host 2>&1 | tee /tmp/panopticon-runner.log",

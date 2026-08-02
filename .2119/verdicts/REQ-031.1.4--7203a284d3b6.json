@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.1.4--7203a284d3b6",
+  "requirementId": "REQ-031.1.4",
+  "hash": "7203a284d3b6",
+  "verdict": "pass",
+  "summary": "Real subprocess tests force Docker preflight refusal for both start and host and reject the nearest violation—OS exit status 0—by asserting each return code is non-zero.",
+  "timestamp": "2026-08-02T20:51:11.379Z"
+}

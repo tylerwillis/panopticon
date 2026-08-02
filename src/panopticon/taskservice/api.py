@@ -474,7 +474,8 @@ def create_app(
     async def authenticate(
         request: Request, call_next: Callable[[Request], Awaitable[Response]]
     ) -> Response:
-        if mode == "disabled" or (request.method == "GET" and request.url.path == "/healthz"):
+        route_path = str(request.scope["path"])
+        if mode == "disabled" or (request.method == "GET" and route_path == "/healthz"):
             return await call_next(request)
         authorization = request.headers.get("authorization")
         if mode == "permissive" and authorization is None:
@@ -488,14 +489,14 @@ def create_app(
         presented_bytes = presented.encode()
         write = any(hmac.compare_digest(presented_bytes, token.encode()) for token in tokens.write)
         read = any(hmac.compare_digest(presented_bytes, token.encode()) for token in tokens.read)
-        path_parts = request.url.path.strip("/").split("/")
+        path_parts = route_path.strip("/").split("/")
         liveness = (
             len(path_parts) == 3
             and path_parts[0] in {"tasks", "runners"}
             and path_parts[2] == "live"
         )
         mutating = (
-            request.method not in {"GET", "HEAD"} or request.url.path.startswith("/mcp") or liveness
+            request.method not in {"GET", "HEAD"} or route_path.startswith("/mcp") or liveness
         )
         if not write and (mutating or not read):
             return JSONResponse(

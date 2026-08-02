@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.29.1--1c51fe783d4e",
+  "requirementId": "REQ-034.29.1",
+  "hash": "1c51fe783d4e",
+  "verdict": "pass",
+  "summary": "Tests independently reject a missing or non-0.0.0.0 integrated bind and a standalone default other than 127.0.0.1.",
+  "timestamp": "2026-08-02T20:46:19.762Z"
+}
