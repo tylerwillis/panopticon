@@ -488,11 +488,13 @@ def create_app(
         presented_bytes = presented.encode()
         write = any(hmac.compare_digest(presented_bytes, token.encode()) for token in tokens.write)
         read = any(hmac.compare_digest(presented_bytes, token.encode()) for token in tokens.read)
-        mutating = (
-            request.method != "GET"
-            or request.url.path.startswith("/mcp")
-            or request.url.path.endswith("/live")
+        path_parts = request.url.path.strip("/").split("/")
+        liveness = (
+            len(path_parts) == 3
+            and path_parts[0] in {"tasks", "runners"}
+            and path_parts[2] == "live"
         )
+        mutating = request.method != "GET" or request.url.path.startswith("/mcp") or liveness
         if not write and (mutating or not read):
             return JSONResponse(
                 status_code=401,

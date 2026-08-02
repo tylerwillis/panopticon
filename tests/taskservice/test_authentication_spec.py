@@ -372,6 +372,34 @@ def test_read_and_write_tokens_can_read_but_only_write_token_can_mutate(tmp_path
         )
         assert (
             client.post(
+                "/repos",
+                headers=_bearer(WRITE_TOKEN),
+                json={"id": "live", "name": "live", "git_url": "https://x/live"},
+            ).status_code
+            == 201
+        )
+        assert client.get("/repos/live", headers=_bearer(READ_TOKEN)).status_code == 200
+        task = client.post(
+            "/tasks",
+            headers=_bearer(WRITE_TOKEN),
+            json={"repo_id": "r1", "workflow": "spike"},
+        ).json()
+        assert (
+            client.put(
+                f"/tasks/{task['id']}/artifacts/live",
+                headers=_bearer(WRITE_TOKEN),
+                content=b"proof",
+            ).status_code
+            == 204
+        )
+        assert (
+            client.get(
+                f"/tasks/{task['id']}/artifacts/live", headers=_bearer(READ_TOKEN)
+            ).status_code
+            == 200
+        )
+        assert (
+            client.post(
                 "/tasks",
                 headers=_bearer(WRITE_TOKEN),
                 json={"repo_id": "missing", "workflow": "spike"},

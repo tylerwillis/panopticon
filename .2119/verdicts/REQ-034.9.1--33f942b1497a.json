@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.9.1--33f942b1497a",
+  "requirementId": "REQ-034.9.1",
+  "hash": "33f942b1497a",
+  "verdict": "pass",
+  "summary": "Tests accept exact Authorization: Bearer tokens across REST and MCP surfaces, and reject every named query, cookie, JSON, alternate-header channel plus near-miss schemes, spacing, casing, and suffixes.",
+  "timestamp": "2026-08-02T05:33:48.229Z"
+}
