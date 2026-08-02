@@ -34,11 +34,13 @@ failed dispatch, never permission to trust the requested model or the reviewer's
 
 ### REQ-034.2: Machine verification
 
-1. A Claude reviewer dispatch MUST run `claude --print --output-format json --model <requested>`,
-   parse the command's raw JSON stdout, identify exactly one responding `modelUsage` entry by
-   matching its token counters to the top-level response usage while tolerating distinct
-   auxiliary-model entries, and accept the response only when that responding key exactly equals
-   the requested model string.
+1. A Claude reviewer dispatch MUST run
+   `claude --print --output-format json --safe-mode --dangerously-skip-permissions --model <requested>`
+   so the sandboxed reviewer can inspect the diff without inheriting task hooks, parse the
+   command's raw JSON stdout, identify exactly one responding `modelUsage` entry by matching its
+   token counters to the top-level response usage while tolerating distinct auxiliary-model
+   entries, and accept the response only when that responding key exactly equals the requested
+   model string.
 2. A Codex reviewer dispatch MUST correlate the sole `thread_id` in raw `codex exec --json`
    stdout with that thread's persisted rollout and accept the response only when exactly one
    machine-written `turn_context.payload.model` exists and equals the requested model string.

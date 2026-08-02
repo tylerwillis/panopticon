@@ -343,7 +343,16 @@ def dispatch_review(
     """Run, verify, then publish one review. Verification always precedes side effects."""
 
     if config.harness == "claude":
-        argv = ["claude", "--print", "--output-format", "json", "--model", config.model]
+        argv = [
+            "claude",
+            "--print",
+            "--output-format",
+            "json",
+            "--safe-mode",
+            "--dangerously-skip-permissions",
+            "--model",
+            config.model,
+        ]
     elif config.harness == "codex":
         argv = [
             "codex",

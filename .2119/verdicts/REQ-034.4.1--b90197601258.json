@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.4.1--b90197601258",
+  "requirementId": "REQ-034.4.1",
+  "hash": "b90197601258",
+  "verdict": "pass",
+  "summary": "Behavioral tests accept two valid parsed comments and reject missing/extra/duplicate/malformed, unsupported-source, model-mismatched, stale-commit, or wrong-round evidence before triage or resolution.",
+  "timestamp": "2026-08-02T07:14:03.759Z"
+}

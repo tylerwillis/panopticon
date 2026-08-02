@@ -564,6 +564,8 @@ def test_dispatch_verifies_before_posting_and_derives_evidence_comment() -> None
             "--print",
             "--output-format",
             "json",
+            "--safe-mode",
+            "--dangerously-skip-permissions",
             "--model",
             "claude-opus-5",
         ]
@@ -919,6 +921,12 @@ def test_gate_requires_two_verified_final_commit_reviews_for_every_round() -> No
                 "claude-json:modelUsage", "codex-rollout:turn_context.payload.model"
             ),
             comments[1],
+        ),
+        (
+            comments[0],
+            comments[1].replace(
+                "codex-rollout:turn_context.payload.model", "claude-json:modelUsage"
+            ),
         ),
         (
             comments[0],
