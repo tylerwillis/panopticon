@@ -77,6 +77,7 @@ from datetime import UTC, datetime, timedelta
 from math import ceil
 from pathlib import Path
 from typing import Any, TypeVar
+from urllib.parse import urlsplit
 
 import httpx
 from rich.text import Text
@@ -271,7 +272,24 @@ def _apply_snooze_precedence(task: JsonObj, now: datetime | None, ordinary_turn:
     return ordinary_turn
 
 
-def _slug_cell(task: JsonObj, prefix: str = "", disclosure: str = "") -> Text:
+def _github_pr_number(url: object) -> str | None:
+    """Return the decimal PR number from an HTTP(S) GitHub pull-request URL."""
+    if not isinstance(url, str):
+        return None
+    parsed = urlsplit(url)
+    if parsed.scheme not in {"http", "https"} or parsed.hostname != "github.com":
+        return None
+    match = re.search(r"/pull/([0-9]+)(?:/|$)", parsed.path)
+    return match.group(1) if match else None
+
+
+def _slug_cell(
+    task: JsonObj,
+    prefix: str = "",
+    disclosure: str = "",
+    *,
+    has_artifacts: bool = False,
+) -> Text:
     """The ``slug[memo]`` column: the slug followed by the task's memo in brackets.
 
     Bare slug when there's no memo; bare ``[memo]`` (no leading dash) when there's a
@@ -292,6 +310,11 @@ def _slug_cell(task: JsonObj, prefix: str = "", disclosure: str = "") -> Text:
         text.append(prefix, style="dim")
     if disclosure:
         text.append(disclosure)
+    indicators = ["*a"] if has_artifacts else []
+    if pr_number := _github_pr_number(task.get("url")):
+        indicators.append(f"*PR{pr_number}")
+    if indicators:
+        text.append(f"{' '.join(indicators)} | ")
     if memo:
         first_line = memo.splitlines()[0] if memo else memo
         text.append(f"{slug}[{first_line}]")
@@ -2591,6 +2614,7 @@ class Dashboard(App[None]):
         self._version = 0  # the change-feed cursor (X-Tasks-Version) the worker long-polls against
         self._tasks: dict[str, JsonObj] = {}
         self._task_snapshot: dict[str, JsonObj] = {}
+        self._artifact_task_ids: set[str] = set()
         self._runner_snapshot: list[JsonObj] = []
         self._repo_names: dict[str, str] = {}  # repo id → name; populated by _load_repo_names
         self._current: str | None = None
@@ -2716,6 +2740,9 @@ class Dashboard(App[None]):
         """Fetch the latest service snapshot, then paint it using the display clock."""
         tasks, self._version = self._client.list_tasks_versioned()
         self._task_snapshot = {task["id"]: task for task in tasks}
+        self._artifact_task_ids = {
+            str(task["id"]) for task in tasks if self._client.list_artifacts(str(task["id"]))
+        }
         self._runner_snapshot = self._client.live_runners()
         self._render_task_snapshot()
 
@@ -2815,7 +2842,12 @@ class Dashboard(App[None]):
                 disclosure = ""
                 if task["id"] in self._governors:
                     disclosure = "▸ " if task["id"] in collapsed_for_display else "▾ "
-                slug_cell_real = _slug_cell(task, prefix, disclosure)
+                slug_cell_real = _slug_cell(
+                    task,
+                    prefix,
+                    disclosure,
+                    has_artifacts=str(task["id"]) in self._artifact_task_ids,
+                )
                 if (
                     _snooze_label(task, display_now) is not None and not _snooze_is_pierced(task)
                 ) or task["state"] in TERMINAL_LABELS:
