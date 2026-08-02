@@ -780,6 +780,9 @@ class RepoChoiceScreen(ChoiceScreen):
             if not self._query:
                 return
             self._query = self._query[:-1]
+        elif event.key in {"j", "k"}:
+            # The focused _VimOptionList has already handled these navigation bindings.
+            return
         elif event.is_printable and event.character is not None:
             self._query += event.character
         else:
