@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.27.1--759da0f82e20",
-  "requirementId": "REQ-035.27.1",
-  "hash": "759da0f82e20",
-  "verdict": "pass",
-  "summary": "Tests exercise real startup reporting for enforced mode, exact WARNING records for both disabled and permissive resolved modes, and documentation that uniquely names enforced as the required steady state.",
-  "timestamp": "2026-08-02T22:06:18.065Z"
-}

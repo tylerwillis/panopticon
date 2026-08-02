@@ -20,7 +20,6 @@ from __future__ import annotations
 import argparse
 import contextlib
 import os
-import shlex
 import subprocess
 from collections.abc import Callable, Sequence
 from pathlib import Path
@@ -28,6 +27,9 @@ from pathlib import Path
 import httpx
 
 from panopticon.client import TaskServiceClient
+from panopticon.terminal.session_environment import (
+    session_environment_command as _session_command,
+)
 
 
 def _make_client(service_url: str) -> TaskServiceClient:
@@ -35,22 +37,6 @@ def _make_client(service_url: str) -> TaskServiceClient:
 
 
 DEFAULT_SERVICE_URL = "http://localhost:8000"
-_SESSION_ENVIRONMENT = (
-    "PANOPTICON_SERVICE_AUTH_FILE",
-    "PANOPTICON_SERVICE_AUTH_MODE",
-    "PANOPTICON_CONFIG",
-)
-
-
-def _session_command(command: str) -> str:
-    """Pin auth configuration for a new tmux session, ignoring stale server environment."""
-    arguments = ["env"]
-    for name in _SESSION_ENVIRONMENT:
-        arguments.extend(["-u", name])
-    arguments.extend(
-        f"{name}={os.environ[name]}" for name in _SESSION_ENVIRONMENT if name in os.environ
-    )
-    return " ".join([*(shlex.quote(argument) for argument in arguments), command])
 
 
 def _run_migrate() -> None:

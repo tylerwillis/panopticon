@@ -136,7 +136,7 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 
 ### REQ-035.31: Tmux environment convergence
 
-1. Integrated stack startup MUST give newly created service and runner sessions the invoking process's task-service authentication reference, mode, and config root while clearing stale values absent from that process.
+1. Integrated stack startup MUST give newly created service, runner, and dashboard sessions the invoking process's task-service authentication reference, mode, and config root while clearing stale values absent from that process.
 
 ### REQ-035.32: Rotation selection
 

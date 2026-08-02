@@ -153,6 +153,15 @@ class LocalRunner(Runner):
         prefix = ["tmux", *(["-L", self._tmux_socket] if self._tmux_socket else [])]
         return [*prefix, *args]
 
+    def validate_configuration(self) -> None:
+        """Reject an unusable control-plane credential before any spawn side effect."""
+        if self._auth_file:
+            auth_path = service_credential_path(self._auth_file, secrets_dir=self._secrets_dir)
+            if not auth_path.is_file():
+                raise ValueError(
+                    "task-service authentication credential must be an existing regular file"
+                )
+
     def spawn(
         self,
         task_id: str,
@@ -245,12 +254,9 @@ class LocalRunner(Runner):
             env["PANOPTICON_DOCKER_IN_DOCKER"] = "1"
         if env_path := secrets_file_path(env_file, secrets_dir=self._secrets_dir):
             docker_run += ["--env-file", env_path]  # per-repo secrets, resolved host-locally
+        self.validate_configuration()
         if self._auth_file:
             auth_path = service_credential_path(self._auth_file, secrets_dir=self._secrets_dir)
-            if not auth_path.is_file():
-                raise ValueError(
-                    "task-service authentication credential must be an existing regular file"
-                )
             docker_run += ["--volume", f"{auth_path}:{SERVICE_AUTH_MOUNT}:ro"]
             env["PANOPTICON_SERVICE_AUTH_FILE"] = SERVICE_AUTH_MOUNT
         if workspace:  # the per-task clone — the agent's writable working dir (ADR 0011)

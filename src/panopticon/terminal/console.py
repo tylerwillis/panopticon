@@ -35,6 +35,7 @@ from panopticon.client import TaskServiceClient
 from panopticon.sessionservice.local_runner import TMUX_SOCKET
 from panopticon.sessionservice.tmux_defaults import defaults_argv
 from panopticon.terminal.attach import attach_command, task_context_label
+from panopticon.terminal.session_environment import session_environment_argv
 
 #: tmux session name the dashboard runs in (on the panopticon socket, beside the task sessions).
 DASHBOARD_SESSION = "dashboard"
@@ -317,16 +318,18 @@ def run_console_local(
             print(f"no running container for task '{join}'; opening the dashboard", file=sys.stderr)
     switch_file = switch_file_path(socket)
     switch_file.parent.mkdir(parents=True, exist_ok=True)
-    dashboard = [
-        sys.executable,
-        "-m",
-        "panopticon.terminal",
-        "--service-url",
-        service_url,
-        "dashboard",
-        "--switch-file",
-        str(switch_file),
-    ]
+    dashboard = session_environment_argv(
+        [
+            sys.executable,
+            "-m",
+            "panopticon.terminal",
+            "--service-url",
+            service_url,
+            "dashboard",
+            "--switch-file",
+            str(switch_file),
+        ]
+    )
 
     def _tmux(*args: str) -> subprocess.CompletedProcess[bytes]:
         return subprocess.run(["tmux", "-L", socket, *args], check=False)

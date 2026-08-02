@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.31.1--89e1d7d8c0cf",
-  "requirementId": "REQ-035.31.1",
-  "hash": "89e1d7d8c0cf",
-  "verdict": "pass",
-  "summary": "Both new service and runner commands pin all three invoking-process auth values or unset them, and a real-tmux test proves fresh values replace stale state while absent values are cleared.",
-  "timestamp": "2026-08-02T22:32:51.819Z"
-}

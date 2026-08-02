@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.30.1--a001097b37a7",
-  "requirementId": "REQ-035.30.1",
-  "hash": "a001097b37a7",
-  "verdict": "pass",
-  "summary": "Under non-empty /proxy root_path, both liveness and MCP reject the read token and admit the write token, catching a privilege mismatch or downgrade on either route.",
-  "timestamp": "2026-08-02T22:06:30.644Z"
-}

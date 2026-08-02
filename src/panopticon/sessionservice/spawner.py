@@ -156,6 +156,9 @@ class Spawner:
         claim taken and no ``FAILED`` report. A shell task never touches Docker, so it's unaffected."""
         if task["state"] in TERMINAL_LABELS or task.get("claimed_by"):
             return None
+        validate = getattr(self._runner_for(task), "validate_configuration", None)
+        if validate is not None:
+            validate()
         if not self._executions.is_shell(task.get("workflow")) and not self._daemon_reachable():
             _log.error(
                 "docker daemon unreachable — deferring spawn of task %s until it returns",

@@ -89,6 +89,13 @@ class ShellRunner(Runner):
         prefix = ["tmux", *(["-L", self._tmux_socket] if self._tmux_socket else [])]
         return [*prefix, *args]
 
+    def validate_configuration(self) -> None:
+        """Reject an unusable control-plane credential before any spawn side effect."""
+        if self._auth_file:
+            auth_path = credential_path(self._auth_file, secrets_dir=self._secrets_dir)
+            if not auth_path.is_file():
+                raise ValueError("task-service credential must be an existing regular file")
+
     def spawn(
         self,
         task_id: str,
@@ -127,13 +134,12 @@ class ShellRunner(Runner):
 
         start_dir = workdir or os.path.expanduser("~")
         session = session_name(task_id)
+        self.validate_configuration()
         auth_path = (
             credential_path(self._auth_file, secrets_dir=self._secrets_dir)
             if self._auth_file
             else None
         )
-        if auth_path is not None and not auth_path.is_file():
-            raise ValueError("task-service credential must be an existing regular file")
         # A shell task runs no agent to open its own `/live` registration, so the dashboard would
         # read it as `awaiting` for its whole life. Hold the liveness stream open in the background
         # for the session's lifetime instead — the task then composes as `live` while the script
