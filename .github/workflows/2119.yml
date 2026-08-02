@@ -13,6 +13,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Verify runner npm major
+        run: |
+          node --version
+          npm --version
+          test "$(npm --version | cut --delimiter=. --fields=1)" = "10" || exit 1
+      - run: npm install --global npm@10.9.3
       # TODO: add your project's test-suite step here — 2119 does not run tests.
       # - run: <your install + test commands>
-      - run: npx --yes rfc2119@0.6.1 check
+      - run: npx --yes rfc2119@0.7.0 check
+        env:
+          NPM_CONFIG_IGNORE_SCRIPTS: "true"
