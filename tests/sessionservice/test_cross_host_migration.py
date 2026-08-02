@@ -1,4 +1,4 @@
-"""Executable contract for safe cross-host task migration (REQ-034).
+"""Executable contract for safe cross-host task migration (REQ-037).
 
 The production seams named here are intentionally host-side and deterministic. Archive tests use
 real temporary files, while git and task-service facts are represented as explicit inputs; no
@@ -51,8 +51,8 @@ from panopticon.taskservice.store_sqlalchemy import SqlAlchemyStore
 from panopticon.workflows import Spike
 
 
-# 2119: REQ-034.6.1
-# 2119: REQ-034.6.4
+# 2119: REQ-037.6.1
+# 2119: REQ-037.6.4
 def test_production_migration_never_invokes_docker_container_snapshot_commands(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -80,7 +80,7 @@ def test_production_migration_never_invokes_docker_container_snapshot_commands(
     )
 
 
-# 2119: REQ-034.6.6
+# 2119: REQ-037.6.6
 def test_full_migration_never_invokes_docker_container_snapshot_at_subprocess_level(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -282,8 +282,8 @@ class _ProvisioningClient:
         return {"id": task_id, "branch": branch, "clone": clone}
 
 
-# 2119: REQ-034.1.1
-# 2119: REQ-034.1.2
+# 2119: REQ-037.1.1
+# 2119: REQ-037.1.2
 def test_provisioning_is_runner_qualified_local_and_deterministic() -> None:
     task = _task()
 
@@ -326,7 +326,7 @@ def test_provisioning_is_runner_qualified_local_and_deterministic() -> None:
     assert provisioning_ready(dict(task), runner_id="host-a", workspace_exists=True)
 
 
-# 2119: REQ-034.1.2
+# 2119: REQ-037.1.2
 def test_provisioned_property_gates_on_workspace_verified_by_match() -> None:
     """Verify Task.provisioned gates on all three fields matching, not just some."""
     task = Task(
@@ -370,7 +370,7 @@ def test_provisioned_property_gates_on_workspace_verified_by_match() -> None:
     assert not task.provisioned
 
 
-# 2119: REQ-034.2.4
+# 2119: REQ-037.2.4
 def test_destination_acceptance_rejects_missing_wrong_branch_and_wrong_repository(
     tmp_path: Path,
 ) -> None:
@@ -403,8 +403,8 @@ def test_destination_acceptance_rejects_missing_wrong_branch_and_wrong_repositor
         )
 
 
-# 2119: REQ-034.4.1
-# 2119: REQ-034.4.4
+# 2119: REQ-037.4.1
+# 2119: REQ-037.4.4
 def test_forge_first_requires_clean_fully_pushed_recorded_branch() -> None:
     assert inspect_forge_first(
         recorded_branch="panopticon/safe-move",
@@ -432,10 +432,10 @@ def test_forge_first_requires_clean_fully_pushed_recorded_branch() -> None:
         )
 
 
-# 2119: REQ-034.3.2
-# 2119: REQ-034.3.3
-# 2119: REQ-034.3.1
-# 2119: REQ-034.4.2
+# 2119: REQ-037.3.2
+# 2119: REQ-037.3.3
+# 2119: REQ-037.3.1
+# 2119: REQ-037.4.2
 def test_cross_host_claim_requires_observable_acceptance_or_explicit_discard() -> None:
     released = _task(claimed_by=None)
     assert migration_claim_allowed(released, runner_id="host-a")  # local restart
@@ -491,10 +491,10 @@ def test_cross_host_claim_requires_observable_acceptance_or_explicit_discard() -
             validate_migration_record(incomplete)
 
 
-# 2119: REQ-034.5.1
-# 2119: REQ-034.5.2
-# 2119: REQ-034.5.3
-# 2119: REQ-034.5.4
+# 2119: REQ-037.5.1
+# 2119: REQ-037.5.2
+# 2119: REQ-037.5.3
+# 2119: REQ-037.5.4
 def test_workspace_archive_preserves_git_and_dirty_files_and_installs_atomically(
     tmp_path: Path,
 ) -> None:
@@ -565,9 +565,9 @@ def test_workspace_archive_preserves_git_and_dirty_files_and_installs_atomically
     )
 
 
-# 2119: REQ-034.6.1
-# 2119: REQ-034.6.4
-# 2119: REQ-034.6.5
+# 2119: REQ-037.6.1
+# 2119: REQ-037.6.4
+# 2119: REQ-037.6.5
 def test_config_archive_restores_standard_volume_without_credentials(tmp_path: Path) -> None:
     config = tmp_path / "config"
     sessions = config / "sessions"
@@ -605,7 +605,7 @@ def test_config_archive_restores_standard_volume_without_credentials(tmp_path: P
     assert config_volume_name("t1") == "panopticon-config-t1"
 
 
-# 2119: REQ-034.7.3
+# 2119: REQ-037.7.3
 def test_spawn_gate_allows_safe_fresh_agent_but_never_container_copy() -> None:
     accepted_without_history = _task(
         claimed_by="host-b",
@@ -660,20 +660,20 @@ def test_spawn_gate_allows_safe_fresh_agent_but_never_container_copy() -> None:
     assert "container" not in accepted_without_history["migration"]
 
 
-# 2119: REQ-034.1.1
-# 2119: REQ-034.3.2
-# 2119: REQ-034.3.3
-# 2119: REQ-034.4.2
-# 2119: REQ-034.2.4
-# 2119: REQ-034.5.2
-# 2119: REQ-034.5.3
-# 2119: REQ-034.6.1
-# 2119: REQ-034.6.4
-# 2119: REQ-034.6.5
-# 2119: REQ-034.6.6
-# 2119: REQ-034.7.1
-# 2119: REQ-034.7.2
-# 2119: REQ-034.7.3
+# 2119: REQ-037.1.1
+# 2119: REQ-037.3.2
+# 2119: REQ-037.3.3
+# 2119: REQ-037.4.2
+# 2119: REQ-037.2.4
+# 2119: REQ-037.5.2
+# 2119: REQ-037.5.3
+# 2119: REQ-037.6.1
+# 2119: REQ-037.6.4
+# 2119: REQ-037.6.5
+# 2119: REQ-037.6.6
+# 2119: REQ-037.7.1
+# 2119: REQ-037.7.2
+# 2119: REQ-037.7.3
 def test_archive_migration_persists_then_spawns_identical_workspace_and_session(
     tmp_path: Path,
 ) -> None:
@@ -738,7 +738,7 @@ def test_archive_migration_persists_then_spawns_identical_workspace_and_session(
     assert audit.index("persist-migration:accepted") < audit.index("persist-provisioning")
     assert audit.index("persist-provisioning") < audit.index("persist-claim")
     assert audit.index("persist-claim") < audit.index("verify-canonical") < audit.index("spawn")
-    # REQ-034.6.6: verify migration never attempts to snapshot, commit, export, or restore the container
+    # REQ-037.6.6: verify migration never attempts to snapshot, commit, export, or restore the container
     assert source.container_operations == []
     assert destination.container_operations == []
     # Verify no container snapshot operations (commit, cp, export, import) are attempted during
@@ -747,8 +747,8 @@ def test_archive_migration_persists_then_spawns_identical_workspace_and_session(
     assert destination.container_operations == []
 
 
-# 2119: REQ-034.1.1
-# 2119: REQ-034.2.4
+# 2119: REQ-037.1.1
+# 2119: REQ-037.2.4
 def test_missing_owner_and_wrong_destination_acceptance_never_authorize_claim() -> None:
     assert not provisioning_ready(
         _task(provisioned_by=None), runner_id="host-a", workspace_exists=True
@@ -766,10 +766,10 @@ def test_missing_owner_and_wrong_destination_acceptance_never_authorize_claim() 
     assert not migration_claim_allowed(accepted_for_c, runner_id="host-b")
 
 
-# 2119: REQ-034.4.1
-# 2119: REQ-034.4.2
-# 2119: REQ-034.4.4
-# 2119: REQ-034.6.6
+# 2119: REQ-037.4.1
+# 2119: REQ-037.4.2
+# 2119: REQ-037.4.4
+# 2119: REQ-037.6.6
 def test_forge_first_is_refused_until_portable_or_explicitly_discarded(tmp_path: Path) -> None:
     source = _RecordingHost("host-a", tmp_path / "a-tasks", tmp_path / "a-config")
     destination = _RecordingHost("host-b", tmp_path / "b-tasks", tmp_path / "b-config")
@@ -866,11 +866,11 @@ def test_forge_first_is_refused_until_portable_or_explicitly_discarded(tmp_path:
     assert destination.container_operations == []
 
 
-# 2119: REQ-034.2.4
-# 2119: REQ-034.5.2
-# 2119: REQ-034.5.3
-# 2119: REQ-034.5.4
-# 2119: REQ-034.7.3
+# 2119: REQ-037.2.4
+# 2119: REQ-037.5.2
+# 2119: REQ-037.5.3
+# 2119: REQ-037.5.4
+# 2119: REQ-037.7.3
 def test_failed_validation_preserves_source_owner_canonical_destination_and_nonrunnable_state(
     tmp_path: Path,
 ) -> None:
@@ -903,11 +903,11 @@ def test_failed_validation_preserves_source_owner_canonical_destination_and_nonr
     assert destination.spawned == []
 
 
-# 2119: REQ-034.6.1
-# 2119: REQ-034.6.2
-# 2119: REQ-034.6.5
-# 2119: REQ-034.6.6
-# 2119: REQ-034.7.2
+# 2119: REQ-037.6.1
+# 2119: REQ-037.6.2
+# 2119: REQ-037.6.5
+# 2119: REQ-037.6.6
+# 2119: REQ-037.7.2
 def test_session_history_is_independent_and_requested_restore_cannot_be_silently_omitted(
     tmp_path: Path,
 ) -> None:
@@ -988,7 +988,7 @@ def test_session_history_is_independent_and_requested_restore_cannot_be_silently
     assert bad_destination.spawned == []
 
 
-# 2119: REQ-034.6.3
+# 2119: REQ-037.6.3
 def test_transferred_config_uses_real_codex_resume_path_and_omission_uses_first_run(
     tmp_path: Path,
 ) -> None:
@@ -1024,7 +1024,7 @@ def test_transferred_config_uses_real_codex_resume_path_and_omission_uses_first_
     ]
 
 
-# 2119: REQ-034.7.2
+# 2119: REQ-037.7.2
 def test_requested_session_transfer_requires_explicit_operator_omission() -> None:
     requested = {
         "source_runner": "host-a",
@@ -1071,7 +1071,7 @@ def test_requested_session_transfer_requires_explicit_operator_omission() -> Non
     )
 
 
-# 2119: REQ-034.7.2
+# 2119: REQ-037.7.2
 def test_spawn_gate_raises_migration_conflict_when_session_history_not_accepted() -> None:
     """Verify that spawn_allowed() correctly rejects incomplete session history dispositions,
     which would cause the spawner to raise MigrationConflict at lines 238-244 of spawner.py."""
@@ -1122,11 +1122,11 @@ def test_spawn_gate_raises_migration_conflict_when_session_history_not_accepted(
     ), "spawn_allowed should accept when operator explicitly approved omission"
 
 
-# 2119: REQ-034.1.2
-# 2119: REQ-034.1.3
-# 2119: REQ-034.3.1
-# 2119: REQ-034.3.4
-# 2119: REQ-034.4.3
+# 2119: REQ-037.1.2
+# 2119: REQ-037.1.3
+# 2119: REQ-037.3.1
+# 2119: REQ-037.3.4
+# 2119: REQ-037.4.3
 async def test_real_task_service_persists_and_gates_host_qualified_migration(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -1353,7 +1353,7 @@ def test_task_service_migration_surface_accepts_only_reported_facts() -> None:
     }
 
 
-# 2119: REQ-034.1.3
+# 2119: REQ-037.1.3
 def test_reported_facts_reject_executable_or_nonserializable_collaborators() -> None:
     assert validate_reported_facts(
         {"clone": "/host-a/tasks/t1", "runner_id": "host-a", "workspace_verified": True}
@@ -1363,7 +1363,7 @@ def test_reported_facts_reject_executable_or_nonserializable_collaborators() -> 
             validate_reported_facts({"clone": forbidden})
 
 
-# 2119: REQ-034.1.4
+# 2119: REQ-037.1.4
 def test_migration_decision_ignores_timestamp_and_liveness_context() -> None:
     facts = _task(
         claimed_by=None,
@@ -1411,7 +1411,7 @@ def test_migration_decision_ignores_timestamp_and_liveness_context() -> None:
     assert not provisioning_ready(provisioned_late, runner_id="host-a", workspace_exists=False)
 
 
-# 2119: REQ-034.2.1
+# 2119: REQ-037.2.1
 def test_actual_spawn_preparation_refuses_foreign_workspace_record() -> None:
     calls, run = _recording_git()
     with pytest.raises(MigrationRequired, match=r"host-a.*host-b"):
@@ -1446,7 +1446,7 @@ def test_actual_spawn_preparation_refuses_foreign_workspace_record() -> None:
     assert local_calls
 
 
-# 2119: REQ-034.2.2
+# 2119: REQ-037.2.2
 def test_actual_provisioner_reestablishes_and_inspects_recorded_forge_branch(
     tmp_path: Path,
 ) -> None:
@@ -1484,7 +1484,7 @@ def test_actual_provisioner_reestablishes_and_inspects_recorded_forge_branch(
     assert client.recorded == [("t1", "panopticon/safe-move", str(clone))]
 
 
-# 2119: REQ-034.2.2
+# 2119: REQ-037.2.2
 def test_provisioner_does_not_record_destination_left_on_wrong_branch(tmp_path: Path) -> None:
     _calls, run = _recording_git()
     client = _ProvisioningClient()
@@ -1516,7 +1516,7 @@ def test_provisioner_does_not_record_destination_left_on_wrong_branch(tmp_path: 
     assert client.recorded == []
 
 
-# 2119: REQ-034.2.3
+# 2119: REQ-037.2.3
 def test_forge_first_materializes_the_recorded_remote_commit_not_cache_base(tmp_path: Path) -> None:
     remote = tmp_path / "remote.git"
     seed = tmp_path / "seed"
@@ -1583,9 +1583,9 @@ def test_forge_first_materializes_the_recorded_remote_commit_not_cache_base(tmp_
     assert (clone / "portable.txt").read_text() == "portable commit\n"
 
 
-# 2119: REQ-034.2.2
-# 2119: REQ-034.2.4
-# 2119: REQ-034.7.1
+# 2119: REQ-037.2.2
+# 2119: REQ-037.2.4
+# 2119: REQ-037.7.1
 def test_canonical_verification_inspects_real_installed_git_head(tmp_path: Path) -> None:
     checkout = tmp_path / "tasks" / "t1"
     checkout.mkdir(parents=True)
@@ -1620,7 +1620,7 @@ def test_canonical_verification_inspects_real_installed_git_head(tmp_path: Path)
         )
 
 
-# 2119: REQ-034.7.1
+# 2119: REQ-037.7.1
 def test_persistence_or_reverification_failure_prevents_spawn(tmp_path: Path) -> None:
     class FailingControl(_RecordingControlPlane):
         def record_migration(self, migration: dict[str, object]) -> None:

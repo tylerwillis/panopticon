@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.2.2--8672c25d9c71",
-  "requirementId": "REQ-034.2.2",
-  "hash": "8672c25d9c71",
-  "verdict": "pass",
-  "summary": "test_provisioner_does_not_record_destination_left_on_wrong_branch directly verifies: actual branch (trunk) differs from recorded (panopticon/safe-move) → MigrationConflict raised, client.recorded remains empty (provisioning NOT recorded). Counterexample of matching branches in test_actual_provisioner_reestablishes_and_inspects_recorded_forge_branch confirms boundary behavior.",
-  "timestamp": "2026-08-02T20:01:39.241Z"
-}

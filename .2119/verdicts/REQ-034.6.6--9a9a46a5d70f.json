@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.6.6--9a9a46a5d70f",
-  "requirementId": "REQ-034.6.6",
-  "hash": "9a9a46a5d70f",
-  "verdict": "pass",
-  "summary": "Subprocess-level and method-call-level verification confirms no docker container snapshot (commit/cp/export/import) or writable-layer operations occur during full migration lifecycle",
-  "timestamp": "2026-08-02T20:18:22.709Z"
-}

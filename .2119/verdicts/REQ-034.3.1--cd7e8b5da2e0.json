@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.3.1--cd7e8b5da2e0",
-  "requirementId": "REQ-034.3.1",
-  "hash": "cd7e8b5da2e0",
-  "verdict": "pass",
-  "summary": "Tests genuinely verify claim gating: different runner refused unless migration to that destination reaches accepted state. All boundary conditions tested.",
-  "timestamp": "2026-08-02T20:01:24.508Z"
-}

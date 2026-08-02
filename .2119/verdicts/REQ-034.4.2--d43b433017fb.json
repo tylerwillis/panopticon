@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.4.2--d43b433017fb",
-  "requirementId": "REQ-034.4.2",
-  "hash": "d43b433017fb",
-  "verdict": "pass",
-  "summary": "Tests verify both uncommitted and unpushed work cause refusal without discard, and succeed only when all identified changes are explicitly discarded and recorded; minor gap: combination of both types + no discard not explicitly tested, but logically covered",
-  "timestamp": "2026-08-02T20:01:48.144Z"
-}

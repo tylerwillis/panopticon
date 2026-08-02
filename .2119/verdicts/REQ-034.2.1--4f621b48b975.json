@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.2.1--4f621b48b975",
-  "requirementId": "REQ-034.2.1",
-  "hash": "4f621b48b975",
-  "verdict": "pass",
-  "summary": "Test genuinely verifies spawn preparation refuses to clone/fetch/repoint a foreign-owned workspace via direct recording of git operations",
-  "timestamp": "2026-08-02T20:08:30.383Z"
-}

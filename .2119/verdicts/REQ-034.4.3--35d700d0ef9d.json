@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.4.3--35d700d0ef9d",
-  "requirementId": "REQ-034.4.3",
-  "hash": "35d700d0ef9d",
-  "verdict": "pass",
-  "summary": "Test genuinely verifies discard decision persists and remains observable after acceptance through multiple verification points: after acceptance, after claim, and after database reload using real SQLAlchemy persistence",
-  "timestamp": "2026-08-02T20:02:18.382Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-037.2.4--115a818359d1",
+  "requirementId": "REQ-037.2.4",
+  "hash": "115a818359d1",
+  "verdict": "pass",
+  "summary": "Mechanical REQ-034 to assigned REQ-037 renumber only; covering test body is unchanged and the prior fresh-context passing judgment remains applicable.",
+  "timestamp": "2026-08-02T22:22:47.816Z"
+}

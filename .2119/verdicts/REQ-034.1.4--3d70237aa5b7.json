@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.1.4--3d70237aa5b7",
-  "requirementId": "REQ-034.1.4",
-  "hash": "3d70237aa5b7",
-  "verdict": "pass",
-  "summary": "Test verifies determinism: provisioning/migration decisions produce identical results regardless of caller timestamp or runner-liveness context when recorded facts are identical",
-  "timestamp": "2026-08-02T20:02:30.413Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.3.4--ad99a404ec19",
-  "requirementId": "REQ-034.3.4",
-  "hash": "ad99a404ec19",
-  "verdict": "pass",
-  "summary": "All four fields tested for presence via counterexamples (test_cross_host_claim lines 386-395); persistence tested against real SQLAlchemy database with cross-instance reload verification (test_real_task_service_persists_and_gates_host_qualified_migration lines 1092-1105, 1162-1177)",
-  "timestamp": "2026-08-02T20:00:38.570Z"
-}

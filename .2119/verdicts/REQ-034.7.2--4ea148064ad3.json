@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.7.2--4ea148064ad3",
-  "requirementId": "REQ-034.7.2",
-  "hash": "4ea148064ad3",
-  "verdict": "pass",
-  "summary": "Tests verify all three spawn-gate scenarios: rejection when requested without resolution, rejection when silently omitted, and acceptance when operator-explicitly approved or when restoration was accepted",
-  "timestamp": "2026-08-02T20:07:33.678Z"
-}

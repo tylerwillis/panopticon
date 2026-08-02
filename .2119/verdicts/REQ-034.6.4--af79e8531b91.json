@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.6.4--af79e8531b91",
-  "requirementId": "REQ-034.6.4",
-  "hash": "af79e8531b91",
-  "verdict": "pass",
-  "summary": "Unit test (line 504-538) and integration test (line 610-680) genuinely verify symlink preservation without dereferencing and credential exclusion. Both use real symlinks and actual implementation functions, verify archive structure via tarfile inspection. Would catch violations: dereferencing, credential leakage, target changes. Minor: Test 1 (line 54-80) misannotated—tests docker snapshots not symlinks—but doesn't affect coverage.",
-  "timestamp": "2026-08-02T20:11:37.436Z"
-}
