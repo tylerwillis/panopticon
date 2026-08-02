@@ -75,6 +75,23 @@ def test_main_defaults_to_loopback_and_disables_raw_access_log(
     assert calls[-1] == {"host": "100.64.0.10", "port": 8000, "access_log": False}
 
 
+def test_production_composition_treats_empty_auth_reference_as_unset(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # 2119: REQ-035.12.1
+    monkeypatch.setenv("PANOPTICON_SERVICE_AUTH_FILE", "")
+    monkeypatch.delenv("PANOPTICON_SERVICE_AUTH_MODE", raising=False)
+
+    app = build_app(
+        db="sqlite://",
+        artifacts_root=str(tmp_path / "artifacts"),
+        _home_workflows=tmp_path / "empty-home-workflows",
+    )
+
+    with TestClient(app) as client:
+        assert client.get("/tasks").status_code == 200
+
+
 def test_production_launcher_does_not_persist_rejected_query_credentials(tmp_path: Path) -> None:
     # 2119: REQ-035.22.1
     config = tmp_path / "config"

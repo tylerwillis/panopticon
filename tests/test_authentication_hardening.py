@@ -29,7 +29,7 @@ class _Completed:
     returncode = 1
 
 
-@pytest.mark.parametrize("invalid_kind", ["missing", "directory"])
+@pytest.mark.parametrize("invalid_kind", ["missing", "directory", "malformed"])
 def test_shell_runner_rejects_an_invalid_service_credential_before_tmux(
     tmp_path: Path, invalid_kind: str
 ) -> None:
@@ -38,12 +38,16 @@ def test_shell_runner_rejects_an_invalid_service_credential_before_tmux(
     invalid = tmp_path / "invalid.json"
     if invalid_kind == "directory":
         invalid.mkdir()
+    elif invalid_kind == "malformed":
+        invalid.write_text("not-json")
 
     def record(args: list[str], **_kwargs: object) -> str:
         calls.append(args)
         return ""
 
-    with pytest.raises(ValueError, match="existing regular file"):
+    with pytest.raises(
+        ValueError, match="authentication credential file is invalid or unavailable"
+    ):
         ShellRunner(
             "http://svc:8000",
             secrets_dir=tmp_path,
@@ -52,7 +56,7 @@ def test_shell_runner_rejects_an_invalid_service_credential_before_tmux(
         ).spawn("t1", script="echo hi")
 
     assert calls == []
-    assert invalid.exists() is (invalid_kind == "directory")
+    assert invalid.exists() is (invalid_kind != "missing")
 
 
 def test_integrated_stack_explicitly_exposes_service_to_linux_containers() -> None:

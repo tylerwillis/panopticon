@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.30.1--f094708c23e4",
+  "requirementId": "REQ-035.30.1",
+  "hash": "f094708c23e4",
+  "verdict": "pass",
+  "summary": "A real app under /proxy exercises both liveness and MCP: each rejects the nearest downgrade (valid read token) and permits a write token past authentication/authorization, with unprefixed routes as the privilege control.",
+  "timestamp": "2026-08-02T23:29:38.612Z"
+}

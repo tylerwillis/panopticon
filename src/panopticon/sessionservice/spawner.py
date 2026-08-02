@@ -156,9 +156,7 @@ class Spawner:
         claim taken and no ``FAILED`` report. A shell task never touches Docker, so it's unaffected."""
         if task["state"] in TERMINAL_LABELS or task.get("claimed_by"):
             return None
-        validate = getattr(self._runner_for(task), "validate_configuration", None)
-        if validate is not None:
-            validate()
+        self._validate_runner_configuration(task)
         if not self._executions.is_shell(task.get("workflow")) and not self._daemon_reachable():
             _log.error(
                 "docker daemon unreachable — deferring spawn of task %s until it returns",
@@ -172,6 +170,12 @@ class Spawner:
                 return None  # another runner claimed it first
             raise
         return self._spawn(task)
+
+    def _validate_runner_configuration(self, task: JsonObj) -> None:
+        """Validate the selected backend before any claim or respawn side effect."""
+        validate = getattr(self._runner_for(task), "validate_configuration", None)
+        if validate is not None:
+            validate()
 
     def _spawn(self, task: JsonObj) -> str:
         """Spawn the execution backend for an **already claimed** task — the body shared by
@@ -416,6 +420,7 @@ class Spawner:
             self._respawns.pop(task_id, None)  # our task is done — forget any crash-loop tracking
         if not self._is_orphan(task):
             return None  # not ours / terminal / a session is up — nothing to heal
+        self._validate_runner_configuration(task)
         if not self._daemon_reachable():
             if task_id in self._respawns:
                 count, _ = self._respawns[task_id]

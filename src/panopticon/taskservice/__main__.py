@@ -139,7 +139,7 @@ def build_app(
     )
     resolved_auth_file = (
         auth_file if auth_file is not None else os.environ.get("PANOPTICON_SERVICE_AUTH_FILE")
-    )
+    ) or None
     resolved_auth_mode = (
         auth_mode if auth_mode is not None else os.environ.get("PANOPTICON_SERVICE_AUTH_MODE")
     )

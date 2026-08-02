@@ -34,7 +34,7 @@ from panopticon.sessionservice.local_runner import (
 )
 from panopticon.sessionservice.runner import Runner
 from panopticon.sessionservice.tmux_defaults import defaults_argv
-from panopticon.taskservice.auth import credential_path
+from panopticon.taskservice.auth import credential_path, load_tokens
 
 #: The panopticon shell lib (``task_lib.sh``): functions a shell workflow's script uses to drive its
 #: task over REST (``panopticon_advance``/``_drop``/``_set_slug``/…) instead of hand-rolling curl.
@@ -92,9 +92,7 @@ class ShellRunner(Runner):
     def validate_configuration(self) -> None:
         """Reject an unusable control-plane credential before any spawn side effect."""
         if self._auth_file:
-            auth_path = credential_path(self._auth_file, secrets_dir=self._secrets_dir)
-            if not auth_path.is_file():
-                raise ValueError("task-service credential must be an existing regular file")
+            load_tokens(self._auth_file, secrets_dir=self._secrets_dir)
 
     def spawn(
         self,

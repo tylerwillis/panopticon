@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.12.1--d2f800ad1c5a",
+  "requirementId": "REQ-035.12.1",
+  "hash": "d2f800ad1c5a",
+  "verdict": "fail",
+  "summary": "MCP POST coverage uses valid JSON-RPC payloads only; a generic authentication failure applied before validation specifically for malformed POST input would violate the requirement yet pass.",
+  "timestamp": "2026-08-02T23:29:49.370Z"
+}

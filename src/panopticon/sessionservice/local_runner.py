@@ -29,7 +29,12 @@ from panopticon.sessionservice.prefill import (
 )
 from panopticon.sessionservice.runner import Runner
 from panopticon.sessionservice.tmux_defaults import defaults_argv
-from panopticon.taskservice.auth import credential_path as service_credential_path
+from panopticon.taskservice.auth import (
+    credential_path as service_credential_path,
+)
+from panopticon.taskservice.auth import (
+    load_tokens as load_service_tokens,
+)
 
 #: Default composed image (base layer, ADR 0005); built in a later PR of this slice.
 DEFAULT_IMAGE = "panopticon-base"
@@ -156,11 +161,7 @@ class LocalRunner(Runner):
     def validate_configuration(self) -> None:
         """Reject an unusable control-plane credential before any spawn side effect."""
         if self._auth_file:
-            auth_path = service_credential_path(self._auth_file, secrets_dir=self._secrets_dir)
-            if not auth_path.is_file():
-                raise ValueError(
-                    "task-service authentication credential must be an existing regular file"
-                )
+            load_service_tokens(self._auth_file, secrets_dir=self._secrets_dir)
 
     def spawn(
         self,

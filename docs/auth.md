@@ -36,7 +36,14 @@ native Linux Docker containers can reach the service through `host.docker.intern
 documented enforced authentication configuration before using that integrated multi-container
 stack. This broad integrated bind remains an explicit compatibility exception—not a safe
 unauthenticated default—because binding it to loopback would lock Linux task containers out of the
-control plane. Disabled mode exists only for the staged live-fleet migration below.
+control plane. `PANOPTICON_HOST` configures only the standalone service launcher; it does not narrow
+this integrated bind. Disabled mode exists only for the staged live-fleet migration below.
+
+Integrated startup creates missing tmux sessions with the invoking process's current authentication
+environment, but deliberately leaves existing service, runner, dashboard, and task sessions alive.
+It does not restart them to converge changed credentials: doing so would interrupt the live fleet.
+During migration or rotation, explicitly restart each component at the corresponding rollout step
+below; do not treat a second `panopticon start` invocation as proof that existing sessions changed.
 
 Host clients (runner, dashboard, and CLI) resolve the file against their own secrets directory.
 The runner separately mounts it read-only into every Docker task—even one whose repo has no

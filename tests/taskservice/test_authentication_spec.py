@@ -781,6 +781,11 @@ def test_absent_configuration_preserves_legacy_callers(tmp_path: Path) -> None:
         ]:
             response = client.post("/mcp", json=payload)
             assert not (response.status_code == 401 and response.json() == GENERIC_FAILURE)
+        for body in [b"{", b"{}"]:
+            response = client.post(
+                "/mcp", content=body, headers={"content-type": "application/json"}
+            )
+            assert not (response.status_code == 401 and response.json() == GENERIC_FAILURE)
         for method in ["GET", "DELETE"]:
             response = client.request(method, "/mcp")
             assert not (response.status_code == 401 and response.json() == GENERIC_FAILURE)

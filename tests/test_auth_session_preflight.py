@@ -113,3 +113,49 @@ def test_spawner_validates_runner_credential_before_claiming() -> None:
         )
 
     assert claims == []
+
+
+def test_spawner_validates_runner_credential_before_healing_side_effects() -> None:
+    # 2119: REQ-035.28.1
+    effects: list[str] = []
+
+    class Client:
+        def report_lifecycle(self, *_args: object, **_kwargs: object) -> None:
+            effects.append("lifecycle")
+
+    class Executions:
+        def is_shell(self, _workflow: object) -> bool:
+            return False
+
+    class InvalidRunner:
+        def validate_configuration(self) -> None:
+            raise ValueError("invalid credential")
+
+        def has_session(self, _task_id: str) -> bool:
+            return False
+
+        def delete_workspace_contents(self, _path: str) -> None:
+            effects.append("workspace")
+
+    spawner = Spawner(  # type: ignore[arg-type]
+        Client(),
+        InvalidRunner(),
+        runner_id="runner",
+        cache=object(),
+        tasks_root="/tasks",
+        executions=Executions(),
+        daemon_reachable=lambda: effects.append("daemon") is None,
+    )
+
+    with pytest.raises(ValueError, match="invalid credential"):
+        spawner.heal(
+            {
+                "id": "task",
+                "state": "ITERATING",
+                "claimed_by": "runner",
+                "workflow": "spike",
+                "container_status": "down",
+            }
+        )
+
+    assert effects == []
