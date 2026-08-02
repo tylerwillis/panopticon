@@ -955,6 +955,80 @@ async def test_sort_breaks_ties_on_id() -> None:
         assert order == ["t1", "t2"]  # t1 < t2 by id
 
 
+# 2119: REQ-034.1.1
+@pytest.mark.parametrize("by_updated", [False, True])
+async def test_snoozed_tasks_sort_after_active_and_before_terminal_in_both_modes(
+    by_updated: bool,
+) -> None:
+    now = datetime(2026, 7, 31, 8, 0, tzinfo=UTC)
+    tasks = [
+        {
+            **_TASK,
+            "id": "complete",
+            "state": "COMPLETE",
+            "updated_at": "2026-07-31T08:00:00+00:00",
+        },
+        {
+            **_TASK,
+            "id": "dropped",
+            "state": "DROPPED",
+            "updated_at": "2026-07-31T07:00:00+00:00",
+        },
+        {
+            **_TASK,
+            "id": "snoozed-finite",
+            "snoozed_until": "2026-07-31T12:00:00+00:00",
+            "created_at": "2026-07-31T09:00:00+00:00",
+            "updated_at": "2026-07-31T09:00:00+00:00",
+        },
+        {
+            **_TASK,
+            "id": "ordinary",
+            "created_at": "2026-07-31T01:00:00+00:00",
+            "updated_at": "2026-07-31T03:00:00+00:00",
+        },
+        {
+            **_TASK,
+            "id": "snoozed-indefinite",
+            "snoozed_until": "9999-12-31T23:59:59+00:00",
+            "created_at": "2026-07-31T10:00:00+00:00",
+            "updated_at": "2026-07-31T10:00:00+00:00",
+        },
+        {
+            **_TASK,
+            "id": "expired-at-deadline",
+            "snoozed_until": "2026-07-31T08:00:00+00:00",
+            "created_at": "2026-07-31T03:00:00+00:00",
+            "updated_at": "2026-07-31T01:00:00+00:00",
+        },
+        {
+            **_TASK,
+            "id": "pierced",
+            "attention": True,
+            "snoozed_until": "2026-07-31T12:00:00+00:00",
+            "created_at": "2026-07-31T02:00:00+00:00",
+            "updated_at": "2026-07-31T02:00:00+00:00",
+        },
+    ]
+    app = Dashboard(_FakeClient(tasks), now=lambda: now)  # type: ignore[arg-type]
+    app._sort_by_updated = by_updated
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        order = [str(key.value) for key in app.query_one("#tasks", DataTable).rows]
+        ordinary_order = (
+            ["ordinary", "pierced", "expired-at-deadline"]
+            if by_updated
+            else ["expired-at-deadline", "pierced", "ordinary"]
+        )
+        assert order == [
+            *ordinary_order,
+            "snoozed-indefinite",
+            "snoozed-finite",
+            "complete",
+            "dropped",
+        ]
+
+
 # -- active/terminal dim styling ---------------------------------------------------
 
 _ACTIVE_A = {**_TASK, "id": "t-a", "slug": "alpha", "state": "WORKING", "turn": "user"}

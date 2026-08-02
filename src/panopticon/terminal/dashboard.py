@@ -119,10 +119,12 @@ from panopticon.terminal.setup_repo_task import create_setup_repo_task
 
 def _make_sort_key(
     by_updated: bool = False,
-) -> Callable[[JsonObj], tuple[bool, bool, float, str]]:
+    now: datetime | None = None,
+) -> Callable[[JsonObj], tuple[int, bool, float, str]]:
     """Return a sort key function for the task table.
 
-    1. non-terminal before terminal — COMPLETE/DROPPED sink to the bottom.
+    1. ordinary active tasks, then actively snoozed root tasks, then terminal tasks.
+       Governed tasks keep ordinary sorting so ensemble grouping can preserve parent adjacency.
     2. turn priority: for active tasks the user's turn comes first (operator action needed);
        for terminal tasks the agent's turn comes first (task just finished).
     3. timestamp:
@@ -133,8 +135,16 @@ def _make_sort_key(
     4. id as a stable tiebreaker.
     """
 
-    def key(task: JsonObj) -> tuple[bool, bool, float, str]:
+    def key(task: JsonObj) -> tuple[int, bool, float, str]:
         is_terminal = task["state"] in TERMINAL_LABELS
+        is_snoozed_root = (
+            not is_terminal
+            and now is not None
+            and not task.get("governor_task_id")
+            and _snooze_label(task, now) is not None
+            and not _snooze_is_pierced(task)
+        )
+        section = 2 if is_terminal else int(is_snoozed_root)
         turn_first = "agent" if is_terminal else "user"
         turn_after_priority = task["turn"] != turn_first  # False (priority) sorts before True
         if is_terminal or by_updated:
@@ -151,7 +161,7 @@ def _make_sort_key(
             except ValueError:
                 ts = 0.0
         return (
-            is_terminal,  # False (active) before True (terminal)
+            section,  # ordinary active, snoozed active roots, terminal
             turn_after_priority,  # priority turn sorts first within each section
             ts,
             task["id"],  # stable tiebreaker
@@ -2678,7 +2688,11 @@ class Dashboard(App[None]):
         """Paint cached service facts; clock-only snooze changes need no network request."""
         table = self.query_one("#tasks", DataTable)
         selected = self._current  # keep the operator's highlight across the rebuild (feed refresh)
-        ordered = sorted(self._task_snapshot.values(), key=_make_sort_key(self._sort_by_updated))
+        display_now = self._now()
+        ordered = sorted(
+            self._task_snapshot.values(),
+            key=_make_sort_key(self._sort_by_updated, display_now),
+        )
         new_multi_runner = len({r.get("host") for r in self._runner_snapshot if r.get("host")}) > 1
         table.clear()
         if new_multi_runner != self._multi_runner:
@@ -2737,7 +2751,6 @@ class Dashboard(App[None]):
         visible = active_visible + terminal_visible
         # Build the task index (real tasks only; ensemble placeholders are synthetic).
         self._tasks = {t["id"]: t for t, _ in visible if not t.get("_ensemble")}
-        display_now = self._now()
         self._schedule_snooze_refresh(display_now)
 
         def _add_row(task: JsonObj, prefix: str) -> None:
@@ -3002,7 +3015,9 @@ class Dashboard(App[None]):
 
     def action_respawn_all_down(self) -> None:
         """`Ctrl+R`: confirm one sequential respawn pass over service-reported down tasks."""
-        ordered = sorted(self._client.list_tasks(), key=_make_sort_key(self._sort_by_updated))
+        ordered = sorted(
+            self._client.list_tasks(), key=_make_sort_key(self._sort_by_updated, self._now())
+        )
         candidates = [task for task in ordered if task.get("container_status") == "down"]
         if not candidates:
             self.notify("no down tasks")

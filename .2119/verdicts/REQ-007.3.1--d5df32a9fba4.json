@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-007.3.1--d5df32a9fba4",
-  "requirementId": "REQ-007.3.1",
-  "hash": "d5df32a9fba4",
-  "verdict": "pass",
-  "summary": "render_detail is asserted not to contain or add a line equal to the UI-only copy hint.",
-  "timestamp": "2026-07-31T23:24:07.349Z"
-}

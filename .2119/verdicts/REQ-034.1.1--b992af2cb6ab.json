@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.1.1--b992af2cb6ab",
+  "requirementId": "REQ-034.1.1",
+  "hash": "b992af2cb6ab",
+  "verdict": "pass",
+  "summary": "Rendered-order test rejects ordinary timestamp sorting in both modes and covers active/expired/pierced snoozes plus COMPLETE and DROPPED boundaries.",
+  "timestamp": "2026-08-02T19:37:58.002Z"
+}
