@@ -187,7 +187,8 @@ edit) at the PR approval gate; `MERGING` reads this section back before filing i
 _VERIFIED_REVIEW_INSTRUCTIONS = f"""Run two independent fresh-context reviews of the final diff
 with the container-owned `panopticon.container.reviewers` dispatch helpers. Each review covers
 correctness, simplicity, scope, and spec/test honesty. Reviewer prompts must forbid edits. After
-each reviewer run, verify `git status --porcelain` has no reviewer-authored source changes.
+each reviewer run, verify `git status --porcelain` is unchanged from the snapshot taken immediately
+before that reviewer ran.
 
 Reviewer selection is two ordered atomic `<harness>:<model>` pairs. The workflow defaults are
 shown below. A repo env file may independently replace them with

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.3.1--f45c0fa840a8",
+  "requirementId": "REQ-028.3.1",
+  "hash": "f45c0fa840a8",
+  "verdict": "pass",
+  "summary": "Exact instruction snapshot rejects omission of the dashboard a hotkey, reviewer-readable publishing encouragement, PR distinction, or any required example category.",
+  "timestamp": "2026-08-02T05:49:53.914Z"
+}

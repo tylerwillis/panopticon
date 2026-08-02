@@ -40,7 +40,8 @@ failed dispatch, never permission to trust the requested model or the reviewer's
 2. A Codex reviewer dispatch MUST correlate the sole `thread_id` in raw `codex exec --json`
    stdout with that thread's persisted rollout and accept the response only when exactly one
    machine-written `turn_context.payload.model` exists and equals the requested model string.
-3. A reviewer dispatch MUST raise a typed, actionable failure and perform no PR-comment or
+3. A reviewer dispatch MUST raise a typed failure carrying its failure kind, requested model,
+   specific failure detail, and retry-or-reconfigure remediation and perform no PR-comment or
    artifact publication when the command exits nonzero, identity evidence is missing or
    ambiguous, or the observed model differs from the requested model.
 

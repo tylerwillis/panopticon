@@ -308,6 +308,27 @@ def test_2119_skills_publish_spec_and_review_material() -> None:
         assert review_skills
         for review_skill in review_skills:
             assert review_skill.instructions == expected_review
+            normalized = " ".join(review_skill.instructions.split())
+            assert (
+                'End the triage summary PR comment with a "Suggested placeholder issues" section.'
+                in normalized
+            )
+            assert (
+                "For each finding you rejected or deferred that is nonetheless a genuinely good "
+                "idea, add a one-paragraph entry: what the idea is, why it was deferred rather "
+                "than done now, and what an implementer would need to know."
+            ) in normalized
+            assert "Omit findings rejected as simply wrong" in normalized
+            assert "Do not omit findings rejected as simply wrong" not in normalized
+            assert (
+                "recommendations for the user to react to (endorse, reject, or edit) at the PR "
+                "approval gate"
+            ) in normalized
+            assert "Reviewer prompts must forbid edits." in review_skill.instructions
+            assert (
+                "verify `git status --porcelain` is unchanged from the snapshot taken immediately "
+                "before that reviewer ran"
+            ) in normalized
 
 
 def test_building_retains_the_external_pr_url_responsibility() -> None:

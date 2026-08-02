@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.8.1--585d25563a59",
+  "requirementId": "REQ-028.8.1",
+  "hash": "585d25563a59",
+  "verdict": "pass",
+  "summary": "Tests reject any built-in missing Sol honesty review, either human/auto workflow lacking exact Fable-plus-Sol final review, and auto-sol having anything other than its sole Sol-only review skill.",
+  "timestamp": "2026-08-02T05:50:30.308Z"
+}

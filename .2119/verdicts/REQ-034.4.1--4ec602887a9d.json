@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.4.1--4ec602887a9d",
+  "requirementId": "REQ-034.4.1",
+  "hash": "4ec602887a9d",
+  "verdict": "pass",
+  "summary": "Tests reject one or three comments, malformed or missing evidence, unsupported sources, requested/verified model mismatches in either comment, stale commits, wrong rounds, and prevent triage and responsibility resolution on every rejection.",
+  "timestamp": "2026-08-02T06:07:09.816Z"
+}

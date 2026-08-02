@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.6.1--e1fb2168f2d6",
+  "requirementId": "REQ-028.6.1",
+  "hash": "e1fb2168f2d6",
+  "verdict": "pass",
+  "summary": "The test enumerates exactly all built-in 2119 workflows and rejects an absent, renamed, relocated, or differently described BUILDING url-recorded responsibility, including omission of the external URL field or set_url tool.",
+  "timestamp": "2026-08-02T05:50:24.747Z"
+}

@@ -25,6 +25,7 @@ SUPPORTED_VERIFICATION_SOURCES = frozenset({CLAUDE_SOURCE, CODEX_SOURCE})
 CommandResult: TypeAlias = Mapping[str, Any]
 RunReviewer: TypeAlias = Callable[[list[str], str], CommandResult]
 Publish: TypeAlias = Callable[[str], None]
+GitStatus: TypeAlias = Callable[[], str]
 VerifiedIdentity: TypeAlias = tuple[str, str]
 
 
@@ -231,6 +232,16 @@ def _default_run(argv: list[str], prompt: str) -> CommandResult:
     }
 
 
+def _git_status() -> str:
+    completed = subprocess.run(
+        ["git", "status", "--porcelain"],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    return completed.stdout
+
+
 def _command_failure(config: ReviewerConfig, stderr: str) -> ReviewerDispatchError:
     lowered = stderr.lower()
     kind = "availability" if "usage limit" in lowered or "unavailable" in lowered else "command"
@@ -269,6 +280,7 @@ def dispatch_review(
     post_comment: Publish,
     publish_artifact: Publish | None = None,
     config_root: Path | None = None,
+    git_status: GitStatus = _git_status,
 ) -> ReviewEvidence:
     """Run, verify, then publish one review. Verification always precedes side effects."""
 
@@ -285,7 +297,16 @@ def dispatch_review(
         ]
     else:
         raise _invalid_config(f"unsupported harness {config.harness!r}", config.model)
+    status_before = git_status()
     result = run(argv, prompt)
+    status_after = git_status()
+    if status_after != status_before:
+        raise ReviewerDispatchError(
+            "Reviewer changed git status; refusing to record its output.",
+            kind="command",
+            requested_model=config.model,
+            remediation="Revert the reviewer-authored changes and retry with a read-only prompt.",
+        )
     stderr = str(result.get("stderr", ""))
     if result.get("exit_code", 0) != 0:
         raise _command_failure(config, stderr)

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.2.3--758acca944ff",
+  "requirementId": "REQ-034.2.3",
+  "hash": "758acca944ff",
+  "verdict": "pass",
+  "summary": "Tests reject nonzero exits, missing or ambiguous identity, and model mismatches with typed detailed remediation-bearing failures while both publication channels remain untouched.",
+  "timestamp": "2026-08-02T06:07:12.812Z"
+}

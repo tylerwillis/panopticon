@@ -90,6 +90,9 @@ def test_repo_overrides_preserve_slots_and_split_only_the_first_colon() -> None:
         defaults[0],
         ReviewerConfig("claude", "claude-opus-5"),
     )
+    assert resolve_reviewers(defaults, {"PANOPTICON_2119_REVIEWER_1": "codex: model-with-spaces "})[
+        0
+    ] == ReviewerConfig("codex", " model-with-spaces ")
 
 
 @pytest.mark.parametrize(
@@ -133,6 +136,8 @@ def test_invalid_override_fails_before_dispatch(
         {"modelUsage": {}},
         {"modelUsage": {"claude-opus-5": {}, "claude-fable-5": {}}},
         {"modelUsage": {"claude-fable-5": {}}},
+        {"modelUsage": {"Claude-Opus-5": {}}},
+        {"modelUsage": {"claude-opus-5 ": {}}},
     ],
 )
 def test_claude_verification_rejects_missing_ambiguous_or_mismatched_identity(
@@ -208,11 +213,166 @@ def test_codex_verification_correlates_thread_to_exact_rollout_model(tmp_path: P
     with pytest.raises(ReviewerDispatchError):
         verify_codex_response(events, tmp_path, requested_model="gpt-5.6-sol")
 
+    matched.write_text(
+        "\n".join(
+            (
+                json.dumps({"type": "session_meta", "payload": {"id": "thread-2"}}),
+                json.dumps({"type": "response_item", "payload": {"model": "gpt-5.6-sol"}}),
+            )
+        )
+    )
+    with pytest.raises(ReviewerDispatchError):
+        verify_codex_response(events, tmp_path, requested_model="gpt-5.6-sol")
+
+
+def test_codex_dispatch_uses_isolated_command_and_never_publishes_failures(
+    tmp_path: Path,
+) -> None:
+    # 2119: REQ-028.12.1
+    # 2119: REQ-034.2.3
+    sessions = tmp_path / "sessions"
+    sessions.mkdir()
+    rollout = sessions / "review.jsonl"
+
+    def write_rollout(model: str) -> None:
+        rollout.write_text(
+            "\n".join(
+                (
+                    json.dumps({"type": "session_meta", "payload": {"id": "thread-1"}}),
+                    json.dumps({"type": "turn_context", "payload": {"model": model}}),
+                )
+            )
+        )
+
+    events = "\n".join(
+        (
+            json.dumps({"type": "thread.started", "thread_id": "thread-1"}),
+            json.dumps(
+                {
+                    "type": "item.completed",
+                    "item": {"type": "agent_message", "text": "No findings."},
+                }
+            ),
+        )
+    )
+    expected_argv = [
+        "codex",
+        "exec",
+        "--dangerously-bypass-approvals-and-sandbox",
+        "--model",
+        "gpt-5.6-sol",
+        "--json",
+    ]
+    posted: list[str] = []
+    artifacts: list[str] = []
+
+    write_rollout("gpt-5.6-sol")
+
+    def successful_run(argv: list[str], prompt: str) -> dict[str, Any]:
+        assert argv == expected_argv
+        assert prompt == reviewer_prompt()
+        return {"exit_code": 0, "stdout": events}
+
+    dispatch_review(
+        ReviewerConfig("codex", "gpt-5.6-sol"),
+        prompt=reviewer_prompt(),
+        commit="abc123",
+        round_number=1,
+        run=successful_run,
+        post_comment=posted.append,
+        publish_artifact=artifacts.append,
+        config_root=tmp_path,
+    )
+    assert len(posted) == len(artifacts) == 1
+
+    for result, rollout_model, expected_kind, expected_detail in (
+        (
+            {"exit_code": 2, "stderr": "command failed"},
+            "gpt-5.6-sol",
+            "command",
+            "codex reviewer command failed: command failed",
+        ),
+        (
+            {"exit_code": 0, "stdout": events},
+            None,
+            "identity",
+            "Codex thread 'thread-1' matched 0 persisted rollouts; expected exactly one.",
+        ),
+        (
+            {"exit_code": 0, "stdout": events},
+            "gpt-5",
+            "identity",
+            "Codex responding model 'gpt-5' does not match requested model 'gpt-5.6-sol'.",
+        ),
+        (
+            {"exit_code": 0, "stdout": events},
+            "ambiguous",
+            "identity",
+            "Codex rollout must contain exactly one turn_context.payload.model.",
+        ),
+    ):
+        posted.clear()
+        artifacts.clear()
+        if rollout_model is None:
+            rollout.unlink(missing_ok=True)
+        elif rollout_model == "ambiguous":
+            write_rollout("gpt-5.6-sol")
+            with rollout.open("a") as stream:
+                stream.write(
+                    "\n"
+                    + json.dumps(
+                        {
+                            "type": "turn_context",
+                            "payload": {"model": "gpt-5.6-sol"},
+                        }
+                    )
+                )
+        else:
+            write_rollout(rollout_model)
+        with pytest.raises(ReviewerDispatchError) as raised:
+            dispatch_review(
+                ReviewerConfig("codex", "gpt-5.6-sol"),
+                prompt=reviewer_prompt(),
+                commit="abc123",
+                round_number=1,
+                run=lambda argv, prompt, value=result: value,
+                post_comment=posted.append,
+                publish_artifact=artifacts.append,
+                config_root=tmp_path,
+            )
+        assert posted == []
+        assert artifacts == []
+        assert raised.value.kind == expected_kind
+        assert raised.value.requested_model == "gpt-5.6-sol"
+        assert raised.value.detail == expected_detail
+        assert "retry" in raised.value.remediation.lower()
+        assert "model" in raised.value.remediation.lower()
+
+    posted.clear()
+    artifacts.clear()
+    write_rollout("gpt-5.6-sol")
+    statuses = iter(("before", "after"))
+    with pytest.raises(ReviewerDispatchError, match="changed git status"):
+        dispatch_review(
+            ReviewerConfig("codex", "gpt-5.6-sol"),
+            prompt=reviewer_prompt(),
+            commit="abc123",
+            round_number=1,
+            run=successful_run,
+            post_comment=posted.append,
+            publish_artifact=artifacts.append,
+            config_root=tmp_path,
+            git_status=lambda: next(statuses),
+        )
+    assert posted == []
+    assert artifacts == []
+
 
 def test_dispatch_verifies_before_posting_and_derives_evidence_comment() -> None:
     # 2119: REQ-034.2.1
     # 2119: REQ-034.3.1
     # 2119: REQ-034.3.2
+    # 2119: REQ-034.4.1
     posted: list[str] = []
     prompt_seen = ""
 
@@ -292,35 +452,98 @@ No findings."""
 
 
 def test_generated_reviewer_prompt_contains_no_model_identity_or_heading_instruction() -> None:
+    # 2119: REQ-028.12.1
     prompt = reviewer_prompt()
+    assert prompt == (
+        "Review the supplied final diff for correctness, simplicity, scope, and spec/test "
+        "honesty. Do not edit files. Return only the substantive review body with must-fix "
+        "findings, suggestions, and a verdict."
+    )
     lowered = prompt.lower()
     for forbidden in ("fable", "opus", "sol", "gpt-", "your model", "model heading"):
         assert forbidden not in lowered
     assert "Do not edit files" in prompt
 
 
+@pytest.mark.parametrize("harness, model", [("claude", "claude-opus-5"), ("codex", "gpt-5.6-sol")])
+@pytest.mark.parametrize("exit_code", [1, 2, 127])
+def test_every_nonzero_reviewer_exit_is_a_typed_unpublished_failure(
+    harness: str, model: str, exit_code: int
+) -> None:
+    # 2119: REQ-034.2.3
+    posted: list[str] = []
+    artifacts: list[str] = []
+    with pytest.raises(ReviewerDispatchError) as raised:
+        dispatch_review(
+            ReviewerConfig(harness, model),
+            prompt=reviewer_prompt(),
+            commit="abc123",
+            round_number=1,
+            run=lambda argv, prompt: {"exit_code": exit_code, "stderr": "failed"},
+            post_comment=posted.append,
+            publish_artifact=artifacts.append,
+        )
+    assert raised.value.kind == "command"
+    assert raised.value.requested_model == model
+    assert posted == []
+    assert artifacts == []
+
+
 @pytest.mark.parametrize(
-    "result",
+    "result, expected_kind, expected_detail, expected_remediation",
     [
-        {"exit_code": 1, "stderr": "request failed"},
-        {"exit_code": 0, "stdout": "not JSON"},
-        {"exit_code": 0, "stdout": json.dumps({"result": "No findings."})},
-        {
-            "exit_code": 0,
-            "stdout": json.dumps(
-                {
-                    "result": "No findings.",
-                    "modelUsage": {"claude-opus-5": {}, "claude-fable-5": {}},
-                }
-            ),
-        },
-        {
-            "exit_code": 0,
-            "stdout": json.dumps({"result": "No findings.", "modelUsage": {"claude-fable-5": {}}}),
-        },
+        (
+            {"exit_code": 1, "stderr": "request failed"},
+            "command",
+            "claude reviewer command failed: request failed",
+            "Choose an available reviewer model and retry; no review was recorded.",
+        ),
+        (
+            {"exit_code": 0, "stdout": "not JSON"},
+            "identity",
+            "Claude reviewer returned invalid JSON identity evidence.",
+            "Retry with a canonical model id or configure a model whose identity the CLI exposes.",
+        ),
+        (
+            {"exit_code": 0, "stdout": json.dumps({"result": "No findings."})},
+            "identity",
+            "Claude identity evidence must contain exactly one modelUsage key.",
+            "Retry with a canonical model id or configure a model whose identity the CLI exposes.",
+        ),
+        (
+            {
+                "exit_code": 0,
+                "stdout": json.dumps(
+                    {
+                        "result": "No findings.",
+                        "modelUsage": {"claude-opus-5": {}, "claude-fable-5": {}},
+                    }
+                ),
+            },
+            "identity",
+            "Claude identity evidence must contain exactly one modelUsage key.",
+            "Retry with a canonical model id or configure a model whose identity the CLI exposes.",
+        ),
+        (
+            {
+                "exit_code": 0,
+                "stdout": json.dumps(
+                    {"result": "No findings.", "modelUsage": {"claude-fable-5": {}}}
+                ),
+            },
+            "identity",
+            "Claude responding model 'claude-fable-5' does not match requested model "
+            "'claude-opus-5'.",
+            "Retry with a canonical model id or configure a model whose identity the CLI exposes.",
+        ),
     ],
 )
-def test_failed_command_or_identity_never_posts_review(result: dict[str, Any]) -> None:
+def test_failed_command_or_identity_never_posts_review(
+    result: dict[str, Any],
+    expected_kind: str,
+    expected_detail: str,
+    expected_remediation: str,
+) -> None:
     # 2119: REQ-034.2.1
     # 2119: REQ-034.2.3
     # 2119: REQ-034.3.2
@@ -338,21 +561,30 @@ def test_failed_command_or_identity_never_posts_review(result: dict[str, Any]) -
         )
     assert posted == []
     assert artifacts == []
-    assert raised.value.kind in {"command", "identity", "availability"}
+    assert raised.value.kind == expected_kind
     assert raised.value.requested_model == "claude-opus-5"
-    assert raised.value.detail
-    assert raised.value.remediation
+    assert raised.value.detail == expected_detail
+    assert raised.value.remediation == expected_remediation
 
 
+@pytest.mark.parametrize("exit_code", [1, 2, 127])
 @pytest.mark.parametrize(
-    "failure", ["usage limit reached", "USAGE LIMIT REACHED", "model unavailable", "UNAVAILABLE"]
+    "failure",
+    [
+        "usage limit reached",
+        "USAGE LIMIT REACHED",
+        "UsAgE LiMiT reached",
+        "model unavailable",
+        "UNAVAILABLE",
+        "UnAvAiLaBlE",
+    ],
 )
-def test_dispatch_failure_is_not_a_zero_findings_review(failure: str) -> None:
+def test_dispatch_failure_is_not_a_zero_findings_review(failure: str, exit_code: int) -> None:
     # 2119: REQ-034.3.2
     posted: list[str] = []
 
     def fail_run(argv: list[str], prompt: str) -> dict[str, Any]:
-        return {"exit_code": 1, "stderr": failure}
+        return {"exit_code": exit_code, "stderr": failure}
 
     with pytest.raises(ReviewerDispatchError) as raised:
         dispatch_review(
