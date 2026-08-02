@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.2.3--6fbb00de77b5",
+  "requirementId": "REQ-034.2.3",
+  "hash": "6fbb00de77b5",
+  "verdict": "pass",
+  "summary": "Real-git test rejects stale cache-base checkout, fetch-without-checkout, and slug-derived branch by requiring the forge-only commit and recorded branch panopticon/safe-move.",
+  "timestamp": "2026-08-02T18:11:52.339Z"
+}

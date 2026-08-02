@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.2.2--fc1035b6b8ad",
+  "requirementId": "REQ-034.2.2",
+  "hash": "fc1035b6b8ad",
+  "verdict": "pass",
+  "summary": "Real-checkout tests reject trunk versus recorded panopticon/safe-move before the provisioning client is called, while the exact-branch case records successfully.",
+  "timestamp": "2026-08-02T18:12:18.087Z"
+}

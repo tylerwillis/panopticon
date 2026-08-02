@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.6.3--e969ea799662",
+  "requirementId": "REQ-034.6.3",
+  "hash": "e969ea799662",
+  "verdict": "pass",
+  "summary": "Rejects a noncanonical destination volume name and proves the restored rollout drives the real Codex local-respawn resume path, while omission selects first run.",
+  "timestamp": "2026-08-02T18:13:06.213Z"
+}

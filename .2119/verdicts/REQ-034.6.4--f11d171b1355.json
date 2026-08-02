@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.6.4--f11d171b1355",
+  "requirementId": "REQ-034.6.4",
+  "hash": "f11d171b1355",
+  "verdict": "pass",
+  "summary": "Real archive tests require credential file and directory entries to remain symlinks with unchanged targets, and reject dereferenced bind-mount contents by member path and secret payload.",
+  "timestamp": "2026-08-02T18:17:14.983Z"
+}

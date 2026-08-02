@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.3.1--58b8ad2c77de",
+  "requirementId": "REQ-034.3.1",
+  "hash": "58b8ad2c77de",
+  "verdict": "pass",
+  "summary": "Real task-service test refuses a different runner with no migration, wrong source, pending workspace acceptance, or wrong destination, and permits only the matching destination after accepted workspace state.",
+  "timestamp": "2026-08-02T18:12:06.802Z"
+}

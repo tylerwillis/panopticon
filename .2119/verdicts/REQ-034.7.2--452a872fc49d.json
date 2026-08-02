@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.7.2--452a872fc49d",
+  "requirementId": "REQ-034.7.2",
+  "hash": "452a872fc49d",
+  "verdict": "pass",
+  "summary": "Tests reject spawning while restoration is requested, reject silent or agent-authored omission, and permit spawn only after accepted restoration or user-recorded omission.",
+  "timestamp": "2026-08-02T18:20:50.344Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.1.4--bd81310d3358",
+  "requirementId": "REQ-034.1.4",
+  "hash": "bd81310d3358",
+  "verdict": "pass",
+  "summary": "Tests hold recorded facts constant while independently varying timestamp and runner-liveness context across allowed and denied migration and provisioning decisions, and assert identical outcomes.",
+  "timestamp": "2026-08-02T18:11:17.293Z"
+}

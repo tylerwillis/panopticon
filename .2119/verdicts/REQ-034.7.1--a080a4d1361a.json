@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.7.1--a080a4d1361a",
+  "requirementId": "REQ-034.7.1",
+  "hash": "a080a4d1361a",
+  "verdict": "pass",
+  "summary": "Tests reject failed acceptance persistence, failed destination re-verification, and wrong branch/repository, while asserting recorded acceptance precedes destination verification and spawn.",
+  "timestamp": "2026-08-02T18:17:28.750Z"
+}

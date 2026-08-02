@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.5.1--cd749f0ef9d5",
+  "requirementId": "REQ-034.5.1",
+  "hash": "cd749f0ef9d5",
+  "verdict": "pass",
+  "summary": "Real archive round-trip compares every staged entry, content, mode, and symlink to a source containing git metadata and uncommitted files, so omission or alteration of either is rejected.",
+  "timestamp": "2026-08-02T18:12:46.764Z"
+}

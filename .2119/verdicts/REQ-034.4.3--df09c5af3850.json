@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.4.3--df09c5af3850",
+  "requirementId": "REQ-034.4.3",
+  "hash": "df09c5af3850",
+  "verdict": "pass",
+  "summary": "The integration test records the discarded path and authorizing actor, then proves the migration decision remains observable after destination claim and database reload; clearing the record, path, or authorization is rejected.",
+  "timestamp": "2026-08-02T18:16:37.435Z"
+}
