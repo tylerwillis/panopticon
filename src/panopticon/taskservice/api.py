@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query, Request, Response
+from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -457,7 +458,8 @@ def create_app(
     @app.exception_handler(RequestValidationError)
     async def validation_error(_request: Request, exc: RequestValidationError) -> JSONResponse:
         return JSONResponse(
-            status_code=422, content={"detail": redact_configured_tokens(exc.errors())}
+            status_code=422,
+            content={"detail": redact_configured_tokens(jsonable_encoder(exc.errors()))},
         )
 
     @app.middleware("http")

@@ -68,7 +68,8 @@ def test_bootstrap_pins_every_outfitter_artifact(tmp_path: Path) -> None:
         "---\nname: advance\ndescription: Apply the workflow's 'advance' operation.\n---\n"
         "Apply this workflow's `advance` operation — it moves the task to **COMPLETE**. "
         "pi has no MCP client, so call the task service's REST API directly (no request body "
-        "needed): `curl --fail --silent --show-error --request POST "
+        "needed): `curl --fail --silent --show-error --header "
+        '"Authorization: Bearer $PANOPTICON_SERVICE_AUTH_TOKEN" --request POST '
         '"http://host.docker.internal:8000/tasks/t1/operations/advance"`. Don\'t edit the state '
         "directly. It's gated on the current state's responsibilities and starts a new turn.\n\n"
         'This is task `t1` — pass `task_id="t1"` to every panopticon MCP tool you call here.\n'
