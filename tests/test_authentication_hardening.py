@@ -73,7 +73,9 @@ def test_root_path_does_not_downgrade_write_only_routes(tmp_path: Path) -> None:
         _home_workflows=tmp_path / "workflows",
     )
     with TestClient(app, root_path="/proxy") as client:
-        for method, path in [("GET", "/tasks/missing/live"), ("POST", "/mcp")]:
+        # 2119: REQ-034.10.1
+        assert client.get("/proxy/healthz").status_code == 200
+        for method, path in [("GET", "/proxy/tasks/missing/live"), ("POST", "/proxy/mcp")]:
             reader = client.request(method, path, headers={"Authorization": "Bearer read-token"})
             writer = client.request(method, path, headers={"Authorization": "Bearer write-token"})
             assert reader.status_code == 401

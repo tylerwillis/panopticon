@@ -474,7 +474,11 @@ def create_app(
     async def authenticate(
         request: Request, call_next: Callable[[Request], Awaitable[Response]]
     ) -> Response:
-        route_path = str(request.scope["path"])
+        raw_path = str(request.scope["path"])
+        root_path = str(request.scope.get("root_path", ""))
+        route_path = (
+            raw_path[len(root_path) :] if root_path and raw_path.startswith(root_path) else raw_path
+        )
         if mode == "disabled" or (request.method == "GET" and route_path == "/healthz"):
             return await call_next(request)
         authorization = request.headers.get("authorization")

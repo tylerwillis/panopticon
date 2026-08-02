@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.10.1--4023d9e39c64",
+  "requirementId": "REQ-034.10.1",
+  "hash": "4023d9e39c64",
+  "verdict": "pass",
+  "summary": "Unauthenticated GET is required to return 200 and exact {'status':'ok'} JSON, rejecting 401/404 and changed or additional payload fields.",
+  "timestamp": "2026-08-02T21:10:35.481Z"
+}

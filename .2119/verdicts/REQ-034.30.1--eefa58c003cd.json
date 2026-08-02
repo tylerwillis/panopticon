@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.30.1--eefa58c003cd",
-  "requirementId": "REQ-034.30.1",
-  "hash": "eefa58c003cd",
-  "verdict": "pass",
-  "summary": "Root-path TestClient coverage rejects read-token access and write-token denial independently for both liveness and MCP routes.",
-  "timestamp": "2026-08-02T20:45:02.496Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.30.1--2e337bb8d0df",
+  "requirementId": "REQ-034.30.1",
+  "hash": "2e337bb8d0df",
+  "verdict": "pass",
+  "summary": "Under ASGI root_path /proxy, the test rejects a read token and admits a write token for both liveness and MCP, catching either route's privilege downgrade or mismatch.",
+  "timestamp": "2026-08-02T21:10:19.950Z"
+}

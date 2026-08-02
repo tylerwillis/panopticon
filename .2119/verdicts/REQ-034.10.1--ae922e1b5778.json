@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.10.1--ae922e1b5778",
-  "requirementId": "REQ-034.10.1",
-  "hash": "ae922e1b5778",
-  "verdict": "pass",
-  "summary": "Anonymous GET /healthz is exercised through the real app: status 200 rejects credential gating, and exact JSON equality rejects changed or additional readiness payload fields.",
-  "timestamp": "2026-08-02T19:49:49.685Z"
-}
