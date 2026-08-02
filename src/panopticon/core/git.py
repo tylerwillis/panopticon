@@ -104,6 +104,11 @@ class GitClones:
         """``git -C <repo> checkout -b <branch>`` — branch whatever is checked out (ADR 0011 §2)."""
         self._run(["git", "-C", repo_path, "checkout", "-b", branch])
 
+    def checkout_remote_branch(self, *, repo_path: str, branch: str) -> None:
+        self._run(["git", "-C", repo_path, "fetch", "origin", branch])
+        self._run(["git", "-C", repo_path, "checkout", "--detach", f"origin/{branch}"])
+        self._run(["git", "-C", repo_path, "checkout", "-B", branch])
+
     def set_origin(self, *, repo_path: str, url: str) -> None:
         """``git -C <repo> remote set-url origin <url>`` — point at the forge, not the cache."""
         self._run(["git", "-C", repo_path, "remote", "set-url", "origin", url])

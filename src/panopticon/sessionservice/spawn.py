@@ -24,6 +24,11 @@ from panopticon.sessionservice.clones import CloneCache
 
 _log = logging.getLogger(__name__)
 
+
+class MigrationRequired(RuntimeError):
+    """A foreign host owns this task's durable workspace and no migration is accepted."""
+
+
 #: Suffix appended to a per-task checkout the daemon cannot fully delete (see
 #: :func:`cleanup_workspace`). Task ids contain no dots, so a quarantined dir can never
 #: collide with another task's checkout path.
@@ -39,6 +44,8 @@ def prepare_workspace(
     git: GitClones | None = None,
     exists: Callable[[str], bool] = os.path.isdir,
     makedirs: Callable[[str], None] = lambda p: Path(p).mkdir(parents=True, exist_ok=True),
+    task: JsonObj | None = None,
+    runner_id: str | None = None,
 ) -> str:
     """Ensure the task's per-task clone exists and return its path (mount this at ``/workspace``).
 
@@ -58,6 +65,23 @@ def prepare_workspace(
     """
     git = git or GitClones()
     clone = f"{tasks_root.rstrip('/')}/{task_id}"
+    if (
+        not exists(clone)
+        and task is not None
+        and runner_id is not None
+        and (owner := task.get("provisioned_by")) not in (None, runner_id)
+    ):
+        migration = task.get("migration")
+        accepted = bool(
+            isinstance(migration, dict)
+            and migration.get("destination_runner") == runner_id
+            and migration.get("workspace_disposition") == "accepted"
+        )
+        disposition = "accepted" if accepted else "not accepted"
+        raise MigrationRequired(
+            f"workspace belongs to {owner}; migration to {runner_id} is {disposition} but the "
+            "canonical destination workspace is missing"
+        )
     if not exists(clone):
         makedirs(str(Path(clone).parent))
         cache_path = cache.ensure(repo["id"], repo["git_url"])

@@ -57,7 +57,14 @@ class _FakeClient:
             "workdir": None,
         }
 
-    def record_provisioning(self, task_id: str, branch: str, clone: str) -> JsonObj:
+    def record_provisioning(
+        self,
+        task_id: str,
+        branch: str,
+        clone: str,
+        _runner_id: str,
+        _workspace_verified: bool,
+    ) -> JsonObj:
         self.recorded.append((task_id, branch, clone))
         return {"id": task_id, "branch": branch, "clone": clone}
 
@@ -134,11 +141,12 @@ def test_provisioner_against_the_real_service(tmp_path: Path) -> None:
         client = TaskServiceClient(http)
         task_id = client.create_task("r1", "spike")["id"]
         client.set_slug(task_id, "fix-widget")
+        client.claim(task_id, "host-a")
 
         calls, run = _recording_runner()
         provisioner = Provisioner(client, clones_root="/clones", git=GitClones(run=run))
 
-        branch = provisioner.provision(client.get_task(task_id))
+        branch = provisioner.provision(client.get_task(task_id), runner_id="host-a")
         assert branch == "panopticon/fix-widget"
         got = client.get_task(task_id)
         assert got["branch"] == "panopticon/fix-widget"
@@ -146,5 +154,5 @@ def test_provisioner_against_the_real_service(tmp_path: Path) -> None:
         assert len(calls) == 1  # checkout -b only (origin set at spawn-prep)
 
         # A second pass sees the recorded branch and does nothing — no new git, no re-record.
-        assert provisioner.provision(client.get_task(task_id)) is None
+        assert provisioner.provision(client.get_task(task_id), runner_id="host-a") is None
         assert len(calls) == 1  # still just the one checkout -b from the first pass
