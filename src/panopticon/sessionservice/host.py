@@ -50,6 +50,10 @@ from panopticon.sessionservice.stage_entry_wake import StageEntryWaker
 _log = logging.getLogger(__name__)
 
 
+def _make_client(service_url: str) -> TaskServiceClient:
+    return TaskServiceClient(httpx.Client(base_url=service_url))
+
+
 class EntryWaker(Protocol):
     def wake(self, task: JsonObj) -> None: ...
 
@@ -278,7 +282,7 @@ def main(
     )
     preflight_or_exit()
     migrate_session_dirs(CLONE_CACHE_DIR, TASKS_DIR)
-    client = client or TaskServiceClient(httpx.Client(base_url=args.service_url))
+    client = client or _make_client(args.service_url)
     runner = LocalRunner(args.container_service_url, image=args.image, runner_id=args.runner_id)
     # A shell workflow runs directly on the host (no container), so it reaches the task service at
     # the host's own view (--service-url), not the in-container host.docker.internal address.

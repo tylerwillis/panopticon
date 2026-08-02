@@ -28,6 +28,11 @@ import httpx
 
 from panopticon.client import TaskServiceClient
 
+
+def _make_client(service_url: str) -> TaskServiceClient:
+    return TaskServiceClient(httpx.Client(base_url=service_url))
+
+
 DEFAULT_SERVICE_URL = "http://localhost:8000"
 
 
@@ -177,7 +182,7 @@ def main(
             _qs.detect_harnesses(environ=_qs.harness_environment(env_file))
         )
         git_url = _qs.detect_git_url()
-        qs_client = TaskServiceClient(httpx.Client(base_url=args.service_url))
+        qs_client = _make_client(args.service_url)
         repo_id, repo_name = _qs.setup_repo(qs_client, git_url, env_file, default_harness=harness)
         task_id = _qs.ensure_setup_repo_task(qs_client, repo_id, repo_name)
         from panopticon.terminal.console import run_console_local
@@ -207,7 +212,7 @@ def main(
             )
         return 0
 
-    client = client or TaskServiceClient(httpx.Client(base_url=args.service_url))
+    client = client or _make_client(args.service_url)
     if args.command == "tasks":
         for t in client.list_tasks():
             print(f"{t['id']}  {t['state']:<10}  {t['turn']:<5}  {t['slug'] or '-'}")

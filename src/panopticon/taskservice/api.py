@@ -10,12 +10,15 @@ plane serves REST and MCP. ``create_app`` builds an app around an injected
 from __future__ import annotations
 
 import asyncio
+import hmac
 from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager, suppress
 from datetime import datetime
+from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query, Request, Response
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -401,13 +404,27 @@ class ChangeFeed:
         return self._version()
 
 
-def create_app(service: TaskService) -> FastAPI:
+def create_app(
+    service: TaskService,
+    *,
+    auth_file: str | None = None,
+    auth_mode: str | None = None,
+    secrets_dir: str | Path | None = None,
+) -> FastAPI:
     # MCP over streamable HTTP, mounted at /mcp on the same control plane (operations=tools,
     # artifacts=resources). Its path is set to "/" so the mount point *is* the endpoint (/mcp).
     # The session manager must run for the app's lifetime, so its context is driven by the
     # parent FastAPI lifespan (a mounted sub-app's own lifespan isn't run by the parent).
     # Imported here, not at module scope: mcp.py imports our ``*Out`` schemas (would cycle).
+    from panopticon.taskservice.auth import load_tokens
     from panopticon.taskservice.mcp import build_mcp_server
+
+    mode = auth_mode or ("enforced" if auth_file else "disabled")
+    if mode not in {"disabled", "permissive", "enforced"}:
+        raise ValueError("authentication mode must be disabled, permissive, or enforced")
+    if mode == "enforced" and auth_file is None:
+        raise ValueError("authentication credential file is required in enforced mode")
+    tokens = load_tokens(auth_file, secrets_dir=secrets_dir) if auth_file is not None else None
 
     mcp = build_mcp_server(service)
     mcp.settings.streamable_http_path = "/"
@@ -420,6 +437,56 @@ def create_app(service: TaskService) -> FastAPI:
             yield
 
     app = FastAPI(title="panopticon task service", version="0.0.3", lifespan=lifespan)
+
+    generic_auth_failure = {"detail": "authentication required"}
+
+    def redact_configured_tokens(value: Any) -> Any:
+        if tokens is None:
+            return value
+        configured = (*tokens.read, *tokens.write)
+        if isinstance(value, str):
+            for token in configured:
+                value = value.replace(token, "[redacted]")
+            return value
+        if isinstance(value, list):
+            return [redact_configured_tokens(item) for item in value]
+        if isinstance(value, dict):
+            return {key: redact_configured_tokens(item) for key, item in value.items()}
+        return value
+
+    @app.exception_handler(RequestValidationError)
+    async def validation_error(_request: Request, exc: RequestValidationError) -> JSONResponse:
+        return JSONResponse(
+            status_code=422, content={"detail": redact_configured_tokens(exc.errors())}
+        )
+
+    @app.middleware("http")
+    async def authenticate(request: Request, call_next: Callable[[Request], Any]) -> Response:
+        if mode == "disabled" or (request.method == "GET" and request.url.path == "/healthz"):
+            return await call_next(request)
+        authorization = request.headers.get("authorization")
+        if mode == "permissive" and authorization is None:
+            return await call_next(request)
+        presented = ""
+        if authorization is not None and authorization.startswith("Bearer "):
+            candidate = authorization[7:]
+            if candidate and " " not in candidate:
+                presented = candidate
+        assert tokens is not None
+        write = any(hmac.compare_digest(presented, token) for token in tokens.write)
+        read = any(hmac.compare_digest(presented, token) for token in tokens.read)
+        mutating = (
+            request.method != "GET"
+            or request.url.path.startswith("/mcp")
+            or request.url.path.endswith("/live")
+        )
+        if not write and (mutating or not read):
+            return JSONResponse(
+                status_code=401,
+                content=generic_auth_failure,
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        return await call_next(request)
 
     # The block-until-change feed: a store mutation bumps the version + wakes parked GET /tasks
     # long-polls (the seam the daemons/dashboard migrate onto, replacing their interval re-polls).
@@ -460,39 +527,39 @@ def create_app(service: TaskService) -> FastAPI:
 
     @app.exception_handler(NotFound)
     async def _not_found(_: Request, exc: NotFound) -> JSONResponse:
-        return JSONResponse(status_code=404, content={"detail": str(exc)})
+        return JSONResponse(status_code=404, content={"detail": redact_configured_tokens(str(exc))})
 
     @app.exception_handler(AlreadyExists)
     async def _conflict(_: Request, exc: AlreadyExists) -> JSONResponse:
-        return JSONResponse(status_code=409, content={"detail": str(exc)})
+        return JSONResponse(status_code=409, content={"detail": redact_configured_tokens(str(exc))})
 
     @app.exception_handler(IllegalTransition)
     async def _illegal(_: Request, exc: IllegalTransition) -> JSONResponse:
-        return JSONResponse(status_code=409, content={"detail": str(exc)})
+        return JSONResponse(status_code=409, content={"detail": redact_configured_tokens(str(exc))})
 
     @app.exception_handler(ResponsibilitiesNotMet)
     async def _responsibilities(_: Request, exc: ResponsibilitiesNotMet) -> JSONResponse:
-        return JSONResponse(status_code=409, content={"detail": str(exc)})
+        return JSONResponse(status_code=409, content={"detail": redact_configured_tokens(str(exc))})
 
     @app.exception_handler(NotAuthorized)
     async def _not_authorized(_: Request, exc: NotAuthorized) -> JSONResponse:
-        return JSONResponse(status_code=403, content={"detail": str(exc)})
+        return JSONResponse(status_code=403, content={"detail": redact_configured_tokens(str(exc))})
 
     @app.exception_handler(UnknownWorkflow)
     async def _unknown_wf(_: Request, exc: UnknownWorkflow) -> JSONResponse:
-        return JSONResponse(status_code=400, content={"detail": str(exc)})
+        return JSONResponse(status_code=400, content={"detail": redact_configured_tokens(str(exc))})
 
     @app.exception_handler(InvalidWorkflow)
     async def _invalid_wf(_: Request, exc: InvalidWorkflow) -> JSONResponse:
-        return JSONResponse(status_code=400, content={"detail": str(exc)})
+        return JSONResponse(status_code=400, content={"detail": redact_configured_tokens(str(exc))})
 
     @app.exception_handler(ArtifactError)
     async def _artifact(_: Request, exc: ArtifactError) -> JSONResponse:
-        return JSONResponse(status_code=400, content={"detail": str(exc)})
+        return JSONResponse(status_code=400, content={"detail": redact_configured_tokens(str(exc))})
 
     @app.exception_handler(StoreError)
     async def _store_error(_: Request, exc: StoreError) -> JSONResponse:
-        return JSONResponse(status_code=409, content={"detail": str(exc)})
+        return JSONResponse(status_code=409, content={"detail": redact_configured_tokens(str(exc))})
 
     # -- health & discovery -------------------------------------------------------
 

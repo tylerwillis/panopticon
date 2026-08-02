@@ -116,6 +116,9 @@ def build_app(
     layers_root: str = LAYERS_DIR,
     workflows_path: str | None = None,
     _home_workflows: Path | None = None,
+    auth_file: str | None = None,
+    auth_mode: str | None = None,
+    secrets_dir: str | Path | None = None,
 ) -> FastAPI:
     """Build the task-service app around the default control-plane wiring (no LLM).
 
@@ -134,7 +137,16 @@ def build_app(
             _skip_duplicates=True,
         ),
     )
-    return create_app(service)
+    return create_app(
+        service,
+        auth_file=auth_file
+        if auth_file is not None
+        else os.environ.get("PANOPTICON_SERVICE_AUTH_FILE"),
+        auth_mode=auth_mode
+        if auth_mode is not None
+        else os.environ.get("PANOPTICON_SERVICE_AUTH_MODE"),
+        secrets_dir=secrets_dir,
+    )
 
 
 def main(argv: Sequence[str] | None = None) -> None:

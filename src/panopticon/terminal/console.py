@@ -284,6 +284,10 @@ def run_console(*, show_dashboard: Selector, attach: Attacher, initial: str | No
         attach(session)
 
 
+def _make_client(service_url: str) -> TaskServiceClient:
+    return TaskServiceClient(httpx.Client(base_url=service_url))
+
+
 def run_console_local(
     service_url: str,
     *,
@@ -304,7 +308,7 @@ def run_console_local(
         return
     initial: str | None = None
     if join:
-        client = client or TaskServiceClient(httpx.Client(base_url=service_url))
+        client = client or _make_client(service_url)
         # Poll across the container's /live reconnect window: `start`/`quickstart` may have just
         # (re)started the runner, and a freshly created task (quickstart's setup-repo) is only
         # claimed + spawned a beat later — resolve on the first hit, ~10s ceiling.

@@ -15,13 +15,17 @@ from typing import Any, cast
 import httpx
 
 from panopticon.core.models import Status
+from panopticon.taskservice.auth import environment_token
 
 JsonObj = dict[str, Any]
 
 
 class TaskServiceClient:
-    def __init__(self, http: httpx.Client) -> None:
+    def __init__(self, http: httpx.Client, *, token: str | None = None) -> None:
         self._http = http
+        token = token if token is not None else environment_token()
+        if token:
+            self._http.headers["Authorization"] = f"Bearer {token}"
 
     @staticmethod
     def _json(resp: httpx.Response) -> Any:

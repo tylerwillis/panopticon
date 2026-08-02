@@ -271,7 +271,7 @@ def wait_for_service(service_url: str, *, timeout: int = 30) -> None:
     deadline = time.monotonic() + timeout
     while True:
         try:
-            _httpx.get(f"{service_url}/tasks", timeout=1.0).raise_for_status()
+            _httpx.get(f"{service_url}/healthz", timeout=1.0).raise_for_status()
             return
         except Exception as err:
             if time.monotonic() >= deadline:
