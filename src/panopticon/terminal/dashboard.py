@@ -2446,6 +2446,13 @@ HOTKEYS: tuple[Hotkey, ...] = (
         display="Ctrl+R",
     ),
     Hotkey("p", "open_url", "Open URL", "Open the task's URL in the browser", show=False),
+    Hotkey(
+        "f",
+        "open_checkout",
+        "Open folder",
+        "Open the task's checkout in the file manager",
+        show=False,
+    ),
     Hotkey("g", "repos", "Repos", "Repo config (list / create / edit repos)", show=False),
     Hotkey("w", "workflows", "Workflows", "List / create workflows in $EDITOR", show=False),
     Hotkey("a", "artifacts", "Artifacts", "List the task's artifacts", show=False),
@@ -3146,6 +3153,33 @@ class Dashboard(App[None]):
             return
         webbrowser.open(url)
         self.notify(f"opened {url}")
+
+    def action_open_checkout(self) -> None:
+        """`f`: open the highlighted task's checkout on the dashboard machine."""
+        if self._current is None:
+            self.notify("No task highlighted.", severity="warning")
+            return
+        task = self._tasks.get(self._current)
+        if task is None:
+            self.notify("No task highlighted.", severity="warning")
+            return
+        clone = task.get("clone")
+        if clone is None:
+            self.notify("This task has not been provisioned yet.", severity="warning")
+            return
+        if not os.path.isdir(clone):
+            runner_host = task.get("runner_host")
+            message = (
+                f"This task runs on {runner_host}; its checkout isn't on this machine."
+                if runner_host
+                else "This task's checkout isn't on this machine."
+            )
+            self.notify(message, severity="warning")
+            return
+        try:
+            _open_path(clone)
+        except FileNotFoundError:
+            self.notify("No file manager opener is installed on this machine.", severity="warning")
 
     def action_snooze(self) -> None:
         """`e`: toggle a fixed twelve-hour operator snooze on the highlighted task."""
