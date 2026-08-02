@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.17.1--1d2d92b01b0c",
+  "requirementId": "REQ-034.17.1",
+  "hash": "1d2d92b01b0c",
+  "verdict": "pass",
+  "summary": "Tests cover both Docker and shell tasks with no repo env_file, verify the separate auth-file path delivers the write token without argv leakage, and exercise authenticated shared-client, liveness, and shell-library requests.",
+  "timestamp": "2026-08-02T05:13:16.071Z"
+}

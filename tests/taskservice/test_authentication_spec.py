@@ -170,12 +170,24 @@ def test_tokens_are_host_local_and_never_serialized(
         validation = client.post(
             "/tasks", headers=_bearer(WRITE_TOKEN), json={"repo_id": WRITE_TOKEN}
         )
+        domain_failure = client.post(
+            "/repos",
+            headers=_bearer(WRITE_TOKEN),
+            json={
+                "id": "r2",
+                "name": "unsafe-reference",
+                "git_url": "https://x/r2",
+                "env_file": WRITE_TOKEN,
+            },
+        )
+        assert domain_failure.status_code == 400
         image_layer = client.get("/workflows/spike/image-layer", headers=_bearer(WRITE_TOKEN))
         not_found = client.get(f"/tasks/{WRITE_TOKEN}", headers=_bearer(WRITE_TOKEN))
         serialized = (
             repo.text
             + client.get(f"/tasks/{task['id']}", headers=_bearer(WRITE_TOKEN)).text
             + validation.text
+            + domain_failure.text
             + image_layer.text
             + not_found.text
         )
@@ -432,6 +444,15 @@ def test_all_authentication_failures_are_indistinguishable(
             assert response.status_code == 401, (method, path, response.text)
             assert response.headers["www-authenticate"] == "Bearer"
             assert response.json() == GENERIC_FAILURE
+
+
+def test_non_ascii_bearer_token_receives_generic_failure(tmp_path: Path) -> None:
+    # 2119: REQ-034.7.1
+    with _client(tmp_path) as client:
+        status, headers, body = _asgi_status(client.app, "/tasks", token="täken")
+        assert status == 401
+        assert headers["www-authenticate"] == "Bearer"
+        assert json.loads(body) == GENERIC_FAILURE
 
 
 def test_authentication_precedes_route_and_resource_disclosure(tmp_path: Path) -> None:
@@ -703,9 +724,11 @@ def test_permissive_mode_accepts_legacy_and_authenticated_callers(tmp_path: Path
                 reader = client.request(method, path, headers=_bearer(READ_TOKEN))
                 assert not (reader.status_code in {401, 403} and reader.json() == GENERIC_FAILURE)
         for payload in [
+            {"jsonrpc": "2.0", "id": 0, "method": "initialize", "params": {}},
             {"jsonrpc": "2.0", "id": 1, "method": "tools/list"},
             {"jsonrpc": "2.0", "id": 3, "method": "ping"},
             {"jsonrpc": "2.0", "id": 4, "method": "resources/list"},
+            {"jsonrpc": "2.0", "id": 6, "method": "resources/templates/list"},
             {
                 "jsonrpc": "2.0",
                 "id": 5,
@@ -742,6 +765,12 @@ def test_permissive_mode_accepts_legacy_and_authenticated_callers(tmp_path: Path
         for token in [None, WRITE_TOKEN]:
             status, _, body = _asgi_status(client.app, "/runners/missing/live", token=token)
             assert status not in {401, 403}, body
+
+
+def test_permissive_mode_requires_a_credential_file() -> None:
+    # 2119: REQ-034.13.1
+    with pytest.raises(ValueError, match="credential file is required in permissive mode"):
+        create_app(object(), auth_mode="permissive")  # type: ignore[arg-type]
 
 
 @pytest.mark.parametrize(
@@ -1071,7 +1100,7 @@ def test_container_python_callers_and_shell_library_use_injected_auth_file(
     from panopticon.container.entrypoint import _make_client
     from panopticon.harnesses.claude import write_mcp_config
     from panopticon.harnesses.codex import render_config
-    from panopticon.harnesses.pi import operation_instructions
+    from panopticon.harnesses.pi import TURN_EXTENSION, operation_instructions
     from panopticon.sessionservice.shell_runner import _TASK_LIB
 
     reference = _credential_file(tmp_path)
@@ -1091,6 +1120,8 @@ def test_container_python_callers_and_shell_library_use_injected_auth_file(
     assert "Authorization: Bearer $PANOPTICON_SERVICE_AUTH_TOKEN" in operation_instructions(
         "advance", "COMPLETE", "task", "http://service", authenticated=True
     )
+    assert "const token = process.env.PANOPTICON_SERVICE_AUTH_TOKEN" in TURN_EXTENSION
+    assert '...(token ? { "authorization": `Bearer ${token}` } : {})' in TURN_EXTENSION
     assert "PANOPTICON_SERVICE_AUTH_FILE" in _TASK_LIB
     assert "Authorization: Bearer" in _TASK_LIB
     recorded = tmp_path / "curl-arguments"

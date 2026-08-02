@@ -30,6 +30,12 @@ never in URLs or command arguments. `GET /healthz` stays open; every other route
 Read tokens may call ordinary GET endpoints. Write tokens may call every endpoint, including the
 task and runner liveness streams and MCP.
 
+The runtime mount contains the complete configured token set, including read tokens and both
+generations during an overlap rotation. Task containers are therefore inside this control-plane
+trust boundary. If a container is suspected of disclosure, complete the normal overlap rollout
+and then rotate once more after the suspected container is gone; removing only the old generation
+does not revoke a next-generation token that the container could already read.
+
 Roll a live fleet out without killing existing containers:
 
 1. Put the old write token in the credential file and start the service in `permissive` mode.

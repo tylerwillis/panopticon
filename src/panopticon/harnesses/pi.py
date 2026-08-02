@@ -100,6 +100,7 @@ EXTENSION_FILE = "turn.ts"
 TURN_EXTENSION = """\
 export default function (pi) {
   const url = `${process.env.PANOPTICON_SERVICE_URL}/tasks/${process.env.PANOPTICON_TASK_ID}/turn`;
+  const token = process.env.PANOPTICON_SERVICE_AUTH_TOKEN;
   const setTurn = async (turn) => {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 2000);
@@ -108,7 +109,7 @@ export default function (pi) {
         method: "PUT",
         headers: {
           "content-type": "application/json",
-          "authorization": `Bearer ${process.env.PANOPTICON_SERVICE_AUTH_TOKEN}`,
+          ...(token ? { "authorization": `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ turn }),
         signal: controller.signal,

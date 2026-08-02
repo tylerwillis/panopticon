@@ -423,8 +423,8 @@ def create_app(
     mode = auth_mode or ("enforced" if auth_file else "disabled")
     if mode not in {"disabled", "permissive", "enforced"}:
         raise ValueError("authentication mode must be disabled, permissive, or enforced")
-    if mode == "enforced" and auth_file is None:
-        raise ValueError("authentication credential file is required in enforced mode")
+    if mode in {"permissive", "enforced"} and auth_file is None:
+        raise ValueError(f"authentication credential file is required in {mode} mode")
     tokens = load_tokens(auth_file, secrets_dir=secrets_dir) if auth_file is not None else None
 
     mcp = build_mcp_server(service)
@@ -462,6 +462,14 @@ def create_app(
             content={"detail": redact_configured_tokens(jsonable_encoder(exc.errors()))},
         )
 
+    @app.exception_handler(HTTPException)
+    async def http_error(_request: Request, exc: HTTPException) -> JSONResponse:
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": redact_configured_tokens(exc.detail)},
+            headers=exc.headers,
+        )
+
     @app.middleware("http")
     async def authenticate(
         request: Request, call_next: Callable[[Request], Awaitable[Response]]
@@ -477,8 +485,9 @@ def create_app(
             if candidate and " " not in candidate:
                 presented = candidate
         assert tokens is not None
-        write = any(hmac.compare_digest(presented, token) for token in tokens.write)
-        read = any(hmac.compare_digest(presented, token) for token in tokens.read)
+        presented_bytes = presented.encode()
+        write = any(hmac.compare_digest(presented_bytes, token.encode()) for token in tokens.write)
+        read = any(hmac.compare_digest(presented_bytes, token.encode()) for token in tokens.read)
         mutating = (
             request.method != "GET"
             or request.url.path.startswith("/mcp")

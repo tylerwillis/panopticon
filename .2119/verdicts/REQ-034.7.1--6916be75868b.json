@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.7.1--6916be75868b",
+  "requirementId": "REQ-034.7.1",
+  "hash": "6916be75868b",
+  "verdict": "pass",
+  "summary": "Covers missing, malformed, unknown, and insufficient tokens across protected REST/MCP operations, asserting exact 401, Bearer challenge, and identical generic JSON.",
+  "timestamp": "2026-08-02T05:13:10.165Z"
+}
