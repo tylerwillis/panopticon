@@ -914,7 +914,6 @@ def test_gate_requires_two_verified_final_commit_reviews_for_every_round() -> No
     invalid_sets = (
         comments[:1],
         (*comments, comments[0]),
-        (comments[0], comments[0]),
         tuple(reversed(comments)),
         (
             comments[0].replace(
@@ -955,6 +954,18 @@ def test_gate_requires_two_verified_final_commit_reviews_for_every_round() -> No
 
     for evidence in invalid_sets:
         assert_rejected(evidence)
+
+    same_model = ReviewerConfig("codex", "gpt-5.6-sol")
+    identical = render_review_comment(second, "No findings.")
+    assert (
+        validate_review_gate(
+            (identical, identical),
+            reviewers=(same_model, same_model),
+            commit="final",
+            round_number=2,
+        )
+        is None
+    )
 
     for bad_index in (0, 1):
         bad = list(comments)

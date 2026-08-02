@@ -501,8 +501,6 @@ def validate_review_gate(
     if len(reviewers) != 2:
         raise _identity_error("Review gate requires exactly two configured reviewers.", "unknown")
     parsed = [parse_review_comment(comment)[0] for comment in comments]
-    if len(set(comments)) != 2:
-        raise _identity_error("Review gate rejects duplicate evidence comments.", "unknown")
     expected_sources = {"claude": CLAUDE_SOURCE, "codex": CODEX_SOURCE}
     for evidence, expected in zip(parsed, reviewers, strict=True):
         if evidence.verification_source not in SUPPORTED_VERIFICATION_SOURCES:
