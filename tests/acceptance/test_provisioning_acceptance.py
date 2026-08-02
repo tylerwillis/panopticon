@@ -115,6 +115,7 @@ def test_provisioning_end_to_end_with_real_git(
 
         # The agent sets its slug; the daemon observes it and provisions in one pass.
         client.set_slug(task_id, "fix-widget")
+        client.claim(task_id, "host-1")
         passes = {"n": 0}
 
         def until() -> bool:
@@ -122,7 +123,13 @@ def test_provisioning_end_to_end_with_real_git(
             passes["n"] += 1
             return done
 
-        run_daemon(client, tasks_root=str(clones_root), until=until, sleep=lambda _s: None)
+        run_daemon(
+            client,
+            tasks_root=str(clones_root),
+            until=until,
+            sleep=lambda _s: None,
+            runner_id="host-1",
+        )
 
         # The per-task clone is now on the feature branch (origin already at the forge from spawn-prep).
         assert _git(per_task, "branch", "--show-current") == "panopticon/fix-widget"

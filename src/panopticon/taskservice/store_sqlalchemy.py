@@ -45,6 +45,7 @@ from sqlalchemy.pool import StaticPool
 from panopticon.core.models import (
     Actor,
     HistoryEntry,
+    MigrationRecord,
     Repo,
     Responsibility,
     Status,
@@ -150,6 +151,9 @@ class _TaskRow(_Base):
     snoozed_until: Mapped[str | None] = mapped_column(default=None)
     branch: Mapped[str | None] = mapped_column(default=None)
     clone: Mapped[str | None] = mapped_column(default=None)
+    provisioned_by: Mapped[str | None] = mapped_column(default=None)
+    workspace_verified_by: Mapped[str | None] = mapped_column(default=None)
+    migration: Mapped[dict[str, Any] | None] = mapped_column(JSON, default=None)
     claimed_by: Mapped[str | None] = mapped_column(default=None)
     tokens_used: Mapped[int | None] = mapped_column(default=None)
     token_estimate: Mapped[int | None] = mapped_column(default=None)
@@ -182,6 +186,9 @@ class _TaskRow(_Base):
             snoozed_until=self.snoozed_until,
             branch=self.branch,
             clone=self.clone,
+            provisioned_by=self.provisioned_by,
+            workspace_verified_by=self.workspace_verified_by,
+            migration=MigrationRecord(**self.migration) if self.migration else None,
             claimed_by=self.claimed_by,
             tokens_used=self.tokens_used,
             token_estimate=self.token_estimate,
@@ -211,6 +218,23 @@ class _TaskRow(_Base):
             snoozed_until=task.snoozed_until,
             branch=task.branch,
             clone=task.clone,
+            provisioned_by=task.provisioned_by,
+            workspace_verified_by=task.workspace_verified_by,
+            migration=(
+                {
+                    "source_runner": task.migration.source_runner,
+                    "destination_runner": task.migration.destination_runner,
+                    "workspace_disposition": task.migration.workspace_disposition,
+                    "workspace_method": task.migration.workspace_method,
+                    "session_history_disposition": task.migration.session_history_disposition,
+                    "discarded_changes": list(task.migration.discarded_changes),
+                    "discard_authorized_by": task.migration.discard_authorized_by,
+                    "session_history_changed_by": task.migration.session_history_changed_by,
+                    "session_history_was_requested": task.migration.session_history_was_requested,
+                }
+                if task.migration
+                else None
+            ),
             claimed_by=task.claimed_by,
             tokens_used=task.tokens_used,
             token_estimate=task.token_estimate,
@@ -429,6 +453,23 @@ class SqlAlchemyStore(Store):
             row.snoozed_until = task.snoozed_until
             row.branch = task.branch
             row.clone = task.clone
+            row.provisioned_by = task.provisioned_by
+            row.workspace_verified_by = task.workspace_verified_by
+            row.migration = (
+                {
+                    "source_runner": task.migration.source_runner,
+                    "destination_runner": task.migration.destination_runner,
+                    "workspace_disposition": task.migration.workspace_disposition,
+                    "workspace_method": task.migration.workspace_method,
+                    "session_history_disposition": task.migration.session_history_disposition,
+                    "discarded_changes": list(task.migration.discarded_changes),
+                    "discard_authorized_by": task.migration.discard_authorized_by,
+                    "session_history_changed_by": task.migration.session_history_changed_by,
+                    "session_history_was_requested": task.migration.session_history_was_requested,
+                }
+                if task.migration
+                else None
+            )
             row.claimed_by = task.claimed_by
             row.tokens_used = task.tokens_used
             row.token_estimate = task.token_estimate

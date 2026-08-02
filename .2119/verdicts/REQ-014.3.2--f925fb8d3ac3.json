@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-014.3.2--f925fb8d3ac3",
+  "requirementId": "REQ-014.3.2",
+  "hash": "f925fb8d3ac3",
+  "verdict": "pass",
+  "summary": "Tests 1 and 3 directly verify cascading auto-advances don't occur; would fail if code re-evaluated newly-entered states for auto-advance",
+  "timestamp": "2026-08-02T19:45:10.639Z"
+}

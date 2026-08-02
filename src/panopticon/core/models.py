@@ -254,6 +254,21 @@ class HistoryEntry:
     wake_status: WakeStatus = WakeStatus.SKIPPED
 
 
+@dataclass(frozen=True)
+class MigrationRecord:
+    """Auditable operator decision and destination acceptance for a host hand-off."""
+
+    source_runner: str
+    destination_runner: str
+    workspace_disposition: str
+    session_history_disposition: str
+    workspace_method: str = "archive"
+    discarded_changes: list[str] = field(default_factory=list)
+    discard_authorized_by: str | None = None
+    session_history_changed_by: str | None = None
+    session_history_was_requested: bool = False
+
+
 @dataclass
 class Task:
     """A unit of work. Identity is the internal ``id``; ``slug`` is a human label set later.
@@ -297,6 +312,9 @@ class Task:
     #: itself — so this stays correct when the runner is remote. Both ``None`` until provisioning.
     branch: str | None = None
     clone: str | None = None
+    provisioned_by: str | None = None
+    workspace_verified_by: str | None = None
+    migration: MigrationRecord | None = None
     #: The runner that has **claimed** this task (its ``runner_id``), or ``None`` if unclaimed. A
     #: session service claims an unclaimed task before spawning its container, so exactly one host
     #: owns it; the claim is the spawn gate (ADR 0008). Released (back to ``None``) to hand it off
@@ -345,7 +363,16 @@ class Task:
         """True once the session service has provisioned this task — its branch (and per-task
         clone) are recorded (ADR 0011). Until then the task has at most a slug, no working branch.
         """
-        return self.branch is not None
+        migration_ready = (
+            self.migration is None or self.migration.workspace_disposition == "accepted"
+        )
+        return bool(
+            migration_ready
+            and self.branch
+            and self.clone
+            and self.claimed_by
+            and self.claimed_by == self.provisioned_by == self.workspace_verified_by
+        )
 
     @property
     def current_entry(self) -> HistoryEntry:

@@ -145,12 +145,13 @@ def test_daemon_against_the_real_service(tmp_path: Path) -> None:
     with TestClient(create_app(service)) as http:
         client = TaskServiceClient(http)
         task_id = client.create_task("r1", "spike")["id"]
+        client.claim(task_id, "host-a")
 
         def fake_run(args: object, *, check: bool = True) -> str:
             return ""
 
         provisioner = Provisioner(client, clones_root="/clones", git=GitClones(run=fake_run))  # type: ignore[arg-type]
-        daemon = ProvisionDaemon(client, provisioner, sleep=lambda _s: None)
+        daemon = ProvisionDaemon(client, provisioner, runner_id="host-a", sleep=lambda _s: None)
 
         # Pass 1: no slug yet → nothing provisioned.
         tasks, _ = client.list_tasks_versioned()
@@ -191,6 +192,7 @@ def test_run_daemon_provisions_a_slugged_task_over_one_pass(tmp_path: Path) -> N
         client = TaskServiceClient(http)
         task_id = client.create_task("r1", "spike")["id"]
         client.set_slug(task_id, "fix-widget")
+        client.claim(task_id, "host-1")
 
         def fake_run(args: object, *, check: bool = True) -> str:
             return ""
@@ -208,6 +210,7 @@ def test_run_daemon_provisions_a_slugged_task_over_one_pass(tmp_path: Path) -> N
             git=GitClones(run=fake_run),
             until=until,
             sleep=lambda _s: None,
+            runner_id="host-1",
         )
         got = client.get_task(task_id)
         assert got["branch"] == "panopticon/fix-widget"

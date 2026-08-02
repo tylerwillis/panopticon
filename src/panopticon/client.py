@@ -9,6 +9,7 @@ return the updated resource. LLM-free — agents reach the LLM only inside the c
 
 from __future__ import annotations
 
+import os
 from collections.abc import Generator
 from typing import Any, cast
 
@@ -20,8 +21,9 @@ JsonObj = dict[str, Any]
 
 
 class TaskServiceClient:
-    def __init__(self, http: httpx.Client) -> None:
+    def __init__(self, http: httpx.Client, *, operator_token: str | None = None) -> None:
         self._http = http
+        self._operator_token = operator_token or os.environ.get("PANOPTICON_OPERATOR_TOKEN")
 
     @staticmethod
     def _json(resp: httpx.Response) -> Any:
@@ -261,11 +263,52 @@ class TaskServiceClient:
             self._json(self._http.put(f"/tasks/{task_id}/dependencies", json={"dep_ids": dep_ids})),
         )
 
-    def record_provisioning(self, task_id: str, branch: str, clone: str) -> JsonObj:
+    def record_provisioning(
+        self,
+        task_id: str,
+        branch: str,
+        clone: str,
+        runner_id: str,
+        workspace_verified: bool,
+    ) -> JsonObj:
         """Record the slug-named branch + per-task clone the session service created (ADR 0011)."""
-        body: JsonObj = {"branch": branch, "clone": clone}
+        body: JsonObj = {
+            "branch": branch,
+            "clone": clone,
+            "runner_id": runner_id,
+            "workspace_verified": workspace_verified,
+        }
         return cast(
             JsonObj, self._json(self._http.put(f"/tasks/{task_id}/provisioning", json=body))
+        )
+
+    def record_migration(
+        self,
+        task_id: str,
+        *,
+        source_runner: str,
+        destination_runner: str,
+        workspace_disposition: str,
+        session_history_disposition: str,
+        discarded_changes: list[str],
+        discard_authorized_by: str | None,
+        workspace_method: str = "archive",
+    ) -> JsonObj:
+        body: JsonObj = {
+            "source_runner": source_runner,
+            "destination_runner": destination_runner,
+            "workspace_disposition": workspace_disposition,
+            "workspace_method": workspace_method,
+            "session_history_disposition": session_history_disposition,
+            "discarded_changes": discarded_changes,
+            "discard_authorized_by": discard_authorized_by,
+        }
+        headers = (
+            {"X-Panopticon-Operator-Token": self._operator_token} if self._operator_token else {}
+        )
+        return cast(
+            JsonObj,
+            self._json(self._http.put(f"/tasks/{task_id}/migration", json=body, headers=headers)),
         )
 
     def claim(self, task_id: str, runner_id: str) -> JsonObj:

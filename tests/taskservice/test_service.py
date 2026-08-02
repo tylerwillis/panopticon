@@ -901,8 +901,9 @@ async def test_record_provisioning_records_the_refs(tmp_path: Path) -> None:
     svc = await make_service(tmp_path)
     task = await svc.create_task("r1", "spike")
     await svc.set_slug(task.id, "fix-widget")
+    await svc.claim(task.id, "host-1")
     out = await svc.record_provisioning(
-        task.id, branch="panopticon/fix-widget", clone="/clones/id1"
+        task.id, "panopticon/fix-widget", "/clones/id1", "host-1", True
     )
     assert (out.branch, out.clone) == ("panopticon/fix-widget", "/clones/id1")
     reloaded = await svc.get_task(task.id)  # a pure recorded-fact write; it persisted
@@ -913,7 +914,7 @@ async def test_record_provisioning_is_slug_gated(tmp_path: Path) -> None:
     svc = await make_service(tmp_path)
     task = await svc.create_task("r1", "spike")  # no slug yet — the branch is named from the slug
     with pytest.raises(ValueError, match="slug"):
-        await svc.record_provisioning(task.id, branch="panopticon/x", clone="/clones/x")
+        await svc.record_provisioning(task.id, "panopticon/x", "/clones/x", "host-1", True)
     assert (await svc.get_task(task.id)).branch is None
 
 
@@ -1522,12 +1523,12 @@ async def test_explicit_transition_and_turn_write_do_not_chain_auto_advance(
         await svc.set_dependencies(task.id, []),
     ]
     await svc.claim(task.id, "host-1")
-    unchanged.append(await svc.release(task.id))
     unchanged.append(
         await svc.record_provisioning(
-            task.id, branch="panopticon/still-middle", clone="/tasks/still-middle"
+            task.id, "panopticon/still-middle", "/tasks/still-middle", "host-1", True
         )
     )
+    unchanged.append(await svc.release(task.id))
     assert {result.state for result in unchanged} == {"MIDDLE"}
 
 
