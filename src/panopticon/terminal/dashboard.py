@@ -768,6 +768,41 @@ class ChoiceScreen(_OptionListModal[str]):
         self.dismiss(str(event.option.prompt))
 
 
+class RepoChoiceScreen(ChoiceScreen):
+    """The new-task repository picker with a small, prefix-only typeahead filter."""
+
+    def __init__(self, options: list[str]) -> None:
+        super().__init__("repo", options)
+        self._query = ""
+
+    def on_key(self, event: events.Key) -> None:
+        if event.key == "backspace":
+            if not self._query:
+                return
+            self._query = self._query[:-1]
+        elif event.key in {"j", "k"}:
+            # The focused _VimOptionList has already handled these navigation bindings.
+            return
+        elif event.is_printable and event.character is not None:
+            self._query += event.character
+        else:
+            return
+        event.prevent_default()
+        event.stop()
+        self._refresh_filter()
+
+    def _refresh_filter(self) -> None:
+        folded_query = self._query.casefold()
+        matches = [option for option in self._options if option.casefold().startswith(folded_query)]
+        self.query_one(Label).update(
+            f"{self._title} — search: {self._query}" if self._query else self._title
+        )
+        option_list = self.query_one(OptionList)
+        option_list.set_options(matches)
+        if matches:
+            option_list.highlighted = 0
+
+
 class SlugScreen(ModalScreen[str | None]):
     """Edit one task's slug, returning a non-empty value or ``None`` on cancel."""
 
@@ -2960,7 +2995,7 @@ class Dashboard(App[None]):
 
             self.push_screen(WorkflowScreen(workflows), describe)
 
-        self.push_screen(ChoiceScreen("repo", list(repos_by_id)), pick_workflow)
+        self.push_screen(RepoChoiceScreen(list(repos_by_id)), pick_workflow)
 
     def action_drop(self) -> None:
         """`x`: abandon the highlighted task. Drop is the **only** transition the dashboard
