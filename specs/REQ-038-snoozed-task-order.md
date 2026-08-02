@@ -1,4 +1,4 @@
-# REQ-034: Snoozed task ordering
+# REQ-038: Snoozed task ordering
 
 ## Overview
 
@@ -11,7 +11,7 @@ presentation. It does not change the stored snooze fact or the ordering of termi
 
 ## Requirements
 
-### REQ-034.1: Snoozed active section
+### REQ-038.1: Snoozed active section
 
 1. In both dashboard sort modes, the dashboard MUST place every ungoverned non-terminal task whose
    snooze is active and unpierced at the injected display time after all other ungoverned

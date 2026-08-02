@@ -955,7 +955,7 @@ async def test_sort_breaks_ties_on_id() -> None:
         assert order == ["t1", "t2"]  # t1 < t2 by id
 
 
-# 2119: REQ-034.1.1
+# 2119: REQ-038.1.1
 @pytest.mark.parametrize("by_updated", [False, True])
 async def test_snoozed_tasks_sort_after_active_and_before_terminal_in_both_modes(
     by_updated: bool,
@@ -966,12 +966,14 @@ async def test_snoozed_tasks_sort_after_active_and_before_terminal_in_both_modes
             **_TASK,
             "id": "complete",
             "state": "COMPLETE",
+            "snoozed_until": "2026-07-31T12:00:00+00:00",
             "updated_at": "2026-07-31T08:00:00+00:00",
         },
         {
             **_TASK,
             "id": "dropped",
             "state": "DROPPED",
+            "snoozed_until": "9999-12-31T23:59:59+00:00",
             "updated_at": "2026-07-31T07:00:00+00:00",
         },
         {
@@ -980,6 +982,22 @@ async def test_snoozed_tasks_sort_after_active_and_before_terminal_in_both_modes
             "snoozed_until": "2026-07-31T12:00:00+00:00",
             "created_at": "2026-07-31T09:00:00+00:00",
             "updated_at": "2026-07-31T09:00:00+00:00",
+        },
+        {
+            **_TASK,
+            "id": "snoozed-iterating",
+            "state": "ITERATING",
+            "snoozed_until": "2026-07-31T12:00:00+00:00",
+            "created_at": "2026-07-31T08:00:00+00:00",
+            "updated_at": "2026-07-31T08:00:00+00:00",
+        },
+        {
+            **_TASK,
+            "id": "snoozed-plan",
+            "state": "PLAN",
+            "snoozed_until": "2026-07-31T12:00:00+00:00",
+            "created_at": "2026-07-31T07:00:00+00:00",
+            "updated_at": "2026-07-31T07:00:00+00:00",
         },
         {
             **_TASK,
@@ -1003,6 +1021,13 @@ async def test_snoozed_tasks_sort_after_active_and_before_terminal_in_both_modes
         },
         {
             **_TASK,
+            "id": "strictly-expired",
+            "snoozed_until": "2026-07-31T07:59:59+00:00",
+            "created_at": "2026-07-31T00:30:00+00:00",
+            "updated_at": "2026-07-31T03:30:00+00:00",
+        },
+        {
+            **_TASK,
             "id": "pierced",
             "attention": True,
             "snoozed_until": "2026-07-31T12:00:00+00:00",
@@ -1016,14 +1041,16 @@ async def test_snoozed_tasks_sort_after_active_and_before_terminal_in_both_modes
         await pilot.pause()
         order = [str(key.value) for key in app.query_one("#tasks", DataTable).rows]
         ordinary_order = (
-            ["ordinary", "pierced", "expired-at-deadline"]
+            ["strictly-expired", "ordinary", "pierced", "expired-at-deadline"]
             if by_updated
-            else ["expired-at-deadline", "pierced", "ordinary"]
+            else ["expired-at-deadline", "pierced", "ordinary", "strictly-expired"]
         )
         assert order == [
             *ordinary_order,
             "snoozed-indefinite",
             "snoozed-finite",
+            "snoozed-iterating",
+            "snoozed-plan",
             "complete",
             "dropped",
         ]
