@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.1.1--909473413027",
+  "requirementId": "REQ-034.1.1",
+  "hash": "909473413027",
+  "verdict": "pass",
+  "summary": "Tests verify two ordered defaults, independent slot overrides, first-colon/verbatim model handling, Sol-only defaults, and every invalid pair fails before the reviewer runner is called.",
+  "timestamp": "2026-08-02T06:37:54.142Z"
+}

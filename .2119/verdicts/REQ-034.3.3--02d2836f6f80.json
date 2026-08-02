@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.3.3--02d2836f6f80",
+  "requirementId": "REQ-034.3.3",
+  "hash": "02d2836f6f80",
+  "verdict": "pass",
+  "summary": "Dispatch tests reject non-exact and prefix-only HEAD mismatches before reviewer execution, record the matched commit, and bind the selected base ref plus commit as the prompt diff range.",
+  "timestamp": "2026-08-02T06:37:40.198Z"
+}

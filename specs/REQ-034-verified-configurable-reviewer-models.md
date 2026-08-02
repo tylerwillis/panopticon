@@ -35,8 +35,10 @@ failed dispatch, never permission to trust the requested model or the reviewer's
 ### REQ-034.2: Machine verification
 
 1. A Claude reviewer dispatch MUST run `claude --print --output-format json --model <requested>`,
-   parse the command's raw JSON stdout, and accept the response only when the sole responding
-   model key in `modelUsage` exactly equals the requested model string.
+   parse the command's raw JSON stdout, identify exactly one responding `modelUsage` entry by
+   matching its token counters to the top-level response usage while tolerating distinct
+   auxiliary-model entries, and accept the response only when that responding key exactly equals
+   the requested model string.
 2. A Codex reviewer dispatch MUST correlate the sole `thread_id` in raw `codex exec --json`
    stdout with that thread's persisted rollout and accept the response only when exactly one
    machine-written `turn_context.payload.model` exists and equals the requested model string.
@@ -55,6 +57,8 @@ failed dispatch, never permission to trust the requested model or the reviewer's
    case-insensitively, MUST produce an availability-classified dispatch failure while a
    successfully verified review body containing no findings produces a completed evidence-bearing
    review comment.
+3. A reviewer dispatch MUST verify that its recorded reviewed commit exactly equals the checkout's
+   current `HEAD` and bind that commit plus the selected base ref into the reviewer prompt.
 
 ### REQ-034.4: Review gates
 

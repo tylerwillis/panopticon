@@ -21,11 +21,13 @@ SUPPORTED_HARNESSES = frozenset({"claude", "codex"})
 CLAUDE_SOURCE = "claude-json:modelUsage"
 CODEX_SOURCE = "codex-rollout:turn_context.payload.model"
 SUPPORTED_VERIFICATION_SOURCES = frozenset({CLAUDE_SOURCE, CODEX_SOURCE})
+REVIEWER_TIMEOUT_SECONDS = 600
 
 CommandResult: TypeAlias = Mapping[str, Any]
 RunReviewer: TypeAlias = Callable[[list[str], str], CommandResult]
 Publish: TypeAlias = Callable[[str], None]
 GitStatus: TypeAlias = Callable[[], str]
+GitHead: TypeAlias = Callable[[], str]
 VerifiedIdentity: TypeAlias = tuple[str, str]
 
 
@@ -123,11 +125,31 @@ def verify_claude_response(raw_stdout: str, requested_model: str) -> VerifiedIde
             "Claude reviewer returned invalid JSON identity evidence.", requested_model
         ) from exc
     usage = payload.get("modelUsage") if isinstance(payload, dict) else None
-    if not isinstance(usage, dict) or len(usage) != 1:
+    if not isinstance(usage, dict) or not usage:
         raise _identity_error(
-            "Claude identity evidence must contain exactly one modelUsage key.", requested_model
+            "Claude identity evidence must contain modelUsage entries.", requested_model
         )
-    observed = next(iter(usage))
+    totals = payload.get("usage")
+    counter_names = {
+        "inputTokens": "input_tokens",
+        "outputTokens": "output_tokens",
+        "cacheReadInputTokens": "cache_read_input_tokens",
+        "cacheCreationInputTokens": "cache_creation_input_tokens",
+    }
+    candidates = []
+    if isinstance(totals, dict):
+        for model, counters in usage.items():
+            if isinstance(counters, dict) and all(
+                counters.get(model_key) == totals.get(total_key)
+                for model_key, total_key in counter_names.items()
+            ):
+                candidates.append(model)
+    if len(candidates) != 1:
+        raise _identity_error(
+            "Claude identity evidence must identify exactly one responding modelUsage entry.",
+            requested_model,
+        )
+    observed = candidates[0]
     if observed != requested_model:
         raise _identity_error(
             f"Claude responding model {observed!r} does not match requested model {requested_model!r}.",
@@ -218,13 +240,20 @@ def reviewer_prompt() -> str:
 
 
 def _default_run(argv: list[str], prompt: str) -> CommandResult:
-    completed = subprocess.run(
-        argv,
-        input=prompt,
-        text=True,
-        capture_output=True,
-        check=False,
-    )
+    try:
+        completed = subprocess.run(
+            argv,
+            input=prompt,
+            text=True,
+            capture_output=True,
+            check=False,
+            timeout=REVIEWER_TIMEOUT_SECONDS,
+        )
+    except subprocess.TimeoutExpired as exc:
+        return {
+            "exit_code": 124,
+            "stderr": f"reviewer timed out after {REVIEWER_TIMEOUT_SECONDS} seconds: {exc}",
+        }
     return {
         "exit_code": completed.returncode,
         "stdout": completed.stdout,
@@ -239,7 +268,29 @@ def _git_status() -> str:
         capture_output=True,
         check=False,
     )
+    if completed.returncode != 0:
+        raise ReviewerDispatchError(
+            f"git status failed: {completed.stderr.strip() or 'no error output'}",
+            kind="command",
+            remediation="Restore a readable Git checkout and retry the reviewer.",
+        )
     return completed.stdout
+
+
+def _git_head() -> str:
+    completed = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if completed.returncode != 0:
+        raise ReviewerDispatchError(
+            f"git rev-parse HEAD failed: {completed.stderr.strip() or 'no error output'}",
+            kind="command",
+            remediation="Restore a readable Git checkout and retry the reviewer.",
+        )
+    return completed.stdout.strip()
 
 
 def _command_failure(config: ReviewerConfig, stderr: str) -> ReviewerDispatchError:
@@ -253,7 +304,7 @@ def _command_failure(config: ReviewerConfig, stderr: str) -> ReviewerDispatchErr
     )
 
 
-def _codex_body(events: list[dict[str, Any]]) -> str:
+def _codex_body(events: list[dict[str, Any]], requested_model: str) -> str:
     bodies = [
         item.get("item", {}).get("text")
         for item in events
@@ -265,7 +316,8 @@ def _codex_body(events: list[dict[str, Any]]) -> str:
         raise ReviewerDispatchError(
             "Codex reviewer output did not contain exactly one final agent message.",
             kind="command",
-            remediation="Retry the reviewer and inspect its JSONL output.",
+            requested_model=requested_model,
+            remediation="Retry the requested model and inspect its reviewer JSONL output.",
         )
     return bodies[0]
 
@@ -281,6 +333,8 @@ def dispatch_review(
     publish_artifact: Publish | None = None,
     config_root: Path | None = None,
     git_status: GitStatus = _git_status,
+    git_head: GitHead = _git_head,
+    base_ref: str = "main",
 ) -> ReviewEvidence:
     """Run, verify, then publish one review. Verification always precedes side effects."""
 
@@ -297,8 +351,20 @@ def dispatch_review(
         ]
     else:
         raise _invalid_config(f"unsupported harness {config.harness!r}", config.model)
+    actual_head = git_head()
+    if actual_head != commit:
+        raise ReviewerDispatchError(
+            f"Requested reviewed commit {commit!r} does not match checkout HEAD {actual_head!r}.",
+            kind="configuration",
+            requested_model=config.model,
+            remediation="Check out the intended final commit and retry the reviewer.",
+        )
+    bound_prompt = (
+        f"Review the exact final diff `{base_ref}...{commit}` in the current checkout. "
+        f"The reviewed commit is `{commit}`.\n\n{prompt}"
+    )
     status_before = git_status()
-    result = run(argv, prompt)
+    result = run(argv, bound_prompt)
     status_after = git_status()
     if status_after != status_before:
         raise ReviewerDispatchError(
@@ -325,11 +391,12 @@ def dispatch_review(
     else:
         root = config_root or Path(os.environ.get("CODEX_HOME", str(Path.home() / ".codex")))
         identity = verify_codex_response(stdout, root, config.model)
-        body = _codex_body(_json_lines(stdout, requested_model=config.model))
+        body = _codex_body(_json_lines(stdout, requested_model=config.model), config.model)
     evidence = ReviewEvidence.from_verified_identity(
         config, identity, commit=commit, round_number=round_number
     )
     comment = render_review_comment(evidence, body)
+    parse_review_comment(comment)
     post_comment(comment)
     if publish_artifact is not None:
         publish_artifact(comment)
@@ -397,15 +464,26 @@ def parse_review_comment(comment: str) -> tuple[ReviewEvidence, str]:
     return evidence, values["body"]
 
 
-def validate_review_gate(comments: Sequence[str], *, commit: str, round_number: int) -> None:
+def validate_review_gate(
+    comments: Sequence[str],
+    *,
+    reviewers: Sequence[ReviewerConfig],
+    commit: str,
+    round_number: int,
+) -> None:
     """Require exactly two independently parsed reviews of the expected final diff."""
 
     if len(comments) != 2:
         raise _identity_error(
             "Review gate requires exactly two evidence-bearing comments.", "unknown"
         )
-    for comment in comments:
-        evidence, _body = parse_review_comment(comment)
+    if len(reviewers) != 2:
+        raise _identity_error("Review gate requires exactly two configured reviewers.", "unknown")
+    parsed = [parse_review_comment(comment)[0] for comment in comments]
+    if len(set(comments)) != 2:
+        raise _identity_error("Review gate rejects duplicate evidence comments.", "unknown")
+    expected_sources = {"claude": CLAUDE_SOURCE, "codex": CODEX_SOURCE}
+    for evidence, expected in zip(parsed, reviewers, strict=True):
         if evidence.verification_source not in SUPPORTED_VERIFICATION_SOURCES:
             raise _identity_error(
                 "Review uses an unsupported verification source.", evidence.requested_model
@@ -413,6 +491,16 @@ def validate_review_gate(comments: Sequence[str], *, commit: str, round_number: 
         if evidence.requested_model != evidence.verified_model:
             raise _identity_error(
                 "Requested and verified reviewer models differ.", evidence.requested_model
+            )
+        if evidence.harness != expected.harness or evidence.requested_model != expected.model:
+            raise _identity_error(
+                "Review evidence does not match its configured reviewer slot.",
+                evidence.requested_model,
+            )
+        if evidence.verification_source != expected_sources.get(evidence.harness):
+            raise _identity_error(
+                "Review verification source is incompatible with its harness.",
+                evidence.requested_model,
             )
         if evidence.commit != commit:
             raise _identity_error(
@@ -427,6 +515,7 @@ def validate_review_gate(comments: Sequence[str], *, commit: str, round_number: 
 def complete_review_stage(
     comments: Sequence[str],
     *,
+    reviewers: Sequence[ReviewerConfig],
     commit: str,
     round_number: int,
     triage: Callable[[], None],
@@ -434,6 +523,6 @@ def complete_review_stage(
 ) -> None:
     """Order the evidence gate ahead of triage and responsibility resolution."""
 
-    validate_review_gate(comments, commit=commit, round_number=round_number)
+    validate_review_gate(comments, reviewers=reviewers, commit=commit, round_number=round_number)
     triage()
     resolve_responsibility()

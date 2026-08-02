@@ -31,6 +31,28 @@ def _workflows() -> dict[str, Any]:
     return discover_workflows(_home_workflows=Path("/nonexistent"))
 
 
+def _claude_payload(model: str, *, result: str | None = None) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "usage": {
+            "input_tokens": 1,
+            "output_tokens": 2,
+            "cache_read_input_tokens": 3,
+            "cache_creation_input_tokens": 4,
+        },
+        "modelUsage": {
+            model: {
+                "inputTokens": 1,
+                "outputTokens": 2,
+                "cacheReadInputTokens": 3,
+                "cacheCreationInputTokens": 4,
+            }
+        },
+    }
+    if result is not None:
+        payload["result"] = result
+    return payload
+
+
 def test_workflows_define_two_opaque_reviewer_pairs_and_sol_variant_uses_same_resolver() -> None:
     # 2119: REQ-034.1.1
     workflows = _workflows()
@@ -148,9 +170,63 @@ def test_claude_verification_rejects_missing_ambiguous_or_mismatched_identity(
         verify_claude_response(json.dumps(payload), requested_model="claude-opus-5")
 
     assert verify_claude_response(
-        json.dumps({"modelUsage": {"claude-opus-5": {"inputTokens": 1}}}),
+        json.dumps(_claude_payload("claude-opus-5")),
         requested_model="claude-opus-5",
     ) == ("claude-opus-5", "claude-json:modelUsage")
+
+
+def test_claude_verification_ignores_distinct_auxiliary_usage() -> None:
+    # 2119: REQ-034.2.1
+    payload = {
+        "usage": {
+            "input_tokens": 2,
+            "output_tokens": 12,
+            "cache_read_input_tokens": 100,
+            "cache_creation_input_tokens": 20,
+        },
+        "modelUsage": {
+            "claude-haiku-4-5": {
+                "inputTokens": 521,
+                "outputTokens": 8,
+                "cacheReadInputTokens": 0,
+                "cacheCreationInputTokens": 0,
+            },
+            "claude-fable-5": {
+                "inputTokens": 2,
+                "outputTokens": 12,
+                "cacheReadInputTokens": 100,
+                "cacheCreationInputTokens": 20,
+            },
+        },
+    }
+    assert verify_claude_response(json.dumps(payload), "claude-fable-5") == (
+        "claude-fable-5",
+        "claude-json:modelUsage",
+    )
+    for counter in (
+        "inputTokens",
+        "outputTokens",
+        "cacheReadInputTokens",
+        "cacheCreationInputTokens",
+    ):
+        requested_mismatch = json.loads(json.dumps(payload))
+        requested_mismatch["modelUsage"]["claude-fable-5"][counter] += 1
+        requested_mismatch["modelUsage"]["claude-haiku-4-5"] = dict(
+            payload["modelUsage"]["claude-fable-5"]
+        )
+        with pytest.raises(ReviewerDispatchError, match="does not match requested model"):
+            verify_claude_response(json.dumps(requested_mismatch), "claude-fable-5")
+    ambiguous = json.loads(json.dumps(payload))
+    ambiguous["modelUsage"]["claude-haiku-4-5"] = dict(ambiguous["modelUsage"]["claude-fable-5"])
+    with pytest.raises(ReviewerDispatchError, match="exactly one responding"):
+        verify_claude_response(json.dumps(ambiguous), "claude-fable-5")
+    missing_top_level_usage = {"modelUsage": payload["modelUsage"]}
+    with pytest.raises(ReviewerDispatchError, match="exactly one responding"):
+        verify_claude_response(json.dumps(missing_top_level_usage), "claude-fable-5")
+    missing_entry_counter = json.loads(json.dumps(payload))
+    del missing_entry_counter["modelUsage"]["claude-fable-5"]["inputTokens"]
+    with pytest.raises(ReviewerDispatchError, match="exactly one responding"):
+        verify_claude_response(json.dumps(missing_entry_counter), "claude-fable-5")
 
 
 def test_codex_verification_correlates_thread_to_exact_rollout_model(tmp_path: Path) -> None:
@@ -171,6 +247,11 @@ def test_codex_verification_correlates_thread_to_exact_rollout_model(tmp_path: P
         "gpt-5.6-sol",
         "codex-rollout:turn_context.payload.model",
     )
+    duplicate = sessions / "duplicate.jsonl"
+    write_rollout(duplicate, "thread-2", ("gpt-5.6-sol",))
+    with pytest.raises(ReviewerDispatchError, match="matched 2 persisted rollouts"):
+        verify_codex_response(events, tmp_path, requested_model="gpt-5.6-sol")
+    duplicate.unlink()
 
     for bad_events, models in (
         ("", ("gpt-5.6-sol",)),
@@ -230,6 +311,7 @@ def test_codex_dispatch_uses_isolated_command_and_never_publishes_failures(
 ) -> None:
     # 2119: REQ-028.12.1
     # 2119: REQ-034.2.3
+    # 2119: REQ-034.3.2
     sessions = tmp_path / "sessions"
     sessions.mkdir()
     rollout = sessions / "review.jsonl"
@@ -270,7 +352,10 @@ def test_codex_dispatch_uses_isolated_command_and_never_publishes_failures(
 
     def successful_run(argv: list[str], prompt: str) -> dict[str, Any]:
         assert argv == expected_argv
-        assert prompt == reviewer_prompt()
+        assert prompt == (
+            "Review the exact final diff `main...abc123` in the current checkout. "
+            "The reviewed commit is `abc123`.\n\n" + reviewer_prompt()
+        )
         return {"exit_code": 0, "stdout": events}
 
     dispatch_review(
@@ -282,6 +367,7 @@ def test_codex_dispatch_uses_isolated_command_and_never_publishes_failures(
         post_comment=posted.append,
         publish_artifact=artifacts.append,
         config_root=tmp_path,
+        git_head=lambda: "abc123",
     )
     assert len(posted) == len(artifacts) == 1
 
@@ -309,6 +395,15 @@ def test_codex_dispatch_uses_isolated_command_and_never_publishes_failures(
             "ambiguous",
             "identity",
             "Codex rollout must contain exactly one turn_context.payload.model.",
+        ),
+        (
+            {
+                "exit_code": 0,
+                "stdout": json.dumps({"type": "thread.started", "thread_id": "thread-1"}),
+            },
+            "gpt-5.6-sol",
+            "command",
+            "Codex reviewer output did not contain exactly one final agent message.",
         ),
     ):
         posted.clear()
@@ -339,6 +434,7 @@ def test_codex_dispatch_uses_isolated_command_and_never_publishes_failures(
                 post_comment=posted.append,
                 publish_artifact=artifacts.append,
                 config_root=tmp_path,
+                git_head=lambda: "abc123",
             )
         assert posted == []
         assert artifacts == []
@@ -363,6 +459,7 @@ def test_codex_dispatch_uses_isolated_command_and_never_publishes_failures(
             publish_artifact=artifacts.append,
             config_root=tmp_path,
             git_status=lambda: next(statuses),
+            git_head=lambda: "abc123",
         )
     assert posted == []
     assert artifacts == []
@@ -372,6 +469,7 @@ def test_dispatch_verifies_before_posting_and_derives_evidence_comment() -> None
     # 2119: REQ-034.2.1
     # 2119: REQ-034.3.1
     # 2119: REQ-034.3.2
+    # 2119: REQ-034.3.3
     # 2119: REQ-034.4.1
     posted: list[str] = []
     prompt_seen = ""
@@ -390,10 +488,10 @@ def test_dispatch_verifies_before_posting_and_derives_evidence_comment() -> None
         return {
             "exit_code": 0,
             "stdout": json.dumps(
-                {
-                    "result": "# claude-fable-5 — asserted by reviewer\n\nNo findings.",
-                    "modelUsage": {"claude-opus-5": {}},
-                }
+                _claude_payload(
+                    "claude-opus-5",
+                    result="# claude-fable-5 — asserted by reviewer\n\nNo findings.",
+                )
             ),
         }
 
@@ -404,8 +502,10 @@ def test_dispatch_verifies_before_posting_and_derives_evidence_comment() -> None
         round_number=2,
         run=run,
         post_comment=posted.append,
+        git_head=lambda: "abc123",
     )
 
+    assert "main...abc123" in prompt_seen
     assert "state your model" not in prompt_seen.lower()
     assert "model-labeled heading" not in prompt_seen.lower()
     assert evidence == ReviewEvidence(
@@ -451,6 +551,65 @@ No findings."""
         parse_review_comment(expected_comment.split("\n---\n", 1)[0])
 
 
+def test_dispatch_rejects_a_reviewed_commit_that_is_not_checkout_head() -> None:
+    # 2119: REQ-034.3.3
+    called = False
+
+    def forbidden_run(argv: list[str], prompt: str) -> dict[str, Any]:
+        nonlocal called
+        called = True
+        return {"exit_code": 0}
+
+    with pytest.raises(ReviewerDispatchError) as raised:
+        dispatch_review(
+            ReviewerConfig("claude", "claude-opus-5"),
+            prompt=reviewer_prompt(),
+            commit="claimed",
+            round_number=1,
+            run=forbidden_run,
+            post_comment=lambda comment: None,
+            git_head=lambda: "actual",
+        )
+    assert called is False
+    assert raised.value.requested_model == "claude-opus-5"
+    assert "does not match checkout HEAD" in raised.value.detail
+    with pytest.raises(ReviewerDispatchError):
+        dispatch_review(
+            ReviewerConfig("claude", "claude-opus-5"),
+            prompt=reviewer_prompt(),
+            commit="abc123",
+            round_number=1,
+            run=forbidden_run,
+            post_comment=lambda comment: None,
+            git_head=lambda: "abc1234",
+        )
+
+
+def test_dispatch_binds_the_selected_base_ref_into_the_prompt() -> None:
+    # 2119: REQ-034.3.3
+    seen = ""
+
+    def run(argv: list[str], prompt: str) -> dict[str, Any]:
+        nonlocal seen
+        seen = prompt
+        return {
+            "exit_code": 0,
+            "stdout": json.dumps(_claude_payload("claude-opus-5", result="No findings.")),
+        }
+
+    dispatch_review(
+        ReviewerConfig("claude", "claude-opus-5"),
+        prompt=reviewer_prompt(),
+        commit="abc123",
+        round_number=1,
+        run=run,
+        post_comment=lambda comment: None,
+        git_head=lambda: "abc123",
+        base_ref="release/next",
+    )
+    assert "`release/next...abc123`" in seen
+
+
 def test_generated_reviewer_prompt_contains_no_model_identity_or_heading_instruction() -> None:
     # 2119: REQ-028.12.1
     prompt = reviewer_prompt()
@@ -482,9 +641,13 @@ def test_every_nonzero_reviewer_exit_is_a_typed_unpublished_failure(
             run=lambda argv, prompt: {"exit_code": exit_code, "stderr": "failed"},
             post_comment=posted.append,
             publish_artifact=artifacts.append,
+            git_head=lambda: "abc123",
         )
     assert raised.value.kind == "command"
     assert raised.value.requested_model == model
+    assert raised.value.detail == f"{harness} reviewer command failed: failed"
+    assert "retry" in raised.value.remediation.lower()
+    assert "model" in raised.value.remediation.lower()
     assert posted == []
     assert artifacts == []
 
@@ -507,7 +670,7 @@ def test_every_nonzero_reviewer_exit_is_a_typed_unpublished_failure(
         (
             {"exit_code": 0, "stdout": json.dumps({"result": "No findings."})},
             "identity",
-            "Claude identity evidence must contain exactly one modelUsage key.",
+            "Claude identity evidence must contain modelUsage entries.",
             "Retry with a canonical model id or configure a model whose identity the CLI exposes.",
         ),
         (
@@ -521,15 +684,13 @@ def test_every_nonzero_reviewer_exit_is_a_typed_unpublished_failure(
                 ),
             },
             "identity",
-            "Claude identity evidence must contain exactly one modelUsage key.",
+            "Claude identity evidence must identify exactly one responding modelUsage entry.",
             "Retry with a canonical model id or configure a model whose identity the CLI exposes.",
         ),
         (
             {
                 "exit_code": 0,
-                "stdout": json.dumps(
-                    {"result": "No findings.", "modelUsage": {"claude-fable-5": {}}}
-                ),
+                "stdout": json.dumps(_claude_payload("claude-fable-5", result="No findings.")),
             },
             "identity",
             "Claude responding model 'claude-fable-5' does not match requested model "
@@ -558,6 +719,7 @@ def test_failed_command_or_identity_never_posts_review(
             run=lambda argv, prompt: result,
             post_comment=posted.append,
             publish_artifact=artifacts.append,
+            git_head=lambda: "abc123",
         )
     assert posted == []
     assert artifacts == []
@@ -579,7 +741,13 @@ def test_failed_command_or_identity_never_posts_review(
         "UnAvAiLaBlE",
     ],
 )
-def test_dispatch_failure_is_not_a_zero_findings_review(failure: str, exit_code: int) -> None:
+@pytest.mark.parametrize(
+    "harness, model",
+    [("claude", "claude-opus-5"), ("codex", "gpt-5.6-sol")],
+)
+def test_dispatch_failure_is_not_a_zero_findings_review(
+    failure: str, exit_code: int, harness: str, model: str
+) -> None:
     # 2119: REQ-034.3.2
     posted: list[str] = []
 
@@ -588,22 +756,59 @@ def test_dispatch_failure_is_not_a_zero_findings_review(failure: str, exit_code:
 
     with pytest.raises(ReviewerDispatchError) as raised:
         dispatch_review(
-            ReviewerConfig("claude", "claude-opus-5"),
+            ReviewerConfig(harness, model),
             prompt="Review without editing.",
             commit="abc123",
             round_number=1,
             run=fail_run,
             post_comment=posted.append,
+            git_head=lambda: "abc123",
         )
     assert raised.value.kind == "availability"
     assert posted == []
+
+
+def test_availability_classification_requires_nonzero_exit_and_stderr() -> None:
+    # 2119: REQ-034.3.2
+    posted: list[str] = []
+    dispatch_review(
+        ReviewerConfig("claude", "claude-opus-5"),
+        prompt=reviewer_prompt(),
+        commit="abc123",
+        round_number=1,
+        run=lambda argv, prompt: {
+            "exit_code": 0,
+            "stderr": "usage limit reached",
+            "stdout": json.dumps(_claude_payload("claude-opus-5", result="No findings.")),
+        },
+        post_comment=posted.append,
+        git_head=lambda: "abc123",
+    )
+    assert len(posted) == 1
+
+    with pytest.raises(ReviewerDispatchError) as raised:
+        dispatch_review(
+            ReviewerConfig("claude", "claude-opus-5"),
+            prompt=reviewer_prompt(),
+            commit="abc123",
+            round_number=1,
+            run=lambda argv, prompt: {
+                "exit_code": 1,
+                "stdout": "model unavailable",
+                "stderr": "request failed",
+            },
+            post_comment=posted.append,
+            git_head=lambda: "abc123",
+        )
+    assert raised.value.kind == "command"
+    assert len(posted) == 1
 
 
 def test_gate_requires_two_verified_final_commit_reviews_for_every_round() -> None:
     # 2119: REQ-034.4.1
     first = ReviewEvidence.from_verified_identity(
         ReviewerConfig("claude", "claude-opus-5"),
-        verify_claude_response(json.dumps({"modelUsage": {"claude-opus-5": {}}}), "claude-opus-5"),
+        verify_claude_response(json.dumps(_claude_payload("claude-opus-5")), "claude-opus-5"),
         commit="final",
         round_number=2,
     )
@@ -614,11 +819,25 @@ def test_gate_requires_two_verified_final_commit_reviews_for_every_round() -> No
         round_number=2,
     )
     comments = (render_review_comment(first, "A"), render_review_comment(second, "B"))
-    assert validate_review_gate(comments, commit="final", round_number=2) is None
+    reviewers = (
+        ReviewerConfig("claude", "claude-opus-5"),
+        ReviewerConfig("codex", "gpt-5.6-sol"),
+    )
+    assert (
+        validate_review_gate(comments, reviewers=reviewers, commit="final", round_number=2) is None
+    )
 
     invalid_sets = (
         comments[:1],
         (*comments, comments[0]),
+        (comments[0], comments[0]),
+        tuple(reversed(comments)),
+        (
+            comments[0].replace(
+                "claude-json:modelUsage", "codex-rollout:turn_context.payload.model"
+            ),
+            comments[1],
+        ),
         (
             comments[0],
             comments[1].replace("gpt-5.6-sol`\n- Verification", "other`\n- Verification", 1),
@@ -631,11 +850,12 @@ def test_gate_requires_two_verified_final_commit_reviews_for_every_round() -> No
 
     def assert_rejected(evidence: tuple[str, ...]) -> None:
         with pytest.raises(ReviewerDispatchError):
-            validate_review_gate(evidence, commit="final", round_number=2)
+            validate_review_gate(evidence, reviewers=reviewers, commit="final", round_number=2)
         effects: list[str] = []
         with pytest.raises(ReviewerDispatchError):
             complete_review_stage(
                 evidence,
+                reviewers=reviewers,
                 commit="final",
                 round_number=2,
                 triage=lambda: effects.append("triage"),

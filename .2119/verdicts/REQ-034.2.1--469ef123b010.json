@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.2.1--469ef123b010",
+  "requirementId": "REQ-034.2.1",
+  "hash": "469ef123b010",
+  "verdict": "pass",
+  "summary": "Tests pin exact Claude argv, parse raw JSON stdout, reject every counter mismatch and zero/multiple responders, tolerate distinct auxiliary usage, and require an exact requested-model key before posting.",
+  "timestamp": "2026-08-02T06:42:07.388Z"
+}
