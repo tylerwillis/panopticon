@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.3.2--340423a21742",
-  "requirementId": "REQ-034.3.2",
-  "hash": "340423a21742",
-  "verdict": "pass",
-  "summary": "Tests verify case-insensitive availability classification only for nonzero stderr failures and require verified no-findings output to publish an exact evidence-bearing review comment.",
-  "timestamp": "2026-08-02T07:00:04.019Z"
-}

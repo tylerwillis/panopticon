@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.2.2--54886f38d5e5",
-  "requirementId": "REQ-034.2.2",
-  "hash": "54886f38d5e5",
-  "verdict": "pass",
-  "summary": "Direct verifier test rejects absent or non-sole stdout thread IDs, wrong or duplicate matching rollouts, zero or multiple turn_context models, non-turn_context model records, and an inexact requested-model match.",
-  "timestamp": "2026-08-02T06:40:49.794Z"
-}

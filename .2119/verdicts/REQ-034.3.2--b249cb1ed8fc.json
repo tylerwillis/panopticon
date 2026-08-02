@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.3.2--b249cb1ed8fc",
-  "requirementId": "REQ-034.3.2",
-  "hash": "b249cb1ed8fc",
-  "verdict": "pass",
-  "summary": "Tests cover nonzero exits, both stderr markers with mixed-case variants, availability classification and no posting, plus a verified no-findings body producing exact evidence-bearing comment and returned evidence.",
-  "timestamp": "2026-08-02T06:05:37.186Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.2.2--5dc9441eaa96",
-  "requirementId": "REQ-034.2.2",
-  "hash": "5dc9441eaa96",
-  "verdict": "pass",
-  "summary": "Rejects absent or non-sole stdout thread IDs, mismatched/ambiguous rollouts, and absent, duplicate, wrong-type, or non-exact turn_context model evidence.",
-  "timestamp": "2026-08-02T07:01:59.189Z"
-}

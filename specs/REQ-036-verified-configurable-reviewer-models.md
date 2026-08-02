@@ -1,4 +1,4 @@
-# REQ-034: Verified, configurable 2119 reviewer models
+# REQ-036: Verified, configurable 2119 reviewer models
 
 ## Overview
 
@@ -23,7 +23,7 @@ failed dispatch, never permission to trust the requested model or the reviewer's
 
 ## Requirements
 
-### REQ-034.1: Reviewer configuration
+### REQ-036.1: Reviewer configuration
 
 1. Reviewer resolution MUST return two ordered atomic harness/model pairs by independently
    applying `PANOPTICON_2119_REVIEWER_1` and `PANOPTICON_2119_REVIEWER_2` `<harness>:<model>` repo
@@ -32,7 +32,7 @@ failed dispatch, never permission to trust the requested model or the reviewer's
    `2119-auto-sol`, and rejecting a missing harness, missing model, unsupported harness, or
    malformed pair before invoking a reviewer command.
 
-### REQ-034.2: Machine verification
+### REQ-036.2: Machine verification
 
 1. A Claude reviewer dispatch MUST run
    `claude --print --output-format json --safe-mode --dangerously-skip-permissions --model <requested>`
@@ -49,7 +49,7 @@ failed dispatch, never permission to trust the requested model or the reviewer's
    artifact publication when the command exits nonzero, identity evidence is missing or
    ambiguous, or the observed model differs from the requested model.
 
-### REQ-034.3: Evidence-bearing reports
+### REQ-036.3: Evidence-bearing reports
 
 1. A completed review PR comment MUST derive its heading from the verified responding model and
    contain the reviewer harness, requested model, verified responding model, verification source,
@@ -62,7 +62,7 @@ failed dispatch, never permission to trust the requested model or the reviewer's
 3. A reviewer dispatch MUST verify that its recorded reviewed commit exactly equals the checkout's
    current `HEAD` and bind that commit plus the selected base ref into the reviewer prompt.
 
-### REQ-034.4: Review gates
+### REQ-036.4: Review gates
 
 1. The review gate MUST accept exactly two parsed evidence-bearing comments only when each has a
    supported verification source, equal requested and verified model strings, and the expected

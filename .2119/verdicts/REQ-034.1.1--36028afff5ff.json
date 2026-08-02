@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.1.1--36028afff5ff",
-  "requirementId": "REQ-034.1.1",
-  "hash": "36028afff5ff",
-  "verdict": "pass",
-  "summary": "Tests genuinely cover two ordered independent override slots, first-colon splitting with verbatim model preservation, all built-in defaults including dual Codex/Sol, and every specified invalid form before dispatch.",
-  "timestamp": "2026-08-02T05:59:56.203Z"
-}

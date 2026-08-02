@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.3.2--acded81b85c9",
-  "requirementId": "REQ-034.3.2",
-  "hash": "acded81b85c9",
-  "verdict": "pass",
-  "summary": "Tests reject nonzero mixed-case usage-limit/unavailable stderr as availability failures, distinguish zero exit and stdout-only near misses, and pin the verified evidence-bearing no-findings comment.",
-  "timestamp": "2026-08-02T06:50:26.137Z"
-}

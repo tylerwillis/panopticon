@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.4.1--8e2fdb4def56",
-  "requirementId": "REQ-034.4.1",
-  "hash": "8e2fdb4def56",
-  "verdict": "pass",
-  "summary": "Gate tests accept the exact valid pair and reject 1/3/duplicate/malformed comments, unsupported sources, per-slot model mismatches, stale commits, and wrong rounds before either downstream effect.",
-  "timestamp": "2026-08-02T06:37:54.243Z"
-}

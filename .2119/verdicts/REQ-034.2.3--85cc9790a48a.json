@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.2.3--85cc9790a48a",
-  "requirementId": "REQ-034.2.3",
-  "hash": "85cc9790a48a",
-  "verdict": "pass",
-  "summary": "Dispatch tests reject nonzero exits, missing or ambiguous identity, and model mismatch across both harnesses while asserting all typed failure fields and zero comment/artifact publication.",
-  "timestamp": "2026-08-02T06:37:36.591Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.4.1--ea73e5bc100a",
-  "requirementId": "REQ-034.4.1",
-  "hash": "ea73e5bc100a",
-  "verdict": "pass",
-  "summary": "Tests reject non-exact counts, malformed or missing evidence, unsupported sources, model mismatches, stale commits, and wrong rounds before either gated side effect.",
-  "timestamp": "2026-08-02T07:20:45.035Z"
-}

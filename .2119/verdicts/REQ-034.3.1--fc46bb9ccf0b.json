@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.3.1--fc46bb9ccf0b",
-  "requirementId": "REQ-034.3.1",
-  "hash": "fc46bb9ccf0b",
-  "verdict": "pass",
-  "summary": "Dispatch verifies identity before posting; tests pin the verified-model heading, every required evidence field, exact reviewer body preservation, rejection of missing metadata/body separators, and ignore a conflicting model label in the body.",
-  "timestamp": "2026-08-02T05:52:40.958Z"
-}

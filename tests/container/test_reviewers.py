@@ -54,7 +54,7 @@ def _claude_payload(model: str, *, result: str | None = None) -> dict[str, Any]:
 
 
 def test_workflows_define_two_opaque_reviewer_pairs_and_sol_variant_uses_same_resolver() -> None:
-    # 2119: REQ-034.1.1
+    # 2119: REQ-036.1.1
     workflows = _workflows()
     expected = {
         "2119-human-spec": (
@@ -88,7 +88,7 @@ def test_workflows_define_two_opaque_reviewer_pairs_and_sol_variant_uses_same_re
 
 
 def test_repo_overrides_preserve_slots_and_split_only_the_first_colon() -> None:
-    # 2119: REQ-034.1.1
+    # 2119: REQ-036.1.1
     defaults = (
         ReviewerConfig("claude", "claude-fable-5"),
         ReviewerConfig("codex", "gpt-5.6-sol"),
@@ -129,7 +129,7 @@ def test_repo_overrides_preserve_slots_and_split_only_the_first_colon() -> None:
 def test_invalid_override_fails_before_dispatch(
     value: str, message: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # 2119: REQ-034.1.1
+    # 2119: REQ-036.1.1
     called = False
 
     def forbidden_run(*args: Any, **kwargs: Any) -> Any:
@@ -165,7 +165,7 @@ def test_invalid_override_fails_before_dispatch(
 def test_claude_verification_rejects_missing_ambiguous_or_mismatched_identity(
     payload: dict[str, Any],
 ) -> None:
-    # 2119: REQ-034.2.1
+    # 2119: REQ-036.2.1
     with pytest.raises(ReviewerDispatchError):
         verify_claude_response(json.dumps(payload), requested_model="claude-opus-5")
 
@@ -176,7 +176,7 @@ def test_claude_verification_rejects_missing_ambiguous_or_mismatched_identity(
 
 
 def test_claude_verification_ignores_distinct_auxiliary_usage() -> None:
-    # 2119: REQ-034.2.1
+    # 2119: REQ-036.2.1
     payload = {
         "usage": {
             "input_tokens": 2,
@@ -233,7 +233,7 @@ def test_claude_verification_ignores_distinct_auxiliary_usage() -> None:
 
 
 def test_codex_verification_correlates_thread_to_exact_rollout_model(tmp_path: Path) -> None:
-    # 2119: REQ-034.2.2
+    # 2119: REQ-036.2.2
     events = json.dumps({"type": "thread.started", "thread_id": "thread-2"})
     sessions = tmp_path / "sessions" / "2026" / "08" / "02"
     sessions.mkdir(parents=True)
@@ -319,8 +319,8 @@ def test_codex_dispatch_uses_isolated_command_and_never_publishes_failures(
     tmp_path: Path,
 ) -> None:
     # 2119: REQ-028.12.1
-    # 2119: REQ-034.2.3
-    # 2119: REQ-034.3.2
+    # 2119: REQ-036.2.3
+    # 2119: REQ-036.3.2
     sessions = tmp_path / "sessions"
     sessions.mkdir()
     rollout = sessions / "review.jsonl"
@@ -548,11 +548,11 @@ def test_codex_dispatch_uses_the_last_completed_agent_message(tmp_path: Path) ->
 
 
 def test_dispatch_verifies_before_posting_and_derives_evidence_comment() -> None:
-    # 2119: REQ-034.2.1
-    # 2119: REQ-034.3.1
-    # 2119: REQ-034.3.2
-    # 2119: REQ-034.3.3
-    # 2119: REQ-034.4.1
+    # 2119: REQ-036.2.1
+    # 2119: REQ-036.3.1
+    # 2119: REQ-036.3.2
+    # 2119: REQ-036.3.3
+    # 2119: REQ-036.4.1
     posted: list[str] = []
     prompt_seen = ""
 
@@ -636,7 +636,7 @@ No findings."""
 
 
 def test_dispatch_rejects_a_reviewed_commit_that_is_not_checkout_head() -> None:
-    # 2119: REQ-034.3.3
+    # 2119: REQ-036.3.3
     called = False
 
     def forbidden_run(argv: list[str], prompt: str) -> dict[str, Any]:
@@ -670,7 +670,7 @@ def test_dispatch_rejects_a_reviewed_commit_that_is_not_checkout_head() -> None:
 
 
 def test_dispatch_binds_the_selected_base_ref_into_the_prompt() -> None:
-    # 2119: REQ-034.3.3
+    # 2119: REQ-036.3.3
     seen = ""
 
     def run(argv: list[str], prompt: str) -> dict[str, Any]:
@@ -713,7 +713,7 @@ def test_generated_reviewer_prompt_contains_no_model_identity_or_heading_instruc
 def test_every_nonzero_reviewer_exit_is_a_typed_unpublished_failure(
     harness: str, model: str, exit_code: int
 ) -> None:
-    # 2119: REQ-034.2.3
+    # 2119: REQ-036.2.3
     posted: list[str] = []
     artifacts: list[str] = []
     with pytest.raises(ReviewerDispatchError) as raised:
@@ -789,9 +789,9 @@ def test_failed_command_or_identity_never_posts_review(
     expected_detail: str,
     expected_remediation: str,
 ) -> None:
-    # 2119: REQ-034.2.1
-    # 2119: REQ-034.2.3
-    # 2119: REQ-034.3.2
+    # 2119: REQ-036.2.1
+    # 2119: REQ-036.2.3
+    # 2119: REQ-036.3.2
     posted: list[str] = []
     artifacts: list[str] = []
     with pytest.raises(ReviewerDispatchError) as raised:
@@ -832,7 +832,7 @@ def test_failed_command_or_identity_never_posts_review(
 def test_dispatch_failure_is_not_a_zero_findings_review(
     failure: str, exit_code: int, harness: str, model: str
 ) -> None:
-    # 2119: REQ-034.3.2
+    # 2119: REQ-036.3.2
     posted: list[str] = []
 
     def fail_run(argv: list[str], prompt: str) -> dict[str, Any]:
@@ -853,7 +853,7 @@ def test_dispatch_failure_is_not_a_zero_findings_review(
 
 
 def test_availability_classification_requires_nonzero_exit_and_stderr() -> None:
-    # 2119: REQ-034.3.2
+    # 2119: REQ-036.3.2
     posted: list[str] = []
     dispatch_review(
         ReviewerConfig("claude", "claude-opus-5"),
@@ -889,7 +889,7 @@ def test_availability_classification_requires_nonzero_exit_and_stderr() -> None:
 
 
 def test_gate_requires_two_verified_final_commit_reviews_for_every_round() -> None:
-    # 2119: REQ-034.4.1
+    # 2119: REQ-036.4.1
     first = ReviewEvidence.from_verified_identity(
         ReviewerConfig("claude", "claude-opus-5"),
         verify_claude_response(json.dumps(_claude_payload("claude-opus-5")), "claude-opus-5"),

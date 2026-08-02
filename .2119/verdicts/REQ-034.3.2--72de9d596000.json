@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.3.2--72de9d596000",
-  "requirementId": "REQ-034.3.2",
-  "hash": "72de9d596000",
-  "verdict": "pass",
-  "summary": "Tests reject zero-exit and stdout-only availability lookalikes, cover both stderr phrases case-insensitively on nonzero exits, and require verified evidence metadata in the completed no-findings comment.",
-  "timestamp": "2026-08-02T06:37:42.184Z"
-}
