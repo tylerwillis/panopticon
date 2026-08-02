@@ -151,9 +151,7 @@ def test_daemon_against_the_real_service(tmp_path: Path) -> None:
             return ""
 
         provisioner = Provisioner(client, clones_root="/clones", git=GitClones(run=fake_run))  # type: ignore[arg-type]
-        daemon = ProvisionDaemon(
-            client, provisioner, runner_id="host-a", sleep=lambda _s: None
-        )
+        daemon = ProvisionDaemon(client, provisioner, runner_id="host-a", sleep=lambda _s: None)
 
         # Pass 1: no slug yet → nothing provisioned.
         tasks, _ = client.list_tasks_versioned()

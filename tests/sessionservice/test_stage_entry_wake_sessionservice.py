@@ -420,15 +420,15 @@ def test_run_host_wires_the_stage_entry_waker_into_the_daemon(
             self,
             client: object,
             spawner: object,
-                provisioner: object,
-                *,
-                runner_id: str | None = None,
-                waker: object = None,
-                interval: float,
-                sleep: object,
-            ) -> None:
-                captured["runner_id"] = runner_id
-                captured["waker"] = waker
+            provisioner: object,
+            *,
+            runner_id: str | None = None,
+            waker: object = None,
+            interval: float,
+            sleep: object,
+        ) -> None:
+            captured["runner_id"] = runner_id
+            captured["waker"] = waker
 
         def run(self, *, until: object) -> None:
             captured["ran"] = True
