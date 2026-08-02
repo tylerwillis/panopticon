@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.6.2--6ef9ed423096",
-  "requirementId": "REQ-034.6.2",
-  "hash": "6ef9ed423096",
-  "verdict": "pass",
-  "summary": "Covers omission end-to-end: records omitted, removes stale destination config, selects real Codex first-run, verifies the recorded branch before spawn, and rejects a mismatched branch without spawning.",
-  "timestamp": "2026-08-02T18:19:14.463Z"
-}

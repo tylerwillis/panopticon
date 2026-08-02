@@ -192,6 +192,7 @@ def test_run_daemon_provisions_a_slugged_task_over_one_pass(tmp_path: Path) -> N
         client = TaskServiceClient(http)
         task_id = client.create_task("r1", "spike")["id"]
         client.set_slug(task_id, "fix-widget")
+        client.claim(task_id, "host-1")
 
         def fake_run(args: object, *, check: bool = True) -> str:
             return ""
@@ -209,6 +210,7 @@ def test_run_daemon_provisions_a_slugged_task_over_one_pass(tmp_path: Path) -> N
             git=GitClones(run=fake_run),
             until=until,
             sleep=lambda _s: None,
+            runner_id="host-1",
         )
         got = client.get_task(task_id)
         assert got["branch"] == "panopticon/fix-widget"

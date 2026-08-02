@@ -218,13 +218,38 @@ class Spawner:
             )
             owner = task.get("provisioned_by")
             if owner not in (None, self._runner_id):
-                from panopticon.sessionservice.migration import verify_canonical_workspace
+                from panopticon.sessionservice.migration import (
+                    MigrationConflict,
+                    spawn_allowed,
+                    verify_canonical_workspace,
+                )
 
                 verify_canonical_workspace(
                     Path(workspace),
                     expected_git_url=str(repo["git_url"]),
                     expected_branch=str(task["branch"]),
                 )
+                prospective = dict(task)
+                prospective.update(
+                    provisioned_by=self._runner_id,
+                    workspace_verified_by=self._runner_id,
+                    clone=workspace,
+                )
+                if not spawn_allowed(
+                    prospective,
+                    runner_id=self._runner_id,
+                    workspace_exists=True,
+                    inspected_branch=str(task["branch"]),
+                ):
+                    raise MigrationConflict("migration session history is not accepted for spawn")
+                self._client.record_provisioning(
+                    task_id,
+                    str(task["branch"]),
+                    workspace,
+                    self._runner_id,
+                    True,
+                )
+                task.update(prospective)
             return workspace
         workdir = f"{self._tasks_root}/{task_id}"
         self._makedirs(workdir)

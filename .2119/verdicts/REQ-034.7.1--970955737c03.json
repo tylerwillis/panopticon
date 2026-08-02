@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.7.1--970955737c03",
+  "requirementId": "REQ-034.7.1",
+  "hash": "970955737c03",
+  "verdict": "pass",
+  "summary": "Boundary tests verify spawn blocked until both conditions; test fails if spawn precedes acceptance persistence or verification",
+  "timestamp": "2026-08-02T20:00:59.710Z"
+}

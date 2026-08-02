@@ -77,24 +77,27 @@ class Provisioner:
             foreign
             and isinstance(migration, dict)
             and migration.get("destination_runner") == runner_id
-            and migration.get("workspace_disposition") == "forge-first"
+            and migration.get("workspace_disposition") == "accepted"
+            and migration.get("workspace_method", "forge-first") == "forge-first"
         )
         if task.get("provisioned") and not foreign:
+            return None
+        if foreign and not forge_first:
             return None
         branch = str(recorded or branch_name(task["slug"]))
         if forge_first:
             if not self._workspace_exists(clone):
                 return None
             self._git.checkout_remote_branch(repo_path=clone, branch=branch)
-        else:
-            self._git.create_branch(repo_path=clone, branch=branch)
-        if forge_first and self._inspect_repository is not None:
-            repo_id, actual_branch = self._inspect_repository(clone)
-            if repo_id != task["repo_id"]:
-                from panopticon.sessionservice.migration import MigrationConflict
-
-                raise MigrationConflict("repository identity mismatch")
-        elif forge_first:
+            actual_branch = subprocess.run(
+                ["git", "-C", clone, "branch", "--show-current"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+        elif recorded:
+            # Adopt/re-verify an existing branch (including legacy upgraded rows) without trying
+            # to create it again. A mismatch is rejected below.
             actual_branch = subprocess.run(
                 ["git", "-C", clone, "branch", "--show-current"],
                 check=True,
@@ -102,13 +105,17 @@ class Provisioner:
                 text=True,
             ).stdout.strip()
         else:
+            self._git.create_branch(repo_path=clone, branch=branch)
+        if not recorded and not forge_first:
             actual_branch = branch
         if actual_branch != branch:
             from panopticon.sessionservice.migration import MigrationConflict
 
             raise MigrationConflict("branch mismatch")
         effective_runner = runner_id or (
-            str(task["claimed_by"]) if task.get("claimed_by") is not None else "local"
+            str(task["claimed_by"]) if task.get("claimed_by") is not None else ""
         )
+        if not effective_runner:
+            return None
         self._client.record_provisioning(task["id"], branch, clone, effective_runner, True)
         return branch

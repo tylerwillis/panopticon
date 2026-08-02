@@ -20,6 +20,13 @@ def upgrade() -> None:
     op.add_column("task", sa.Column("provisioned_by", sa.String(), nullable=True))
     op.add_column("task", sa.Column("workspace_verified_by", sa.String(), nullable=True))
     op.add_column("task", sa.Column("migration", sa.JSON(), nullable=True))
+    # Existing branch records were created by the current claimant. Preserve their working
+    # single-host semantics across the rollout; an unclaimed legacy checkout remains deliberately
+    # unverified until a host claims and adopts it.
+    op.execute(
+        "UPDATE task SET provisioned_by = claimed_by, workspace_verified_by = claimed_by "
+        "WHERE branch IS NOT NULL AND clone IS NOT NULL AND claimed_by IS NOT NULL"
+    )
 
 
 def downgrade() -> None:

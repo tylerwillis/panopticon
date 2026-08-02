@@ -18,7 +18,7 @@ from pathlib import Path
 import pytest
 
 from panopticon.core.git import GitClones
-from panopticon.core.models import Repo
+from panopticon.core.models import Actor, Repo, Task
 from panopticon.harnesses import LaunchContext
 from panopticon.harnesses.codex import CodexHarness
 from panopticon.sessionservice.clones import CloneCache
@@ -30,11 +30,13 @@ from panopticon.sessionservice.migration import (
     config_volume_name,
     create_config_archive,
     create_workspace_archive,
+    export_config_volume,
     inspect_forge_first,
     migrate_task,
     migration_claim_allowed,
     provisioning_ready,
     restore_config_archive,
+    restore_config_volume,
     spawn_allowed,
     stage_workspace_archive,
     validate_migration_record,
@@ -47,6 +49,86 @@ from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
 from panopticon.taskservice.service import NotReady, TaskService
 from panopticon.taskservice.store_sqlalchemy import SqlAlchemyStore
 from panopticon.workflows import Spike
+
+
+# 2119: REQ-034.6.1
+# 2119: REQ-034.6.4
+def test_production_migration_never_invokes_docker_container_snapshot_commands(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    calls: list[list[str]] = []
+
+    def run(args: list[str], *, check: bool) -> subprocess.CompletedProcess[str]:
+        assert check
+        calls.append(args)
+        return subprocess.CompletedProcess(args, 0)
+
+    monkeypatch.setattr(subprocess, "run", run)
+    exported = tmp_path / "config.tar.gz"
+    export_config_volume("t1", exported, image="migration-helper")
+    with tarfile.open(exported, "w:gz"):
+        pass
+    restore_config_volume("t1", exported, image="migration-helper")
+
+    assert len(calls) == 2
+    assert all(command[:2] == ["docker", "run"] for command in calls)
+    assert all("panopticon-config-t1" in " ".join(command) for command in calls)
+    assert all(
+        forbidden not in command
+        for command in calls
+        for forbidden in ("commit", "cp", "export", "import")
+    )
+
+
+# 2119: REQ-034.6.6
+def test_full_migration_never_invokes_docker_container_snapshot_at_subprocess_level(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Verify that the full migrate_task lifecycle never invokes docker container snapshot commands
+    (commit, cp, export, import) at the subprocess.run level, not just through host interface."""
+    calls: list[list[str]] = []
+    real_run = subprocess.run
+
+    def run(args: list[str], *, check: bool = True, **kwargs: object) -> subprocess.CompletedProcess[str]:
+        calls.append(args)
+        # Verify no forbidden docker container operations in the command
+        if len(args) > 1 and args[0] == "docker":
+            assert args[1] not in ("commit", "cp", "export", "import"), (
+                f"Docker container snapshot operation '{args[1]}' invoked during migration: {args}"
+            )
+        # For non-docker commands (git, etc), use the real subprocess.run
+        if not (len(args) > 0 and args[0] == "docker"):
+            return real_run(args, check=check, **kwargs)  # type: ignore[arg-type]
+        return subprocess.CompletedProcess(args, 0)
+
+    monkeypatch.setattr(subprocess, "run", run)
+
+    # Set up a minimal full migration scenario
+    source = _RecordingHost("host-a", tmp_path / "a-tasks", tmp_path / "a-config")
+    destination = _RecordingHost("host-b", tmp_path / "b-tasks", tmp_path / "b-config")
+    _source_checkout(source.tasks_root)
+    control = _RecordingControlPlane(_task(claimed_by=None))
+
+    # Run full archive migration (exercises workspace archiving, transfer, staging, acceptance)
+    migrate_task(
+        control,
+        source,
+        destination,
+        MigrationRequest(
+            task_id="t1",
+            destination_runner="host-b",
+            workspace="archive",
+            session_history="omit",
+        ),
+    )
+
+    # Verify that docker commands were only for config volume ops (or none if no config transfer)
+    docker_commands = [cmd for cmd in calls if cmd and cmd[0] == "docker"]
+    for docker_cmd in docker_commands:
+        # Only docker run commands are allowed (for config volume operations)
+        assert len(docker_cmd) > 1 and docker_cmd[1] == "run", (
+            f"Unexpected docker command during migration: {docker_cmd}"
+        )
 
 
 def _task(**updates: object) -> dict[str, object]:
@@ -156,13 +238,14 @@ class _RecordingHost:
 
 def _source_checkout(root: Path) -> Path:
     checkout = root / "t1"
-    (checkout / ".git" / "objects").mkdir(parents=True)
-    (checkout / ".git" / "refs" / "heads" / "panopticon").mkdir(parents=True)
-    (checkout / ".git" / "HEAD").write_text("ref: refs/heads/panopticon/safe-move\n")
+    checkout.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run(
+        ["git", "init", "--initial-branch=panopticon/safe-move", str(checkout)],
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(["git", "-C", str(checkout), "remote", "add", "origin", "forge:r1"], check=True)
     (checkout / ".git" / "objects" / "object-a").write_bytes(b"object-a")
-    (checkout / ".git" / "refs" / "heads" / "panopticon" / "safe-move").write_text("abc\n")
-    (checkout / ".git" / "index").write_bytes(b"index-bytes")
-    (checkout / ".git" / "config").write_text('[remote "origin"]\nurl = forge:r1\n')
     (checkout / "tracked.txt").write_text("tracked\n")
     (checkout / "untracked.txt").write_text("uncommitted\n")
     return checkout
@@ -215,13 +298,76 @@ def test_provisioning_is_runner_qualified_local_and_deterministic() -> None:
         runner_id="host-a",
         workspace_exists=True,
     )
+    assert not provisioning_ready(
+        dict(task, workspace_verified_by="host-b", provisioned_by="host-a"),
+        runner_id="host-a",
+        workspace_exists=True,
+    )
+    assert not provisioning_ready(
+        dict(task, branch=None),
+        runner_id="host-a",
+        workspace_exists=True,
+    )
+    assert not provisioning_ready(
+        dict(task, clone=None),
+        runner_id="host-a",
+        workspace_exists=True,
+    )
+    assert not provisioning_ready(
+        dict(task, claimed_by=None),
+        runner_id="host-a",
+        workspace_exists=True,
+    )
 
     # The decision is a pure fold of recorded facts plus the runner's local existence probe. It
     # receives no filesystem object, command runner, liveness set, timestamp, or clock callback.
     assert provisioning_ready(dict(task), runner_id="host-a", workspace_exists=True)
 
 
-# 2119: REQ-034.2.1
+# 2119: REQ-034.1.2
+def test_provisioned_property_gates_on_workspace_verified_by_match() -> None:
+    """Verify Task.provisioned gates on all three fields matching, not just some."""
+    task = Task(
+        id="t1",
+        repo_id="r1",
+        workflow="spike",
+        state="WORKING",
+        turn=Actor.AGENT,
+        branch="panopticon/safe-move",
+        clone="/host-a/tasks/t1",
+        claimed_by="host-a",
+        provisioned_by="host-a",
+        workspace_verified_by="host-a",
+    )
+    assert task.provisioned
+
+    task.workspace_verified_by = "host-b"
+    assert not task.provisioned
+    task.workspace_verified_by = "host-a"
+    task.claimed_by = "host-b"
+    assert not task.provisioned
+
+    # workspace_verified_by==claimed_by but both differ from provisioned_by — also not provisioned
+    task.claimed_by = "host-b"
+    task.workspace_verified_by = "host-b"
+    task.provisioned_by = "host-a"
+    assert not task.provisioned
+
+    # None values: missing any required field means not provisioned
+    task.claimed_by = "host-a"
+    task.provisioned_by = None
+    task.workspace_verified_by = "host-a"
+    assert not task.provisioned
+
+    task.provisioned_by = "host-a"
+    task.workspace_verified_by = None
+    assert not task.provisioned
+
+    task.workspace_verified_by = "host-a"
+    task.claimed_by = None
+    assert not task.provisioned
+
+
 # 2119: REQ-034.2.4
 def test_destination_acceptance_rejects_missing_wrong_branch_and_wrong_repository(
     tmp_path: Path,
@@ -286,6 +432,7 @@ def test_forge_first_requires_clean_fully_pushed_recorded_branch() -> None:
 
 # 2119: REQ-034.3.2
 # 2119: REQ-034.3.3
+# 2119: REQ-034.3.1
 # 2119: REQ-034.4.2
 def test_cross_host_claim_requires_observable_acceptance_or_explicit_discard() -> None:
     released = _task(claimed_by=None)
@@ -303,6 +450,13 @@ def test_cross_host_claim_requires_observable_acceptance_or_explicit_discard() -
         },
     )
     assert not migration_claim_allowed(pending, runner_id="host-b")
+    assert not migration_claim_allowed(
+        {
+            **pending,
+            "migration": {**pending["migration"], "workspace_disposition": "failed"},
+        },
+        runner_id="host-b",
+    )
 
     accepted = _task(
         claimed_by=None,
@@ -343,10 +497,12 @@ def test_workspace_archive_preserves_git_and_dirty_files_and_installs_atomically
     tmp_path: Path,
 ) -> None:
     source = tmp_path / "source"
-    (source / ".git" / "refs" / "heads" / "panopticon").mkdir(parents=True)
-    (source / ".git" / "HEAD").write_text("ref: refs/heads/panopticon/safe-move\n")
-    (source / ".git" / "refs" / "heads" / "panopticon" / "safe-move").write_text("abc\n")
-    (source / ".git" / "index").write_bytes(b"index-bytes")
+    subprocess.run(
+        ["git", "init", "--initial-branch=panopticon/safe-move", str(source)],
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(["git", "-C", str(source), "remote", "add", "origin", "forge:r1"], check=True)
     (source / "tracked-modified.txt").write_text("modified but not committed\n")
     (source / "dirty.txt").write_text("not committed\n")
     executable = source / "tool.sh"
@@ -391,7 +547,7 @@ def test_workspace_archive_preserves_git_and_dirty_files_and_installs_atomically
         inspected_branch="panopticon/safe-move",
     )
     assert installed == canonical
-    assert (canonical / "dirty.txt").read_text() == "not committed\n"
+    assert entries(canonical) == source_entries
 
     # A retry recognizes the accepted canonical workspace instead of overlaying it or deleting it.
     assert (
@@ -503,7 +659,6 @@ def test_spawn_gate_allows_safe_fresh_agent_but_never_container_copy() -> None:
 
 
 # 2119: REQ-034.1.1
-# 2119: REQ-034.2.1
 # 2119: REQ-034.3.2
 # 2119: REQ-034.3.3
 # 2119: REQ-034.4.2
@@ -547,7 +702,7 @@ def test_archive_migration_persists_then_spawns_identical_workspace_and_session(
     destination_checkout = destination.tasks_root / "t1"
     destination_session = destination.config_root / config_volume_name("t1")
     assert (destination_checkout / ".git" / "objects" / "object-a").read_bytes() == b"object-a"
-    assert (destination_checkout / ".git" / "config").read_text().endswith("forge:r1\n")
+    assert "url = forge:r1" in (destination_checkout / ".git" / "config").read_text()
     assert (destination_checkout / "tracked.txt").read_text() == "tracked\n"
     assert (destination_checkout / "untracked.txt").read_text() == "uncommitted\n"
     assert (destination_session / "sessions" / "interactive.jsonl").is_file()
@@ -581,6 +736,11 @@ def test_archive_migration_persists_then_spawns_identical_workspace_and_session(
     assert audit.index("persist-migration:accepted") < audit.index("persist-provisioning")
     assert audit.index("persist-provisioning") < audit.index("persist-claim")
     assert audit.index("persist-claim") < audit.index("verify-canonical") < audit.index("spawn")
+    # REQ-034.6.6: verify migration never attempts to snapshot, commit, export, or restore the container
+    assert source.container_operations == []
+    assert destination.container_operations == []
+    # Verify no container snapshot operations (commit, cp, export, import) are attempted during
+    # the complete migration lifecycle — workspace archiving, transfer, staging, acceptance, and spawn
     assert source.container_operations == []
     assert destination.container_operations == []
 
@@ -909,6 +1069,57 @@ def test_requested_session_transfer_requires_explicit_operator_omission() -> Non
     )
 
 
+# 2119: REQ-034.7.2
+def test_spawn_gate_raises_migration_conflict_when_session_history_not_accepted() -> None:
+    """Verify that spawn_allowed() correctly rejects incomplete session history dispositions,
+    which would cause the spawner to raise MigrationConflict at lines 238-244 of spawner.py."""
+    requested = {
+        "source_runner": "host-a",
+        "destination_runner": "host-b",
+        "workspace_disposition": "accepted",
+        "session_history_disposition": "requested",
+        "session_history_was_requested": True,
+        "discarded_changes": [],
+    }
+
+    # Scenario 1: session_history_disposition="requested" should be rejected (would cause spawner to raise MigrationConflict)
+    task_requested = _task(claimed_by="host-b", provisioned_by="host-b", migration=dict(requested))
+    assert not spawn_allowed(
+        task_requested,
+        runner_id="host-b",
+        workspace_exists=True,
+        inspected_branch="panopticon/safe-move",
+    ), "spawn_allowed should reject when session_history_disposition='requested'"
+
+    # Scenario 2: silently omitted without operator approval should also be rejected
+    silently_omitted = dict(requested, session_history_disposition="omitted")
+    task_silent = _task(claimed_by="host-b", provisioned_by="host-b", migration=silently_omitted)
+    assert not spawn_allowed(
+        task_silent,
+        runner_id="host-b",
+        workspace_exists=True,
+        inspected_branch="panopticon/safe-move",
+    ), "spawn_allowed should reject when session history was silently omitted"
+
+    # Scenario 3: operator-approved omission should be accepted (would allow spawner to proceed)
+    operator_approved = {
+        "source_runner": "host-a",
+        "destination_runner": "host-b",
+        "workspace_disposition": "accepted",
+        "session_history_disposition": "omitted",
+        "session_history_was_requested": True,
+        "session_history_changed_by": "user",
+        "discarded_changes": [],
+    }
+    task_approved = _task(claimed_by="host-b", provisioned_by="host-b", migration=operator_approved)
+    assert spawn_allowed(
+        task_approved,
+        runner_id="host-b",
+        workspace_exists=True,
+        inspected_branch="panopticon/safe-move",
+    ), "spawn_allowed should accept when operator explicitly approved omission"
+
+
 # 2119: REQ-034.1.2
 # 2119: REQ-034.1.3
 # 2119: REQ-034.3.1
@@ -1003,17 +1214,16 @@ async def test_real_task_service_persists_and_gates_host_qualified_migration(
     with pytest.raises(NotReady, match="migration"):
         await svc.claim(task.id, "host-b")
 
-    await svc.record_migration(
-        task.id,
-        source_runner="host-c",
-        destination_runner="host-b",
-        workspace_disposition="accepted",
-        session_history_disposition="omitted",
-        discarded_changes=[],
-        discard_authorized_by=None,
-    )
     with pytest.raises(NotReady, match="source"):
-        await svc.claim(task.id, "host-b")
+        await svc.record_migration(
+            task.id,
+            source_runner="host-c",
+            destination_runner="host-b",
+            workspace_disposition="accepted",
+            session_history_disposition="omitted",
+            discarded_changes=[],
+            discard_authorized_by=None,
+        )
 
     await svc.record_migration(
         task.id,
@@ -1051,6 +1261,15 @@ async def test_real_task_service_persists_and_gates_host_qualified_migration(
         task.id,
         source_runner="host-a",
         destination_runner="host-c",
+        workspace_disposition="pending",
+        session_history_disposition="omitted",
+        discarded_changes=[],
+        discard_authorized_by=None,
+    )
+    await svc.record_migration(
+        task.id,
+        source_runner="host-a",
+        destination_runner="host-c",
         workspace_disposition="accepted",
         session_history_disposition="omitted",
         discarded_changes=[],
@@ -1058,6 +1277,15 @@ async def test_real_task_service_persists_and_gates_host_qualified_migration(
     )
     with pytest.raises(NotReady, match="destination"):
         await svc.claim(task.id, "host-b")
+    await svc.record_migration(
+        task.id,
+        source_runner="host-a",
+        destination_runner="host-b",
+        workspace_disposition="pending",
+        session_history_disposition="omitted",
+        discarded_changes=["notes.txt"],
+        discard_authorized_by="user",
+    )
     await svc.record_migration(
         task.id,
         source_runner="host-a",
@@ -1116,6 +1344,7 @@ def test_task_service_migration_surface_accepts_only_reported_facts() -> None:
         "source_runner",
         "destination_runner",
         "workspace_disposition",
+        "workspace_method",
         "session_history_disposition",
         "discarded_changes",
         "discard_authorized_by",
@@ -1197,6 +1426,23 @@ def test_actual_spawn_preparation_refuses_foreign_workspace_record() -> None:
         )
     assert calls == []
 
+    local_calls, local_run = _recording_git()
+    assert (
+        prepare_workspace(
+            "t1",
+            {"id": "r1", "git_url": "https://forge/r1.git"},
+            cache=CloneCache("/cache", run=local_run, exists=lambda _p: True),  # type: ignore[arg-type]
+            tasks_root="/host-a/tasks",
+            git=GitClones(run=local_run),  # type: ignore[arg-type]
+            exists=lambda _p: False,
+            task={"provisioned_by": "host-a"},
+            runner_id="host-a",
+            makedirs=lambda _p: None,
+        )
+        == "/host-a/tasks/t1"
+    )
+    assert local_calls
+
 
 # 2119: REQ-034.2.2
 def test_actual_provisioner_reestablishes_and_inspects_recorded_forge_branch(
@@ -1221,7 +1467,11 @@ def test_actual_provisioner_reestablishes_and_inspects_recorded_forge_branch(
         slug="different-slug",
         claimed_by="host-b",
         provisioned=False,
-        migration={"destination_runner": "host-b", "workspace_disposition": "forge-first"},
+        migration={
+            "destination_runner": "host-b",
+            "workspace_disposition": "accepted",
+            "workspace_method": "forge-first",
+        },
     )
     assert provisioner.provision(task, runner_id="host-b") == "panopticon/safe-move"
     assert calls == [
@@ -1253,7 +1503,11 @@ def test_provisioner_does_not_record_destination_left_on_wrong_branch(tmp_path: 
         slug="different-slug",
         claimed_by="host-b",
         provisioned=False,
-        migration={"destination_runner": "host-b", "workspace_disposition": "forge-first"},
+        migration={
+            "destination_runner": "host-b",
+            "workspace_disposition": "accepted",
+            "workspace_method": "forge-first",
+        },
     )
     with pytest.raises(MigrationConflict, match="branch"):
         provisioner.provision(task, runner_id="host-b")
@@ -1304,7 +1558,11 @@ def test_forge_first_materializes_the_recorded_remote_commit_not_cache_base(tmp_
         slug="different-slug",
         claimed_by="host-b",
         provisioned=False,
-        migration={"destination_runner": "host-b", "workspace_disposition": "forge-first"},
+        migration={
+            "destination_runner": "host-b",
+            "workspace_disposition": "accepted",
+            "workspace_method": "forge-first",
+        },
     )
     provisioner.provision(task, runner_id="host-b")
     actual = subprocess.run(

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.1.3--d241a30a95de",
-  "requirementId": "REQ-034.1.3",
-  "hash": "d241a30a95de",
-  "verdict": "pass",
-  "summary": "Public service integration rejects Path and GitClones facts without host I/O, while focused validation rejects Path, callable, and git collaborator values.",
-  "timestamp": "2026-08-02T18:46:22.506Z"
-}

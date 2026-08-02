@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import io
 import json
 import os
@@ -14,6 +15,12 @@ from contextlib import suppress
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+import httpx
+
+from panopticon.client import TaskServiceClient
+from panopticon.core.dirs import TASKS_DIR
+from panopticon.sessionservice.local_runner import DEFAULT_IMAGE
 
 
 class MigrationConflict(RuntimeError):
@@ -249,6 +256,227 @@ def restore_config_archive(
     restore(config_volume_name(task_id), archive)
 
 
+def export_config_volume(task_id: str, destination: Path, *, image: str = DEFAULT_IMAGE) -> None:
+    """Export the real Docker named volume without dereferencing credential symlinks."""
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run(
+        [
+            "docker",
+            "run",
+            "--rm",
+            "--volume",
+            f"{config_volume_name(task_id)}:/source:ro",
+            "--volume",
+            f"{destination.parent.resolve()}:/export",
+            image,
+            "tar",
+            "--create",
+            "--gzip",
+            "--file",
+            f"/export/{destination.name}",
+            "--directory",
+            "/source",
+            ".",
+        ],
+        check=True,
+    )
+
+
+def restore_config_volume(task_id: str, archive: Path, *, image: str = DEFAULT_IMAGE) -> None:
+    """Validate an archive locally, then replace the standard Docker volume contents."""
+    with tempfile.TemporaryDirectory(prefix=f"panopticon-config-{task_id}-") as temp:
+        staged = Path(temp)
+        with tarfile.open(archive, mode="r:*") as bundle:
+            _safe_extract(bundle, staged)
+        subprocess.run(
+            [
+                "docker",
+                "run",
+                "--rm",
+                "--volume",
+                f"{config_volume_name(task_id)}:/target",
+                "--volume",
+                f"{staged.resolve()}:/staged:ro",
+                image,
+                "sh",
+                "-c",
+                "find /target -mindepth 1 -delete && cp -a /staged/. /target/",
+            ],
+            check=True,
+        )
+
+
+def request_migration(
+    client: TaskServiceClient,
+    task_id: str,
+    *,
+    destination_runner: str,
+    workspace_method: str,
+    transfer_session: bool,
+) -> Mapping[str, object]:
+    task = client.get_task(task_id)
+    source = task.get("provisioned_by")
+    if not isinstance(source, str):
+        raise MigrationConflict("task has no recorded workspace owner")
+    return client.record_migration(
+        task_id,
+        source_runner=source,
+        destination_runner=destination_runner,
+        workspace_disposition="pending",
+        workspace_method=workspace_method,
+        session_history_disposition="requested" if transfer_session else "omitted",
+        discarded_changes=[],
+        discard_authorized_by=None,
+    )
+
+
+def accept_migration(
+    client: TaskServiceClient,
+    task_id: str,
+    *,
+    runner_id: str,
+    tasks_root: Path,
+    workspace_archive: Path | None,
+    session_archive: Path | None,
+    image: str = DEFAULT_IMAGE,
+) -> Mapping[str, object]:
+    """Validate/install transferred state on the destination, then publish acceptance facts."""
+    task = client.get_task(task_id)
+    migration = task.get("migration")
+    if not isinstance(migration, Mapping) or migration.get("workspace_disposition") not in {
+        "pending",
+        "accepted",
+    }:
+        raise MigrationConflict("task has no pending or accepted migration")
+    if migration.get("destination_runner") != runner_id:
+        raise MigrationConflict("pending migration names a different destination")
+    repo = client.get_repo(str(task["repo_id"]))
+    canonical = tasks_root / task_id
+    method = migration.get("workspace_method", "archive")
+    already_accepted = migration.get("workspace_disposition") == "accepted"
+    canonical_preexisting = canonical.exists()
+    if already_accepted or canonical_preexisting:
+        staged = canonical
+    elif method == "archive":
+        if workspace_archive is None:
+            raise MigrationConflict("archive migration requires --workspace-archive")
+        staged = stage_workspace_archive(workspace_archive.read_bytes(), canonical=canonical)
+    elif method == "forge-first":
+        staged = Path(tempfile.mkdtemp(prefix=f".{task_id}.migration-", dir=canonical.parent))
+        subprocess.run(
+            [
+                "git",
+                "clone",
+                "--branch",
+                str(task["branch"]),
+                str(repo["git_url"]),
+                str(staged),
+            ],
+            check=True,
+        )
+    else:
+        raise MigrationConflict("unknown workspace migration method")
+    try:
+        verify_canonical_workspace(
+            staged,
+            expected_git_url=str(repo["git_url"]),
+            expected_branch=str(task["branch"]),
+        )
+        if not already_accepted and not canonical_preexisting:
+            accept_workspace(
+                task,
+                runner_id=runner_id,
+                staged=staged,
+                canonical=canonical,
+                repository_id=str(task["repo_id"]),
+                inspected_branch=str(task["branch"]),
+            )
+        session = str(migration.get("session_history_disposition"))
+        if session == "requested":
+            if session_archive is None:
+                raise MigrationConflict("requested session transfer requires --session-archive")
+            restore_config_volume(task_id, session_archive, image=image)
+            session = "accepted"
+        accepted = (
+            task
+            if already_accepted
+            else client.record_migration(
+                task_id,
+                source_runner=str(migration["source_runner"]),
+                destination_runner=runner_id,
+                workspace_disposition="accepted",
+                workspace_method=str(method),
+                session_history_disposition=session,
+                discarded_changes=list(migration.get("discarded_changes", [])),
+                discard_authorized_by=migration.get("discard_authorized_by"),
+            )
+        )
+        if task.get("claimed_by") != runner_id:
+            client.release(task_id)
+            client.claim(task_id, runner_id)
+        client.record_provisioning(task_id, str(task["branch"]), str(canonical), runner_id, True)
+        return accepted
+    except Exception:
+        if not already_accepted and not canonical_preexisting and staged.exists():
+            shutil.rmtree(staged, ignore_errors=True)
+        raise
+
+
+def main(argv: list[str] | None = None) -> None:
+    """Operator CLI: request on either host, export on source, accept on destination."""
+    parser = argparse.ArgumentParser(prog="python -m panopticon.sessionservice.migration")
+    parser.add_argument(
+        "--service-url",
+        default=os.environ.get("PANOPTICON_SERVICE_URL", "http://localhost:8000"),
+    )
+    sub = parser.add_subparsers(dest="command", required=True)
+    request = sub.add_parser("request")
+    request.add_argument("task_id")
+    request.add_argument("--destination-runner", required=True)
+    request.add_argument(
+        "--workspace-method", choices=("archive", "forge-first"), default="archive"
+    )
+    request.add_argument("--transfer-session", action="store_true")
+    export = sub.add_parser("export")
+    export.add_argument("task_id")
+    export.add_argument("--tasks-root", default=TASKS_DIR)
+    export.add_argument("--workspace-archive", required=True, type=Path)
+    export.add_argument("--session-archive", type=Path)
+    accept = sub.add_parser("accept")
+    accept.add_argument("task_id")
+    accept.add_argument("--runner-id", required=True)
+    accept.add_argument("--tasks-root", default=TASKS_DIR, type=Path)
+    accept.add_argument("--workspace-archive", type=Path)
+    accept.add_argument("--session-archive", type=Path)
+    accept.add_argument("--image", default=DEFAULT_IMAGE)
+    args = parser.parse_args(argv)
+    client = TaskServiceClient(httpx.Client(base_url=args.service_url))
+    if args.command == "request":
+        request_migration(
+            client,
+            args.task_id,
+            destination_runner=args.destination_runner,
+            workspace_method=args.workspace_method,
+            transfer_session=args.transfer_session,
+        )
+    elif args.command == "export":
+        args.workspace_archive.write_bytes(
+            create_workspace_archive(Path(args.tasks_root) / args.task_id)
+        )
+        if args.session_archive is not None:
+            export_config_volume(args.task_id, args.session_archive)
+    else:
+        accept_migration(
+            client,
+            args.task_id,
+            runner_id=args.runner_id,
+            tasks_root=args.tasks_root,
+            workspace_archive=args.workspace_archive,
+            session_archive=args.session_archive,
+            image=args.image,
+        )
+
+
 def migrate_task(
     control: Any,
     source: Any,
@@ -289,6 +517,12 @@ def migrate_task(
 
     try:
         if request.workspace == "archive":
+            assert staged is not None
+            verify_canonical_workspace(
+                staged,
+                expected_git_url=str(task["git_url"]),
+                expected_branch=str(task["branch"]),
+            )
             accept_workspace(
                 task,
                 runner_id=destination.runner_id,
@@ -349,3 +583,7 @@ def migrate_task(
         with suppress(Exception):
             control.record_migration(failed)
         raise
+
+
+if __name__ == "__main__":  # pragma: no cover - operator CLI wiring
+    main()

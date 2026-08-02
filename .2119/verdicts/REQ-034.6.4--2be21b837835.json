@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.6.4--2be21b837835",
-  "requirementId": "REQ-034.6.4",
-  "hash": "2be21b837835",
-  "verdict": "pass",
-  "summary": "Tar inspection proves credential links remain symlinks while bind-mount contents, targets, and secret bytes are excluded.",
-  "timestamp": "2026-08-02T18:46:22.292Z"
-}

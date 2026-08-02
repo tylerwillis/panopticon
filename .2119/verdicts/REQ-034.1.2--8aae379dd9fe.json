@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.1.2--8aae379dd9fe",
-  "requirementId": "REQ-034.1.2",
-  "hash": "8aae379dd9fe",
-  "verdict": "pass",
-  "summary": "Rejects claimant, local-workspace, verifier, and provisioner mismatches and integration-tests that release or destination claim removes provisioned presentation.",
-  "timestamp": "2026-08-02T18:46:22.040Z"
-}

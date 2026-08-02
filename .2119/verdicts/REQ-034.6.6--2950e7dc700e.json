@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.6.6--2950e7dc700e",
-  "requirementId": "REQ-034.6.6",
-  "hash": "2950e7dc700e",
-  "verdict": "pass",
-  "summary": "End-to-end migration records no copy, commit, export, or restore operation for either containers or writable layers.",
-  "timestamp": "2026-08-02T18:46:22.778Z"
-}

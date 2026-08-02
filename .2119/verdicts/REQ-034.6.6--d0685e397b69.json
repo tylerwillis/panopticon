@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.6.6--d0685e397b69",
+  "requirementId": "REQ-034.6.6",
+  "hash": "d0685e397b69",
+  "verdict": "fail",
+  "summary": "Tests verify only host-interface layer; do not verify subprocess/Docker-command layer. Would miss violations via direct subprocess calls.",
+  "timestamp": "2026-08-02T20:10:50.138Z"
+}

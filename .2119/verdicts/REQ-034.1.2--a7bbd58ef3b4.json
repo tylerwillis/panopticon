@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.1.2--a7bbd58ef3b4",
+  "requirementId": "REQ-034.1.2",
+  "hash": "a7bbd58ef3b4",
+  "verdict": "pass",
+  "summary": "test_provisioned_property_gates_on_workspace_verified_by_match tests all three conjuncts (claimed_by==provisioned_by==workspace_verified_by) with correct AND logic; critical case where two match but differ from third is covered",
+  "timestamp": "2026-08-02T20:13:18.173Z"
+}

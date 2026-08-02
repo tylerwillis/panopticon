@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.2.4--9d1ac0a63bd1",
-  "requirementId": "REQ-034.2.4",
-  "hash": "9d1ac0a63bd1",
-  "verdict": "pass",
-  "summary": "Real checkout verification independently rejects wrong branch and wrong repository identity, and migration validation proves neither acceptance nor spawn occurs.",
-  "timestamp": "2026-08-02T18:46:14.036Z"
-}

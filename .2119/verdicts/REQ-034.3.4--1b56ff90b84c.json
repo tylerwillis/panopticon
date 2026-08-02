@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.3.4--1b56ff90b84c",
-  "requirementId": "REQ-034.3.4",
-  "hash": "1b56ff90b84c",
-  "verdict": "pass",
-  "summary": "Integration coverage persists and reloads both pending progress and accepted outcome while asserting source, destination, workspace, and session-history fields exactly.",
-  "timestamp": "2026-08-02T18:16:41.475Z"
-}

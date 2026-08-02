@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.1.2--5f37f56d5656",
+  "requirementId": "REQ-034.1.2",
+  "hash": "5f37f56d5656",
+  "verdict": "fail",
+  "summary": "Test is genuine for three-field matching (claimed_by/provisioned_by/workspace_verified_by) but incomplete: does not test branch=None, clone=None, or claimed_by=None violating cases. Would miss bugs in truthiness checks.",
+  "timestamp": "2026-08-02T20:08:03.526Z"
+}

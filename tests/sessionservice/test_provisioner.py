@@ -75,7 +75,14 @@ def test_provisions_a_ready_task_by_branching_the_clone() -> None:
     provisioner = _provisioner(client, run)
 
     branch = provisioner.provision(
-        {"id": "t1", "repo_id": "r1", "slug": "fix-widget", "provisioned": False}
+        {
+            "id": "t1",
+            "repo_id": "r1",
+            "slug": "fix-widget",
+            "provisioned": False,
+            "claimed_by": "host-1",
+        },
+        runner_id="host-1",
     )
 
     assert branch == "panopticon/fix-widget"

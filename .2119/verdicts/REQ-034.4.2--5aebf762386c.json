@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.4.2--5aebf762386c",
-  "requirementId": "REQ-034.4.2",
-  "hash": "5aebf762386c",
-  "verdict": "pass",
-  "summary": "Tests refuse dirty-only and unpushed-only forge migrations, reject partial or wrong discard identities, and allow migration only when every identified path and local-only commit is explicitly recorded.",
-  "timestamp": "2026-08-02T18:12:21.834Z"
-}

@@ -1523,12 +1523,12 @@ async def test_explicit_transition_and_turn_write_do_not_chain_auto_advance(
         await svc.set_dependencies(task.id, []),
     ]
     await svc.claim(task.id, "host-1")
-    unchanged.append(await svc.release(task.id))
     unchanged.append(
         await svc.record_provisioning(
             task.id, "panopticon/still-middle", "/tasks/still-middle", "host-1", True
         )
     )
+    unchanged.append(await svc.release(task.id))
     assert {result.state for result in unchanged} == {"MIDDLE"}
 
 

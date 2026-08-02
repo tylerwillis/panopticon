@@ -262,6 +262,7 @@ class MigrationRecord:
     destination_runner: str
     workspace_disposition: str
     session_history_disposition: str
+    workspace_method: str = "archive"
     discarded_changes: list[str] = field(default_factory=list)
     discard_authorized_by: str | None = None
     session_history_changed_by: str | None = None

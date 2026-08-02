@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.1.2--9352d9a4e556",
+  "requirementId": "REQ-034.1.2",
+  "hash": "9352d9a4e556",
+  "verdict": "fail",
+  "summary": "test_provisioned_property_gates_on_workspace_verified_by_match() lacks counterexample tests for provisioned_by=None, workspace_verified_by=None, and claimed_by=None — critical boundary cases where verification is absent",
+  "timestamp": "2026-08-02T20:10:42.978Z"
+}

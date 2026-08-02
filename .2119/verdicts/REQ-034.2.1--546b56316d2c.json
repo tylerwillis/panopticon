@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.2.1--546b56316d2c",
-  "requirementId": "REQ-034.2.1",
-  "hash": "546b56316d2c",
-  "verdict": "pass",
-  "summary": "Foreign-runner spawn preparation raises before any clone, fetch, or repoint command; the recorded Git call list must remain empty.",
-  "timestamp": "2026-08-02T18:46:12.696Z"
-}

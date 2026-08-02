@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.6.3--f155b910961f",
+  "requirementId": "REQ-034.6.3",
+  "hash": "f155b910961f",
+  "verdict": "pass",
+  "summary": "Test verifies volume naming, restoration, and harness resume path; would fail if volume name incorrect, callback not invoked, or config not extracted",
+  "timestamp": "2026-08-02T20:01:11.731Z"
+}

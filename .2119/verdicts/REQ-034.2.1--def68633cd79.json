@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.2.1--def68633cd79",
-  "requirementId": "REQ-034.2.1",
-  "hash": "def68633cd79",
-  "verdict": "pass",
-  "summary": "Actual spawn preparation is exercised with a missing canonical workspace and foreign provisioning owner; the test requires MigrationRequired and zero recorded Git calls, rejecting clone, fetch, and repoint violations.",
-  "timestamp": "2026-08-02T18:11:16.488Z"
-}

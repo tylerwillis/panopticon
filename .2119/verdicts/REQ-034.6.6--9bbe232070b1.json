@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.6.6--9bbe232070b1",
-  "requirementId": "REQ-034.6.6",
-  "hash": "9bbe232070b1",
-  "verdict": "pass",
-  "summary": "Instrumented migration hosts trap copy, commit, export, and restore for both containers and writable layers; archive, forge-first, transfer, and omission paths assert both operation logs remain empty.",
-  "timestamp": "2026-08-02T18:13:34.416Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.6.2--6c733047de78",
-  "requirementId": "REQ-034.6.2",
-  "hash": "6c733047de78",
-  "verdict": "pass",
-  "summary": "Omission records omitted, launches fresh on the verified recorded branch, and rejects stale resume state or a wrong branch.",
-  "timestamp": "2026-08-02T18:46:21.400Z"
-}

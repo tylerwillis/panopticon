@@ -118,10 +118,13 @@ def run_daemon(
     git: GitClones | None = None,
     until: Callable[[], bool] | None = None,
     sleep: Callable[[float], None] = time.sleep,
+    runner_id: str | None = None,
 ) -> None:
     """Build the provisioner + daemon over this host's tasks and run the loop (ADR 0010/0011)."""
     provisioner = Provisioner(client, clones_root=tasks_root, git=git)
-    daemon = ProvisionDaemon(client, provisioner, interval=interval, sleep=sleep)
+    daemon = ProvisionDaemon(
+        client, provisioner, runner_id=runner_id, interval=interval, sleep=sleep
+    )
     daemon.run(until=until)
 
 

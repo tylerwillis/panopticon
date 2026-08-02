@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.1.2--388193f1a10a",
-  "requirementId": "REQ-034.1.2",
-  "hash": "388193f1a10a",
-  "verdict": "pass",
-  "summary": "Tests reject claimant/provisioner mismatch and absent, false, or foreign-runner workspace verification, while accepting only the persisted matching-runner successful verification case.",
-  "timestamp": "2026-08-02T18:16:57.387Z"
-}

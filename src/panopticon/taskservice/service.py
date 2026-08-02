@@ -1101,6 +1101,14 @@ class TaskService:
         task = await self.get_task(task_id)
         if task.slug is None:
             raise ValueError("cannot record provisioning before the task's slug is set")
+        if task.claimed_by != runner_id:
+            raise NotReady("provisioning runner must hold the task claim")
+        if (
+            task.migration is not None
+            and task.migration.destination_runner == runner_id
+            and task.migration.workspace_disposition != "accepted"
+        ):
+            raise NotReady("destination workspace has not been accepted")
         task.branch = branch
         task.clone = clone
         task.provisioned_by = runner_id
@@ -1118,12 +1126,14 @@ class TaskService:
         session_history_disposition: str,
         discarded_changes: list[str],
         discard_authorized_by: str | None,
+        workspace_method: str = "archive",
     ) -> Task:
         """Persist only the reported facts of an explicit operator migration decision."""
         facts = {
             "source_runner": source_runner,
             "destination_runner": destination_runner,
             "workspace_disposition": workspace_disposition,
+            "workspace_method": workspace_method,
             "session_history_disposition": session_history_disposition,
             "discarded_changes": discarded_changes,
             "discard_authorized_by": discard_authorized_by,
@@ -1133,6 +1143,27 @@ class TaskService:
         except (TypeError, ValueError) as exc:
             raise TypeError("runner-reported facts must be JSON serializable") from exc
         task = await self.get_task(task_id)
+        if task.provisioned_by is None:
+            raise NotReady("migration requires an existing workspace owner")
+        if source_runner != task.provisioned_by:
+            raise NotReady("migration source does not own the recorded workspace")
+        if destination_runner == source_runner:
+            raise ValueError("migration destination must differ from its source")
+        if workspace_disposition not in {"pending", "accepted", "failed"}:
+            raise ValueError("invalid workspace disposition")
+        if workspace_method not in {"archive", "forge-first"}:
+            raise ValueError("invalid workspace migration method")
+        if session_history_disposition not in {"requested", "accepted", "omitted", "failed"}:
+            raise ValueError("invalid session-history disposition")
+        previous = task.migration
+        if workspace_disposition == "accepted" and (
+            previous is None
+            or previous.source_runner != source_runner
+            or previous.destination_runner != destination_runner
+            or previous.workspace_method != workspace_method
+            or previous.workspace_disposition != "pending"
+        ):
+            raise NotReady("workspace acceptance requires a matching pending migration")
         if discarded_changes and discard_authorized_by != Actor.USER.value:
             raise ValueError("discarded changes require explicit user authorization")
         history_was_requested = bool(
@@ -1146,6 +1177,7 @@ class TaskService:
             source_runner=source_runner,
             destination_runner=destination_runner,
             workspace_disposition=workspace_disposition,
+            workspace_method=workspace_method,
             session_history_disposition=session_history_disposition,
             discarded_changes=list(discarded_changes),
             discard_authorized_by=discard_authorized_by,

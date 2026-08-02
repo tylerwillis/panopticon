@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.2.3--2c7447d26246",
-  "requirementId": "REQ-034.2.3",
-  "hash": "2c7447d26246",
-  "verdict": "pass",
-  "summary": "A real Git test starts from a cache lacking the feature branch and proves forge-first fetches and checks out the recorded remote commit and branch.",
-  "timestamp": "2026-08-02T18:46:13.575Z"
-}

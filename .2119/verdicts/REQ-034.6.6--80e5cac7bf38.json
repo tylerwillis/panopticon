@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.6.6--80e5cac7bf38",
+  "requirementId": "REQ-034.6.6",
+  "hash": "80e5cac7bf38",
+  "verdict": "fail",
+  "summary": "Test scope limited to config volume operations; does not verify task container is untouched during full migration (workspace archiving, provisioning paths unchecked)",
+  "timestamp": "2026-08-02T20:07:21.881Z"
+}
