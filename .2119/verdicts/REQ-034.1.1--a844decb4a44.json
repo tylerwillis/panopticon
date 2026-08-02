@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.1.1--a844decb4a44",
+  "requirementId": "REQ-034.1.1",
+  "hash": "a844decb4a44",
+  "verdict": "pass",
+  "summary": "Printable punctuation and mixed-case input prove visible query accumulation, full case-insensitive prefix matching, and exclusion of first-character and substring decoys.",
+  "timestamp": "2026-08-02T19:31:48.536Z"
+}

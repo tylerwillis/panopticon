@@ -1625,6 +1625,80 @@ async def test_pressing_n_creates_a_task_via_repo_workflow_then_memo() -> None:
         assert fake.created == [("r1", "spike", "fix", "fix", None, None)]
 
 
+# 2119: REQ-034.1.1
+async def test_new_task_repo_picker_filters_case_insensitive_id_prefix_as_user_types() -> None:
+    fake = _FakeClient(
+        [],
+        repos=["a-1@one", "ax-1@other", "xa-1@one", "beta"],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "A", "-", "1", "@")
+        await pilot.pause()
+
+        picker = app.screen
+        assert isinstance(picker, dashboard.ChoiceScreen)
+        assert str(picker.query_one(Label).render()) == "repo — search: A-1@"
+        options = picker.query_one(OptionList)
+        assert [
+            str(options.get_option_at_index(i).prompt) for i in range(options.option_count)
+        ] == [
+            "a-1@one",
+        ]
+
+
+# 2119: REQ-034.1.2
+async def test_new_task_repo_picker_backspace_restores_prefix_matches() -> None:
+    fake = _FakeClient(
+        [],
+        repos=["alpha", "Alpine", "beta"],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "a", "l", "p", "h", "backspace")
+        await pilot.pause()
+
+        assert str(app.screen.query_one(Label).render()) == "repo — search: alp"
+        options = app.screen.query_one(OptionList)
+        assert [
+            str(options.get_option_at_index(i).prompt) for i in range(options.option_count)
+        ] == [
+            "alpha",
+            "Alpine",
+        ]
+
+        await pilot.press("backspace", "backspace", "backspace")
+        await pilot.pause()
+        assert str(app.screen.query_one(Label).render()) == "repo"
+        assert [
+            str(options.get_option_at_index(i).prompt) for i in range(options.option_count)
+        ] == [
+            "alpha",
+            "Alpine",
+            "beta",
+        ]
+
+
+# 2119: REQ-034.2.1
+async def test_new_task_repo_picker_selects_exact_filtered_repository() -> None:
+    fake = _FakeClient(
+        [],
+        repos=["alpha", "beta", "bravo"],
+        workflows=[{"name": "spike", "when_to_use": ""}],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("n", "b", "r", "enter", "enter", "f", "i", "x", "enter")
+        await pilot.pause()
+
+        assert fake.created == [("bravo", "spike", "fix", "fix", None, None)]
+
+
 # 2119: REQ-018.8.1
 async def test_new_task_memo_draft_survives_close_and_reopen(tmp_path: Path) -> None:
     fake = _FakeClient([], repos=["r1"], workflows=[{"name": "spike", "when_to_use": ""}])
