@@ -261,12 +261,45 @@ class TaskServiceClient:
             self._json(self._http.put(f"/tasks/{task_id}/dependencies", json={"dep_ids": dep_ids})),
         )
 
-    def record_provisioning(self, task_id: str, branch: str, clone: str) -> JsonObj:
+    def record_provisioning(
+        self,
+        task_id: str,
+        branch: str,
+        clone: str,
+        runner_id: str,
+        workspace_verified: bool,
+    ) -> JsonObj:
         """Record the slug-named branch + per-task clone the session service created (ADR 0011)."""
-        body: JsonObj = {"branch": branch, "clone": clone}
+        body: JsonObj = {
+            "branch": branch,
+            "clone": clone,
+            "runner_id": runner_id,
+            "workspace_verified": workspace_verified,
+        }
         return cast(
             JsonObj, self._json(self._http.put(f"/tasks/{task_id}/provisioning", json=body))
         )
+
+    def record_migration(
+        self,
+        task_id: str,
+        *,
+        source_runner: str,
+        destination_runner: str,
+        workspace_disposition: str,
+        session_history_disposition: str,
+        discarded_changes: list[str],
+        discard_authorized_by: str | None,
+    ) -> JsonObj:
+        body: JsonObj = {
+            "source_runner": source_runner,
+            "destination_runner": destination_runner,
+            "workspace_disposition": workspace_disposition,
+            "session_history_disposition": session_history_disposition,
+            "discarded_changes": discarded_changes,
+            "discard_authorized_by": discard_authorized_by,
+        }
+        return cast(JsonObj, self._json(self._http.put(f"/tasks/{task_id}/migration", json=body)))
 
     def claim(self, task_id: str, runner_id: str) -> JsonObj:
         """Claim an unclaimed task for `runner_id` (the spawn gate); 409 if another runner holds it."""

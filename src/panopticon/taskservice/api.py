@@ -66,6 +66,19 @@ class HistoryOut(BaseModel):
     wake_status: WakeStatus
 
 
+class MigrationOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    source_runner: str
+    destination_runner: str
+    workspace_disposition: str
+    session_history_disposition: str
+    discarded_changes: list[str] = []
+    discard_authorized_by: str | None = None
+    session_history_changed_by: str | None = None
+    session_history_was_requested: bool = False
+
+
 class TaskSummaryOut(BaseModel):
     """Task fields from the tasks table only — no history. Returned by ``GET /tasks``."""
 
@@ -86,6 +99,9 @@ class TaskSummaryOut(BaseModel):
     branch: str | None
     clone: str | None
     claimed_by: str | None
+    provisioned_by: str | None = None
+    workspace_verified_by: str | None = None
+    migration: MigrationOut | None = None
     tokens_used: int | None
     token_estimate: int | None
     starting_model: str | None = None
@@ -123,6 +139,9 @@ class TaskOut(BaseModel):
     branch: str | None
     clone: str | None
     claimed_by: str | None  # the runner that owns this task (the spawn gate), or None
+    provisioned_by: str | None = None
+    workspace_verified_by: str | None = None
+    migration: MigrationOut | None = None
     tokens_used: int | None  # cost-weighted input-equivalent tokens used (None until reported)
     token_estimate: (
         int | None
@@ -291,6 +310,17 @@ class StateIn(BaseModel):
 class ProvisioningIn(BaseModel):
     branch: str
     clone: str
+    runner_id: str
+    workspace_verified: bool
+
+
+class MigrationIn(BaseModel):
+    source_runner: str
+    destination_runner: str
+    workspace_disposition: str
+    session_history_disposition: str
+    discarded_changes: list[str] = []
+    discard_authorized_by: str | None = None
 
 
 class SkillOut(BaseModel):
@@ -757,9 +787,28 @@ def create_app(service: TaskService) -> FastAPI:
     @app.put("/tasks/{task_id}/provisioning")
     async def record_provisioning(task_id: str, body: ProvisioningIn) -> TaskOut:
         try:  # the session service reports the host branch + per-task clone it created (ADR 0011)
-            task = await service.record_provisioning(task_id, branch=body.branch, clone=body.clone)
+            task = await service.record_provisioning(
+                task_id,
+                body.branch,
+                body.clone,
+                body.runner_id,
+                body.workspace_verified,
+            )
         except ValueError as exc:  # slug not set yet
             raise HTTPException(status_code=400, detail=str(exc)) from exc
+        return await _task_out(task)
+
+    @app.put("/tasks/{task_id}/migration")
+    async def record_migration(task_id: str, body: MigrationIn) -> TaskOut:
+        task = await service.record_migration(
+            task_id,
+            body.source_runner,
+            body.destination_runner,
+            body.workspace_disposition,
+            body.session_history_disposition,
+            body.discarded_changes,
+            body.discard_authorized_by,
+        )
         return await _task_out(task)
 
     # -- artifacts ----------------------------------------------------------------

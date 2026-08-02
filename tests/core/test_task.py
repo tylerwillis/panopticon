@@ -50,11 +50,15 @@ def test_depends_on_defaults_to_empty_list() -> None:
     assert _working_task().depends_on_task_ids == []
 
 
-def test_provisioned_reflects_the_branch() -> None:
+def test_provisioned_reflects_runner_qualified_verified_workspace() -> None:
     task = _working_task()
     assert task.provisioned is False  # no branch yet
     task.branch = "panopticon/fix-widget"
-    assert task.provisioned is True  # provisioned once the branch is recorded
+    task.clone = "/tasks/t1"
+    task.claimed_by = "host-a"
+    task.provisioned_by = "host-a"
+    task.workspace_verified_by = "host-a"
+    assert task.provisioned is True
 
 
 def test_resolve_responsibility_fulfils_in_place() -> None:
