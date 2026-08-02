@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.3.1--d58d06771e50",
-  "requirementId": "REQ-034.3.1",
-  "hash": "d58d06771e50",
-  "verdict": "pass",
-  "summary": "Enumerates every OpenAPI REST operation and verifies read and write tokens avoid the defined generic 401 failure on each non-mutating endpoint, with mutating live streams explicitly excluded.",
-  "timestamp": "2026-08-02T04:43:57.446Z"
-}

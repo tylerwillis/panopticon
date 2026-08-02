@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.20.1--ed1ee449e121",
+  "requirementId": "REQ-034.20.1",
+  "hash": "ed1ee449e121",
+  "verdict": "pass",
+  "summary": "Executes the real shell helpers with distinct read/write fixtures and rejects omission or substitution of write auth on any of the task GET, repo GET, or credential-dir PATCH calls, wrong call shape, and any write-token appearance in curl argv.",
+  "timestamp": "2026-08-02T19:43:52.322Z"
+}

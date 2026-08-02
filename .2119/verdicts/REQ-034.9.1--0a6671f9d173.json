@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.9.1--0a6671f9d173",
+  "requirementId": "REQ-034.9.1",
+  "hash": "0a6671f9d173",
+  "verdict": "pass",
+  "summary": "Valid exact Authorization: Bearer credentials are accepted across protected REST/MCP operations, while every forbidden query, cookie, JSON, and header carrier plus casing, scheme, spacing, truncation, and suffix near-misses is rejected with 401.",
+  "timestamp": "2026-08-02T19:49:45.452Z"
+}

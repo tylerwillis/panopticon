@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.5.1--7d207e7daef9",
-  "requirementId": "REQ-034.5.1",
-  "hash": "7d207e7daef9",
-  "verdict": "pass",
-  "summary": "Real-app route enumeration verifies current, rotated, and opaque write tokens avoid the generic 401 on every authenticated REST operation, including streaming liveness endpoints.",
-  "timestamp": "2026-08-02T04:43:40.213Z"
-}

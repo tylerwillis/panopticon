@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-005.3.1--dfab0b841b6a",
+  "requirementId": "REQ-005.3.1",
+  "hash": "dfab0b841b6a",
+  "verdict": "pass",
+  "summary": "The annotated outfitter dispatch test rejects an absent, split, or extra-line notice and verifies the required Pi-credentials statement appears on exactly one notice line during setup.",
+  "timestamp": "2026-08-02T19:28:06.952Z"
+}

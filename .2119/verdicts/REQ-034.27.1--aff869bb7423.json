@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.27.1--aff869bb7423",
+  "requirementId": "REQ-034.27.1",
+  "hash": "aff869bb7423",
+  "verdict": "pass",
+  "summary": "Tests reject missing or incorrect enforced-mode reporting, non-warning disabled/permissive startup messages, and documentation that places permissive mode in the required steady-state section.",
+  "timestamp": "2026-08-02T19:44:20.020Z"
+}

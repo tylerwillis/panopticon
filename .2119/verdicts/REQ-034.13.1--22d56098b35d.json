@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.13.1--22d56098b35d",
-  "requirementId": "REQ-034.13.1",
-  "hash": "22d56098b35d",
-  "verdict": "pass",
-  "summary": "Permissive-mode tests reject generic auth failures for unauthenticated legacy calls and sufficient read/write credentials across REST, MCP, and liveness routes.",
-  "timestamp": "2026-08-02T04:43:46.011Z"
-}

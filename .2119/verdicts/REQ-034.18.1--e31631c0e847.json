@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.18.1--e31631c0e847",
-  "requirementId": "REQ-034.18.1",
-  "hash": "e31631c0e847",
-  "verdict": "pass",
-  "summary": "Tests inject configured tokens across auth, validation, serialization, logging, persistence/artifacts, and both runner command seams, then reject exact-token leakage in every required sink.",
-  "timestamp": "2026-08-02T05:14:14.659Z"
-}

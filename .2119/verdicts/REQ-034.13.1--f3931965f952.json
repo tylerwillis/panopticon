@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.13.1--f3931965f952",
+  "requirementId": "REQ-034.13.1",
+  "hash": "f3931965f952",
+  "verdict": "pass",
+  "summary": "Permissive-mode tests reject the nearest violations across REST, MCP, and liveness routes: generic authentication failures for unauthenticated legacy callers, valid write tokens, and valid read tokens on read operations.",
+  "timestamp": "2026-08-02T19:52:30.072Z"
+}

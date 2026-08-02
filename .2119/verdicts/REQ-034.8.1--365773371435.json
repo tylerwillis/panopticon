@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.8.1--365773371435",
+  "requirementId": "REQ-034.8.1",
+  "hash": "365773371435",
+  "verdict": "pass",
+  "summary": "Exact 401 body and Bearer challenge assertions cover all five verbs across existing/missing routes, tasks, repos, runners, registrations, artifacts, workflows, and MCP methods.",
+  "timestamp": "2026-08-02T19:49:23.993Z"
+}

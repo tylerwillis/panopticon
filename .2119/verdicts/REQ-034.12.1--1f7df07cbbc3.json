@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.12.1--1f7df07cbbc3",
-  "requirementId": "REQ-034.12.1",
-  "hash": "1f7df07cbbc3",
-  "verdict": "pass",
-  "summary": "With no credential reference, tests reject the exact generic 401 across every protected REST operation and MCP GET, POST, and DELETE while invalid or missing targets reach endpoint handling.",
-  "timestamp": "2026-08-02T04:43:47.541Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.19.1--ded1c8980bc2",
+  "requirementId": "REQ-034.19.1",
+  "hash": "ded1c8980bc2",
+  "verdict": "pass",
+  "summary": "Covers both restart boundaries: old/new read and write tokens overlap until file removal, remain loaded before restart, then old tokens are rejected while new tokens retain read/write access.",
+  "timestamp": "2026-08-02T19:50:40.062Z"
+}

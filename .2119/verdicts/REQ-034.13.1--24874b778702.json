@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.13.1--24874b778702",
-  "requirementId": "REQ-034.13.1",
-  "hash": "24874b778702",
-  "verdict": "pass",
-  "summary": "Covers permissive mode across every REST route, liveness streams, and write-only MCP operations: legacy unauthenticated and operation-sufficient read/write credentials are rejected if they receive the generic 401/403 authentication failure.",
-  "timestamp": "2026-08-02T05:15:09.208Z"
-}

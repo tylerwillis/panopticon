@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-034.1.1--5620f9b70b24",
-  "requirementId": "REQ-034.1.1",
-  "hash": "5620f9b70b24",
-  "verdict": "pass",
-  "summary": "Behaviorally verifies startup loading from a secrets-rooted file, rejects raw/traversal/absolute/symlink-escape references, and detects token serialization into API, logs, database, or artifacts.",
-  "timestamp": "2026-08-02T04:43:41.645Z"
-}

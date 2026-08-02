@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.3.1--0137a5ebfe6f",
+  "requirementId": "REQ-034.3.1",
+  "hash": "0137a5ebfe6f",
+  "verdict": "pass",
+  "summary": "Dynamic coverage rejects the nearest violation—either configured read or write token receiving the exact generic 401 authentication-failure response—across every non-mutating OpenAPI REST operation and the separately enumerated framework documentation GET/HEAD routes, while excluding health and treating liveness reads as mutating.",
+  "timestamp": "2026-08-02T19:49:25.062Z"
+}

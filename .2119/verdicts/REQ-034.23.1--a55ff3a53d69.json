@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.23.1--a55ff3a53d69",
+  "requirementId": "REQ-034.23.1",
+  "hash": "a55ff3a53d69",
+  "verdict": "pass",
+  "summary": "The test exercises an actual HEAD request with a configured read token, proves the route is protected via the unauthenticated generic 401, and requires route success (200), so read-token rejection, GET-only authorization, unsupported HEAD, or a generic auth failure all fail the test.",
+  "timestamp": "2026-08-02T19:50:37.705Z"
+}

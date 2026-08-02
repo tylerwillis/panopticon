@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.14.1--ae5671c443f8",
+  "requirementId": "REQ-034.14.1",
+  "hash": "ae5671c443f8",
+  "verdict": "pass",
+  "summary": "Tests reject absent and nonexistent references, traversal/absolute/symlink escapes, chmod-unreadable files, malformed/non-object credentials, missing/wrong/empty arrays and elements, and direct or partial cross-privilege token overlap at app creation before any request can be served.",
+  "timestamp": "2026-08-02T19:50:07.499Z"
+}

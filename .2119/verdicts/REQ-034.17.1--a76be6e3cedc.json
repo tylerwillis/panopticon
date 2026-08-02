@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.17.1--a76be6e3cedc",
+  "requirementId": "REQ-034.17.1",
+  "hash": "a76be6e3cedc",
+  "verdict": "pass",
+  "summary": "Tests reject missing or wrong runtime-secret injection for env-file-less Docker and shell spawns and verify the write credential reaches shared clients, liveness, and shell-library requests.",
+  "timestamp": "2026-08-02T19:50:47.504Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.21.1--d943e7aff27c",
+  "requirementId": "REQ-034.21.1",
+  "hash": "d943e7aff27c",
+  "verdict": "pass",
+  "summary": "Executes the authenticated Pi REST command, rejects the write token in curl argv, and verifies the exact Authorization credential is delivered via stdin config instead.",
+  "timestamp": "2026-08-02T19:50:33.065Z"
+}

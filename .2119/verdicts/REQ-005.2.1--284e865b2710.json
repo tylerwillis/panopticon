@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-005.2.1--284e865b2710",
+  "requirementId": "REQ-005.2.1",
+  "hash": "284e865b2710",
+  "verdict": "pass",
+  "summary": "Real shell tests compare Outfitter with Pi for the authentication boundaries: API key present, auth.json present, and neither present, so divergent skip/offer behavior fails.",
+  "timestamp": "2026-08-02T19:29:43.717Z"
+}
