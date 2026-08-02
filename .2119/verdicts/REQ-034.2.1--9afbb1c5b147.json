@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-034.2.1--9afbb1c5b147",
+  "requirementId": "REQ-034.2.1",
+  "hash": "9afbb1c5b147",
+  "verdict": "pass",
+  "summary": "Tests pin the exact Claude argv and reject invalid JSON, missing or mismatched counters, zero/multiple responding matches, and non-exact requested model keys while accepting one matching entry alongside distinct auxiliary usage.",
+  "timestamp": "2026-08-02T07:00:03.743Z"
+}

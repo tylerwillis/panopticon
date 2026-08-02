@@ -227,6 +227,9 @@ def test_claude_verification_ignores_distinct_auxiliary_usage() -> None:
     del missing_entry_counter["modelUsage"]["claude-fable-5"]["inputTokens"]
     with pytest.raises(ReviewerDispatchError, match="exactly one responding"):
         verify_claude_response(json.dumps(missing_entry_counter), "claude-fable-5")
+    vacuous = {"usage": {}, "modelUsage": {"claude-fable-5": {}}}
+    with pytest.raises(ReviewerDispatchError, match="exactly one responding"):
+        verify_claude_response(json.dumps(vacuous), "claude-fable-5")
 
 
 def test_codex_verification_correlates_thread_to_exact_rollout_model(tmp_path: Path) -> None:
@@ -252,6 +255,12 @@ def test_codex_verification_correlates_thread_to_exact_rollout_model(tmp_path: P
     with pytest.raises(ReviewerDispatchError, match="matched 2 persisted rollouts"):
         verify_codex_response(events, tmp_path, requested_model="gpt-5.6-sol")
     duplicate.unlink()
+    malformed = sessions / "malformed.jsonl"
+    malformed.write_text("{truncated")
+    assert verify_codex_response(events, tmp_path, requested_model="gpt-5.6-sol")[0] == (
+        "gpt-5.6-sol"
+    )
+    malformed.unlink()
 
     for bad_events, models in (
         ("", ("gpt-5.6-sol",)),
@@ -268,7 +277,7 @@ def test_codex_verification_correlates_thread_to_exact_rollout_model(tmp_path: P
             "\n".join(
                 (
                     json.dumps({"type": "thread.started", "thread_id": "thread-2"}),
-                    json.dumps({"type": "other", "thread_id": "thread-1"}),
+                    json.dumps({"type": "item.completed", "thread_id": "thread-2"}),
                 )
             ),
             ("gpt-5.6-sol",),
@@ -463,6 +472,36 @@ def test_codex_dispatch_uses_isolated_command_and_never_publishes_failures(
         )
     assert posted == []
     assert artifacts == []
+
+    posted.clear()
+    artifacts.clear()
+    heads = iter(("abc123", "changed"))
+    with pytest.raises(ReviewerDispatchError, match="checkout HEAD"):
+        dispatch_review(
+            ReviewerConfig("codex", "gpt-5.6-sol"),
+            prompt=reviewer_prompt(),
+            commit="abc123",
+            round_number=1,
+            run=successful_run,
+            post_comment=posted.append,
+            publish_artifact=artifacts.append,
+            config_root=tmp_path,
+            git_head=lambda: next(heads),
+        )
+    assert posted == []
+    assert artifacts == []
+
+    with pytest.raises(ReviewerDispatchError, match="no valid exit code"):
+        dispatch_review(
+            ReviewerConfig("codex", "gpt-5.6-sol"),
+            prompt=reviewer_prompt(),
+            commit="abc123",
+            round_number=1,
+            run=lambda argv, prompt: {},
+            post_comment=posted.append,
+            config_root=tmp_path,
+            git_head=lambda: "abc123",
+        )
 
 
 def test_codex_dispatch_uses_the_last_completed_agent_message(tmp_path: Path) -> None:

@@ -214,8 +214,11 @@ and review body.
 
 Do not count an unverified report in triage. Do not resolve the reviews-recorded responsibility
 (or reviews-recorded-sol) until both PR comments carry valid verification evidence for the final
-reviewed commit. Apply these same dispatch, verification, comment, and failure rules to re-review
-rounds.
+reviewed commit. Fetch exactly the two final evidence comments in configured slot order and call
+`complete_review_stage`; its evidence gate must succeed before its triage and responsibility
+callbacks run. If one dispatch publishes before the other fails, exclude or delete that orphan
+before retrying so the gate receives exactly the final pair. Apply these same dispatch,
+verification, comment, and failure rules to re-review rounds.
 
 Triage every finding against the code. Accept or reject each finding with a reason, implement every
 accepted fix, and re-run the TESTING gates. If a MUST-FIX was accepted, run one fresh review round;

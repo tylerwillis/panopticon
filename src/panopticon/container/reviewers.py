@@ -140,7 +140,11 @@ def verify_claude_response(raw_stdout: str, requested_model: str) -> VerifiedIde
     if isinstance(totals, dict):
         for model, counters in usage.items():
             if isinstance(counters, dict) and all(
-                counters.get(model_key) == totals.get(total_key)
+                isinstance(counters.get(model_key), int)
+                and not isinstance(counters.get(model_key), bool)
+                and isinstance(totals.get(total_key), int)
+                and not isinstance(totals.get(total_key), bool)
+                and counters[model_key] == totals[total_key]
                 for model_key, total_key in counter_names.items()
             ):
                 candidates.append(model)
@@ -181,7 +185,7 @@ def _rollout_for_thread(
     for path in (config_root / "sessions").glob("**/*.jsonl"):
         try:
             records = _json_lines(path.read_text(), requested_model=requested_model)
-        except (OSError, UnicodeError):
+        except (OSError, UnicodeError, ReviewerDispatchError):
             continue
         session_ids = [
             record.get("payload", {}).get("id")
@@ -366,15 +370,23 @@ def dispatch_review(
     status_before = git_status()
     result = run(argv, bound_prompt)
     status_after = git_status()
-    if status_after != status_before:
+    head_after = git_head()
+    if status_after != status_before or head_after != commit:
         raise ReviewerDispatchError(
-            "Reviewer changed git status; refusing to record its output.",
+            "Reviewer changed git status or checkout HEAD; refusing to record its output.",
             kind="command",
             requested_model=config.model,
             remediation="Revert the reviewer-authored changes and retry with a read-only prompt.",
         )
+    if "exit_code" not in result or not isinstance(result["exit_code"], int):
+        raise ReviewerDispatchError(
+            "Reviewer command returned no valid exit code.",
+            kind="command",
+            requested_model=config.model,
+            remediation="Retry the requested model and inspect the command runner result.",
+        )
     stderr = str(result.get("stderr", ""))
-    if result.get("exit_code", 0) != 0:
+    if result["exit_code"] != 0:
         raise _command_failure(config, stderr)
     stdout = str(result.get("stdout", ""))
     if config.harness == "claude":
