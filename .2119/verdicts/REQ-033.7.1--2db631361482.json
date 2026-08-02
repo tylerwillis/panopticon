@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.7.1--2db631361482",
-  "requirementId": "REQ-033.7.1",
-  "hash": "2db631361482",
-  "verdict": "pass",
-  "summary": "Exact-string equality test pins the full merge-instructions paragraph; monkeypatch counterexamples dropping 'or left without objection', 'gh issue create', and 'incorporating any user edits' each make the test fail as expected.",
-  "timestamp": "2026-08-01T01:01:15.525Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.2.1--cc3c9b5cf0f3",
-  "requirementId": "REQ-028.2.1",
-  "hash": "cc3c9b5cf0f3",
-  "verdict": "pass",
-  "summary": "test_artifact_skill_explains_both_write_mechanisms asserts full-string equality against the real ARTIFACT_SKILL instructions fetched through TaskService.skills (no mocking); confirmed via monkeypatched counterexamples that dropping either the put_artifact MCP mention or the REST PUT /tasks/{task_id}/artifacts/{name} mention breaks the assertion, so the 'both' conjunct is genuinely enforced.",
-  "timestamp": "2026-08-01T00:59:23.443Z"
-}

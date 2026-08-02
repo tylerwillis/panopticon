@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.3.1--cb3714890004",
-  "requirementId": "REQ-028.3.1",
-  "hash": "cb3714890004",
-  "verdict": "pass",
-  "summary": "test_artifact_skill_explains_both_write_mechanisms asserts exact equality of the real service-returned artifacts-skill instructions against a frozen string containing the 'a' hotkey line and all four required examples; confirmed via string-mutation counterexamples (dropping the hotkey mention or any single example) that each breaks the equality, so the test genuinely rejects violations, not just keyword presence.",
-  "timestamp": "2026-08-01T01:00:03.308Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.9.1--913193609ccf",
-  "requirementId": "REQ-028.9.1",
-  "hash": "913193609ccf",
-  "verdict": "pass",
-  "summary": "test_duplicate_error_identifies_external_file_and_remediation exercises real discover_workflows() against dynamically written external files for every built-in name, asserting exact error text (file path + removal directive) and confirming _skip_duplicates doesn't swallow it; verified via 4 hand-constructed violating reimplementations (missing path, silent skip, missing removal directive, flag-swallows-error) that all fail the test's assertions.",
-  "timestamp": "2026-08-01T01:01:20.907Z"
-}

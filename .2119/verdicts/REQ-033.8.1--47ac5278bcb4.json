@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.8.1--47ac5278bcb4",
-  "requirementId": "REQ-033.8.1",
-  "hash": "47ac5278bcb4",
-  "verdict": "pass",
-  "summary": "Exact-string assertion on the rendered MERGING babysit-merge instructions genuinely fails if the 'skip explicitly-rejected suggestions' clause is removed or inverted (confirmed via in-memory monkeypatch counterexamples); requirement text is clear and testable.",
-  "timestamp": "2026-08-01T01:01:11.400Z"
-}
