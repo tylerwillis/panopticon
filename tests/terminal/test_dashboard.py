@@ -4031,6 +4031,8 @@ async def test_bulk_respawn_with_no_down_tasks_notifies_without_opening_modal(
             "live",
             "failed",
             "disconnected",
+            "Down",
+            "down ",
         ]
     ],
 )
@@ -4095,6 +4097,61 @@ def test_slug_cell_combines_slug_and_memo() -> None:
     # multi-line memo → only the first line shown in the table cell
     assert _slug_cell({"slug": "s", "memo": "line one\nline two"}).plain == "s[line one]"
     assert _slug_cell({"memo": "line one\nline two"}).plain == "[line one]"
+
+
+# 2119: REQ-039.1
+async def test_dashboard_slug_prefix_identifies_a_task_with_artifacts() -> None:
+    fake = _FakeClient([_TASK], artifacts={_TASK["id"]: ["specification.md"]})
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.pause()
+        slug_cell = app.query_one("#tasks", DataTable).get_row(_TASK["id"])[4]
+        assert slug_cell.plain == "*a | fix-widget"
+
+
+# 2119: REQ-039.2
+def test_slug_cell_prefix_identifies_github_pull_request_number() -> None:
+    task = {**_TASK, "url": "https://github.com/acme/widgets/pull/123"}
+    assert _slug_cell(task).plain == "*PR123 | fix-widget"
+    nested = {**task, "url": "http://github.com/acme/widgets/pull/456/files?diff=split#top"}
+    assert _slug_cell(nested).plain == "*PR456 | fix-widget"
+    for non_pr_url in (
+        "https://example.com/acme/widgets/pull/123",
+        "ssh://github.com/acme/widgets/pull/123",
+        "https://github.com.example/acme/widgets/pull/123",
+        "https://github.com/acme/widgets/pull/123abc",
+        "https://github.com/acme/widgets/pull/",
+    ):
+        assert _slug_cell({**task, "url": non_pr_url}).plain == "fix-widget"
+
+
+# 2119: REQ-039.3
+def test_slug_cell_stacks_artifact_then_pull_request_with_one_separator() -> None:
+    task = {
+        **_TASK,
+        "url": "https://github.com/acme/widgets/pull/123/files?diff=split#discussion",
+    }
+    assert _slug_cell(task, has_artifacts=True).plain == "*a *PR123 | fix-widget"
+
+
+# 2119: REQ-039.4
+def test_slug_cell_indicators_preserve_structural_prefix_slug_and_memo() -> None:
+    task = {
+        **_TASK,
+        "url": "https://github.com/acme/widgets/pull/7",
+        "memo": "make it green\nextra detail",
+    }
+    assert _slug_cell(task, "├─ ", "▾ ", has_artifacts=True).plain == (
+        "├─ ▾ *a *PR7 | fix-widget[make it green]"
+    )
+    assert _slug_cell({**task, "url": None}, "├─ ", "▾ ", has_artifacts=True).plain == (
+        "├─ ▾ *a | fix-widget[make it green]"
+    )
+    assert _slug_cell(task, "├─ ", "▾ ").plain == ("├─ ▾ *PR7 | fix-widget[make it green]")
+    assert _slug_cell({**task, "url": "https://example.com/pull/7"}, "├─ ", "▾ ").plain == (
+        "├─ ▾ fix-widget[make it green]"
+    )
 
 
 def test_memo_textarea_height_logic() -> None:

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-039.3.1--5efe32c9307f",
+  "requirementId": "REQ-039.3.1",
+  "hash": "5efe32c9307f",
+  "verdict": "pass",
+  "summary": "Exact stacked output rejects reversed indicators and any missing, duplicated, altered, or misplaced separator.",
+  "timestamp": "2026-08-02T23:28:48.812Z"
+}
