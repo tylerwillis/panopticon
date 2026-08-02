@@ -14,6 +14,7 @@ from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
 from panopticon.taskservice.service import TaskService
 from panopticon.taskservice.store_sqlalchemy import SqlAlchemyStore
 from panopticon.workflows.discovery import discover_workflows
+from panopticon.workflows.spec_2119 import _VERIFIED_REVIEW_INSTRUCTIONS
 
 WORKFLOW_NAMES = ("2119-human-spec", "2119-auto-spec", "2119-auto-sol")
 EXPECTED_ARTIFACT_INSTRUCTIONS = (
@@ -63,7 +64,8 @@ EXPECTED_DEFERRED_ISSUES_FILED_RESPONSIBILITY = (
 EXPECTED_SOL_REVIEWING_RESPONSIBILITIES = (
     (
         "reviews-recorded-sol",
-        "Both independent Sol 5.6 reviews ran against the final diff and are posted as PR comments.",
+        "Both configured reviewer dispatches are machine-verified against the final diff and "
+        "posted as evidence-bearing PR comments.",
     ),
     (
         "findings-triaged",
@@ -79,33 +81,14 @@ deferred rather than done now, and what an implementer would need to know. Omit 
 rejected as simply wrong — this section captures deferred value, not a changelog of the review.
 Frame the section explicitly as recommendations for the user to react to (endorse, reject, or
 edit) at the PR approval gate; `MERGING` reads this section back before filing issues."""
-EXPECTED_FABLE_SOL_REVIEW_INSTRUCTIONS = f"""Run two independent fresh-context reviews of the final
-diff: Fable 5 through the Claude CLI and Sol 5.6 with
-`codex exec --dangerously-bypass-approvals-and-sandbox -m gpt-5.6-sol`. Each review covers
-correctness, simplicity, scope, and spec/test honesty. Reviewer prompts must forbid edits. After
-each reviewer run, you MUST verify `git status --porcelain` is unchanged. Post both final review
-reports as labeled PR comments.
-
-Triage every finding against the code. Accept or reject each finding with a reason, implement every
-accepted fix, and re-run the TESTING gates. If a MUST-FIX was accepted, run one fresh review round;
-never exceed two rounds. Post the final triage as a PR comment.
-
-{EXPECTED_DEFERRED_ISSUES_TRIAGE_INSTRUCTIONS}
-
-Also publish the final review outputs and triage summary as task artifacts."""
-EXPECTED_SOL_ONLY_REVIEW_INSTRUCTIONS = f"""Run two independent fresh-context Sol 5.6 reviews of the
-final diff with `codex exec --dangerously-bypass-approvals-and-sandbox -m gpt-5.6-sol`. Each review
-covers correctness, simplicity, scope, and spec/test honesty. Reviewer prompts must forbid edits.
-After each reviewer run, you MUST verify `git status --porcelain` is unchanged. Post both final
-review reports as labeled PR comments.
-
-Triage every finding against the code. Accept or reject each finding with a reason, implement every
-accepted fix, and re-run the TESTING gates. If a MUST-FIX was accepted, run one fresh review round;
-never exceed two rounds. Post the final triage as a PR comment.
-
-{EXPECTED_DEFERRED_ISSUES_TRIAGE_INSTRUCTIONS}
-
-Also publish the final review outputs and triage summary as task artifacts."""
+EXPECTED_FABLE_SOL_REVIEW_INSTRUCTIONS = (
+    "Workflow reviewer defaults: `claude:claude-fable-5, codex:gpt-5.6-sol`.\n\n"
+    + _VERIFIED_REVIEW_INSTRUCTIONS
+)
+EXPECTED_SOL_ONLY_REVIEW_INSTRUCTIONS = (
+    "Workflow reviewer defaults: `codex:gpt-5.6-sol, codex:gpt-5.6-sol`.\n\n"
+    + _VERIFIED_REVIEW_INSTRUCTIONS
+)
 EXPECTED_DEFERRED_ISSUES_MERGE_INSTRUCTIONS = """## Before merging: file deferred-work issues
 
 The `deferred-issues-filed` responsibility gates this stage ahead of `pr-merged`. Before running
@@ -325,6 +308,27 @@ def test_2119_skills_publish_spec_and_review_material() -> None:
         assert review_skills
         for review_skill in review_skills:
             assert review_skill.instructions == expected_review
+            normalized = " ".join(review_skill.instructions.split())
+            assert (
+                'End the triage summary PR comment with a "Suggested placeholder issues" section.'
+                in normalized
+            )
+            assert (
+                "For each finding you rejected or deferred that is nonetheless a genuinely good "
+                "idea, add a one-paragraph entry: what the idea is, why it was deferred rather "
+                "than done now, and what an implementer would need to know."
+            ) in normalized
+            assert "Omit findings rejected as simply wrong" in normalized
+            assert "Do not omit findings rejected as simply wrong" not in normalized
+            assert (
+                "recommendations for the user to react to (endorse, reject, or edit) at the PR "
+                "approval gate"
+            ) in normalized
+            assert "Reviewer prompts must forbid edits." in review_skill.instructions
+            assert (
+                "verify `git status --porcelain` is unchanged from the snapshot taken immediately "
+                "before that reviewer ran"
+            ) in normalized
 
 
 def test_building_retains_the_external_pr_url_responsibility() -> None:

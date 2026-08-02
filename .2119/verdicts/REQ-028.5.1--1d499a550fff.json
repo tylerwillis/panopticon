@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.5.1--1d499a550fff",
-  "requirementId": "REQ-028.5.1",
-  "hash": "1d499a550fff",
-  "verdict": "pass",
-  "summary": "test_2119_skills_publish_spec_and_review_material does exact full-text equality checks on all 3 built-in workflows' spec-2119 and review skill instructions; monkeypatch counterexamples confirmed removing either the spec-publish sentence or narrowing 'review outputs and triage summary' to just 'review outputs' both break the equality assertion, so the test genuinely rejects the requirement's violation.",
-  "timestamp": "2026-08-01T00:59:45.568Z"
-}

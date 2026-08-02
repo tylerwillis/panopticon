@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.10.1--9b42d597df38",
+  "requirementId": "REQ-033.10.1",
+  "hash": "9b42d597df38",
+  "verdict": "pass",
+  "summary": "Exact-description assertions across all built-in 2119 workflows reject omission or weakening of the statement that filing zero issues is legal.",
+  "timestamp": "2026-08-02T05:51:02.952Z"
+}

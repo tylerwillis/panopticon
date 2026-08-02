@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.6.1--d7e75956f523",
-  "requirementId": "REQ-033.6.1",
-  "hash": "d7e75956f523",
-  "verdict": "pass",
-  "summary": "Exact-text assertion over the full MERGING skill block genuinely fails when either conjunct (re-read the triage-summary section, or re-read user PR comments reacting to it) is dropped, verified via in-process mutation of spec_2119._DEFERRED_ISSUES_MERGE_INSTRUCTIONS for all three built-in workflows; the step-1 re-invocation/skip-refiling guard is incidentally protected by the same whole-block equality but has no dedicated REQ id in the REQ-033 family (worth a follow-up requirement, not a blocker here).",
-  "timestamp": "2026-08-01T01:01:36.234Z"
-}

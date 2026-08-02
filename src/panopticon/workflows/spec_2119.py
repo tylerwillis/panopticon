@@ -7,6 +7,7 @@ from typing import ClassVar
 
 from panopticon.core.models import Actor, Responsibility, Skill
 from panopticon.core.state import Complete, InitialState, State
+from panopticon.harnesses.base import ReviewerConfig
 from panopticon.harnesses.codex import CodexHarness
 from panopticon.workflows.github_forge import GithubForgeWorkflow
 
@@ -24,14 +25,15 @@ URL_RECORDED = Responsibility(
 REVIEWS_RECORDED = Responsibility(
     key="reviews-recorded",
     description=(
-        "Both model reviews (Fable 5 and Sol 5.6) ran against the final diff and are posted as "
-        "PR comments."
+        "Both configured reviewer dispatches are machine-verified against the final diff and "
+        "posted as evidence-bearing PR comments."
     ),
 )
 REVIEWS_RECORDED_SOL = Responsibility(
     key="reviews-recorded-sol",
     description=(
-        "Both independent Sol 5.6 reviews ran against the final diff and are posted as PR comments."
+        "Both configured reviewer dispatches are machine-verified against the final diff and "
+        "posted as evidence-bearing PR comments."
     ),
 )
 FINDINGS_TRIAGED = Responsibility(
@@ -182,26 +184,41 @@ rejected as simply wrong — this section captures deferred value, not a changel
 Frame the section explicitly as recommendations for the user to react to (endorse, reject, or
 edit) at the PR approval gate; `MERGING` reads this section back before filing issues."""
 
-_FABLE_SOL_REVIEW_INSTRUCTIONS = f"""Run two independent fresh-context reviews of the final
-diff: Fable 5 through the Claude CLI and Sol 5.6 with
-`codex exec --dangerously-bypass-approvals-and-sandbox -m gpt-5.6-sol`. Each review covers
+_VERIFIED_REVIEW_INSTRUCTIONS = f"""Run two independent fresh-context reviews of the final diff
+with the container-owned `panopticon.container.reviewers` dispatch helpers. Each review covers
 correctness, simplicity, scope, and spec/test honesty. Reviewer prompts must forbid edits. After
-each reviewer run, you MUST verify `git status --porcelain` is unchanged. Post both final review
-reports as labeled PR comments.
+each reviewer run, verify `git status --porcelain` is unchanged from the snapshot taken immediately
+before that reviewer ran.
 
-Triage every finding against the code. Accept or reject each finding with a reason, implement every
-accepted fix, and re-run the TESTING gates. If a MUST-FIX was accepted, run one fresh review round;
-never exceed two rounds. Post the final triage as a PR comment.
+Reviewer selection is two ordered atomic `<harness>:<model>` pairs. The workflow defaults are
+shown below. A repo env file may independently replace them with
+`PANOPTICON_2119_REVIEWER_1` and `PANOPTICON_2119_REVIEWER_2`; split only on the first `:` so the
+model remains opaque. Resolve and validate both pairs inside the task container before any
+reviewer LLM call. A missing harness, missing model, unsupported harness, or malformed pair is an
+actionable configuration failure.
 
-{_DEFERRED_ISSUES_TRIAGE_INSTRUCTIONS}
+Use `dispatch_reviews` to invoke each configured model explicitly and verify the responding
+identity before posting anything. Claude verification uses the sole responding model key in
+`claude --print --output-format json`'s `modelUsage`. Codex verification correlates the sole
+`thread.started` id from `codex exec --json` with the persisted rollout's sole
+`turn_context.payload.model`; this is weaker than a documented stdout identity field. In both
+cases, the observed model must exactly equal the requested model. On command failure, missing or
+ambiguous evidence, or mismatch, fail loudly and do not post or publish the review body. Report a
+usage-limit or availability failure as a failed dispatch, never as a verified review with no
+findings.
 
-Also publish the final review outputs and triage summary as task artifacts."""
+Never ask the reviewer to state its model name or create a model-labeled heading. Derive the model
+label from the verified observation. Every completed PR comment must include the reviewer harness,
+requested model, verified responding model, verification source, reviewed commit, review round,
+and review body.
 
-_SOL_ONLY_REVIEW_INSTRUCTIONS = f"""Run two independent fresh-context Sol 5.6 reviews of the
-final diff with `codex exec --dangerously-bypass-approvals-and-sandbox -m gpt-5.6-sol`. Each review
-covers correctness, simplicity, scope, and spec/test honesty. Reviewer prompts must forbid edits.
-After each reviewer run, you MUST verify `git status --porcelain` is unchanged. Post both final
-review reports as labeled PR comments.
+Do not count an unverified report in triage. Do not resolve the reviews-recorded responsibility
+(or reviews-recorded-sol) until both PR comments carry valid verification evidence for the final
+reviewed commit. Fetch exactly the two final evidence comments in configured slot order and call
+`complete_review_stage`; its evidence gate must succeed before its triage and responsibility
+callbacks run. If one dispatch publishes before the other fails, exclude or delete that orphan
+before retrying so the gate receives exactly the final pair. Apply these same dispatch,
+verification, comment, and failure rules to re-review rounds.
 
 Triage every finding against the code. Accept or reject each finding with a reason, implement every
 accepted fix, and re-run the TESTING gates. If a MUST-FIX was accepted, run one fresh review round;
@@ -237,6 +254,10 @@ class _Spec2119Workflow(GithubForgeWorkflow):
 
     #: Whether stage-4 adversarial review uses Fable plus Sol; test honesty always uses Sol.
     fable_reviews: ClassVar[bool] = True
+    reviewers: ClassVar[tuple[ReviewerConfig, ReviewerConfig]] = (
+        ReviewerConfig("claude", "claude-fable-5"),
+        ReviewerConfig("codex", "gpt-5.6-sol"),
+    )
 
     def _honesty_reviewer_cmd(self) -> str:
         return "codex exec --dangerously-bypass-approvals-and-sandbox -m gpt-5.6-sol"
@@ -249,16 +270,17 @@ class _Spec2119Workflow(GithubForgeWorkflow):
         )
 
     def _review_skill(self) -> Skill:
+        defaults = ", ".join(f"{item.harness}:{item.model}" for item in self.reviewers)
         if self.fable_reviews:
             return Skill(
                 "dual-review",
-                "Stage 4: adversarial Fable 5 + Sol 5.6 review of the diff, triage, fix.",
-                _FABLE_SOL_REVIEW_INSTRUCTIONS,
+                "Stage 4: verified configurable dual review of the diff, triage, fix.",
+                f"Workflow reviewer defaults: `{defaults}`.\n\n{_VERIFIED_REVIEW_INSTRUCTIONS}",
             )
         return Skill(
             "dual-review-sol",
-            "Stage 4: adversarial Sol 5.6-only review of the diff, triage, fix.",
-            _SOL_ONLY_REVIEW_INSTRUCTIONS,
+            "Stage 4: verified configurable dual review with Sol defaults, triage, fix.",
+            f"Workflow reviewer defaults: `{defaults}`.\n\n{_VERIFIED_REVIEW_INSTRUCTIONS}",
         )
 
     def skills(self) -> Sequence[Skill]:
@@ -357,6 +379,10 @@ class Spec2119AutoSol(_Spec2119Workflow):
     name: ClassVar[str] = "2119-auto-sol"
     opt_in: ClassVar[bool] = True
     fable_reviews: ClassVar[bool] = False
+    reviewers: ClassVar[tuple[ReviewerConfig, ReviewerConfig]] = (
+        ReviewerConfig("codex", "gpt-5.6-sol"),
+        ReviewerConfig("codex", "gpt-5.6-sol"),
+    )
     when_to_use: ClassVar[str] = (
         "Spec-driven 2119 lifecycle with automatic specification and Sol-only reviews."
     )

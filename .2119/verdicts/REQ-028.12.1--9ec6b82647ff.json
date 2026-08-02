@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.12.1--9ec6b82647ff",
-  "requirementId": "REQ-028.12.1",
-  "hash": "9ec6b82647ff",
-  "verdict": "pass",
-  "summary": "Exact-string equality on rendered skill instructions (spec-2119, dual-review, dual-review-sol) genuinely embeds all 3 conjuncts (codex exec --dangerously-bypass-approvals-and-sandbox, forbid-edits, git status --porcelain check); monkeypatch counterexamples for each conjunct across all 3 workflows correctly fail. Minor: the _honesty_reviewer_cmd() assertion in test_auto_sol_uses_sol_for_both_review_layers checks dead code (unused hardcoded getter) and is tautological, but the genuine literal-text checks in the same and other tests independently cover the requirement.",
-  "timestamp": "2026-08-01T01:01:12.340Z"
-}

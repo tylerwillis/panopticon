@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.8.1--1b46457fd547",
+  "requirementId": "REQ-033.8.1",
+  "hash": "1b46457fd547",
+  "verdict": "pass",
+  "summary": "Exact generated MERGING skill text requires skipping every suggested issue explicitly rejected by the user; omission, narrowing, or a directive to file such an issue changes the asserted prefix and fails.",
+  "timestamp": "2026-08-02T05:52:00.771Z"
+}

@@ -94,6 +94,23 @@ flowchart LR
 | **Workflow** | lifecycle + skills; *optional* tuned harness+model pair | workflow code |
 | **Harness** | vocabulary, suggestion lists, field label, CLI mechanics | adapter code |
 
+## RFC 2119 reviewer selection
+
+The built-in 2119 workflows separately resolve two reviewer harness/model pairs for their final
+dual review. These do not change the task's interactive harness or `starting_model`:
+
+- `2119-human-spec` and `2119-auto-spec` default to
+  `claude:claude-fable-5` plus `codex:gpt-5.6-sol`.
+- `2119-auto-sol` retains two `codex:gpt-5.6-sol` defaults.
+- A repo env file may independently override those slots with
+  `PANOPTICON_2119_REVIEWER_1=<harness>:<model>` and
+  `PANOPTICON_2119_REVIEWER_2=<harness>:<model>`.
+
+The pair splits only at its first colon. The remainder is the harness-owned opaque model string,
+consistent with task model selection. Both pairs are validated before either reviewer runs.
+Reviewer output is accepted only after its machine-recorded responding model exactly matches that
+requested string; aliases are not canonicalized.
+
 ## Outfitter adapter
 
 Outfitter 0.11.0 is registered and selectable. That release fixed the width-unsafe startup header

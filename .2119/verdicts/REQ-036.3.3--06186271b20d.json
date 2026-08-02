@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-036.3.3--06186271b20d",
+  "requirementId": "REQ-036.3.3",
+  "hash": "06186271b20d",
+  "verdict": "pass",
+  "summary": "Dispatch rejects unequal and prefix-only HEAD values before reviewer execution, and prompts contain the exact recorded commit paired with both default and explicitly selected base refs.",
+  "timestamp": "2026-08-02T22:23:32.688Z"
+}

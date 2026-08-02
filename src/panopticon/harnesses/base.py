@@ -42,6 +42,14 @@ HOOK_COMMAND = "python -m panopticon.container.hook"
 HOOK_TIMEOUT_SECONDS = 3
 
 
+@dataclass(frozen=True)
+class ReviewerConfig:
+    """An atomic reviewer harness/model pair with harness-owned model vocabulary."""
+
+    harness: str
+    model: str
+
+
 def task_id_note(task_id: str) -> str:
     """Guidance shared by every rendered skill for calling the task-scoped MCP tools."""
     return (
