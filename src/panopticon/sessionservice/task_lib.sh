@@ -5,12 +5,28 @@
 # hand-rolling curl. Every function acts on the current task ($PANOPTICON_TASK_ID) and returns
 # curl's exit status (nonzero on an HTTP error). POSIX sh; needs `curl` (and `sed` for escaping).
 
+# Internal: invoke curl with auth supplied over stdin, never in argv or the assembled command.
+_panopticon_curl() {
+    if [ -n "${PANOPTICON_SERVICE_AUTH_FILE:-}" ]; then
+        "${PANOPTICON_PYTHON:-python}" - "$PANOPTICON_SERVICE_AUTH_FILE" <<'PY' | curl --config - "$@"
+import json
+import sys
+
+with open(sys.argv[1]) as credential_file:
+    token = json.load(credential_file)["write"][0]
+print(f'header = "Authorization: Bearer {token}"')
+PY
+    else
+        curl "$@"
+    fi
+}
+
 # Internal: call the current task's REST API. $1=method $2=path-under-/tasks/<id> [extra curl args].
 _panopticon_api() {
     _pan_method=$1
     _pan_path=$2
     shift 2
-    curl --silent --show-error --fail --request "$_pan_method" \
+    _panopticon_curl --silent --show-error --fail --request "$_pan_method" \
         "$PANOPTICON_SERVICE_URL/tasks/$PANOPTICON_TASK_ID$_pan_path" "$@"
 }
 

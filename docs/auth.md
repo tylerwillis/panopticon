@@ -1,4 +1,53 @@
-# Container authentication — giving tasks their agent credentials
+# Authentication
+
+## Task-service authentication
+
+The task service accepts bearer tokens from one host-local JSON file. Store it under
+`~/.config/panopticon/secrets/` (or `$PANOPTICON_CONFIG/secrets`) and refer to it by filename; do
+not put its contents in a repo env-file, task, database field, or artifact. Use distinct tokens for
+the read-only dashboard and for clients that mutate control-plane state:
+
+```json
+{
+  "read": ["generate-a-long-random-dashboard-token"],
+  "write": ["generate-a-different-long-random-fleet-token"]
+}
+```
+
+The arrays may contain multiple tokens for rotation, but must be nonempty, contain only nonempty
+strings, have no duplicates, and never overlap. Configure every task-service and runner host with
+the same filename reference:
+
+```sh
+export PANOPTICON_SERVICE_AUTH_FILE=task-service-auth.json
+export PANOPTICON_SERVICE_AUTH_MODE=permissive
+```
+
+Host clients (runner, dashboard, and CLI) resolve the file against their own secrets directory.
+The runner separately mounts it read-only into every Docker task—even one whose repo has no
+`env_file`—and exposes the host path to shell tasks. Tokens are sent in the `Authorization` header,
+never in URLs or command arguments. `GET /healthz` stays open; every other route is protected.
+Read tokens may call ordinary GET endpoints. Write tokens may call every endpoint, including the
+task and runner liveness streams and MCP.
+
+Roll a live fleet out without killing existing containers:
+
+1. Put the old write token in the credential file and start the service in `permissive` mode.
+   Restart each runner, dashboard, and CLI host so new containers receive the credential mount;
+   existing unauthenticated containers continue working.
+2. Respawn or naturally replace the in-flight containers until all callers send the token, then
+   restart the service with `PANOPTICON_SERVICE_AUTH_MODE=enforced`.
+3. To rotate, add the next read/write tokens beside the old tokens and restart the service. Update
+   all hosts and containers while both generations work. Remove the old tokens only after the
+   fleet has converged, then restart the service again.
+
+An enforced service refuses to start when the reference is absent or invalid. Authentication
+failures always return `401`, `WWW-Authenticate: Bearer`, and
+`{"detail":"authentication required"}` without revealing whether a resource exists. Loopback is
+not exempt: once the process binds beyond localhost, a loopback bypass would also bypass local
+proxies and port forwards.
+
+## Container authentication — giving tasks their agent credentials
 
 Each **harness** (the agent CLI a task runs) authenticates its own way. `panopticon quickstart`
 detects installed/authenticated harnesses, asks you to confirm or choose one, stores it as the

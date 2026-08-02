@@ -266,10 +266,9 @@ def test_operation_instructions_curl_the_rest_api_not_an_mcp_tool(tmp_path: Path
     operation = (tmp_path / ".agents" / "skills" / "advance" / "SKILL.md").read_text()
     assert "apply_operation" not in operation
     assert "MCP" in operation  # names the reason, for the agent's benefit
-    assert (
-        "curl --fail --silent --show-error --request POST "
-        '"http://host.docker.internal:8000/tasks/t7/operations/advance"' in operation
-    )
+    assert "curl --fail --silent --show-error --header" in operation
+    assert "Authorization: Bearer $PANOPTICON_SERVICE_AUTH_TOKEN" in operation
+    assert '"http://host.docker.internal:8000/tasks/t7/operations/advance"' in operation
 
 
 def test_bootstrap_renders_skills_user_scope_not_into_the_workspace(tmp_path: Path) -> None:

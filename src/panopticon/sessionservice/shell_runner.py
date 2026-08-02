@@ -34,6 +34,7 @@ from panopticon.sessionservice.local_runner import (
 )
 from panopticon.sessionservice.runner import Runner
 from panopticon.sessionservice.tmux_defaults import defaults_argv
+from panopticon.taskservice.auth import credential_path
 
 #: The panopticon shell lib (``task_lib.sh``): functions a shell workflow's script uses to drive its
 #: task over REST (``panopticon_advance``/``_drop``/``_set_slug``/…) instead of hand-rolling curl.
@@ -68,6 +69,7 @@ class ShellRunner(Runner):
         runner_id: str = "local",
         tmux_socket: str | None = TMUX_SOCKET,
         secrets_dir: str | Path | None = None,
+        auth_file: str | None = None,
         script_dir: str | Path | None = None,
         run: CommandRunner = _subprocess_run,
     ) -> None:
@@ -77,6 +79,9 @@ class ShellRunner(Runner):
         # Root the repo's `env_file` *name* resolves against — this host's local secrets dir, matching
         # LocalRunner (ADR 0007). None = resolve the host's secrets dir dynamically at spawn.
         self._secrets_dir = secrets_dir
+        self._auth_file = (
+            auth_file if auth_file is not None else os.environ.get("PANOPTICON_SERVICE_AUTH_FILE")
+        )
         self._script_dir = Path(script_dir or tempfile.gettempdir())
         self._run = run
 
@@ -138,13 +143,23 @@ class ShellRunner(Runner):
             f"export PANOPTICON_RUNNER_ID={shlex.quote(self._runner_id)}",
             f"export PANOPTICON_PYTHON={shlex.quote(sys.executable)}",
             f"export PANOPTICON_SECRETS_DIR={shlex.quote(str(self._secrets_dir or _secrets_dir()))}",
+            *(
+                [
+                    "export PANOPTICON_SERVICE_AUTH_FILE="
+                    + shlex.quote(
+                        str(credential_path(self._auth_file, secrets_dir=self._secrets_dir))
+                    )
+                ]
+                if self._auth_file
+                else []
+            ),
             *([f"export PANOPTICON_GIT_URL={shlex.quote(git_url)}"] if git_url else []),
             *([f"export PANOPTICON_REPO_NAME={shlex.quote(repo_name)}"] if repo_name else []),
-            f"curl --silent --no-buffer {shlex.quote(live_url)} >/dev/null 2>&1 &",
-            "_panopticon_live_pid=$!",
-            "trap 'kill $_panopticon_live_pid 2>/dev/null' EXIT",
             # Load the panopticon shell lib so the script can drive its task (panopticon_advance, …).
             _TASK_LIB,
+            f"_panopticon_curl --silent --no-buffer {shlex.quote(live_url)} >/dev/null 2>&1 &",
+            "_panopticon_live_pid=$!",
+            "trap 'kill $_panopticon_live_pid 2>/dev/null' EXIT",
         ]
         # Resolve the env_file *name* to an absolute path under this host's secrets dir, expose the
         # path (so a script can tell the operator where to add their own credential), then source it

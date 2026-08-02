@@ -139,7 +139,11 @@ def test_write_mcp_config_points_claude_at_the_task_service_mcp(tmp_path: Path) 
     assert path == tmp_path / MCP_CONFIG_FILE
     cfg = json.loads(path.read_text())
     server = cfg["mcpServers"]["panopticon"]
-    assert server == {"type": "http", "url": "http://host.docker.internal:8000/mcp"}
+    assert server == {
+        "type": "http",
+        "url": "http://host.docker.internal:8000/mcp",
+        "headers": {"Authorization": "Bearer ${PANOPTICON_SERVICE_AUTH_TOKEN}"},
+    }
 
 
 def test_argv_adds_strict_mcp_config_when_present(tmp_path: Path) -> None:

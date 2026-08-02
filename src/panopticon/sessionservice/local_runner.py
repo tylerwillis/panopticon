@@ -29,6 +29,7 @@ from panopticon.sessionservice.prefill import (
 )
 from panopticon.sessionservice.runner import Runner
 from panopticon.sessionservice.tmux_defaults import defaults_argv
+from panopticon.taskservice.auth import credential_path as service_credential_path
 
 #: Default composed image (base layer, ADR 0005); built in a later PR of this slice.
 DEFAULT_IMAGE = "panopticon-base"
@@ -70,6 +71,7 @@ CONTAINER_HOME = "/home/panopticon"
 #: container layer is thrown away each spawn, but the volume persists. Per-task (not per-repo)
 #: so concurrent tasks don't share state.
 CONFIG_MOUNT = "/home/panopticon/.claude"
+SERVICE_AUTH_MOUNT = "/run/secrets/panopticon-service-auth"
 
 
 class CommandRunner(Protocol):
@@ -124,6 +126,7 @@ class LocalRunner(Runner):
         extra_env: Mapping[str, str] | None = None,
         user: str | None = None,
         secrets_dir: str | Path | None = None,
+        auth_file: str | None = None,
         run: CommandRunner = _subprocess_run,
     ) -> None:
         self._service_url = service_url
@@ -133,6 +136,9 @@ class LocalRunner(Runner):
         # remote runner uses its own secrets (the stored value is host-agnostic; ADR 0007). None =
         # resolve the host's secrets dir dynamically at spawn.
         self._secrets_dir = secrets_dir
+        self._auth_file = (
+            auth_file if auth_file is not None else os.environ.get("PANOPTICON_SERVICE_AUTH_FILE")
+        )
         # Run the task container unprivileged as the invoking user (uid:gid), so it can't act as
         # root on the host and its writes to the mounted workspace are owned by the operator.
         self._user = user if user is not None else _invoking_user()
@@ -239,6 +245,10 @@ class LocalRunner(Runner):
             env["PANOPTICON_DOCKER_IN_DOCKER"] = "1"
         if env_path := secrets_file_path(env_file, secrets_dir=self._secrets_dir):
             docker_run += ["--env-file", env_path]  # per-repo secrets, resolved host-locally
+        if self._auth_file:
+            auth_path = service_credential_path(self._auth_file, secrets_dir=self._secrets_dir)
+            docker_run += ["--volume", f"{auth_path}:{SERVICE_AUTH_MOUNT}:ro"]
+            env["PANOPTICON_SERVICE_AUTH_FILE"] = SERVICE_AUTH_MOUNT
         if workspace:  # the per-task clone — the agent's writable working dir (ADR 0011)
             docker_run += [
                 "--volume",

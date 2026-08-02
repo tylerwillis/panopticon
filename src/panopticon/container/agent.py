@@ -29,6 +29,7 @@ import httpx
 from panopticon.client import TaskServiceClient
 from panopticon.core.models import Skill
 from panopticon.harnesses import BootstrapContext, Harness, LaunchContext, get_harness
+from panopticon.taskservice.auth import environment_token
 
 
 def _run_agent(
@@ -70,6 +71,8 @@ def main(
     than lingering live-but-unconnectable — the operator respawns it with `R` (history resumes)."""
     env = os.environ
     service_url = env["PANOPTICON_SERVICE_URL"]
+    if service_token := environment_token():
+        env["PANOPTICON_SERVICE_AUTH_TOKEN"] = service_token
     client = client_factory(service_url)
     harness = get_harness(env.get("PANOPTICON_HARNESS"))
     home = home or Path.home()

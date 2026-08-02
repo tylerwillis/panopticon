@@ -106,7 +106,10 @@ export default function (pi) {
     try {
       await fetch(url, {
         method: "PUT",
-        headers: { "content-type": "application/json" },
+        headers: {
+          "content-type": "application/json",
+          "authorization": `Bearer ${process.env.PANOPTICON_SERVICE_AUTH_TOKEN}`,
+        },
         body: JSON.stringify({ turn }),
         signal: controller.signal,
       });
@@ -182,7 +185,9 @@ def operation_instructions(name: str, target_state: str, task_id: str, service_u
     return (
         f"Apply this workflow's `{name}` operation — it moves the task to **{target_state}**. "
         "pi has no MCP client, so call the task service's REST API directly (no request body "
-        f'needed): `curl --fail --silent --show-error --request POST "{url}"`. '
+        "needed): `curl --fail --silent --show-error --header "
+        '"Authorization: Bearer $PANOPTICON_SERVICE_AUTH_TOKEN" --request POST '
+        f'"{url}"`. '
         "Don't edit the state directly. It's gated on the current state's responsibilities and "
         "starts a new turn."
     )

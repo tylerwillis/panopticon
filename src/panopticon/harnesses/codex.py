@@ -119,6 +119,7 @@ def render_config(service_url: str, overview: str, cwd: Path) -> str:
         "",
         "[mcp_servers.panopticon]",
         f"url = {_toml_str(service_url.rstrip('/') + '/mcp')}",
+        'bearer_token_env_var = "PANOPTICON_SERVICE_AUTH_TOKEN"',
         "",
         # codex's built-in apps connector can't start in the container and would stall every
         # spawn on its 30s MCP timeout. The correct disable is the feature flag — an
