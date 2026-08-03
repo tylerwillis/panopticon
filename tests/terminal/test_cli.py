@@ -170,7 +170,7 @@ def test_no_arg_refuses_when_docker_daemon_is_unreachable() -> None:
     mock_console.assert_not_called()
 
 
-def _expected_new_session_commands() -> list[list[str]]:
+def _expected_new_session_commands(state_root: Path) -> list[list[str]]:
     """The exact `tmux new-session` invocations `_start_sessions` runs for each real session —
     reproduced here (not derived from the source, except `defaults_argv` itself — REQ-030's own
     tests own proving *that* function's content; this pins that `_start_sessions` passes it at
@@ -194,7 +194,7 @@ def _expected_new_session_commands() -> list[list[str]]:
             "-s",
             "service",
             f"{environment}{sys.executable} -m panopticon.taskservice --host 0.0.0.0 "
-            "2>&1 | tee /tmp/panopticon-service.log",
+            f"2>&1 | tee {state_root / 'service.log'}",
         ],
         [
             "tmux",
@@ -206,7 +206,7 @@ def _expected_new_session_commands() -> list[list[str]]:
             "-s",
             "runner",
             f"{environment}{sys.executable} -m panopticon.sessionservice.host "
-            "2>&1 | tee /tmp/panopticon-runner.log",
+            f"2>&1 | tee {state_root / 'runner.log'}",
         ],
     ]
 
@@ -223,34 +223,42 @@ def _fake_subprocess_run(cmd: list[str], **kwargs: object) -> MagicMock:
     return MagicMock(returncode=0)  # tmux new-session succeeds
 
 
-def test_start_actually_starts_both_sessions_with_their_real_commands_when_reachable() -> None:
+def test_start_actually_starts_both_sessions_with_their_real_commands_when_reachable(
+    tmp_path: Path,
+) -> None:
     # A true end-to-end run (only `subprocess.run` is faked): a genuinely reachable daemon,
     # through the real `_start_sessions`, must create both a "service" session running the exact
     # task-service command and a "runner" session running the exact session-service host command,
     # both detached — an exact argv match, not a substring, so a mutant that keeps the names but
     # swaps in an inert/wrong/foregrounded command is caught too.
     # 2119: REQ-031.1.5
+    state_root = tmp_path / "state"
     with (
+        patch.dict(os.environ, {"PANOPTICON_STATE": str(state_root)}),
         patch("subprocess.run", side_effect=_fake_subprocess_run) as mock_run,
         patch("panopticon.terminal.__main__._run_migrate"),
         patch("panopticon.terminal.console.run_console_local"),
     ):
         assert main(["start"]) == 0
     new_session_calls = [c.args[0] for c in mock_run.call_args_list if "new-session" in c.args[0]]
-    assert sorted(new_session_calls) == sorted(_expected_new_session_commands())
+    assert sorted(new_session_calls) == sorted(_expected_new_session_commands(state_root))
 
 
-def test_host_actually_starts_both_sessions_with_their_real_commands_when_reachable() -> None:
+def test_host_actually_starts_both_sessions_with_their_real_commands_when_reachable(
+    tmp_path: Path,
+) -> None:
     # Same as above for `panopticon host` — a wiring bug that starts only one session, drops
     # detachment, or uses the wrong command for this entry point specifically must be caught too.
     # 2119: REQ-031.1.5
+    state_root = tmp_path / "state"
     with (
+        patch.dict(os.environ, {"PANOPTICON_STATE": str(state_root)}),
         patch("subprocess.run", side_effect=_fake_subprocess_run) as mock_run,
         patch("panopticon.terminal.__main__._run_migrate"),
     ):
         assert main(["host"]) == 0
     new_session_calls = [c.args[0] for c in mock_run.call_args_list if "new-session" in c.args[0]]
-    assert sorted(new_session_calls) == sorted(_expected_new_session_commands())
+    assert sorted(new_session_calls) == sorted(_expected_new_session_commands(state_root))
 
 
 def test_start_refuses_via_the_real_docker_probe_when_docker_info_fails() -> None:
