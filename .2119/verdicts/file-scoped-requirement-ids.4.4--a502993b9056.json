@@ -1,8 +1,0 @@
-{
-  "reviewId": "file-scoped-requirement-ids.4.4--a502993b9056",
-  "requirementId": "file-scoped-requirement-ids.4.4",
-  "hash": "a502993b9056",
-  "verdict": "pass",
-  "summary": "PASS: same local numbers in alpha and beta must cover successfully and dispatch four namespace-qualified IDs, rejecting number-only collisions",
-  "timestamp": "2026-08-03T20:29:33.180Z"
-}

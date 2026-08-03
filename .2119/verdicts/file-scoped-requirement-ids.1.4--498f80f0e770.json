@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.1.4--498f80f0e770",
+  "requirementId": "file-scoped-requirement-ids.1.4",
+  "hash": "498f80f0e770",
+  "verdict": "pass",
+  "summary": "Tracked guidance and every workflow reject older releases and 0.7.0 prereleases",
+  "timestamp": "2026-08-03T22:10:41.456Z"
+}

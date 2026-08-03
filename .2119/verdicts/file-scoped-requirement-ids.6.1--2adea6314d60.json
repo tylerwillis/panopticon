@@ -1,8 +1,0 @@
-{
-  "reviewId": "file-scoped-requirement-ids.6.1--2adea6314d60",
-  "requirementId": "file-scoped-requirement-ids.6.1",
-  "hash": "2adea6314d60",
-  "verdict": "pass",
-  "summary": "PASS: guidance test requires the explicit version-pinned runnable-compiled-JavaScript record within the full lifecycle policy",
-  "timestamp": "2026-08-03T20:29:34.329Z"
-}

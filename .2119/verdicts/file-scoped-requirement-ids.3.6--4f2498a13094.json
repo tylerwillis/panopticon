@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.3.6--4f2498a13094",
+  "requirementId": "file-scoped-requirement-ids.3.6",
+  "hash": "4f2498a13094",
+  "verdict": "pass",
+  "summary": "Exact guidance assertion requires both the imported bare annotation and full annotation to resolve to the same repo-picker.3.2 ID.",
+  "timestamp": "2026-08-03T22:10:49.964Z"
+}

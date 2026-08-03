@@ -1,8 +1,0 @@
-{
-  "reviewId": "file-scoped-requirement-ids.3.1--550f2c707649",
-  "requirementId": "file-scoped-requirement-ids.3.1",
-  "hash": "550f2c707649",
-  "verdict": "pass",
-  "summary": "PASS: merge-base comparison rejects changes to every legacy spec or verdict file, while the mixed check exercises retained legacy identity",
-  "timestamp": "2026-08-03T20:29:31.463Z"
-}

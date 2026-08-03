@@ -1,8 +1,0 @@
-{
-  "reviewId": "file-scoped-requirement-ids.4.5--37267dfef8ff",
-  "requirementId": "file-scoped-requirement-ids.4.5",
-  "hash": "37267dfef8ff",
-  "verdict": "pass",
-  "summary": "Exact guidance asserts scoped new-authoring examples plus a legacy full-ID cross-spec example",
-  "timestamp": "2026-08-03T20:29:37.847Z"
-}

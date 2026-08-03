@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.2.8--a5ec8e6cd057",
+  "requirementId": "file-scoped-requirement-ids.2.8",
+  "hash": "a5ec8e6cd057",
+  "verdict": "pass",
+  "summary": "Exact guidance assertion rejects omission, temporary coexistence, or either grammar alone and requires indefinite legacy/file-scoped coexistence.",
+  "timestamp": "2026-08-03T22:10:46.810Z"
+}

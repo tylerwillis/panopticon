@@ -1,8 +1,0 @@
-{
-  "reviewId": "file-scoped-requirement-ids.4.2--358b4902a896",
-  "requirementId": "file-scoped-requirement-ids.4.2",
-  "hash": "358b4902a896",
-  "verdict": "pass",
-  "summary": "One pinned check proves complete mixed legacy and file-scoped annotation resolution",
-  "timestamp": "2026-08-03T20:29:37.273Z"
-}

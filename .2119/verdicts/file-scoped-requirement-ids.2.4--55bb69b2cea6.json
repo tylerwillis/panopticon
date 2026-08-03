@@ -1,8 +1,0 @@
-{
-  "reviewId": "file-scoped-requirement-ids.2.4--55bb69b2cea6",
-  "requirementId": "file-scoped-requirement-ids.2.4",
-  "hash": "55bb69b2cea6",
-  "verdict": "pass",
-  "summary": "Merge-base diff rejects any byte change to a legacy verdict file",
-  "timestamp": "2026-08-03T20:29:34.955Z"
-}

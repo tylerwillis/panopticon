@@ -1,8 +1,0 @@
-{
-  "reviewId": "file-scoped-requirement-ids.1.1--fe82fec799dd",
-  "requirementId": "file-scoped-requirement-ids.1.1",
-  "hash": "fe82fec799dd",
-  "verdict": "pass",
-  "summary": "Exact active workflow command and adjacent hardened environment are asserted",
-  "timestamp": "2026-08-03T20:29:33.140Z"
-}

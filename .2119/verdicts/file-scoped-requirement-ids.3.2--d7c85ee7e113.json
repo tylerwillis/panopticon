@@ -1,8 +1,0 @@
-{
-  "reviewId": "file-scoped-requirement-ids.3.2--d7c85ee7e113",
-  "requirementId": "file-scoped-requirement-ids.3.2",
-  "hash": "d7c85ee7e113",
-  "verdict": "pass",
-  "summary": "Any legacy verdict deletion or replacement caused by gate upgrade fails the adoption diff",
-  "timestamp": "2026-08-03T20:29:36.110Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "file-scoped-requirement-ids.1.2--92bd162c3414",
-  "requirementId": "file-scoped-requirement-ids.1.2",
-  "hash": "92bd162c3414",
-  "verdict": "pass",
-  "summary": "Exact npm 10.9.3 pin must precede every npx invocation; a 10.9.2 substitution is rejected.",
-  "timestamp": "2026-08-03T20:30:22.966Z"
-}

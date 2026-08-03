@@ -6,6 +6,8 @@ import re
 import subprocess
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).parents[1]
 WORKFLOW = ROOT / ".github" / "workflows" / "2119.yml"
 GUIDANCE = ROOT / "AGENTS.md"
@@ -68,7 +70,7 @@ def test_no_older_rfc2119_pin_remains_in_active_instructions() -> None:
 # 2119: 2.1, 2.2, 2.3, 2.4, 3.1, 3.2
 def test_adoption_diff_does_not_rewrite_legacy_identity_or_verdict_files() -> None:
     if _adoption_is_already_on_base():
-        return
+        pytest.skip("adoption is on the base; the migration window has closed")
     merge_base = subprocess.run(
         ["git", "merge-base", "HEAD", "origin/main"],
         cwd=ROOT,
@@ -240,7 +242,7 @@ def test_070_resolves_both_grammars_and_distinct_file_namespaces(tmp_path: Path)
 # 2119: 5.1
 def test_adoption_waits_for_assigned_legacy_specs() -> None:
     if _adoption_is_already_on_base():
-        return
+        pytest.skip("adoption is on the base; the migration window has closed")
     assigned = {
         "REQ-035-task-service-authentication.md",
         "REQ-036-verified-configurable-reviewer-models.md",

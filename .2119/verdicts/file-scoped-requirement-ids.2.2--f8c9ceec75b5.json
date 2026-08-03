@@ -1,8 +1,0 @@
-{
-  "reviewId": "file-scoped-requirement-ids.2.2--f8c9ceec75b5",
-  "requirementId": "file-scoped-requirement-ids.2.2",
-  "hash": "f8c9ceec75b5",
-  "verdict": "pass",
-  "summary": "The adoption diff forbids any legacy REQ spec change; changing one legacy heading is rejected.",
-  "timestamp": "2026-08-03T20:30:24.151Z"
-}
