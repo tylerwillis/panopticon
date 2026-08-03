@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-039.1.1--4ec69c68a0c0",
+  "requirementId": "REQ-039.1.1",
+  "hash": "4ec69c68a0c0",
+  "verdict": "pass",
+  "summary": "Tests reject invalid bounds, exercise both client streams, and prove the server wait consumes shared keepalive configuration.",
+  "timestamp": "2026-08-03T00:10:34.575Z"
+}

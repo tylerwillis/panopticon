@@ -34,6 +34,12 @@ from panopticon.taskservice.service import (
     UnknownWorkflow,
 )
 
+
+async def _wait_for_liveness_keepalive() -> None:
+    """Wait for the shared server keepalive interval."""
+    await asyncio.sleep(LIVENESS_KEEPALIVE_SECONDS)
+
+
 # -- wire schemas -------------------------------------------------------------------
 
 
@@ -869,7 +875,7 @@ def create_app(service: TaskService) -> FastAPI:
             try:
                 yield b":ok\n"  # flush headers + confirm liveness is established
                 while True:
-                    await asyncio.sleep(LIVENESS_KEEPALIVE_SECONDS)
+                    await _wait_for_liveness_keepalive()
                     yield b":keepalive\n"
             finally:  # client disconnected (Starlette cancels us) or the loop ended — reap now
                 await service.deregister(reg.id)
@@ -938,7 +944,7 @@ def create_app(service: TaskService) -> FastAPI:
             try:
                 yield b":ok\n"  # flush headers + confirm host liveness is established
                 while True:
-                    await asyncio.sleep(LIVENESS_KEEPALIVE_SECONDS)
+                    await _wait_for_liveness_keepalive()
                     yield b":keepalive\n"
             finally:  # daemon disconnected (Starlette cancels us) or the loop ended — drop it now
                 await service.deregister_runner(reg.id)

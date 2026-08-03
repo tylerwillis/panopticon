@@ -8,6 +8,7 @@ import threading
 import time
 from collections.abc import Callable, Generator, Iterator
 from contextlib import contextmanager
+from unittest.mock import AsyncMock
 
 import httpx
 import pytest
@@ -79,6 +80,18 @@ def test_liveness_read_timeout_is_finite_and_exceeds_shared_keepalive() -> None:
     assert next(client.live("task-1", container_id="container-1")) is None
     assert next(client.live_runner("runner-1")) is None
     assert observed == [liveness.LIVENESS_READ_TIMEOUT_SECONDS] * 2
+
+
+# 2119: REQ-039.1.1
+async def test_server_liveness_wait_uses_shared_keepalive_interval(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    sleep = AsyncMock()
+    monkeypatch.setattr(api.asyncio, "sleep", sleep)
+
+    await api._wait_for_liveness_keepalive()
+
+    sleep.assert_awaited_once_with(liveness.LIVENESS_KEEPALIVE_SECONDS)
 
 
 # 2119: REQ-039.2.1
