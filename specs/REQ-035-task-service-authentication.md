@@ -68,7 +68,7 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 
 ### REQ-035.14: Enforced mode validation
 
-1. A service configured to enforce authentication MUST fail startup before serving requests when its credential reference is missing, escapes the secrets directory, is unreadable, is not a JSON object containing only nonempty `read` and `write` string arrays, or assigns any token to both privileges.
+1. A service configured to enforce authentication MUST fail startup before serving requests when its credential reference is missing, escapes the secrets directory, is unreadable, is not a JSON object containing a nonempty `write` string array and an optional `read` string array, or assigns any token to both privileges.
 
 ### REQ-035.15: Shared client propagation
 
@@ -168,7 +168,7 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 
 ### REQ-035.39: Least-exposure runtime snapshot
 
-1. A per-task runtime credential snapshot MUST contain only the active write token selected when that task is spawned.
+1. A Docker task's runtime credential snapshot MUST contain only the task capability derived from the active write token selected when that task is spawned.
 
 ### REQ-035.40: Fixed-response collision
 
