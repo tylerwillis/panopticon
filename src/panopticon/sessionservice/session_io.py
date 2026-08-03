@@ -26,6 +26,8 @@ _ANSI = re.compile(
 
 
 class _Client(Protocol):
+    def get_task(self, task_id: str) -> dict[str, Any]: ...
+
     def pending_session_input(self, task_id: str, runner_id: str) -> list[dict[str, Any]]: ...
 
     def settle_session_input(
@@ -139,11 +141,7 @@ class SessionIOWorker:
         self._lock = threading.Lock()
 
     def process(self, task: Mapping[str, Any]) -> None:
-        if (
-            task.get("claimed_by") != self._runner_id
-            or task.get("container_status") != "live"
-            or task.get("turn") != "user"
-        ):
+        if task.get("claimed_by") != self._runner_id or task.get("container_status") != "live":
             return
         task_id = str(task["id"])
         with self._lock:
@@ -153,17 +151,30 @@ class SessionIOWorker:
 
         def work() -> None:
             try:
-                for delivery in self._client.pending_session_input(task_id, self._runner_id):
-                    ok, reason = self._runner.deliver_session_input(
-                        task_id, str(delivery["text"]), submit=bool(delivery["submit"])
-                    )
-                    self._client.settle_session_input(
-                        task_id,
-                        str(delivery["id"]),
-                        "delivered" if ok else "failed",
-                        None if ok else (reason or FAILURE_REASON),
-                    )
-                if snapshot := self._runner.capture_session_transcript(task_id):
+                if task.get("turn") == "user":
+                    for delivery in self._client.pending_session_input(task_id, self._runner_id):
+                        current = self._client.get_task(task_id)
+                        if (
+                            current.get("claimed_by") != self._runner_id
+                            or current.get("container_status") != "live"
+                            or current.get("turn") != "user"
+                        ):
+                            break
+                        ok, reason = self._runner.deliver_session_input(
+                            task_id, str(delivery["text"]), submit=bool(delivery["submit"])
+                        )
+                        self._client.settle_session_input(
+                            task_id,
+                            str(delivery["id"]),
+                            "delivered" if ok else "failed",
+                            None if ok else (reason or FAILURE_REASON),
+                        )
+                current = self._client.get_task(task_id)
+                if (
+                    current.get("claimed_by") == self._runner_id
+                    and current.get("container_status") == "live"
+                    and (snapshot := self._runner.capture_session_transcript(task_id))
+                ):
                     self._client.publish_session_transcript(task_id, snapshot)
             finally:
                 with self._lock:

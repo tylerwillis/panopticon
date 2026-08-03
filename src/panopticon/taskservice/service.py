@@ -259,6 +259,8 @@ class TaskService:
         task = await self.get_task(task_id)
         if task.claimed_by != runner_id:
             raise SessionConflict("runner does not own task")
+        if status is SessionInputStatus.PENDING:
+            raise SessionConflict("pending session input cannot be settled as pending")
         delivery = await self.get_session_input(task_id, delivery_id)
         if delivery.status is not SessionInputStatus.PENDING:
             return delivery

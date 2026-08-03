@@ -23,6 +23,16 @@ class _Client:
         self.delivery = delivery
         self.settlements: list[tuple[str, str, str | None]] = []
         self.transcripts: list[dict[str, Any]] = []
+        self.task = {
+            "id": "t1",
+            "claimed_by": "host-1",
+            "container_status": "live",
+            "turn": "user",
+        }
+
+    def get_task(self, task_id: str) -> dict[str, Any]:
+        del task_id
+        return self.task
 
     def pending_session_input(self, task_id: str, runner_id: str) -> list[dict[str, Any]]:
         del task_id, runner_id
@@ -81,7 +91,49 @@ def test_worker_delivers_only_for_live_owned_user_turn(submit: bool) -> None:
             _Client(delivery), blocked_runner, runner_id="host-1", dispatch=lambda call: call()
         ).process(eligible | changed)
         assert blocked_runner.deliveries == []
-        assert blocked_runner.captures == []
+        assert blocked_runner.captures == ([] if "turn" not in changed else ["t1"])
+
+
+@pytest.mark.parametrize(
+    "changed",
+    [
+        {"turn": "agent"},
+        {"claimed_by": "host-2"},
+        {"container_status": "down"},
+    ],
+)
+def test_worker_revalidates_authoritative_task_before_each_delivery(
+    changed: dict[str, str],
+) -> None:
+    # 2119: REQ-044.5.1
+    from panopticon.sessionservice.session_io import SessionIOWorker
+
+    class ChangingClient(_Client):
+        def __init__(self) -> None:
+            super().__init__()
+            self.deliveries = [
+                vars(_Delivery(id="delivery-1")),
+                vars(_Delivery(id="delivery-2")),
+            ]
+            self.reads = 0
+
+        def pending_session_input(self, task_id: str, runner_id: str) -> list[dict[str, Any]]:
+            del task_id, runner_id
+            return self.deliveries
+
+        def get_task(self, task_id: str) -> dict[str, Any]:
+            del task_id
+            self.reads += 1
+            if self.reads == 1:
+                return self.task
+            return self.task | changed
+
+    client, runner = ChangingClient(), _Runner()
+    SessionIOWorker(client, runner, runner_id="host-1", dispatch=lambda call: call()).process(
+        client.task
+    )
+    assert runner.deliveries == [("t1", "hello\nworld", False)]
+    assert client.settlements == [("delivery-1", "delivered", None)]
 
 
 @pytest.mark.parametrize("submit", [False, True])
@@ -96,6 +148,8 @@ def test_prefill_stages_or_submits_with_exact_tmux_commands(tmp_path: Path, subm
     def run(args: list[str], *, check: bool = True) -> str:
         del check
         calls.append(list(args))
+        if "load-buffer" in args:
+            assert Path(args[-1]).read_text() == "hello\nworld"
         return "%1\n" if "display-message" in args else ""
 
     assert prefill_pane(
@@ -112,11 +166,16 @@ def test_prefill_stages_or_submits_with_exact_tmux_commands(tmp_path: Path, subm
     assert sum("paste-buffer" in call for call in calls) == 1
     paste = next(call for call in calls if "paste-buffer" in call)
     assert "-p" in paste
+    load = next(call for call in calls if "load-buffer" in call)
+    buffer_name = load[load.index("-b") + 1]
+    assert paste[paste.index("-b") + 1] == buffer_name
+    assert calls.index(load) < calls.index(paste)
     assert sum("send-keys" in call for call in calls) == int(submit)
     if submit:
         enter = next(call for call in calls if "send-keys" in call)
         assert enter == ["tmux", "send-keys", "-t", "%1", "Enter"]
         assert enter.count("Enter") == 1
+        assert calls.index(paste) < calls.index(enter)
 
 
 def test_worker_records_stable_delivery_failure() -> None:
@@ -130,11 +189,67 @@ def test_worker_records_stable_delivery_failure() -> None:
     assert client.settlements == [("delivery-1", "failed", "tmux-delivery-failed")]
 
 
+@pytest.mark.parametrize("submit,fail", [(False, False), (True, False), (True, True)])
+def test_worker_settlement_uses_local_runner_prefill_path(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, submit: bool, fail: bool
+) -> None:
+    # 2119: REQ-044.3.2
+    # 2119: REQ-044.5.3
+    from panopticon.sessionservice.local_runner import LocalRunner
+    from panopticon.sessionservice.session_io import SessionIOWorker
+
+    raw = tmp_path / "ready"
+    raw.write_bytes(BRACKETED_PASTE_ON)
+    calls: list[list[str]] = []
+
+    def run(
+        args: list[str],
+        *,
+        check: bool = True,
+        interactive: bool = False,
+        verbose: bool = False,
+    ) -> str:
+        del check, interactive, verbose
+        calls.append(list(args))
+        if "display-message" in args:
+            return "%1\n"
+        if fail and "paste-buffer" in args:
+            raise OSError("tmux failed")
+        return ""
+
+    monkeypatch.setattr(
+        "panopticon.sessionservice.local_runner.readiness_log", lambda _session: str(raw)
+    )
+    client = _Client(_Delivery(submit=submit))
+    runner = LocalRunner("http://svc:8000", runner_id="host-1", run=run)
+    SessionIOWorker(client, runner, runner_id="host-1", dispatch=lambda call: call()).process(
+        client.task
+    )
+    assert any("load-buffer" in call for call in calls)
+    assert any("paste-buffer" in call and "-p" in call for call in calls)
+    assert sum("send-keys" in call for call in calls) == int(submit and not fail)
+    expected = (
+        ("delivery-1", "failed", "tmux-delivery-failed")
+        if fail
+        else ("delivery-1", "delivered", None)
+    )
+    assert client.settlements == [expected]
+
+
 @pytest.mark.parametrize(
-    "panes,raises", [([""], False), (["%1", ""], False), (["%1"] * 4, False), (["%1"] * 2, True)]
+    "panes,failing_command",
+    [
+        ([""], None),
+        (["%1", ""], None),
+        (["%1"] * 4, None),
+        (["%1"] * 2, "display-message"),
+        (["%1"] * 2, "load-buffer"),
+        (["%1"] * 2, "paste-buffer"),
+        (["%1"] * 2, "send-keys"),
+    ],
 )
 def test_actual_tmux_delivery_failures_map_to_one_stable_reason(
-    tmp_path: Path, panes: list[str], raises: bool
+    tmp_path: Path, panes: list[str], failing_command: str | None
 ) -> None:
     # 2119: REQ-044.5.3
     from panopticon.sessionservice.session_io import deliver_pane_input
@@ -144,10 +259,10 @@ def test_actual_tmux_delivery_failures_map_to_one_stable_reason(
 
     def run(args: list[str], *, check: bool = True) -> str:
         del check
+        if failing_command is not None and failing_command in args:
+            raise OSError("tmux failed")
         if "display-message" in args:
             return (panes.pop(0) if panes else "") + "\n"
-        if raises and "load-buffer" in args:
-            raise OSError("tmux failed")
         return ""
 
     assert deliver_pane_input(
@@ -161,7 +276,8 @@ def test_actual_tmux_delivery_failures_map_to_one_stable_reason(
     ) == (False, "tmux-delivery-failed")
 
 
-def test_settled_idempotent_request_is_not_delivered_twice() -> None:
+@pytest.mark.parametrize("submit", [False, True])
+def test_settled_idempotent_request_is_not_delivered_twice(submit: bool) -> None:
     # 2119: REQ-044.5.5
     from panopticon.sessionservice.session_io import SessionIOWorker
 
@@ -172,12 +288,12 @@ def test_settled_idempotent_request_is_not_delivered_twice() -> None:
             super().settle_session_input(task_id, delivery_id, status, failure_reason)
             self.delivery = None
 
-    client, runner = SettlingClient(_Delivery()), _Runner()
+    client, runner = SettlingClient(_Delivery(submit=submit)), _Runner()
     worker = SessionIOWorker(client, runner, runner_id="host-1", dispatch=lambda call: call())
     task = {"id": "t1", "claimed_by": "host-1", "container_status": "live", "turn": "user"}
     worker.process(task)
     worker.process(task)
-    assert runner.deliveries == [("t1", "hello\nworld", False)]
+    assert runner.deliveries == [("t1", "hello\nworld", submit)]
 
 
 def test_worker_publishes_transcript_only_for_its_live_task() -> None:
@@ -188,8 +304,18 @@ def test_worker_publishes_transcript_only_for_its_live_task() -> None:
     worker = SessionIOWorker(client, runner, runner_id="host-1", dispatch=lambda call: call())
     worker.process({"id": "t1", "claimed_by": "host-1", "container_status": "live", "turn": "user"})
     assert client.transcripts == [runner.capture]
+
+    worker.process(
+        {"id": "t1", "claimed_by": "host-1", "container_status": "live", "turn": "agent"}
+    )
+    assert client.transcripts == [runner.capture, runner.capture]
+    client.task = client.task | {"claimed_by": "host-2"}
+    worker.process(
+        {"id": "t1", "claimed_by": "host-1", "container_status": "live", "turn": "agent"}
+    )
+    assert client.transcripts == [runner.capture, runner.capture]
     worker.process({"id": "t2", "claimed_by": "host-2", "container_status": "live", "turn": "user"})
-    assert client.transcripts == [runner.capture]
+    assert client.transcripts == [runner.capture, runner.capture]
 
 
 @pytest.mark.parametrize(

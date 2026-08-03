@@ -21,7 +21,7 @@ from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager, suppress
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 from urllib.parse import unquote_plus
 
 from fastapi import FastAPI, Header, HTTPException, Query, Request, Response
@@ -450,7 +450,7 @@ class SessionInputIn(BaseModel):
 
 class SessionInputSettleIn(BaseModel):
     runner_id: str
-    status: SessionInputStatus
+    status: Literal[SessionInputStatus.DELIVERED, SessionInputStatus.FAILED]
     failure_reason: str | None = None
 
 
@@ -474,6 +474,13 @@ class SessionTranscriptIn(BaseModel):
     columns: int = Field(ge=1)
     rows: int = Field(ge=1)
     truncated: bool = Field(strict=True)
+
+    @field_validator("text")
+    @classmethod
+    def reject_terminal_escape_sequences(cls, value: str) -> str:
+        if "\x1b" in value:
+            raise ValueError("transcript text must not contain terminal escape sequences")
+        return value
 
 
 class SessionTranscriptOut(BaseModel):

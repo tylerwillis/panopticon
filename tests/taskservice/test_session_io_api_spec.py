@@ -416,6 +416,11 @@ def test_input_idempotency_status_shape_and_auth_survive_store_reload(
             headers=_auth(WRITE),
             params={"runner_id": "host-1"},
         )
+        wrong_runner_pending = http.get(
+            f"/tasks/{task_id}/session/input",
+            headers=_auth(WRITE),
+            params={"runner_id": "host-2"},
+        )
         status = http.get(f"/tasks/{task_id}/session/input/{delivery_id}", headers=_auth(READ))
         status_with_write = http.get(
             f"/tasks/{task_id}/session/input/{delivery_id}", headers=_auth(WRITE)
@@ -436,6 +441,11 @@ def test_input_idempotency_status_shape_and_auth_survive_store_reload(
             f"/tasks/{task_id}/session/input/{delivery_id}",
             headers=_auth(WRITE),
             json={"runner_id": "host-2", "status": "delivered"},
+        )
+        pending_settlement = http.put(
+            f"/tasks/{task_id}/session/input/{delivery_id}",
+            headers=_auth(WRITE),
+            json={"runner_id": "host-1", "status": "pending"},
         )
         missing_status = http.get(f"/tasks/{task_id}/session/input/{delivery_id}")
         missing_transcript = http.get(f"/tasks/{task_id}/session/transcript")
@@ -477,6 +487,7 @@ def test_input_idempotency_status_shape_and_auth_survive_store_reload(
     assert original_after_text_conflict == original_before_conflict
     assert original_after_submit_conflict == original_before_conflict
     assert pending_after_conflicts.json()[0]["text"] == body["text"]
+    assert wrong_runner_pending.status_code == 409
     assert status.json() == original_before_conflict
     assert status_with_write.status_code == 200
     assert invalid_status.status_code == 401
@@ -493,6 +504,7 @@ def test_input_idempotency_status_shape_and_auth_survive_store_reload(
     assert forbidden.status_code == 401
     assert missing_settlement.status_code == 401
     assert wrong_runner.status_code == 409
+    assert pending_settlement.status_code == 422
     assert missing_status.status_code == missing_transcript.status_code == 401
     assert settled.status_code == 200
     assert (after_settle["turn"], after_settle["blocked"], after_settle["attention"]) == (
@@ -611,19 +623,20 @@ def test_turn_to_agent_clears_each_marker_independently(
     assert prompted.json()["attention"] is False
 
 
-def test_retried_client_request_causes_one_runner_delivery(tmp_path: Path) -> None:
+@pytest.mark.parametrize("submit", [False, True])
+def test_retried_client_request_causes_one_runner_delivery(tmp_path: Path, submit: bool) -> None:
     # 2119: REQ-044.5.5
     from panopticon.sessionservice.session_io import SessionIOWorker
 
     class Runner:
         def __init__(self) -> None:
-            self.deliveries: list[str] = []
+            self.deliveries: list[tuple[str, bool]] = []
 
         def deliver_session_input(
             self, task_id: str, text: str, *, submit: bool
         ) -> tuple[bool, str | None]:
-            del task_id, submit
-            self.deliveries.append(text)
+            del task_id
+            self.deliveries.append((text, submit))
             return True, None
 
         def capture_session_transcript(self, task_id: str) -> None:
@@ -633,7 +646,7 @@ def test_retried_client_request_causes_one_runner_delivery(tmp_path: Path) -> No
     with client as http:
         task_id = _live_user_task(service, http)
         other_task_id = _live_user_task(service, http)
-        body = {"text": "once", "submit": False, "idempotency_key": "phone-once"}
+        body = {"text": "once", "submit": submit, "idempotency_key": "phone-once"}
         first = http.post(f"/tasks/{task_id}/session/input", headers=_auth(WRITE), json=body)
         retry = http.post(f"/tasks/{task_id}/session/input", headers=_auth(WRITE), json=body)
         other_task = http.post(
@@ -652,7 +665,7 @@ def test_retried_client_request_causes_one_runner_delivery(tmp_path: Path) -> No
         task = http.get(f"/tasks/{task_id}", headers=_auth(WRITE)).json()
         worker.process(task)
         worker.process(task)
-    assert runner.deliveries == ["once"]
+    assert runner.deliveries == [("once", submit)]
 
 
 def test_submitted_request_retry_after_settlement_returns_original(tmp_path: Path) -> None:
@@ -817,3 +830,24 @@ def test_transcript_is_readable_bounded_structured_stale_and_unredacted(
         "accept input for runner delivery. client retries are idempotent. a runner crash between "
         "the tmux side effect and its settlement write can cause a duplicate delivery."
     )
+
+
+def test_transcript_publication_rejects_terminal_escape_sequences(tmp_path: Path) -> None:
+    # 2119: REQ-044.7.5
+    service, client = _app(tmp_path)
+    with client as http:
+        task_id = _live_user_task(service, http)
+        rejected = http.put(
+            f"/tasks/{task_id}/session/transcript",
+            headers=_auth(WRITE),
+            json={
+                "runner_id": "host-1",
+                "text": "visible\x1b[31mred\x1b[0m λ",
+                "columns": 80,
+                "rows": 24,
+                "truncated": False,
+            },
+        )
+        unavailable = http.get(f"/tasks/{task_id}/session/transcript", headers=_auth(READ))
+    assert rejected.status_code == 422
+    assert unavailable.status_code == 503

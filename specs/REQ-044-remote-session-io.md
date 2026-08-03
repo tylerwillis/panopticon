@@ -58,7 +58,7 @@ or its tools.
 ### REQ-044.6: Control-plane boundary
 
 1. Input acceptance, input-status retrieval, delivery settlement, transcript publication, and transcript retrieval MUST remain available when the task-service host has no usable tmux or Docker executable or socket.
-2. Only the runner that currently owns a task MUST inspect or mutate that task's host tmux session and publish or settle its session-I/O records.
+2. A session-I/O host operation MUST proceed only when the request's runner identifier matches the runner that currently owns the task.
 
 ### REQ-044.7: Bounded pane transcript
 
