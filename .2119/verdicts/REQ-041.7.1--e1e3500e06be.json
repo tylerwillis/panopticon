@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-041.7.1--e1e3500e06be",
+  "requirementId": "REQ-041.7.1",
+  "hash": "e1e3500e06be",
+  "verdict": "pass",
+  "summary": "Real Claude argv assembly must place the exact shared overview immediately after --append-system-prompt, while explicit markers reject missing orientation or unconditional artifact-publication guidance.",
+  "timestamp": "2026-08-03T04:15:16.637Z"
+}

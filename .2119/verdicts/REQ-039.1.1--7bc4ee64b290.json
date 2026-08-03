@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-039.1.1--7bc4ee64b290",
-  "requirementId": "REQ-039.1.1",
-  "hash": "7bc4ee64b290",
-  "verdict": "pass",
-  "summary": "Dashboard integration test supplies one artifact without a PR and requires the exact '*a | fix-widget' rendered label.",
-  "timestamp": "2026-08-02T23:24:11.518Z"
-}

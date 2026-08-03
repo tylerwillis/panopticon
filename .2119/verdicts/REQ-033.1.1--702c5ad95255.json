@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.1.1--702c5ad95255",
+  "requirementId": "REQ-033.1.1",
+  "hash": "702c5ad95255",
+  "verdict": "pass",
+  "summary": "Every built-in review skill must end triage with the exactly titled suggested-placeholder-issues section.",
+  "timestamp": "2026-08-03T00:13:21.873Z"
+}

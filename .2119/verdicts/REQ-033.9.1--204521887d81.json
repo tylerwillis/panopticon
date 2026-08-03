@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.9.1--204521887d81",
+  "requirementId": "REQ-033.9.1",
+  "hash": "204521887d81",
+  "verdict": "pass",
+  "summary": "Exact issue guidance pins title, PR and review links, deferral rationale, and implementation scope.",
+  "timestamp": "2026-08-03T00:13:25.756Z"
+}

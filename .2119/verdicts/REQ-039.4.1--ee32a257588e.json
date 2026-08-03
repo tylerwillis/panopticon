@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-039.4.1--ee32a257588e",
-  "requirementId": "REQ-039.4.1",
-  "hash": "ee32a257588e",
-  "verdict": "pass",
-  "summary": "Exact outputs preserve tree, disclosure, slug, and first-line memo for stacked, single, and absent indicators, including no stray separator.",
-  "timestamp": "2026-08-02T23:32:07.450Z"
-}

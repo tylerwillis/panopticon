@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-041.9.1--d8fd5a6780a6",
+  "requirementId": "REQ-041.9.1",
+  "hash": "d8fd5a6780a6",
+  "verdict": "pass",
+  "summary": "The test rejects a missing or misplaced --append-system-prompt, any payload differing from the shared workflow overview, and omission of either the panopticon orientation or its unconditional artifact-publication expectation.",
+  "timestamp": "2026-08-03T05:29:15.314Z"
+}

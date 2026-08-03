@@ -14,7 +14,6 @@ build/
 
 # Node
 node_modules/
-.2119/reviews/
 # 2119:gitignore-begin
 # Review packets are scratch; verdicts are committed audit history.
 !.2119/
