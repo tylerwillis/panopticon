@@ -15,7 +15,6 @@ import logging
 import os
 import re
 import secrets
-from collections import OrderedDict
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager, suppress
 from datetime import datetime
@@ -520,7 +519,7 @@ def create_app(
     app = FastAPI(title="panopticon task service", version="0.0.3", lifespan=lifespan)
 
     generic_auth_failure = {"detail": "authentication required"}
-    permissive_unauthenticated: OrderedDict[tuple[str, str, str], int] = OrderedDict()
+    permissive_unauthenticated_total = 0
 
     def redact_configured_tokens(value: Any) -> Any:
         if tokens is None:
@@ -588,6 +587,7 @@ def create_app(
     async def authenticate(
         request: Request, call_next: Callable[[Request], Awaitable[Response]]
     ) -> Response:
+        nonlocal permissive_unauthenticated_total
         route_path = get_route_path(request.scope)
         if not route_path.startswith("/"):
             route_path = f"/{route_path}"
@@ -596,20 +596,15 @@ def create_app(
         authorization = request.headers.get("authorization")
         if mode == "permissive" and authorization is None:
             client = request.client.host if request.client is not None else "unknown"
-            key = (request.method, route_path, client)
-            count = permissive_unauthenticated.get(key, 0) + 1
-            permissive_unauthenticated[key] = count
-            permissive_unauthenticated.move_to_end(key)
-            if len(permissive_unauthenticated) > 1024:
-                permissive_unauthenticated.popitem(last=False)
-            if count & (count - 1) == 0:
+            permissive_unauthenticated_total += 1
+            if permissive_unauthenticated_total & (permissive_unauthenticated_total - 1) == 0:
                 _log.warning(
                     "permissive authentication accepted headerless request: "
                     "method=%s route=%s client=%s count=%d",
-                    request.method,
-                    route_path,
-                    client,
-                    count,
+                    redact_configured_tokens(request.method),
+                    redact_configured_tokens(route_path),
+                    redact_configured_tokens(client),
+                    permissive_unauthenticated_total,
                 )
             return await call_next(request)
         presented = ""

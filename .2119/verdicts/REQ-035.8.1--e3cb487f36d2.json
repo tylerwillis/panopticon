@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.8.1--e3cb487f36d2",
+  "requirementId": "REQ-035.8.1",
+  "hash": "e3cb487f36d2",
+  "verdict": "pass",
+  "summary": "Crosses all five required verbs with existing and missing routes/resources for every named entity and existing/missing MCP methods, asserting one identical generic rejection.",
+  "timestamp": "2026-08-03T07:18:57.488Z"
+}

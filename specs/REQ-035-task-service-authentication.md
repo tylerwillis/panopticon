@@ -173,3 +173,7 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 ### REQ-035.40: Fixed-response collision
 
 1. Authentication startup MUST reject a configured token that would appear verbatim in the service's generic authentication-failure body or response headers.
+
+### REQ-035.41: Rendered shell trace secrecy
+
+1. Authenticated Pi-operation and REST-artifact commands executed with shell xtrace enabled MUST NOT write the configured token to the trace stream.

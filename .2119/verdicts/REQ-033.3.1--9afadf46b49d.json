@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.3.1--9afadf46b49d",
+  "requirementId": "REQ-033.3.1",
+  "hash": "9afadf46b49d",
+  "verdict": "pass",
+  "summary": "Complete instruction equality plus explicit positive and negated checks reject inclusion of findings dismissed as simply wrong.",
+  "timestamp": "2026-08-03T07:08:29.819Z"
+}

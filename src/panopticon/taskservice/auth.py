@@ -18,7 +18,15 @@ MIN_TOKEN_LENGTH = 12
 _BEARER_TOKEN = re.compile(r"[A-Za-z0-9._~+/-]+=*\Z")
 # Fixed values emitted by the generic 401 must never themselves be configurable credentials.
 # Otherwise rejecting a request would disclose that credential in the response body/header.
-_RESERVED_TOKENS = frozenset({"authentication", "application/json"})
+_RESERVED_TOKENS = frozenset(
+    {
+        "application/json",
+        "authentication",
+        "content-length",
+        "content-type",
+        "www-authenticate",
+    }
+)
 
 
 @dataclass(frozen=True)

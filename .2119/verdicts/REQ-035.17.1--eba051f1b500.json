@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.17.1--eba051f1b500",
+  "requirementId": "REQ-035.17.1",
+  "hash": "eba051f1b500",
+  "verdict": "pass",
+  "summary": "Docker and shell no-env-file spawn paths receive a separate credential snapshot, and tests exercise shared Python clients, task/runner liveness, shell-library calls, and harness consumers.",
+  "timestamp": "2026-08-03T07:19:00.173Z"
+}

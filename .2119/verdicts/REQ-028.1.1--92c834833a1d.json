@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.1.1--92c834833a1d",
+  "requirementId": "REQ-028.1.1",
+  "hash": "92c834833a1d",
+  "verdict": "pass",
+  "summary": "Enumerates discovered and custom workflows with and without workflow skills, checks repeated task creation, and rejects artifact-surface collisions at initial load and rescan.",
+  "timestamp": "2026-08-03T07:08:27.383Z"
+}

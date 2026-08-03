@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.3.1--aa53f55d6c42",
+  "requirementId": "REQ-028.3.1",
+  "hash": "aa53f55d6c42",
+  "verdict": "pass",
+  "summary": "Exact live instructions require the dashboard a hotkey and enumerate every required non-PR reviewer-readable material category.",
+  "timestamp": "2026-08-03T07:08:42.151Z"
+}

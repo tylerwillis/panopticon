@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.11.1--4cb86745bd9f",
+  "requirementId": "REQ-028.11.1",
+  "hash": "4cb86745bd9f",
+  "verdict": "pass",
+  "summary": "The live core skill is retrieved through TaskService and compared to exact instructions covering durable documents, all review material, and GitHub URL routing.",
+  "timestamp": "2026-08-03T07:08:41.681Z"
+}

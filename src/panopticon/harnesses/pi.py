@@ -191,16 +191,24 @@ def operation_instructions(
     has no MCP client to invoke ``apply_operation`` through (claude/codex's approach)."""
     url = f"{service_url.rstrip('/')}/tasks/{task_id}/operations/{name}"
     curl = (
+        "_panopticon_had_xtrace=; case $- in *x*) set +x; "
+        "_panopticon_had_xtrace=1 ;; esac; "
         "printf 'header = \"Authorization: Bearer %s\"\\n' "
         '"$PANOPTICON_SERVICE_AUTH_TOKEN" | curl --config - '
         if authenticated
         else "curl "
     )
+    restore = (
+        "; _panopticon_status=$?; "
+        '[ -n "$_panopticon_had_xtrace" ] && set -x; (exit "$_panopticon_status")'
+        if authenticated
+        else ""
+    )
     return (
         f"Apply this workflow's `{name}` operation — it moves the task to **{target_state}**. "
         "pi has no MCP client, so call the task service's REST API directly (no request body "
         "needed): `" + curl + "--fail --silent --show-error --request POST "
-        f'"{url}"`. '
+        f'"{url}"' + restore + "`. "
         "Don't edit the state directly. It's gated on the current state's responsibilities and "
         "starts a new turn."
     )

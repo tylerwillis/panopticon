@@ -10,13 +10,20 @@ from __future__ import annotations
 import asyncio
 import json
 import re
+import socket
 import subprocess
 import sys
+import threading
+import time
+from collections.abc import Awaitable, Callable
 from pathlib import Path
 
 import httpx
 import pytest
+import uvicorn
 from fastapi.testclient import TestClient
+from starlette.requests import Request
+from starlette.responses import Response
 
 from panopticon.client import TaskServiceClient
 from panopticon.core.models import Repo
@@ -1070,6 +1077,28 @@ def test_permissive_mode_reports_headerless_callers(
     assert "method=GET route=/tasks client=testclient count=2" in warnings[1]
 
 
+def test_permissive_warning_redacts_tokens_and_keeps_a_monotonic_bounded_signal(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    # 2119: REQ-035.18.1
+    # 2119: REQ-035.35.1
+    with _client(tmp_path, mode="permissive") as client:
+        assert client.get(f"/tasks/{WRITE_TOKEN}").status_code == 404
+        for index in range(1024):
+            assert client.get(f"/missing-{index}").status_code == 404
+        assert client.get(f"/tasks/{WRITE_TOKEN}").status_code == 404
+
+    warnings = [
+        record.getMessage()
+        for record in caplog.records
+        if "permissive authentication accepted headerless request" in record.getMessage()
+    ]
+    assert WRITE_TOKEN not in "\n".join(warnings)
+    assert "route=/tasks/[redacted]" in warnings[0]
+    counts = [int(message.rsplit("count=", 1)[1]) for message in warnings]
+    assert counts == [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
+
+
 @pytest.mark.parametrize(
     "contents",
     [
@@ -1112,7 +1141,16 @@ def test_enforced_mode_rejects_invalid_credential_files(tmp_path: Path, contents
         )
 
 
-@pytest.mark.parametrize("token", ["authentication", "application/json"])
+@pytest.mark.parametrize(
+    "token",
+    [
+        "authentication",
+        "application/json",
+        "content-length",
+        "content-type",
+        "www-authenticate",
+    ],
+)
 def test_startup_rejects_tokens_colliding_with_fixed_failure_response(
     tmp_path: Path, token: str
 ) -> None:
@@ -1515,6 +1553,7 @@ panopticon_advance
 def test_pi_operation_keeps_runtime_token_out_of_curl_argv(tmp_path: Path) -> None:
     # 2119: REQ-035.18.1
     # 2119: REQ-035.21.1
+    # 2119: REQ-035.41.1
     from panopticon.harnesses.pi import operation_instructions
 
     instructions = operation_instructions(
@@ -1524,14 +1563,18 @@ def test_pi_operation_keeps_runtime_token_out_of_curl_argv(tmp_path: Path) -> No
     argv = tmp_path / "curl-argv"
     stdin = tmp_path / "curl-stdin"
     shell = f"""curl() {{ cat > {stdin}; printf '%s\\n' "$@" > {argv}; }}
+set -x
 {command}
 """
     env = {
         "PATH": "/usr/bin:/bin",
         "PANOPTICON_SERVICE_AUTH_TOKEN": WRITE_TOKEN,
     }
-    subprocess.run(["sh", "-c", shell], env=env, check=True)
+    completed = subprocess.run(
+        ["sh", "-c", shell], env=env, check=True, text=True, capture_output=True
+    )
     assert WRITE_TOKEN not in argv.read_text()
+    assert WRITE_TOKEN not in completed.stderr
     assert "--config\n-\n" in argv.read_text()
     assert stdin.read_text() == f'header = "Authorization: Bearer {WRITE_TOKEN}"\n'
 
@@ -1539,6 +1582,7 @@ def test_pi_operation_keeps_runtime_token_out_of_curl_argv(tmp_path: Path) -> No
 def test_artifact_rest_fallback_keeps_runtime_token_out_of_curl_argv(tmp_path: Path) -> None:
     # 2119: REQ-035.17.1
     # 2119: REQ-035.18.1
+    # 2119: REQ-035.41.1
     from panopticon.core.artifact_skills import ARTIFACT_SKILL
 
     command = ARTIFACT_SKILL.instructions.split("without MCP, send the artifact bytes with `", 1)[
@@ -1550,9 +1594,10 @@ def test_artifact_rest_fallback_keeps_runtime_token_out_of_curl_argv(tmp_path: P
     argv = tmp_path / "curl-argv"
     stdin = tmp_path / "curl-stdin"
     shell = f"""curl() {{ cat > {stdin}; printf '%s\\n' "$@" > {argv}; }}
+set -x
 {command}
 """
-    subprocess.run(
+    completed = subprocess.run(
         ["sh", "-c", shell],
         env={
             "PATH": "/usr/bin:/bin",
@@ -1560,9 +1605,12 @@ def test_artifact_rest_fallback_keeps_runtime_token_out_of_curl_argv(tmp_path: P
             "PANOPTICON_SERVICE_URL": "http://service",
             "PANOPTICON_TASK_ID": "task",
         },
+        text=True,
+        capture_output=True,
         check=True,
     )
     assert WRITE_TOKEN not in argv.read_text()
+    assert WRITE_TOKEN not in completed.stderr
     assert "--config\n-\n" in argv.read_text()
     assert "--data-binary\n@" in argv.read_text()
     assert stdin.read_text() == f'header = "Authorization: Bearer {WRITE_TOKEN}"\n'
@@ -1578,28 +1626,62 @@ def test_artifact_rest_fallback_omits_empty_authorization_during_grace(tmp_path:
     artifact = tmp_path / "report.md"
     artifact.write_text("proof")
     command = command.replace("<artifact-file>", str(artifact)).replace("<name>", "report.md")
-    argv = tmp_path / "curl-argv"
-    shell = f"""curl() {{ printf '%s\\n' "$@" > {argv}; }}
-{command}
-"""
-    subprocess.run(
-        ["sh", "-c", shell],
-        env={
-            "PATH": "/usr/bin:/bin",
-            "PANOPTICON_SERVICE_URL": "http://service",
-            "PANOPTICON_TASK_ID": "task",
-        },
-        check=True,
+    reference = _credential_file(tmp_path)
+    service = _service(tmp_path / "service")
+    task = asyncio.run(service.create_task("r1", "spike"))
+    app = create_app(
+        service,
+        auth_file=reference,
+        auth_mode="permissive",
+        secrets_dir=tmp_path / "secrets",
     )
-    arguments = argv.read_text()
-    assert "--config" not in arguments
-    assert "Authorization" not in arguments
+    received_headers: list[dict[str, str]] = []
+
+    @app.middleware("http")
+    async def record_headers(
+        request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
+        received_headers.append({name.casefold(): value for name, value in request.headers.items()})
+        return await call_next(request)
+
+    listener = socket.socket()
+    listener.bind(("127.0.0.1", 0))
+    listener.listen()
+    port = listener.getsockname()[1]
+    server = uvicorn.Server(uvicorn.Config(app, log_level="error", access_log=False))
+    thread = threading.Thread(target=server.run, kwargs={"sockets": [listener]})
+    thread.start()
+    try:
+        for _ in range(100):
+            if server.started:
+                break
+            time.sleep(0.01)
+        assert server.started
+        service_url = f"http://127.0.0.1:{port}"
+        subprocess.run(
+            ["sh", "-c", command],
+            env={
+                "HOME": str(tmp_path),
+                "PATH": "/usr/bin:/bin",
+                "PANOPTICON_SERVICE_URL": service_url,
+                "PANOPTICON_TASK_ID": task.id,
+            },
+            check=True,
+        )
+    finally:
+        server.should_exit = True
+        thread.join()
+        listener.close()
+    assert len(received_headers) == 1
+    assert "authorization" not in received_headers[0]
+    assert asyncio.run(service.get_artifact(task.id, "report.md")) == b"proof"
 
 
 @pytest.mark.parametrize("harness_name", ["pi", "outfitter"])
 def test_artifact_fallback_survives_real_harness_rendering(
     tmp_path: Path, harness_name: str
 ) -> None:
+    # 2119: REQ-035.41.1
     from panopticon.core.artifact_skills import ARTIFACT_SKILL
     from panopticon.harnesses import BootstrapContext
     from panopticon.harnesses.outfitter import OutfitterHarness
@@ -1623,15 +1705,22 @@ def test_artifact_fallback_survives_real_harness_rendering(
     command = command.replace("<artifact-file>", str(artifact)).replace("<name>", "report.md")
     argv = tmp_path / f"{harness_name}-argv"
     stdin = tmp_path / f"{harness_name}-stdin"
-    subprocess.run(
-        ["sh", "-c", f"curl() {{ cat > {stdin}; printf '%s\\n' \"$@\" > {argv}; }}\n{command}"],
+    completed = subprocess.run(
+        [
+            "sh",
+            "-c",
+            f"curl() {{ cat > {stdin}; printf '%s\\n' \"$@\" > {argv}; }}\nset -x\n{command}",
+        ],
         env={
             "PATH": "/usr/bin:/bin",
             "PANOPTICON_SERVICE_AUTH_TOKEN": WRITE_TOKEN,
             "PANOPTICON_SERVICE_URL": "http://service",
             "PANOPTICON_TASK_ID": "task",
         },
+        text=True,
+        capture_output=True,
         check=True,
     )
     assert WRITE_TOKEN not in argv.read_text()
+    assert WRITE_TOKEN not in completed.stderr
     assert stdin.read_text() == f'header = "Authorization: Bearer {WRITE_TOKEN}"\n'
