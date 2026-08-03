@@ -8,7 +8,6 @@ from panopticon.sessionservice.spawner import Spawner
 
 
 def test_invalid_credential_is_rejected_before_marking_an_orphan_healing() -> None:
-    # 2119: REQ-035.28.1
     effects: list[str] = []
 
     class Client:

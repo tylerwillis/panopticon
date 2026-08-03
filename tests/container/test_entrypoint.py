@@ -92,7 +92,7 @@ def _serve(client: _FakeClient, **kw: Any) -> None:
         "t1",
         container_id="c1",
         running=kw.pop("running", _stop_after(2)),
-        sleep=lambda _s: None,
+        sleep=kw.pop("sleep", lambda _s: None),
         **kw,
     )
 
@@ -127,8 +127,13 @@ def test_serve_stops_after_permanent_liveness_rejection(status: int) -> None:
     request = httpx.Request("GET", "http://service/tasks/t1/live")
     response = httpx.Response(status, request=request)
 
+    attempts: list[int] = []
+    naps: list[float] = []
+
     class _RejectedClient(_FakeClient):
         def live(self, *_args: object, **_kwargs: object) -> Iterator[None]:
+            attempts.append(1)
+
             def rejected() -> Iterator[None]:
                 raise httpx.HTTPStatusError("rejected", request=request, response=response)
                 yield
@@ -136,7 +141,9 @@ def test_serve_stops_after_permanent_liveness_rejection(status: int) -> None:
             return rejected()
 
     with pytest.raises(RuntimeError, match="permanently rejected"):
-        _serve(_RejectedClient(), running=lambda: True)
+        _serve(_RejectedClient(), running=lambda: True, sleep=naps.append)
+    assert len(attempts) == 1
+    assert naps == []
 
 
 def test_serve_sets_slug_when_unset_and_proposed() -> None:

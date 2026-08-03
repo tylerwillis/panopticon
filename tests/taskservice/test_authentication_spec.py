@@ -1631,6 +1631,13 @@ def test_runner_injects_write_token_into_docker_and_shell_tasks_without_command_
     assert "PANOPTICON_SERVICE_AUTH_FILE" in command
     assert "Authorization: Bearer" in command
     assert "r1.env" not in command
+    shell_snapshot_match = re.search(
+        r"export PANOPTICON_SERVICE_AUTH_FILE=(?:'([^']+)'|(\S+))", command
+    )
+    assert shell_snapshot_match is not None
+    shell_snapshot = Path(shell_snapshot_match.group(1) or shell_snapshot_match.group(2))
+    assert shell_snapshot != (tmp_path / "secrets" / reference).resolve()
+    assert json.loads(shell_snapshot.read_text()) == {"read": [], "write": [WRITE_TOKEN]}
     recorded_live = tmp_path / "shell-live-curl-arguments"
     live_env = {
         "PATH": "/usr/bin:/bin",

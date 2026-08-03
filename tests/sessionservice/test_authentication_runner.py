@@ -29,7 +29,7 @@ class _Recorder:
         return ""
 
 
-@pytest.mark.parametrize("existing_kind", ["missing", "directory", "fifo", "malformed"])
+@pytest.mark.parametrize("existing_kind", ["missing", "directory", "fifo", "symlink", "malformed"])
 def test_spawn_rejects_missing_service_credential_before_docker(
     tmp_path: Path, existing_kind: str
 ) -> None:
@@ -45,6 +45,10 @@ def test_spawn_rejects_missing_service_credential_before_docker(
     elif existing_kind == "fifo":
         os.mkfifo(credential)
         original_stat = credential.stat()
+    elif existing_kind == "symlink":
+        target = secrets / "target.json"
+        target.write_text("unchanged")
+        credential.symlink_to(target)
     elif existing_kind == "malformed":
         credential.write_text('{"read": [], "write": ["token"]}')
         credential.chmod(0o600)
@@ -73,5 +77,8 @@ def test_spawn_rejects_missing_service_credential_before_docker(
     elif existing_kind == "fifo":
         assert credential.stat() == original_stat
         assert stat.S_ISFIFO(credential.stat().st_mode)
+    elif existing_kind == "symlink":
+        assert credential.is_symlink()
+        assert credential.readlink() == target
     else:
         assert credential.is_file()

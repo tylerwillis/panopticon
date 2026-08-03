@@ -116,7 +116,6 @@ def test_spawner_validates_runner_credential_before_claiming() -> None:
 
 
 def test_spawner_validates_runner_credential_before_healing_side_effects() -> None:
-    # 2119: REQ-035.28.1
     effects: list[str] = []
 
     class Client:

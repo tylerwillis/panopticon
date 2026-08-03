@@ -229,7 +229,7 @@ def test_non_ascii_operator_token_header_is_rejected_without_server_error(
     assert response.status_code < 500
 
 
-@pytest.mark.parametrize("invalid_kind", ["missing", "directory", "fifo", "malformed"])
+@pytest.mark.parametrize("invalid_kind", ["missing", "directory", "fifo", "symlink", "malformed"])
 def test_shell_runner_rejects_an_invalid_service_credential_before_tmux(
     tmp_path: Path, invalid_kind: str
 ) -> None:
@@ -244,6 +244,10 @@ def test_shell_runner_rejects_an_invalid_service_credential_before_tmux(
     elif invalid_kind == "fifo":
         os.mkfifo(invalid)
         original_stat = invalid.stat()
+    elif invalid_kind == "symlink":
+        target = tmp_path / "target.json"
+        target.write_text("unchanged")
+        invalid.symlink_to(target)
     elif invalid_kind == "malformed":
         invalid.write_text("not-json")
         invalid.chmod(0o600)
@@ -272,6 +276,9 @@ def test_shell_runner_rejects_an_invalid_service_credential_before_tmux(
     elif invalid_kind == "fifo":
         assert invalid.stat() == original_stat
         assert stat.S_ISFIFO(invalid.stat().st_mode)
+    elif invalid_kind == "symlink":
+        assert invalid.is_symlink()
+        assert invalid.readlink() == target
 
 
 def test_shell_runner_does_not_snapshot_before_rejecting_repo_secret(
@@ -349,7 +356,6 @@ def test_shell_runner_cleans_snapshot_for_command_encoding_failure(tmp_path: Pat
 def test_docker_runner_mounts_a_stable_snapshot_if_source_is_replaced(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # 2119: REQ-035.28.1
     import panopticon.sessionservice.local_runner as runner_module
 
     source = tmp_path / "auth.json"
@@ -492,7 +498,6 @@ def test_terminal_cleanup_stops_backend_to_remove_runtime_credentials(
 def test_shell_runner_uses_a_stable_snapshot_if_source_is_replaced(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # 2119: REQ-035.28.1
     import panopticon.sessionservice.shell_runner as runner_module
 
     source = tmp_path / "auth.json"
