@@ -599,6 +599,15 @@ def test_configured_tokens_are_rejected_before_persistence_or_success(
                 + f'\\u{ord(WRITE_TOKEN[-1]):04x}"}}'
             ),
         )
+        headerless_escaped_response = client.post(
+            "/tasks",
+            headers=_bearer(WRITE_TOKEN),
+            content=(
+                '{"repo_id":"r1","workflow":"spike","memo":"'
+                + WRITE_TOKEN[:-1]
+                + f'\\u{ord(WRITE_TOKEN[-1]):04x}"}}'
+            ),
+        )
         path_response = client.put(
             f"/tasks/missing/artifacts/{READ_TOKEN}",
             headers=_bearer(WRITE_TOKEN),
@@ -615,11 +624,13 @@ def test_configured_tokens_are_rejected_before_persistence_or_success(
         )
         assert task_response.status_code == 400
         assert escaped_response.status_code == 400
+        assert headerless_escaped_response.status_code == 400
         assert path_response.status_code == 400
         assert artifact_response.status_code == 400
         assert encoded_query_response.status_code == 400
         assert task_response.json() == {"detail": "request rejected"}
         assert escaped_response.json() == {"detail": "request rejected"}
+        assert headerless_escaped_response.json() == {"detail": "request rejected"}
         assert path_response.json() == {"detail": "request rejected"}
         assert artifact_response.json() == {"detail": "request rejected"}
         assert encoded_query_response.json() == {"detail": "request rejected"}

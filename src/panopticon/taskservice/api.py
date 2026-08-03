@@ -656,7 +656,8 @@ def create_app(
         body = b"".join(chunks)
         request._body = body  # preserve the bounded body downstream
         values: list[Any] = [request.url.path, unquote_plus(request.url.query), body]
-        if "json" in request.headers.get("content-type", "").lower():
+        content_type = request.headers.get("content-type", "").lower()
+        if not content_type or "json" in content_type:
             with suppress(json.JSONDecodeError, UnicodeDecodeError):
                 values.append(json.loads(body))
         return value_contains_configured_token(values)
