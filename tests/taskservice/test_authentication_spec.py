@@ -1289,10 +1289,13 @@ def test_enforced_mode_rejects_invalid_credential_files(tmp_path: Path, contents
 @pytest.mark.parametrize(
     "token",
     [
+        "Bearer",
         "authentication",
         "application/json",
         "content-length",
         "content-type",
+        "detail",
+        "required",
         "www-authenticate",
     ],
 )
@@ -1577,7 +1580,7 @@ def test_host_client_factories_resolve_and_send_the_local_write_token(
 
 
 def test_runner_injects_write_token_into_docker_and_shell_tasks_without_command_line_leak(
-    tmp_path: Path,
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     # 2119: REQ-035.17.1
     # 2119: REQ-035.18.1
@@ -1593,11 +1596,11 @@ def test_runner_injects_write_token_into_docker_and_shell_tasks_without_command_
             return "%1\n" if "display-message" in self.calls[-1] else ""
 
     reference = _credential_file(tmp_path)
+    monkeypatch.setenv("PANOPTICON_SERVICE_AUTH_FILE", reference)
+    monkeypatch.setenv("PANOPTICON_CONFIG", str(tmp_path))
     docker_recorder = Recorder()
     docker_runner = LocalRunner(
         "http://service",
-        auth_file=reference,
-        secrets_dir=tmp_path / "secrets",
         run=docker_recorder,
     )
     docker_runner.spawn("t1")
@@ -1618,8 +1621,6 @@ def test_runner_injects_write_token_into_docker_and_shell_tasks_without_command_
     shell_recorder = Recorder()
     ShellRunner(
         "http://service",
-        auth_file=reference,
-        secrets_dir=tmp_path / "secrets",
         run=shell_recorder,
     ).spawn("t2", script="sleep 0.1; panopticon_advance", env_file=None)
     command = shell_recorder.calls[-1][-1]
