@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.8.1--38414888876b",
+  "requirementId": "REQ-033.8.1",
+  "hash": "38414888876b",
+  "verdict": "pass",
+  "summary": "Fresh review verified explicitly rejected suggestions are skipped.",
+  "timestamp": "2026-08-03T11:58:58.434Z"
+}

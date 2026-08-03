@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.1.1--141d913a3862",
+  "requirementId": "REQ-028.1.1",
+  "hash": "141d913a3862",
+  "verdict": "pass",
+  "summary": "Fresh review verified every workflow exposes ordered core skills and rejects collisions.",
+  "timestamp": "2026-08-03T11:58:48.910Z"
+}

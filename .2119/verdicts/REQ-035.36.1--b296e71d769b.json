@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.36.1--b296e71d769b",
+  "requirementId": "REQ-035.36.1",
+  "hash": "b296e71d769b",
+  "verdict": "pass",
+  "summary": "Fresh review verified actual client 401/403 stops immediately while timeouts retry.",
+  "timestamp": "2026-08-03T11:59:00.073Z"
+}
