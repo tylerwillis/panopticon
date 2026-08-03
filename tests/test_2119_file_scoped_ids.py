@@ -21,12 +21,8 @@ def test_2119_workflow_pins_cli_and_npm_and_hardens_fetch() -> None:
         workflow,
         re.MULTILINE,
     )
-    npm_pin = re.search(
-        r"^\s*- run: npm install --global npm@10\.9\.3$", workflow, re.MULTILINE
-    )
-    versions = re.search(
-        r"^\s+node --version\n\s+npm --version$", workflow, re.MULTILINE
-    )
+    npm_pin = re.search(r"^\s*- run: npm install --global npm@10\.9\.3$", workflow, re.MULTILINE)
+    versions = re.search(r"^\s+node --version\n\s+npm --version$", workflow, re.MULTILINE)
     major_guard = re.search(
         r'^\s+test "\$\(npm --version \| cut --delimiter=\. --fields=1\)" = "10" \|\| exit 1$',
         workflow,
@@ -81,6 +77,7 @@ def test_adoption_diff_does_not_rewrite_legacy_identity_or_verdict_files() -> No
         text=True,
     ).stdout.splitlines()
     assert set(changed_tests) <= {"tests/test_2119_file_scoped_ids.py"}
+
 
 # 2119: 2.5, 2.6, 2.7, 2.8, 3.5, 3.6, 4.5, 4.6
 def test_agent_guidance_teaches_scoped_authoring_and_stable_identity() -> None:
@@ -148,8 +145,8 @@ def test_070_resolves_both_grammars_and_distinct_file_namespaces(tmp_path: Path)
 # 2119: 5.1
 def test_adoption_waits_for_assigned_legacy_specs() -> None:
     assigned = {
-        "REQ-035-taskservice-auth.md",
-        "REQ-036-verified-reviewer-models.md",
+        "REQ-035-task-service-authentication.md",
+        "REQ-036-verified-configurable-reviewer-models.md",
         "REQ-037-safe-cross-host-task-migration.md",
         "REQ-038-snoozed-task-order.md",
     }
@@ -184,7 +181,9 @@ def test_adoption_waits_for_assigned_legacy_specs() -> None:
 # 2119: 5.2, 5.3
 def test_agent_guidance_records_branch_base_boundary() -> None:
     guidance = GUIDANCE.read_text()
-    assert "A branch based before this adoption may retain its already assigned legacy ID" in guidance
+    assert (
+        "A branch based before this adoption may retain its already assigned legacy ID" in guidance
+    )
     assert "A branch based on this adoption uses a file-scoped ID" in guidance
 
 

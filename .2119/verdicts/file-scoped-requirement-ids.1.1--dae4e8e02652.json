@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.1.1--dae4e8e02652",
+  "requirementId": "file-scoped-requirement-ids.1.1",
+  "hash": "dae4e8e02652",
+  "verdict": "pass",
+  "summary": "Fresh-context Sol review confirmed formatted evidence and exact prerequisite filenames remain honest.",
+  "timestamp": "2026-08-03T05:11:35.515Z"
+}
