@@ -234,7 +234,9 @@ def test_tokens_are_host_local_and_never_serialized(
     assert all(token not in caplog.text for token in configured)
     secrets = tmp_path / "bad-secrets"
     secrets.mkdir()
-    (secrets / "bad.json").write_text(json.dumps({"read": [WRITE_TOKEN], "write": [WRITE_TOKEN]}))
+    overlap = secrets / "bad.json"
+    overlap.write_text(json.dumps({"read": [WRITE_TOKEN], "write": [WRITE_TOKEN]}))
+    overlap.chmod(0o600)
     with pytest.raises(ValueError) as exc:
         create_app(
             _service(tmp_path / "bad-service"),
@@ -1037,7 +1039,9 @@ def test_enforced_mode_rejects_invalid_credential_files(tmp_path: Path, contents
     # 2119: REQ-035.24.1
     secrets = tmp_path / "secrets"
     secrets.mkdir()
-    (secrets / "bad.json").write_text(contents)
+    invalid = secrets / "bad.json"
+    invalid.write_text(contents)
+    invalid.chmod(0o600)
     with pytest.raises(ValueError, match="authentication credential"):
         create_app(
             _service(tmp_path),
@@ -1057,7 +1061,9 @@ def test_enforced_mode_rejects_short_tokens(
     secrets.mkdir()
     credentials = {"read": [READ_TOKEN], "write": [WRITE_TOKEN]}
     credentials[privilege] = [short_token]
-    (secrets / "bad.json").write_text(json.dumps(credentials))
+    invalid = secrets / "bad.json"
+    invalid.write_text(json.dumps(credentials))
+    invalid.chmod(0o600)
 
     with pytest.raises(ValueError, match="authentication credential"):
         create_app(
@@ -1442,4 +1448,36 @@ def test_pi_operation_keeps_runtime_token_out_of_curl_argv(tmp_path: Path) -> No
     subprocess.run(["sh", "-c", shell], env=env, check=True)
     assert WRITE_TOKEN not in argv.read_text()
     assert "--config\n-\n" in argv.read_text()
+    assert stdin.read_text() == f'header = "Authorization: Bearer {WRITE_TOKEN}"\n'
+
+
+def test_artifact_rest_fallback_keeps_runtime_token_out_of_curl_argv(tmp_path: Path) -> None:
+    # 2119: REQ-035.17.1
+    # 2119: REQ-035.18.1
+    from panopticon.core.artifact_skills import ARTIFACT_SKILL
+
+    command = ARTIFACT_SKILL.instructions.split("without MCP, send the artifact bytes with `", 1)[
+        1
+    ].split("`", 1)[0]
+    artifact = tmp_path / "report.md"
+    artifact.write_text("proof")
+    command = command.replace("<artifact-file>", str(artifact)).replace("<name>", "report.md")
+    argv = tmp_path / "curl-argv"
+    stdin = tmp_path / "curl-stdin"
+    shell = f"""curl() {{ cat > {stdin}; printf '%s\\n' "$@" > {argv}; }}
+{command}
+"""
+    subprocess.run(
+        ["sh", "-c", shell],
+        env={
+            "PATH": "/usr/bin:/bin",
+            "PANOPTICON_SERVICE_AUTH_TOKEN": WRITE_TOKEN,
+            "PANOPTICON_SERVICE_URL": "http://service",
+            "PANOPTICON_TASK_ID": "task",
+        },
+        check=True,
+    )
+    assert WRITE_TOKEN not in argv.read_text()
+    assert "--config\n-\n" in argv.read_text()
+    assert "--data-binary\n@" in argv.read_text()
     assert stdin.read_text() == f'header = "Authorization: Bearer {WRITE_TOKEN}"\n'

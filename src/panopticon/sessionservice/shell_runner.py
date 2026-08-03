@@ -137,6 +137,9 @@ class ShellRunner(Runner):
 
         start_dir = workdir or os.path.expanduser("~")
         session = session_name(task_id)
+        # Resolve caller-controlled references before creating a credential snapshot, so a
+        # rejected repo secret cannot strand a copy of the control-plane credentials.
+        env_path = secrets_file_path(env_file, secrets_dir=self._secrets_dir)
         self._remove_auth_snapshots(task_id)
         auth_snapshot = (
             snapshot_tokens(
@@ -190,7 +193,7 @@ class ShellRunner(Runner):
         # Resolve the env_file *name* to an absolute path under this host's secrets dir, expose the
         # path (so a script can tell the operator where to add their own credential), then source it
         # if it exists (a not-yet-created secrets file is fine — the script sees the vars unset).
-        if env_path := secrets_file_path(env_file, secrets_dir=self._secrets_dir):
+        if env_path:
             quoted = shlex.quote(env_path)
             lines.append(f"export PANOPTICON_ENV_FILE={quoted}")
             lines.append(f"[ -f {quoted} ] && {{ set -a; . {quoted}; set +a; }}")
@@ -201,8 +204,13 @@ class ShellRunner(Runner):
         # larger assembled script to a private host file and run a tiny cleanup wrapper instead.
         if len(command.encode()) >= 12_000:
             script_path = self._script_dir / f"panopticon-shell-{task_id}.sh"
-            script_path.write_text(command)
-            script_path.chmod(0o700)
+            try:
+                script_path.write_text(command)
+                script_path.chmod(0o700)
+            except BaseException:
+                if auth_snapshot is not None:
+                    auth_snapshot.unlink(missing_ok=True)
+                raise
             quoted_script = shlex.quote(str(script_path))
             command = f"trap 'rm -f {quoted_script}' EXIT; sh {quoted_script}"
         # Clear any stale session first so a respawn is idempotent (no-op when none exists).

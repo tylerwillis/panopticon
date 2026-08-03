@@ -153,6 +153,7 @@ def test_shell_runner_rejects_an_invalid_service_credential_before_tmux(
         original_stat = invalid.stat()
     elif invalid_kind == "malformed":
         invalid.write_text("not-json")
+        invalid.chmod(0o600)
 
     def record(args: list[str], **_kwargs: object) -> str:
         calls.append(args)
@@ -178,6 +179,58 @@ def test_shell_runner_rejects_an_invalid_service_credential_before_tmux(
     elif invalid_kind == "fifo":
         assert invalid.stat() == original_stat
         assert stat.S_ISFIFO(invalid.stat().st_mode)
+
+
+def test_shell_runner_does_not_snapshot_before_rejecting_repo_secret(
+    tmp_path: Path,
+) -> None:
+    credential = tmp_path / "auth.json"
+    credential.write_text(
+        json.dumps({"read": ["private-reader-token"], "write": ["private-writer-token"]})
+    )
+    credential.chmod(0o600)
+    runner = ShellRunner(
+        "http://svc:8000",
+        secrets_dir=tmp_path,
+        auth_file=credential.name,
+        script_dir=tmp_path,
+        run=lambda *_args, **_kwargs: "",
+    )
+
+    with pytest.raises(ValueError, match="escapes the secrets dir"):
+        runner.spawn("t1", env_file="../escape.env", script="true")
+
+    assert list(tmp_path.glob("panopticon-service-auth-t1-*.json")) == []
+
+
+def test_shell_runner_cleans_snapshot_when_spilled_script_write_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    credential = tmp_path / "auth.json"
+    credential.write_text(
+        json.dumps({"read": ["private-reader-token"], "write": ["private-writer-token"]})
+    )
+    credential.chmod(0o600)
+    original_write_text = Path.write_text
+
+    def fail_script_write(path: Path, data: str, *args: object, **kwargs: object) -> int:
+        if path.name == "panopticon-shell-t1.sh":
+            raise OSError("disk full")
+        return original_write_text(path, data, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "write_text", fail_script_write)
+    runner = ShellRunner(
+        "http://svc:8000",
+        secrets_dir=tmp_path,
+        auth_file=credential.name,
+        script_dir=tmp_path,
+        run=lambda *_args, **_kwargs: "",
+    )
+
+    with pytest.raises(OSError, match="disk full"):
+        runner.spawn("t1", script="x=: #" + "x" * 12_000)
+
+    assert list(tmp_path.glob("panopticon-service-auth-t1-*.json")) == []
 
 
 def test_docker_runner_mounts_a_stable_snapshot_if_source_is_replaced(
