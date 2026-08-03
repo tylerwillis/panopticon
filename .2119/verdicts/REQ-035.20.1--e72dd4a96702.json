@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.20.1--e72dd4a96702",
+  "requirementId": "REQ-035.20.1",
+  "hash": "e72dd4a96702",
+  "verdict": "pass",
+  "summary": "Distinct read/write tokens plus three observed curl calls require the write credential on task read, repo read, and repo update via stdin while rejecting any argv token leak.",
+  "timestamp": "2026-08-03T02:55:01.858Z"
+}

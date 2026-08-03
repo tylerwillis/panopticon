@@ -4,6 +4,7 @@ COMPLETE, run as a host shell script rather than a task container."""
 from __future__ import annotations
 
 import importlib.resources
+import json
 import shlex
 import stat
 import subprocess
@@ -13,6 +14,7 @@ from pathlib import Path
 from panopticon.core import Actor
 from panopticon.core.workflow import Workflow
 from panopticon.harnesses.pi import API_KEY_ENV_VARS
+from panopticon.sessionservice.shell_runner import ShellRunner
 from panopticon.workflows import SetupRepo
 
 WF = SetupRepo()
@@ -146,6 +148,55 @@ printf '%s\\n' "$repo_id:$default_harness"
     assert "/repos/repo" in calls[2] and "--request PATCH" in calls[2]
     assert '--data {"credential_dir": "openai.d"}' in calls[2]
     assert token not in "".join(calls)
+    assert stdin.read_text().count(f'header = "Authorization: Bearer {token}"') == 3
+
+
+def test_shell_runner_pins_auth_after_conflicting_repo_environment(tmp_path: Path) -> None:
+    token = "setup-repo-write-token"
+    credential = tmp_path / "task-service-auth.json"
+    credential.write_text(json.dumps({"read": ["setup-repo-read-token"], "write": [token]}))
+    credential.chmod(0o600)
+    repo_env = tmp_path / "repo.env"
+    repo_env.write_text(
+        "PANOPTICON_SERVICE_AUTH_FILE=/wrong/auth.json\n"
+        "PANOPTICON_SERVICE_URL=http://wrong\nPANOPTICON_TASK_ID=wrong\n"
+    )
+    argv = tmp_path / "curl-argv"
+    stdin = tmp_path / "curl-stdin"
+    emitted: list[list[str]] = []
+
+    def record(args: list[str], **_kwargs: object) -> str:
+        emitted.append(args)
+        return ""
+
+    script = f"""
+curl() {{
+    cat >> {stdin}
+    printf 'CALL\\n%s\\n' "$*" >> {argv}
+    case "$*" in
+        *'/tasks/task'*) printf '%s' '{{"repo_id":"repo"}}' ;;
+        *'/repos/repo'*'PATCH'*) ;;
+        *'/repos/repo'*) printf '%s' '{{"default_harness":"codex","credential_dir":""}}' ;;
+    esac
+}}
+{_LIB}
+load_repo_auth_context
+set_repo_credential_dir openai.d
+"""
+    ShellRunner(
+        "http://service",
+        auth_file=credential.name,
+        secrets_dir=tmp_path,
+        script_dir=tmp_path,
+        run=record,
+    ).spawn("task", script=script, env_file=repo_env.name)
+    command = next(call[-1] for call in emitted if "new-session" in call)
+    subprocess.run(["sh", "-c", command], env={"PATH": "/usr/bin:/bin"}, check=True)
+
+    calls = argv.read_text().split("CALL\n")[1:]
+    assert len(calls) == 3
+    assert all("http://wrong" not in call and "/wrong" not in call for call in calls)
+    assert all(token not in call for call in calls)
     assert stdin.read_text().count(f'header = "Authorization: Bearer {token}"') == 3
 
 

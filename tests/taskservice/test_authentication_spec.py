@@ -1481,3 +1481,44 @@ def test_artifact_rest_fallback_keeps_runtime_token_out_of_curl_argv(tmp_path: P
     assert "--config\n-\n" in argv.read_text()
     assert "--data-binary\n@" in argv.read_text()
     assert stdin.read_text() == f'header = "Authorization: Bearer {WRITE_TOKEN}"\n'
+
+
+@pytest.mark.parametrize("harness_name", ["pi", "outfitter"])
+def test_artifact_fallback_survives_real_harness_rendering(
+    tmp_path: Path, harness_name: str
+) -> None:
+    from panopticon.core.artifact_skills import ARTIFACT_SKILL
+    from panopticon.harnesses import BootstrapContext
+    from panopticon.harnesses.outfitter import OutfitterHarness
+    from panopticon.harnesses.pi import PiHarness
+
+    harness = PiHarness() if harness_name == "pi" else OutfitterHarness()
+    harness.bootstrap(
+        BootstrapContext(
+            home=tmp_path,
+            cwd=Path("/workspace"),
+            service_url="http://service",
+            task_id="task",
+            skills=[ARTIFACT_SKILL],
+            environ={"PANOPTICON_SERVICE_AUTH_TOKEN": WRITE_TOKEN},
+        )
+    )
+    rendered = (tmp_path / ".agents" / "skills" / "artifacts" / "SKILL.md").read_text()
+    command = rendered.split("without MCP, send the artifact bytes with `", 1)[1].split("`", 1)[0]
+    artifact = tmp_path / "report.md"
+    artifact.write_text("proof")
+    command = command.replace("<artifact-file>", str(artifact)).replace("<name>", "report.md")
+    argv = tmp_path / f"{harness_name}-argv"
+    stdin = tmp_path / f"{harness_name}-stdin"
+    subprocess.run(
+        ["sh", "-c", f"curl() {{ cat > {stdin}; printf '%s\\n' \"$@\" > {argv}; }}\n{command}"],
+        env={
+            "PATH": "/usr/bin:/bin",
+            "PANOPTICON_SERVICE_AUTH_TOKEN": WRITE_TOKEN,
+            "PANOPTICON_SERVICE_URL": "http://service",
+            "PANOPTICON_TASK_ID": "task",
+        },
+        check=True,
+    )
+    assert WRITE_TOKEN not in argv.read_text()
+    assert stdin.read_text() == f'header = "Authorization: Bearer {WRITE_TOKEN}"\n'

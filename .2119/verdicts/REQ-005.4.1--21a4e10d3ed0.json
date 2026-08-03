@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-005.4.1--21a4e10d3ed0",
+  "requirementId": "REQ-005.4.1",
+  "hash": "21a4e10d3ed0",
+  "verdict": "pass",
+  "summary": "Exercises creation from a wholly missing path and both partially existing parent boundaries, then reruns with profiles already a directory; each case must succeed with a real directory.",
+  "timestamp": "2026-08-03T02:55:12.655Z"
+}

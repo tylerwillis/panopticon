@@ -47,6 +47,7 @@ def test_spawn_rejects_missing_service_credential_before_docker(
         original_stat = credential.stat()
     elif existing_kind == "malformed":
         credential.write_text('{"read": [], "write": ["token"]}')
+        credential.chmod(0o600)
     rec = _Recorder()
     runner = LocalRunner(
         "http://svc:8000",

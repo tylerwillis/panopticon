@@ -233,6 +233,26 @@ def test_shell_runner_cleans_snapshot_when_spilled_script_write_fails(
     assert list(tmp_path.glob("panopticon-service-auth-t1-*.json")) == []
 
 
+def test_shell_runner_cleans_snapshot_for_command_encoding_failure(tmp_path: Path) -> None:
+    credential = tmp_path / "auth.json"
+    credential.write_text(
+        json.dumps({"read": ["private-reader-token"], "write": ["private-writer-token"]})
+    )
+    credential.chmod(0o600)
+    runner = ShellRunner(
+        "http://svc:8000",
+        secrets_dir=tmp_path,
+        auth_file=credential.name,
+        script_dir=tmp_path,
+        run=lambda *_args, **_kwargs: "",
+    )
+
+    with pytest.raises(UnicodeEncodeError):
+        runner.spawn("t1", script="printf '\ud800'")
+
+    assert list(tmp_path.glob("panopticon-service-auth-t1-*.json")) == []
+
+
 def test_docker_runner_mounts_a_stable_snapshot_if_source_is_replaced(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

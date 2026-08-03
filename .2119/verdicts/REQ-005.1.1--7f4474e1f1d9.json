@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-005.1.1--7f4474e1f1d9",
+  "requirementId": "REQ-005.1.1",
+  "hash": "7f4474e1f1d9",
+  "verdict": "pass",
+  "summary": "Real-shell dispatch tests require outfitter to enter the Pi flow without an unsupported report, including when profile-directory preparation fails.",
+  "timestamp": "2026-08-03T02:54:51.989Z"
+}
