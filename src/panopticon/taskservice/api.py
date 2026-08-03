@@ -521,7 +521,7 @@ def create_app(
     def redact_configured_tokens(value: Any) -> Any:
         if tokens is None:
             return value
-        configured = (*tokens.read, *tokens.write)
+        configured = sorted((*tokens.read, *tokens.write), key=len, reverse=True)
         if isinstance(value, str):
             for token in configured:
                 value = value.replace(token, "[redacted]")
@@ -613,7 +613,7 @@ def create_app(
         if not write and (mutating or not read):
             return JSONResponse(
                 status_code=401,
-                content=generic_auth_failure,
+                content=redact_configured_tokens(generic_auth_failure),
                 headers={"WWW-Authenticate": "Bearer"},
             )
         return await call_next(request)

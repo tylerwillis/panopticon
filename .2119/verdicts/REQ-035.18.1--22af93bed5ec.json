@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.18.1--22af93bed5ec",
+  "requirementId": "REQ-035.18.1",
+  "hash": "22af93bed5ec",
+  "verdict": "pass",
+  "summary": "Tests exercise every prohibited disclosure sink with configured tokens, including collision, overlap, opaque-token, REST/MCP failure, durable-state, serialization, logging, and command-line counterexamples.",
+  "timestamp": "2026-08-03T04:27:08.860Z"
+}

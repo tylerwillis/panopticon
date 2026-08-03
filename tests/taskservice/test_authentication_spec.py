@@ -302,6 +302,54 @@ def test_tokens_are_host_local_and_never_serialized(
             )
 
 
+def test_authentication_failure_does_not_disclose_a_token_equal_to_fixed_response_text(
+    tmp_path: Path,
+) -> None:
+    # 2119: REQ-035.18.1
+    secrets = tmp_path / "secrets"
+    secrets.mkdir()
+    credential = secrets / "auth.json"
+    credential.write_text(json.dumps({"read": [READ_TOKEN], "write": ["authentication"]}))
+    credential.chmod(0o600)
+
+    with TestClient(
+        create_app(
+            _service(tmp_path),
+            auth_file=credential.name,
+            auth_mode="enforced",
+            secrets_dir=secrets,
+        )
+    ) as client:
+        rejected = client.post("/tasks", json={"repo_id": "r1", "workflow": "spike"})
+
+    assert rejected.status_code == 401
+    assert "authentication" not in rejected.text
+
+
+def test_rest_redaction_masks_longest_prefix_related_token_first(tmp_path: Path) -> None:
+    # 2119: REQ-035.18.1
+    shorter = "prefix-secret-token"
+    longer = f"{shorter}-next"
+    secrets = tmp_path / "secrets"
+    secrets.mkdir()
+    credential = secrets / "auth.json"
+    credential.write_text(json.dumps({"read": [shorter, longer], "write": [WRITE_TOKEN]}))
+    credential.chmod(0o600)
+
+    with TestClient(
+        create_app(
+            _service(tmp_path),
+            auth_file=credential.name,
+            auth_mode="enforced",
+            secrets_dir=secrets,
+        )
+    ) as client:
+        rejected = client.get(f"/tasks/{longer}", headers=_bearer(WRITE_TOKEN))
+
+    assert rejected.status_code == 404
+    assert rejected.json()["detail"] == "task '[redacted]' does not exist"
+
+
 def test_tokens_never_reach_any_failure_body_or_spawned_command(tmp_path: Path) -> None:
     # 2119: REQ-035.18.1
     configured = (
