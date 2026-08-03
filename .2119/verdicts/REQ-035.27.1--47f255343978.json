@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.27.1--47f255343978",
+  "requirementId": "REQ-035.27.1",
+  "hash": "47f255343978",
+  "verdict": "pass",
+  "summary": "Tests resolved enforced mode in a real production process, disabled/permissive warning-level reports, and documentation that confines permissive mode to migration while requiring enforced steady state.",
+  "timestamp": "2026-08-03T01:13:21.097Z"
+}

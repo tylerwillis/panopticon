@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.12.1--f3dc338ed21a",
+  "requirementId": "REQ-035.12.1",
+  "hash": "f3dc338ed21a",
+  "verdict": "pass",
+  "summary": "Tests exercise the full protected REST surface and MCP GET/POST/DELETE plus valid, invalid, and malformed endpoint inputs without a credential reference, rejecting any premature generic auth failure.",
+  "timestamp": "2026-08-03T01:17:12.208Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.24.1--fc3d2667dd07",
+  "requirementId": "REQ-035.24.1",
+  "hash": "fc3d2667dd07",
+  "verdict": "pass",
+  "summary": "Rejects every disallowed ASCII character in-token, non-ASCII tokens, empty/padding-only tokens, and non-trailing equals in both read and write credentials at startup.",
+  "timestamp": "2026-08-03T01:13:20.603Z"
+}

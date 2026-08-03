@@ -102,6 +102,93 @@ def test_shell_runner_rejects_an_invalid_service_credential_before_tmux(
         assert stat.S_ISFIFO(invalid.stat().st_mode)
 
 
+def test_docker_runner_mounts_a_stable_snapshot_if_source_is_replaced(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # 2119: REQ-035.28.1
+    import panopticon.sessionservice.local_runner as runner_module
+
+    source = tmp_path / "auth.json"
+    source.write_text(
+        json.dumps({"read": ["stable-reader-token"], "write": ["stable-writer-token"]})
+    )
+    original_snapshot = runner_module.snapshot_service_tokens
+    snapshots: list[Path] = []
+
+    def snapshot_then_replace(*args: object, **kwargs: object) -> Path:
+        snapshot = original_snapshot(*args, **kwargs)  # type: ignore[arg-type]
+        snapshots.append(snapshot)
+        source.unlink()
+        os.mkfifo(source)
+        return snapshot
+
+    docker_observations: list[tuple[bool, str]] = []
+
+    def record(args: list[str], **_kwargs: object) -> str:
+        if args[:2] == ["docker", "run"]:
+            mount = next(
+                argument for argument in args if "/run/secrets/panopticon-service-auth" in argument
+            )
+            mounted = Path(mount.split(":", 1)[0])
+            docker_observations.append((mounted.is_file(), mounted.read_text()))
+        return ""
+
+    monkeypatch.setattr(runner_module, "snapshot_service_tokens", snapshot_then_replace)
+    runner_module.LocalRunner(
+        "http://service", auth_file=source.name, secrets_dir=tmp_path, run=record
+    ).spawn("task")
+
+    assert stat.S_ISFIFO(source.stat().st_mode)
+    assert docker_observations == [
+        (True, '{"read": ["stable-reader-token"], "write": ["stable-writer-token"]}')
+    ]
+    assert snapshots and not snapshots[0].exists()
+
+
+def test_shell_runner_uses_a_stable_snapshot_if_source_is_replaced(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # 2119: REQ-035.28.1
+    import panopticon.sessionservice.shell_runner as runner_module
+
+    source = tmp_path / "auth.json"
+    source.write_text(
+        json.dumps({"read": ["stable-reader-token"], "write": ["stable-writer-token"]})
+    )
+    original_snapshot = runner_module.snapshot_tokens
+    snapshots: list[Path] = []
+
+    def snapshot_then_replace(*args: object, **kwargs: object) -> Path:
+        snapshot = original_snapshot(*args, **kwargs)  # type: ignore[arg-type]
+        snapshots.append(snapshot)
+        source.unlink()
+        os.mkfifo(source)
+        return snapshot
+
+    tmux_observations: list[tuple[bool, str]] = []
+
+    def record(args: list[str], **_kwargs: object) -> str:
+        if "new-session" in args:
+            snapshot = snapshots[0]
+            tmux_observations.append((snapshot.is_file(), snapshot.read_text()))
+        return ""
+
+    monkeypatch.setattr(runner_module, "snapshot_tokens", snapshot_then_replace)
+    runner_module.ShellRunner(
+        "http://service",
+        auth_file=source.name,
+        secrets_dir=tmp_path,
+        script_dir=tmp_path,
+        run=record,
+    ).spawn("task", script="true")
+
+    assert stat.S_ISFIFO(source.stat().st_mode)
+    assert tmux_observations == [
+        (True, '{"read": ["stable-reader-token"], "write": ["stable-writer-token"]}')
+    ]
+    snapshots[0].unlink()
+
+
 def test_integrated_stack_explicitly_exposes_service_to_linux_containers() -> None:
     # 2119: REQ-035.29.1
     calls: list[list[str]] = []
@@ -255,19 +342,27 @@ def test_overlap_clients_select_the_appended_token(
     # 2119: REQ-035.32.1
     credential = tmp_path / "auth.json"
     credential.write_text(
-        json.dumps({"read": ["oldest-read", "old-read"], "write": ["oldest", "old"]})
+        json.dumps(
+            {
+                "read": ["oldest-read-token", "old-read-token"],
+                "write": ["oldest-write-token", "old-write-token"],
+            }
+        )
     )
-    assert load_client_token(credential.name, privilege="write", secrets_dir=tmp_path) == "old"
+    assert (
+        load_client_token(credential.name, privilege="write", secrets_dir=tmp_path)
+        == "old-write-token"
+    )
     credential.write_text(
         json.dumps(
             {
-                "read": ["oldest-read", "old-read", "new-read"],
-                "write": ["oldest", "old", "new"],
+                "read": ["oldest-read-token", "old-read-token", "new-read-token"],
+                "write": ["oldest-write-token", "old-write-token", "new-write-token"],
             }
         )
     )
     restarted_token = load_client_token(credential.name, privilege="write", secrets_dir=tmp_path)
-    assert restarted_token == "new"
+    assert restarted_token == "new-write-token"
     monkeypatch.setenv("PANOPTICON_SERVICE_AUTH_FILE", str(credential))
     overlap_app = build_app(
         db="sqlite://",
@@ -279,7 +374,7 @@ def test_overlap_clients_select_the_appended_token(
     )
     with TestClient(overlap_app) as http:
         restarted_python = TaskServiceClient(http)
-        assert restarted_python._http.headers["authorization"] == "Bearer new"
+        assert restarted_python._http.headers["authorization"] == "Bearer new-write-token"
         assert restarted_python.list_tasks() == []
 
     recorded = tmp_path / "curl-config"
@@ -297,10 +392,10 @@ _panopticon_curl --silent http://service
         },
         check=True,
     )
-    assert recorded.read_text() == 'header = "Authorization: Bearer new"\n'
+    assert recorded.read_text() == 'header = "Authorization: Bearer new-write-token"\n'
     shell_token = recorded.read_text().split("Bearer ", 1)[1].split('"', 1)[0]
 
-    credential.write_text(json.dumps({"read": ["new-read"], "write": ["new"]}))
+    credential.write_text(json.dumps({"read": ["new-read-token"], "write": ["new-write-token"]}))
     converged_app = build_app(
         db="sqlite://",
         artifacts_root=str(tmp_path / "converged-artifacts"),
@@ -311,7 +406,7 @@ _panopticon_curl --silent http://service
     )
     with TestClient(converged_app) as http:
         converged_python = TaskServiceClient(http)
-        assert converged_python._http.headers["authorization"] == "Bearer new"
+        assert converged_python._http.headers["authorization"] == "Bearer new-write-token"
         assert converged_python.list_tasks() == []
         assert TaskServiceClient(http, token=restarted_token).list_tasks() == []
         assert TaskServiceClient(http, token=shell_token).list_tasks() == []
@@ -341,7 +436,7 @@ def test_root_path_does_not_downgrade_write_only_routes(tmp_path: Path) -> None:
     secrets = tmp_path / "secrets"
     secrets.mkdir()
     (secrets / "auth.json").write_text(
-        json.dumps({"read": ["read-token"], "write": ["write-token"]})
+        json.dumps({"read": ["read-token-long"], "write": ["write-token-long"]})
     )
     app = build_app(
         db="sqlite://",
@@ -355,8 +450,12 @@ def test_root_path_does_not_downgrade_write_only_routes(tmp_path: Path) -> None:
         # 2119: REQ-035.10.1
         assert client.get("/proxy/healthz").status_code == 200
         for method, path in [("GET", "/proxy/tasks/missing/live"), ("GET", "/proxy/mcp")]:
-            reader = client.request(method, path, headers={"Authorization": "Bearer read-token"})
-            writer = client.request(method, path, headers={"Authorization": "Bearer write-token"})
+            reader = client.request(
+                method, path, headers={"Authorization": "Bearer read-token-long"}
+            )
+            writer = client.request(
+                method, path, headers={"Authorization": "Bearer write-token-long"}
+            )
             assert reader.status_code == 401
             assert writer.status_code not in {401, 403}
     root_app = build_app(
@@ -370,8 +469,23 @@ def test_root_path_does_not_downgrade_write_only_routes(tmp_path: Path) -> None:
     with TestClient(root_app, root_path="/") as client:
         for path in ["/tasks/missing/live", "/mcp"]:
             assert (
-                client.get(path, headers={"Authorization": "Bearer read-token"}).status_code == 401
+                client.get(path, headers={"Authorization": "Bearer read-token-long"}).status_code
+                == 401
             )
+    for root_path, route in [("/task", "/tasks/missing/live"), ("/m", "/mcp")]:
+        collision_app = build_app(
+            db="sqlite://",
+            artifacts_root=str(tmp_path / f"collision-{root_path[1:]}"),
+            auth_file="auth.json",
+            auth_mode="enforced",
+            secrets_dir=secrets,
+            _home_workflows=tmp_path / "workflows",
+        )
+        with TestClient(collision_app, root_path=root_path) as client:
+            reader = client.get(route, headers={"Authorization": "Bearer read-token-long"})
+            writer = client.get(route, headers={"Authorization": "Bearer write-token-long"})
+            assert reader.status_code == 401
+            assert writer.status_code not in {401, 403}
 
 
 def test_production_process_reports_enforced_mode(tmp_path: Path) -> None:
@@ -380,7 +494,7 @@ def test_production_process_reports_enforced_mode(tmp_path: Path) -> None:
     secrets = config / "secrets"
     secrets.mkdir(parents=True)
     (secrets / "auth.json").write_text(
-        json.dumps({"read": ["read-token"], "write": ["write-token"]})
+        json.dumps({"read": ["read-token-long"], "write": ["write-token-long"]})
     )
     with socket.socket() as probe:
         probe.bind(("127.0.0.1", 0))
@@ -435,7 +549,7 @@ def test_non_enforced_modes_log_warning_level(
     secrets = tmp_path / "secrets"
     secrets.mkdir()
     (secrets / "auth.json").write_text(
-        json.dumps({"read": ["read-token"], "write": ["write-token"]})
+        json.dumps({"read": ["read-token-long"], "write": ["write-token-long"]})
     )
     build_app(
         db="sqlite://",

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.11.1--34b6b71ad5ff",
+  "requirementId": "REQ-035.11.1",
+  "hash": "34b6b71ad5ff",
+  "verdict": "pass",
+  "summary": "Tests compare unauthenticated, read-token, and write-token outcomes across loopback, tailnet boundary/interior, IPv6 tailnet, and external addresses for all REST and MCP surfaces.",
+  "timestamp": "2026-08-03T01:17:11.733Z"
+}

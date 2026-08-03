@@ -6,6 +6,7 @@ import json
 import os
 import re
 import stat
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -13,6 +14,7 @@ from typing import Literal
 from panopticon.core.dirs import _secrets_dir
 
 AuthMode = Literal["disabled", "permissive", "enforced"]
+MIN_TOKEN_LENGTH = 12
 _BEARER_TOKEN = re.compile(r"[A-Za-z0-9._~+/-]+=*\Z")
 
 
@@ -47,7 +49,10 @@ def _parse_tokens(contents: str) -> AuthTokens:
         if not all(isinstance(values, list) and values for values in (read, write)):
             raise _credential_error()
         if not all(
-            isinstance(token, str) and _BEARER_TOKEN.fullmatch(token) for token in [*read, *write]
+            isinstance(token, str)
+            and len(token) >= MIN_TOKEN_LENGTH
+            and _BEARER_TOKEN.fullmatch(token)
+            for token in [*read, *write]
         ):
             raise _credential_error()
         if len(set(read)) != len(read) or len(set(write)) != len(write) or set(read) & set(write):
@@ -84,6 +89,26 @@ def load_client_token(
     tokens = load_tokens(reference, secrets_dir=secrets_dir)
     values = tokens.read if privilege == "read" else tokens.write
     return values[-1]
+
+
+def snapshot_tokens(
+    reference: str,
+    *,
+    directory: str | Path | None = None,
+    secrets_dir: str | Path | None = None,
+    prefix: str = "panopticon-service-auth-",
+) -> Path:
+    """Create a private regular-file snapshot for a process launch or bind mount."""
+    tokens = load_tokens(reference, secrets_dir=secrets_dir)
+    fd, raw_path = tempfile.mkstemp(prefix=prefix, suffix=".json", dir=directory)
+    path = Path(raw_path)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            json.dump({"read": list(tokens.read), "write": list(tokens.write)}, handle)
+        return path
+    except BaseException:
+        path.unlink(missing_ok=True)
+        raise
 
 
 def environment_token(*, privilege: Literal["read", "write"] = "write") -> str | None:

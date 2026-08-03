@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.1.1--84d9e0c98a39",
+  "requirementId": "REQ-035.1.1",
+  "hash": "84d9e0c98a39",
+  "verdict": "pass",
+  "summary": "Tests prove startup loading from an in-secrets filename, reject raw/absolute/traversal/symlink references, and scan API plus durable DB/artifact/log state for copied tokens.",
+  "timestamp": "2026-08-03T01:17:00.313Z"
+}

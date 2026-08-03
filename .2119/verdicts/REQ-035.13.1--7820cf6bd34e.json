@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.13.1--7820cf6bd34e",
+  "requirementId": "REQ-035.13.1",
+  "hash": "7820cf6bd34e",
+  "verdict": "pass",
+  "summary": "Tests permissive mode across REST and MCP for legacy unauthenticated and sufficient read/write credentials, including task and runner liveness, and reject generic auth interruption.",
+  "timestamp": "2026-08-03T01:17:12.706Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.4.1--d0ed0d39d6fb",
+  "requirementId": "REQ-035.4.1",
+  "hash": "d0ed0d39d6fb",
+  "verdict": "pass",
+  "summary": "Tests enumerate registered mutating REST operations, explicitly identify both liveness GETs, and require generic 401 challenge/body for every read-token attempt without mutation.",
+  "timestamp": "2026-08-03T01:17:01.865Z"
+}

@@ -30,11 +30,9 @@ from panopticon.sessionservice.prefill import (
 from panopticon.sessionservice.runner import Runner
 from panopticon.sessionservice.tmux_defaults import defaults_argv
 from panopticon.taskservice.auth import (
-    credential_path as service_credential_path,
-)
-from panopticon.taskservice.auth import (
     load_tokens as load_service_tokens,
 )
+from panopticon.taskservice.auth import snapshot_tokens as snapshot_service_tokens
 
 #: Default composed image (base layer, ADR 0005); built in a later PR of this slice.
 DEFAULT_IMAGE = "panopticon-base"
@@ -255,10 +253,14 @@ class LocalRunner(Runner):
             env["PANOPTICON_DOCKER_IN_DOCKER"] = "1"
         if env_path := secrets_file_path(env_file, secrets_dir=self._secrets_dir):
             docker_run += ["--env-file", env_path]  # per-repo secrets, resolved host-locally
-        self.validate_configuration()
+        auth_snapshot: Path | None = None
         if self._auth_file:
-            auth_path = service_credential_path(self._auth_file, secrets_dir=self._secrets_dir)
-            docker_run += ["--volume", f"{auth_path}:{SERVICE_AUTH_MOUNT}:ro"]
+            auth_snapshot = snapshot_service_tokens(
+                self._auth_file,
+                secrets_dir=self._secrets_dir,
+                prefix=f"panopticon-service-auth-{task_id}-",
+            )
+            docker_run += ["--volume", f"{auth_snapshot}:{SERVICE_AUTH_MOUNT}:ro"]
             env["PANOPTICON_SERVICE_AUTH_FILE"] = SERVICE_AUTH_MOUNT
         if workspace:  # the per-task clone — the agent's writable working dir (ADR 0011)
             docker_run += [
@@ -285,7 +287,11 @@ class LocalRunner(Runner):
         self._run(self._tmux("kill-session", "-t", container), check=False)
         self._run(["docker", "rm", "--force", container], check=False)
         _report(LifecyclePhase.STARTING)  # docker run + the tmux session coming up
-        self._run(docker_run)
+        try:
+            self._run(docker_run)
+        finally:
+            if auth_snapshot is not None:
+                auth_snapshot.unlink(missing_ok=True)
         # `docker run --detach` returns once the container is running (the entrypoint has remapped +
         # dropped), so the pane execs in as the unprivileged `panopticon` user — `tmux attach` and
         # the agent's `whoami` see that named user, not root.

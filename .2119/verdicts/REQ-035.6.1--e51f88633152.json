@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.6.1--e51f88633152",
+  "requirementId": "REQ-035.6.1",
+  "hash": "e51f88633152",
+  "verdict": "pass",
+  "summary": "Pass: the mounted MCP transport rejects a read token for explicit tools/call and resources/read payloads while corresponding write-token requests cross authentication.",
+  "timestamp": "2026-08-03T01:20:39.349Z"
+}

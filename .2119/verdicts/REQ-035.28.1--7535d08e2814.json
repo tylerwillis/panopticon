@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.28.1--7535d08e2814",
+  "requirementId": "REQ-035.28.1",
+  "hash": "7535d08e2814",
+  "verdict": "pass",
+  "summary": "Local and shell runners reject missing, directory, and FIFO credential references before Docker/tmux calls, preserving absence and existing non-file type, metadata, and contents.",
+  "timestamp": "2026-08-03T01:13:21.572Z"
+}

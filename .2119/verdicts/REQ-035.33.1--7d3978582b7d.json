@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.33.1--7d3978582b7d",
+  "requirementId": "REQ-035.33.1",
+  "hash": "7d3978582b7d",
+  "verdict": "pass",
+  "summary": "Tests reject the nearest 11-character violation for both read and write token configurations and accept the exact 12-character boundary.",
+  "timestamp": "2026-08-03T01:18:07.596Z"
+}

@@ -90,12 +90,16 @@ def _route_path(path: str) -> str:
 
 
 def _rest_operations(client: TestClient) -> list[tuple[str, str]]:
+    """Enumerate the actual registered REST routes, including schema-hidden routes."""
     return [
-        (method.upper(), _route_path(path))
-        for path, path_item in client.app.openapi()["paths"].items()
-        if path != "/healthz" and not path.startswith("/mcp")
-        for method in path_item
-        if method.upper() in {"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "TRACE"}
+        (method.upper(), _route_path(route.path))
+        for route in client.app.routes
+        if hasattr(route, "methods")
+        and hasattr(route, "path")
+        and route.path != "/healthz"
+        and not route.path.startswith("/mcp")
+        for method in route.methods
+        if method.upper() in {"GET", "POST", "PUT", "PATCH", "DELETE"}
     ]
 
 
@@ -373,6 +377,73 @@ def test_mcp_validation_failure_redacts_a_configured_token(tmp_path: Path) -> No
             assert response.status_code == 400
             assert all(configured_token not in response.text for configured_token in configured)
             assert "*" * len(token) in response.text
+
+
+def test_mcp_tool_arguments_never_log_or_return_configured_tokens(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    # 2119: REQ-035.18.1
+    configured = (
+        READ_TOKEN,
+        NEXT_READ_TOKEN,
+        OPAQUE_READ_TOKEN,
+        WRITE_TOKEN,
+        NEXT_WRITE_TOKEN,
+        OPAQUE_WRITE_TOKEN,
+    )
+    caplog.set_level("DEBUG", logger="panopticon")
+    app = create_app(
+        _service(tmp_path),
+        auth_file=_credential_file(tmp_path, overlap=True, opaque=True),
+        auth_mode="enforced",
+        secrets_dir=tmp_path / "secrets",
+    )
+    headers = {
+        **_bearer(WRITE_TOKEN),
+        "Content-Type": "application/json",
+        "Accept": "application/json, text/event-stream",
+    }
+    with TestClient(app) as client:
+        initialized = client.post(
+            "/mcp/",
+            headers=headers,
+            json={
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "initialize",
+                "params": {
+                    "protocolVersion": "2025-03-26",
+                    "capabilities": {},
+                    "clientInfo": {"name": "redaction-test", "version": "1"},
+                },
+            },
+        )
+        session_headers = {**headers, "Mcp-Session-Id": initialized.headers["mcp-session-id"]}
+        client.post(
+            "/mcp/",
+            headers=session_headers,
+            json={"jsonrpc": "2.0", "method": "notifications/initialized"},
+        )
+        responses = [
+            client.post(
+                "/mcp/",
+                headers=session_headers,
+                json={
+                    "jsonrpc": "2.0",
+                    "id": index + 2,
+                    "method": "tools/call",
+                    "params": {
+                        "name": "apply_operation",
+                        "arguments": {"task_id": token, "operation": "advance"},
+                    },
+                },
+            )
+            for index, token in enumerate(configured)
+        ]
+
+    assert all(response.status_code == 200 for response in responses)
+    observed = caplog.text + "".join(response.text for response in responses)
+    assert all(token not in observed for token in configured)
 
 
 def test_read_and_write_tokens_can_read_but_only_write_token_can_mutate(tmp_path: Path) -> None:
@@ -967,6 +1038,47 @@ def test_enforced_mode_rejects_invalid_credential_files(tmp_path: Path, contents
         )
 
 
+@pytest.mark.parametrize("privilege", ["read", "write"])
+@pytest.mark.parametrize("short_token", ["a", "short", "x" * 11])
+def test_enforced_mode_rejects_short_tokens(
+    tmp_path: Path, privilege: str, short_token: str
+) -> None:
+    # 2119: REQ-035.33.1
+    secrets = tmp_path / "secrets"
+    secrets.mkdir()
+    credentials = {"read": [READ_TOKEN], "write": [WRITE_TOKEN]}
+    credentials[privilege] = [short_token]
+    (secrets / "bad.json").write_text(json.dumps(credentials))
+
+    with pytest.raises(ValueError, match="authentication credential"):
+        create_app(
+            _service(tmp_path),
+            auth_file="bad.json",
+            auth_mode="enforced",
+            secrets_dir=secrets,
+        )
+
+
+@pytest.mark.parametrize("privilege", ["read", "write"])
+def test_enforced_mode_accepts_twelve_character_tokens(tmp_path: Path, privilege: str) -> None:
+    # 2119: REQ-035.33.1
+    secrets = tmp_path / "secrets"
+    secrets.mkdir()
+    credentials = {"read": [READ_TOKEN], "write": [WRITE_TOKEN]}
+    credentials[privilege] = ["x" * 12]
+    (secrets / "boundary.json").write_text(json.dumps(credentials))
+
+    with TestClient(
+        create_app(
+            _service(tmp_path),
+            auth_file="boundary.json",
+            auth_mode="enforced",
+            secrets_dir=secrets,
+        )
+    ):
+        pass
+
+
 def test_enforced_mode_rejects_escaping_reference(tmp_path: Path) -> None:
     # 2119: REQ-035.14.1
     secrets = tmp_path / "secrets"
@@ -1212,11 +1324,11 @@ def test_runner_injects_write_token_into_docker_and_shell_tasks_without_command_
     assert READ_TOKEN not in " ".join(docker_run)
     assert "PANOPTICON_SERVICE_AUTH_FILE=/run/secrets/panopticon-service-auth" in docker_run
     assert "--env-file" not in docker_run
-    assert any(
-        str((tmp_path / "secrets" / reference).resolve()) in argument
-        and "/run/secrets/panopticon-service-auth" in argument
-        for argument in docker_run
+    auth_mount = next(
+        argument for argument in docker_run if "/run/secrets/panopticon-service-auth" in argument
     )
+    assert str((tmp_path / "secrets" / reference).resolve()) not in auth_mount
+    assert not Path(auth_mount.split(":", 1)[0]).exists()
 
     shell_recorder = Recorder()
     ShellRunner(

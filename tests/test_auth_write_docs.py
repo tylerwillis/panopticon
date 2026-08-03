@@ -15,7 +15,7 @@ def test_write_token_reaches_framework_documentation_routes(tmp_path: Path) -> N
     secrets = tmp_path / "secrets"
     secrets.mkdir()
     (secrets / "auth.json").write_text(
-        json.dumps({"read": ["read-token"], "write": ["write-token"]})
+        json.dumps({"read": ["read-token-long"], "write": ["write-token-long"]})
     )
     app = build_app(
         db="sqlite://",
@@ -29,6 +29,6 @@ def test_write_token_reaches_framework_documentation_routes(tmp_path: Path) -> N
         for path in ["/openapi.json", "/docs", "/docs/oauth2-redirect", "/redoc"]:
             for method in ["GET", "HEAD"]:
                 response = client.request(
-                    method, path, headers={"Authorization": "Bearer write-token"}
+                    method, path, headers={"Authorization": "Bearer write-token-long"}
                 )
                 assert response.status_code != 401, (method, path, response.text)

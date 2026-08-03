@@ -34,7 +34,7 @@ from panopticon.sessionservice.local_runner import (
 )
 from panopticon.sessionservice.runner import Runner
 from panopticon.sessionservice.tmux_defaults import defaults_argv
-from panopticon.taskservice.auth import credential_path, load_tokens
+from panopticon.taskservice.auth import load_tokens, snapshot_tokens
 
 #: The panopticon shell lib (``task_lib.sh``): functions a shell workflow's script uses to drive its
 #: task over REST (``panopticon_advance``/``_drop``/``_set_slug``/…) instead of hand-rolling curl.
@@ -132,12 +132,17 @@ class ShellRunner(Runner):
 
         start_dir = workdir or os.path.expanduser("~")
         session = session_name(task_id)
-        self.validate_configuration()
-        auth_path = (
-            credential_path(self._auth_file, secrets_dir=self._secrets_dir)
+        auth_snapshot = (
+            snapshot_tokens(
+                self._auth_file,
+                directory=self._script_dir,
+                secrets_dir=self._secrets_dir,
+                prefix=f"panopticon-service-auth-{task_id}-",
+            )
             if self._auth_file
             else None
         )
+        auth_path = auth_snapshot
         # A shell task runs no agent to open its own `/live` registration, so the dashboard would
         # read it as `awaiting` for its whole life. Hold the liveness stream open in the background
         # for the session's lifetime instead — the task then composes as `live` while the script
@@ -165,7 +170,13 @@ class ShellRunner(Runner):
             _TASK_LIB,
             f"_panopticon_curl --silent --no-buffer {shlex.quote(live_url)} >/dev/null 2>&1 &",
             "_panopticon_live_pid=$!",
-            "trap 'kill $_panopticon_live_pid 2>/dev/null' EXIT",
+            (
+                "trap 'kill $_panopticon_live_pid 2>/dev/null; rm -f "
+                + shlex.quote(str(auth_snapshot))
+                + "' EXIT"
+                if auth_snapshot is not None
+                else "trap 'kill $_panopticon_live_pid 2>/dev/null' EXIT"
+            ),
         ]
         # Resolve the env_file *name* to an absolute path under this host's secrets dir, expose the
         # path (so a script can tell the operator where to add their own credential), then source it
@@ -189,20 +200,25 @@ class ShellRunner(Runner):
         self._run(self._tmux("kill-session", "-t", session), check=False)
         _report(LifecyclePhase.STARTING)
         # -c sets the pane's start directory (the task's own dir) so the script runs in a known place.
-        self._run(
-            self._tmux(
-                *defaults_argv(self._tmux_socket),
-                "new-session",
-                "-d",
-                "-s",
-                session,
-                "-c",
-                start_dir,
-                "sh",
-                "-c",
-                command,
+        try:
+            self._run(
+                self._tmux(
+                    *defaults_argv(self._tmux_socket),
+                    "new-session",
+                    "-d",
+                    "-s",
+                    session,
+                    "-c",
+                    start_dir,
+                    "sh",
+                    "-c",
+                    command,
+                )
             )
-        )
+        except BaseException:
+            if auth_snapshot is not None:
+                auth_snapshot.unlink(missing_ok=True)
+            raise
         _report(LifecyclePhase.AWAITING)
         return session
 

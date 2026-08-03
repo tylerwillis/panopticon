@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.10.1--beb4866ddb27",
+  "requirementId": "REQ-035.10.1",
+  "hash": "beb4866ddb27",
+  "verdict": "pass",
+  "summary": "An unauthenticated GET must return 200 and exactly {status: ok}; requiring credentials or adding/removing readiness fields fails, including under a proxy root path.",
+  "timestamp": "2026-08-03T01:13:24.868Z"
+}

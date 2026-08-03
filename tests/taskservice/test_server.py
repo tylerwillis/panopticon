@@ -31,9 +31,9 @@ def test_build_app_honors_production_auth_environment(
     config = tmp_path / "config"
     secrets = config / "secrets"
     secrets.mkdir(parents=True)
-    token = "production-write-token"
+    token = "production-write-token-long"
     (secrets / "task-service-auth.json").write_text(
-        json.dumps({"read": ["production-read-token"], "write": [token]})
+        json.dumps({"read": ["production-read-token-long"], "write": [token]})
     )
     monkeypatch.setenv("PANOPTICON_CONFIG", str(config))
     monkeypatch.setenv("PANOPTICON_SERVICE_AUTH_FILE", "task-service-auth.json")
@@ -99,7 +99,7 @@ def test_production_launcher_does_not_persist_rejected_query_credentials(tmp_pat
     secrets.mkdir(parents=True)
     query_token = "rejected-query-secret"
     (secrets / "auth.json").write_text(
-        json.dumps({"read": ["read-token"], "write": ["write-token"]})
+        json.dumps({"read": ["read-token-long"], "write": ["write-token-long"]})
     )
     with socket.socket() as probe:
         probe.bind(("127.0.0.1", 0))
@@ -160,7 +160,7 @@ def test_build_app_warns_for_non_enforced_modes(
     secrets = tmp_path / "secrets"
     secrets.mkdir()
     (secrets / "auth.json").write_text(
-        json.dumps({"read": ["read-token"], "write": ["write-token"]})
+        json.dumps({"read": ["read-token-long"], "write": ["write-token-long"]})
     )
     build_app(
         db="sqlite://",

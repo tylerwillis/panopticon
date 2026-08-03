@@ -141,3 +141,7 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 ### REQ-035.32: Rotation selection
 
 1. After a new token is appended to an overlap array, restarted Python and shell clients MUST select that final token so the old generation can later be removed without disconnecting converged callers.
+
+### REQ-035.33: Minimum token length
+
+1. Every configured bearer token MUST contain at least twelve characters so response redaction cannot corrupt ordinary protocol text for accepted short-token configurations.

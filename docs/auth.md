@@ -16,9 +16,10 @@ the read-only dashboard and for clients that mutate control-plane state:
 
 The arrays may contain multiple tokens for rotation, but must be nonempty, have no duplicates, and
 never overlap. Tokens use the transport-safe ASCII bearer grammar: letters, digits,
-`-._~+/`, followed by optional `=` padding. Generate long random values using that alphabet; spaces,
-control characters, non-ASCII text, quotes, and backslashes are rejected at startup. Keep the file
-mode `0600`. Configure every task-service and runner host with the same filename reference.
+`-._~+/`, followed by optional `=` padding, with a minimum length of twelve characters. Generate
+long random values using that alphabet; short values, spaces, control characters, non-ASCII text,
+quotes, and backslashes are rejected at startup. Keep the file mode `0600`. Configure every
+task-service and runner host with the same filename reference.
 The required steady-state configuration is enforced mode:
 
 ```sh
@@ -46,13 +47,15 @@ During migration or rotation, explicitly restart each component at the correspon
 below; do not treat a second `panopticon start` invocation as proof that existing sessions changed.
 
 Host clients (runner, dashboard, and CLI) resolve the file against their own secrets directory.
-The runner separately mounts it read-only into every Docker task—even one whose repo has no
-`env_file`—and exposes the host path to shell tasks. Tokens are sent in the `Authorization` header,
-never in URLs or command arguments. `GET /healthz` stays open; every other route is protected.
+For each new task, the runner validates it and creates a private regular-file snapshot: Docker tasks
+receive that snapshot as a read-only mount—even when the repo has no `env_file`—and shell tasks use
+the snapshot for their session lifetime. This prevents a rotation-time file replacement from
+changing the object being launched. Tokens are sent in the `Authorization` header, never in URLs or
+command arguments. `GET /healthz` stays open; every other route is protected.
 Read tokens may call ordinary GET endpoints. Write tokens may call every endpoint, including the
 task and runner liveness streams and MCP.
 
-The runtime mount contains the complete configured token set, including read tokens and both
+The runtime snapshot contains the complete configured token set, including read tokens and both
 generations during an overlap rotation. Task containers are therefore inside this control-plane
 trust boundary. If a container is suspected of disclosure, complete the normal overlap rollout
 and then rotate once more after the suspected container is gone; removing only the old generation

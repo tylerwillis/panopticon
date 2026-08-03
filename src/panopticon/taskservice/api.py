@@ -12,6 +12,7 @@ from __future__ import annotations
 import asyncio
 import hmac
 import os
+import re
 import secrets
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager, suppress
@@ -24,6 +25,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+from starlette._utils import get_route_path
 from starlette.types import Message, Receive, Scope, Send
 
 from panopticon.core.artifacts import ArtifactError
@@ -504,6 +506,10 @@ def create_app(
             if tokens
             else ()
         )
+        token_pattern = (
+            re.compile(b"|".join(re.escape(token) for token in configured)) if configured else None
+        )
+        max_token_length = max(map(len, configured), default=1)
         pending = b""
 
         async def send_redacted(message: Message) -> None:
@@ -513,17 +519,19 @@ def create_app(
                 pending = b""
                 output = bytearray()
                 more_body = bool(message.get("more_body", False))
-                while data:
-                    matched = next((token for token in configured if data.startswith(token)), None)
-                    if matched is not None:
-                        output.extend(b"*" * len(matched))
-                        data = data[len(matched) :]
-                    elif more_body and any(token.startswith(data) for token in configured):
-                        pending = data
-                        break
-                    else:
-                        output.append(data[0])
-                        data = data[1:]
+                safe_end = len(data) if not more_body else max(0, len(data) - max_token_length + 1)
+                consumed = 0
+                if token_pattern is not None:
+                    for matched in token_pattern.finditer(data):
+                        if matched.start() >= safe_end:
+                            break
+                        output.extend(data[consumed : matched.start()])
+                        output.extend(b"*" * (matched.end() - matched.start()))
+                        consumed = matched.end()
+                if consumed < safe_end:
+                    output.extend(data[consumed:safe_end])
+                    consumed = safe_end
+                pending = data[consumed:]
                 message = {
                     **message,
                     "body": bytes(output),
@@ -551,11 +559,7 @@ def create_app(
     async def authenticate(
         request: Request, call_next: Callable[[Request], Awaitable[Response]]
     ) -> Response:
-        raw_path = str(request.scope["path"])
-        root_path = str(request.scope.get("root_path", ""))
-        route_path = (
-            raw_path[len(root_path) :] if root_path and raw_path.startswith(root_path) else raw_path
-        )
+        route_path = get_route_path(request.scope)
         if not route_path.startswith("/"):
             route_path = f"/{route_path}"
         if mode == "disabled" or (request.method == "GET" and route_path == "/healthz"):

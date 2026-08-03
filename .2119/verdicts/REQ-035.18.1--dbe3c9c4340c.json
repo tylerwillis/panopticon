@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.18.1--dbe3c9c4340c",
+  "requirementId": "REQ-035.18.1",
+  "hash": "dbe3c9c4340c",
+  "verdict": "pass",
+  "summary": "Behavioral tests inject every configured token through failures and persistence surfaces and reject leakage in bodies, errors, logs, command argv, serialization, database files, and artifacts.",
+  "timestamp": "2026-08-03T01:17:29.466Z"
+}
