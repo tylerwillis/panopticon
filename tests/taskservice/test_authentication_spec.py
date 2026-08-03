@@ -122,6 +122,7 @@ def _asgi_status(
     app: object,
     path: str,
     *,
+    method: str = "GET",
     token: str | None = None,
     client_host: str = "testclient",
 ) -> tuple[int, dict[str, str], bytes]:
@@ -144,7 +145,7 @@ def _asgi_status(
         "type": "http",
         "asgi": {"version": "3.0"},
         "http_version": "1.1",
-        "method": "GET",
+        "method": method,
         "scheme": "http",
         "path": path,
         "raw_path": path.encode(),
@@ -1043,6 +1044,9 @@ def test_source_address_never_exempts_authentication(tmp_path: Path) -> None:
 def test_absent_configuration_preserves_legacy_callers(tmp_path: Path) -> None:
     # 2119: REQ-035.12.1
     with TestClient(create_app(_service(tmp_path))) as client:
+        missing_route = client.get("/definitely-not-a-route")
+        assert missing_route.status_code == 404
+        assert missing_route.json() != GENERIC_FAILURE
         for method, path in _rest_operations(client):
             if path.endswith("/live"):
                 if path.startswith("/tasks/"):
@@ -1211,10 +1215,16 @@ def test_permissive_warning_redacts_tokens_and_keeps_a_monotonic_bounded_signal(
     # 2119: REQ-035.35.1
     # 2119: REQ-035.43.1
     with _client(tmp_path, mode="permissive") as client:
-        assert client.get("/tasks/not-secret").status_code == 404
-        for index in range(1024):
+        first, _, _ = _asgi_status(
+            client.app, "/legacy-post", method="POST", client_host="legacy-phone"
+        )
+        second, _, _ = _asgi_status(
+            client.app, "/legacy-delete", method="DELETE", client_host="legacy-runner"
+        )
+        assert first == 404
+        assert second == 404
+        for index in range(1022):
             assert client.get(f"/missing-{index}").status_code == 404
-        assert client.get("/tasks/still-not-secret").status_code == 404
         health = client.get("/healthz")
 
     warnings = [
@@ -1223,10 +1233,11 @@ def test_permissive_warning_redacts_tokens_and_keeps_a_monotonic_bounded_signal(
         if "permissive authentication accepted headerless request" in record.getMessage()
     ]
     assert WRITE_TOKEN not in "\n".join(warnings)
-    assert "route=/tasks/not-secret" in warnings[0]
+    assert "method=POST route=/legacy-post client=legacy-phone count=1" in warnings[0]
+    assert "method=DELETE route=/legacy-delete client=legacy-runner count=2" in warnings[1]
     counts = [int(message.rsplit("count=", 1)[1]) for message in warnings]
     assert counts == [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
-    assert health.headers["x-panopticon-permissive-unauthenticated-total"] == "1026"
+    assert health.headers["x-panopticon-permissive-unauthenticated-total"] == "1024"
     health_wire = health.text + str(health.headers)
     assert READ_TOKEN not in health_wire
     assert WRITE_TOKEN not in health_wire
