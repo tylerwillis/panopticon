@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.1.2--234d29c93dc0",
-  "requirementId": "REQ-045.1.2",
-  "hash": "234d29c93dc0",
-  "verdict": "pass",
-  "summary": "Direct and transport tests reject retaining a complete non-secret SSE event whose final payload bytes exactly match a configured token prefix.",
-  "timestamp": "2026-08-03T20:50:39.815Z"
-}

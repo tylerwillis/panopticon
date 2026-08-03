@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.4.2--76efb79bc7ab",
-  "requirementId": "REQ-045.4.2",
-  "hash": "76efb79bc7ab",
-  "verdict": "pass",
-  "summary": "Tests verify exact 0700/0600 creation modes and reject directory, service-log, runner-log, and validation-to-open symlink counterexamples without modifying targets.",
-  "timestamp": "2026-08-03T21:59:56.407Z"
-}

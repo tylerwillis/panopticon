@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.3.3--13d20fff443d",
-  "requirementId": "REQ-045.3.3",
-  "hash": "13d20fff443d",
-  "verdict": "pass",
-  "summary": "Parametrized overlapping authenticated lifespans prove the ended app's tokens become visible while both tokens of the still-active app remain redacted, in either shutdown order.",
-  "timestamp": "2026-08-03T20:37:01.695Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.1.1--6c593309d076",
+  "requirementId": "REQ-035.1.1",
+  "hash": "6c593309d076",
+  "verdict": "pass",
+  "summary": "File-only startup auth is proven; raw, absolute, traversal, and symlink-escape references are rejected, while API, DB, artifact, and log state are checked for token copies.",
+  "timestamp": "2026-08-03T17:32:14.662Z"
+}

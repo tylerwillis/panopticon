@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.3.1--b425bb8d43dd",
+  "requirementId": "REQ-029.3.1",
+  "hash": "b425bb8d43dd",
+  "verdict": "pass",
+  "summary": "Tests reject an almost-ready signal and verify exact wake-text loading, bracketed paste, ordered delivery, and exactly one Enter submission, including real tmux behavior.",
+  "timestamp": "2026-08-03T21:04:12.454Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.5.1--a8c84b91cf0f",
-  "requirementId": "REQ-045.5.1",
-  "hash": "a8c84b91cf0f",
-  "verdict": "pass",
-  "summary": "Real ASGI exchanges cover unauthenticated GET and HEAD in all three auth modes, requiring GET 200, identical response-start status/headers, and zero HEAD body bytes.",
-  "timestamp": "2026-08-03T20:38:02.687Z"
-}

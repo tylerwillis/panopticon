@@ -43,6 +43,38 @@ class WakeStatus(str, Enum):
     SKIPPED = "skipped"
 
 
+class SessionInputStatus(str, Enum):
+    """Durable state of one remote session-input request."""
+
+    PENDING = "pending"
+    DELIVERED = "delivered"
+    FAILED = "failed"
+
+
+@dataclass(frozen=True)
+class SessionInput:
+    id: str
+    task_id: str
+    idempotency_key: str
+    text: str
+    submit: bool
+    status: SessionInputStatus
+    created_at: str
+    settled_at: str | None = None
+    failure_reason: str | None = None
+
+
+@dataclass(frozen=True)
+class SessionTranscript:
+    task_id: str
+    runner_id: str
+    text: str
+    columns: int
+    rows: int
+    truncated: bool
+    received_at: str
+
+
 class LifecyclePhase(str, Enum):
     """A step the **session service** reports as it brings a task's container up (ADR 0008).
 

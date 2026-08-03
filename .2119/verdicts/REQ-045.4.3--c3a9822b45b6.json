@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.4.3--c3a9822b45b6",
-  "requirementId": "REQ-045.4.3",
-  "hash": "c3a9822b45b6",
-  "verdict": "pass",
-  "summary": "Real-tmux tests reject pane-only, log-only, unequal, reordered, buffered-until-EOF, or single-session output by exercising both startup commands and requiring identical live pane and private-log streams.",
-  "timestamp": "2026-08-03T22:26:18.569Z"
-}

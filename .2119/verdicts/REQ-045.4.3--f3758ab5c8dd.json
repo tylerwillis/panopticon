@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.4.3--f3758ab5c8dd",
-  "requirementId": "REQ-045.4.3",
-  "hash": "f3758ab5c8dd",
-  "verdict": "pass",
-  "summary": "Both generated service and runner commands are executed under tmux; tests require stdout and stderr to remain visible in each pane and exactly match private per-user log contents.",
-  "timestamp": "2026-08-03T20:38:02.686Z"
-}

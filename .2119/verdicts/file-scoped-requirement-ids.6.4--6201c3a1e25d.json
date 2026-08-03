@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.6.4--6201c3a1e25d",
+  "requirementId": "file-scoped-requirement-ids.6.4",
+  "hash": "6201c3a1e25d",
+  "verdict": "pass",
+  "summary": "PASS: workflow must execute an unconditional npm-major-10 guard before pinning, with failure propagation and no continue-on-error escape",
+  "timestamp": "2026-08-03T22:10:56.926Z"
+}

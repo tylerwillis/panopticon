@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.1.1--d8a5c031b982",
-  "requirementId": "REQ-045.1.1",
-  "hash": "d8a5c031b982",
-  "verdict": "pass",
-  "summary": "Tests verify all repeated short and long token occurrences use the exact [redacted] marker across every two-chunk split and bytewise multi-chunk boundaries, including through MCP transport.",
-  "timestamp": "2026-08-03T21:33:20.473Z"
-}

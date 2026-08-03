@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.4.1--d5f68861f839",
-  "requirementId": "REQ-045.4.1",
-  "hash": "d5f68861f839",
-  "verdict": "pass",
-  "summary": "Tests cover distinct service and runner log sinks, all three state-root precedence cases, rejection of the legacy shared /tmp path, and actual live output persistence through the generated startup commands.",
-  "timestamp": "2026-08-03T22:25:26.336Z"
-}

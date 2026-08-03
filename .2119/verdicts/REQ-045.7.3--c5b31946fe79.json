@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.7.3--c5b31946fe79",
+  "requirementId": "REQ-045.7.3",
+  "hash": "c5b31946fe79",
+  "verdict": "pass",
+  "summary": "Real HTTP test reads an existing task before publication and rejects any non-503 status or JSON body other than exactly {'detail':'session transcript unavailable'}; a subsequent published-snapshot read exercises the boundary.",
+  "timestamp": "2026-08-03T20:42:24.176Z"
+}

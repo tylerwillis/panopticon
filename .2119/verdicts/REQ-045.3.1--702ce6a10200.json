@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.3.1--702ce6a10200",
-  "requirementId": "REQ-045.3.1",
-  "hash": "702ce6a10200",
-  "verdict": "pass",
-  "summary": "Tests reject factory or makeRecord identity changes across import/create/run/close and reject premature or incorrect Handler.handle restoration for custom, sequential, and overlapping lifespans.",
-  "timestamp": "2026-08-03T21:58:06.159Z"
-}

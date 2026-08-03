@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.2.1--ae19a91573d9",
-  "requirementId": "REQ-045.2.1",
-  "hash": "ae19a91573d9",
-  "verdict": "pass",
-  "summary": "Covers COMPLETE and DROPPED exited tasks, rejects the stop path, deletes every one of two task snapshots while preserving another task's snapshot, and emits no tmux/docker commands.",
-  "timestamp": "2026-08-03T22:18:05.172Z"
-}

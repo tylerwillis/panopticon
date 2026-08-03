@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.4.1--169a5abaa550",
-  "requirementId": "REQ-045.4.1",
-  "hash": "169a5abaa550",
-  "verdict": "pass",
-  "summary": "Tests reject wrong precedence or roots for all three state-directory sources and verify both service and runner output is actually persisted there.",
-  "timestamp": "2026-08-03T20:37:10.531Z"
-}

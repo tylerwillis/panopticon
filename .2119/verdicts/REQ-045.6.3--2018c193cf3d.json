@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.6.3--2018c193cf3d",
+  "requirementId": "REQ-045.6.3",
+  "hash": "2018c193cf3d",
+  "verdict": "pass",
+  "summary": "Tests reject overlap in both acquisition orders for one task pane and require distinct stage-entry and remote-input tmux buffer names.",
+  "timestamp": "2026-08-03T20:40:17.662Z"
+}

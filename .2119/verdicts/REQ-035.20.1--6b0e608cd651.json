@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.20.1--6b0e608cd651",
+  "requirementId": "REQ-035.20.1",
+  "hash": "6b0e608cd651",
+  "verdict": "pass",
+  "summary": "Real shell helpers make exactly the task read, repo read, and credential-dir PATCH with the injected write token via curl config stdin, while captured argv excludes it.",
+  "timestamp": "2026-08-03T21:10:14.255Z"
+}

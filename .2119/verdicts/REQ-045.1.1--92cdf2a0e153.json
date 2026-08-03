@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.1.1--92cdf2a0e153",
-  "requirementId": "REQ-045.1.1",
-  "hash": "92cdf2a0e153",
-  "verdict": "fail",
-  "summary": "Transport coverage emits only the write token; omitting configured read tokens from MCP redaction would violate every configured token while all annotated tests pass.",
-  "timestamp": "2026-08-03T21:26:21.323Z"
-}

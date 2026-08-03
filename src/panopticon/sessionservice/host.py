@@ -43,6 +43,7 @@ from panopticon.sessionservice.executions import WorkflowExecutions
 from panopticon.sessionservice.images import ImageBuilder
 from panopticon.sessionservice.local_runner import DEFAULT_IMAGE, LocalRunner
 from panopticon.sessionservice.provisioner import Provisioner
+from panopticon.sessionservice.session_io import SessionIOWorker
 from panopticon.sessionservice.shell_runner import ShellRunner
 from panopticon.sessionservice.spawner import Spawner, spawnable_tasks
 from panopticon.sessionservice.stage_entry_wake import StageEntryWaker
@@ -59,6 +60,10 @@ class EntryWaker(Protocol):
     def wake(self, task: JsonObj) -> None: ...
 
 
+class SessionIOProcessor(Protocol):
+    def process(self, task: JsonObj) -> None: ...
+
+
 class HostDaemon:
     """Polls this host's tasks and, each pass, spawns new ones and provisions slugged ones."""
 
@@ -70,6 +75,7 @@ class HostDaemon:
         *,
         runner_id: str | None = None,
         waker: EntryWaker | None = None,
+        session_io: SessionIOProcessor | None = None,
         sleep: Callable[[float], None] = time.sleep,
         interval: float = 2.0,
     ) -> None:
@@ -78,6 +84,7 @@ class HostDaemon:
         self._provisioner = provisioner
         self._runner_id = runner_id
         self._waker = waker
+        self._session_io = session_io
         self._sleep = sleep
         self._interval = interval
 
@@ -106,6 +113,12 @@ class HostDaemon:
                     _log.warning(
                         "stage-entry wake failed for task %s", task.get("id"), exc_info=True
                     )
+        if self._session_io is not None:
+            for task in tasks:
+                try:
+                    self._session_io.process(task)
+                except Exception:
+                    _log.warning("session I/O failed for task %s", task.get("id"), exc_info=True)
         for task in tasks:
             try:
                 if task["id"] in spawnable_ids:
@@ -231,12 +244,14 @@ def run_host(
     )
     provisioner = Provisioner(client, clones_root=tasks_root, git=git, executions=executions)
     waker = StageEntryWaker(client, runner, runner_id=runner_id)
+    session_io = SessionIOWorker(client, runner, runner_id=runner_id)
     HostDaemon(
         client,
         spawner,
         provisioner,
         runner_id=runner_id,
         waker=waker,
+        session_io=session_io,
         interval=interval,
         sleep=sleep,
     ).run(until=until)

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.2.1--b571147fc950",
-  "requirementId": "REQ-045.2.1",
-  "hash": "b571147fc950",
-  "verdict": "pass",
-  "summary": "Tests cover COMPLETE and DROPPED exited tasks, delete multiple task snapshots, and reject tmux/container commands.",
-  "timestamp": "2026-08-03T20:34:55.513Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.2.2--024c3f7f554d",
-  "requirementId": "REQ-045.2.2",
-  "hash": "024c3f7f554d",
-  "verdict": "pass",
-  "summary": "Live COMPLETE/DROPPED cleanup tests reject omitted tmux/container stops, either leftover snapshot, premature workspace deletion, and workspace deletion after probe or stop failure.",
-  "timestamp": "2026-08-03T22:49:41.642Z"
-}

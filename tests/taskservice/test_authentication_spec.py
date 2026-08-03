@@ -116,7 +116,11 @@ def _rest_operations(client: TestClient) -> list[tuple[str, str]]:
 
 
 def _is_mutating(method: str, path: str) -> bool:
-    return method not in {"GET", "HEAD"} or path.endswith("/live")
+    return (
+        method not in {"GET", "HEAD"}
+        or path.endswith("/live")
+        or (method == "GET" and path.endswith("/session/input"))
+    )
 
 
 def _asgi_status(
@@ -1682,6 +1686,7 @@ def test_runner_injects_write_token_into_docker_and_shell_tasks_without_command_
     # 2119: REQ-035.18.1
     from panopticon.sessionservice.local_runner import LocalRunner
     from panopticon.sessionservice.shell_runner import ShellRunner
+    from panopticon.taskservice.auth import scoped_task_token
 
     class Recorder:
         def __init__(self) -> None:
@@ -1720,7 +1725,7 @@ def test_runner_injects_write_token_into_docker_and_shell_tasks_without_command_
     mounted_snapshot = Path(auth_mount.split(":", 1)[0])
     assert json.loads(docker_recorder.mounted_auth or "") == {
         "read": [],
-        "write": [WRITE_TOKEN],
+        "write": [scoped_task_token(WRITE_TOKEN, "t1")],
     }
     assert not mounted_snapshot.exists()
     docker_runner.stop("panopticon-t1")
@@ -1743,7 +1748,10 @@ def test_runner_injects_write_token_into_docker_and_shell_tasks_without_command_
     assert shell_snapshot_match is not None
     shell_snapshot = Path(shell_snapshot_match.group(1) or shell_snapshot_match.group(2))
     assert shell_snapshot != (tmp_path / "secrets" / reference).resolve()
-    assert json.loads(shell_snapshot.read_text()) == {"read": [], "write": [WRITE_TOKEN]}
+    assert json.loads(shell_snapshot.read_text()) == {
+        "read": [],
+        "write": [scoped_task_token(WRITE_TOKEN, "t2")],
+    }
     recorded_live = tmp_path / "shell-live-curl-arguments"
     live_env = {
         "PATH": "/usr/bin:/bin",
@@ -1761,7 +1769,7 @@ def test_runner_injects_write_token_into_docker_and_shell_tasks_without_command_
     curl_inputs = recorded_live_input.read_text().split("CALL\n")[1:]
     assert WRITE_TOKEN not in live_call
     assert "Authorization: Bearer" in curl_inputs[live_call_index]
-    assert WRITE_TOKEN in curl_inputs[live_call_index]
+    assert scoped_task_token(WRITE_TOKEN, "t2") in curl_inputs[live_call_index]
 
 
 def test_container_python_callers_and_shell_library_use_injected_auth_file(

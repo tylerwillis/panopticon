@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.2.2--6a66cb7d83f9",
-  "requirementId": "REQ-045.2.2",
-  "hash": "6a66cb7d83f9",
-  "verdict": "pass",
-  "summary": "Covers COMPLETE and DROPPED running tasks, requires tmux and container stop commands, deletes multiple auth snapshots before workspace removal, and preserves the workspace on either stop failure.",
-  "timestamp": "2026-08-03T22:18:12.687Z"
-}

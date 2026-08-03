@@ -1,4 +1,4 @@
-"""Executable contract for REQ-045 authentication hardening follow-ups."""
+"""Executable contract for REQ-047 authentication hardening follow-ups."""
 
 from __future__ import annotations
 
@@ -74,7 +74,7 @@ def _authenticated_app(root: Path, *, read: str = READ_TOKEN, write: str = WRITE
 
 
 def test_mcp_redaction_is_constant_width_across_every_chunk_boundary() -> None:
-    # 2119: REQ-045.1.1
+    # 2119: REQ-047.1.1
     tokens = (b"a-much-longer-secret-token", b"short-secret")
     plaintext = (
         b"before:a-much-longer-secret-token:short-secret:"
@@ -106,7 +106,7 @@ def test_mcp_redaction_is_constant_width_across_every_chunk_boundary() -> None:
 def test_mcp_transport_applies_constant_redaction_to_streamed_responses(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # 2119: REQ-045.1.1
+    # 2119: REQ-047.1.1
     from panopticon.taskservice import mcp as mcp_module
 
     class _SessionManager:
@@ -162,7 +162,7 @@ def test_mcp_transport_applies_constant_redaction_to_streamed_responses(
 
 
 def test_mcp_redaction_does_not_hold_a_complete_nonsecret_sse_event() -> None:
-    # 2119: REQ-045.1.2
+    # 2119: REQ-047.1.2
     payload_suffix = b"safe"
     event = b"event: ping\ndata: " + payload_suffix + b"\n\n"
     configured = (payload_suffix + b"-prefix-extended-secret", b"other-secret")
@@ -180,7 +180,7 @@ def test_mcp_redaction_does_not_hold_a_complete_nonsecret_sse_event() -> None:
 def test_mcp_transport_emits_a_complete_nonsecret_sse_event_immediately(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # 2119: REQ-045.1.2
+    # 2119: REQ-047.1.2
     from panopticon.taskservice import mcp as mcp_module
 
     event = b"event: ping\ndata: safe\n\n"
@@ -293,7 +293,7 @@ def _cleanup_spawner(runner: _CleanupRunner, events: list[tuple[str, str]]) -> S
 
 @pytest.mark.parametrize("terminal_state", ["COMPLETE", "DROPPED"])
 def test_exited_terminal_cleanup_removes_only_runtime_credentials(terminal_state: str) -> None:
-    # 2119: REQ-045.2.1
+    # 2119: REQ-047.2.1
     events: list[tuple[str, str]] = []
     runner = _CleanupRunner(running=False, events=events)
     spawner = _cleanup_spawner(runner, events)
@@ -304,7 +304,7 @@ def test_exited_terminal_cleanup_removes_only_runtime_credentials(terminal_state
 
 
 def test_snapshot_only_cleanup_unlinks_credentials_without_runner_commands(tmp_path: Path) -> None:
-    # 2119: REQ-045.2.1
+    # 2119: REQ-047.2.1
     snapshots = [
         tmp_path / "panopticon-service-auth-task-first.json",
         tmp_path / "panopticon-service-auth-task-second.json",
@@ -328,7 +328,7 @@ def test_snapshot_only_cleanup_unlinks_credentials_without_runner_commands(tmp_p
 def test_running_terminal_cleanup_removes_all_snapshots_before_workspace_deletion(
     tmp_path: Path, terminal_state: str
 ) -> None:
-    # 2119: REQ-045.2.2
+    # 2119: REQ-047.2.2
     events: list[tuple[str, str]] = []
     snapshots = [
         tmp_path / "panopticon-service-auth-task-first.json",
@@ -371,7 +371,7 @@ def test_running_terminal_cleanup_removes_all_snapshots_before_workspace_deletio
 def test_running_terminal_stop_failure_cleans_snapshots_but_preserves_workspace(
     tmp_path: Path, failed_command: str
 ) -> None:
-    # 2119: REQ-045.2.2
+    # 2119: REQ-047.2.2
     snapshot = tmp_path / "panopticon-service-auth-task-secret.json"
     snapshot.write_text("secret")
 
@@ -406,7 +406,7 @@ def test_running_terminal_stop_failure_cleans_snapshots_but_preserves_workspace(
 def test_terminal_cleanup_probe_failure_cleans_snapshots_but_preserves_workspace(
     tmp_path: Path,
 ) -> None:
-    # 2119: REQ-045.2.2
+    # 2119: REQ-047.2.2
     snapshot = tmp_path / "panopticon-service-auth-task-secret.json"
     snapshot.write_text("secret")
 
@@ -436,7 +436,7 @@ def test_terminal_cleanup_probe_failure_cleans_snapshots_but_preserves_workspace
 
 
 def test_replacement_spawn_removes_preserved_resources_before_docker_run() -> None:
-    # 2119: REQ-045.2.3
+    # 2119: REQ-047.2.3
     calls: list[tuple[list[str], bool]] = []
     resources = {"tmux": True, "container": True}
 
@@ -467,7 +467,7 @@ def test_replacement_spawn_removes_preserved_resources_before_docker_run() -> No
 def test_replacement_does_not_start_when_preserved_resource_cleanup_fails(
     failed_cleanup: str,
 ) -> None:
-    # 2119: REQ-045.2.3
+    # 2119: REQ-047.2.3
     docker_started = False
 
     def record(args: list[str], **_kwargs: object) -> str:
@@ -489,7 +489,7 @@ def test_replacement_does_not_start_when_preserved_resource_cleanup_fails(
 def test_replacement_does_not_start_when_cleanup_leaves_a_resource(
     preserved_resource: str,
 ) -> None:
-    # 2119: REQ-045.2.3
+    # 2119: REQ-047.2.3
     docker_started = False
 
     def record(args: list[str], **_kwargs: object) -> str:
@@ -511,7 +511,7 @@ def test_replacement_does_not_start_when_cleanup_leaves_a_resource(
 
 
 def test_log_redaction_does_not_monkeypatch_record_construction(tmp_path: Path) -> None:
-    # 2119: REQ-045.3.1
+    # 2119: REQ-047.3.1
     script = f"""
 import json
 import logging
@@ -573,7 +573,7 @@ logging.Handler.handle = handle
 
 
 def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> None:
-    # 2119: REQ-045.3.2
+    # 2119: REQ-047.3.2
     class _CapturingHandler(logging.Handler):
         def __init__(self, records: list[dict[str, object]]) -> None:
             super().__init__()
@@ -712,8 +712,8 @@ def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> 
 def test_overlapping_app_lifespans_retain_only_active_tokens(
     tmp_path: Path, ended_first: bool
 ) -> None:
-    # 2119: REQ-045.3.1
-    # 2119: REQ-045.3.3
+    # 2119: REQ-047.3.1
+    # 2119: REQ-047.3.3
     first_read = READ_TOKEN
     second_token = "second-writer-token"
     second_read = "second-reader-token"
@@ -787,9 +787,9 @@ def test_overlapping_app_lifespans_retain_only_active_tokens(
 def test_integrated_stack_uses_private_per_user_state_logs(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, source: str
 ) -> None:
-    # 2119: REQ-045.4.1
-    # 2119: REQ-045.4.2
-    # 2119: REQ-045.4.3
+    # 2119: REQ-047.4.1
+    # 2119: REQ-047.4.2
+    # 2119: REQ-047.4.3
     monkeypatch.delenv("PANOPTICON_STATE", raising=False)
     monkeypatch.delenv("XDG_STATE_HOME", raising=False)
     monkeypatch.setenv("HOME", str(tmp_path / "home"))
@@ -833,7 +833,7 @@ def test_integrated_stack_uses_private_per_user_state_logs(
 def test_integrated_stack_refuses_symlinked_log_paths(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, target: str
 ) -> None:
-    # 2119: REQ-045.4.2
+    # 2119: REQ-047.4.2
     state_root = tmp_path / f"state-{target}"
     monkeypatch.setenv("PANOPTICON_STATE", str(state_root))
     initial_calls: list[list[str]] = []
@@ -879,7 +879,7 @@ def test_integrated_stack_refuses_symlinked_log_paths(
 def test_integrated_stack_refuses_log_symlink_swapped_after_validation(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # 2119: REQ-045.4.2
+    # 2119: REQ-047.4.2
     state_root = tmp_path / "state-race"
     monkeypatch.setenv("PANOPTICON_STATE", str(state_root))
     log_path = terminal_cli._private_log_paths()["service"]
@@ -897,8 +897,8 @@ def test_integrated_stack_refuses_log_symlink_swapped_after_validation(
 def test_private_log_tee_forwards_available_output_without_waiting_for_eof(
     tmp_path: Path,
 ) -> None:
-    # 2119: REQ-045.4.1
-    # 2119: REQ-045.4.3
+    # 2119: REQ-047.4.1
+    # 2119: REQ-047.4.3
     state_root = tmp_path / "state-live"
     state_root.mkdir(mode=0o700)
     log_path = state_root / "service.log"
@@ -927,7 +927,7 @@ def test_private_log_tee_forwards_available_output_without_waiting_for_eof(
 
 
 def test_private_log_tee_keeps_forwarding_after_persistence_fails() -> None:
-    # 2119: REQ-045.4.3
+    # 2119: REQ-047.4.3
     class _FailedLog(BytesIO):
         def write(self, data: bytes) -> int:
             raise OSError("disk full")
@@ -950,8 +950,8 @@ def test_private_log_tee_keeps_forwarding_after_persistence_fails() -> None:
 def test_integrated_stack_tees_identical_output_to_tmux_pane_and_log(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # 2119: REQ-045.4.1
-    # 2119: REQ-045.4.3
+    # 2119: REQ-047.4.1
+    # 2119: REQ-047.4.3
     state_root = tmp_path / "state"
     producer = tmp_path / "producer"
     real_python = sys.executable
@@ -1006,7 +1006,7 @@ def test_integrated_stack_tees_identical_output_to_tmux_pane_and_log(
 
 @pytest.mark.parametrize("mode", ["disabled", "permissive", "enforced"])
 def test_head_health_is_public_and_matches_get_without_a_body(tmp_path: Path, mode: str) -> None:
-    # 2119: REQ-045.5.1
+    # 2119: REQ-047.5.1
     root = tmp_path / mode
     kwargs: dict[str, object] = {"auth_mode": mode}
     service = _service(root)

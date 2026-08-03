@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.3.2--f6560c5d0a6f",
-  "requirementId": "REQ-045.3.2",
-  "hash": "f6560c5d0a6f",
-  "verdict": "fail",
-  "summary": "The test requires token-bearing LogRecord.args to be erased as (), so it does not reject violating the requirement that each token in arguments be replaced by the exact literal [redacted] marker.",
-  "timestamp": "2026-08-03T21:36:49.184Z"
-}

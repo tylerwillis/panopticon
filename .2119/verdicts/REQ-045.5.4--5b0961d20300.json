@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.5.4--5b0961d20300",
+  "requirementId": "REQ-045.5.4",
+  "hash": "5b0961d20300",
+  "verdict": "pass",
+  "summary": "Pending and failed status responses verify every required field, UTF-8 byte count, settlement metadata, failure reason, and exact-field exclusion of submitted text.",
+  "timestamp": "2026-08-03T20:48:08.907Z"
+}

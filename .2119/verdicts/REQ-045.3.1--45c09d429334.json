@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.3.1--45c09d429334",
-  "requirementId": "REQ-045.3.1",
-  "hash": "45c09d429334",
-  "verdict": "pass",
-  "summary": "Tests reject import/create/run/close mutations of the factory or makeRecord and reject premature or incorrect Handler.handle restoration across custom and overlapping lifespans.",
-  "timestamp": "2026-08-03T21:38:12.293Z"
-}

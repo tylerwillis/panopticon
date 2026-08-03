@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.7.4--62c22a5010ca",
+  "requirementId": "REQ-045.7.4",
+  "hash": "62c22a5010ca",
+  "verdict": "pass",
+  "summary": "Two distinct snapshots prove last-published retention after deregistration, and the post-non-live response must preserve all snapshot fields while setting stale=true.",
+  "timestamp": "2026-08-03T20:42:31.567Z"
+}

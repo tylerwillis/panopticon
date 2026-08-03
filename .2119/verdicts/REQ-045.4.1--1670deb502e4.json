@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.4.1--1670deb502e4",
-  "requirementId": "REQ-045.4.1",
-  "hash": "1670deb502e4",
-  "verdict": "pass",
-  "summary": "Tests reject missing service or runner sinks, wrong PANOPTICON_STATE/XDG/HOME precedence, paths outside the selected per-user root, and a sink that fails to persist output.",
-  "timestamp": "2026-08-03T22:00:16.745Z"
-}

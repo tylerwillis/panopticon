@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.3.3--9d79c5d926ca",
-  "requirementId": "REQ-045.3.3",
-  "hash": "9d79c5d926ca",
-  "verdict": "pass",
-  "summary": "Both overlap shutdown orders prove ended-app tokens become visible while the surviving app's distinct read/write tokens remain redacted.",
-  "timestamp": "2026-08-03T21:39:10.035Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.4.3--35d3637503bb",
+  "requirementId": "file-scoped-requirement-ids.4.3",
+  "hash": "35d3637503bb",
+  "verdict": "pass",
+  "summary": "A real mixed temporary repository records legacy and file-scoped verdicts, then one 0.7.0 check must resolve all five and exit zero.",
+  "timestamp": "2026-08-03T22:10:51.548Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.1.2--df1c7f4de4c7",
-  "requirementId": "REQ-045.1.2",
-  "hash": "df1c7f4de4c7",
-  "verdict": "pass",
-  "summary": "Direct and transport tests reject retaining or delaying an LF-terminated non-secret SSE event whose payload suffix exactly prefixes a configured token.",
-  "timestamp": "2026-08-03T22:17:22.563Z"
-}

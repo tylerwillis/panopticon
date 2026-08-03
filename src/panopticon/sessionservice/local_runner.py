@@ -14,6 +14,8 @@ from __future__ import annotations
 import os
 import subprocess
 import tempfile
+import threading
+import time
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Protocol
@@ -39,7 +41,7 @@ from panopticon.taskservice.auth import snapshot_tokens as snapshot_service_toke
 DEFAULT_IMAGE = "panopticon-base"
 
 #: Lets the container reach the host task service (container→host addressing, ADR 0008).
-#: ``host-gateway`` maps to the host's gateway IP; the service binds 0.0.0.0.
+#: ``host-gateway`` maps to the host's gateway IP; native Linux uses the compatibility broad bind.
 HOST_GATEWAY = "host.docker.internal:host-gateway"
 
 #: Dedicated tmux server socket for panopticon's task sessions — isolates them from the
@@ -186,10 +188,42 @@ class LocalRunner(Runner):
         self._extra_env = dict(extra_env or {})
         self._run = run
         self._snapshot_dir = Path(tempfile.gettempdir())
+        self._session_locks: dict[str, threading.Lock] = {}
+        self._session_locks_guard = threading.Lock()
+
+    def _session_lock(self, task_id: str) -> threading.Lock:
+        with self._session_locks_guard:
+            return self._session_locks.setdefault(task_id, threading.Lock())
 
     def _tmux(self, *args: str) -> list[str]:
         prefix = ["tmux", *(["-L", self._tmux_socket] if self._tmux_socket else [])]
         return [*prefix, *args]
+
+    def deliver_session_input(
+        self, task_id: str, delivery_id: str, text: str, *, submit: bool
+    ) -> tuple[bool, str | None]:
+        """Deliver through the same pre-armed watcher used by startup prompt delivery."""
+        from panopticon.sessionservice.session_io import deliver_pane_input
+
+        with self._session_lock(task_id):
+            return deliver_pane_input(
+                session_name(task_id),
+                text,
+                submit=submit,
+                run=self._run,
+                raw_log=readiness_log(session_name(task_id)),
+                sleep=time.sleep,
+                prefix=tuple(self._tmux()),
+                buffer=f"panopticon-session-input-{delivery_id}",
+            )
+
+    def capture_session_transcript(self, task_id: str) -> dict[str, object] | None:
+        """Capture a bounded, terminal-control-free pane snapshot."""
+        from panopticon.sessionservice.session_io import capture_pane_snapshot
+
+        return capture_pane_snapshot(
+            session_name(task_id), run=self._run, prefix=tuple(self._tmux())
+        )
 
     def validate_configuration(self) -> None:
         """Reject an unusable control-plane credential before any spawn side effect."""
@@ -335,6 +369,7 @@ class LocalRunner(Runner):
                 directory=self._snapshot_dir,
                 secrets_dir=self._secrets_dir,
                 prefix=f"panopticon-service-auth-{task_id}-",
+                task_id=task_id,
             )
             docker_run += ["--volume", f"{auth_snapshot}:{SERVICE_AUTH_MOUNT}:ro"]
             env["PANOPTICON_SERVICE_AUTH_FILE"] = SERVICE_AUTH_MOUNT
@@ -504,17 +539,19 @@ class LocalRunner(Runner):
             timeout = DEFAULT_WAKE_TIMEOUT
         prefix = ["tmux", *(["-L", self._tmux_socket] if self._tmux_socket else [])]
         session = session_name(task_id)
-        return prefill_pane(
-            session,
-            prompt_file,
-            run=self._run,
-            prefix=prefix,
-            timeout=timeout,
-            raw_log=readiness_log(session),
-            submit=True,
-            watch=False,
-            settle_delay=0,
-        )
+        with self._session_lock(task_id):
+            return prefill_pane(
+                session,
+                prompt_file,
+                run=self._run,
+                prefix=prefix,
+                timeout=timeout,
+                raw_log=readiness_log(session),
+                buffer=f"panopticon-stage-entry-{task_id}",
+                submit=True,
+                watch=False,
+                settle_delay=0,
+            )
 
     def delete_workspace_contents(self, path: str) -> None:
         """Delete all files inside ``path`` by running a throwaway root Docker container.

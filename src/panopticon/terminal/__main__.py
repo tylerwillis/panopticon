@@ -74,6 +74,10 @@ def _private_log_paths() -> dict[str, Path]:
         os.close(directory_fd)
 
 
+def _default_service_host(platform: str) -> str:
+    return "127.0.0.1" if platform == "darwin" else "0.0.0.0"
+
+
 def _run_migrate() -> None:
     import importlib.resources
 
@@ -94,10 +98,12 @@ def _start_sessions(
     do_run = run or subprocess.run
     python = sys.executable
     log_paths = _private_log_paths()
+    service_host = os.environ.get("PANOPTICON_HOST") or _default_service_host(sys.platform)
     for name, cmd in [
         (
             "service",
-            f"{shlex.quote(python)} -m panopticon.taskservice --host 0.0.0.0 "
+            f"{shlex.quote(python)} -m panopticon.taskservice "
+            f"--host {shlex.quote(service_host)} "
             f"2>&1 | {shlex.quote(python)} -m panopticon.terminal.log_tee "
             f"{shlex.quote(str(log_paths['service']))}",
         ),

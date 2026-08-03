@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.23.1--0c95f7f9af85",
+  "requirementId": "REQ-035.23.1",
+  "hash": "0c95f7f9af85",
+  "verdict": "pass",
+  "summary": "Protected /openapi.json rejects unauthenticated HEAD with the generic 401 but accepts read-token HEAD with 200, so a safe HEAD misclassified as write-auth is caught.",
+  "timestamp": "2026-08-03T17:34:32.792Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.4.2--50d9730496a5",
-  "requirementId": "REQ-045.4.2",
-  "hash": "50d9730496a5",
-  "verdict": "pass",
-  "summary": "Behavioral tests assert exact 0700 directory and 0600 service/runner file modes, reject pre-existing symlinks at all three paths without modifying targets, and reject a post-validation file symlink swap.",
-  "timestamp": "2026-08-03T22:25:36.332Z"
-}

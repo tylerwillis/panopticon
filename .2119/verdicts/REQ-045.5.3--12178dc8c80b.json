@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.5.3--12178dc8c80b",
+  "requirementId": "REQ-045.5.3",
+  "hash": "12178dc8c80b",
+  "verdict": "pass",
+  "summary": "Tests reject missing and vanished panes, readiness timeout, and each tmux command failure, and verify exact failed settlement reason tmux-delivery-failed.",
+  "timestamp": "2026-08-03T20:28:18.045Z"
+}

@@ -9,6 +9,7 @@ return the updated resource. LLM-free — agents reach the LLM only inside the c
 
 from __future__ import annotations
 
+import base64
 import os
 from collections.abc import Generator
 from typing import Any, cast
@@ -390,6 +391,39 @@ class TaskServiceClient:
         resp = self._http.get(f"/tasks/{task_id}/artifacts/{name}")
         resp.raise_for_status()
         return resp.content
+
+    # -- runner-owned session I/O ------------------------------------------------
+
+    def pending_session_input(self, task_id: str, runner_id: str) -> list[JsonObj]:
+        """Fetch durable pending deliveries owned by this runner."""
+        return cast(
+            list[JsonObj],
+            self._json(
+                self._http.get(f"/tasks/{task_id}/session/input", params={"runner_id": runner_id})
+            ),
+        )
+
+    def settle_session_input(
+        self,
+        task_id: str,
+        delivery_id: str,
+        status: str,
+        failure_reason: str | None,
+        runner_id: str,
+    ) -> None:
+        body = {
+            "runner_id": runner_id,
+            "status": status,
+            "failure_reason": failure_reason,
+        }
+        self._json(self._http.put(f"/tasks/{task_id}/session/input/{delivery_id}", json=body))
+
+    def publish_session_transcript(self, task_id: str, snapshot: JsonObj, runner_id: str) -> None:
+        encoded_snapshot = dict(snapshot)
+        text = encoded_snapshot.pop("text")
+        encoded_snapshot["text_b64"] = base64.b64encode(str(text).encode()).decode()
+        body = {**encoded_snapshot, "runner_id": runner_id}
+        self._json(self._http.put(f"/tasks/{task_id}/session/transcript", json=body))
 
     # -- liveness -----------------------------------------------------------------
 

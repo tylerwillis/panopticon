@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.5.7--2b664d70973b",
+  "requirementId": "REQ-045.5.7",
+  "hash": "2b664d70973b",
+  "verdict": "pass",
+  "summary": "OpenAPI POST session-input description is asserted in full, covering idempotent client retries and both post-tmux duplicate-delivery failure modes.",
+  "timestamp": "2026-08-03T20:40:06.883Z"
+}

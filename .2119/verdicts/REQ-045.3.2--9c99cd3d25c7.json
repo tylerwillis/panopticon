@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.3.2--9c99cd3d25c7",
-  "requirementId": "REQ-045.3.2",
-  "hash": "9c99cd3d25c7",
-  "verdict": "pass",
-  "summary": "Real lifespan logging test rejects leaked or non-exact replacement of both configured tokens across messages, positional/mapping arguments, nested extra fields, exception text, stack info, and all required logger namespace families.",
-  "timestamp": "2026-08-03T21:59:04.705Z"
-}

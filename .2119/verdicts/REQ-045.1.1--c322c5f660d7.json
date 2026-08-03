@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.1.1--c322c5f660d7",
-  "requirementId": "REQ-045.1.1",
-  "hash": "c322c5f660d7",
-  "verdict": "pass",
-  "summary": "Tests verify exact fixed-byte replacement for repeated configured tokens of unequal lengths, exhaust every two-chunk split, exercise byte-wise chunking, and confirm transport integration.",
-  "timestamp": "2026-08-03T21:27:13.936Z"
-}

@@ -127,7 +127,7 @@ def prefill_pane(
     """Paste ``prompt_file`` after bracketed-paste readiness and optionally submit it."""
     prompt = Path(prompt_file)
     try:
-        if not prompt.is_file() or not prompt.read_text().strip():
+        if not prompt.is_file() or not prompt.read_text():
             return False
         pane = _pane_id(session, prefix=prefix, run=run)
         if not pane:

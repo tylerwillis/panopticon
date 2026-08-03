@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.6.5--63a131083519",
+  "requirementId": "file-scoped-requirement-ids.6.5",
+  "hash": "63a131083519",
+  "verdict": "pass",
+  "summary": "Exact policy names future CLI or runtime builds as gate-breaking while scripts stay disabled",
+  "timestamp": "2026-08-03T22:10:57.425Z"
+}

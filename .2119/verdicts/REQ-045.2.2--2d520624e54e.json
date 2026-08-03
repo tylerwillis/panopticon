@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.2.2--2d520624e54e",
-  "requirementId": "REQ-045.2.2",
-  "hash": "2d520624e54e",
-  "verdict": "pass",
-  "summary": "Tests cover COMPLETE and DROPPED running containers, reject any surviving matching snapshot, require tmux and Docker shutdown before workspace deletion, and preserve the workspace on stop failure.",
-  "timestamp": "2026-08-03T21:57:11.548Z"
-}

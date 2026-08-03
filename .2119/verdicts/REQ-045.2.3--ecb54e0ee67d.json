@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.2.3--ecb54e0ee67d",
-  "requirementId": "REQ-045.2.3",
-  "hash": "ecb54e0ee67d",
-  "verdict": "pass",
-  "summary": "Tests reject replacement startup before both stale tmux and container resources are removed, including cleanup errors and surviving-resource postconditions.",
-  "timestamp": "2026-08-03T21:30:38.776Z"
-}

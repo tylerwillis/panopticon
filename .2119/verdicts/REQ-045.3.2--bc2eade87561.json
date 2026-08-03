@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.3.2--bc2eade87561",
-  "requirementId": "REQ-045.3.2",
-  "hash": "bc2eade87561",
-  "verdict": "pass",
-  "summary": "Test rejects missed or non-literal redaction for both configured tokens across message, argument, nested extra, exception, and stack fields on task-service, FastAPI, uvicorn, and MCP namespace loggers.",
-  "timestamp": "2026-08-03T22:24:47.360Z"
-}

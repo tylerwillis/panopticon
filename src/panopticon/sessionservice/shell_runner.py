@@ -147,6 +147,7 @@ class ShellRunner(Runner):
                 directory=self._script_dir,
                 secrets_dir=self._secrets_dir,
                 prefix=f"panopticon-service-auth-{task_id}-",
+                task_id=task_id,
             )
             if self._auth_file
             else None

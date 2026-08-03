@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.2.2--8aab19607e75",
+  "requirementId": "file-scoped-requirement-ids.2.2",
+  "hash": "8aab19607e75",
+  "verdict": "pass",
+  "summary": "The adoption diff forbids any legacy REQ spec change; changing one legacy heading is rejected.; the one-shot migration guard now reports SKIPPED once adoption is on the base",
+  "timestamp": "2026-08-03T22:10:43.612Z"
+}

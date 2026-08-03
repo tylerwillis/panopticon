@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.2.4--354f0d34d41e",
+  "requirementId": "file-scoped-requirement-ids.2.4",
+  "hash": "354f0d34d41e",
+  "verdict": "pass",
+  "summary": "Merge-base diff rejects any byte change to a legacy verdict file; the one-shot migration guard now reports SKIPPED once adoption is on the base",
+  "timestamp": "2026-08-03T22:10:44.660Z"
+}

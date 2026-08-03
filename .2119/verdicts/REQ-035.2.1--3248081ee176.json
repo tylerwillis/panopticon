@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.2.1--3248081ee176",
+  "requirementId": "REQ-035.2.1",
+  "hash": "3248081ee176",
+  "verdict": "pass",
+  "summary": "Tests reject shared privilege tokens and read-token mutation, accept two exact opaque tokens per privilege during rotation overlap, and reject a truncated opaque token.",
+  "timestamp": "2026-08-03T17:32:18.273Z"
+}

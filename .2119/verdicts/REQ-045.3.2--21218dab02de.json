@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.3.2--21218dab02de",
-  "requirementId": "REQ-045.3.2",
-  "hash": "21218dab02de",
-  "verdict": "fail",
-  "summary": "Only formatted stream output is asserted; a formatter-level scrub could pass while tokens remain in LogRecord message/args/extra/exception/stack fields, violating required field replacement.",
-  "timestamp": "2026-08-03T21:31:45.979Z"
-}

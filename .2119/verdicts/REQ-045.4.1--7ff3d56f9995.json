@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.4.1--7ff3d56f9995",
+  "requirementId": "REQ-045.4.1",
+  "hash": "7ff3d56f9995",
+  "verdict": "pass",
+  "summary": "Acceptance and delivered/failed settlement tests compare all three fields before and after, with both true and false marker states, so direct mutations are detected.",
+  "timestamp": "2026-08-03T20:39:35.766Z"
+}
