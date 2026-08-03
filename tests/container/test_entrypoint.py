@@ -184,7 +184,6 @@ def test_main_reads_env_and_serves(monkeypatch: pytest.MonkeyPatch) -> None:
     assert naps == [0.5]  # PANOPTICON_RECONNECT_BACKOFF threaded through
 
 
-# 2119: REQ-035.17.1
 def test_main_treats_runner_pinned_empty_optional_values_as_absent(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

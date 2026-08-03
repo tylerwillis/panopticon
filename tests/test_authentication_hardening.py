@@ -394,7 +394,6 @@ def test_docker_runner_mounts_a_stable_snapshot_if_source_is_replaced(
 def test_docker_runner_removes_snapshot_and_container_when_tmux_setup_fails(
     tmp_path: Path,
 ) -> None:
-    # 2119: REQ-035.18.1
     credential = tmp_path / "auth.json"
     credential.write_text(
         json.dumps({"read": ["private-reader-token"], "write": ["private-writer-token"]})
@@ -421,7 +420,6 @@ def test_docker_runner_removes_snapshot_and_container_when_tmux_setup_fails(
 
 
 def test_docker_runner_removes_snapshot_when_awaiting_report_fails(tmp_path: Path) -> None:
-    # 2119: REQ-035.18.1
     credential = tmp_path / "auth.json"
     credential.write_text(
         json.dumps({"read": ["private-reader-token"], "write": ["private-writer-token"]})
@@ -443,7 +441,6 @@ def test_docker_runner_removes_snapshot_when_awaiting_report_fails(tmp_path: Pat
 
 
 def test_docker_stop_removes_snapshot_even_when_cleanup_command_fails(tmp_path: Path) -> None:
-    # 2119: REQ-035.18.1
     snapshot = tmp_path / "panopticon-service-auth-task-stranded.json"
     snapshot.write_text("secret")
 
@@ -464,7 +461,6 @@ def test_docker_stop_removes_snapshot_even_when_cleanup_command_fails(tmp_path: 
 def test_terminal_cleanup_stops_backend_to_remove_runtime_credentials(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # 2119: REQ-035.18.1
     stopped: list[str] = []
 
     class _Runner:
