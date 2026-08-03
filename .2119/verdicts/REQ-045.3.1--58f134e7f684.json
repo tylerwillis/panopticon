@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.3.1--58f134e7f684",
+  "requirementId": "REQ-045.3.1",
+  "hash": "58f134e7f684",
+  "verdict": "fail",
+  "summary": "No overlapping authenticated-lifespan test: naive per-lifespan Handler.handle save/restore can pass sequential assertions yet restore early or leave a stale wrapper after the last lifespan closes.",
+  "timestamp": "2026-08-03T21:34:11.849Z"
+}

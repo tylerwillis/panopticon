@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.1.2--5d1bc1fd6254",
+  "requirementId": "REQ-045.1.2",
+  "hash": "5d1bc1fd6254",
+  "verdict": "pass",
+  "summary": "Direct and MCP transport tests reject retaining a complete non-secret SSE event whose payload suffix exactly matches a configured token prefix before the blank-line terminator.",
+  "timestamp": "2026-08-03T21:28:00.923Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.4.3--2cacad4460fe",
+  "requirementId": "REQ-045.4.3",
+  "hash": "2cacad4460fe",
+  "verdict": "pass",
+  "summary": "Real-tmux coverage rejects pane-only, log-only, or divergent stdout/stderr for both service and runner, while companion assertions require private per-user log paths and permissions.",
+  "timestamp": "2026-08-03T21:39:50.419Z"
+}

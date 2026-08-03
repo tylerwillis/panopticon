@@ -26,6 +26,7 @@ from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
 from panopticon.taskservice.service import TaskService
 from panopticon.taskservice.store_sqlalchemy import SqlAlchemyStore
 from panopticon.terminal import __main__ as terminal_cli
+from panopticon.terminal import log_tee
 from panopticon.workflows import Spike
 
 READ_TOKEN = "followup-reader-token"
@@ -131,7 +132,9 @@ def test_mcp_transport_applies_constant_redaction_to_streamed_responses(
                 await send(
                     {
                         "type": "http.response.body",
-                        "body": f"{WRITE_TOKEN[8:]}:{WRITE_TOKEN}:after".encode(),
+                        "body": (
+                            f"{WRITE_TOKEN[8:]}:{WRITE_TOKEN}:{READ_TOKEN}:{READ_TOKEN}:after"
+                        ).encode(),
                         "more_body": False,
                     }
                 )
@@ -143,7 +146,7 @@ def test_mcp_transport_applies_constant_redaction_to_streamed_responses(
         response = client.post("/mcp/", headers={"Authorization": f"Bearer {WRITE_TOKEN}"})
 
     assert response.status_code == 200
-    assert response.content == b"before:[redacted]:[redacted]:after"
+    assert response.content == b"before:[redacted]:[redacted]:[redacted]:[redacted]:after"
 
 
 def test_mcp_redaction_does_not_hold_a_complete_nonsecret_sse_event() -> None:
@@ -352,6 +355,42 @@ def test_running_terminal_cleanup_removes_all_snapshots_before_workspace_deletio
     assert events[1] == ("command", "docker rm --force panopticon-task")
 
 
+@pytest.mark.parametrize("failed_command", ["tmux", "docker"])
+def test_running_terminal_stop_failure_cleans_snapshots_but_preserves_workspace(
+    tmp_path: Path, failed_command: str
+) -> None:
+    # 2119: REQ-045.2.2
+    snapshot = tmp_path / "panopticon-service-auth-task-secret.json"
+    snapshot.write_text("secret")
+
+    def fail_stop(args: list[str], **_kwargs: object) -> str:
+        if (failed_command == "tmux" and "kill-session" in args) or (
+            failed_command == "docker" and args[:3] == ["docker", "rm", "--force"]
+        ):
+            raise RuntimeError("stop failed")
+        return ""
+
+    runner = LocalRunner("http://service", run=fail_stop)
+    runner._snapshot_dir = tmp_path
+    runner.is_running = lambda _task_id: True  # type: ignore[method-assign]
+    events: list[tuple[str, str]] = []
+    spawner = object.__new__(Spawner)
+    spawner._runner = runner
+    spawner._shell_runner = None
+    spawner._runner_id = "runner"
+    spawner._tasks_root = "/tasks"
+    spawner._exists = lambda _path: True
+    spawner._rmtree = lambda path: events.append(("workspace", path))
+    spawner._docker_cleanup = None
+    spawner._client = object()  # type: ignore[assignment]
+
+    with pytest.raises(RuntimeError, match="stop failed"):
+        spawner.cleanup({"id": "task", "state": "COMPLETE", "claimed_by": None})
+
+    assert not snapshot.exists()
+    assert events == []
+
+
 def test_replacement_spawn_removes_preserved_resources_before_docker_run() -> None:
     # 2119: REQ-045.2.3
     calls: list[tuple[list[str], bool]] = []
@@ -419,8 +458,11 @@ def test_replacement_does_not_start_when_cleanup_leaves_a_resource(
             docker_started = True
         return ""
 
-    with pytest.raises(RuntimeError, match="failed to remove stale runtime resources"):
+    with pytest.raises(subprocess.CalledProcessError) as raised:
         LocalRunner("http://service", run=record).spawn("task")
+    assert "failed to remove stale runtime resources" in str(raised.value.output)
+    assert "tmux output" in str(raised.value.output)
+    assert "docker output" in str(raised.value.output)
     assert not docker_started
 
 
@@ -432,6 +474,7 @@ import logging
 from pathlib import Path
 factory = logging.getLogRecordFactory()
 make_record = logging.Logger.makeRecord
+handle = logging.Handler.handle
 from fastapi.testclient import TestClient
 from panopticon.taskservice.api import create_app
 from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
@@ -444,23 +487,40 @@ credential.write_text(json.dumps({{"read": ["{READ_TOKEN}"], "write": ["{WRITE_T
 credential.chmod(0o600)
 assert logging.getLogRecordFactory() is factory
 assert logging.Logger.makeRecord is make_record
+assert logging.Handler.handle is handle
 service = TaskService(SqlAlchemyStore(), {{"spike": Spike()}}, FilesystemArtifactStore(root / "artifacts"))
 app = create_app(service, auth_file=credential.name, auth_mode="enforced", secrets_dir=root)
 assert logging.getLogRecordFactory() is factory
 assert logging.Logger.makeRecord is make_record
+assert logging.Handler.handle is handle
+def custom_handle(self, record):
+    return handle(self, record)
+logging.Handler.handle = custom_handle
+pre_lifespan_handle = logging.Handler.handle
 with TestClient(app):
     assert logging.getLogRecordFactory() is factory
     assert logging.Logger.makeRecord is make_record
+    assert logging.Handler.handle is not pre_lifespan_handle
+    stale_handle = logging.Handler.handle
 assert logging.getLogRecordFactory() is factory
 assert logging.Logger.makeRecord is make_record
+assert logging.Handler.handle is pre_lifespan_handle
+stream = __import__("io").StringIO()
+handler = logging.StreamHandler(stream)
+stale_handle(handler, logging.LogRecord("mcp.race", logging.INFO, "<race>", 0, "after", (), None))
+assert stream.getvalue() == "after\\n"
 second_app = create_app(service, auth_file=credential.name, auth_mode="enforced", secrets_dir=root)
 assert logging.getLogRecordFactory() is factory
 assert logging.Logger.makeRecord is make_record
+assert logging.Handler.handle is pre_lifespan_handle
 with TestClient(second_app):
     assert logging.getLogRecordFactory() is factory
     assert logging.Logger.makeRecord is make_record
+    assert logging.Handler.handle is not pre_lifespan_handle
 assert logging.getLogRecordFactory() is factory
 assert logging.Logger.makeRecord is make_record
+assert logging.Handler.handle is pre_lifespan_handle
+logging.Handler.handle = handle
 """
     completed = subprocess.run(
         [sys.executable, "-c", script], text=True, capture_output=True, check=False
@@ -470,6 +530,14 @@ assert logging.Logger.makeRecord is make_record
 
 def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> None:
     # 2119: REQ-045.3.2
+    class _CapturingHandler(logging.Handler):
+        def __init__(self, records: list[dict[str, object]]) -> None:
+            super().__init__()
+            self._records = records
+
+        def emit(self, record: logging.LogRecord) -> None:
+            self._records.append(dict(record.__dict__))
+
     names = [
         "panopticon.taskservice",
         "panopticon.taskservice.api",
@@ -493,6 +561,8 @@ def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> 
     ]
     streams = {name: StringIO() for name in names}
     handlers = {name: logging.StreamHandler(streams[name]) for name in names}
+    captured: dict[str, list[dict[str, object]]] = {name: [] for name in names}
+    capturing_handlers = {name: _CapturingHandler(captured[name]) for name in names}
     loggers = {name: logging.getLogger(name) for name in names}
     previous_states = {name: (loggers[name].disabled, loggers[name].level) for name in names}
     formatter = logging.Formatter(
@@ -508,6 +578,7 @@ def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> 
             # Attach handlers after lifespan entry so dynamically configured logging is covered.
             for name in names:
                 loggers[name].addHandler(handlers[name])
+                loggers[name].addHandler(capturing_handlers[name])
             for name in names:
                 for token in (READ_TOKEN, WRITE_TOKEN):
                     payload = f"prefix-{token}-{token}-suffix"
@@ -518,12 +589,13 @@ def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> 
                     }
                     loggers[name].info(f"template {payload}", extra=safe_extra)
                     loggers[name].info("message %s %s", payload, payload, extra=safe_extra)
+                    loggers[name].info("mapping %(value)s", {"value": payload}, extra=safe_extra)
                     loggers[name].info(
                         "extra",
                         extra={
                             "credential": payload,
                             "other_credential": payload,
-                            "arbitrary_key": payload,
+                            "arbitrary_key": {"nested": [payload]},
                         },
                     )
                     try:
@@ -541,27 +613,55 @@ def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> 
     finally:
         for name in names:
             loggers[name].removeHandler(handlers[name])
+            loggers[name].removeHandler(capturing_handlers[name])
             loggers[name].disabled, loggers[name].level = previous_states[name]
 
-    for stream in streams.values():
-        observed = stream.getvalue()
+    for name in names:
+        observed = streams[name].getvalue()
         redacted_payload = "prefix-[redacted]-[redacted]-suffix"
         assert f"template {redacted_payload} safe also-safe arbitrary-safe" in observed
         assert (
             f"message {redacted_payload} {redacted_payload} safe also-safe arbitrary-safe"
             in observed
         )
-        assert f"extra {redacted_payload} {redacted_payload} {redacted_payload}" in observed
+        assert f"mapping {redacted_payload} safe also-safe arbitrary-safe" in observed
+        assert f"extra {redacted_payload} {redacted_payload}" in observed
+        assert f"'nested': ['{redacted_payload}']" in observed
         assert f"exception {redacted_payload}" in observed
         assert f"stack {redacted_payload}" in observed
         assert READ_TOKEN not in observed
         assert WRITE_TOKEN not in observed
+        records = captured[name]
+        assert READ_TOKEN not in repr(records)
+        assert WRITE_TOKEN not in repr(records)
+        assert any(record.get("msg") == f"template {redacted_payload}" for record in records)
+        assert any(
+            record.get("msg") == "message %s %s"
+            and record.get("args") == (redacted_payload, redacted_payload)
+            for record in records
+        )
+        assert any(
+            record.get("msg") == "mapping %(value)s"
+            and record.get("args") == {"value": redacted_payload}
+            for record in records
+        )
+        assert any(
+            record.get("credential") == redacted_payload
+            and record.get("other_credential") == redacted_payload
+            and record.get("arbitrary_key") == {"nested": [redacted_payload]}
+            for record in records
+        )
+        assert any(
+            f"exception {redacted_payload}" in str(record.get("exc_text")) for record in records
+        )
+        assert any(record.get("stack_info") == f"stack {redacted_payload}" for record in records)
 
 
 @pytest.mark.parametrize("ended_first", [False, True])
 def test_overlapping_app_lifespans_retain_only_active_tokens(
     tmp_path: Path, ended_first: bool
 ) -> None:
+    # 2119: REQ-045.3.1
     # 2119: REQ-045.3.3
     first_read = READ_TOKEN
     second_token = "second-writer-token"
@@ -577,6 +677,9 @@ def test_overlapping_app_lifespans_retain_only_active_tokens(
     logger.setLevel(logging.INFO)
     first_client = TestClient(first_app)
     second_client = TestClient(second_app)
+    handle = logging.Handler.handle
+    factory = logging.getLogRecordFactory()
+    make_record = logging.Logger.makeRecord
     first_active = False
     second_active = False
     try:
@@ -584,6 +687,9 @@ def test_overlapping_app_lifespans_retain_only_active_tokens(
         first_active = True
         second_client.__enter__()
         second_active = True
+        assert logging.Handler.handle is not handle
+        assert logging.getLogRecordFactory() is factory
+        assert logging.Logger.makeRecord is make_record
         logger.info("both %s %s %s %s", first_read, WRITE_TOKEN, second_read, second_token)
         if ended_first:
             first_client.__exit__(None, None, None)
@@ -591,6 +697,9 @@ def test_overlapping_app_lifespans_retain_only_active_tokens(
         else:
             second_client.__exit__(None, None, None)
             second_active = False
+        assert logging.Handler.handle is not handle
+        assert logging.getLogRecordFactory() is factory
+        assert logging.Logger.makeRecord is make_record
         logger.info("remaining %s %s %s %s", first_read, WRITE_TOKEN, second_read, second_token)
         if first_active:
             first_client.__exit__(None, None, None)
@@ -598,6 +707,9 @@ def test_overlapping_app_lifespans_retain_only_active_tokens(
         if second_active:
             second_client.__exit__(None, None, None)
             second_active = False
+        assert logging.Handler.handle is handle
+        assert logging.getLogRecordFactory() is factory
+        assert logging.Logger.makeRecord is make_record
         logger.info("neither %s %s %s %s", first_read, WRITE_TOKEN, second_read, second_token)
     finally:
         if second_active:
@@ -606,6 +718,10 @@ def test_overlapping_app_lifespans_retain_only_active_tokens(
             first_client.__exit__(None, None, None)
         logger.removeHandler(handler)
         logger.disabled = previous_disabled
+
+    assert logging.Handler.handle is handle
+    assert logging.getLogRecordFactory() is factory
+    assert logging.Logger.makeRecord is make_record
 
     both, remaining, neither = stream.getvalue().splitlines()
     assert all(token not in both for token in (first_read, WRITE_TOKEN, second_read, second_token))
@@ -652,7 +768,8 @@ def test_integrated_stack_uses_private_per_user_state_logs(
     for session in ("service", "runner"):
         command = session_commands[session]
         argv = shlex.split(command)
-        log_path = Path(argv[argv.index("tee") + 1])
+        assert argv[-3:-1] == ["-m", "panopticon.terminal.log_tee"]
+        log_path = Path(argv[-1])
         log_path.relative_to(expected_root)
         paths.append(log_path)
         assert "2>&1" in command and "|" in argv
@@ -706,6 +823,24 @@ def test_integrated_stack_refuses_symlinked_log_paths(
             "captured.log": "sentinel"
         }
     assert not any("new-session" in call for call in calls)
+
+
+def test_integrated_stack_refuses_log_symlink_swapped_after_validation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # 2119: REQ-045.4.2
+    state_root = tmp_path / "state-race"
+    monkeypatch.setenv("PANOPTICON_STATE", str(state_root))
+    log_path = terminal_cli._private_log_paths()["service"]
+    log_path.unlink()
+    captured = tmp_path / "captured.log"
+    captured.write_text("sentinel")
+    log_path.symlink_to(captured)
+
+    with pytest.raises(OSError):
+        log_tee.open_private_log(log_path)
+
+    assert captured.read_text() == "sentinel"
 
 
 @pytest.mark.skipif(not shutil.which("tmux"), reason="needs tmux")

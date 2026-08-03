@@ -48,7 +48,8 @@ every affected code path; that follow-up must preserve the enforced-mode rejecti
 
 1. Importing the task service and creating, running, or closing authenticated application
    lifespans MUST leave the process-wide log-record factory and `logging.Logger.makeRecord` class
-   method identities unchanged at each lifecycle boundary.
+   method identities unchanged and restore the pre-lifespan `logging.Handler.handle` identity
+   whenever no authenticated lifespan remains active.
 2. During an authenticated task-service application's lifespan, each configured token MUST be
    replaced by the exact literal marker `[redacted]` in messages, arguments, caller-supplied extra
    fields, exception text, and stack information in log records handled by task-service, FastAPI,

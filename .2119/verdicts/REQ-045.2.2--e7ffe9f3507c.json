@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.2.2--e7ffe9f3507c",
+  "requirementId": "REQ-045.2.2",
+  "hash": "e7ffe9f3507c",
+  "verdict": "fail",
+  "summary": "The test only records stop command text; it never rejects a failed/no-op backend stop followed by workspace deletion, so the required stop postcondition is unverified.",
+  "timestamp": "2026-08-03T21:29:06.969Z"
+}

@@ -346,7 +346,9 @@ class Spawner:
                 progress=lambda phase: self._report(task_id, phase),  # STARTING then AWAITING
             )
         except subprocess.CalledProcessError as exc:
-            raise _SpawnInfrastructureFailure(str(exc)) from exc
+            output = exc.stderr or exc.output
+            detail = str(output) if output else str(exc)
+            raise _SpawnInfrastructureFailure(detail) from exc
 
     def _spawn_shell(self, task: JsonObj, repo: JsonObj) -> str:
         """The shell path: run the workflow's ``shell_script`` in a host tmux session — no image, no

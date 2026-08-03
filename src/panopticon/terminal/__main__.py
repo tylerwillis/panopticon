@@ -97,13 +97,15 @@ def _start_sessions(
     for name, cmd in [
         (
             "service",
-            f"{python} -m panopticon.taskservice --host 0.0.0.0 "
-            f"2>&1 | tee {shlex.quote(str(log_paths['service']))}",
+            f"{shlex.quote(python)} -m panopticon.taskservice --host 0.0.0.0 "
+            f"2>&1 | {shlex.quote(python)} -m panopticon.terminal.log_tee "
+            f"{shlex.quote(str(log_paths['service']))}",
         ),
         (
             "runner",
-            f"{python} -m panopticon.sessionservice.host "
-            f"2>&1 | tee {shlex.quote(str(log_paths['runner']))}",
+            f"{shlex.quote(python)} -m panopticon.sessionservice.host "
+            f"2>&1 | {shlex.quote(python)} -m panopticon.terminal.log_tee "
+            f"{shlex.quote(str(log_paths['runner']))}",
         ),
     ]:
         # Don't bounce an already-running session. Restarting the task service wipes its in-memory

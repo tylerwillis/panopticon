@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.5.1--335182fe37f4",
+  "requirementId": "REQ-045.5.1",
+  "hash": "335182fe37f4",
+  "verdict": "pass",
+  "summary": "Real ASGI requests cover all three auth modes unauthenticated, require GET 200, exact HEAD/GET status and headers, and an empty HEAD body.",
+  "timestamp": "2026-08-03T21:40:32.936Z"
+}

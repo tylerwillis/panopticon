@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.2.2--bd17f77750f1",
+  "requirementId": "REQ-045.2.2",
+  "hash": "bd17f77750f1",
+  "verdict": "fail",
+  "summary": "Missing docker-stop failure boundary: tests only reject workspace deletion after tmux failure, so docker rm failure could be ignored and the workspace deleted without stopping the full backend.",
+  "timestamp": "2026-08-03T21:30:14.510Z"
+}

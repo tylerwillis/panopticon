@@ -81,8 +81,8 @@ class _ConfiguredTokenLogFilter(logging.Filter):
         self._tokens = tuple(sorted(set(tokens), key=len, reverse=True))
 
     def filter(self, record: logging.LogRecord) -> bool:
-        record.msg = _redact_log_value(record.getMessage(), self._tokens)
-        record.args = ()
+        record.msg = _redact_log_value(record.msg, self._tokens)
+        record.args = _redact_log_value(record.args, self._tokens)
         if record.exc_info is not None:
             record.exc_text = _redact_log_value(
                 "".join(traceback.format_exception(*record.exc_info)), self._tokens
@@ -99,6 +99,7 @@ class _ConfiguredTokenLogFilter(logging.Filter):
 _REDACTED_LOGGER_NAMESPACES = ("panopticon.taskservice", "fastapi", "uvicorn", "mcp")
 _log_redaction_lock = threading.RLock()
 _active_log_redaction_filters: list[_ConfiguredTokenLogFilter] = []
+_pristine_handler_handle = logging.Handler.handle
 _original_handler_handle: Callable[[logging.Handler, logging.LogRecord], bool] | None = None
 
 
@@ -107,7 +108,9 @@ def _redacting_handler_handle(handler: logging.Handler, record: logging.LogRecor
         filters = tuple(_active_log_redaction_filters)
         original_handle = _original_handler_handle
     if original_handle is None:
-        raise RuntimeError("log redaction handler invoked outside an active lifespan")
+        # A logging thread can resolve the patched method immediately before the final active
+        # lifespan restores Handler.handle. Never turn that shutdown race into a caller failure.
+        return _pristine_handler_handle(handler, record)
     if any(
         record.name == namespace or record.name.startswith(f"{namespace}.")
         for namespace in _REDACTED_LOGGER_NAMESPACES

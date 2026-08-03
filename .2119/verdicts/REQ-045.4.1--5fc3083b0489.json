@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.4.1--5fc3083b0489",
+  "requirementId": "REQ-045.4.1",
+  "hash": "5fc3083b0489",
+  "verdict": "pass",
+  "summary": "Tests reject missing service/runner paths, wrong PANOPTICON_STATE>XDG>HOME precedence, paths outside the resolved root (including /tmp), and failure to persist each session's stdout/stderr.",
+  "timestamp": "2026-08-03T21:39:17.412Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.3.2--7671041fb6d7",
+  "requirementId": "REQ-045.3.2",
+  "hash": "7671041fb6d7",
+  "verdict": "fail",
+  "summary": "Flat-string-only coverage lets tokens leak inside mapping/container arguments or caller-supplied extra values while all assertions still pass.",
+  "timestamp": "2026-08-03T21:34:55.249Z"
+}

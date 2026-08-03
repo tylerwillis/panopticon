@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.3.2--1eadb20b2a55",
+  "requirementId": "REQ-045.3.2",
+  "hash": "1eadb20b2a55",
+  "verdict": "pass",
+  "summary": "Real-lifespan tests require both configured tokens to become exact [redacted] markers in raw and formatted message, tuple/mapping arguments, arbitrary nested extras, exception text, and stack data across each task-service/FastAPI/uvicorn/MCP root and descendant logger.",
+  "timestamp": "2026-08-03T21:38:34.510Z"
+}

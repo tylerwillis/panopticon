@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.4.2--a691019eea33",
+  "requirementId": "REQ-045.4.2",
+  "hash": "a691019eea33",
+  "verdict": "pass",
+  "summary": "Tests verify 0700 directory and 0600 service/runner files, and reject symlinks at each protected path without modifying targets or starting sessions.",
+  "timestamp": "2026-08-03T21:39:55.582Z"
+}

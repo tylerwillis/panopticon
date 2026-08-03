@@ -358,13 +358,21 @@ class LocalRunner(Runner):
         # live force-respawn (dashboard `R` kills and restarts). Both are no-ops when nothing
         # exists, so spawn is fully idempotent. (`stop()` does the same pair.)
         try:
-            self._run(
+            tmux_cleanup = self._run(
                 self._tmux(*defaults_argv(self._tmux_socket), "kill-session", "-t", container),
                 check=False,
             )
-            self._run(["docker", "rm", "--force", container], check=False)
+            docker_cleanup = self._run(["docker", "rm", "--force", container], check=False)
             if self.has_session(task_id) or self._container_exists(task_id):
-                raise RuntimeError(f"failed to remove stale runtime resources for {container}")
+                detail = (
+                    f"failed to remove stale runtime resources for {container}; "
+                    f"tmux output={tmux_cleanup!r}; docker output={docker_cleanup!r}"
+                )
+                raise subprocess.CalledProcessError(
+                    1,
+                    ["stale-runtime-cleanup", container],
+                    output=detail,
+                )
             _report(LifecyclePhase.STARTING)  # docker run + the tmux session coming up
             self._run(docker_run)
             # Docker has opened the bind source by the time detached ``docker run`` returns. The

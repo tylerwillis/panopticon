@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import shlex
 import subprocess
 import sys
 from pathlib import Path
@@ -193,8 +194,9 @@ def _expected_new_session_commands(state_root: Path) -> list[list[str]]:
             "-d",
             "-s",
             "service",
-            f"{environment}{sys.executable} -m panopticon.taskservice --host 0.0.0.0 "
-            f"2>&1 | tee {state_root / 'service.log'}",
+            f"{environment}{shlex.quote(sys.executable)} -m panopticon.taskservice "
+            f"--host 0.0.0.0 2>&1 | {shlex.quote(sys.executable)} "
+            f"-m panopticon.terminal.log_tee {shlex.quote(str(state_root / 'service.log'))}",
         ],
         [
             "tmux",
@@ -205,8 +207,9 @@ def _expected_new_session_commands(state_root: Path) -> list[list[str]]:
             "-d",
             "-s",
             "runner",
-            f"{environment}{sys.executable} -m panopticon.sessionservice.host "
-            f"2>&1 | tee {state_root / 'runner.log'}",
+            f"{environment}{shlex.quote(sys.executable)} -m panopticon.sessionservice.host "
+            f"2>&1 | {shlex.quote(sys.executable)} -m panopticon.terminal.log_tee "
+            f"{shlex.quote(str(state_root / 'runner.log'))}",
         ],
     ]
 

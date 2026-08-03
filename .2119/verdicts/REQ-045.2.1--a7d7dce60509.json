@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.2.1--a7d7dce60509",
+  "requirementId": "REQ-045.2.1",
+  "hash": "a7d7dce60509",
+  "verdict": "pass",
+  "summary": "Exited terminal cleanup invokes snapshot-only cleanup for COMPLETE and DROPPED; two task snapshots are removed while an unrelated snapshot remains, and exact event/command assertions reject tmux kill or forced container removal.",
+  "timestamp": "2026-08-03T21:29:01.587Z"
+}
