@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-041.1.1--4bd9cd230e56",
-  "requirementId": "REQ-041.1.1",
-  "hash": "4bd9cd230e56",
-  "verdict": "pass",
-  "summary": "Complete unconditional overview text rejects omissions, narrowed scope, changed timing, and user-request conditions.",
-  "timestamp": "2026-08-03T00:13:26.676Z"
-}

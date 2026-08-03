@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-041.7.1--09f1822481e2",
-  "requirementId": "REQ-041.7.1",
-  "hash": "09f1822481e2",
-  "verdict": "pass",
-  "summary": "Exact shared overview content is delivered immediately through Claude append-system-prompt; missing or altered delivery fails.",
-  "timestamp": "2026-08-03T00:23:01.569Z"
-}

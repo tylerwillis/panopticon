@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-041.8.1--75445895cc10",
-  "requirementId": "REQ-041.8.1",
-  "hash": "75445895cc10",
-  "verdict": "pass",
-  "summary": "Codex receives the complete shared overview unchanged as developer_instructions.",
-  "timestamp": "2026-08-03T00:13:30.039Z"
-}
