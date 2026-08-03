@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.5.5--c008f485919b",
-  "requirementId": "REQ-044.5.5",
-  "hash": "c008f485919b",
-  "verdict": "pass",
-  "summary": "Tests reject same-key text/submit mismatches, preserve task scoping, return the original record before and after settlement, and count exactly one runner delivery for identical retries with both submit values.",
-  "timestamp": "2026-08-03T18:41:14.938Z"
-}

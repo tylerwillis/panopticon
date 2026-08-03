@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.7.2--a6bf3d848d8d",
-  "requirementId": "REQ-044.7.2",
-  "hash": "a6bf3d848d8d",
-  "verdict": "pass",
-  "summary": "Endpoint tests reject prior rather than latest text and verify pane source, receipt timestamp, both dimensions, truncation flag, and publishing runner ID.",
-  "timestamp": "2026-08-03T18:43:11.714Z"
-}

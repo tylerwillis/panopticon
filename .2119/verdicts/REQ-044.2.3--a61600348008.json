@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.2.3--a61600348008",
-  "requirementId": "REQ-044.2.3",
-  "hash": "a61600348008",
-  "verdict": "pass",
-  "summary": "Real endpoint tests reject empty text, 65,537-byte UTF-8 text, 7/129-character or disallowed-character keys, and representative non-boolean JSON values with HTTP 422 while accepting the 64-KiB and 8/128-character boundaries.",
-  "timestamp": "2026-08-03T17:16:15.761Z"
-}

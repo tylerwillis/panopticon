@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import hmac
 import json
 import os
 import re
@@ -39,6 +41,34 @@ def _collides_with_failure_response(token: str) -> bool:
 class AuthTokens:
     read: tuple[str, ...]
     write: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class AuthPrincipal:
+    privilege: Literal["read", "write"]
+    task_id: str | None = None
+
+
+def scoped_task_token(master: str, task_id: str) -> str:
+    digest = hmac.new(master.encode(), f"task:{task_id}".encode(), hashlib.sha256).hexdigest()
+    return f"pt1.task.{task_id}.{digest}"
+
+
+def authenticate_token(tokens: AuthTokens, presented: str) -> AuthPrincipal | None:
+    value = presented.encode()
+    if any(hmac.compare_digest(value, token.encode()) for token in tokens.write):
+        return AuthPrincipal("write")
+    if any(hmac.compare_digest(value, token.encode()) for token in tokens.read):
+        return AuthPrincipal("read")
+    parts = presented.split(".", 3)
+    if len(parts) == 4 and parts[:2] == ["pt1", "task"] and parts[2]:
+        task_id = parts[2]
+        if any(
+            hmac.compare_digest(presented, scoped_task_token(master, task_id))
+            for master in tokens.write
+        ):
+            return AuthPrincipal("write", task_id)
+    return None
 
 
 def _credential_error() -> ValueError:
@@ -123,6 +153,7 @@ def snapshot_tokens(
     directory: str | Path | None = None,
     secrets_dir: str | Path | None = None,
     prefix: str = "panopticon-service-auth-",
+    task_id: str | None = None,
 ) -> Path:
     """Create a private regular-file snapshot for a process launch or bind mount."""
     tokens = load_tokens(reference, secrets_dir=secrets_dir)
@@ -130,7 +161,8 @@ def snapshot_tokens(
     path = Path(raw_path)
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as handle:
-            json.dump({"read": [], "write": [tokens.write[-1]]}, handle)
+            token = scoped_task_token(tokens.write[-1], task_id) if task_id else tokens.write[-1]
+            json.dump({"read": [], "write": [token]}, handle)
         return path
     except BaseException:
         path.unlink(missing_ok=True)

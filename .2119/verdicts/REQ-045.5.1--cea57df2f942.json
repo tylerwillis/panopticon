@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.5.1--cea57df2f942",
+  "requirementId": "REQ-045.5.1",
+  "hash": "cea57df2f942",
+  "verdict": "pass",
+  "summary": "Behavioral tests reject stale ownership, every non-live status, or a non-user turn before the first and each subsequent pending delivery.",
+  "timestamp": "2026-08-03T20:36:58.891Z"
+}

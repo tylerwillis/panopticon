@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.5.2--6ab90743d493",
-  "requirementId": "REQ-044.5.2",
-  "hash": "6ab90743d493",
-  "verdict": "pass",
-  "summary": "A runner-reported successful paste must settle the exact delivery as delivered; missing, failed, or wrong-delivery settlement fails the annotated test in both submit modes.",
-  "timestamp": "2026-08-03T18:41:02.196Z"
-}

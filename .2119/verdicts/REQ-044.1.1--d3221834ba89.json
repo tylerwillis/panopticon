@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.1.1--d3221834ba89",
-  "requirementId": "REQ-044.1.1",
-  "hash": "d3221834ba89",
-  "verdict": "pass",
-  "summary": "Enforced-mode endpoint rejects both missing credentials and the nearest insufficient read credential with 401, while a write credential reaches the operation and returns 202.",
-  "timestamp": "2026-08-03T17:16:04.636Z"
-}

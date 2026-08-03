@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.5.5--e3abc2342183",
+  "requirementId": "REQ-045.5.5",
+  "hash": "e3abc2342183",
+  "verdict": "pass",
+  "summary": "Exact same-task retries return the original pending or settled record, while both submit values, cross-task key scope, text/submit conflicts, and single runner delivery are behaviorally verified.",
+  "timestamp": "2026-08-03T20:42:52.991Z"
+}

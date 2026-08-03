@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.5.2--22d43a025035",
-  "requirementId": "REQ-044.5.2",
-  "hash": "22d43a025035",
-  "verdict": "pass",
-  "summary": "A simulated successful delivery result is settled exactly once as delivered with no failure reason; missing, failed, or differently labeled settlement would fail the assertion.",
-  "timestamp": "2026-08-03T18:15:04.048Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.7.2--c3f97dd354a8",
-  "requirementId": "REQ-044.7.2",
-  "hash": "c3f97dd354a8",
-  "verdict": "pass",
-  "summary": "Two successive publications prove latest exact text selection; exact assertions reject wrong pane source, receipt timestamp, dimensions, truncation status, and claimed publishing runner ID.",
-  "timestamp": "2026-08-03T17:17:11.256Z"
-}

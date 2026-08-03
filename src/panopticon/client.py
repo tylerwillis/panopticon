@@ -9,6 +9,7 @@ return the updated resource. LLM-free — agents reach the LLM only inside the c
 
 from __future__ import annotations
 
+import base64
 import os
 from collections.abc import Generator
 from typing import Any, cast
@@ -418,7 +419,10 @@ class TaskServiceClient:
         self._json(self._http.put(f"/tasks/{task_id}/session/input/{delivery_id}", json=body))
 
     def publish_session_transcript(self, task_id: str, snapshot: JsonObj, runner_id: str) -> None:
-        body = {**snapshot, "runner_id": runner_id}
+        encoded_snapshot = dict(snapshot)
+        text = encoded_snapshot.pop("text")
+        encoded_snapshot["text_b64"] = base64.b64encode(str(text).encode()).decode()
+        body = {**encoded_snapshot, "runner_id": runner_id}
         self._json(self._http.put(f"/tasks/{task_id}/session/transcript", json=body))
 
     # -- liveness -----------------------------------------------------------------

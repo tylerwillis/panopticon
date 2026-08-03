@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.3.1--73138c805fa8",
-  "requirementId": "REQ-044.3.1",
-  "hash": "73138c805fa8",
-  "verdict": "pass",
-  "summary": "Tests reject non-bracketed or missing paste, altered text, and any send-keys action when submit=false, while exercising the worker-to-runner path.",
-  "timestamp": "2026-08-03T18:43:04.382Z"
-}

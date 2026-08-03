@@ -10,6 +10,7 @@ import shutil
 import socket
 import sqlite3
 import subprocess
+import threading
 from collections.abc import Callable
 from pathlib import Path
 
@@ -21,6 +22,7 @@ from panopticon.container import hook
 from panopticon.core.models import Repo
 from panopticon.taskservice.api import create_app
 from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
+from panopticon.taskservice.auth import scoped_task_token
 from panopticon.taskservice.service import TaskService
 from panopticon.taskservice.store_sqlalchemy import SqlAlchemyStore
 from panopticon.workflows import Spike
@@ -36,6 +38,119 @@ STATUS_FIELDS = {
     "settled_at",
     "failure_reason",
 }
+
+
+def test_session_io_authority_is_bound_to_task_scoped_or_master_principal(
+    tmp_path: Path,
+) -> None:
+    # 2119: REQ-045.1.1
+    # 2119: REQ-045.1.3
+    # 2119: REQ-045.6.2
+    service, client = _app(tmp_path)
+    with client as http:
+        task_id = _live_user_task(service, http)
+        other_id = _live_user_task(service, http)
+        scoped = scoped_task_token(WRITE, task_id)
+        created = http.post(
+            f"/tasks/{task_id}/session/input",
+            headers=_auth(scoped),
+            json={"text": "own task", "submit": False, "idempotency_key": "scoped-own-1"},
+        )
+        cross_task = http.post(
+            f"/tasks/{other_id}/session/input",
+            headers=_auth(scoped),
+            json={"text": "cross task", "submit": True, "idempotency_key": "scoped-cross-1"},
+        )
+        forged = scoped[:-1] + ("0" if scoped[-1] != "0" else "1")
+        forged_scope = http.post(
+            f"/tasks/{task_id}/session/input",
+            headers=_auth(forged),
+            json={"text": "forged", "submit": False, "idempotency_key": "scoped-forged-1"},
+        )
+        delivery_id = created.json()["id"]
+        spoofed_poll = http.get(
+            f"/tasks/{task_id}/session/input",
+            headers=_auth(scoped),
+            params={"runner_id": "host-1"},
+        )
+        anonymous_poll = http.get(f"/tasks/{task_id}/session/input", params={"runner_id": "host-1"})
+        read_poll = http.get(
+            f"/tasks/{task_id}/session/input", headers=_auth(READ), params={"runner_id": "host-1"}
+        )
+        omitted_runner = http.get(
+            f"/tasks/{task_id}/session/input",
+            headers=_auth(WRITE),
+        )
+        spoofed_settle = http.put(
+            f"/tasks/{task_id}/session/input/{delivery_id}",
+            headers=_auth(scoped),
+            json={"runner_id": "host-1", "status": "delivered"},
+        )
+        omitted_settle = http.put(
+            f"/tasks/{task_id}/session/input/{delivery_id}",
+            headers=_auth(WRITE),
+            json={"status": "delivered"},
+        )
+        spoofed_publish = http.put(
+            f"/tasks/{task_id}/session/transcript",
+            headers=_auth(scoped),
+            json={
+                "runner_id": "host-1",
+                "text": "forged pane",
+                "columns": 80,
+                "rows": 24,
+                "truncated": False,
+            },
+        )
+        omitted_publish = http.put(
+            f"/tasks/{task_id}/session/transcript",
+            headers=_auth(WRITE),
+            json={"text": "x", "columns": 80, "rows": 24, "truncated": False},
+        )
+        master_poll = http.get(
+            f"/tasks/{task_id}/session/input",
+            headers=_auth(WRITE),
+            params={"runner_id": "host-1"},
+        )
+        http.delete(f"/tasks/{task_id}/claim", headers=_auth(WRITE))
+        http.put(f"/tasks/{task_id}/claim", headers=_auth(WRITE), json={"runner_id": "host-2"})
+        former_owner_poll = http.get(
+            f"/tasks/{task_id}/session/input",
+            headers=_auth(WRITE),
+            params={"runner_id": "host-1"},
+        )
+        former_owner_settle = http.put(
+            f"/tasks/{task_id}/session/input/{delivery_id}",
+            headers=_auth(WRITE),
+            json={"runner_id": "host-1", "status": "delivered"},
+        )
+        former_owner_publish = http.put(
+            f"/tasks/{task_id}/session/transcript",
+            headers=_auth(WRITE),
+            json={
+                "runner_id": "host-1",
+                "text": "stale owner",
+                "columns": 80,
+                "rows": 24,
+                "truncated": False,
+            },
+        )
+    assert created.status_code == 202
+    assert cross_task.status_code == 401
+    assert forged_scope.status_code == 401
+    assert spoofed_poll.status_code == 401
+    assert anonymous_poll.status_code == 401
+    assert read_poll.status_code == 401
+    assert omitted_runner.status_code == 422
+    assert spoofed_settle.status_code == 401
+    assert omitted_settle.status_code == 422
+    assert spoofed_publish.status_code == 401
+    assert omitted_publish.status_code == 422
+    assert master_poll.status_code == 200
+    assert master_poll.json()[0]["id"] == delivery_id
+    assert former_owner_poll.status_code == 409
+    assert former_owner_settle.status_code == 409
+    assert former_owner_publish.status_code == 409
 
 
 def _app(
@@ -101,10 +216,12 @@ def _live_user_task(
 def test_session_input_requires_write_and_202_means_pending(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # 2119: REQ-044.1.1
-    # 2119: REQ-044.2.1
-    # 2119: REQ-044.4.1
-    # 2119: REQ-044.6.1
+    # 2119: REQ-045.1.1
+    # 2119: REQ-045.2.1
+    # 2119: REQ-045.4.1
+    # 2119: REQ-045.5.4
+    # 2119: REQ-045.5.8
+    # 2119: REQ-045.6.1
     service, client = _app(tmp_path)
     monkeypatch.setattr(
         subprocess,
@@ -149,8 +266,13 @@ def test_session_input_requires_write_and_202_means_pending(
                 headers=_auth(WRITE),
                 json={**body, "idempotency_key": "phone-no-host-2"},
             )
+            with sqlite3.connect(tmp_path / "task.db") as database:
+                pending_count = database.execute(
+                    "SELECT count(*) FROM session_input WHERE task_id = ? AND status = 'pending'",
+                    (task_id,),
+                ).fetchone()
             settlement_without_host = http.put(
-                f"/tasks/{task_id}/session/input/{second.json()['id']}",
+                f"/tasks/{task_id}/session/input/{accepted.json()['id']}",
                 headers=_auth(WRITE),
                 json={"runner_id": "host-1", "status": "delivered"},
             )
@@ -170,11 +292,14 @@ def test_session_input_requires_write_and_202_means_pending(
             )
             after = http.get(f"/tasks/{task_id}", headers=_auth(WRITE)).json()
     assert accepted.status_code == 202
+    assert second.status_code == 409
+    assert pending_count == (1,)
     assert status_without_host.status_code == 200
     assert settlement_without_host.status_code == 200
     assert publication_without_host.status_code == 200
     assert transcript_without_host.status_code == 200
     assert accepted.json()["status"] == "pending"
+    assert accepted.json()["submit"] is True
     assert accepted.json()["id"]
     assert "delivered" not in accepted.json()
     assert (after["turn"], after["blocked"], after["attention"]) == (
@@ -200,7 +325,106 @@ def test_session_input_requires_write_and_202_means_pending(
             f"/tasks/{task_id}/session/input/{accepted.json()['id']}", headers=_auth(READ)
         )
     assert durable.status_code == 200
-    assert durable.json()["status"] == "pending"
+    assert durable.json()["status"] == "delivered"
+
+
+@pytest.mark.parametrize("unavailable", ["run", "popen", "system", "which", "socket"])
+def test_control_plane_session_io_is_independent_of_each_host_facility(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, unavailable: str
+) -> None:
+    # 2119: REQ-045.6.1
+    service, client = _app(tmp_path)
+    failure = lambda *_a, **_k: (_ for _ in ()).throw(AssertionError(unavailable))
+    if unavailable == "run":
+        monkeypatch.setattr(subprocess, "run", failure)
+    elif unavailable == "popen":
+        monkeypatch.setattr(subprocess, "Popen", failure)
+    elif unavailable == "system":
+        monkeypatch.setattr(os, "system", failure)
+    elif unavailable == "which":
+        monkeypatch.setattr(shutil, "which", failure)
+    with client as http:
+        task_id = _live_user_task(service, http)
+        if unavailable == "socket":
+            monkeypatch.setattr(socket, "socket", failure)
+        accepted = http.post(
+            f"/tasks/{task_id}/session/input",
+            headers=_auth(WRITE),
+            json={"text": "x", "submit": False, "idempotency_key": f"facility-{unavailable}"},
+        )
+        delivery_id = accepted.json()["id"]
+        assert (
+            http.get(
+                f"/tasks/{task_id}/session/input/{delivery_id}", headers=_auth(READ)
+            ).status_code
+            == 200
+        )
+        assert (
+            http.get(
+                f"/tasks/{task_id}/session/input",
+                headers=_auth(WRITE),
+                params={"runner_id": "host-1"},
+            ).status_code
+            == 200
+        )
+        assert (
+            http.put(
+                f"/tasks/{task_id}/session/input/{delivery_id}",
+                headers=_auth(WRITE),
+                json={"runner_id": "host-1", "status": "delivered"},
+            ).status_code
+            == 200
+        )
+        assert (
+            http.put(
+                f"/tasks/{task_id}/session/transcript",
+                headers=_auth(WRITE),
+                json={
+                    "runner_id": "host-1",
+                    "text": "pane",
+                    "columns": 80,
+                    "rows": 24,
+                    "truncated": False,
+                },
+            ).status_code
+            == 200
+        )
+        assert (
+            http.get(f"/tasks/{task_id}/session/transcript", headers=_auth(READ)).status_code == 200
+        )
+
+
+def test_concurrent_distinct_inputs_leave_exactly_one_pending(tmp_path: Path) -> None:
+    # 2119: REQ-045.5.8
+    service, client = _app(tmp_path)
+    barrier = threading.Barrier(3)
+    statuses: list[int] = []
+
+    def submit(index: int, http: TestClient) -> None:
+        barrier.wait()
+        response = http.post(
+            f"/tasks/{task_id}/session/input",
+            headers=_auth(WRITE),
+            json={
+                "text": f"concurrent-{index}",
+                "submit": False,
+                "idempotency_key": f"concurrent-{index:02d}",
+            },
+        )
+        statuses.append(response.status_code)
+
+    with client as http:
+        task_id = _live_user_task(service, http)
+        threads = [threading.Thread(target=submit, args=(index, http)) for index in range(2)]
+        for thread in threads:
+            thread.start()
+        barrier.wait()
+        for thread in threads:
+            thread.join(2)
+    assert sorted(statuses) == [202, 409]
+    pending = asyncio.run(service.list_session_inputs(task_id))
+    assert len(pending) == 1
+    assert pending[0].status.value == "pending"
 
 
 @pytest.mark.parametrize(
@@ -209,6 +433,29 @@ def test_session_input_requires_write_and_202_means_pending(
         ({"text": "", "submit": True, "idempotency_key": "phone-0001"}, 422),
         ({"text": "x" * 65537, "submit": True, "idempotency_key": "phone-0002"}, 422),
         ({"text": "λ" * 32769, "submit": True, "idempotency_key": "phone-0002b"}, 422),
+        (
+            {"text": "safe\x1b[201~\r", "submit": False, "idempotency_key": "phone-control1"},
+            422,
+        ),
+        (
+            {"text": "safe\x1b[201~", "submit": False, "idempotency_key": "phone-terminator"},
+            422,
+        ),
+        ({"text": "safe\r", "submit": False, "idempotency_key": "phone-control2"}, 422),
+        ({"text": "safe\x00", "submit": False, "idempotency_key": "phone-control3"}, 422),
+        ({"text": "safe\x9b", "submit": False, "idempotency_key": "phone-control4"}, 422),
+        *[
+            (
+                {
+                    "text": f"safe{chr(code)}",
+                    "submit": False,
+                    "idempotency_key": f"control-{code:03d}",
+                },
+                422,
+            )
+            for code in (*range(9), *range(11, 32), *range(127, 160))
+        ],
+        ({"text": "safe\n\t", "submit": False, "idempotency_key": "control-allowed"}, 202),
         ({"text": "x", "submit": "yes", "idempotency_key": "phone-0003"}, 422),
         ({"text": "x", "submit": 1, "idempotency_key": "phone-bool1"}, 422),
         ({"text": "x", "submit": None, "idempotency_key": "phone-bool2"}, 422),
@@ -219,6 +466,7 @@ def test_session_input_requires_write_and_202_means_pending(
         ({"text": "x", "submit": True, "idempotency_key": "eight888"}, 202),
         ({"text": "x", "submit": True, "idempotency_key": "phone space"}, 422),
         ({"text": "x", "submit": True, "idempotency_key": "phone!bad"}, 422),
+        ({"text": "x", "submit": True, "idempotency_key": "phone@bad"}, 422),
         ({"text": "x", "submit": True, "idempotency_key": "phone/bad"}, 422),
         ({"text": "x", "submit": True, "idempotency_key": "λ-phone-key"}, 422),
         ({"text": "x", "submit": True, "idempotency_key": "x" * 129}, 422),
@@ -227,17 +475,20 @@ def test_session_input_requires_write_and_202_means_pending(
     ],
 )
 def test_session_input_validation(tmp_path: Path, body: dict[str, object], expected: int) -> None:
-    # 2119: REQ-044.2.3
+    # 2119: REQ-045.2.3
+    # 2119: REQ-045.3.3
     service, client = _app(tmp_path)
     with client as http:
         task_id = _live_user_task(service, http)
         response = http.post(f"/tasks/{task_id}/session/input", headers=_auth(WRITE), json=body)
     assert response.status_code == expected
+    if expected == 422:
+        assert asyncio.run(service.list_session_inputs(task_id)) == []
 
 
 def test_session_input_rejects_absent_busy_and_non_live_without_record(tmp_path: Path) -> None:
-    # 2119: REQ-044.2.1
-    # 2119: REQ-044.2.2
+    # 2119: REQ-045.2.1
+    # 2119: REQ-045.2.2
     service, client = _app(tmp_path)
     body = {"text": "do not queue", "submit": True, "idempotency_key": "phone-0004"}
     with client as http:
@@ -320,6 +571,7 @@ def test_session_input_rejects_absent_busy_and_non_live_without_record(tmp_path:
             ).status_code
             == 409
         )
+        assert asyncio.run(service.list_session_inputs(disconnected_live_id)) == []
 
         live_id = _live_user_task(service, http)
         assert (
@@ -360,14 +612,14 @@ def test_session_input_rejects_absent_busy_and_non_live_without_record(tmp_path:
 def test_input_idempotency_status_shape_and_auth_survive_store_reload(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # 2119: REQ-044.1.2
-    # 2119: REQ-044.1.3
-    # 2119: REQ-044.4.1
-    # 2119: REQ-044.5.4
-    # 2119: REQ-044.5.5
-    # 2119: REQ-044.5.6
-    # 2119: REQ-044.6.1
-    # 2119: REQ-044.6.2
+    # 2119: REQ-045.1.2
+    # 2119: REQ-045.1.3
+    # 2119: REQ-045.4.1
+    # 2119: REQ-045.5.4
+    # 2119: REQ-045.5.5
+    # 2119: REQ-045.5.6
+    # 2119: REQ-045.6.1
+    # 2119: REQ-045.6.2
     service, client = _app(tmp_path)
     monkeypatch.setattr(
         subprocess,
@@ -381,7 +633,7 @@ def test_input_idempotency_status_shape_and_auth_survive_store_reload(
     )
     monkeypatch.setattr(os, "system", lambda *_a, **_k: (_ for _ in ()).throw(AssertionError()))
     monkeypatch.setattr(shutil, "which", lambda *_a, **_k: None)
-    body = {"text": " secret λ prompt\r\n", "submit": False, "idempotency_key": "phone-0005"}
+    body = {"text": " secret λ prompt\n", "submit": False, "idempotency_key": "phone-0005"}
     with client as http:
         blocker_id = str(
             http.post(
@@ -528,7 +780,7 @@ def test_input_idempotency_status_shape_and_auth_survive_store_reload(
 
 
 def test_delivered_settlement_preserves_turn_blocked_and_attention(tmp_path: Path) -> None:
-    # 2119: REQ-044.4.1
+    # 2119: REQ-045.4.1
     service, client = _app(tmp_path)
     with client as http:
         blocker_id = str(
@@ -539,18 +791,28 @@ def test_delivered_settlement_preserves_turn_blocked_and_attention(tmp_path: Pat
         task_id = _live_user_task(service, http, depends_on_task_ids=[blocker_id])
         http.put(f"/tasks/{task_id}/blocked", headers=_auth(WRITE), json={"blocked": True})
         http.put(f"/tasks/{task_id}/attention", headers=_auth(WRITE), json={"attention": True})
+        before = http.get(f"/tasks/{task_id}", headers=_auth(READ)).json()
         delivery = http.post(
             f"/tasks/{task_id}/session/input",
             headers=_auth(WRITE),
             json={"text": "send", "submit": True, "idempotency_key": "delivered-0001"},
         ).json()
-        before = http.get(f"/tasks/{task_id}", headers=_auth(READ)).json()
+        after_acceptance = http.get(f"/tasks/{task_id}", headers=_auth(READ)).json()
         settled = http.put(
             f"/tasks/{task_id}/session/input/{delivery['id']}",
             headers=_auth(WRITE),
             json={"runner_id": "host-1", "status": "delivered"},
         )
         after = http.get(f"/tasks/{task_id}", headers=_auth(READ)).json()
+    assert (
+        after_acceptance["turn"],
+        after_acceptance["blocked"],
+        after_acceptance["attention"],
+    ) == (
+        before["turn"],
+        before["blocked"],
+        before["attention"],
+    )
     assert settled.status_code == 200
     assert (after["turn"], after["blocked"], after["attention"]) == (
         before["turn"],
@@ -560,7 +822,7 @@ def test_delivered_settlement_preserves_turn_blocked_and_attention(tmp_path: Pat
 
 
 def test_staged_acceptance_and_settlement_preserve_false_markers(tmp_path: Path) -> None:
-    # 2119: REQ-044.4.1
+    # 2119: REQ-045.4.1
     service, client = _app(tmp_path)
     with client as http:
         task_id = _live_user_task(service, http)
@@ -604,7 +866,7 @@ def test_staged_acceptance_and_settlement_preserve_false_markers(tmp_path: Path)
 def test_turn_to_agent_clears_each_marker_independently(
     tmp_path: Path, blocked: bool, attention: bool
 ) -> None:
-    # 2119: REQ-044.4.2
+    # 2119: REQ-045.4.2
     service, client = _app(tmp_path)
     with client as http:
         blocker_id = str(
@@ -625,7 +887,8 @@ def test_turn_to_agent_clears_each_marker_independently(
 
 @pytest.mark.parametrize("submit", [False, True])
 def test_retried_client_request_causes_one_runner_delivery(tmp_path: Path, submit: bool) -> None:
-    # 2119: REQ-044.5.5
+    # 2119: REQ-045.5.5
+    # 2119: REQ-045.5.6
     from panopticon.sessionservice.session_io import SessionIOWorker
 
     class Runner:
@@ -633,9 +896,9 @@ def test_retried_client_request_causes_one_runner_delivery(tmp_path: Path, submi
             self.deliveries: list[tuple[str, bool]] = []
 
         def deliver_session_input(
-            self, task_id: str, text: str, *, submit: bool
+            self, task_id: str, delivery_id: str, text: str, *, submit: bool
         ) -> tuple[bool, str | None]:
-            del task_id
+            del task_id, delivery_id
             self.deliveries.append((text, submit))
             return True, None
 
@@ -669,7 +932,7 @@ def test_retried_client_request_causes_one_runner_delivery(tmp_path: Path, submi
 
 
 def test_submitted_request_retry_after_settlement_returns_original(tmp_path: Path) -> None:
-    # 2119: REQ-044.5.5
+    # 2119: REQ-045.5.5
     service, client = _app(tmp_path)
     body = {"text": "submit once", "submit": True, "idempotency_key": "submit-retry-1"}
     with client as http:
@@ -688,19 +951,24 @@ def test_submitted_request_retry_after_settlement_returns_original(tmp_path: Pat
 
 
 def test_agent_turn_worker_publishes_with_explicit_runner_identity(tmp_path: Path) -> None:
-    # 2119: REQ-044.6.2
-    # 2119: REQ-044.7.2
-    from panopticon.sessionservice.session_io import SessionIOWorker
+    # 2119: REQ-045.6.2
+    # 2119: REQ-045.7.2
+    # 2119: REQ-045.7.1
+    # 2119: REQ-045.7.5
+    from panopticon.sessionservice.session_io import SessionIOWorker, capture_pane_snapshot
 
     class Runner:
         def deliver_session_input(
-            self, task_id: str, text: str, *, submit: bool
+            self, task_id: str, delivery_id: str, text: str, *, submit: bool
         ) -> tuple[bool, str | None]:
-            raise AssertionError((task_id, text, submit))
+            raise AssertionError((task_id, delivery_id, text, submit))
 
         def capture_session_transcript(self, task_id: str) -> dict[str, object]:
             assert task_id
-            return {"text": "working λ", "columns": 80, "rows": 24, "truncated": False}
+            values = iter([f"\x1b[31m{WRITE}\x1b[0m λ é 🚀", "80\t24"])
+            snapshot = capture_pane_snapshot(task_id, run=lambda *_a, **_k: next(values))
+            assert snapshot is not None
+            return snapshot
 
     service, client = _app(tmp_path)
     with client as http:
@@ -716,7 +984,7 @@ def test_agent_turn_worker_publishes_with_explicit_runner_identity(tmp_path: Pat
         ).process(task)
         transcript = http.get(f"/tasks/{task_id}/session/transcript", headers=_auth(READ))
     assert transcript.status_code == 200
-    assert transcript.json()["text"] == "working λ"
+    assert transcript.json()["text"] == f"{WRITE} λ é 🚀"
     assert transcript.json()["runner_id"] == "host-1"
     assert transcript.json()["truncated"] is False
 
@@ -724,7 +992,7 @@ def test_agent_turn_worker_publishes_with_explicit_runner_identity(tmp_path: Pat
 def test_submitted_delivery_uses_existing_prompt_hook_contract(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # 2119: REQ-044.4.2
+    # 2119: REQ-045.4.2
     service, client = _app(tmp_path)
 
     class HookClient:
@@ -752,17 +1020,17 @@ def test_submitted_delivery_uses_existing_prompt_hook_contract(
 def test_transcript_is_readable_bounded_structured_stale_and_unredacted(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # 2119: REQ-044.1.2
-    # 2119: REQ-044.1.3
-    # 2119: REQ-044.7.2
-    # 2119: REQ-044.7.3
-    # 2119: REQ-044.7.4
-    # 2119: REQ-044.7.5
-    # 2119: REQ-044.8.1
-    # 2119: REQ-044.8.2
-    # 2119: REQ-044.5.7
-    # 2119: REQ-044.6.2
-    # 2119: REQ-044.6.1
+    # 2119: REQ-045.1.2
+    # 2119: REQ-045.1.3
+    # 2119: REQ-045.7.2
+    # 2119: REQ-045.7.3
+    # 2119: REQ-045.7.4
+    # 2119: REQ-045.7.5
+    # 2119: REQ-045.8.1
+    # 2119: REQ-045.8.2
+    # 2119: REQ-045.5.7
+    # 2119: REQ-045.6.2
+    # 2119: REQ-045.6.1
     service, client = _app(tmp_path, clock=lambda: "2026-08-03T12:34:56Z")
     monkeypatch.setattr(
         subprocess,
@@ -792,7 +1060,9 @@ def test_transcript_is_readable_bounded_structured_stale_and_unredacted(
             },
         )
         version_after_publish = service.tasks_version()
-        latest_text = "\r\n newest password=hunter2 Authorization: Bearer secret sk-test λ \n"
+        latest_text = (
+            "\r\n newest password=hunter2 Authorization: Bearer secret sk-test λ é U0001f680 \n"
+        )
         latest = http.put(
             f"/tasks/{task_id}/session/transcript",
             headers=_auth(WRITE),
@@ -865,8 +1135,8 @@ def test_transcript_is_readable_bounded_structured_stale_and_unredacted(
         "credentials or other secrets printed in the pane."
     )
     assert input_docs == (
-        "accept input for runner delivery. client retries are idempotent. a runner crash between "
-        "the tmux side effect and its settlement write can cause a duplicate delivery."
+        "accept input for runner delivery. client retries are idempotent. a runner crash or "
+        "settlement-write failure after the tmux side effect can cause a duplicate delivery."
     )
 
 
@@ -877,7 +1147,7 @@ def test_transcript_is_readable_bounded_structured_stale_and_unredacted(
 def test_transcript_publication_rejects_terminal_escape_sequences(
     tmp_path: Path, control: str
 ) -> None:
-    # 2119: REQ-044.7.5
+    # 2119: REQ-045.7.5
     service, client = _app(tmp_path)
     with client as http:
         task_id = _live_user_task(service, http)

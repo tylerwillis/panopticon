@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.5.6--518244c1b300",
-  "requirementId": "REQ-044.5.6",
-  "hash": "518244c1b300",
-  "verdict": "pass",
-  "summary": "Real HTTP/store test rejects same-task key reuse with changed text or flipped submit via 409 and verifies the original delivery metadata, submit value, and queued text remain unchanged.",
-  "timestamp": "2026-08-03T17:16:52.924Z"
-}

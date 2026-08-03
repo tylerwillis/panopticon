@@ -207,7 +207,10 @@ printf '%s\n%s\n%s\n' "$PANOPTICON_ENV_FILE" "$PANOPTICON_SERVICE_URL" "$PANOPTI
     assert all("http://wrong" not in call and "/wrong" not in call for call in calls)
     assert all(token not in call for call in calls)
     inputs = stdin.read_text().split("CALL\n")[1:]
-    assert inputs == [f'header = "Authorization: Bearer {token}"\n'] * 3
+    from panopticon.taskservice.auth import scoped_task_token
+
+    scoped = scoped_task_token(token, "task")
+    assert inputs == [f'header = "Authorization: Bearer {scoped}"\n'] * 3
     assert runtime.read_text().splitlines() == [str(repo_env), "http://service", "task"]
     assert not executed.exists()
 

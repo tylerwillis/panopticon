@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.7.5--8cdd223ec4d9",
-  "requirementId": "REQ-044.7.5",
-  "hash": "8cdd223ec4d9",
-  "verdict": "pass",
-  "summary": "Tests preserve multibyte Unicode through capture and publish/retrieve while rejecting or stripping CSI, OSC, DCS, SOS, PM, APC, and single-character ESC terminal controls.",
-  "timestamp": "2026-08-03T18:43:36.665Z"
-}

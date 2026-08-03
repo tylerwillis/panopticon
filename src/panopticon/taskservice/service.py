@@ -211,11 +211,14 @@ class TaskService:
     ) -> SessionInput:
         async with self._transition_lock(task_id):
             task = await self.get_task(task_id)
-            for existing in await self._store.list_session_inputs(task_id):
+            existing_inputs = await self._store.list_session_inputs(task_id)
+            for existing in existing_inputs:
                 if existing.idempotency_key == idempotency_key:
                     if existing.text != text or existing.submit != submit:
                         raise SessionConflict("idempotency key already has different input")
                     return existing
+            if any(item.status is SessionInputStatus.PENDING for item in existing_inputs):
+                raise SessionConflict("task session already has pending input")
             if (
                 self.task_is_terminal(task)
                 or task.claimed_by is None

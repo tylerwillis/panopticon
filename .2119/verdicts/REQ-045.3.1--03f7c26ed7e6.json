@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.3.1--03f7c26ed7e6",
+  "requirementId": "REQ-045.3.1",
+  "hash": "03f7c26ed7e6",
+  "verdict": "pass",
+  "summary": "Tests reject submit=false delivery without paste-buffer -p, altered loaded text, or any send-keys/Enter command, including through the LocalRunner path.",
+  "timestamp": "2026-08-03T20:30:19.198Z"
+}

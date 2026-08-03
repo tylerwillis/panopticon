@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.1.2--25d4b50cbc9b",
+  "requirementId": "REQ-045.1.2",
+  "hash": "25d4b50cbc9b",
+  "verdict": "pass",
+  "summary": "Both enforced-mode GET endpoints accept configured read auth and reject missing and invalid credentials with 401.",
+  "timestamp": "2026-08-03T20:39:40.831Z"
+}

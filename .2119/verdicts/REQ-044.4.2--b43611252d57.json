@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.4.2--b43611252d57",
-  "requirementId": "REQ-044.4.2",
-  "hash": "b43611252d57",
-  "verdict": "pass",
-  "summary": "Real task-service turn writes reject the nearest violations: leaving blocked or attention set after turn=agent, both independently and together; the prompt-hook path is also tied to the same agent-turn contract.",
-  "timestamp": "2026-08-03T17:16:46.879Z"
-}

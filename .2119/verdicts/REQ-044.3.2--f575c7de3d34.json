@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.3.2--f575c7de3d34",
-  "requirementId": "REQ-044.3.2",
-  "hash": "f575c7de3d34",
-  "verdict": "pass",
-  "summary": "Tests verify the submitted text is bracketed-pasted once before exactly one Enter, reject Enter when submit=false, and exercise the LocalRunner delivery path.",
-  "timestamp": "2026-08-03T18:40:43.370Z"
-}

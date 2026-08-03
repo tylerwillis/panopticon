@@ -436,6 +436,7 @@ def test_docker_runner_mounts_a_stable_snapshot_if_source_is_replaced(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     import panopticon.sessionservice.local_runner as runner_module
+    from panopticon.taskservice.auth import scoped_task_token
 
     source = tmp_path / "auth.json"
     source.write_text(
@@ -470,7 +471,8 @@ def test_docker_runner_mounts_a_stable_snapshot_if_source_is_replaced(
     runner.spawn("task")
 
     assert stat.S_ISFIFO(source.stat().st_mode)
-    assert docker_observations == [(True, '{"read": [], "write": ["stable-writer-token"]}')]
+    expected = json.dumps({"read": [], "write": [scoped_task_token("stable-writer-token", "task")]})
+    assert docker_observations == [(True, expected)]
     assert snapshots and not snapshots[0].exists()
     runner.stop("panopticon-task")
     assert not snapshots[0].exists()
@@ -578,6 +580,7 @@ def test_shell_runner_uses_a_stable_snapshot_if_source_is_replaced(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     import panopticon.sessionservice.shell_runner as runner_module
+    from panopticon.taskservice.auth import scoped_task_token
 
     source = tmp_path / "auth.json"
     source.write_text(
@@ -612,7 +615,8 @@ def test_shell_runner_uses_a_stable_snapshot_if_source_is_replaced(
     ).spawn("task", script="true")
 
     assert stat.S_ISFIFO(source.stat().st_mode)
-    assert tmux_observations == [(True, '{"read": [], "write": ["stable-writer-token"]}')]
+    expected = json.dumps({"read": [], "write": [scoped_task_token("stable-writer-token", "task")]})
+    assert tmux_observations == [(True, expected)]
     snapshots[0].unlink()
 
 

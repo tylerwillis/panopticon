@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.2.3--f728442be110",
-  "requirementId": "REQ-044.2.3",
-  "hash": "f728442be110",
-  "verdict": "pass",
-  "summary": "HTTP tests reject empty and over-64-KiB UTF-8 text, 7/129-character and invalid-alphabet keys while accepting 8/128 boundaries, and multiple non-boolean submit types with 422.",
-  "timestamp": "2026-08-03T18:40:36.357Z"
-}

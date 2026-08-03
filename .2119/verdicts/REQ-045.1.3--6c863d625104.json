@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.1.3--6c863d625104",
+  "requirementId": "REQ-045.1.3",
+  "hash": "6c863d625104",
+  "verdict": "pass",
+  "summary": "Enforced-mode API tests reject scoped, read, anonymous, omitted-runner, wrong-runner, and former-runner access while accepting the master write principal for polling, publication, and settlement.",
+  "timestamp": "2026-08-03T20:48:51.865Z"
+}

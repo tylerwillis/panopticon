@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.6.1--c75565c7fccb",
-  "requirementId": "REQ-044.6.1",
-  "hash": "c75565c7fccb",
-  "verdict": "pass",
-  "summary": "All five operations are asserted successful while executable lookup returns none and any process launch or socket creation raises, so host-coupled regressions fail the test.",
-  "timestamp": "2026-08-03T18:43:08.605Z"
-}

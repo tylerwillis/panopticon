@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.6.2--dec878feb655",
-  "requirementId": "REQ-044.6.2",
-  "hash": "dec878feb655",
-  "verdict": "pass",
-  "summary": "Non-owner claim mismatches are rejected for pane inspection, input mutation, transcript publication, and delivery settlement; owner paths remain exercised under trusted write-auth.",
-  "timestamp": "2026-08-03T17:17:15.522Z"
-}

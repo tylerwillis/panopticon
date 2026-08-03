@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.2.2--62274229a61b",
-  "requirementId": "REQ-044.2.2",
-  "hash": "62274229a61b",
-  "verdict": "pass",
-  "summary": "Behavioral tests reject missing (404), terminal, queued/down non-live, live-but-unowned, disconnected (with and without a stale registration), and agent-turn tasks (409), while verifying no delivery records persist.",
-  "timestamp": "2026-08-03T17:16:11.728Z"
-}

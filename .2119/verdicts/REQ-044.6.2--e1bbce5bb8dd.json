@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.6.2--e1bbce5bb8dd",
-  "requirementId": "REQ-044.6.2",
-  "hash": "e1bbce5bb8dd",
-  "verdict": "pass",
-  "summary": "Matching owner host-1 proceeds, while non-owner host-2 is rejected across pending retrieval, settlement, transcript publication, and worker delivery/capture paths.",
-  "timestamp": "2026-08-03T18:23:42.124Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.1.3--5586c67688bc",
-  "requirementId": "REQ-044.1.3",
-  "hash": "5586c67688bc",
-  "verdict": "pass",
-  "summary": "Enforced-mode API tests reject both missing and read-only credentials for transcript publication and delivery settlement, accept write credentials, and reject a write-authenticated non-owning runner for each operation.",
-  "timestamp": "2026-08-03T17:16:06.517Z"
-}

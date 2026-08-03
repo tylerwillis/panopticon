@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import threading
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -64,8 +65,9 @@ class _Runner:
         self.capture = {"text": "recent λ", "columns": 80, "rows": 24, "truncated": False}
 
     def deliver_session_input(
-        self, task_id: str, text: str, *, submit: bool
+        self, task_id: str, delivery_id: str, text: str, *, submit: bool
     ) -> tuple[bool, str | None]:
+        del delivery_id
         self.deliveries.append((task_id, text, submit))
         return self.outcome
 
@@ -76,12 +78,12 @@ class _Runner:
 
 @pytest.mark.parametrize("submit", [False, True])
 def test_worker_delivers_only_for_live_owned_user_turn(submit: bool) -> None:
-    # 2119: REQ-044.3.1
-    # 2119: REQ-044.3.2
-    # 2119: REQ-044.4.2
-    # 2119: REQ-044.5.1
-    # 2119: REQ-044.5.2
-    # 2119: REQ-044.6.2
+    # 2119: REQ-045.3.1
+    # 2119: REQ-045.3.2
+    # 2119: REQ-045.4.2
+    # 2119: REQ-045.5.1
+    # 2119: REQ-045.5.2
+    # 2119: REQ-045.6.2
     from panopticon.sessionservice.session_io import SessionIOWorker
 
     delivery = _Delivery(submit=submit)
@@ -92,7 +94,14 @@ def test_worker_delivers_only_for_live_owned_user_turn(submit: bool) -> None:
     assert runner.deliveries == [("t1", "hello\nworld", submit)]
     assert client.settlements == [("delivery-1", "delivered", None)]
 
-    for changed in ({"claimed_by": "host-2"}, {"container_status": "down"}, {"turn": "agent"}):
+    for changed in (
+        {"claimed_by": "host-2"},
+        {"container_status": "down"},
+        {"container_status": "awaiting"},
+        {"container_status": "starting"},
+        {"container_status": "failed"},
+        {"turn": "agent"},
+    ):
         blocked_runner = _Runner()
         SessionIOWorker(
             _Client(delivery), blocked_runner, runner_id="host-1", dispatch=lambda call: call()
@@ -107,12 +116,15 @@ def test_worker_delivers_only_for_live_owned_user_turn(submit: bool) -> None:
         {"turn": "agent"},
         {"claimed_by": "host-2"},
         {"container_status": "down"},
+        {"container_status": "awaiting"},
+        {"container_status": "starting"},
+        {"container_status": "failed"},
     ],
 )
 def test_worker_revalidates_authoritative_task_before_each_delivery(
     changed: dict[str, str],
 ) -> None:
-    # 2119: REQ-044.5.1
+    # 2119: REQ-045.5.1
     from panopticon.sessionservice.session_io import SessionIOWorker
 
     class ChangingClient(_Client):
@@ -144,7 +156,7 @@ def test_worker_revalidates_authoritative_task_before_each_delivery(
 
 
 def test_worker_stops_after_one_successfully_submitted_delivery() -> None:
-    # 2119: REQ-044.5.1
+    # 2119: REQ-045.5.1
     from panopticon.sessionservice.session_io import SessionIOWorker
 
     class SubmittedClient(_Client):
@@ -174,7 +186,7 @@ def test_worker_stops_after_one_successfully_submitted_delivery() -> None:
 def test_worker_rejects_stale_eligible_snapshot_before_first_delivery(
     changed: dict[str, str],
 ) -> None:
-    # 2119: REQ-044.5.1
+    # 2119: REQ-045.5.1
     from panopticon.sessionservice.session_io import SessionIOWorker
 
     client, runner = _Client(_Delivery()), _Runner()
@@ -188,8 +200,8 @@ def test_worker_rejects_stale_eligible_snapshot_before_first_delivery(
 
 @pytest.mark.parametrize("submit", [False, True])
 def test_prefill_stages_or_submits_with_exact_tmux_commands(tmp_path: Path, submit: bool) -> None:
-    # 2119: REQ-044.3.1
-    # 2119: REQ-044.3.2
+    # 2119: REQ-045.3.1
+    # 2119: REQ-045.3.2
     prompt, raw = tmp_path / "prompt", tmp_path / "ready"
     prompt.write_text("hello\nworld")
     raw.write_bytes(BRACKETED_PASTE_ON)
@@ -229,7 +241,7 @@ def test_prefill_stages_or_submits_with_exact_tmux_commands(tmp_path: Path, subm
 
 
 def test_remote_delivery_preserves_nonempty_whitespace_input(tmp_path: Path) -> None:
-    # 2119: REQ-044.2.3
+    # 2119: REQ-045.2.3
     from panopticon.sessionservice.session_io import deliver_pane_input
 
     raw = tmp_path / "ready"
@@ -256,7 +268,7 @@ def test_remote_delivery_preserves_nonempty_whitespace_input(tmp_path: Path) -> 
 
 
 def test_worker_records_stable_delivery_failure() -> None:
-    # 2119: REQ-044.5.3
+    # 2119: REQ-045.5.3
     from panopticon.sessionservice.session_io import SessionIOWorker
 
     client, runner = _Client(_Delivery()), _Runner((False, "tmux-delivery-failed"))
@@ -270,9 +282,9 @@ def test_worker_records_stable_delivery_failure() -> None:
 def test_worker_settlement_uses_local_runner_prefill_path(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, submit: bool, fail: bool
 ) -> None:
-    # 2119: REQ-044.3.1
-    # 2119: REQ-044.3.2
-    # 2119: REQ-044.5.3
+    # 2119: REQ-045.3.1
+    # 2119: REQ-045.3.2
+    # 2119: REQ-045.5.3
     from panopticon.sessionservice.local_runner import LocalRunner
     from panopticon.sessionservice.session_io import SessionIOWorker
 
@@ -305,6 +317,8 @@ def test_worker_settlement_uses_local_runner_prefill_path(
     )
     assert any("load-buffer" in call for call in calls)
     assert any("paste-buffer" in call and "-p" in call for call in calls)
+    load = next(call for call in calls if "load-buffer" in call)
+    assert load[load.index("-b") + 1] == "panopticon-session-input-delivery-1"
     assert sum("send-keys" in call for call in calls) == int(submit and not fail)
     expected = (
         ("delivery-1", "failed", "tmux-delivery-failed")
@@ -312,6 +326,100 @@ def test_worker_settlement_uses_local_runner_prefill_path(
         else ("delivery-1", "delivered", None)
     )
     assert client.settlements == [expected]
+
+
+def test_wake_and_session_input_share_one_task_pane_lock(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # 2119: REQ-045.6.3
+    import panopticon.sessionservice.local_runner as local_runner_module
+    import panopticon.sessionservice.session_io as session_io_module
+
+    delivery_entered = threading.Event()
+    release_delivery = threading.Event()
+    wake_entered = threading.Event()
+    wake_attempted = threading.Event()
+
+    def deliver(*_args: object, **kwargs: object) -> tuple[bool, str | None]:
+        assert kwargs["buffer"] == "panopticon-session-input-delivery-1"
+        delivery_entered.set()
+        assert release_delivery.wait(2)
+        return True, None
+
+    def wake(*_args: object, **kwargs: object) -> bool:
+        assert kwargs["buffer"] == "panopticon-stage-entry-t1"
+        wake_entered.set()
+        return True
+
+    monkeypatch.setattr(session_io_module, "deliver_pane_input", deliver)
+    monkeypatch.setattr(local_runner_module, "prefill_pane", wake)
+    monkeypatch.setattr(local_runner_module, "readiness_log", lambda _session: "/tmp/ready")
+    runner = local_runner_module.LocalRunner("http://service", run=lambda *_a, **_k: "")
+    delivery_thread = threading.Thread(
+        target=lambda: runner.deliver_session_input(
+            "t1", "delivery-1", "operator text", submit=False
+        )
+    )
+
+    def attempt_wake() -> None:
+        wake_attempted.set()
+        runner.submit_prompt("t1", "briefing")
+
+    wake_thread = threading.Thread(target=attempt_wake)
+    delivery_thread.start()
+    assert delivery_entered.wait(2)
+    wake_thread.start()
+    assert wake_attempted.wait(2)
+    assert not wake_entered.wait(0.05)
+    release_delivery.set()
+    delivery_thread.join(2)
+    wake_thread.join(2)
+    assert wake_entered.is_set()
+
+
+def test_session_input_waits_when_stage_entry_wake_holds_task_pane_lock(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # 2119: REQ-045.6.3
+    import panopticon.sessionservice.local_runner as local_runner_module
+    import panopticon.sessionservice.session_io as session_io_module
+
+    wake_entered = threading.Event()
+    release_wake = threading.Event()
+    delivery_entered = threading.Event()
+    delivery_attempted = threading.Event()
+
+    def wake(*_args: object, **kwargs: object) -> bool:
+        assert kwargs["buffer"] == "panopticon-stage-entry-t1"
+        wake_entered.set()
+        assert release_wake.wait(2)
+        return True
+
+    def deliver(*_args: object, **kwargs: object) -> tuple[bool, str | None]:
+        assert kwargs["buffer"] == "panopticon-session-input-delivery-1"
+        delivery_entered.set()
+        return True, None
+
+    monkeypatch.setattr(local_runner_module, "prefill_pane", wake)
+    monkeypatch.setattr(session_io_module, "deliver_pane_input", deliver)
+    monkeypatch.setattr(local_runner_module, "readiness_log", lambda _session: "/tmp/ready")
+    runner = local_runner_module.LocalRunner("http://service", run=lambda *_a, **_k: "")
+    wake_thread = threading.Thread(target=lambda: runner.submit_prompt("t1", "briefing"))
+
+    def attempt_delivery() -> None:
+        delivery_attempted.set()
+        runner.deliver_session_input("t1", "delivery-1", "operator text", submit=False)
+
+    delivery_thread = threading.Thread(target=attempt_delivery)
+    wake_thread.start()
+    assert wake_entered.wait(2)
+    delivery_thread.start()
+    assert delivery_attempted.wait(2)
+    assert not delivery_entered.wait(0.05)
+    release_wake.set()
+    wake_thread.join(2)
+    delivery_thread.join(2)
+    assert delivery_entered.is_set()
 
 
 @pytest.mark.parametrize(
@@ -329,7 +437,7 @@ def test_worker_settlement_uses_local_runner_prefill_path(
 def test_actual_tmux_delivery_failures_map_to_one_stable_reason(
     tmp_path: Path, panes: list[str], failing_command: str | None
 ) -> None:
-    # 2119: REQ-044.5.3
+    # 2119: REQ-045.5.3
     from panopticon.sessionservice.session_io import deliver_pane_input
 
     raw = tmp_path / "ready"
@@ -356,7 +464,7 @@ def test_actual_tmux_delivery_failures_map_to_one_stable_reason(
 
 @pytest.mark.parametrize("submit", [False, True])
 def test_settled_idempotent_request_is_not_delivered_twice(submit: bool) -> None:
-    # 2119: REQ-044.5.5
+    # 2119: REQ-045.5.5
     from panopticon.sessionservice.session_io import SessionIOWorker
 
     class SettlingClient(_Client):
@@ -380,7 +488,7 @@ def test_settled_idempotent_request_is_not_delivered_twice(submit: bool) -> None
 
 
 def test_worker_publishes_transcript_only_for_its_live_task() -> None:
-    # 2119: REQ-044.6.2
+    # 2119: REQ-045.6.2
     from panopticon.sessionservice.session_io import SessionIOWorker
 
     client, runner = _Client(), _Runner()
@@ -405,13 +513,14 @@ def test_worker_publishes_transcript_only_for_its_live_task() -> None:
     "lines",
     [
         [f"line-{index}" for index in range(260)],
+        [f"line-{index}-{'λ' * 400}" for index in range(260)],
         [f"byte-{index}-{'λ' * 400}" for index in range(100)],
         ["λ" * 40000],
     ],
 )
 def test_pane_capture_keeps_newest_200_lines_and_64_kib_without_ansi(lines: list[str]) -> None:
-    # 2119: REQ-044.7.1
-    # 2119: REQ-044.7.5
+    # 2119: REQ-045.7.1
+    # 2119: REQ-045.7.5
     from panopticon.sessionservice.session_io import capture_pane_snapshot
 
     controls = (
@@ -437,3 +546,43 @@ def test_pane_capture_keeps_newest_200_lines_and_64_kib_without_ansi(lines: list
     assert "\x1b]" not in snapshot["text"]
     assert "\x1b" not in snapshot["text"]
     assert snapshot | {"columns": 100, "rows": 40, "truncated": True} == snapshot
+
+
+@pytest.mark.parametrize(
+    ("captured", "expected", "truncated"),
+    [
+        (
+            "\n".join(f"line-{index}" for index in range(200)),
+            "\n".join(f"line-{index}" for index in range(200)),
+            False,
+        ),
+        (
+            "\n".join(f"line-{index}" for index in range(201)),
+            "\n".join(f"line-{index}" for index in range(1, 201)),
+            True,
+        ),
+        ("x" * 65536, "x" * 65536, False),
+        ("x" * 65537, "x" * 65536, True),
+    ],
+)
+def test_local_runner_capture_enforces_each_exact_transcript_boundary(
+    captured: str, expected: str, truncated: bool
+) -> None:
+    # 2119: REQ-045.7.1
+    from panopticon.sessionservice.local_runner import LocalRunner
+
+    def run(args: list[str], *, check: bool = True) -> str:
+        del check
+        if "capture-pane" in args:
+            return captured
+        if "display-message" in args:
+            return "80\t24\n"
+        raise AssertionError(args)
+
+    snapshot = LocalRunner("http://service", run=run).capture_session_transcript("t1")
+    assert snapshot == {
+        "text": expected,
+        "columns": 80,
+        "rows": 24,
+        "truncated": truncated,
+    }

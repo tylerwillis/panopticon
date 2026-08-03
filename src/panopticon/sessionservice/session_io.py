@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import re
+import subprocess
 import tempfile
 import threading
 from collections.abc import Callable, Mapping, Sequence
@@ -49,7 +50,7 @@ class _Client(Protocol):
 
 class _Runner(Protocol):
     def deliver_session_input(
-        self, task_id: str, text: str, *, submit: bool
+        self, task_id: str, delivery_id: str, text: str, *, submit: bool
     ) -> tuple[bool, str | None]: ...
 
     def capture_session_transcript(self, task_id: str) -> dict[str, Any] | None: ...
@@ -62,6 +63,7 @@ def deliver_pane_input(
     submit: bool,
     run: Callable[..., str],
     raw_log: str,
+    buffer: str | None = None,
     timeout: float = DEFAULT_WAKE_TIMEOUT,
     sleep: Callable[[float], None],
     prefix: Sequence[str] = ("tmux",),
@@ -78,6 +80,7 @@ def deliver_pane_input(
             run=run,
             sleep=sleep,
             raw_log=raw_log,
+            buffer=buffer,
             timeout=timeout,
             submit=submit,
             watch=False,
@@ -85,7 +88,7 @@ def deliver_pane_input(
             prefix=prefix,
         )
         return (True, None) if delivered else (False, FAILURE_REASON)
-    except (OSError, ValueError):
+    except (OSError, ValueError, subprocess.SubprocessError):
         return False, FAILURE_REASON
     finally:
         if prompt is not None:
@@ -100,7 +103,7 @@ def capture_pane_snapshot(
 ) -> dict[str, Any] | None:
     """Capture and bound a plain-text pane suffix, preserving valid Unicode."""
     try:
-        captured = run([*prefix, "capture-pane", "-p", "-S", "-200", "-t", session])
+        captured = run([*prefix, "capture-pane", "-p", "-J", "-S", "-200", "-t", session])
         dimensions = run(
             [
                 *prefix,
@@ -113,7 +116,7 @@ def capture_pane_snapshot(
         ).strip()
         columns_text, rows_text = dimensions.split("\t", 1)
         columns, rows = int(columns_text), int(rows_text)
-    except (OSError, ValueError):
+    except (OSError, ValueError, subprocess.SubprocessError):
         return None
 
     lines = captured.splitlines()
@@ -172,9 +175,12 @@ class SessionIOWorker:
                             break
                         try:
                             ok, reason = self._runner.deliver_session_input(
-                                task_id, str(delivery["text"]), submit=bool(delivery["submit"])
+                                task_id,
+                                str(delivery["id"]),
+                                str(delivery["text"]),
+                                submit=bool(delivery["submit"]),
                             )
-                        except (OSError, ValueError):
+                        except (OSError, ValueError, subprocess.SubprocessError):
                             ok, reason = False, FAILURE_REASON
                         self._client.settle_session_input(
                             task_id,

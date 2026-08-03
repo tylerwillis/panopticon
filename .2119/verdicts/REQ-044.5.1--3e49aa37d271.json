@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.5.1--3e49aa37d271",
-  "requirementId": "REQ-044.5.1",
-  "hash": "3e49aa37d271",
-  "verdict": "pass",
-  "summary": "Tests reject loss of ownership, live status, or user turn both before first delivery and between pending records, while confirming eligible delivery.",
-  "timestamp": "2026-08-03T18:44:23.739Z"
-}

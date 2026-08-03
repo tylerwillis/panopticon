@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.6.1--5b259aade658",
-  "requirementId": "REQ-044.6.1",
-  "hash": "5b259aade658",
-  "verdict": "pass",
-  "summary": "All five operations are asserted successful while executable discovery, process launch, and socket creation are unavailable, rejecting material host-dependency counterexamples.",
-  "timestamp": "2026-08-03T17:19:30.229Z"
-}

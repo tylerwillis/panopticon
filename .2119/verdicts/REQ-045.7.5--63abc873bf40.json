@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.7.5--63abc873bf40",
+  "requirementId": "REQ-045.7.5",
+  "hash": "63abc873bf40",
+  "verdict": "pass",
+  "summary": "Capture strips representative ANSI families without consuming adjacent Unicode, and end-to-end publication/retrieval preserves Greek, combining-mark, and emoji pane text.",
+  "timestamp": "2026-08-03T20:52:51.354Z"
+}
