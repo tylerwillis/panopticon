@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.2.1--b456807da9e5",
-  "requirementId": "REQ-044.2.1",
-  "hash": "b456807da9e5",
-  "verdict": "pass",
-  "summary": "Linux and Windows absent and empty cases require one 0.0.0.0 option, rejecting missing, duplicate, or alternate values.",
-  "timestamp": "2026-08-03T18:14:49.715Z"
-}

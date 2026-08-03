@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.5.1--164d8eb89d64",
-  "requirementId": "REQ-044.5.1",
-  "hash": "164d8eb89d64",
-  "verdict": "pass",
-  "summary": "The annotated test extracts the bind-policy paragraph and compares its line-wrap-normalized content to the complete required text, rejecting any missing, added, reordered, or altered wording.",
-  "timestamp": "2026-08-03T18:41:28.372Z"
-}
