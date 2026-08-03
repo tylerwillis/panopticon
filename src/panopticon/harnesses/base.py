@@ -50,6 +50,55 @@ class ReviewerConfig:
     model: str
 
 
+SUPPORTED_REVIEWER_HARNESSES = frozenset({"claude", "codex"})
+
+
+class ReviewerDispatchError(RuntimeError):
+    """Typed, actionable reviewer failure safe to surface to an operator."""
+
+    def __init__(
+        self,
+        detail: str,
+        *,
+        kind: str = "configuration",
+        requested_model: str = "unknown",
+        remediation: str = "Correct the reviewer configuration or choose an available model.",
+    ) -> None:
+        self.kind = kind
+        self.requested_model = requested_model
+        self.detail = detail
+        self.remediation = remediation
+        super().__init__(f"{detail} Remediation: {remediation}")
+
+
+def parse_reviewer_config(value: str) -> ReviewerConfig:
+    """Parse one ``<harness>:<model>`` pair, preserving the opaque model suffix."""
+    if ":" not in value:
+        raise ReviewerDispatchError(
+            f"malformed reviewer pair {value!r}; expected <harness>:<model>"
+        )
+    harness, model = value.split(":", 1)
+    if not harness:
+        raise ReviewerDispatchError("reviewer pair has a missing harness", requested_model=model)
+    if not model:
+        raise ReviewerDispatchError("reviewer pair has a missing model")
+    if harness not in SUPPORTED_REVIEWER_HARNESSES:
+        raise ReviewerDispatchError(
+            f"unsupported harness {harness!r}; choose claude or codex",
+            requested_model=model,
+        )
+    return ReviewerConfig(harness, model)
+
+
+def validate_reviewer_config(config: ReviewerConfig, *, label: str = "reviewer") -> None:
+    """Reject a malformed programmatic default before any reviewer command can run."""
+    if config.harness not in SUPPORTED_REVIEWER_HARNESSES or not config.model:
+        raise ReviewerDispatchError(
+            f"invalid {label}",
+            requested_model=config.model,
+        )
+
+
 def task_id_note(task_id: str) -> str:
     """Guidance shared by every rendered skill for calling the task-scoped MCP tools."""
     return (

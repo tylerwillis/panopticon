@@ -15,9 +15,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, TypeAlias
 
-from panopticon.harnesses.base import ReviewerConfig
+from panopticon.harnesses.base import (
+    ReviewerConfig,
+    ReviewerDispatchError,
+    parse_reviewer_config,
+    validate_reviewer_config,
+)
 
-SUPPORTED_HARNESSES = frozenset({"claude", "codex"})
 CLAUDE_SOURCE = "claude-json:modelUsage"
 CODEX_SOURCE = "codex-rollout:turn_context.payload.model"
 SUPPORTED_VERIFICATION_SOURCES = frozenset({CLAUDE_SOURCE, CODEX_SOURCE})
@@ -55,39 +59,12 @@ class ReviewEvidence:
         return cls(config.harness, config.model, model, source, commit, round_number)
 
 
-class ReviewerDispatchError(RuntimeError):
-    """Typed, actionable reviewer failure safe to surface to an operator."""
-
-    def __init__(
-        self,
-        detail: str,
-        *,
-        kind: str = "configuration",
-        requested_model: str = "unknown",
-        remediation: str = "Correct the reviewer configuration or choose an available model.",
-    ) -> None:
-        self.kind = kind
-        self.requested_model = requested_model
-        self.detail = detail
-        self.remediation = remediation
-        super().__init__(f"{detail} Remediation: {remediation}")
-
-
 def _invalid_config(detail: str, model: str = "unknown") -> ReviewerDispatchError:
     return ReviewerDispatchError(detail, requested_model=model)
 
 
 def _parse_reviewer(value: str) -> ReviewerConfig:
-    if ":" not in value:
-        raise _invalid_config(f"malformed reviewer pair {value!r}; expected <harness>:<model>")
-    harness, model = value.split(":", 1)
-    if not harness:
-        raise _invalid_config("reviewer pair has a missing harness", model)
-    if not model:
-        raise _invalid_config("reviewer pair has a missing model")
-    if harness not in SUPPORTED_HARNESSES:
-        raise _invalid_config(f"unsupported harness {harness!r}; choose claude or codex", model)
-    return ReviewerConfig(harness, model)
+    return parse_reviewer_config(value)
 
 
 def resolve_reviewers(
@@ -99,10 +76,9 @@ def resolve_reviewers(
         raise _invalid_config("reviewer configuration requires exactly two defaults")
     resolved = []
     for index, default in enumerate(defaults, 1):
-        if default.harness not in SUPPORTED_HARNESSES or not default.model:
-            raise _invalid_config(f"invalid default reviewer {index}", default.model)
+        validate_reviewer_config(default, label=f"default reviewer {index}")
         override = environ.get(f"PANOPTICON_2119_REVIEWER_{index}")
-        resolved.append(_parse_reviewer(override) if override is not None else default)
+        resolved.append(_parse_reviewer(override) if override and override.strip() else default)
     return resolved[0], resolved[1]
 
 

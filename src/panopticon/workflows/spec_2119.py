@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from typing import ClassVar
 
 from panopticon.core.models import Actor, Responsibility, Skill
 from panopticon.core.state import Complete, InitialState, State
-from panopticon.harnesses.base import ReviewerConfig
+from panopticon.harnesses.base import (
+    ReviewerConfig,
+    parse_reviewer_config,
+    validate_reviewer_config,
+)
 from panopticon.harnesses.codex import CodexHarness
 from panopticon.workflows.github_forge import GithubForgeWorkflow
 
@@ -168,8 +172,8 @@ code later.
 1. If `.2119.yml` is missing, check for an open adoption PR before running `npx rfc2119 init`.
 2. Write the next append-only `specs/REQ-NNN-<slug>.md` and run `npx rfc2119 lint`.
 3. Annotate a genuine test for every MUST/SHALL requirement.
-4. Run fresh-context test-honesty reviews with
-   `codex exec --dangerously-bypass-approvals-and-sandbox -m gpt-5.6-sol`.
+4. Run fresh-context test-honesty reviews with the workflow's configured honesty reviewer,
+   overridden when `PANOPTICON_2119_HONESTY_REVIEWER` is nonblank.
    The reviewer prompt must forbid edits. After each reviewer run, you MUST verify
    `git status --porcelain` is unchanged, then record every verdict.
 5. Stop only after `npx rfc2119 check` exits 0.
@@ -191,7 +195,8 @@ each reviewer run, verify `git status --porcelain` is unchanged from the snapsho
 before that reviewer ran.
 
 Reviewer selection is two ordered atomic `<harness>:<model>` pairs. The workflow defaults are
-shown below. A repo env file may independently replace them with
+shown below. Repo configuration may independently replace them; the runner transports those
+values into the container as
 `PANOPTICON_2119_REVIEWER_1` and `PANOPTICON_2119_REVIEWER_2`; split only on the first `:` so the
 model remains opaque. Resolve and validate both pairs inside the task container before any
 reviewer LLM call. A missing harness, missing model, unsupported harness, or malformed pair is an
@@ -258,9 +263,23 @@ class _Spec2119Workflow(GithubForgeWorkflow):
         ReviewerConfig("claude", "claude-fable-5"),
         ReviewerConfig("codex", "gpt-5.6-sol"),
     )
+    honesty_reviewer: ClassVar[ReviewerConfig] = ReviewerConfig("codex", "gpt-5.6-sol")
 
-    def _honesty_reviewer_cmd(self) -> str:
-        return "codex exec --dangerously-bypass-approvals-and-sandbox -m gpt-5.6-sol"
+    def _honesty_reviewer_cmd(self, environ: Mapping[str, str] | None = None) -> str:
+        """Resolve the repo override over the workflow default and render its CLI command."""
+        validate_reviewer_config(self.honesty_reviewer, label="default honesty reviewer")
+        override = (environ or {}).get("PANOPTICON_2119_HONESTY_REVIEWER")
+        config = (
+            parse_reviewer_config(override)
+            if override is not None and override.strip()
+            else self.honesty_reviewer
+        )
+        if config.harness == "claude":
+            return (
+                "claude --print --output-format json --safe-mode "
+                f"--dangerously-skip-permissions --model {config.model}"
+            )
+        return f"codex exec --dangerously-bypass-approvals-and-sandbox -m {config.model}"
 
     def _spec_skill(self) -> Skill:
         return Skill(
