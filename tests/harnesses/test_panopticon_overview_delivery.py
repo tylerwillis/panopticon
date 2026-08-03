@@ -16,9 +16,7 @@ def test_claude_delivers_panopticon_orientation_in_the_system_prompt(tmp_path: P
     overview = GithubPeerReviewed().overview()
     write_workflow_overview(tmp_path / ".claude", overview)
 
-    argv = ClaudeHarness().argv(
-        LaunchContext(home=tmp_path, cwd=Path("/workspace"))
-    )
+    argv = ClaudeHarness().argv(LaunchContext(home=tmp_path, cwd=Path("/workspace")))
     index = argv.index("--append-system-prompt")
     assert argv[index + 1] == overview
     assert "## Working in panopticon" in argv[index + 1]
