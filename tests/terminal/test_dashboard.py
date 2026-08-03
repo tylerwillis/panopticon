@@ -4031,6 +4031,8 @@ async def test_bulk_respawn_with_no_down_tasks_notifies_without_opening_modal(
             "live",
             "failed",
             "disconnected",
+            "Down",
+            "down ",
         ]
     ],
 )
@@ -4095,6 +4097,90 @@ def test_slug_cell_combines_slug_and_memo() -> None:
     # multi-line memo → only the first line shown in the table cell
     assert _slug_cell({"slug": "s", "memo": "line one\nline two"}).plain == "s[line one]"
     assert _slug_cell({"memo": "line one\nline two"}).plain == "[line one]"
+
+
+# 2119: REQ-039.1
+async def test_dashboard_slug_prefix_identifies_a_task_with_artifacts() -> None:
+    task = {**_TASK, "has_artifacts": True}
+    fake = _FakeClient([task], artifacts={_TASK["id"]: ["specification.md"]})
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.pause()
+        slug_cell = app.query_one("#tasks", DataTable).get_row(_TASK["id"])[4]
+        assert slug_cell.plain == "*a | fix-widget"
+
+
+# 2119: REQ-039.2
+async def test_dashboard_slug_prefix_identifies_github_pull_request_number() -> None:
+    urls_and_labels = [
+        ("https://github.com/acme/widgets/pull/123", "*PR123 | fix-widget"),
+        ("http://github.com/acme/widgets/pull/456/files?diff=split#top", "*PR456 | fix-widget"),
+        ("https://example.com/acme/widgets/pull/123", "fix-widget"),
+        ("ssh://github.com/acme/widgets/pull/123", "fix-widget"),
+        ("https://github.com.example/acme/widgets/pull/123", "fix-widget"),
+        ("https://github.com/acme/widgets/pull/123abc", "fix-widget"),
+        ("https://github.com/acme/widgets/pull/", "fix-widget"),
+        ("http://[", "fix-widget"),
+        ("https://github.com／evil/acme/widgets/pull/123", "fix-widget"),
+    ]
+    tasks = [
+        {**_TASK, "id": f"task-url-{number}", "url": url}
+        for number, (url, _) in enumerate(urls_and_labels)
+    ]
+    app = Dashboard(_FakeClient(tasks), refresh_interval=0)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        table = app.query_one("#tasks", DataTable)
+        for number, (_, expected) in enumerate(urls_and_labels):
+            assert table.get_row(f"task-url-{number}")[4].plain == expected
+
+
+async def test_dashboard_task_refresh_does_not_list_artifacts_per_task() -> None:
+    class NoArtifactListingClient(_FakeClient):
+        def list_artifacts(self, task_id: str) -> list[str]:
+            raise AssertionError(f"unexpected per-task artifact request for {task_id}")
+
+    tasks = [
+        {**_TASK, "id": f"task-{number}", "has_artifacts": number == 7} for number in range(20)
+    ]
+    app = Dashboard(
+        NoArtifactListingClient(tasks, artifacts={"task-7": ["review.md"]}),
+        refresh_interval=0,
+    )  # type: ignore[arg-type]
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        table = app.query_one("#tasks", DataTable)
+        assert table.get_row("task-7")[4].plain == "*a | fix-widget"
+
+
+# 2119: REQ-039.3
+def test_slug_cell_stacks_artifact_then_pull_request_with_one_separator() -> None:
+    task = {
+        **_TASK,
+        "url": "https://github.com/acme/widgets/pull/123/files?diff=split#discussion",
+    }
+    assert _slug_cell(task, has_artifacts=True).plain == "*a *PR123 | fix-widget"
+
+
+# 2119: REQ-039.4
+def test_slug_cell_indicators_preserve_structural_prefix_slug_and_memo() -> None:
+    task = {
+        **_TASK,
+        "url": "https://github.com/acme/widgets/pull/7",
+        "memo": "make it green\nextra detail",
+    }
+    assert _slug_cell(task, "├─ ", "▾ ", has_artifacts=True).plain == (
+        "├─ ▾ *a *PR7 | fix-widget[make it green]"
+    )
+    assert _slug_cell({**task, "url": None}, "├─ ", "▾ ", has_artifacts=True).plain == (
+        "├─ ▾ *a | fix-widget[make it green]"
+    )
+    assert _slug_cell(task, "├─ ", "▾ ").plain == ("├─ ▾ *PR7 | fix-widget[make it green]")
+    assert _slug_cell({**task, "url": "https://example.com/pull/7"}, "├─ ", "▾ ").plain == (
+        "├─ ▾ fix-widget[make it green]"
+    )
 
 
 def test_memo_textarea_height_logic() -> None:

@@ -418,6 +418,16 @@ def test_get_missing_task_404(client: TestClient) -> None:
     assert client.get("/tasks/ghost").status_code == 404
 
 
+def test_task_list_summarizes_artifact_presence(client: TestClient) -> None:
+    task_id = _new_task(client)
+    listed = {task["id"]: task for task in client.get("/tasks").json()}
+    assert listed[task_id]["has_artifacts"] is False
+
+    assert client.put(f"/tasks/{task_id}/artifacts/review.md", content=b"ready").status_code == 204
+    listed = {task["id"]: task for task in client.get("/tasks").json()}
+    assert listed[task_id]["has_artifacts"] is True
+
+
 def test_create_task_unknown_workflow_400(client: TestClient) -> None:
     resp = client.post("/tasks", json={"repo_id": "r1", "workflow": "nope"})
     assert resp.status_code == 400
