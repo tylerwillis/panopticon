@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-043.4.1--f3e58d295aba",
+  "requirementId": "REQ-043.4.1",
+  "hash": "f3e58d295aba",
+  "verdict": "pass",
+  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. Image-build and docker-run pre-session failures each remain charged to the same task budget, with six heals capped at exactly three attempted commands and a retained count of three.",
+  "timestamp": "2026-08-03T18:58:53.522Z"
+}

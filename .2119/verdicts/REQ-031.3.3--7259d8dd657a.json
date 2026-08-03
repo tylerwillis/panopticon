@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.3.3--7259d8dd657a",
+  "requirementId": "REQ-031.3.3",
+  "hash": "7259d8dd657a",
+  "verdict": "pass",
+  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. The heal test makes Docker unreachable for an orphaned task and asserts no lifecycle report occurs, so any failed-phase report is rejected.",
+  "timestamp": "2026-08-03T18:58:38.887Z"
+}

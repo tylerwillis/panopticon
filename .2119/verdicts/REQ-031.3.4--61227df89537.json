@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.3.4--61227df89537",
+  "requirementId": "REQ-031.3.4",
+  "hash": "61227df89537",
+  "verdict": "pass",
+  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. Both spawn_one and heal reject the nearest violation: a shell task consulting an unreachable Docker-daemon probe; spawn still claims and starts, while heal remains a no-op with zero probe calls.",
+  "timestamp": "2026-08-03T18:58:39.485Z"
+}

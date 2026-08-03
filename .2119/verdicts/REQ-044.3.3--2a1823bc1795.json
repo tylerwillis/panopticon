@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.3.3--2a1823bc1795",
+  "requirementId": "REQ-044.3.3",
+  "hash": "2a1823bc1795",
+  "verdict": "pass",
+  "summary": "Fresh reviewer PASS: both teardown orders expose ended-app tokens, preserve surviving-app redaction, and discard all tokens after both lifespans end.",
+  "timestamp": "2026-08-03T19:01:00.683Z"
+}

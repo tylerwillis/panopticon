@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-043.2.2--9bc294ef48fb",
+  "requirementId": "REQ-043.2.2",
+  "hash": "9bc294ef48fb",
+  "verdict": "pass",
+  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. Integration test rejects lifecycle reporting or clearing, claim release or reclaim, and runner commands from both mark_healing and heal while the failed task's claim remains held.",
+  "timestamp": "2026-08-03T18:58:51.718Z"
+}

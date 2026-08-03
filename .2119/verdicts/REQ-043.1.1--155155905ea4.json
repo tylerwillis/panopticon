@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-043.1.1--155155905ea4",
+  "requirementId": "REQ-043.1.1",
+  "hash": "155155905ea4",
+  "verdict": "pass",
+  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. Real image-build exit 1 before session creation retains the non-terminal claim, clears lifecycle, and an available-budget heal retries successfully without release.",
+  "timestamp": "2026-08-03T18:58:49.392Z"
+}

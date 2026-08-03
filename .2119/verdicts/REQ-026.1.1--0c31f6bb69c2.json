@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.1.1--0c31f6bb69c2",
+  "requirementId": "REQ-026.1.1",
+  "hash": "0c31f6bb69c2",
+  "verdict": "pass",
+  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. Candidate and host tests exclude an unclaimed non-terminal task when one or multiple dependencies include a non-terminal task.",
+  "timestamp": "2026-08-03T18:58:33.949Z"
+}
