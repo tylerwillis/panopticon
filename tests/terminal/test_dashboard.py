@@ -5851,6 +5851,13 @@ def test_open_checkout_warns_when_no_task_is_highlighted(monkeypatch: Any) -> No
     assert notices == [("No task highlighted.", "warning")]
     assert opened == []
 
+    notices.clear()
+    app._current = "stale-row-key"
+    app.action_open_checkout()
+
+    assert notices == [("No task highlighted.", "warning")]
+    assert opened == []
+
 
 # 2119: REQ-040.3.1
 def test_open_checkout_warns_when_task_is_not_provisioned(monkeypatch: Any) -> None:
