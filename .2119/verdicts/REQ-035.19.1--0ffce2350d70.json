@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.19.1--0ffce2350d70",
+  "requirementId": "REQ-035.19.1",
+  "hash": "0ffce2350d70",
+  "verdict": "pass",
+  "summary": "Test rejects premature next-token acceptance, verifies both old/new read and write tokens after overlap restart, preserves old tokens after file removal without restart, and rejects old tokens only after the next restart.",
+  "timestamp": "2026-08-03T17:34:25.661Z"
+}

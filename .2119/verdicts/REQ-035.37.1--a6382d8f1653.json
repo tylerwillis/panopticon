@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.37.1--a6382d8f1653",
+  "requirementId": "REQ-035.37.1",
+  "hash": "a6382d8f1653",
+  "verdict": "pass",
+  "summary": "Executes the rendered credential-less REST command against permissive auth, rejects even an empty Authorization header by asserting total absence, and proves admission via stored artifact.",
+  "timestamp": "2026-08-03T17:34:56.271Z"
+}

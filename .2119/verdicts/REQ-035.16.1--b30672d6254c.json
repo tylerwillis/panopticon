@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.16.1--b30672d6254c",
+  "requirementId": "REQ-035.16.1",
+  "hash": "b30672d6254c",
+  "verdict": "pass",
+  "summary": "The test rejects missing or wrong credential-file resolution for each of the runner, console/dashboard, and CLI factories, requires the shared TaskServiceClient type, and verifies protected requests carry the exact configured bearer token.",
+  "timestamp": "2026-08-03T17:33:59.203Z"
+}

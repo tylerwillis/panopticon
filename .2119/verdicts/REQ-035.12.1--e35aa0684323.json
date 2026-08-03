@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.12.1--e35aa0684323",
+  "requirementId": "REQ-035.12.1",
+  "hash": "e35aa0684323",
+  "verdict": "pass",
+  "summary": "Enumerates every registered protected REST method plus GET/POST/DELETE MCP without credentials, rejects generic 401 preemption on valid and invalid endpoint inputs, and separately verifies an empty production credential reference remains unset.",
+  "timestamp": "2026-08-03T17:33:34.636Z"
+}

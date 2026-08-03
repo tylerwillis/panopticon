@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.41.1--d993da0a51e0",
+  "requirementId": "REQ-035.41.1",
+  "hash": "d993da0a51e0",
+  "verdict": "pass",
+  "summary": "Shell-xtrace tests execute both authenticated Pi-operation and REST-artifact commands, reject the configured token in captured stderr, and confirm it is supplied only through curl stdin config.",
+  "timestamp": "2026-08-03T17:35:08.567Z"
+}
