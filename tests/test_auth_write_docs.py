@@ -17,6 +17,7 @@ def test_write_token_reaches_framework_documentation_routes(tmp_path: Path) -> N
     (secrets / "auth.json").write_text(
         json.dumps({"read": ["read-token-long"], "write": ["write-token-long"]})
     )
+    (secrets / "auth.json").chmod(0o600)
     app = build_app(
         db="sqlite://",
         artifacts_root=str(tmp_path / "artifacts"),

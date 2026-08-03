@@ -19,15 +19,93 @@ import pytest
 from fastapi.testclient import TestClient
 
 from panopticon.client import TaskServiceClient
+from panopticon.sessionservice.local_runner import LocalRunner
 from panopticon.sessionservice.shell_runner import ShellRunner
 from panopticon.taskservice import __main__ as taskservice_main
 from panopticon.taskservice.__main__ import build_app
-from panopticon.taskservice.auth import load_client_token
+from panopticon.taskservice.api import _redact_stream_chunk
+from panopticon.taskservice.auth import load_client_token, load_tokens
 from panopticon.terminal import __main__ as terminal_cli
 
 
 class _Completed:
     returncode = 1
+
+
+def test_mcp_redaction_masks_tokens_across_every_chunk_boundary() -> None:
+    tokens = (b"longer-secret-token", b"secret-token")
+    plaintext = b"before:longer-secret-token:secret-token:after"
+    expected = b"before:" + b"*" * 19 + b":" + b"*" * 12 + b":after"
+    for split in range(len(plaintext) + 1):
+        first, pending = _redact_stream_chunk(plaintext[:split], configured=tokens, more_body=True)
+        second, pending = _redact_stream_chunk(
+            plaintext[split:], configured=tokens, pending=pending, more_body=False
+        )
+        assert first + second == expected
+        assert pending == b""
+
+
+@pytest.mark.parametrize("mode", [0o100, 0o601, 0o610, 0o640, 0o644, 0o660, 0o666])
+def test_credential_loader_rejects_group_or_other_permissions(tmp_path: Path, mode: int) -> None:
+    # 2119: REQ-035.34.1
+    credential = tmp_path / "auth.json"
+    credential.write_text(
+        json.dumps({"read": ["private-reader-token"], "write": ["private-writer-token"]})
+    )
+    credential.chmod(mode)
+    with pytest.raises(ValueError, match="authentication credential"):
+        load_tokens(credential.name, secrets_dir=tmp_path)
+
+
+@pytest.mark.parametrize("runner_type", [LocalRunner, ShellRunner])
+def test_runner_preflight_rejects_insecure_credential_permissions(
+    tmp_path: Path, runner_type: type[LocalRunner] | type[ShellRunner]
+) -> None:
+    # 2119: REQ-035.34.1
+    credential = tmp_path / "auth.json"
+    credential.write_text(
+        json.dumps({"read": ["private-reader-token"], "write": ["private-writer-token"]})
+    )
+    credential.chmod(0o644)
+    runner = runner_type(
+        "http://service", auth_file=credential.name, secrets_dir=tmp_path, run=lambda *_a, **_k: ""
+    )
+    with pytest.raises(ValueError, match="authentication credential"):
+        runner.validate_configuration()
+
+
+@pytest.mark.parametrize("mode", [0o400, 0o600])
+def test_credential_loader_accepts_private_owner_permissions(tmp_path: Path, mode: int) -> None:
+    # 2119: REQ-035.34.1
+    credential = tmp_path / "auth.json"
+    credential.write_text(
+        json.dumps({"read": ["private-reader-token"], "write": ["private-writer-token"]})
+    )
+    credential.chmod(mode)
+    assert load_tokens(credential.name, secrets_dir=tmp_path).write == ("private-writer-token",)
+
+
+def test_credential_loader_rejects_a_foreign_owner(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # 2119: REQ-035.34.1
+    import panopticon.taskservice.auth as auth_module
+
+    credential = tmp_path / "auth.json"
+    credential.write_text(
+        json.dumps({"read": ["private-reader-token"], "write": ["private-writer-token"]})
+    )
+    credential.chmod(0o600)
+    original_fstat = auth_module.os.fstat
+
+    def foreign_owner(fd: int) -> os.stat_result:
+        values = list(original_fstat(fd))
+        values[4] += 1
+        return os.stat_result(values)
+
+    monkeypatch.setattr(auth_module.os, "fstat", foreign_owner)
+    with pytest.raises(ValueError, match="authentication credential"):
+        load_tokens(credential.name, secrets_dir=tmp_path)
 
 
 def test_non_ascii_operator_token_header_is_rejected_without_server_error(
@@ -112,6 +190,7 @@ def test_docker_runner_mounts_a_stable_snapshot_if_source_is_replaced(
     source.write_text(
         json.dumps({"read": ["stable-reader-token"], "write": ["stable-writer-token"]})
     )
+    source.chmod(0o600)
     original_snapshot = runner_module.snapshot_service_tokens
     snapshots: list[Path] = []
 
@@ -155,6 +234,7 @@ def test_shell_runner_uses_a_stable_snapshot_if_source_is_replaced(
     source.write_text(
         json.dumps({"read": ["stable-reader-token"], "write": ["stable-writer-token"]})
     )
+    source.chmod(0o600)
     original_snapshot = runner_module.snapshot_tokens
     snapshots: list[Path] = []
 
@@ -187,6 +267,34 @@ def test_shell_runner_uses_a_stable_snapshot_if_source_is_replaced(
         (True, '{"read": ["stable-reader-token"], "write": ["stable-writer-token"]}')
     ]
     snapshots[0].unlink()
+
+
+@pytest.mark.skipif(not shutil.which("tmux"), reason="needs tmux")
+def test_killing_real_shell_session_removes_credential_snapshot(tmp_path: Path) -> None:
+    credential = tmp_path / "auth.json"
+    credential.write_text(
+        json.dumps({"read": ["private-reader-token"], "write": ["private-writer-token"]})
+    )
+    credential.chmod(0o600)
+    socket_name = f"pan-auth-cleanup-{os.getpid()}"
+    runner = ShellRunner(
+        "http://127.0.0.1:9",
+        auth_file=credential.name,
+        secrets_dir=tmp_path,
+        script_dir=tmp_path,
+        tmux_socket=socket_name,
+    )
+    session = runner.spawn("cleanup", script="sleep 30")
+    snapshots = list(tmp_path.glob("panopticon-service-auth-cleanup-*.json"))
+    assert len(snapshots) == 1
+    try:
+        subprocess.run(["tmux", "-L", socket_name, "kill-session", "-t", session], check=True)
+        deadline = time.monotonic() + 5
+        while snapshots[0].exists() and time.monotonic() < deadline:
+            time.sleep(0.05)
+        assert not snapshots[0].exists()
+    finally:
+        subprocess.run(["tmux", "-L", socket_name, "kill-server"], check=False)
 
 
 def test_integrated_stack_explicitly_exposes_service_to_linux_containers() -> None:
@@ -349,6 +457,7 @@ def test_overlap_clients_select_the_appended_token(
             }
         )
     )
+    credential.chmod(0o600)
     assert (
         load_client_token(credential.name, privilege="write", secrets_dir=tmp_path)
         == "old-write-token"
@@ -438,6 +547,7 @@ def test_root_path_does_not_downgrade_write_only_routes(tmp_path: Path) -> None:
     (secrets / "auth.json").write_text(
         json.dumps({"read": ["read-token-long"], "write": ["write-token-long"]})
     )
+    (secrets / "auth.json").chmod(0o600)
     app = build_app(
         db="sqlite://",
         artifacts_root=str(tmp_path / "artifacts"),
@@ -496,6 +606,7 @@ def test_production_process_reports_enforced_mode(tmp_path: Path) -> None:
     (secrets / "auth.json").write_text(
         json.dumps({"read": ["read-token-long"], "write": ["write-token-long"]})
     )
+    (secrets / "auth.json").chmod(0o600)
     with socket.socket() as probe:
         probe.bind(("127.0.0.1", 0))
         port = probe.getsockname()[1]
@@ -551,6 +662,7 @@ def test_non_enforced_modes_log_warning_level(
     (secrets / "auth.json").write_text(
         json.dumps({"read": ["read-token-long"], "write": ["write-token-long"]})
     )
+    (secrets / "auth.json").chmod(0o600)
     build_app(
         db="sqlite://",
         artifacts_root=str(tmp_path / "permissive-artifacts"),

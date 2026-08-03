@@ -254,14 +254,6 @@ class LocalRunner(Runner):
         if env_path := secrets_file_path(env_file, secrets_dir=self._secrets_dir):
             docker_run += ["--env-file", env_path]  # per-repo secrets, resolved host-locally
         auth_snapshot: Path | None = None
-        if self._auth_file:
-            auth_snapshot = snapshot_service_tokens(
-                self._auth_file,
-                secrets_dir=self._secrets_dir,
-                prefix=f"panopticon-service-auth-{task_id}-",
-            )
-            docker_run += ["--volume", f"{auth_snapshot}:{SERVICE_AUTH_MOUNT}:ro"]
-            env["PANOPTICON_SERVICE_AUTH_FILE"] = SERVICE_AUTH_MOUNT
         if workspace:  # the per-task clone — the agent's writable working dir (ADR 0011)
             docker_run += [
                 "--volume",
@@ -276,6 +268,14 @@ class LocalRunner(Runner):
         # Per-task config volume: persists the agent CLI's session history across respawn/recreate
         # (the transcripts live in the config dir, otherwise thrown away with the container).
         docker_run += ["--volume", f"panopticon-config-{task_id}:{config_mount}"]
+        if self._auth_file:
+            auth_snapshot = snapshot_service_tokens(
+                self._auth_file,
+                secrets_dir=self._secrets_dir,
+                prefix=f"panopticon-service-auth-{task_id}-",
+            )
+            docker_run += ["--volume", f"{auth_snapshot}:{SERVICE_AUTH_MOUNT}:ro"]
+            env["PANOPTICON_SERVICE_AUTH_FILE"] = SERVICE_AUTH_MOUNT
         for key, value in env.items():
             docker_run += ["--env", f"{key}={value}"]
         docker_run.append(
@@ -284,10 +284,10 @@ class LocalRunner(Runner):
         # Clear any stale tmux session + container first — handles both a prior exited run and a
         # live force-respawn (dashboard `R` kills and restarts). Both are no-ops when nothing
         # exists, so spawn is fully idempotent. (`stop()` does the same pair.)
-        self._run(self._tmux("kill-session", "-t", container), check=False)
-        self._run(["docker", "rm", "--force", container], check=False)
-        _report(LifecyclePhase.STARTING)  # docker run + the tmux session coming up
         try:
+            self._run(self._tmux("kill-session", "-t", container), check=False)
+            self._run(["docker", "rm", "--force", container], check=False)
+            _report(LifecyclePhase.STARTING)  # docker run + the tmux session coming up
             self._run(docker_run)
         finally:
             if auth_snapshot is not None:

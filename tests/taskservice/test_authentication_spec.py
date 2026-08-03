@@ -35,10 +35,10 @@ OPAQUE_WRITE_TOKEN = "write._~+-/=="
 GENERIC_FAILURE = {"detail": "authentication required"}
 TOKEN_GRAMMAR = re.compile(r"[A-Za-z0-9._~+/-]+=*\Z")
 INVALID_TOKEN_VALUES = [
-    f"a{character}b"
+    f"validprefix{character}tail"
     for character in map(chr, range(128))
-    if TOKEN_GRAMMAR.fullmatch(f"a{character}b") is None
-] + ["", "=", "==", "é", "λ", "😀", "Ａ"]
+    if TOKEN_GRAMMAR.fullmatch(f"validprefix{character}tail") is None
+] + ["", "=", "==", "validprefixé", "validprefixλ", "validprefix😀", "validprefixＡ"]
 
 
 def _service(tmp_path: Path) -> TaskService:
@@ -61,7 +61,9 @@ def _credential_file(tmp_path: Path, *, overlap: bool = False, opaque: bool = Fa
     if opaque:
         read.append(OPAQUE_READ_TOKEN)
         write.append(OPAQUE_WRITE_TOKEN)
-    (secrets / "task-service-auth.json").write_text(json.dumps({"read": read, "write": write}))
+    credential = secrets / "task-service-auth.json"
+    credential.write_text(json.dumps({"read": read, "write": write}))
+    credential.chmod(0o600)
     return "task-service-auth.json"
 
 
@@ -943,6 +945,13 @@ def test_permissive_mode_accepts_legacy_and_authenticated_callers(tmp_path: Path
             if not _is_mutating(method, path):
                 reader = client.request(method, path, headers=_bearer(READ_TOKEN))
                 assert not (reader.status_code in {401, 403} and reader.json() == GENERIC_FAILURE)
+        insufficient = client.post(
+            "/tasks",
+            headers=_bearer(READ_TOKEN),
+            json={"repo_id": "r1", "workflow": "spike"},
+        )
+        assert insufficient.status_code == 401
+        assert insufficient.json() == GENERIC_FAILURE
         for payload in [
             {"jsonrpc": "2.0", "id": 0, "method": "initialize", "params": {}},
             {"jsonrpc": "2.0", "id": 1, "method": "tools/list"},
@@ -1066,7 +1075,9 @@ def test_enforced_mode_accepts_twelve_character_tokens(tmp_path: Path, privilege
     secrets.mkdir()
     credentials = {"read": [READ_TOKEN], "write": [WRITE_TOKEN]}
     credentials[privilege] = ["x" * 12]
-    (secrets / "boundary.json").write_text(json.dumps(credentials))
+    boundary = secrets / "boundary.json"
+    boundary.write_text(json.dumps(credentials))
+    boundary.chmod(0o600)
 
     with TestClient(
         create_app(

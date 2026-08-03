@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -106,6 +107,50 @@ def test_main_dispatches_to_the_recorded_harness(
     assert launched == ["codex"]
     assert (tmp_path / ".codex" / "config.toml").exists()  # the codex surface, not claude's
     assert not (tmp_path / ".claude").exists()
+
+
+@pytest.mark.parametrize("harness", ["claude", "codex", "pi"])
+def test_main_propagates_the_runtime_service_token_through_each_harness_bootstrap(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, harness: str
+) -> None:
+    _base_env(monkeypatch)
+    credential = tmp_path / "service-auth.json"
+    credential.write_text(
+        json.dumps({"read": ["container-reader-token"], "write": ["container-writer-token"]})
+    )
+    credential.chmod(0o600)
+    monkeypatch.setenv("PANOPTICON_SERVICE_AUTH_FILE", str(credential))
+    monkeypatch.setenv("PANOPTICON_HARNESS", harness)
+    if harness == "claude":
+        monkeypatch.setenv("CLAUDE_CODE_OAUTH_TOKEN", VALID_OAUTH_TOKEN)
+    elif harness == "codex":
+        monkeypatch.setenv("CODEX_API_KEY", VALID_CODEX_API_KEY)
+    else:
+        monkeypatch.setenv("OPENAI_API_KEY", VALID_CODEX_API_KEY)
+
+    agent.main(
+        client_factory=lambda url: _FakeClient(operations={"advance": "COMPLETE"}),  # type: ignore[arg-type,return-value]
+        home=tmp_path,
+        launch=lambda _harness, _ctx: None,
+        on_exit=lambda: None,
+    )
+
+    assert agent.os.environ["PANOPTICON_SERVICE_AUTH_TOKEN"] == "container-writer-token"
+    if harness == "claude":
+        assert (
+            "${PANOPTICON_SERVICE_AUTH_TOKEN}"
+            in (tmp_path / ".claude" / MCP_CONFIG_FILE).read_text()
+        )
+    elif harness == "codex":
+        assert (
+            'bearer_token_env_var = "PANOPTICON_SERVICE_AUTH_TOKEN"'
+            in (tmp_path / ".codex" / "config.toml").read_text()
+        )
+    else:
+        assert (
+            "PANOPTICON_SERVICE_AUTH_TOKEN"
+            in next((tmp_path / ".agents" / "skills").glob("advance*/SKILL.md")).read_text()
+        )
 
 
 def test_main_fail_fast_message_names_the_active_harnesss_fix(

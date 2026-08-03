@@ -18,8 +18,9 @@ The arrays may contain multiple tokens for rotation, but must be nonempty, have 
 never overlap. Tokens use the transport-safe ASCII bearer grammar: letters, digits,
 `-._~+/`, followed by optional `=` padding, with a minimum length of twelve characters. Generate
 long random values using that alphabet; short values, spaces, control characters, non-ASCII text,
-quotes, and backslashes are rejected at startup. Keep the file mode `0600`. Configure every
-task-service and runner host with the same filename reference.
+quotes, and backslashes are rejected at startup. The file must be owned by the Panopticon process
+user with no group or other permissions (normally mode `0600`); insecure files are rejected.
+Configure every task-service and runner host with the same filename reference.
 The required steady-state configuration is enforced mode:
 
 ```sh

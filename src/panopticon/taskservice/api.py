@@ -46,6 +46,34 @@ from panopticon.taskservice.service import (
 #: proxies from closing the connection and gives the container a tick to notice a clean stop.
 LIVENESS_KEEPALIVE_SECONDS = 5.0
 
+
+def _redact_stream_chunk(
+    data: bytes,
+    *,
+    configured: tuple[bytes, ...],
+    pending: bytes = b"",
+    more_body: bool,
+) -> tuple[bytes, bytes]:
+    """Redact configured values while retaining a possible cross-chunk token prefix."""
+    data = pending + data
+    if not configured:
+        return data, b""
+    pattern = re.compile(b"|".join(re.escape(token) for token in configured))
+    safe_end = len(data) if not more_body else max(0, len(data) - max(map(len, configured)) + 1)
+    output = bytearray()
+    consumed = 0
+    for matched in pattern.finditer(data):
+        if matched.start() >= safe_end:
+            break
+        output.extend(data[consumed : matched.start()])
+        output.extend(b"*" * (matched.end() - matched.start()))
+        consumed = matched.end()
+    if consumed < safe_end:
+        output.extend(data[consumed:safe_end])
+        consumed = safe_end
+    return bytes(output), data[consumed:]
+
+
 # -- wire schemas -------------------------------------------------------------------
 
 
@@ -506,35 +534,21 @@ def create_app(
             if tokens
             else ()
         )
-        token_pattern = (
-            re.compile(b"|".join(re.escape(token) for token in configured)) if configured else None
-        )
-        max_token_length = max(map(len, configured), default=1)
         pending = b""
 
         async def send_redacted(message: Message) -> None:
             nonlocal pending
             if message["type"] == "http.response.body":
-                data = pending + message.get("body", b"")
-                pending = b""
-                output = bytearray()
                 more_body = bool(message.get("more_body", False))
-                safe_end = len(data) if not more_body else max(0, len(data) - max_token_length + 1)
-                consumed = 0
-                if token_pattern is not None:
-                    for matched in token_pattern.finditer(data):
-                        if matched.start() >= safe_end:
-                            break
-                        output.extend(data[consumed : matched.start()])
-                        output.extend(b"*" * (matched.end() - matched.start()))
-                        consumed = matched.end()
-                if consumed < safe_end:
-                    output.extend(data[consumed:safe_end])
-                    consumed = safe_end
-                pending = data[consumed:]
+                output, pending = _redact_stream_chunk(
+                    message.get("body", b""),
+                    configured=configured,
+                    pending=pending,
+                    more_body=more_body,
+                )
                 message = {
                     **message,
-                    "body": bytes(output),
+                    "body": output,
                 }
             await send(message)
 

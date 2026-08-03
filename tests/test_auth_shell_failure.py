@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import shlex
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -24,6 +25,7 @@ _panopticon_curl --silent http://service
         env={
             **os.environ,
             "PANOPTICON_SERVICE_AUTH_FILE": str(credential),
+            "PANOPTICON_PYTHON": sys.executable,
         },
         check=False,
     )

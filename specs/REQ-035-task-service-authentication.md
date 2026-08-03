@@ -145,3 +145,7 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 ### REQ-035.33: Minimum token length
 
 1. Every configured bearer token MUST contain at least twelve characters so response redaction cannot corrupt ordinary protocol text for accepted short-token configurations.
+
+### REQ-035.34: Private credential permissions
+
+1. Authentication startup and runner preflight MUST reject a credential file not owned by the current effective user or readable, writable, or executable by its group or other users.

@@ -94,6 +94,11 @@ class ShellRunner(Runner):
         if self._auth_file:
             load_tokens(self._auth_file, secrets_dir=self._secrets_dir)
 
+    def _remove_auth_snapshots(self, task_id: str) -> None:
+        """Remove private snapshots left by a killed shell session."""
+        for path in self._script_dir.glob(f"panopticon-service-auth-{task_id}-*.json"):
+            path.unlink(missing_ok=True)
+
     def spawn(
         self,
         task_id: str,
@@ -132,6 +137,7 @@ class ShellRunner(Runner):
 
         start_dir = workdir or os.path.expanduser("~")
         session = session_name(task_id)
+        self._remove_auth_snapshots(task_id)
         auth_snapshot = (
             snapshot_tokens(
                 self._auth_file,
@@ -170,13 +176,16 @@ class ShellRunner(Runner):
             _TASK_LIB,
             f"_panopticon_curl --silent --no-buffer {shlex.quote(live_url)} >/dev/null 2>&1 &",
             "_panopticon_live_pid=$!",
-            (
-                "trap 'kill $_panopticon_live_pid 2>/dev/null; rm -f "
-                + shlex.quote(str(auth_snapshot))
-                + "' EXIT"
+            "_panopticon_cleanup() { trap - EXIT HUP INT TERM; "
+            "kill $_panopticon_live_pid 2>/dev/null; "
+            + (
+                "rm -f " + shlex.quote(str(auth_snapshot)) + "; "
                 if auth_snapshot is not None
-                else "trap 'kill $_panopticon_live_pid 2>/dev/null' EXIT"
-            ),
+                else ""
+            )
+            + "}",
+            "trap '_panopticon_cleanup' EXIT",
+            "trap '_panopticon_cleanup; exit 129' HUP INT TERM",
         ]
         # Resolve the env_file *name* to an absolute path under this host's secrets dir, expose the
         # path (so a script can tell the operator where to add their own credential), then source it
@@ -197,10 +206,10 @@ class ShellRunner(Runner):
             quoted_script = shlex.quote(str(script_path))
             command = f"trap 'rm -f {quoted_script}' EXIT; sh {quoted_script}"
         # Clear any stale session first so a respawn is idempotent (no-op when none exists).
-        self._run(self._tmux("kill-session", "-t", session), check=False)
-        _report(LifecyclePhase.STARTING)
-        # -c sets the pane's start directory (the task's own dir) so the script runs in a known place.
         try:
+            self._run(self._tmux("kill-session", "-t", session), check=False)
+            _report(LifecyclePhase.STARTING)
+            # -c sets the pane's start directory (the task's own dir) so the script runs in a known place.
             self._run(
                 self._tmux(
                     *defaults_argv(self._tmux_socket),
@@ -239,3 +248,4 @@ class ShellRunner(Runner):
     def stop(self, session_id: str) -> None:
         # Idempotent: tolerate an already-gone session.
         self._run(self._tmux("kill-session", "-t", session_id), check=False)
+        self._remove_auth_snapshots(session_id.removeprefix("panopticon-"))

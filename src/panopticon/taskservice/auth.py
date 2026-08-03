@@ -67,7 +67,13 @@ def _read_regular_file(path: Path) -> str:
     fd = -1
     try:
         fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK | getattr(os, "O_NOFOLLOW", 0))
-        if not stat.S_ISREG(os.fstat(fd).st_mode):
+        opened = os.fstat(fd)
+        current_uid = getattr(os, "geteuid", lambda: opened.st_uid)()
+        if (
+            not stat.S_ISREG(opened.st_mode)
+            or opened.st_uid != current_uid
+            or opened.st_mode & 0o077
+        ):
             raise _credential_error()
         with os.fdopen(fd, encoding="utf-8") as handle:
             fd = -1  # ownership transferred to the file object

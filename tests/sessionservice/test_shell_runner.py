@@ -102,7 +102,8 @@ def test_spawn_holds_a_liveness_registration_open_in_the_background() -> None:
         "/tasks/t1/live?container_id=panopticon-t1&runner_id=r1" in command
     )  # holds liveness open
     assert "--no-buffer" in command and command.count(" &\n") >= 1  # backgrounded, streaming GET
-    assert "trap 'kill $_panopticon_live_pid 2>/dev/null' EXIT" in command  # dropped when it exits
+    assert "trap '_panopticon_cleanup' EXIT" in command
+    assert "trap '_panopticon_cleanup; exit 129' HUP INT TERM" in command
     # the registration is established before the workflow script runs
     assert command.index("/live?") < command.index("echo hi")
 
@@ -237,6 +238,20 @@ def test_stop_kills_the_session() -> None:
     rec = _Recorder()
     ShellRunner("http://svc:8000", run=rec).stop("panopticon-t1")
     assert rec.calls == [["tmux", "-L", "panopticon", "kill-session", "-t", "panopticon-t1"]]
+
+
+def test_spawn_and_stop_remove_stranded_auth_snapshots(tmp_path: Path) -> None:
+    rec = _Recorder()
+    runner = ShellRunner("http://svc:8000", run=rec, script_dir=tmp_path)
+    stale = tmp_path / "panopticon-service-auth-t1-stranded.json"
+    stale.write_text("secret")
+    runner.spawn("t1", script="true")
+    assert not stale.exists()
+
+    stranded = tmp_path / "panopticon-service-auth-t1-after-spawn.json"
+    stranded.write_text("secret")
+    runner.stop("panopticon-t1")
+    assert not stranded.exists()
 
 
 # 2119: REQ-030.3.1

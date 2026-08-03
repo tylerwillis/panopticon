@@ -35,6 +35,7 @@ def test_build_app_honors_production_auth_environment(
     (secrets / "task-service-auth.json").write_text(
         json.dumps({"read": ["production-read-token-long"], "write": [token]})
     )
+    (secrets / "task-service-auth.json").chmod(0o600)
     monkeypatch.setenv("PANOPTICON_CONFIG", str(config))
     monkeypatch.setenv("PANOPTICON_SERVICE_AUTH_FILE", "task-service-auth.json")
     monkeypatch.setenv("PANOPTICON_SERVICE_AUTH_MODE", "enforced")
@@ -101,6 +102,7 @@ def test_production_launcher_does_not_persist_rejected_query_credentials(tmp_pat
     (secrets / "auth.json").write_text(
         json.dumps({"read": ["read-token-long"], "write": ["write-token-long"]})
     )
+    (secrets / "auth.json").chmod(0o600)
     with socket.socket() as probe:
         probe.bind(("127.0.0.1", 0))
         port = probe.getsockname()[1]
@@ -162,6 +164,7 @@ def test_build_app_warns_for_non_enforced_modes(
     (secrets / "auth.json").write_text(
         json.dumps({"read": ["read-token-long"], "write": ["write-token-long"]})
     )
+    (secrets / "auth.json").chmod(0o600)
     build_app(
         db="sqlite://",
         artifacts_root=str(tmp_path / "permissive-artifacts"),
