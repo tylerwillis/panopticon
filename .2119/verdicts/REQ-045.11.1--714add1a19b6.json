@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.11.1--714add1a19b6",
+  "requirementId": "REQ-045.11.1",
+  "hash": "714add1a19b6",
+  "verdict": "pass",
+  "summary": "Real-app tests reject CORS allow-origin exposure when the browser-origin allowlist is omitted or empty across actual requests, preflights, streams, routes, methods, and origins.",
+  "timestamp": "2026-08-03T23:16:10.049Z"
+}

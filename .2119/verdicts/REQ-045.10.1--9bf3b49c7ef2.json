@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.10.1--9bf3b49c7ef2",
+  "requirementId": "REQ-045.10.1",
+  "hash": "9bf3b49c7ef2",
+  "verdict": "pass",
+  "summary": "Behavioral tests accept the exact cross-origin Bearer header and reject every named query, cookie, JSON, and header channel both alone and alongside it, plus malformed near-miss Authorization values.",
+  "timestamp": "2026-08-03T23:15:36.958Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.8.1--7de537293165",
+  "requirementId": "REQ-045.8.1",
+  "hash": "7de537293165",
+  "verdict": "pass",
+  "summary": "All 15 named REST/MCP pairs compare equal scope decisions for self, multiple governed-descendant depths, unrelated, and missing targets, with pair coverage checked against registered surfaces.",
+  "timestamp": "2026-08-03T23:18:10.017Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.11.2--bb4a6e49c437",
+  "requirementId": "REQ-045.11.2",
+  "hash": "bb4a6e49c437",
+  "verdict": "pass",
+  "summary": "Tests reject wildcard, missing scheme/host, trailing-slash/path, query, fragment, credentials, opaque, and representative malformed entries during client startup, including invalid entries mixed with valid ones, while proving exact host origins with valid ports are accepted.",
+  "timestamp": "2026-08-03T23:16:12.505Z"
+}

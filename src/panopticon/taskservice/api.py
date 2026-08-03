@@ -893,10 +893,14 @@ def create_app(
                     status_code=403, content={"detail": "credential scope forbids operation"}
                 )
             if route_path.startswith("/mcp"):
+                if request.method in {"GET", "DELETE", "OPTIONS"}:
+                    return await call_next(request)
                 try:
                     body = json.loads(await request.body())
                 except json.JSONDecodeError:
                     body = {}
+                if policy.is_mcp_protocol_request(body):
+                    return await call_next(request)
                 decision = await policy.authorize_mcp_async(presented, body)
                 if decision.allowed:
                     return await call_next(request)

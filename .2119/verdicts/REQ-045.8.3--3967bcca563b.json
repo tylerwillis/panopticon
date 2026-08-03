@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.8.3--3967bcca563b",
+  "requirementId": "REQ-045.8.3",
+  "hash": "3967bcca563b",
+  "verdict": "pass",
+  "summary": "Live route/tool/resource-template inventories must exactly equal classification keys, exclusions and unknown extras are checked, and every value must be a member of the closed AuthorizationClass enum.",
+  "timestamp": "2026-08-03T23:15:30.041Z"
+}

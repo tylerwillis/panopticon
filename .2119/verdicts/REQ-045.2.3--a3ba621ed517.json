@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.2.3--a3ba621ed517",
+  "requirementId": "REQ-045.2.3",
+  "hash": "a3ba621ed517",
+  "verdict": "pass",
+  "summary": "Tests reject malformed structures, altered MACs, and subject/profile misbinding while matching full wire responses for existing and nonexistent asserted tasks.",
+  "timestamp": "2026-08-03T23:18:16.683Z"
+}

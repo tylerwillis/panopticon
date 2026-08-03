@@ -13,6 +13,22 @@ from panopticon.taskservice.service import TaskService
 
 SCOPE_FAILURE = {"detail": "credential scope forbids operation"}
 
+# Streamable HTTP protocol/session messages carry no task authority themselves. Task-capability
+# authorization is applied only when a request names a Panopticon tool or artifact resource.
+MCP_PROTOCOL_METHODS = frozenset(
+    {
+        "initialize",
+        "notifications/initialized",
+        "notifications/cancelled",
+        "ping",
+        "tools/list",
+        "resources/list",
+        "resources/templates/list",
+        "prompts/list",
+        "logging/setLevel",
+    }
+)
+
 
 class AuthorizationClass(str, Enum):
     PUBLIC = "public"
@@ -293,6 +309,12 @@ class CredentialScopePolicy:
             )
             return ScopeDecision(allowed, subject, target_id)
         return await self.decide(subject, action, target_id)
+
+    @staticmethod
+    def is_mcp_protocol_request(request: dict[str, Any]) -> bool:
+        """Whether a JSON-RPC message is transport/discovery rather than a scoped invocation."""
+
+        return request.get("method") in MCP_PROTOCOL_METHODS
 
     def action_for_rest(self, method: str, template: str) -> Action | None:
         return _REST_ACTIONS.get((method.upper(), template))

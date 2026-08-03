@@ -159,6 +159,8 @@ def load_client_token(
 ) -> str:
     tokens = load_tokens(reference, secrets_dir=secrets_dir)
     values = tokens.read if privilege == "read" else tokens.write
+    if not values:
+        raise ValueError(f"authentication credential has no configured {privilege} token")
     return values[-1]
 
 

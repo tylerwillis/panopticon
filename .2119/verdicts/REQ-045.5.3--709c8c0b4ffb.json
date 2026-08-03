@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.5.3--709c8c0b4ffb",
+  "requirementId": "REQ-045.5.3",
+  "hash": "709c8c0b4ffb",
+  "verdict": "pass",
+  "summary": "Tests open and close the subject's registration, prove its liveness stream stays open through a keepalive, and reject sibling registration, deletion, and stream access.",
+  "timestamp": "2026-08-03T23:14:08.254Z"
+}

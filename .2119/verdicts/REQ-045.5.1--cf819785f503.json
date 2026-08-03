@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.5.1--cf819785f503",
+  "requirementId": "REQ-045.5.1",
+  "hash": "cf819785f503",
+  "verdict": "pass",
+  "summary": "Tests exercise every listed task-capability mutation and reject nearest persistence violations by reloading durable state across alternate operations, transitions, responsibility outcomes, scalar values, booleans, turns, token reports, and dependency set/clear cases.",
+  "timestamp": "2026-08-03T23:14:04.287Z"
+}

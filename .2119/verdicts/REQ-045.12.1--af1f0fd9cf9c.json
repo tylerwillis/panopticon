@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.12.1--af1f0fd9cf9c",
+  "requirementId": "REQ-045.12.1",
+  "hash": "af1f0fd9cf9c",
+  "verdict": "pass",
+  "summary": "Covers every Action x Relation x orchestrates case with repeated identical principal/target inputs; any stateful or clock-dependent unequal decision is rejected.",
+  "timestamp": "2026-08-03T23:16:35.921Z"
+}

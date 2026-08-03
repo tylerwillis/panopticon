@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.2.4--240a8f7dddfa",
+  "requirementId": "REQ-045.2.4",
+  "hash": "240a8f7dddfa",
+  "verdict": "pass",
+  "summary": "Tests reject differing outputs for identical version/profile constants, subject, and fleet token across repeated calls and a fresh interpreter, while covering multiple subjects and fleet tokens.",
+  "timestamp": "2026-08-03T23:13:19.430Z"
+}

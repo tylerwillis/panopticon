@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.4.1--1ae947576d4c",
+  "requirementId": "REQ-045.4.1",
+  "hash": "1ae947576d4c",
+  "verdict": "pass",
+  "summary": "Tests verify every listed self-read surface, exact workflow-derived content, artifact names/bytes, registration records and liveness bytes, while rejecting the nearest violation: sibling-task substitution.",
+  "timestamp": "2026-08-03T23:13:36.498Z"
+}

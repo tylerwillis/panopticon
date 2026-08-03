@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.3.2--cfd0739a0cdc",
+  "requirementId": "REQ-045.3.2",
+  "hash": "cfd0739a0cdc",
+  "verdict": "pass",
+  "summary": "Tests exercise authentication and reject capability plaintext across task/repo REST responses, raw database and artifact bytes, every spawned command argument, and logs including a capability-plus-suffix near violation.",
+  "timestamp": "2026-08-03T23:13:23.136Z"
+}

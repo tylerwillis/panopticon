@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.10.2--08e2a169e277",
+  "requirementId": "REQ-045.10.2",
+  "hash": "08e2a169e277",
+  "verdict": "pass",
+  "summary": "Tests reject Access-Control-Allow-Credentials true, including case, whitespace, and comma-list variants, on actual and preflight responses across routes, methods, origins, and error paths.",
+  "timestamp": "2026-08-03T23:15:52.025Z"
+}

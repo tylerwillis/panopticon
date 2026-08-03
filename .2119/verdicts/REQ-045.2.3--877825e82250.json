@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.2.3--877825e82250",
+  "requirementId": "REQ-045.2.3",
+  "hash": "877825e82250",
+  "verdict": "pass",
+  "summary": "Tests reject valid-but-differently-bound, one-byte-forged, and malformed capabilities across format boundaries, while matching wire responses for existing and nonexistent asserted or target tasks.",
+  "timestamp": "2026-08-03T23:13:07.536Z"
+}

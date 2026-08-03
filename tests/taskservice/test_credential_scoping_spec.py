@@ -17,20 +17,24 @@ import subprocess
 import sys
 from pathlib import Path
 
+import httpx
 import pytest
 from fastapi.testclient import TestClient
+from mcp import ClientSession
+from mcp.client.streamable_http import streamable_http_client
 
 from panopticon.core.models import Repo, Responsibility, Skill
 from panopticon.core.state import Complete, InitialState, State
 from panopticon.core.workflow import Workflow
 from panopticon.taskservice.api import create_app
 from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
-from panopticon.taskservice.auth import derive_task_capability
+from panopticon.taskservice.auth import derive_task_capability, load_client_token
 from panopticon.taskservice.service import TaskService
 from panopticon.taskservice.store_sqlalchemy import SqlAlchemyStore
 from panopticon.workflows import Orchestrator, Spike
 
 WRITE_TOKEN = "fleet-writer-token"
+ROTATED_WRITE_TOKEN = "rotated-fleet-writer-token"
 OLD_WRITE_TOKEN = "old-fleet-writer-token"
 READ_TOKEN = "phone-reader-token"
 SECOND_READ_TOKEN = "second-phone-reader-token"
@@ -452,6 +456,22 @@ def test_malformed_or_differently_bound_task_capabilities_are_rejected(
             dict(nonexistent_subject_response.headers),
             nonexistent_subject_response.content,
         )
+        _assert_capability_generation_revoked_everywhere(client, removed=invalid, remaining=token)
+        for payload in (
+            {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "tools/call",
+                "params": {"name": "get_task", "arguments": {"task_id": own["id"]}},
+            },
+            {
+                "jsonrpc": "2.0",
+                "id": 2,
+                "method": "resources/read",
+                "params": {"uri": f"task://{own['id']}/artifacts/plan.md"},
+            },
+        ):
+            assert client.post("/mcp", headers=_bearer(invalid), json=payload).status_code == 401
 
 
 @pytest.mark.parametrize(
@@ -606,7 +626,7 @@ def test_task_token_reads_only_its_task_repo_and_collection_view(tmp_path: Path)
             if path == f"/tasks/{own_id}":
                 assert body["id"] == own_id
             elif path.endswith("/transitions"):
-                assert set(body) == {"COMPLETE", "DROPPED"}
+                assert body == ["COMPLETE", "DROPPED"]
             elif path.endswith("/operations"):
                 assert body == {"advance": "COMPLETE", "drop": "DROPPED"}
             elif path.endswith("/states"):
@@ -1858,6 +1878,51 @@ def test_mcp_uses_the_same_scope_for_tool_arguments_and_artifact_resources(tmp_p
         assert decision.allowed is True
 
 
+def test_task_capability_drives_a_real_mcp_session_and_keeps_cross_task_denied(
+    tmp_path: Path,
+) -> None:
+    # 2119: REQ-045.5.1
+    # 2119: REQ-045.6.3
+    # 2119: REQ-045.8.1
+    with _client(tmp_path) as client:
+        own = _create_task(client)
+        sibling = _create_task(client)
+        token = _task_token(own["id"])
+
+        async def exercise() -> None:
+            transport = httpx.ASGITransport(app=client.app)
+            async with httpx.AsyncClient(
+                transport=transport,
+                base_url="http://testserver",
+                headers=_bearer(token),
+            ) as http_client:
+                with pytest.raises(ExceptionGroup) as denied:
+                    async with streamable_http_client(
+                        "http://testserver/mcp/", http_client=http_client
+                    ) as (read_stream, write_stream, _):
+                        async with ClientSession(read_stream, write_stream) as session:
+                            await session.initialize()
+                            tools = {tool.name for tool in (await session.list_tools()).tools}
+                            assert "set_slug" in tools
+                            result = await session.call_tool(
+                                "set_slug", {"task_id": own["id"], "slug": "mcp-self"}
+                            )
+                            assert result.isError is False
+                            await session.call_tool(
+                                "set_slug", {"task_id": sibling["id"], "slug": "forbidden"}
+                            )
+                assert any(
+                    isinstance(error, httpx.HTTPStatusError) and error.response.status_code == 403
+                    for error in denied.value.exceptions
+                )
+
+        asyncio.run(exercise())
+        assert (
+            client.get(f"/tasks/{own['id']}", headers=_bearer(token)).json()["slug"] == "mcp-self"
+        )
+        assert sibling["slug"] is None
+
+
 def test_rest_and_mcp_resolve_equivalent_actions_to_identical_scope_decisions(
     tmp_path: Path,
 ) -> None:
@@ -2046,6 +2111,13 @@ def test_read_array_is_optional_but_configured_read_token_stays_read_only(tmp_pa
     empty = tmp_path / "empty"
     with _client(empty, read=[]) as no_reader:
         assert no_reader.get("/tasks", headers=_bearer(WRITE_TOKEN)).status_code == 200
+    empty_reference = _credential_file(tmp_path / "empty-client", read=[])
+    with pytest.raises(ValueError, match="no configured read token"):
+        load_client_token(
+            empty_reference,
+            privilege="read",
+            secrets_dir=tmp_path / "empty-client" / "secrets",
+        )
     invalid = tmp_path / "invalid"
     with pytest.raises(ValueError, match="authentication credential file is invalid"):
         _client(invalid, read=[], write=[])
@@ -3193,18 +3265,24 @@ def test_runner_injects_only_the_subject_task_capability(
             user="1000:1000",
             run=run,
         )
+        credential = secrets / reference
+        credential.write_text(
+            json.dumps({"read": [SECOND_READ_TOKEN], "write": [WRITE_TOKEN, ROTATED_WRITE_TOKEN]})
+        )
+        credential.chmod(0o600)
         runner.spawn(task_id)
         docker = next(call for call in calls if call[:2] == ["docker", "run"])
         rendered = " ".join(docker)
         encoded_subject = base64.urlsafe_b64encode(task_id.encode()).decode().rstrip("=")
         independent_mac = hmac.new(
-            WRITE_TOKEN.encode(),
+            ROTATED_WRITE_TOKEN.encode(),
             b"panopticon-task-capability-v1\0" + task_id.encode() + b"\0self",
             hashlib.sha256,
         ).digest()
         encoded_mac = base64.urlsafe_b64encode(independent_mac).decode().rstrip("=")
         expected = f"ptc1.{encoded_subject}.self.{encoded_mac}"
         assert WRITE_TOKEN not in rendered
+        assert ROTATED_WRITE_TOKEN not in rendered
         assert OLD_WRITE_TOKEN not in rendered
         assert READ_TOKEN not in rendered
         assert SECOND_READ_TOKEN not in rendered
@@ -3254,6 +3332,7 @@ def test_runner_injects_only_the_subject_task_capability(
         capability_bearing_mounts: list[dict[str, object]] = []
         for contents in mounted_files.values():
             assert WRITE_TOKEN not in contents
+            assert ROTATED_WRITE_TOKEN not in contents
             assert OLD_WRITE_TOKEN not in contents
             assert READ_TOKEN not in contents
             assert SECOND_READ_TOKEN not in contents
@@ -3268,16 +3347,18 @@ def test_runner_injects_only_the_subject_task_capability(
                 capability_bearing_mounts.append(decoded)
         assert credential_snapshots == [{"task": expected}]
         assert capability_bearing_mounts == [{"task": expected}]
-        assert (
-            client.get(f"/tasks/{task_id}", headers=_bearer(mounted_snapshot["task"])).status_code
-            == 200
+    with TestClient(
+        create_app(
+            _reloaded_service(tmp_path),
+            auth_file=reference,
+            auth_mode="enforced",
+            secrets_dir=secrets,
         )
-        assert _stream_start_status(client.app, f"/tasks/{task_id}/live", expected) == 200
+    ) as restarted:
+        assert restarted.get(f"/tasks/{task_id}", headers=_bearer(expected)).status_code == 200
+        assert _stream_start_status(restarted.app, f"/tasks/{task_id}/live", expected) == 200
         assert (
-            client.get(
-                f"/tasks/{sibling['id']}", headers=_bearer(mounted_snapshot["task"])
-            ).status_code
-            == 403
+            restarted.get(f"/tasks/{sibling['id']}", headers=_bearer(expected)).status_code == 403
         )
 
 

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.14.1--3e5d2b9eb0b1",
+  "requirementId": "REQ-035.14.1",
+  "hash": "3e5d2b9eb0b1",
+  "verdict": "pass",
+  "summary": "Tests reject absent, missing, escaping, symlink-escaping, unreadable, malformed, non-object, missing/empty/wrong-typed credential inputs and cross-privilege overlap before an app can serve requests, while covering optional absent/empty read arrays.",
+  "timestamp": "2026-08-03T23:12:20.822Z"
+}

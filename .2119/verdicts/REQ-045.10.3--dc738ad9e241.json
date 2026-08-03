@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.10.3--dc738ad9e241",
+  "requirementId": "REQ-045.10.3",
+  "hash": "dc738ad9e241",
+  "verdict": "pass",
+  "summary": "Tests reject nonempty/non-OK bodies, unexpected or data-bearing headers, max-age values other than absent/600, path-varying responses, and echoes of seeded protected values.",
+  "timestamp": "2026-08-03T23:15:52.584Z"
+}

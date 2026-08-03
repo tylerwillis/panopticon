@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.6.1--e58783d6afc4",
+  "requirementId": "REQ-045.6.1",
+  "hash": "e58783d6afc4",
+  "verdict": "pass",
+  "summary": "Exhaustive action-table and REST-surface tests reject every unrelated sibling target with 403, including the drop operation.",
+  "timestamp": "2026-08-03T23:14:12.566Z"
+}

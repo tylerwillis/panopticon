@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.17.1--b5ac001d7389",
+  "requirementId": "REQ-035.17.1",
+  "hash": "b5ac001d7389",
+  "verdict": "pass",
+  "summary": "Tests reject missing or non-separate Docker/shell credential injection and verify the injected task credential authenticates shared-client, liveness, and shell-library requests.",
+  "timestamp": "2026-08-03T23:12:19.029Z"
+}

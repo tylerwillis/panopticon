@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.3.3--7f26e3cd9a3e",
+  "requirementId": "REQ-045.3.3",
+  "hash": "7f26e3cd9a3e",
+  "verdict": "pass",
+  "summary": "Tests remove successive write-token generations across restarts, reject their task capabilities with 401, and preserve capabilities from every remaining generation across tasks and read/write routes.",
+  "timestamp": "2026-08-03T23:13:42.576Z"
+}

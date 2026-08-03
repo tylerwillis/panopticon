@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.1.1--ec6f1de7c3fa",
+  "requirementId": "REQ-045.1.1",
+  "hash": "ec6f1de7c3fa",
+  "verdict": "pass",
+  "summary": "Covers exactly one read-only designated snapshot, independently verifies the subject-bound capability, rejects sibling use, and excludes fleet tokens from both the Docker command and every mounted credential surface.",
+  "timestamp": "2026-08-03T23:12:20.397Z"
+}

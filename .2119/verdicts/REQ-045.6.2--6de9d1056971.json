@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.6.2--6de9d1056971",
+  "requirementId": "REQ-045.6.2",
+  "hash": "6de9d1056971",
+  "verdict": "pass",
+  "summary": "Exhaustive route-inventory tests reject task capabilities with 403 across repo administration, claims, provisioning, migration, lifecycle, runners, and workflow files, including the near-boundary case of a valid operator token combined with a task capability.",
+  "timestamp": "2026-08-03T23:14:50.281Z"
+}

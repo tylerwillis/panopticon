@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.3.1--fab38023eec8",
+  "requirementId": "REQ-045.3.1",
+  "hash": "fab38023eec8",
+  "verdict": "pass",
+  "summary": "Test independently derives the subject capability, requires the sole credential snapshot to equal exactly {task: capability}, rejects root/read credentials and extra capability-bearing mounts, and verifies the read-only container mount plus auth-file configuration and client consumption.",
+  "timestamp": "2026-08-03T23:13:15.327Z"
+}

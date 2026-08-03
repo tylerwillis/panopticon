@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.11.3--da2d00067ff1",
+  "requirementId": "REQ-045.11.3",
+  "hash": "da2d00067ff1",
+  "verdict": "pass",
+  "summary": "Behavioral preflights for allowed origins accept GET/HEAD/OPTIONS and Authorization/Content-Type, assert the advertised sets exactly, and reject representative extra methods and headers across origins and routes.",
+  "timestamp": "2026-08-03T23:16:10.561Z"
+}
