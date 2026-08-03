@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-030.4.1--c9c40d13acf9",
-  "requirementId": "REQ-030.4.1",
-  "hash": "c9c40d13acf9",
-  "verdict": "pass",
-  "summary": "A set runner host plus a locally accessible clone must still invoke opening, rejecting proxy-based suppression.",
-  "timestamp": "2026-08-02T23:40:44.613Z"
-}

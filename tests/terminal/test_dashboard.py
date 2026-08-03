@@ -5820,7 +5820,7 @@ def test_task_snooze_keybindings_are_unique() -> None:
     assert actions["E"] == "snooze_indefinitely"
 
 
-# 2119: REQ-030.1.1
+# 2119: REQ-040.1.1
 def test_open_checkout_is_a_hidden_global_unique_hotkey() -> None:
     keys = [hotkey.key for hotkey in dashboard.HOTKEYS]
     assert len(keys) == len(set(keys))
@@ -5836,7 +5836,7 @@ def _open_checkout_app(task: dict[str, Any] | None) -> Dashboard:
     return app
 
 
-# 2119: REQ-030.2.1
+# 2119: REQ-040.2.1
 def test_open_checkout_warns_when_no_task_is_highlighted(monkeypatch: Any) -> None:
     notices: list[tuple[str, str]] = []
     opened: list[str] = []
@@ -5852,7 +5852,7 @@ def test_open_checkout_warns_when_no_task_is_highlighted(monkeypatch: Any) -> No
     assert opened == []
 
 
-# 2119: REQ-030.3.1
+# 2119: REQ-040.3.1
 def test_open_checkout_warns_when_task_is_not_provisioned(monkeypatch: Any) -> None:
     notices: list[tuple[str, str]] = []
     opened: list[str] = []
@@ -5868,7 +5868,7 @@ def test_open_checkout_warns_when_task_is_not_provisioned(monkeypatch: Any) -> N
     assert opened == []
 
 
-# 2119: REQ-030.5.1
+# 2119: REQ-040.5.1
 @pytest.mark.parametrize(
     ("runner_host", "message"),
     [
@@ -5897,8 +5897,8 @@ def test_open_checkout_warns_when_clone_is_not_a_local_directory(
     assert notices == [(message, "warning")]
 
 
-# 2119: REQ-030.4.1
-# 2119: REQ-030.6.1
+# 2119: REQ-040.4.1
+# 2119: REQ-040.6.1
 def test_open_checkout_uses_local_directory_evidence_despite_runner_host(monkeypatch: Any) -> None:
     clone = "/local/checkouts/task-abcdef0123"
     opened: list[str] = []
@@ -5911,7 +5911,7 @@ def test_open_checkout_uses_local_directory_evidence_despite_runner_host(monkeyp
     assert opened == [clone]
 
 
-# 2119: REQ-030.7.1
+# 2119: REQ-040.7.1
 def test_open_checkout_handles_missing_file_manager_opener(monkeypatch: Any) -> None:
     notices: list[tuple[str, str]] = []
     app = _open_checkout_app({**_TASK, "clone": "/local/checkout"})

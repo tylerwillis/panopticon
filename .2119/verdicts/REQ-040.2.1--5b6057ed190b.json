@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-040.2.1--5b6057ed190b",
+  "requirementId": "REQ-040.2.1",
+  "hash": "5b6057ed190b",
+  "verdict": "pass",
+  "summary": "Test verifies the exact no-highlight notice and rejects every open attempt.",
+  "timestamp": "2026-08-03T00:03:21.853Z"
+}

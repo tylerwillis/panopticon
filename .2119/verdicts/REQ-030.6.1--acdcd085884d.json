@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-030.6.1--acdcd085884d",
-  "requirementId": "REQ-030.6.1",
-  "hash": "acdcd085884d",
-  "verdict": "pass",
-  "summary": "Test rejects no open, a different path, and runner-host proxy suppression while mocking only OS boundaries.",
-  "timestamp": "2026-08-02T23:41:16.245Z"
-}

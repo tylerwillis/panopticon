@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-030.7.1--24c6d8bed1d3",
-  "requirementId": "REQ-030.7.1",
-  "hash": "24c6d8bed1d3",
-  "verdict": "pass",
-  "summary": "Forced FileNotFoundError verifies the exact notice and non-propagation.",
-  "timestamp": "2026-08-02T23:39:56.343Z"
-}

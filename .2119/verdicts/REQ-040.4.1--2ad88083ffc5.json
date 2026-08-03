@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-040.4.1--2ad88083ffc5",
+  "requirementId": "REQ-040.4.1",
+  "hash": "2ad88083ffc5",
+  "verdict": "pass",
+  "summary": "Set runner_host plus positive local-directory evidence must still open the checkout.",
+  "timestamp": "2026-08-03T00:03:22.786Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-030.1.1--9ae67f26eb38",
-  "requirementId": "REQ-030.1.1",
-  "hash": "9ae67f26eb38",
-  "verdict": "pass",
-  "summary": "Test rejects missing or duplicate f, wrong action, and a footer-visible global binding.",
-  "timestamp": "2026-08-02T23:39:54.521Z"
-}
