@@ -451,7 +451,6 @@ class LocalRunner(Runner):
         container = session_name(task_id)
         names = self._run(
             ["docker", "ps", "--filter", f"name=^{container}$", "--format", "{{.Names}}"],
-            check=False,
         )
         return bool(names.strip())
 

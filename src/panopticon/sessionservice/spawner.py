@@ -592,7 +592,13 @@ class Spawner:
         if task["state"] not in TERMINAL_LABELS:
             return
         backend = self._runner_for(task)
-        if backend is self._runner and not backend.is_running(task["id"]):
+        try:
+            exited_container = backend is self._runner and not backend.is_running(task["id"])
+        except Exception:
+            if backend is self._runner:
+                self._runner.cleanup_runtime_credentials(task["id"])
+            raise
+        if exited_container:
             # The container has already exited. Credentials cannot remain on disk, but preserve the
             # stopped container and pane until the next spawn so operators retain post-mortem output.
             self._runner.cleanup_runtime_credentials(task["id"])

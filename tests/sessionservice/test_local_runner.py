@@ -176,7 +176,7 @@ def test_is_running_queries_docker_ps_by_container_name() -> None:
     assert runner.is_running("t1") is True
     ((ps, check),) = rec.calls
     assert ps == ["docker", "ps", "--filter", "name=^panopticon-t1$", "--format", "{{.Names}}"]
-    assert check is False  # tolerate a daemon hiccup rather than raise
+    assert check is True  # a failed probe must not be mistaken for a stopped container
 
 
 def test_is_running_is_false_when_no_container_is_listed() -> None:
@@ -281,12 +281,15 @@ def test_spawn_forces_native_mcp_off_ambient_proxy_and_preserves_bypasses(
     LocalRunner(
         "http://host.docker.internal:8000",
         secrets_dir=tmp_path,
-        extra_env={"NO_PROXY": "extra.internal"},
+        extra_env={"NO_PROXY": "extra.internal", "no_proxy": "lower-extra.internal"},
         run=rec,
     ).spawn("t1", env_file=env_file.name)
 
     docker_run = rec.calls[2][0]
-    expected = "registry.internal,localhost,metadata.internal,extra.internal,host.docker.internal"
+    expected = (
+        "registry.internal,localhost,metadata.internal,extra.internal,"
+        "lower-extra.internal,host.docker.internal"
+    )
     env_file_index = docker_run.index("--env-file")
     upper_index = docker_run.index(f"NO_PROXY={expected}")
     lower_index = docker_run.index(f"no_proxy={expected}")

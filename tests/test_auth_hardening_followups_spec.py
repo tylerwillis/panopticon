@@ -403,6 +403,38 @@ def test_running_terminal_stop_failure_cleans_snapshots_but_preserves_workspace(
     assert events == []
 
 
+def test_terminal_cleanup_probe_failure_cleans_snapshots_but_preserves_workspace(
+    tmp_path: Path,
+) -> None:
+    # 2119: REQ-045.2.2
+    snapshot = tmp_path / "panopticon-service-auth-task-secret.json"
+    snapshot.write_text("secret")
+
+    def fail_probe(args: list[str], **_kwargs: object) -> str:
+        if args[:2] == ["docker", "ps"] and "--all" not in args:
+            raise subprocess.CalledProcessError(1, args, stderr="daemon unavailable")
+        return ""
+
+    runner = LocalRunner("http://service", run=fail_probe)
+    runner._snapshot_dir = tmp_path
+    events: list[tuple[str, str]] = []
+    spawner = object.__new__(Spawner)
+    spawner._runner = runner
+    spawner._shell_runner = None
+    spawner._runner_id = "runner"
+    spawner._tasks_root = "/tasks"
+    spawner._exists = lambda _path: True
+    spawner._rmtree = lambda path: events.append(("workspace", path))
+    spawner._docker_cleanup = None
+    spawner._client = object()  # type: ignore[assignment]
+
+    with pytest.raises(subprocess.CalledProcessError, match=r"docker.*ps"):
+        spawner.cleanup({"id": "task", "state": "COMPLETE", "claimed_by": None})
+
+    assert not snapshot.exists()
+    assert events == []
+
+
 def test_replacement_spawn_removes_preserved_resources_before_docker_run() -> None:
     # 2119: REQ-045.2.3
     calls: list[tuple[list[str], bool]] = []
