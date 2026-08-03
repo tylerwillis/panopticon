@@ -176,9 +176,12 @@ class Spawner:
         runner already holds). Routes on the workflow's ``runner_type``: a ``"shell"`` workflow runs
         its script in a host tmux session (no clone, no image); otherwise the Docker container path.
 
-        Reports each phase (``CLAIMING`` → … → ``AWAITING``); a step raising is reported as
-        ``FAILED`` (with the error) before re-raising, so the host daemon's per-task isolation still
-        applies but the failure is visible, not silent."""
+        Reports each phase (``CLAIMING`` → … → ``AWAITING``). For a container task, a step raising
+        before its tmux session exists is a host-side spawn failure: clear the in-progress lifecycle
+        so the claimed task reads ``down`` and the ordinary bounded heal path retries it. Once the
+        session exists, preserve the existing ``FAILED`` latch and diagnostic. Shell failures retain
+        their existing ``FAILED`` behavior. The exception is always re-raised so the host daemon's
+        per-task isolation still applies."""
         task_id = task["id"]
         try:
             _log.info("task %s: claiming", task_id)
@@ -188,7 +191,17 @@ class Spawner:
                 return self._spawn_shell(task, repo)
             return self._spawn_container(task, repo)
         except Exception as exc:
-            self._report(task_id, LifecyclePhase.FAILED, detail=str(exc))
+            is_shell = self._executions.is_shell(task.get("workflow"))
+            session_established = is_shell or self._runner.has_session(task_id)
+            if session_established:
+                self._report(task_id, LifecyclePhase.FAILED, detail=str(exc))
+            else:
+                _log.error(
+                    "task %s: spawn infrastructure failed before tmux session — deferring: %s",
+                    task_id,
+                    exc,
+                )
+                self._client.clear_lifecycle(task_id)
             raise
 
     def _prepare_task_dir(self, task: JsonObj, repo: JsonObj, *, clone: bool) -> str:
