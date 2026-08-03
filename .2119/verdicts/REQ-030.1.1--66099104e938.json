@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.1.1--66099104e938",
+  "requirementId": "REQ-030.1.1",
+  "hash": "66099104e938",
+  "verdict": "pass",
+  "summary": "Fresh review verified real-tmux behavior and every new-session call-site default injection.",
+  "timestamp": "2026-08-03T12:14:00.627Z"
+}

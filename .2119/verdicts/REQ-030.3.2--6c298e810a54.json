@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.3.2--6c298e810a54",
+  "requirementId": "REQ-030.3.2",
+  "hash": "6c298e810a54",
+  "verdict": "pass",
+  "summary": "Fresh review verified defaults precede each subcommand and reject post-hoc application.",
+  "timestamp": "2026-08-03T12:14:01.644Z"
+}

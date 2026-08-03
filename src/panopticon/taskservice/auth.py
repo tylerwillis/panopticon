@@ -29,6 +29,12 @@ _RESERVED_TOKENS = frozenset(
 )
 
 
+def _collides_with_failure_response(token: str) -> bool:
+    """Whether the credential would occur in a fixed generic-401 wire value."""
+    folded = token.casefold()
+    return any(folded in value.casefold() for value in _RESERVED_TOKENS)
+
+
 @dataclass(frozen=True)
 class AuthTokens:
     read: tuple[str, ...]
@@ -65,7 +71,7 @@ def _parse_tokens(contents: str, *, allow_runtime_snapshot: bool = False) -> Aut
             isinstance(token, str)
             and len(token) >= MIN_TOKEN_LENGTH
             and _BEARER_TOKEN.fullmatch(token)
-            and token not in _RESERVED_TOKENS
+            and not _collides_with_failure_response(token)
             for token in [*read, *write]
         ):
             raise _credential_error()

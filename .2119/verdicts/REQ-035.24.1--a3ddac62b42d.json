@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.24.1--a3ddac62b42d",
+  "requirementId": "REQ-035.24.1",
+  "hash": "a3ddac62b42d",
+  "verdict": "pass",
+  "summary": "Fresh review verified startup rejects exhaustive invalid bearer grammar counterexamples.",
+  "timestamp": "2026-08-03T12:14:02.603Z"
+}

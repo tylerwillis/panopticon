@@ -1380,6 +1380,7 @@ def test_enforced_mode_rejects_invalid_credential_files(tmp_path: Path, contents
         "detail",
         "required",
         "www-authenticate",
+        "authenticatio",
     ],
 )
 def test_startup_rejects_tokens_colliding_with_fixed_failure_response(
