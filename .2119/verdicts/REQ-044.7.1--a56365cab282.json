@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.7.1--a56365cab282",
+  "requirementId": "REQ-044.7.1",
+  "hash": "a56365cab282",
+  "verdict": "pass",
+  "summary": "Exact suffix assertions reject retaining the 201st-old line, dropping newer content, or exceeding/underfilling the 64 KiB UTF-8 boundary, including a multibyte cut.",
+  "timestamp": "2026-08-03T18:15:43.487Z"
+}

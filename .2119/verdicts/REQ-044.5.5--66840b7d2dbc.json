@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.5.5--66840b7d2dbc",
+  "requirementId": "REQ-044.5.5",
+  "hash": "66840b7d2dbc",
+  "verdict": "pass",
+  "summary": "Tests verify task-scoped exact-record reuse for identical text/submit (including settled records), reject changed text or submit, and prove repeated requests cause one runner delivery for both submit values.",
+  "timestamp": "2026-08-03T18:20:09.519Z"
+}

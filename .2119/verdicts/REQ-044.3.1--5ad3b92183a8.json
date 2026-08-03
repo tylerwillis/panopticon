@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.3.1--5ad3b92183a8",
+  "requirementId": "REQ-044.3.1",
+  "hash": "5ad3b92183a8",
+  "verdict": "pass",
+  "summary": "Parameterized false-submit coverage requires exactly one tmux paste-buffer call with -p and rejects any send-keys call, so non-bracketed paste, omitted/duplicate paste, and Enter-key counterexamples fail.",
+  "timestamp": "2026-08-03T18:14:38.252Z"
+}

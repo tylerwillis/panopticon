@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.3.2--d7be93cbcc8d",
+  "requirementId": "REQ-044.3.2",
+  "hash": "d7be93cbcc8d",
+  "verdict": "pass",
+  "summary": "Tests verify submit=true loads the exact text, bracketed-pastes it once with paste-buffer -p, then sends exactly one Enter; submit=false rejects any Enter.",
+  "timestamp": "2026-08-03T18:22:24.146Z"
+}

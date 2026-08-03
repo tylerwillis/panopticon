@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.7.5--f0ceff3e0a6f",
+  "requirementId": "REQ-044.7.5",
+  "hash": "f0ceff3e0a6f",
+  "verdict": "pass",
+  "summary": "Exact Unicode is asserted across publish/retrieval, while capture strips representative tmux terminal-control escape families and publication rejects ANSI-bearing text.",
+  "timestamp": "2026-08-03T18:18:21.940Z"
+}

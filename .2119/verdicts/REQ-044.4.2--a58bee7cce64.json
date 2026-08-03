@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.4.2--a58bee7cce64",
+  "requirementId": "REQ-044.4.2",
+  "hash": "a58bee7cce64",
+  "verdict": "pass",
+  "summary": "Direct API tests reject retaining blocked or attention independently and together, while the prompt-hook test verifies submitted input invokes the same turn-to-agent write.",
+  "timestamp": "2026-08-03T18:20:10.326Z"
+}
