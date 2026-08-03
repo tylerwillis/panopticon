@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.37.1--d55f059af84f",
+  "requirementId": "REQ-035.37.1",
+  "hash": "d55f059af84f",
+  "verdict": "pass",
+  "summary": "Genuine live-app verification: credential-less artifact instructions omit Authorization header in permissive mode via middleware-recorded HTTP boundary",
+  "timestamp": "2026-08-03T10:53:27.298Z"
+}

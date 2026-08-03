@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.28.1--c3d01fadc18a",
+  "requirementId": "REQ-035.28.1",
+  "hash": "c3d01fadc18a",
+  "verdict": "pass",
+  "summary": "Both LocalRunner (Docker) and ShellRunner (tmux) comprehensively reject missing/non-file credentials before any invocation, verified with observable file-system and call-capture evidence across six boundary cases.",
+  "timestamp": "2026-08-03T10:53:06.808Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.31.1--8eb2ed08529b",
+  "requirementId": "REQ-035.31.1",
+  "hash": "8eb2ed08529b",
+  "verdict": "pass",
+  "summary": "All three session types (service, runner, dashboard) receive fresh auth environment and clear stale values; verified via observable tmux/subprocess command-line boundaries and live tmux child process inspection.",
+  "timestamp": "2026-08-03T10:53:18.511Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.3.1--7e28df19f1f3",
+  "requirementId": "REQ-035.3.1",
+  "hash": "7e28df19f1f3",
+  "verdict": "pass",
+  "summary": "Tests comprehensively enumerate all non-mutating REST endpoints, verify both read and write tokens access them without generic authentication failure, and explicitly confirm successful responses (200) on representative endpoints.",
+  "timestamp": "2026-08-03T11:01:13.340Z"
+}

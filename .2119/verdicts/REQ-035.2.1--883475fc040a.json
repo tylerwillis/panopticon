@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.2.1--883475fc040a",
+  "requirementId": "REQ-035.2.1",
+  "hash": "883475fc040a",
+  "verdict": "pass",
+  "summary": "Verified: credential file supports distinct opaque read/write tokens with multiple-per-privilege and rotation overlap via production HTTP routes and startup validation",
+  "timestamp": "2026-08-03T10:52:11.071Z"
+}

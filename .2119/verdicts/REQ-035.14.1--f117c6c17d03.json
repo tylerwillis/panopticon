@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.14.1--f117c6c17d03",
+  "requirementId": "REQ-035.14.1",
+  "hash": "f117c6c17d03",
+  "verdict": "pass",
+  "summary": "App-construction tests reject absent, nonexistent, unreadable, and escaping references plus malformed credential shapes, extra keys, empty arrays, non-string members, and cross-privilege overlap before an app can serve.",
+  "timestamp": "2026-08-03T10:45:47.676Z"
+}
