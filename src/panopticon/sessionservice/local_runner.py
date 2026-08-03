@@ -33,7 +33,7 @@ from panopticon.sessionservice.tmux_defaults import defaults_argv, new_session_a
 from panopticon.taskservice.auth import (
     load_tokens as load_service_tokens,
 )
-from panopticon.taskservice.auth import snapshot_tokens as snapshot_service_tokens
+from panopticon.taskservice.auth import snapshot_task_capability
 
 #: Default composed image (base layer, ADR 0005); built in a later PR of this slice.
 DEFAULT_IMAGE = "panopticon-base"
@@ -321,8 +321,9 @@ class LocalRunner(Runner):
         docker_run += ["--volume", f"panopticon-config-{task_id}:{config_mount}"]
         if self._auth_file:
             self._remove_auth_snapshots(task_id)
-            auth_snapshot = snapshot_service_tokens(
+            auth_snapshot = snapshot_task_capability(
                 self._auth_file,
+                task_id,
                 directory=self._snapshot_dir,
                 secrets_dir=self._secrets_dir,
                 prefix=f"panopticon-service-auth-{task_id}-",

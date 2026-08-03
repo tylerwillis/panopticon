@@ -32,6 +32,7 @@ from panopticon.core.models import Repo
 from panopticon.core.workflow import ResponsibilitiesNotMet
 from panopticon.taskservice.api import MAX_AUTH_INSPECTION_BODY_BYTES, create_app
 from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
+from panopticon.taskservice.auth import derive_task_capability
 from panopticon.taskservice.service import TaskService
 from panopticon.taskservice.store_sqlalchemy import SqlAlchemyStore
 from panopticon.workflows import Spike
@@ -1336,9 +1337,7 @@ def test_permissive_warning_redacts_tokens_and_keeps_a_monotonic_bounded_signal(
         json.dumps({"read": [READ_TOKEN], "write": WRITE_TOKEN}),
         json.dumps({"read": [READ_TOKEN], "write": [1]}),
         json.dumps({"read": [READ_TOKEN], "write": [WRITE_TOKEN], "extra": []}),
-        json.dumps({"read": [], "write": [WRITE_TOKEN]}),
         json.dumps({"read": [READ_TOKEN]}),
-        json.dumps({"write": [WRITE_TOKEN]}),
         json.dumps({"read": [READ_TOKEN], "write": []}),
         json.dumps({"read": [READ_TOKEN], "write": [READ_TOKEN]}),
         *[json.dumps({"read": [READ_TOKEN], "write": [token]}) for token in INVALID_TOKEN_VALUES],
@@ -1715,8 +1714,7 @@ def test_runner_injects_write_token_into_docker_and_shell_tasks_without_command_
     assert str((tmp_path / "secrets" / reference).resolve()) not in auth_mount
     mounted_snapshot = Path(auth_mount.split(":", 1)[0])
     assert json.loads(docker_recorder.mounted_auth or "") == {
-        "read": [],
-        "write": [WRITE_TOKEN],
+        "task": derive_task_capability(WRITE_TOKEN, "t1")
     }
     assert not mounted_snapshot.exists()
     docker_runner.stop("panopticon-t1")

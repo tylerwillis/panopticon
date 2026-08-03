@@ -26,7 +26,7 @@ from panopticon.sessionservice.spawner import Spawner
 from panopticon.taskservice import __main__ as taskservice_main
 from panopticon.taskservice.__main__ import build_app
 from panopticon.taskservice.api import _redact_stream_chunk
-from panopticon.taskservice.auth import load_client_token, load_tokens
+from panopticon.taskservice.auth import derive_task_capability, load_client_token, load_tokens
 from panopticon.terminal import __main__ as terminal_cli
 
 
@@ -442,7 +442,7 @@ def test_docker_runner_mounts_a_stable_snapshot_if_source_is_replaced(
         json.dumps({"read": ["stable-reader-token"], "write": ["stable-writer-token"]})
     )
     source.chmod(0o600)
-    original_snapshot = runner_module.snapshot_service_tokens
+    original_snapshot = runner_module.snapshot_task_capability
     snapshots: list[Path] = []
 
     def snapshot_then_replace(*args: object, **kwargs: object) -> Path:
@@ -463,14 +463,19 @@ def test_docker_runner_mounts_a_stable_snapshot_if_source_is_replaced(
             docker_observations.append((mounted.is_file(), mounted.read_text()))
         return ""
 
-    monkeypatch.setattr(runner_module, "snapshot_service_tokens", snapshot_then_replace)
+    monkeypatch.setattr(runner_module, "snapshot_task_capability", snapshot_then_replace)
     runner = runner_module.LocalRunner(
         "http://service", auth_file=source.name, secrets_dir=tmp_path, run=record
     )
     runner.spawn("task")
 
     assert stat.S_ISFIFO(source.stat().st_mode)
-    assert docker_observations == [(True, '{"read": [], "write": ["stable-writer-token"]}')]
+    assert docker_observations == [
+        (
+            True,
+            json.dumps({"task": derive_task_capability("stable-writer-token", "task")}),
+        )
+    ]
     assert snapshots and not snapshots[0].exists()
     runner.stop("panopticon-task")
     assert not snapshots[0].exists()
