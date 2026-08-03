@@ -32,6 +32,9 @@ from panopticon.core.models import (
     MigrationRecord,
     Repo,
     Responsibility,
+    SessionInput,
+    SessionInputStatus,
+    SessionTranscript,
     Skill,
     Status,
     Task,
@@ -76,6 +79,10 @@ class UnknownWorkflow(Exception):
 
 class AlreadyClaimed(Exception):
     """Raised when a task is claimed by a different runner than the one claiming."""
+
+
+class SessionConflict(Exception):
+    """A session-I/O request conflicts with task state or an existing record."""
 
 
 class NotReady(Exception):
@@ -198,6 +205,104 @@ class TaskService:
     async def init(self) -> None:
         """Bootstrap the store's schema (idempotent). Called by the task service's lifespan."""
         await self._store.init()
+
+    async def create_session_input(
+        self, task_id: str, *, text: str, submit: bool, idempotency_key: str
+    ) -> SessionInput:
+        async with self._transition_lock(task_id):
+            task = await self.get_task(task_id)
+            if (
+                self.task_is_terminal(task)
+                or task.claimed_by is None
+                or task.claimed_by not in self.live_runners()
+                or self.container_status(task) is not ContainerStatus.LIVE
+                or task.turn is not Actor.USER
+            ):
+                raise SessionConflict("task session is not accepting input")
+            for existing in await self._store.list_session_inputs(task_id):
+                if existing.idempotency_key == idempotency_key:
+                    if existing.text != text or existing.submit != submit:
+                        raise SessionConflict("idempotency key already has different input")
+                    return existing
+            return await self._store.create_session_input(
+                SessionInput(
+                    id=self._id(),
+                    task_id=task_id,
+                    idempotency_key=idempotency_key,
+                    text=text,
+                    submit=submit,
+                    status=SessionInputStatus.PENDING,
+                    created_at=self._clock(),
+                )
+            )
+
+    async def list_session_inputs(self, task_id: str) -> list[SessionInput]:
+        await self.get_task(task_id)
+        return await self._store.list_session_inputs(task_id)
+
+    async def get_session_input(self, task_id: str, delivery_id: str) -> SessionInput:
+        await self.get_task(task_id)
+        result = await self._store.get_session_input(task_id, delivery_id)
+        if result is None:
+            raise NotFound(f"session input {delivery_id!r} does not exist")
+        return result
+
+    async def settle_session_input(
+        self,
+        task_id: str,
+        delivery_id: str,
+        *,
+        runner_id: str,
+        status: SessionInputStatus,
+        failure_reason: str | None = None,
+    ) -> SessionInput:
+        task = await self.get_task(task_id)
+        if task.claimed_by != runner_id:
+            raise SessionConflict("runner does not own task")
+        delivery = await self.get_session_input(task_id, delivery_id)
+        if delivery.status is not SessionInputStatus.PENDING:
+            return delivery
+        failure_reason = "tmux-delivery-failed" if status is SessionInputStatus.FAILED else None
+        return await self._store.settle_session_input(
+            replace(
+                delivery,
+                status=status,
+                settled_at=self._clock(),
+                failure_reason=failure_reason,
+            )
+        )
+
+    async def publish_session_transcript(
+        self,
+        task_id: str,
+        *,
+        runner_id: str,
+        text: str,
+        columns: int,
+        rows: int,
+        truncated: bool,
+    ) -> SessionTranscript:
+        task = await self.get_task(task_id)
+        if task.claimed_by != runner_id:
+            raise SessionConflict("runner does not own task")
+        return await self._store.put_session_transcript(
+            SessionTranscript(
+                task_id=task_id,
+                runner_id=runner_id,
+                text=text,
+                columns=columns,
+                rows=rows,
+                truncated=truncated,
+                received_at=self._clock(),
+            )
+        )
+
+    async def get_session_transcript(self, task_id: str) -> SessionTranscript:
+        await self.get_task(task_id)
+        result = await self._store.get_session_transcript(task_id)
+        if result is None:
+            raise NotFound("session transcript unavailable")
+        return result
 
     # -- repos --------------------------------------------------------------------
 

@@ -84,7 +84,14 @@ def test_migrations_roundtrip(tmp_path: Path) -> None:
     assert _schema_snapshot(url) == {}  # downgrade tears every table back down
 
     command.upgrade(cfg, "head")  # and it's idempotent enough to re-apply cleanly
-    assert set(_schema_snapshot(url)) == {"repo", "task", "history", "responsibility"}
+    assert set(_schema_snapshot(url)) == {
+        "repo",
+        "task",
+        "history",
+        "responsibility",
+        "session_input",
+        "session_transcript",
+    }
 
 
 def test_relativize_env_file_migration_strips_to_basename(tmp_path: Path) -> None:

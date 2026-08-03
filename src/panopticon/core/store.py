@@ -25,7 +25,14 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Sequence
 
-from panopticon.core.models import HistoryEntry, Repo, Task, WakeStatus
+from panopticon.core.models import (
+    HistoryEntry,
+    Repo,
+    SessionInput,
+    SessionTranscript,
+    Task,
+    WakeStatus,
+)
 
 
 class StoreError(Exception):
@@ -137,6 +144,30 @@ class Store(ABC):
         await self._update_task(task, stored)
         self._bump_version()
 
+    async def create_session_input(self, delivery: SessionInput) -> SessionInput:
+        result = await self._create_session_input(delivery)
+        self._bump_version()
+        return result
+
+    async def list_session_inputs(self, task_id: str) -> list[SessionInput]:
+        return await self._list_session_inputs(task_id)
+
+    async def get_session_input(self, task_id: str, delivery_id: str) -> SessionInput | None:
+        return await self._get_session_input(task_id, delivery_id)
+
+    async def settle_session_input(self, delivery: SessionInput) -> SessionInput:
+        result = await self._settle_session_input(delivery)
+        self._bump_version()
+        return result
+
+    async def put_session_transcript(self, transcript: SessionTranscript) -> SessionTranscript:
+        result = await self._put_session_transcript(transcript)
+        self._bump_version()
+        return result
+
+    async def get_session_transcript(self, task_id: str) -> SessionTranscript | None:
+        return await self._get_session_transcript(task_id)
+
     # -- persistence primitives (adapters implement these) -----------------------
 
     @abstractmethod
@@ -180,6 +211,24 @@ class Store(ABC):
     async def _update_task(self, task: Task, stored: Sequence[HistoryEntry]) -> None:
         """Persist scalar changes, fulfil the current entry's promises, and append new entries
         (``stored`` is the already-validated persisted history)."""
+
+    @abstractmethod
+    async def _create_session_input(self, delivery: SessionInput) -> SessionInput: ...
+
+    @abstractmethod
+    async def _list_session_inputs(self, task_id: str) -> list[SessionInput]: ...
+
+    @abstractmethod
+    async def _get_session_input(self, task_id: str, delivery_id: str) -> SessionInput | None: ...
+
+    @abstractmethod
+    async def _settle_session_input(self, delivery: SessionInput) -> SessionInput: ...
+
+    @abstractmethod
+    async def _put_session_transcript(self, transcript: SessionTranscript) -> SessionTranscript: ...
+
+    @abstractmethod
+    async def _get_session_transcript(self, task_id: str) -> SessionTranscript | None: ...
 
 
 # -- Shared integrity checks (adapters call these so the rules live in one place) --------
