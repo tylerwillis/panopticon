@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.7.1--9283101b1bd1",
+  "requirementId": "REQ-044.7.1",
+  "hash": "9283101b1bd1",
+  "verdict": "pass",
+  "summary": "Behavioral tests reject non-suffix, under-retained, over-200-line, and over-65536-byte captures, including multibyte UTF-8 boundaries, by asserting the exact largest newest-first-bounded plain-text suffix.",
+  "timestamp": "2026-08-03T18:41:31.972Z"
+}

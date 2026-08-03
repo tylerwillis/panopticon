@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.6.2--af4f1b3a474c",
+  "requirementId": "REQ-044.6.2",
+  "hash": "af4f1b3a474c",
+  "verdict": "pass",
+  "summary": "Owning runner host operations succeed, while mismatched runner IDs and stale workers after authoritative ownership changes are rejected without delivery or publication.",
+  "timestamp": "2026-08-03T18:41:50.095Z"
+}

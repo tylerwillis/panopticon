@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.4.2--6caf258e6d85",
+  "requirementId": "REQ-044.4.2",
+  "hash": "6caf258e6d85",
+  "verdict": "pass",
+  "summary": "PASS: hook processing requests an agent turn, and real task-service API tests reject failures to clear blocked or attention independently and together.",
+  "timestamp": "2026-08-03T18:40:33.753Z"
+}
