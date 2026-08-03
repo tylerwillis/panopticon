@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-030.5.1--ba991e2281b9",
-  "requirementId": "REQ-030.5.1",
-  "hash": "ba991e2281b9",
-  "verdict": "pass",
-  "summary": "Base-renderer and golden tests reject omission of every orientation surface and operator-visible outcome.",
-  "timestamp": "2026-08-02T23:47:13.322Z"
-}

@@ -19,7 +19,6 @@ import pytest
 from panopticon.core.models import Skill
 from panopticon.harnesses import INTERRUPT_PROMPT, BootstrapContext, LaunchContext
 from panopticon.harnesses.codex import CODEX_VERSION, CodexHarness, render_config
-from panopticon.workflows import GithubPeerReviewed
 
 HARNESS = CodexHarness()
 
@@ -71,16 +70,6 @@ def test_config_carries_the_overview_as_developer_instructions() -> None:
         render_config("http://svc:8000", "# map\nwith 'quotes' & \"lines\"", Path("/w"))
     )
     assert cfg["developer_instructions"] == "# map\nwith 'quotes' & \"lines\""
-
-
-# 2119: REQ-030.8.1
-def test_config_delivers_panopticon_orientation_as_developer_instructions() -> None:
-    overview = GithubPeerReviewed().overview()
-    cfg = tomllib.loads(render_config("http://svc:8000", overview, Path("/workspace")))
-
-    assert cfg["developer_instructions"] == overview
-    assert "Working in panopticon" in cfg["developer_instructions"]
-    assert "when you produce" in cfg["developer_instructions"]
 
 
 def test_config_omits_developer_instructions_when_no_overview() -> None:

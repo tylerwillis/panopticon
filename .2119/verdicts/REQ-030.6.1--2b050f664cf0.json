@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-030.6.1--2b050f664cf0",
-  "requirementId": "REQ-030.6.1",
-  "hash": "2b050f664cf0",
-  "verdict": "pass",
-  "summary": "Tests require identical full orientation for governed and ungated workflows while independently confirming Spike remains responsibility-free.",
-  "timestamp": "2026-08-02T23:57:14.435Z"
-}

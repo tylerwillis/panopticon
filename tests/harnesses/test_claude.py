@@ -22,7 +22,6 @@ from panopticon.harnesses.claude import (
     write_mcp_config,
     write_workflow_overview,
 )
-from panopticon.workflows import GithubPeerReviewed
 
 HARNESS = ClaudeHarness()
 
@@ -169,18 +168,6 @@ def test_argv_appends_the_workflow_overview_to_the_system_prompt(tmp_path: Path)
     argv = HARNESS.argv(_ctx(tmp_path))
     i = argv.index("--append-system-prompt")
     assert argv[i + 1] == "# the workflow map"  # the map's contents go inline
-
-
-# 2119: REQ-030.7.1
-def test_argv_delivers_panopticon_orientation_in_the_system_prompt(tmp_path: Path) -> None:
-    overview = GithubPeerReviewed().overview()
-    write_workflow_overview(tmp_path / ".claude", overview)
-
-    argv = HARNESS.argv(_ctx(tmp_path))
-    index = argv.index("--append-system-prompt")
-    assert argv[index + 1] == overview
-    assert "Working in panopticon" in argv[index + 1]
-    assert "when you produce" in argv[index + 1]
 
 
 def test_trust_workspace_seeds_acceptance_for_a_fresh_config(tmp_path: Path) -> None:

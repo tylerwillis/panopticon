@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.7.1--b4f8af3c35b3",
+  "requirementId": "REQ-028.7.1",
+  "hash": "b4f8af3c35b3",
+  "verdict": "pass",
+  "summary": "Discovery without external workflows returns all three correctly typed built-ins.",
+  "timestamp": "2026-08-03T00:13:19.010Z"
+}

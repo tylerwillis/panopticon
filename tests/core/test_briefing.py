@@ -139,21 +139,22 @@ def test_workflow_overview_maps_the_ordered_phases() -> None:
     assert "## Tools" in text and "`gh`" in text and "GitHub CLI" in text
 
 
-# 2119: REQ-030.1.1
-# 2119: REQ-030.2.1
-# 2119: REQ-030.5.1
-# 2119: REQ-030.6.1
-# 2119: REQ-030.7.1
-# 2119: REQ-030.8.1
+# 2119: REQ-041.1.1
+# 2119: REQ-041.2.1
+# 2119: REQ-041.5.1
+# 2119: REQ-041.6.1
+# 2119: REQ-041.7.1
+# 2119: REQ-041.8.1
 def test_workflow_overview_sets_the_panopticon_working_norms() -> None:
     text = Workflow.overview(GithubPeerReviewed())
 
     assert EXPECTED_PANOPTICON_ORIENTATION in text
     assert "When the user requests" not in text
+    assert "Only publish artifacts if the user asks" not in text
 
 
 def test_workflow_overview_handles_a_phase_with_no_responsibilities() -> None:
-    # 2119: REQ-030.6.1
+    # 2119: REQ-041.6.1
     # spike's ITERATING declares no responsibilities — the line must not dangle a colon + empty list.
     text = Spike().overview()
     assert "ITERATING" in text
@@ -225,9 +226,9 @@ def test_default_extras_leave_the_output_unchanged(tmp_path: Path) -> None:
 
 
 def test_github_peer_reviewed_system_prompt_matches_fixture() -> None:
-    # 2119: REQ-030.1.1
-    # 2119: REQ-030.2.1
-    # 2119: REQ-030.5.1
+    # 2119: REQ-041.1.1
+    # 2119: REQ-041.2.1
+    # 2119: REQ-041.5.1
     # The whole-workflow system prompt (the map + tools), captured verbatim.
     _assert_matches_fixture(
         "github_peer_reviewed_system_prompt.md", GithubPeerReviewed().overview()

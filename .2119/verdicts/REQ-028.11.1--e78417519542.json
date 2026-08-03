@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.11.1--e78417519542",
+  "requirementId": "REQ-028.11.1",
+  "hash": "e78417519542",
+  "verdict": "pass",
+  "summary": "Exact instructions pin artifact durability, publication scope, and the GitHub URL exception.",
+  "timestamp": "2026-08-03T00:13:20.946Z"
+}
