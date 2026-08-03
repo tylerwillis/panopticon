@@ -30,7 +30,7 @@ from starlette.responses import Response
 from panopticon.client import TaskServiceClient
 from panopticon.core.models import Repo
 from panopticon.core.workflow import ResponsibilitiesNotMet
-from panopticon.taskservice.api import create_app
+from panopticon.taskservice.api import MAX_AUTH_INSPECTION_BODY_BYTES, create_app
 from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
 from panopticon.taskservice.service import TaskService
 from panopticon.taskservice.store_sqlalchemy import SqlAlchemyStore
@@ -609,14 +609,20 @@ def test_configured_tokens_are_rejected_before_persistence_or_success(
             headers=_bearer(WRITE_TOKEN),
             content=f"prefix {READ_TOKEN} suffix",
         )
+        encoded_query_response = client.get(
+            "/runners/missing/live?host=" + WRITE_TOKEN.replace("-", "%2D"),
+            headers=_bearer(WRITE_TOKEN),
+        )
         assert task_response.status_code == 400
         assert escaped_response.status_code == 400
         assert path_response.status_code == 400
         assert artifact_response.status_code == 400
+        assert encoded_query_response.status_code == 400
         assert task_response.json() == {"detail": "request rejected"}
         assert escaped_response.json() == {"detail": "request rejected"}
         assert path_response.json() == {"detail": "request rejected"}
         assert artifact_response.json() == {"detail": "request rejected"}
+        assert encoded_query_response.json() == {"detail": "request rejected"}
 
     durable = (service_root / "task.db").read_bytes()
     artifact_files = list((service_root / "artifacts").glob("**/*"))
@@ -624,6 +630,23 @@ def test_configured_tokens_are_rejected_before_persistence_or_success(
     for token in (READ_TOKEN, WRITE_TOKEN):
         assert token.encode() not in durable
         assert token.encode() not in artifact_bytes
+
+
+@pytest.mark.parametrize("mode", ["enforced", "permissive"])
+def test_authentication_inspection_rejects_oversized_body_before_dispatch(
+    tmp_path: Path, mode: str
+) -> None:
+    # 2119: REQ-035.46.1
+    with _client(tmp_path, mode=mode) as client:
+        headers = _bearer(READ_TOKEN) if mode == "enforced" else {}
+        response = client.request(
+            "GET", "/tasks", headers=headers, content=b"x" * (MAX_AUTH_INSPECTION_BODY_BYTES + 1)
+        )
+        health = client.get("/healthz")
+    assert response.status_code == 413
+    assert response.json() == {"detail": "request too large"}
+    if mode == "permissive":
+        assert health.headers["x-panopticon-permissive-unauthenticated-total"] == "0"
 
 
 def test_read_and_write_tokens_can_read_but_only_write_token_can_mutate(tmp_path: Path) -> None:
@@ -1647,9 +1670,17 @@ def test_runner_injects_write_token_into_docker_and_shell_tasks_without_command_
     class Recorder:
         def __init__(self) -> None:
             self.calls: list[list[str]] = []
+            self.mounted_auth: str | None = None
 
         def __call__(self, args: object, **_kwargs: object) -> str:
             self.calls.append(list(args))  # type: ignore[arg-type]
+            if self.calls[-1][:2] == ["docker", "run"]:
+                mount = next(
+                    item
+                    for item in self.calls[-1]
+                    if "/run/secrets/panopticon-service-auth" in item
+                )
+                self.mounted_auth = Path(mount.split(":", 1)[0]).read_text()
             return "%1\n" if "display-message" in self.calls[-1] else ""
 
     reference = _credential_file(tmp_path)
@@ -1671,8 +1702,11 @@ def test_runner_injects_write_token_into_docker_and_shell_tasks_without_command_
     )
     assert str((tmp_path / "secrets" / reference).resolve()) not in auth_mount
     mounted_snapshot = Path(auth_mount.split(":", 1)[0])
-    assert mounted_snapshot.is_file()
-    assert json.loads(mounted_snapshot.read_text()) == {"read": [], "write": [WRITE_TOKEN]}
+    assert json.loads(docker_recorder.mounted_auth or "") == {
+        "read": [],
+        "write": [WRITE_TOKEN],
+    }
+    assert not mounted_snapshot.exists()
     docker_runner.stop("panopticon-t1")
     assert not mounted_snapshot.exists()
 

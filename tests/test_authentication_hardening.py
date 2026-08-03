@@ -422,7 +422,7 @@ def test_docker_runner_mounts_a_stable_snapshot_if_source_is_replaced(
 
     assert stat.S_ISFIFO(source.stat().st_mode)
     assert docker_observations == [(True, '{"read": [], "write": ["stable-writer-token"]}')]
-    assert snapshots and snapshots[0].is_file()
+    assert snapshots and not snapshots[0].exists()
     runner.stop("panopticon-task")
     assert not snapshots[0].exists()
 

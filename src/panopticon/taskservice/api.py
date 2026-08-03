@@ -22,6 +22,7 @@ from contextlib import asynccontextmanager, suppress
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import unquote_plus
 
 from fastapi import FastAPI, Header, HTTPException, Query, Request, Response
 from fastapi.encoders import jsonable_encoder
@@ -48,6 +49,7 @@ from panopticon.taskservice.service import (
 #: client drops, so the registration is removed immediately). The keepalive only keeps idle
 #: proxies from closing the connection and gives the container a tick to notice a clean stop.
 LIVENESS_KEEPALIVE_SECONDS = 5.0
+MAX_AUTH_INSPECTION_BODY_BYTES = 8 * 1024 * 1024
 _log = logging.getLogger(__name__)
 _original_log_record_factory: Callable[..., logging.LogRecord] | None = None
 _original_logger_make_record: Callable[..., logging.LogRecord] | None = None
@@ -643,9 +645,17 @@ def create_app(
             )
         return False
 
-    async def request_contains_configured_token(request: Request) -> bool:
-        body = await request.body()
-        values: list[Any] = [request.url.path, request.url.query, body]
+    async def request_contains_configured_token(request: Request) -> bool | None:
+        chunks: list[bytes] = []
+        size = 0
+        async for chunk in request.stream():
+            size += len(chunk)
+            if size > MAX_AUTH_INSPECTION_BODY_BYTES:
+                return None
+            chunks.append(chunk)
+        body = b"".join(chunks)
+        request._body = body  # preserve the bounded body downstream
+        values: list[Any] = [request.url.path, unquote_plus(request.url.query), body]
         if "json" in request.headers.get("content-type", "").lower():
             with suppress(json.JSONDecodeError, UnicodeDecodeError):
                 values.append(json.loads(body))
@@ -712,7 +722,10 @@ def create_app(
         authorization = request.headers.get("authorization")
         if mode == "permissive" and authorization is None:
             assert tokens is not None
-            if await request_contains_configured_token(request):
+            inspection = await request_contains_configured_token(request)
+            if inspection is None:
+                return JSONResponse(status_code=413, content={"detail": "request too large"})
+            if inspection:
                 return JSONResponse(status_code=400, content={"detail": "request rejected"})
             client = request.client.host if request.client is not None else "unknown"
             permissive_unauthenticated_total += 1
@@ -750,7 +763,10 @@ def create_app(
                 content=generic_auth_failure,
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        if await request_contains_configured_token(request):
+        inspection = await request_contains_configured_token(request)
+        if inspection is None:
+            return JSONResponse(status_code=413, content={"detail": "request too large"})
+        if inspection:
             return JSONResponse(status_code=400, content={"detail": "request rejected"})
         return await call_next(request)
 

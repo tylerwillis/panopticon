@@ -193,3 +193,7 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 ### REQ-035.45: Permanent runner rejection
 
 1. A host runner whose liveness request receives HTTP 401 or 403 MUST terminate instead of retrying as though the rejection were a transient connection failure.
+
+### REQ-035.46: Bounded authentication inspection
+
+1. Authentication inspection MUST reject an over-limit request without buffering an unbounded body or dispatching it to a protected endpoint.

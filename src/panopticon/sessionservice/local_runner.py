@@ -316,6 +316,11 @@ class LocalRunner(Runner):
             self._run(["docker", "rm", "--force", container], check=False)
             _report(LifecyclePhase.STARTING)  # docker run + the tmux session coming up
             self._run(docker_run)
+            # Docker has opened the bind source by the time detached ``docker run`` returns. The
+            # mount retains that inode, so remove the host pathname immediately; this prevents a
+            # one-shot runner process from stranding a fleet credential after it exits.
+            if auth_snapshot is not None:
+                auth_snapshot.unlink(missing_ok=True)
         except BaseException:
             if auth_snapshot is not None:
                 auth_snapshot.unlink(missing_ok=True)
