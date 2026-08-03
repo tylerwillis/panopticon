@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.1.2--e0bd0cf8b756",
+  "requirementId": "REQ-045.1.2",
+  "hash": "e0bd0cf8b756",
+  "verdict": "pass",
+  "summary": "Tests reject ignored valid overrides, blank-as-override behavior, malformed pairs, and hardcoded Codex fallback by exercising custom workflow defaults through the container resolver.",
+  "timestamp": "2026-08-03T22:03:17.525Z"
+}

@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import importlib.resources
 import shlex
+import subprocess
 from collections.abc import Iterator, Sequence
 from dataclasses import fields
 from pathlib import Path
@@ -27,6 +28,7 @@ from panopticon.container.reviewers import (
     resolve_reviewers,
 )
 from panopticon.core.models import Repo
+from panopticon.harnesses.base import render_reviewer_command
 from panopticon.sessionservice.local_runner import LocalRunner
 from panopticon.sessionservice.spawner import Spawner
 from panopticon.taskservice.api import create_app
@@ -171,6 +173,74 @@ def test_rendered_spec_skill_resolves_honesty_reviewer_inside_container(
         "-m",
         malicious_model,
     ]
+
+
+def test_custom_workflow_default_is_quoted_at_resolver_shell_boundary() -> None:
+    # 2119: REQ-045.1.2
+    workflow = discover_workflows(_home_workflows=Path("/nonexistent"))["2119-auto-spec"]
+    model = "provider model' ; printf injected"
+    variant = type(
+        "QuotedDefaultVariant",
+        (type(workflow),),
+        {"honesty_reviewer": ReviewerConfig("codex", model)},
+    )()
+    instructions = next(
+        skill for skill in variant.container_skills() if skill.name == "spec-2119"
+    ).instructions
+    resolver = next(
+        fragment
+        for fragment in instructions.split("`")
+        if fragment.startswith("python -m panopticon.container.reviewers honesty-command")
+    )
+    completed = subprocess.run(
+        ["sh", "-c", f'set -- {resolver}; printf "<%s>\\n" "$@"'],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.stdout.splitlines() == [
+        "<python>",
+        "<-m>",
+        "<panopticon.container.reviewers>",
+        "<honesty-command>",
+        "<--default>",
+        f"<codex:{model}>",
+    ]
+
+
+@pytest.mark.parametrize(
+    ("config", "expected"),
+    [
+        (
+            ReviewerConfig("claude", "model with 'quotes'; still-one"),
+            [
+                "claude",
+                "--print",
+                "--output-format",
+                "json",
+                "--safe-mode",
+                "--dangerously-skip-permissions",
+                "--model",
+                "model with 'quotes'; still-one",
+            ],
+        ),
+        (
+            ReviewerConfig("codex", 'model with "quotes"; still-one'),
+            [
+                "codex",
+                "exec",
+                "--dangerously-bypass-approvals-and-sandbox",
+                "-m",
+                'model with "quotes"; still-one',
+            ],
+        ),
+    ],
+)
+def test_shared_reviewer_command_quotes_each_harness(
+    config: ReviewerConfig, expected: list[str]
+) -> None:
+    # 2119: REQ-045.1.2
+    assert shlex.split(render_reviewer_command(config)) == expected
 
 
 def test_repo_reviewer_overrides_persist_through_api_and_store(client: TestClient) -> None:
@@ -558,10 +628,6 @@ def test_reviewer_resolution_uses_repo_override_then_workflow_default() -> None:
         defaults,
         {"PANOPTICON_2119_REVIEWER_2": "claude:claude-opus-5"},
     ) == (defaults[0], ReviewerConfig("claude", "claude-opus-5"))
-    with pytest.raises(ReviewerDispatchError):
-        resolve_reviewers((ReviewerConfig("pi", "model"), defaults[1]), {})
-    with pytest.raises(ReviewerDispatchError):
-        resolve_reviewers(defaults, {"PANOPTICON_2119_REVIEWER_2": "claude"})
     called = False
 
     def forbidden_run(*args: Any, **kwargs: Any) -> Any:
@@ -569,34 +635,37 @@ def test_reviewer_resolution_uses_repo_override_then_workflow_default() -> None:
         called = True
         raise AssertionError("invalid configuration reached a reviewer command")
 
-    invalid_cases = tuple(
-        (invalid_defaults, {})
-        for invalid_defaults in (
-            (ReviewerConfig("pi", "model"), defaults[1]),
-            (ReviewerConfig("", "model"), defaults[1]),
-            (ReviewerConfig("claude", ""), defaults[1]),
-            (ReviewerConfig("claude", "   "), defaults[1]),
-        )
-    ) + tuple(
-        (defaults, {"PANOPTICON_2119_REVIEWER_2": value})
-        for value in ("claude", ":model", "   :model", "claude:", "claude:   ", "pi:model")
+    invalid_configs = (
+        ReviewerConfig("pi", "model"),
+        ReviewerConfig("", "model"),
+        ReviewerConfig("   ", "model"),
+        ReviewerConfig("claude", ""),
+        ReviewerConfig("claude", "   "),
     )
-    invalid_cases += (
-        (
-            (ReviewerConfig("pi", "model"), defaults[1]),
-            {"PANOPTICON_2119_REVIEWER_1": "claude:claude-opus-5"},
-        ),
-        (
-            (ReviewerConfig("claude", "   "), defaults[1]),
-            {"PANOPTICON_2119_REVIEWER_1": "claude:claude-opus-5"},
-        ),
-        (
-            (defaults[0], ReviewerConfig("pi", "model")),
-            {"PANOPTICON_2119_REVIEWER_2": "codex:gpt-5.6-sol"},
-        ),
-        ((defaults[0], ReviewerConfig("pi", "model")), {}),
-        (defaults, {"PANOPTICON_2119_REVIEWER_1": "claude"}),
+    valid_overrides = (
+        "claude:claude-opus-5",
+        "codex:gpt-5.6-sol",
     )
+    invalid_cases: list[tuple[tuple[ReviewerConfig, ReviewerConfig], dict[str, str]]] = []
+    for slot in range(2):
+        for invalid in invalid_configs:
+            invalid_defaults = list(defaults)
+            invalid_defaults[slot] = invalid
+            invalid_pair = (invalid_defaults[0], invalid_defaults[1])
+            invalid_cases.append((invalid_pair, {}))
+            invalid_cases.append(
+                (invalid_pair, {f"PANOPTICON_2119_REVIEWER_{slot + 1}": valid_overrides[slot]})
+            )
+        for value in (
+            "claude",
+            ":model",
+            "   :model",
+            "claude:",
+            "claude:   ",
+            "pi:model",
+            "claudee:model",
+        ):
+            invalid_cases.append((defaults, {f"PANOPTICON_2119_REVIEWER_{slot + 1}": value}))
     for invalid_defaults, environment in invalid_cases:
         with pytest.raises(ReviewerDispatchError):
             dispatch_reviews(

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.2.2--0ad6e736aaab",
+  "requirementId": "REQ-045.2.2",
+  "hash": "0ad6e736aaab",
+  "verdict": "pass",
+  "summary": "Create and patch API tests reject malformed, missing-harness, missing-model, and unsupported-harness overrides for every reviewer field with field-specific reasons and remediation, while preserving the blank boundary.",
+  "timestamp": "2026-08-03T22:03:18.718Z"
+}

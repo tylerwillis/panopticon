@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import shlex
 from collections.abc import Mapping, Sequence
 from typing import ClassVar
 
@@ -290,7 +291,8 @@ class _Spec2119Workflow(GithubForgeWorkflow):
     def _container_spec_skill(self) -> Skill:
         default = f"{self.honesty_reviewer.harness}:{self.honesty_reviewer.model}"
         resolver_command = (
-            f"python -m panopticon.container.reviewers honesty-command --default {default}"
+            "python -m panopticon.container.reviewers honesty-command "
+            f"--default {shlex.quote(default)}"
         )
         instructions = _SOL_SPEC_INSTRUCTIONS.replace(
             _SOL_HONESTY_STEP,
