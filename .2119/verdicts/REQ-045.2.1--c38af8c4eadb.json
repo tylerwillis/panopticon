@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.2.1--c38af8c4eadb",
-  "requirementId": "REQ-045.2.1",
-  "hash": "c38af8c4eadb",
-  "verdict": "pass",
-  "summary": "Tests reject missing or non-nullable domain/migration fields and verify all three values across create, read, patch, durable reopen, null clearing, and editable create/edit forms.",
-  "timestamp": "2026-08-03T21:09:20.424Z"
-}

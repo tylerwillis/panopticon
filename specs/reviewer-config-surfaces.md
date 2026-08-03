@@ -1,4 +1,4 @@
-# REQ-044: Reviewer configuration surfaces
+# Reviewer configuration surfaces
 
 ## Overview
 
@@ -18,18 +18,17 @@ REQ-036.4.
 
 ## Requirements
 
-### REQ-044.1: Workflow-owned defaults
+### 1: Workflow-owned defaults
 
-1. Every built-in 2119 workflow MUST declare
-   `honesty_reviewer: ClassVar[ReviewerConfig]` with the value
-   `ReviewerConfig("codex", "gpt-5.6-sol")`, while retaining `reviewers` and `fable_reviews` as
-   workflow-overridable `ClassVar` declarations.
+1. Every built-in 2119 workflow MUST expose a subclass-overridable `honesty_reviewer` default of
+   `ReviewerConfig("codex", "gpt-5.6-sol")` without removing the existing subclass override
+   behavior of `reviewers` or `fable_reviews`.
 2. Given a workflow's `honesty_reviewer` default and the task-container environment, test-honesty
    command resolution MUST prefer a nonblank `PANOPTICON_2119_HONESTY_REVIEWER` pair and otherwise
    construct the command from the workflow default instead of an independently hardcoded Codex
    command.
 
-### REQ-044.2: Repository-owned overrides
+### 2: Repository-owned overrides
 
 1. A repository MUST expose nullable `honesty_reviewer`, `reviewer_1`, and `reviewer_2` fields
    through its domain record, create/read/patch API, persistent store and migration, and editable
@@ -38,7 +37,7 @@ REQ-036.4.
    missing harness, missing model, unsupported harness, or malformed pair as an actionable
    configuration failure.
 
-### REQ-044.3: Spawn transport and precedence
+### 3: Spawn transport and precedence
 
 1. Container spawn MUST render the repository's three reviewer fields respectively as
    `PANOPTICON_2119_HONESTY_REVIEWER`, `PANOPTICON_2119_REVIEWER_1`, and
@@ -47,6 +46,10 @@ REQ-036.4.
 2. Reviewer resolution MUST use a nonblank rendered repository override when present, otherwise
    use the corresponding workflow default, split an override only on its first colon, and reject
    an invalid nonblank workflow default or override before any reviewer command runs.
+3. When a repo env file contains reviewer transport keys, a runner MUST warn on its first
+   container spawn using that file, name all and only those inert reviewer keys, direct the
+   operator to the repo reviewer fields without logging values, and suppress the warning on later
+   spawns by that runner using the same file.
 
 ## Non-goals
 

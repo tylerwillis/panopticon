@@ -1,0 +1,8 @@
+{
+  "reviewId": "reviewer-config-surfaces.1.2--b0a3c828f0b9",
+  "requirementId": "reviewer-config-surfaces.1.2",
+  "hash": "b0a3c828f0b9",
+  "verdict": "pass",
+  "summary": "Tests verify nonblank override precedence, blank fallback, workflow defaults, validation, and safe opaque-model quoting.",
+  "timestamp": "2026-08-03T23:37:10.012Z"
+}

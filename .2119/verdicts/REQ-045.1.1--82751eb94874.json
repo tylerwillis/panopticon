@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.1.1--82751eb94874",
-  "requirementId": "REQ-045.1.1",
-  "hash": "82751eb94874",
-  "verdict": "pass",
-  "summary": "All three built-in 2119 workflows are exhaustively checked for the exact honesty default, and subclass command behavior plus one-at-a-time overrides reject coupling to stage-4 reviewers or Fable selection.",
-  "timestamp": "2026-08-03T21:09:50.422Z"
-}

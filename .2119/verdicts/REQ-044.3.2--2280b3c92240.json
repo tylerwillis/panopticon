@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.3.2--2280b3c92240",
-  "requirementId": "REQ-044.3.2",
-  "hash": "2280b3c92240",
-  "verdict": "pass",
-  "summary": "Behavioral tests reject blank/invalid slot overrides and invalid defaults before dispatch, verify slot-specific fallback, and preserve a model suffix after the first colon.",
-  "timestamp": "2026-08-03T19:33:37.131Z"
-}

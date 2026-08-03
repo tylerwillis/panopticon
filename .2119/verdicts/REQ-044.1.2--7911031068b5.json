@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.1.2--7911031068b5",
-  "requirementId": "REQ-044.1.2",
-  "hash": "7911031068b5",
-  "verdict": "pass",
-  "summary": "Behavioral tests prove nonblank environment pairs override workflow defaults, blank values fall back to a non-Codex variant default, and malformed nonblank pairs are rejected.",
-  "timestamp": "2026-08-03T19:30:40.266Z"
-}

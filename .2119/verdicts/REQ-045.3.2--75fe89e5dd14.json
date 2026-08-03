@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.3.2--75fe89e5dd14",
-  "requirementId": "REQ-045.3.2",
-  "hash": "75fe89e5dd14",
-  "verdict": "pass",
-  "summary": "Tests reject blank and malformed overrides/defaults before dispatch, verify per-slot fallback and precedence, and preserve model text after only the first colon.",
-  "timestamp": "2026-08-03T21:09:33.921Z"
-}

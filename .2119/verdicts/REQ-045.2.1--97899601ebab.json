@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.2.1--97899601ebab",
-  "requirementId": "REQ-045.2.1",
-  "hash": "97899601ebab",
-  "verdict": "pass",
-  "summary": "All three nullable reviewer fields are behaviorally covered across domain, create/read/patch API, durable store reopen, migration schema/upgrade, and editable create/edit forms.",
-  "timestamp": "2026-08-03T22:03:31.361Z"
-}

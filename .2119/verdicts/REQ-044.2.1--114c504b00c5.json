@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.2.1--114c504b00c5",
-  "requirementId": "REQ-044.2.1",
-  "hash": "114c504b00c5",
-  "verdict": "pass",
-  "summary": "Tests reject missing/non-nullable columns or domain fields, and verify all three nullable values across create/read/patch SQL-store round trips plus editable form submission.",
-  "timestamp": "2026-08-03T19:30:43.704Z"
-}

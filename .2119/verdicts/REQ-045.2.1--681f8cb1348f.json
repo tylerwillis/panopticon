@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.2.1--681f8cb1348f",
-  "requirementId": "REQ-045.2.1",
-  "hash": "681f8cb1348f",
-  "verdict": "pass",
-  "summary": "Tests independently cover all three nullable fields across domain, create/read/patch API, durable store reopen, migration/upgrade, and editable create/edit forms, including explicit-null and non-null-to-null counterexamples.",
-  "timestamp": "2026-08-03T21:35:08.444Z"
-}

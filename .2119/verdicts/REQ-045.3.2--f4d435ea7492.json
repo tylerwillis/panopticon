@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.3.2--f4d435ea7492",
-  "requirementId": "REQ-045.3.2",
-  "hash": "f4d435ea7492",
-  "verdict": "pass",
-  "summary": "Dedicated resolution tests cover both slots, blank fallback, first-colon splitting, and reject invalid defaults or overrides before the command runner is called.",
-  "timestamp": "2026-08-03T22:03:21.208Z"
-}

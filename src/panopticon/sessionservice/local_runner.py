@@ -11,6 +11,7 @@ daemon. LLM-free — the agent runs inside the container.
 
 from __future__ import annotations
 
+import logging
 import os
 import subprocess
 import tempfile
@@ -48,6 +49,8 @@ HOST_GATEWAY = "host.docker.internal:host-gateway"
 #: Dedicated tmux server socket for panopticon's task sessions — isolates them from the
 #: operator's own tmux and gives the terminal controller a known place to `tmux attach`.
 TMUX_SOCKET = "panopticon"
+
+logger = logging.getLogger(__name__)
 
 
 def session_name(task_id: str) -> str:
@@ -135,6 +138,23 @@ def _env_file_values(path: str | None, names: set[str]) -> list[str]:
     return values
 
 
+def _env_file_names(path: str, names: set[str]) -> set[str]:
+    """Return selected names present in a Docker env file without retaining their values."""
+
+    env_path = Path(path)
+    if not env_path.is_file():
+        return set()
+    found: set[str] = set()
+    for raw_line in env_path.read_text().splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        name, _ = line.split("=", 1)
+        if name in names:
+            found.add(name)
+    return found
+
+
 def _service_no_proxy(service_url: str, env_path: str | None, env: Mapping[str, str]) -> str:
     """Preserve configured bypasses and force the control-plane host off ambient proxies."""
 
@@ -191,6 +211,24 @@ class LocalRunner(Runner):
         self._snapshot_dir = Path(tempfile.gettempdir())
         self._session_locks: dict[str, threading.Lock] = {}
         self._session_locks_guard = threading.Lock()
+        self._warned_reviewer_env_files: set[str] = set()
+
+    def _warn_legacy_reviewer_env(self, env_path: str) -> None:
+        reviewer_names = {HONESTY_REVIEWER_ENV, *REVIEWER_ENV_VARS}
+        found = _env_file_names(env_path, reviewer_names)
+        if not found:
+            return
+        with self._session_locks_guard:
+            if env_path in self._warned_reviewer_env_files:
+                return
+            self._warned_reviewer_env_files.add(env_path)
+        logger.warning(
+            "Repo env file %s contains inert reviewer setting(s): %s. Move reviewer selection "
+            "to the repo fields honesty_reviewer, reviewer_1, and reviewer_2; env-file values "
+            "are ignored.",
+            env_path,
+            ", ".join(sorted(found)),
+        )
 
     def _session_lock(self, task_id: str) -> threading.Lock:
         with self._session_locks_guard:
@@ -349,6 +387,7 @@ class LocalRunner(Runner):
             docker_run += ["--volume", f"panopticon-dind-{task_id}:/var/lib/docker"]
             env["PANOPTICON_DOCKER_IN_DOCKER"] = "1"
         if env_path := secrets_file_path(env_file, secrets_dir=self._secrets_dir):
+            self._warn_legacy_reviewer_env(env_path)
             docker_run += ["--env-file", env_path]  # per-repo secrets, resolved host-locally
         auth_snapshot: Path | None = None
         if workspace:  # the per-task clone — the agent's writable working dir (ADR 0011)

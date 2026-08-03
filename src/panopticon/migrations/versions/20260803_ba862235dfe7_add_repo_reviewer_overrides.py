@@ -1,7 +1,7 @@
 """add repo reviewer overrides
 
 Revision ID: ba862235dfe7
-Revises: a3f8c21d4e90
+Revises: baa229ad49e8
 Create Date: 2026-08-03
 """
 
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision: str = "ba862235dfe7"
-down_revision: str | None = "a3f8c21d4e90"
+down_revision: str | None = "baa229ad49e8"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.2.2--3275d02106e3",
-  "requirementId": "REQ-044.2.2",
-  "hash": "3275d02106e3",
-  "verdict": "pass",
-  "summary": "Create and patch tests cover all three fields and reject missing harness, missing model, unsupported harness, and no-separator pairs with HTTP 400 details naming the offending field; null, empty, and whitespace-only boundaries are accepted as unset.",
-  "timestamp": "2026-08-03T19:31:42.120Z"
-}

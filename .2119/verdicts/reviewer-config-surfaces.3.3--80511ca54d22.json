@@ -1,0 +1,8 @@
+{
+  "reviewId": "reviewer-config-surfaces.3.3--80511ca54d22",
+  "requirementId": "reviewer-config-surfaces.3.3",
+  "hash": "80511ca54d22",
+  "verdict": "pass",
+  "summary": "Tests verify first-use warning content, secrecy, all key combinations, and per-runner/per-file suppression.",
+  "timestamp": "2026-08-03T23:37:14.545Z"
+}

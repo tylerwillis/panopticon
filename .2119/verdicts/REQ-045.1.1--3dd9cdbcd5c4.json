@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.1.1--3dd9cdbcd5c4",
-  "requirementId": "REQ-045.1.1",
-  "hash": "3dd9cdbcd5c4",
-  "verdict": "pass",
-  "summary": "Tests enumerate all three built-in 2119 workflows, reject any nonexact codex/gpt-5.6-sol default, and behaviorally prove subclass honesty overrides leave stage-4 reviewers and Fable selection independent.",
-  "timestamp": "2026-08-03T22:03:24.872Z"
-}

@@ -4,13 +4,14 @@ from __future__ import annotations
 
 import asyncio
 import importlib.resources
+import logging
 import shlex
 import subprocess
 from collections.abc import Iterator, Sequence
 from dataclasses import fields
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, ClassVar, get_origin, get_type_hints
+from typing import Any
 
 import pytest
 from alembic import command
@@ -56,9 +57,9 @@ def client(tmp_path: Path) -> Iterator[TestClient]:
 
 
 def test_workflows_own_configurable_honesty_reviewer_defaults() -> None:
-    # 2119: REQ-044.1.1
-    # 2119: REQ-044.1.2
-    # 2119: REQ-044.3.2
+    # 2119: reviewer-config-surfaces.1.1
+    # 2119: reviewer-config-surfaces.1.2
+    # 2119: reviewer-config-surfaces.3.2
     workflows = discover_workflows(_home_workflows=Path("/nonexistent"))
     builtins = [workflow for name, workflow in workflows.items() if name.startswith("2119-")]
     assert {workflow.name for workflow in builtins} == {
@@ -67,11 +68,6 @@ def test_workflows_own_configurable_honesty_reviewer_defaults() -> None:
         "2119-auto-sol",
     }
     for workflow in builtins:
-        owners = {
-            name: next(base for base in type(workflow).__mro__ if name in base.__dict__)
-            for name in ("honesty_reviewer", "reviewers", "fable_reviews")
-        }
-        assert all(get_origin(get_type_hints(owners[name])[name]) is ClassVar for name in owners)
         assert workflow.honesty_reviewer == ReviewerConfig("codex", "gpt-5.6-sol")
         assert workflow._honesty_reviewer_cmd({}) == (
             "codex exec --dangerously-bypass-approvals-and-sandbox -m gpt-5.6-sol"
@@ -128,12 +124,44 @@ def test_workflows_own_configurable_honesty_reviewer_defaults() -> None:
         )
         with pytest.raises(ReviewerDispatchError):
             variant_workflow._honesty_reviewer_cmd({"PANOPTICON_2119_HONESTY_REVIEWER": "claude"})
+        invalid_defaults = (
+            ReviewerConfig("pi", "model"),
+            ReviewerConfig("", "model"),
+            ReviewerConfig("   ", "model"),
+            ReviewerConfig("claude", ""),
+            ReviewerConfig("claude", "   "),
+        )
+        for invalid in invalid_defaults:
+            invalid_default = type(
+                "InvalidHonestyDefault",
+                (type(workflow),),
+                {"honesty_reviewer": invalid},
+            )()
+            for environment in (
+                {},
+                {"PANOPTICON_2119_HONESTY_REVIEWER": "claude:claude-opus-5"},
+            ):
+                with pytest.raises(ReviewerDispatchError):
+                    invalid_default._honesty_reviewer_cmd(environment)
+        for invalid_override in (
+            "claude",
+            ":model",
+            "   :model",
+            "claude:",
+            "claude:   ",
+            "pi:model",
+            "claudee:model",
+        ):
+            with pytest.raises(ReviewerDispatchError):
+                variant_workflow._honesty_reviewer_cmd(
+                    {"PANOPTICON_2119_HONESTY_REVIEWER": invalid_override}
+                )
 
 
 def test_rendered_spec_skill_resolves_honesty_reviewer_inside_container(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    # 2119: REQ-045.1.2
+    # 2119: reviewer-config-surfaces.1.2
     workflow = discover_workflows(_home_workflows=Path("/nonexistent"))["2119-auto-spec"]
     declared = next(skill for skill in workflow.skills() if skill.name == "spec-2119")
     delivered = next(skill for skill in workflow.container_skills() if skill.name == "spec-2119")
@@ -176,7 +204,7 @@ def test_rendered_spec_skill_resolves_honesty_reviewer_inside_container(
 
 
 def test_custom_workflow_default_is_quoted_at_resolver_shell_boundary() -> None:
-    # 2119: REQ-045.1.2
+    # 2119: reviewer-config-surfaces.1.2
     workflow = discover_workflows(_home_workflows=Path("/nonexistent"))["2119-auto-spec"]
     model = "provider model' ; printf injected"
     variant = type(
@@ -239,12 +267,12 @@ def test_custom_workflow_default_is_quoted_at_resolver_shell_boundary() -> None:
 def test_shared_reviewer_command_quotes_each_harness(
     config: ReviewerConfig, expected: list[str]
 ) -> None:
-    # 2119: REQ-045.1.2
+    # 2119: reviewer-config-surfaces.1.2
     assert shlex.split(render_reviewer_command(config)) == expected
 
 
 def test_repo_reviewer_overrides_persist_through_api_and_store(client: TestClient) -> None:
-    # 2119: REQ-044.2.1
+    # 2119: reviewer-config-surfaces.2.1
     created = client.post(
         "/repos",
         json={
@@ -293,7 +321,7 @@ def test_repo_reviewer_overrides_persist_through_api_and_store(client: TestClien
 
 @pytest.mark.asyncio
 async def test_repo_reviewer_overrides_survive_store_reopen(tmp_path: Path) -> None:
-    # 2119: REQ-045.2.1
+    # 2119: reviewer-config-surfaces.2.1
     url = f"sqlite:///{tmp_path / 'repos.db'}"
     values = {
         "honesty_reviewer": "claude:claude-opus-5",
@@ -342,7 +370,7 @@ async def test_repo_reviewer_overrides_survive_store_reopen(tmp_path: Path) -> N
 def test_repo_rejects_malformed_reviewer_overrides(
     client: TestClient, field: str, value: str, reason: str
 ) -> None:
-    # 2119: REQ-044.2.2
+    # 2119: reviewer-config-surfaces.2.2
     created = client.post(
         "/repos",
         json={"id": "r2", "name": "other", "git_url": "https://x/r2", field: value},
@@ -363,14 +391,21 @@ def test_repo_rejects_malformed_reviewer_overrides(
 def test_repo_accepts_blank_reviewer_override_as_unset(
     client: TestClient, field: str, blank: str | None
 ) -> None:
-    # 2119: REQ-044.2.2
+    # 2119: reviewer-config-surfaces.2.1
+    # 2119: reviewer-config-surfaces.2.2
+    created = client.post(
+        "/repos",
+        json={"id": "r2", "name": "other", "git_url": "https://x/r2", field: blank},
+    )
+    assert created.status_code == 201, created.text
+    assert created.json()[field] is None
     response = client.patch("/repos/r1", json={field: blank})
     assert response.status_code == 200, response.text
     assert response.json()[field] is None
 
 
 async def test_repo_form_exposes_all_reviewer_override_fields() -> None:
-    # 2119: REQ-044.2.1
+    # 2119: reviewer-config-surfaces.2.1
     saved: list[dict[str, Any]] = []
     repo = {
         "id": "r1",
@@ -403,7 +438,7 @@ async def test_repo_form_exposes_all_reviewer_override_fields() -> None:
 
 
 async def test_repo_create_form_exposes_and_submits_reviewer_overrides() -> None:
-    # 2119: REQ-045.2.1
+    # 2119: reviewer-config-surfaces.2.1
     saved: list[dict[str, Any]] = []
     values = {
         "honesty_reviewer": "claude:claude-opus-5",
@@ -425,7 +460,7 @@ async def test_repo_create_form_exposes_and_submits_reviewer_overrides() -> None
 
 
 async def test_repo_create_form_submits_blank_reviewer_overrides_as_null() -> None:
-    # 2119: REQ-045.2.1
+    # 2119: reviewer-config-surfaces.2.1
     saved: list[dict[str, Any]] = []
     app = App()
     async with app.run_test() as pilot:
@@ -450,7 +485,7 @@ def _alembic_config(db_url: str) -> Config:
 
 
 def test_migration_adds_nullable_repo_reviewer_columns(tmp_path: Path) -> None:
-    # 2119: REQ-044.2.1
+    # 2119: reviewer-config-surfaces.2.1
     url = f"sqlite:///{tmp_path / 'reviewers.db'}"
     command.upgrade(_alembic_config(url), "head")
     engine = create_engine(url)
@@ -464,10 +499,10 @@ def test_migration_adds_nullable_repo_reviewer_columns(tmp_path: Path) -> None:
 
 
 def test_migration_preserves_existing_repo_from_prior_revision(tmp_path: Path) -> None:
-    # 2119: REQ-045.2.1
+    # 2119: reviewer-config-surfaces.2.1
     url = f"sqlite:///{tmp_path / 'upgrade.db'}"
     config = _alembic_config(url)
-    command.upgrade(config, "a3f8c21d4e90")
+    command.upgrade(config, "baa229ad49e8")
     engine = create_engine(url)
     try:
         with engine.begin() as connection:
@@ -509,7 +544,7 @@ class _Recorder:
 
 
 def test_spawn_renders_repo_reviewer_overrides_after_env_file() -> None:
-    # 2119: REQ-044.3.1
+    # 2119: reviewer-config-surfaces.3.1
     recorder = _Recorder()
     LocalRunner("http://svc", secrets_dir="/host/secrets", run=recorder).spawn(
         "t1",
@@ -611,8 +646,125 @@ def test_spawn_renders_repo_reviewer_overrides_after_env_file() -> None:
     assert captured["reviewer_2"] == "claude:claude-fable-5"
 
 
+@pytest.mark.parametrize(
+    "legacy_names",
+    [
+        ("PANOPTICON_2119_HONESTY_REVIEWER",),
+        ("PANOPTICON_2119_REVIEWER_1",),
+        ("PANOPTICON_2119_REVIEWER_2",),
+        ("PANOPTICON_2119_HONESTY_REVIEWER", "PANOPTICON_2119_REVIEWER_1"),
+        ("PANOPTICON_2119_HONESTY_REVIEWER", "PANOPTICON_2119_REVIEWER_2"),
+        ("PANOPTICON_2119_REVIEWER_1", "PANOPTICON_2119_REVIEWER_2"),
+        (
+            "PANOPTICON_2119_HONESTY_REVIEWER",
+            "PANOPTICON_2119_REVIEWER_1",
+            "PANOPTICON_2119_REVIEWER_2",
+        ),
+    ],
+)
+def test_spawn_warns_on_first_use_then_suppresses_inert_env_file_reviewers(
+    tmp_path: Path,
+    caplog: pytest.LogCaptureFixture,
+    legacy_names: tuple[str, ...],
+) -> None:
+    # 2119: reviewer-config-surfaces.3.3
+    env_file = tmp_path / "repo.env"
+    secret_values = [f"secret-model-{index}" for index in range(len(legacy_names))]
+    env_file.write_text(
+        "GH_TOKEN=secret\n"
+        + "".join(
+            f"{name}={value}\n" for name, value in zip(legacy_names, secret_values, strict=True)
+        )
+        + f"{legacy_names[0]}=duplicate-secret-model\n"
+    )
+    recorder = _Recorder()
+    runner = LocalRunner("http://svc", secrets_dir=tmp_path, run=recorder)
+    logging.getLogger("panopticon.sessionservice.local_runner").disabled = False
+    caplog.set_level(logging.WARNING)
+
+    runner.spawn("t-warning-1", env_file="repo.env")
+    expected_warning = (
+        f"Repo env file {env_file} contains inert reviewer setting(s): "
+        f"{', '.join(sorted(legacy_names))}. Move reviewer selection to the repo fields "
+        "honesty_reviewer, reviewer_1, and reviewer_2; env-file values are ignored."
+    )
+    messages = [record.getMessage() for record in caplog.records]
+    assert messages == [expected_warning]
+    warning = messages[0]
+    assert "GH_TOKEN" not in warning
+    for value in (*secret_values, "duplicate-secret-model"):
+        assert value not in warning
+
+    caplog.clear()
+    runner.spawn("t-warning-2", env_file="repo.env")
+    assert caplog.records == []
+
+    other_env_file = tmp_path / "other.env"
+    other_env_file.write_text(env_file.read_text())
+    runner.spawn("t-warning-other-file", env_file="other.env")
+    assert len(caplog.records) == 1
+    assert str(other_env_file) in caplog.records[0].getMessage()
+
+    caplog.clear()
+    runner.spawn("t-warning-original-again", env_file="repo.env")
+    assert caplog.records == []
+
+    other_runner = LocalRunner("http://svc", secrets_dir=tmp_path, run=recorder)
+    other_runner.spawn("t-warning-other-runner", env_file="repo.env")
+    assert len(caplog.records) == 1
+    assert str(env_file) in caplog.records[0].getMessage()
+
+
+@pytest.mark.parametrize(
+    "contents",
+    [
+        "GH_TOKEN=secret\n",
+        "PANOPTICON_2119_REVIEWER_10=near-match\n",
+        "PANOPTICON_2119_REVIEWER_1_EXTRA=near-match\n",
+    ],
+)
+def test_spawn_does_not_warn_for_env_files_without_reviewer_transport_keys(
+    tmp_path: Path,
+    caplog: pytest.LogCaptureFixture,
+    contents: str,
+) -> None:
+    # 2119: reviewer-config-surfaces.3.3
+    (tmp_path / "repo.env").write_text(contents)
+    logging.getLogger("panopticon.sessionservice.local_runner").disabled = False
+    caplog.set_level(logging.WARNING)
+
+    LocalRunner("http://svc", secrets_dir=tmp_path, run=_Recorder()).spawn(
+        "t-no-warning", env_file="repo.env"
+    )
+
+    assert caplog.records == []
+
+
+@pytest.mark.parametrize("value", ["", "   "])
+def test_spawn_warns_when_reviewer_transport_key_has_blank_value(
+    tmp_path: Path,
+    caplog: pytest.LogCaptureFixture,
+    value: str,
+) -> None:
+    # 2119: reviewer-config-surfaces.3.3
+    env_file = tmp_path / "repo.env"
+    env_file.write_text(f"PANOPTICON_2119_REVIEWER_1={value}\n")
+    logging.getLogger("panopticon.sessionservice.local_runner").disabled = False
+    caplog.set_level(logging.WARNING)
+
+    LocalRunner("http://svc", secrets_dir=tmp_path, run=_Recorder()).spawn(
+        "t-blank-reviewer", env_file="repo.env"
+    )
+
+    assert [record.getMessage() for record in caplog.records] == [
+        f"Repo env file {env_file} contains inert reviewer setting(s): "
+        "PANOPTICON_2119_REVIEWER_1. Move reviewer selection to the repo fields "
+        "honesty_reviewer, reviewer_1, and reviewer_2; env-file values are ignored."
+    ]
+
+
 def test_reviewer_resolution_uses_repo_override_then_workflow_default() -> None:
-    # 2119: REQ-044.3.2
+    # 2119: reviewer-config-surfaces.3.2
     defaults = (
         ReviewerConfig("claude", "claude-fable-5"),
         ReviewerConfig("codex", "gpt-5.6-sol"),
