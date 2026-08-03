@@ -457,10 +457,12 @@ def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> 
     )
     for name in names:
         handlers[name].setFormatter(formatter)
-        loggers[name].addHandler(handlers[name])
         loggers[name].setLevel(logging.INFO)
     try:
         with TestClient(_authenticated_app(tmp_path)):
+            # Attach handlers after lifespan entry so dynamically configured logging is covered.
+            for name in names:
+                loggers[name].addHandler(handlers[name])
             for name in names:
                 for token in (READ_TOKEN, WRITE_TOKEN):
                     payload = f"prefix-{token}-{token}-suffix"

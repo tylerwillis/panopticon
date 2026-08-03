@@ -16,6 +16,7 @@ import logging
 import os
 import re
 import secrets
+import threading
 import traceback
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager, suppress
@@ -95,31 +96,47 @@ class _ConfiguredTokenLogFilter(logging.Filter):
         return True
 
 
-def _install_log_redaction(
-    tokens: tuple[str, ...],
-) -> tuple[_ConfiguredTokenLogFilter, tuple[logging.Handler, ...]]:
-    """Attach one lifespan-owned filter to every handler currently in the process."""
+_REDACTED_LOGGER_NAMESPACES = ("panopticon.taskservice", "fastapi", "uvicorn", "mcp")
+_log_redaction_lock = threading.RLock()
+_active_log_redaction_filters: list[_ConfiguredTokenLogFilter] = []
+_original_handler_handle: Callable[[logging.Handler, logging.LogRecord], bool] | None = None
+
+
+def _redacting_handler_handle(handler: logging.Handler, record: logging.LogRecord) -> bool:
+    with _log_redaction_lock:
+        filters = tuple(_active_log_redaction_filters)
+        original_handle = _original_handler_handle
+    if original_handle is None:
+        raise RuntimeError("log redaction handler invoked outside an active lifespan")
+    if any(
+        record.name == namespace or record.name.startswith(f"{namespace}.")
+        for namespace in _REDACTED_LOGGER_NAMESPACES
+    ):
+        for redaction_filter in filters:
+            redaction_filter.filter(record)
+    return original_handle(handler, record)
+
+
+def _install_log_redaction(tokens: tuple[str, ...]) -> _ConfiguredTokenLogFilter:
+    """Install a lifespan-owned redactor that also covers handlers added later."""
+    global _original_handler_handle
     redaction_filter = _ConfiguredTokenLogFilter(tokens)
-    loggers = [logging.getLogger()]
-    loggers.extend(
-        logger
-        for logger in logging.root.manager.loggerDict.values()
-        if isinstance(logger, logging.Logger)
-    )
-    handlers: list[logging.Handler] = []
-    for logger in loggers:
-        for handler in logger.handlers:
-            if handler not in handlers:
-                handler.addFilter(redaction_filter)
-                handlers.append(handler)
-    return redaction_filter, tuple(handlers)
+    with _log_redaction_lock:
+        if not _active_log_redaction_filters:
+            _original_handler_handle = logging.Handler.handle
+            type.__setattr__(logging.Handler, "handle", _redacting_handler_handle)
+        _active_log_redaction_filters.append(redaction_filter)
+    return redaction_filter
 
 
-def _remove_log_redaction(
-    redaction_filter: _ConfiguredTokenLogFilter, handlers: tuple[logging.Handler, ...]
-) -> None:
-    for handler in handlers:
-        handler.removeFilter(redaction_filter)
+def _remove_log_redaction(redaction_filter: _ConfiguredTokenLogFilter) -> None:
+    global _original_handler_handle
+    with _log_redaction_lock:
+        _active_log_redaction_filters.remove(redaction_filter)
+        if not _active_log_redaction_filters:
+            assert _original_handler_handle is not None
+            type.__setattr__(logging.Handler, "handle", _original_handler_handle)
+            _original_handler_handle = None
 
 
 def _redact_stream_chunk(
@@ -599,7 +616,7 @@ def create_app(
                 yield
         finally:
             if installed is not None:
-                _remove_log_redaction(*installed)
+                _remove_log_redaction(installed)
 
     app = FastAPI(title="panopticon task service", version="0.0.3", lifespan=lifespan)
 
