@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.7.4--2d091d42e76c",
+  "requirementId": "REQ-044.7.4",
+  "hash": "2d091d42e76c",
+  "verdict": "pass",
+  "summary": "After deregistration makes the task non-live, the API test requires the latest of two published snapshots to remain field-for-field intact and explicitly report stale=true, rejecting loss, rollback, mutation, and missing/false stale labeling.",
+  "timestamp": "2026-08-03T17:17:27.930Z"
+}

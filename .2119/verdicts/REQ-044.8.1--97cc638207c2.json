@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.8.1--97cc638207c2",
+  "requirementId": "REQ-044.8.1",
+  "hash": "97cc638207c2",
+  "verdict": "pass",
+  "summary": "Real endpoint round-trip asserts exact latest pane text including CRLF, surrounding whitespace, Unicode, and credential-like secrets, rejecting normalization, stale substitution, corruption, and redaction.",
+  "timestamp": "2026-08-03T17:17:43.531Z"
+}

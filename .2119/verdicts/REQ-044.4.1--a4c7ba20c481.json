@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.4.1--a4c7ba20c481",
+  "requirementId": "REQ-044.4.1",
+  "hash": "a4c7ba20c481",
+  "verdict": "pass",
+  "summary": "Acceptance and delivered/failed settlement preserve turn, blocked, and attention across true and false marker states, rejecting each material direct field mutation.",
+  "timestamp": "2026-08-03T17:16:40.751Z"
+}

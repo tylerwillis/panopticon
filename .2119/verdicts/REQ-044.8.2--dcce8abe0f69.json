@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.8.2--dcce8abe0f69",
+  "requirementId": "REQ-044.8.2",
+  "hash": "dcce8abe0f69",
+  "verdict": "pass",
+  "summary": "OpenAPI description is asserted exactly and rejects nearest omissions of arbitrary terminal output, credentials, other secrets, or their being printed in the pane.",
+  "timestamp": "2026-08-03T17:17:43.709Z"
+}

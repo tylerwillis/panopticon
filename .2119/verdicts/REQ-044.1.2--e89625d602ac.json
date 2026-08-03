@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.1.2--e89625d602ac",
+  "requirementId": "REQ-044.1.2",
+  "hash": "e89625d602ac",
+  "verdict": "pass",
+  "summary": "Both enforced-mode GET endpoints accept read-capable credentials and reject the nearest auth violations: missing and invalid bearer tokens.",
+  "timestamp": "2026-08-03T17:16:06.149Z"
+}

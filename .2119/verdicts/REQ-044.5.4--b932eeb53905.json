@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.5.4--b932eeb53905",
+  "requirementId": "REQ-044.5.4",
+  "hash": "b932eeb53905",
+  "verdict": "pass",
+  "summary": "The REST test checks the exact seven-field status shape in pending and failed states, validates identifier/status/submit/UTF-8 byte count/creation and settlement metadata/failure reason, and rejects submitted-text leakage in keys, values, and raw output.",
+  "timestamp": "2026-08-03T17:16:49.670Z"
+}

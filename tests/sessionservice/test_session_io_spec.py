@@ -1,0 +1,230 @@
+"""Executable contract for runner-owned session I/O."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
+
+import pytest
+
+from panopticon.sessionservice.prefill import BRACKETED_PASTE_ON, prefill_pane
+
+
+@dataclass
+class _Delivery:
+    id: str = "delivery-1"
+    text: str = "hello\nworld"
+    submit: bool = False
+
+
+class _Client:
+    def __init__(self, delivery: _Delivery | None = None) -> None:
+        self.delivery = delivery
+        self.settlements: list[tuple[str, str, str | None]] = []
+        self.transcripts: list[dict[str, Any]] = []
+
+    def pending_session_input(self, task_id: str, runner_id: str) -> list[dict[str, Any]]:
+        del task_id, runner_id
+        return [] if self.delivery is None else [vars(self.delivery)]
+
+    def settle_session_input(
+        self, task_id: str, delivery_id: str, status: str, failure_reason: str | None
+    ) -> None:
+        del task_id
+        self.settlements.append((delivery_id, status, failure_reason))
+
+    def publish_session_transcript(self, task_id: str, snapshot: dict[str, Any]) -> None:
+        del task_id
+        self.transcripts.append(snapshot)
+
+
+class _Runner:
+    def __init__(self, outcome: tuple[bool, str | None] = (True, None)) -> None:
+        self.outcome = outcome
+        self.deliveries: list[tuple[str, str, bool]] = []
+        self.captures: list[str] = []
+        self.capture = {"text": "recent λ", "columns": 80, "rows": 24, "truncated": False}
+
+    def deliver_session_input(
+        self, task_id: str, text: str, *, submit: bool
+    ) -> tuple[bool, str | None]:
+        self.deliveries.append((task_id, text, submit))
+        return self.outcome
+
+    def capture_session_transcript(self, task_id: str) -> dict[str, Any] | None:
+        self.captures.append(task_id)
+        return self.capture
+
+
+@pytest.mark.parametrize("submit", [False, True])
+def test_worker_delivers_only_for_live_owned_user_turn(submit: bool) -> None:
+    # 2119: REQ-044.3.1
+    # 2119: REQ-044.3.2
+    # 2119: REQ-044.4.2
+    # 2119: REQ-044.5.1
+    # 2119: REQ-044.5.2
+    # 2119: REQ-044.6.2
+    from panopticon.sessionservice.session_io import SessionIOWorker
+
+    delivery = _Delivery(submit=submit)
+    client, runner = _Client(delivery), _Runner()
+    worker = SessionIOWorker(client, runner, runner_id="host-1", dispatch=lambda call: call())
+    eligible = {"id": "t1", "claimed_by": "host-1", "container_status": "live", "turn": "user"}
+    worker.process(eligible)
+    assert runner.deliveries == [("t1", "hello\nworld", submit)]
+    assert client.settlements == [("delivery-1", "delivered", None)]
+
+    for changed in ({"claimed_by": "host-2"}, {"container_status": "down"}, {"turn": "agent"}):
+        blocked_runner = _Runner()
+        SessionIOWorker(
+            _Client(delivery), blocked_runner, runner_id="host-1", dispatch=lambda call: call()
+        ).process(eligible | changed)
+        assert blocked_runner.deliveries == []
+        assert blocked_runner.captures == []
+
+
+@pytest.mark.parametrize("submit", [False, True])
+def test_prefill_stages_or_submits_with_exact_tmux_commands(tmp_path: Path, submit: bool) -> None:
+    # 2119: REQ-044.3.1
+    # 2119: REQ-044.3.2
+    prompt, raw = tmp_path / "prompt", tmp_path / "ready"
+    prompt.write_text("hello\nworld")
+    raw.write_bytes(BRACKETED_PASTE_ON)
+    calls: list[list[str]] = []
+
+    def run(args: list[str], *, check: bool = True) -> str:
+        del check
+        calls.append(list(args))
+        return "%1\n" if "display-message" in args else ""
+
+    assert prefill_pane(
+        "sess",
+        str(prompt),
+        run=run,
+        sleep=lambda _: None,
+        raw_log=str(raw),
+        timeout=1,
+        submit=submit,
+        watch=False,
+        settle_delay=0,
+    )
+    assert sum("paste-buffer" in call for call in calls) == 1
+    paste = next(call for call in calls if "paste-buffer" in call)
+    assert "-p" in paste
+    assert sum("send-keys" in call for call in calls) == int(submit)
+    if submit:
+        enter = next(call for call in calls if "send-keys" in call)
+        assert enter == ["tmux", "send-keys", "-t", "%1", "Enter"]
+        assert enter.count("Enter") == 1
+
+
+def test_worker_records_stable_delivery_failure() -> None:
+    # 2119: REQ-044.5.3
+    from panopticon.sessionservice.session_io import SessionIOWorker
+
+    client, runner = _Client(_Delivery()), _Runner((False, "tmux-delivery-failed"))
+    SessionIOWorker(client, runner, runner_id="host-1", dispatch=lambda call: call()).process(
+        {"id": "t1", "claimed_by": "host-1", "container_status": "live", "turn": "user"}
+    )
+    assert client.settlements == [("delivery-1", "failed", "tmux-delivery-failed")]
+
+
+@pytest.mark.parametrize(
+    "panes,raises", [([""], False), (["%1", ""], False), (["%1"] * 4, False), (["%1"] * 2, True)]
+)
+def test_actual_tmux_delivery_failures_map_to_one_stable_reason(
+    tmp_path: Path, panes: list[str], raises: bool
+) -> None:
+    # 2119: REQ-044.5.3
+    from panopticon.sessionservice.session_io import deliver_pane_input
+
+    raw = tmp_path / "ready"
+    raw.write_bytes(BRACKETED_PASTE_ON if len(panes) < 4 else b"")
+
+    def run(args: list[str], *, check: bool = True) -> str:
+        del check
+        if "display-message" in args:
+            return (panes.pop(0) if panes else "") + "\n"
+        if raises and "load-buffer" in args:
+            raise OSError("tmux failed")
+        return ""
+
+    assert deliver_pane_input(
+        "sess",
+        "text",
+        submit=True,
+        run=run,
+        raw_log=str(raw),
+        timeout=2,
+        sleep=lambda _: None,
+    ) == (False, "tmux-delivery-failed")
+
+
+def test_settled_idempotent_request_is_not_delivered_twice() -> None:
+    # 2119: REQ-044.5.5
+    from panopticon.sessionservice.session_io import SessionIOWorker
+
+    class SettlingClient(_Client):
+        def settle_session_input(
+            self, task_id: str, delivery_id: str, status: str, failure_reason: str | None
+        ) -> None:
+            super().settle_session_input(task_id, delivery_id, status, failure_reason)
+            self.delivery = None
+
+    client, runner = SettlingClient(_Delivery()), _Runner()
+    worker = SessionIOWorker(client, runner, runner_id="host-1", dispatch=lambda call: call())
+    task = {"id": "t1", "claimed_by": "host-1", "container_status": "live", "turn": "user"}
+    worker.process(task)
+    worker.process(task)
+    assert runner.deliveries == [("t1", "hello\nworld", False)]
+
+
+def test_worker_publishes_transcript_only_for_its_live_task() -> None:
+    # 2119: REQ-044.6.2
+    from panopticon.sessionservice.session_io import SessionIOWorker
+
+    client, runner = _Client(), _Runner()
+    worker = SessionIOWorker(client, runner, runner_id="host-1", dispatch=lambda call: call())
+    worker.process({"id": "t1", "claimed_by": "host-1", "container_status": "live", "turn": "user"})
+    assert client.transcripts == [runner.capture]
+    worker.process({"id": "t2", "claimed_by": "host-2", "container_status": "live", "turn": "user"})
+    assert client.transcripts == [runner.capture]
+
+
+@pytest.mark.parametrize(
+    "lines",
+    [
+        [f"line-{index}" for index in range(260)],
+        [f"byte-{index}-{'λ' * 400}" for index in range(100)],
+        ["λ" * 40000],
+    ],
+)
+def test_pane_capture_keeps_newest_200_lines_and_64_kib_without_ansi(lines: list[str]) -> None:
+    # 2119: REQ-044.7.1
+    # 2119: REQ-044.7.5
+    from panopticon.sessionservice.session_io import capture_pane_snapshot
+
+    controls = (
+        "\x1b[31m\x1b[0m\x1b]0;title\x07\x1bPdata\x1b\\\x1bXx\x1b\\\x1b^x\x1b\\\x1b_x\x1b\\\x1b7"
+    )
+    lines = [f"{line}{controls}λ" for line in lines]
+
+    def run(args: list[str], *, check: bool = True) -> str:
+        del check
+        if "capture-pane" in args:
+            return "\n".join(lines)
+        if any("pane_width" in arg for arg in args):
+            return "100\t40\n"
+        raise AssertionError(args)
+
+    snapshot = capture_pane_snapshot("panopticon-t1", run=run, prefix=("tmux", "-L", "panopticon"))
+    assert snapshot is not None
+    expected = [line.split("\x1b", 1)[0] + "λ" for line in lines[-200:]]
+    expected_bytes = "\n".join(expected).encode("utf-8")
+    expected_text = expected_bytes[-65536:].decode("utf-8", errors="ignore")
+    assert snapshot["text"] == expected_text
+    assert "\x1b[" not in snapshot["text"] and "λ" in snapshot["text"]
+    assert "\x1b]" not in snapshot["text"]
+    assert "\x1b" not in snapshot["text"]
+    assert snapshot | {"columns": 100, "rows": 40, "truncated": True} == snapshot

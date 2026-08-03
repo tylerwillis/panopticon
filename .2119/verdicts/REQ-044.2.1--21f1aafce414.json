@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.2.1--21f1aafce414",
+  "requirementId": "REQ-044.2.1",
+  "hash": "21f1aafce414",
+  "verdict": "pass",
+  "summary": "Covers the valid existing non-terminal/live-owned/live-runner/user-turn case with 202, nonempty durable ID surviving reload, pending status, and no delivery claim; nearest missing, terminal, non-live, unowned, disconnected/dead-runner, and agent-turn cases are rejected.",
+  "timestamp": "2026-08-03T17:16:13.960Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.5.5--dfce96762091",
+  "requirementId": "REQ-044.5.5",
+  "hash": "dfce96762091",
+  "verdict": "pass",
+  "summary": "Identical same-task retries return the original pending or settled record, text/submit mismatches are rejected, cross-task key reuse stays distinct, and the integrated worker path invokes delivery exactly once.",
+  "timestamp": "2026-08-03T17:16:44.906Z"
+}

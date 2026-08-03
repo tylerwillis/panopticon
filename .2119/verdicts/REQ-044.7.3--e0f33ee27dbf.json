@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.7.3--e0f33ee27dbf",
+  "requirementId": "REQ-044.7.3",
+  "hash": "e0f33ee27dbf",
+  "verdict": "pass",
+  "summary": "Fresh-store test creates an existing task and rejects the nearest no-snapshot violations by asserting HTTP 503 and the exact unavailable-detail JSON body.",
+  "timestamp": "2026-08-03T17:17:29.184Z"
+}

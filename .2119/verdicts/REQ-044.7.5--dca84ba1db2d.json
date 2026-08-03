@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.7.5--dca84ba1db2d",
+  "requirementId": "REQ-044.7.5",
+  "hash": "dca84ba1db2d",
+  "verdict": "pass",
+  "summary": "Exact lambda-bearing text survives capture, publication, and retrieval, while embedded CSI/OSC/DCS/SOS/PM/APC and single ESC controls are rejected without consuming adjacent text.",
+  "timestamp": "2026-08-03T17:17:32.605Z"
+}

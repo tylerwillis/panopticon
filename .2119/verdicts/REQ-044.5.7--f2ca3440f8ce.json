@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.5.7--f2ca3440f8ce",
+  "requirementId": "REQ-044.5.7",
+  "hash": "f2ca3440f8ce",
+  "verdict": "pass",
+  "summary": "Generated session-input OpenAPI documentation is asserted exactly, rejecting omission or contradiction of both retry idempotency and the crash-window duplicate-delivery caveat.",
+  "timestamp": "2026-08-03T17:16:54.902Z"
+}
