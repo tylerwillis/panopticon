@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-040.2.1--85b539da0ff2",
+  "requirementId": "REQ-040.2.1",
+  "hash": "85b539da0ff2",
+  "verdict": "pass",
+  "summary": "Test rejects absent and stale highlights, verifies the exact notice, and forbids every open attempt.",
+  "timestamp": "2026-08-03T04:08:15.396Z"
+}

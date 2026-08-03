@@ -1211,7 +1211,8 @@ async def test_shift_e_sets_an_indefinite_snooze_with_visible_dim_label() -> Non
         "attention": False,
         "snoozed_until": None,
     }
-    fake = _FakeClient([task])
+    other = {**task, "id": "task-other456789", "slug": "other-task"}
+    fake = _FakeClient([task, other])
     app = Dashboard(fake, now=lambda: _SNOOZE_NOW, refresh_interval=0)  # type: ignore[arg-type]
     async with app.run_test() as pilot:
         await pilot.pause()
@@ -1219,6 +1220,7 @@ async def test_shift_e_sets_an_indefinite_snooze_with_visible_dim_label() -> Non
         await pilot.pause()
 
         assert fake.snoozes == [(_TASK["id"], _INDEFINITE_SNOOZE)]
+        assert other["snoozed_until"] is None
         row = app.query_one("#tasks", DataTable).get_row(_TASK["id"])
         assert row[1].plain == "snoozed"
         _assert_fully_dimmed(row)
@@ -5781,6 +5783,7 @@ def test_footer_shows_only_the_essential_keys() -> None:
         "R",
         "ctrl+r",
         "p",
+        "f",
         "g",
         "w",
         "a",
@@ -5815,6 +5818,123 @@ def test_task_snooze_keybindings_are_unique() -> None:
     actions = {hotkey.key: hotkey.action for hotkey in dashboard.HOTKEYS}
     assert actions["e"] == "snooze"
     assert actions["E"] == "snooze_indefinitely"
+
+
+# 2119: REQ-040.1.1
+def test_open_checkout_is_a_hidden_global_unique_hotkey() -> None:
+    keys = [hotkey.key for hotkey in dashboard.HOTKEYS]
+    assert len(keys) == len(set(keys))
+    binding = next(hotkey for hotkey in dashboard.HOTKEYS if hotkey.key == "f")
+    assert binding.action == "open_checkout"
+    assert binding.show is False
+
+
+def _open_checkout_app(task: dict[str, Any] | None) -> Dashboard:
+    app = Dashboard(_FakeClient([]))  # type: ignore[arg-type]
+    app._current = task["id"] if task is not None else None
+    app._tasks = {task["id"]: task} if task is not None else {}
+    return app
+
+
+# 2119: REQ-040.2.1
+def test_open_checkout_warns_when_no_task_is_highlighted(monkeypatch: Any) -> None:
+    notices: list[tuple[str, str]] = []
+    opened: list[str] = []
+    app = _open_checkout_app(None)
+    monkeypatch.setattr(
+        app, "notify", lambda message, severity="information": notices.append((message, severity))
+    )
+    monkeypatch.setattr(dashboard, "_open_path", opened.append)
+
+    app.action_open_checkout()
+
+    assert notices == [("No task highlighted.", "warning")]
+    assert opened == []
+
+    notices.clear()
+    app._current = "stale-row-key"
+    app.action_open_checkout()
+
+    assert notices == [("No task highlighted.", "warning")]
+    assert opened == []
+
+
+# 2119: REQ-040.3.1
+def test_open_checkout_warns_when_task_is_not_provisioned(monkeypatch: Any) -> None:
+    notices: list[tuple[str, str]] = []
+    opened: list[str] = []
+    app = _open_checkout_app({**_TASK, "clone": None})
+    monkeypatch.setattr(
+        app, "notify", lambda message, severity="information": notices.append((message, severity))
+    )
+    monkeypatch.setattr(dashboard, "_open_path", opened.append)
+
+    app.action_open_checkout()
+
+    assert notices == [("This task has not been provisioned yet.", "warning")]
+    assert opened == []
+
+
+# 2119: REQ-040.5.1
+@pytest.mark.parametrize(
+    ("runner_host", "message"),
+    [
+        ("mac-mini", "This task runs on mac-mini; its checkout isn't on this machine."),
+        (None, "This task's checkout isn't on this machine."),
+    ],
+)
+def test_open_checkout_warns_when_clone_is_not_a_local_directory(
+    monkeypatch: Any, runner_host: str | None, message: str
+) -> None:
+    checked: list[str] = []
+    opened: list[str] = []
+    notices: list[tuple[str, str]] = []
+    clone = "/runner/checkouts/task-abcdef0123"
+    app = _open_checkout_app({**_TASK, "clone": clone, "runner_host": runner_host})
+    monkeypatch.setattr(dashboard.os.path, "isdir", lambda path: bool(checked.append(path)))
+    monkeypatch.setattr(dashboard, "_open_path", opened.append)
+    monkeypatch.setattr(
+        app, "notify", lambda text, severity="information": notices.append((text, severity))
+    )
+
+    app.action_open_checkout()
+
+    assert checked == [clone]
+    assert opened == []
+    assert notices == [(message, "warning")]
+
+
+# 2119: REQ-040.4.1
+# 2119: REQ-040.6.1
+def test_open_checkout_uses_local_directory_evidence_despite_runner_host(monkeypatch: Any) -> None:
+    clone = "/local/checkouts/task-abcdef0123"
+    opened: list[str] = []
+    app = _open_checkout_app({**_TASK, "clone": clone, "runner_host": "mac-mini"})
+    monkeypatch.setattr(dashboard.os.path, "isdir", lambda path: path == clone)
+    monkeypatch.setattr(dashboard, "_open_path", opened.append)
+
+    app.action_open_checkout()
+
+    assert opened == [clone]
+
+
+# 2119: REQ-040.7.1
+def test_open_checkout_handles_missing_file_manager_opener(monkeypatch: Any) -> None:
+    notices: list[tuple[str, str]] = []
+    app = _open_checkout_app({**_TASK, "clone": "/local/checkout"})
+    monkeypatch.setattr(dashboard.os.path, "isdir", lambda path: True)
+    monkeypatch.setattr(
+        dashboard,
+        "_open_path",
+        lambda path: (_ for _ in ()).throw(FileNotFoundError(path)),
+    )
+    monkeypatch.setattr(
+        app, "notify", lambda text, severity="information": notices.append((text, severity))
+    )
+
+    app.action_open_checkout()
+
+    assert notices == [("No file manager opener is installed on this machine.", "warning")]
 
 
 async def test_pressing_question_mark_opens_the_help_screen() -> None:

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-040.5.1--d887a68dcc8f",
+  "requirementId": "REQ-040.5.1",
+  "hash": "d887a68dcc8f",
+  "verdict": "pass",
+  "summary": "Both runner-host branches verify exact notices, directory checking, and no open attempt.",
+  "timestamp": "2026-08-03T00:03:23.279Z"
+}

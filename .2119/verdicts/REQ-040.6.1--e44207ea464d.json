@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-040.6.1--e44207ea464d",
+  "requirementId": "REQ-040.6.1",
+  "hash": "e44207ea464d",
+  "verdict": "pass",
+  "summary": "Positive local-directory evidence must open the exact clone path.",
+  "timestamp": "2026-08-03T00:03:23.814Z"
+}
