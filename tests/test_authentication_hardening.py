@@ -567,6 +567,7 @@ def test_terminal_cleanup_stops_backend_to_remove_runtime_credentials(
     spawner._rmtree = lambda _path: None
     spawner._docker_cleanup = None
     runner = _Runner()
+    spawner._runner = object()  # type: ignore[assignment]
     monkeypatch.setattr(Spawner, "_runner_for", lambda _self, _task: runner)
 
     spawner.cleanup({"id": "task", "state": "COMPLETE", "claimed_by": None})

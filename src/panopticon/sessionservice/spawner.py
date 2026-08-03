@@ -590,15 +590,10 @@ class Spawner:
         if task["state"] not in TERMINAL_LABELS:
             return
         backend = self._runner_for(task)
-        container_runner: LocalRunner | None = getattr(self, "_runner", None)
-        if (
-            container_runner is not None
-            and backend is container_runner
-            and not backend.is_running(task["id"])
-        ):
+        if backend is self._runner and not backend.is_running(task["id"]):
             # The container has already exited. Credentials cannot remain on disk, but preserve the
             # stopped container and pane until the next spawn so operators retain post-mortem output.
-            container_runner.cleanup_runtime_credentials(task["id"])
+            self._runner.cleanup_runtime_credentials(task["id"])
         else:
             # A live container (or a shell task) must be stopped before its workspace disappears;
             # LocalRunner.stop removes every credential snapshot in its finally path.
