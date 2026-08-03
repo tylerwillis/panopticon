@@ -55,6 +55,7 @@ def _host_options(command: str) -> list[str]:
 # 2119: REQ-035.29.1
 # 2119: REQ-045.1.1
 # 2119: REQ-045.2.1
+# 2119: REQ-045.4.1
 @pytest.mark.parametrize(
     ("platform", "expected_host"),
     [("darwin", "127.0.0.1"), ("linux", "0.0.0.0"), ("win32", "0.0.0.0")],
@@ -76,6 +77,9 @@ def test_default_host_selector_is_a_pure_function_of_platform_identity() -> None
     assert list(inspect.signature(selector).parameters) == ["platform"]
     function = ast.parse(textwrap.dedent(inspect.getsource(selector))).body[0]
     assert isinstance(function, ast.FunctionDef)
+    assert function.decorator_list == []
+    assert function.args.defaults == []
+    assert function.args.kw_defaults == []
     assert len(function.body) == 1
     statement = function.body[0]
     assert isinstance(statement, ast.Return)

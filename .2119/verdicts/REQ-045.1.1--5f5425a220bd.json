@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.1.1--5f5425a220bd",
+  "requirementId": "REQ-045.1.1",
+  "hash": "5f5425a220bd",
+  "verdict": "pass",
+  "summary": "Fresh-context reviewer confirmed unset and empty Darwin startup reject omission, duplication, and any value other than the exact loopback host.",
+  "timestamp": "2026-08-03T19:58:33.945Z"
+}

@@ -36,8 +36,9 @@ verified loopback behavior. Other platforms may use the same conservative compat
 
 ### REQ-045.4: Static selection
 
-1. Integrated service startup's default-host selector MUST be a pure function of one supplied
-   host-platform string, with no calls or other runtime inputs.
+1. Given the same host-platform string, integrated service startup's default-host selector MUST
+   return the same host regardless of process environment, filesystem, Docker, or network state
+   and produce no externally observable side effects.
 
 ### REQ-045.5: Authentication documentation
 
