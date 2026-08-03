@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-041.4.2--7a7b4bb54da6",
+  "requirementId": "REQ-041.4.2",
+  "hash": "7a7b4bb54da6",
+  "verdict": "pass",
+  "summary": "Both failure sites stop at MAX_RESPAWNS across positive intervals within the reset window.",
+  "timestamp": "2026-08-03T06:54:36.234Z"
+}

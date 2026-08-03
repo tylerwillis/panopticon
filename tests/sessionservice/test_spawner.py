@@ -5,8 +5,10 @@ service over REST. No Docker, no LLM — `git`/runner are fakes."""
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import logging
-from collections.abc import Callable
+import subprocess
+from collections.abc import Callable, Sequence
 from pathlib import Path
 
 import httpx
@@ -19,6 +21,8 @@ from panopticon.core.models import LifecyclePhase, Repo
 from panopticon.core.state import InitialState, TerminalState
 from panopticon.core.workflow import Workflow
 from panopticon.sessionservice.clones import CloneCache
+from panopticon.sessionservice.images import ImageBuilder
+from panopticon.sessionservice.local_runner import LocalRunner
 from panopticon.sessionservice.spawner import Spawner, spawnable_tasks
 from panopticon.taskservice.api import create_app
 from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
@@ -576,25 +580,158 @@ def test_spawn_one_reports_the_phase_sequence() -> None:
     assert all(tid == "t1" for tid, _, _ in client.phases)
 
 
-def test_spawn_one_reports_failed_with_the_error_when_a_step_raises() -> None:
-    class _BoomRunner(_FakeRunner):
-        def spawn(self, *args: object, **kwargs: object) -> str:
-            raise RuntimeError("docker run blew up")
+def test_docker_run_failure_before_tmux_session_is_deferred_then_healed() -> None:
+    # Exercise the real LocalRunner command sequence: the first docker run exits non-zero before
+    # any tmux new-session command; the next ordinary heal pass runs the same path successfully.
+    # The deliberately arbitrary exit code demonstrates that the milestone, not a code allowlist,
+    # classifies the failure.
+    # 2119: REQ-041.1.2
+    # 2119: REQ-041.1.3
+    # 2119: REQ-041.3.1
+    commands: list[list[str]] = []
+    docker_runs = 0
 
-    client = _FakeClient(repo=_REPO)
-    with pytest.raises(RuntimeError):
-        _spawner(client, _BoomRunner()).spawn_one(
+    def run(
+        args: Sequence[str],
+        *,
+        check: bool = True,
+        interactive: bool = False,
+        verbose: bool = False,
+    ) -> str:
+        nonlocal docker_runs
+        command = list(args)
+        commands.append(command)
+        if command[:2] == ["docker", "run"]:
+            docker_runs += 1
+            if docker_runs == 1:
+                raise subprocess.CalledProcessError(17, command)
+        return ""
+
+    client = _FakeClient(repo={**_REPO, "env_file": None})
+    runner = LocalRunner("http://service", runner_id="host-1", user="1000:1000", run=run)
+    spawner = _spawner(client, runner)
+    task = {
+        "id": "t1",
+        "repo_id": "r1",
+        "workflow": "spike",
+        "state": "ITERATING",
+        "claimed_by": None,
+    }
+
+    with pytest.raises(subprocess.CalledProcessError):
+        spawner.spawn_one(task)
+
+    assert client.claims == [("t1", "host-1")]  # retain ownership for self-heal
+    assert client.releases == []
+    assert client.cleared == ["t1"]  # clear in-progress status so the task composes as down
+    assert all(phase != "failed" for _, phase, _ in client.phases)
+    assert not any(
+        command[:2] == ["tmux", "-L"] and "new-session" in command for command in commands
+    )
+
+    assert (
+        spawner.heal({**task, "claimed_by": "host-1", "container_status": "down"})
+        == "panopticon-t1"
+    )
+    assert docker_runs == 2
+
+
+def test_image_build_failure_before_tmux_session_is_deferred_then_healed() -> None:
+    # Drive the real ImageBuilder through its injected command runner. The first actual docker
+    # build fails; no task session exists; the later heal retries and reaches the runner.
+    # 2119: REQ-041.1.1
+    # 2119: REQ-041.1.3
+    build_attempts = 0
+
+    def image_run(
+        args: Sequence[str],
+        *,
+        check: bool = True,
+        interactive: bool = False,
+        verbose: bool = False,
+    ) -> str:
+        nonlocal build_attempts
+        command = list(args)
+        if command[:3] == ["docker", "image", "inspect"]:
+            return ""  # force the real ImageBuilder down its build path
+        if command[:2] == ["docker", "build"]:
+            build_attempts += 1
+            if build_attempts == 1:
+                raise subprocess.CalledProcessError(1, command)
+        return ""
+
+    client, runner = _FakeClient(repo=_REPO), _FakeRunner(session=False)
+    spawner = _spawner(client, runner, images=ImageBuilder(run=image_run))
+    task = {
+        "id": "t1",
+        "repo_id": "r1",
+        "workflow": "spike",
+        "state": "ITERATING",
+        "claimed_by": None,
+    }
+
+    with pytest.raises(subprocess.CalledProcessError):
+        spawner.spawn_one(task)
+
+    assert client.claims == [("t1", "host-1")]
+    assert client.releases == []
+    assert client.cleared == ["t1"]
+    assert all(phase != "failed" for _, phase, _ in client.phases)
+    assert runner.spawned == []  # failed before the task runner/session path
+
+    assert (
+        spawner.heal({**task, "claimed_by": "host-1", "container_status": "down"})
+        == "panopticon-t1"
+    )
+    assert build_attempts == 2
+
+
+@pytest.mark.parametrize("session_established", [False, True])
+def test_same_command_exit_is_classified_by_session_milestone(session_established: bool) -> None:
+    # Make the identical real LocalRunner `tmux new-session` command return the same nonzero exit
+    # in both cases. The fake models the command failing before creating the session versus creating
+    # it and then returning nonzero; only the observable session milestone differs.
+    # 2119: REQ-041.3.1
+    session_up = False
+
+    def run(
+        args: Sequence[str],
+        *,
+        check: bool = True,
+        interactive: bool = False,
+        verbose: bool = False,
+    ) -> str:
+        nonlocal session_up
+        command = list(args)
+        if "list-sessions" in command:
+            return "panopticon-t1\n" if session_up else ""
+        if "new-session" in command:
+            session_up = session_established
+            raise subprocess.CalledProcessError(17, command)
+        return ""
+
+    client = _FakeClient(repo={**_REPO, "env_file": None})
+    runner = LocalRunner("http://service", runner_id="host-1", user="1000:1000", run=run)
+
+    with pytest.raises(subprocess.CalledProcessError):
+        _spawner(client, runner).spawn_one(
             {
                 "id": "t1",
                 "repo_id": "r1",
                 "workflow": "spike",
-                "state": "PLANNING",
+                "state": "ITERATING",
                 "claimed_by": None,
             }
         )
-    last_task, last_phase, last_detail = client.phases[-1]
-    assert (last_task, last_phase) == ("t1", "failed")
-    assert "docker run blew up" in (last_detail or "")  # the failure reason is surfaced
+
+    assert session_up is session_established
+    if session_established:
+        assert client.cleared == []
+        assert client.phases[-1][1] == "failed"
+        assert "exit status 17" in (client.phases[-1][2] or "")
+    else:
+        assert client.cleared == ["t1"]
+        assert all(phase != "failed" for _, phase, _ in client.phases)
 
 
 def test_reconcile_clears_a_stale_phase_when_the_container_is_gone() -> None:
@@ -665,24 +802,66 @@ def test_heal_skips_a_task_whose_session_is_alive() -> None:
     assert runner.spawned == []  # reachable session (e.g. a runner-only restart) — left untouched
 
 
-def test_heal_skips_agent_failure_until_claim_release_then_respawns() -> None:
-    client, runner = _FakeClient(repo=_REPO), _FakeRunner(session=False)
+def test_heal_skips_post_session_agent_failure_until_claim_release_then_respawns() -> None:
+    # Start through the real LocalRunner command sequence so the test proves the tmux-session
+    # boundary was crossed before emulating the launcher's asynchronous lifecycle report.
+    # 2119: REQ-041.2.1
+    # 2119: REQ-041.2.2
+    session_up = False
+    commands: list[list[str]] = []
+
+    def run(
+        args: Sequence[str],
+        *,
+        check: bool = True,
+        interactive: bool = False,
+        verbose: bool = False,
+    ) -> str:
+        nonlocal session_up
+        command = list(args)
+        commands.append(command)
+        if "new-session" in command:
+            session_up = True
+        if "list-sessions" in command:
+            return "panopticon-t1\n" if session_up else ""
+        return ""
+
+    client = _FakeClient(repo={**_REPO, "env_file": None})
+    runner = LocalRunner("http://service", runner_id="host-1", user="1000:1000", run=run)
     spawner = _spawner(client, runner)
+    fresh = {
+        "id": "t1",
+        "repo_id": "r1",
+        "workflow": "spike",
+        "state": "ITERATING",
+        "claimed_by": None,
+    }
+    assert spawner.spawn_one(fresh) == "panopticon-t1"
+    assert session_up
+
+    client.report_lifecycle("t1", "host-1", "failed", "No codex credentials")
+    session_up = False  # launcher exits and its tmux pane/session is subsequently gone
     failed = {
         **_orphan(),
         "container_status": "failed",
         "lifecycle_detail": "No codex credentials",
     }
+    phases_at_failure = list(client.phases)
+    commands_at_failure = list(commands)
+    claims_at_failure = list(client.claims)
 
     spawner.mark_healing(failed)
     assert spawner.heal(failed) is None
-    assert runner.spawned == []  # preserve the actionable failure; do not crash-loop
-    assert client.phases == []  # in particular, do not overwrite it with a healing phase
+    assert client.phases == phases_at_failure  # preserve the status/detail; do not overwrite it
+    assert client.cleared == []  # clearing would discard both the latched status and its detail
+    assert client.releases == []  # neither method may disturb the held claim
+    assert client.claims == claims_at_failure  # no redundant reclaim
+    assert commands == commands_at_failure  # no runner probe, cleanup, or spawn operation
+    assert client.phases[-1] == ("t1", "failed", "No codex credentials")
 
     client.release("t1")  # operator presses R after fixing credentials
     retry = {**failed, "claimed_by": None, "container_status": "queued"}
     assert spawner.spawn_one(retry) == "panopticon-t1"
-    assert [spawn["task_id"] for spawn in runner.spawned] == ["t1"]
 
 
 def test_heal_skips_tasks_not_claimed_by_this_runner() -> None:
@@ -768,6 +947,85 @@ def test_heal_caps_respawns_then_surfaces_a_crash_looping_task() -> None:
     assert (
         len(runner.spawned) == 3
     )  # capped at max_respawns; further attempts are surfaced, not spawned
+
+
+@pytest.mark.parametrize("failure_site", ["image_build", "docker_run"])
+def test_pre_session_failures_retain_and_exhaust_the_respawn_budget(
+    failure_site: str,
+) -> None:
+    # Every heal reaches an actual ImageBuilder/LocalRunner command and fails before tmux exists.
+    # The failed attempt remains charged, so a persistent environmental-looking failure cannot
+    # bypass the same cap that protects genuine task crash loops.
+    # 2119: REQ-041.4.1
+    # 2119: REQ-041.4.2
+    clock = {"t": 0.0}
+    docker_runs = 0
+    image_builds = 0
+
+    def run(
+        args: Sequence[str],
+        *,
+        check: bool = True,
+        interactive: bool = False,
+        verbose: bool = False,
+    ) -> str:
+        nonlocal docker_runs
+        command = list(args)
+        if command[:2] == ["docker", "run"]:
+            docker_runs += 1
+            raise subprocess.CalledProcessError(125, command)
+        return ""
+
+    def image_run(
+        args: Sequence[str],
+        *,
+        check: bool = True,
+        interactive: bool = False,
+        verbose: bool = False,
+    ) -> str:
+        nonlocal image_builds
+        command = list(args)
+        if command[:3] == ["docker", "image", "inspect"]:
+            return ""
+        if command[:2] == ["docker", "build"]:
+            image_builds += 1
+            raise subprocess.CalledProcessError(1, command)
+        return ""
+
+    client = _FakeClient(repo={**_REPO, "env_file": None})
+    runner: object
+    images: object
+    if failure_site == "docker_run":
+        runner = LocalRunner("http://service", runner_id="host-1", user="1000:1000", run=run)
+        images = _FakeImageBuilder()
+    else:
+        runner = _FakeRunner(session=False)
+        images = ImageBuilder(run=image_run)
+    spawner = Spawner(
+        client,
+        runner,  # type: ignore[arg-type]
+        runner_id="host-1",
+        cache=CloneCache(
+            "/cache", run=_no_op_run, exists=lambda _p: True, makedirs=lambda _p: None
+        ),
+        tasks_root="/tasks",
+        git=GitClones(run=_no_op_run),
+        images=images,  # type: ignore[arg-type]
+        makedirs=lambda _p: None,
+        now=lambda: clock["t"],
+        max_respawns=3,
+        respawn_reset=60.0,
+    )
+
+    for _ in range(6):
+        with contextlib.suppress(subprocess.CalledProcessError):
+            spawner.heal({**_orphan(), "container_status": "down"})
+        clock["t"] += 10.0
+
+    assert (docker_runs if failure_site == "docker_run" else image_builds) == 3
+    assert spawner._respawn_count("t1", clock["t"]) == 3
+    assert client.cleared == ["t1", "t1", "t1"]
+    assert all(phase != "failed" for _, phase, _ in client.phases)
 
 
 def test_heal_resets_the_respawn_budget_after_a_survivor_window() -> None:
@@ -861,7 +1119,11 @@ def test_spawn_one_shell_task_ignores_daemon_reachability() -> None:
     # 2119: REQ-031.3.4
     client = _FakeClient(repo={**_REPO, "name": "acme/widget"}, runner_type="shell")
     runner, shell = _FakeRunner(), _FakeShellRunner()
-    cid = _shell_spawner(client, runner, shell, daemon_reachable=lambda: False).spawn_one(
+
+    def unexpected_probe() -> bool:
+        raise AssertionError("shell spawn must never consult Docker daemon reachability")
+
+    cid = _shell_spawner(client, runner, shell, daemon_reachable=unexpected_probe).spawn_one(
         dict(_SHELL_TASK)
     )
     assert cid is not None  # a shell task never touches Docker — unaffected by daemon state
@@ -873,7 +1135,8 @@ def test_heal_defers_an_orphan_without_touching_the_crash_loop_budget_when_daemo
 ):
     # 2119: REQ-031.3.2
     # 2119: REQ-031.3.3
-    client, runner = _FakeClient(repo=_REPO), _FakeRunner(session=False)
+    client = _FakeClient(repo=_REPO)
+    runner = _FakeRunner(session=False)
     spawner = _spawner(client, runner, daemon_reachable=lambda: False)
     assert spawner.heal(_orphan()) is None
     assert runner.spawned == []
@@ -908,9 +1171,12 @@ def test_heal_shell_task_never_even_consults_daemon_reachability() -> None:
 
 def test_heal_resumes_with_its_prior_budget_once_the_daemon_returns() -> None:
     # 2119: REQ-031.3.5
+    # 2119: REQ-041.4.3
     clock = {"t": 0.0}
-    client, runner = _FakeClient(repo=_REPO), _FakeRunner(session=False)
+    client = _FakeClient(repo=_REPO, image_layer="RUN apt-get install --yes graphviz")
+    runner = _FakeRunner(session=False)
     reachable = {"ok": True}
+    images = _FakeImageBuilder()
     spawner = Spawner(
         client,
         runner,
@@ -920,7 +1186,7 @@ def test_heal_resumes_with_its_prior_budget_once_the_daemon_returns() -> None:
         ),
         tasks_root="/tasks",
         git=GitClones(run=_no_op_run),
-        images=_FakeImageBuilder(),  # type: ignore[arg-type]
+        images=images,  # type: ignore[arg-type]
         makedirs=lambda _p: None,
         now=lambda: clock["t"],
         max_respawns=5,
@@ -929,12 +1195,17 @@ def test_heal_resumes_with_its_prior_budget_once_the_daemon_returns() -> None:
     )
     spawner.heal(_orphan())  # respawn 1 — budget now at 1/5
     assert len(runner.spawned) == 1
+    assert images.base_checks == 1
+    assert len(images.built) == 1
 
     reachable["ok"] = False
     # The outage outlasts the 60s survivor-window reset — proving the deferral doesn't let the
     # elapsed *outage* time masquerade as the task having survived and earned a fresh budget.
     for _ in range(10):
         spawner.heal(_orphan())
+        assert spawner._respawn_count("t1", clock["t"]) == 1
+        assert images.base_checks == 1  # preflight deferred before any image/Docker attempt
+        assert len(images.built) == 1
         clock["t"] += 10.0
     assert len(runner.spawned) == 1  # still just the one respawn from before the outage
 

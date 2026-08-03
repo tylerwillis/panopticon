@@ -4099,7 +4099,7 @@ def test_slug_cell_combines_slug_and_memo() -> None:
     assert _slug_cell({"memo": "line one\nline two"}).plain == "[line one]"
 
 
-# 2119: REQ-039.1
+# 2119: REQ-040.1
 async def test_dashboard_slug_prefix_identifies_a_task_with_artifacts() -> None:
     task = {**_TASK, "has_artifacts": True}
     fake = _FakeClient([task], artifacts={_TASK["id"]: ["specification.md"]})
@@ -4111,7 +4111,7 @@ async def test_dashboard_slug_prefix_identifies_a_task_with_artifacts() -> None:
         assert slug_cell.plain == "*a | fix-widget"
 
 
-# 2119: REQ-039.2
+# 2119: REQ-040.2
 async def test_dashboard_slug_prefix_identifies_github_pull_request_number() -> None:
     urls_and_labels = [
         ("https://github.com/acme/widgets/pull/123", "*PR123 | fix-widget"),
@@ -4155,7 +4155,7 @@ async def test_dashboard_task_refresh_does_not_list_artifacts_per_task() -> None
         assert table.get_row("task-7")[4].plain == "*a | fix-widget"
 
 
-# 2119: REQ-039.3
+# 2119: REQ-040.3
 def test_slug_cell_stacks_artifact_then_pull_request_with_one_separator() -> None:
     task = {
         **_TASK,
@@ -4164,7 +4164,7 @@ def test_slug_cell_stacks_artifact_then_pull_request_with_one_separator() -> Non
     assert _slug_cell(task, has_artifacts=True).plain == "*a *PR123 | fix-widget"
 
 
-# 2119: REQ-039.4
+# 2119: REQ-040.4
 def test_slug_cell_indicators_preserve_structural_prefix_slug_and_memo() -> None:
     task = {
         **_TASK,

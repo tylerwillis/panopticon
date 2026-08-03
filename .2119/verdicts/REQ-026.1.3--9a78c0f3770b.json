@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.1.3--9a78c0f3770b",
+  "requirementId": "REQ-026.1.3",
+  "hash": "9a78c0f3770b",
+  "verdict": "pass",
+  "summary": "Tests require all dependencies terminal and prove next-pass spawn with the configured initial prompt.",
+  "timestamp": "2026-08-03T06:51:54.666Z"
+}

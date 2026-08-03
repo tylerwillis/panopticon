@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.3.3--b56412e6a11b",
+  "requirementId": "REQ-031.3.3",
+  "hash": "b56412e6a11b",
+  "verdict": "pass",
+  "summary": "The unreachable-daemon orphan defers and records no lifecycle failure.",
+  "timestamp": "2026-08-03T06:54:32.774Z"
+}

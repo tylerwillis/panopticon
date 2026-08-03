@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.3.2--77ad5c07ab42",
+  "requirementId": "REQ-031.3.2",
+  "hash": "77ad5c07ab42",
+  "verdict": "pass",
+  "summary": "An eligible orphan is deferred with no spawn and no crash-budget consumption.",
+  "timestamp": "2026-08-03T06:51:56.648Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-041.1.3--d88245aa0843",
+  "requirementId": "REQ-041.1.3",
+  "hash": "d88245aa0843",
+  "verdict": "pass",
+  "summary": "Both real pre-session command failures clear lifecycle and never report failed.",
+  "timestamp": "2026-08-03T06:54:34.823Z"
+}

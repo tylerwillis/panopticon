@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-040.4.1--d8899eed81be",
+  "requirementId": "REQ-040.4.1",
+  "hash": "d8899eed81be",
+  "verdict": "pass",
+  "summary": "Exact outputs preserve structural prefixes, slug, and first memo line for every indicator combination.",
+  "timestamp": "2026-08-03T06:51:59.138Z"
+}

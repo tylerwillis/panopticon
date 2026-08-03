@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-041.1.2--523c47ab48f3",
+  "requirementId": "REQ-041.1.2",
+  "hash": "523c47ab48f3",
+  "verdict": "pass",
+  "summary": "A real docker-run failure occurs before tmux, retains the claim, and heals later.",
+  "timestamp": "2026-08-03T06:54:34.322Z"
+}

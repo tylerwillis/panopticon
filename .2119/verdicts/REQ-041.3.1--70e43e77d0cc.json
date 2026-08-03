@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-041.3.1--70e43e77d0cc",
+  "requirementId": "REQ-041.3.1",
+  "hash": "70e43e77d0cc",
+  "verdict": "pass",
+  "summary": "The identical command and exit status classify oppositely based only on session establishment.",
+  "timestamp": "2026-08-03T06:54:35.280Z"
+}

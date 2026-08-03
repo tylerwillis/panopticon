@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-040.1.1--9ed25449bdd6",
+  "requirementId": "REQ-040.1.1",
+  "hash": "9ed25449bdd6",
+  "verdict": "pass",
+  "summary": "A rendered artifact-only task has the exact *a prefix with no PR.",
+  "timestamp": "2026-08-03T06:51:57.572Z"
+}

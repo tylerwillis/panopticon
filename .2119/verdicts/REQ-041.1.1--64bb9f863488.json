@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-041.1.1--64bb9f863488",
+  "requirementId": "REQ-041.1.1",
+  "hash": "64bb9f863488",
+  "verdict": "pass",
+  "summary": "A real image-build command failure retains the claim, clears transient lifecycle, and heals later.",
+  "timestamp": "2026-08-03T06:54:33.851Z"
+}

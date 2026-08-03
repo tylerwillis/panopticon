@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.3.1--0ca60877c994",
+  "requirementId": "REQ-031.3.1",
+  "hash": "0ca60877c994",
+  "verdict": "pass",
+  "summary": "Unreachable-daemon tests prove no claim or spawn and later recovery on reachability.",
+  "timestamp": "2026-08-03T06:51:56.155Z"
+}

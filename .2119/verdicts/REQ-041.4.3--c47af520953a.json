@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-041.4.3--c47af520953a",
+  "requirementId": "REQ-041.4.3",
+  "hash": "c47af520953a",
+  "verdict": "pass",
+  "summary": "Daemon preflight preserves a nonzero count and avoids base, composed-image, and runner attempts.",
+  "timestamp": "2026-08-03T06:54:36.757Z"
+}

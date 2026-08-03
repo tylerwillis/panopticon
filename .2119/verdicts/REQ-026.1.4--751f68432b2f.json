@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.1.4--751f68432b2f",
+  "requirementId": "REQ-026.1.4",
+  "hash": "751f68432b2f",
+  "verdict": "pass",
+  "summary": "Dependency-free unclaimed non-terminal tasks remain candidates while claimed and terminal controls do not.",
+  "timestamp": "2026-08-03T06:51:55.149Z"
+}

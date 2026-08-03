@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.3.4--93322c5462d9",
+  "requirementId": "REQ-031.3.4",
+  "hash": "93322c5462d9",
+  "verdict": "pass",
+  "summary": "Shell spawn and heal reject any Docker reachability probe while preserving shell behavior.",
+  "timestamp": "2026-08-03T06:54:33.269Z"
+}
