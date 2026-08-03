@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.2.1--bf4e29cebf0e",
+  "requirementId": "REQ-045.2.1",
+  "hash": "bf4e29cebf0e",
+  "verdict": "pass",
+  "summary": "Tests cover both terminal states with a non-running container, delete multiple task snapshots while preserving unrelated files, and reject any stop/tmux/docker command.",
+  "timestamp": "2026-08-03T21:57:20.239Z"
+}

@@ -34,7 +34,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if len(arguments) != 1:
         raise SystemExit("usage: python -m panopticon.terminal.log_tee PATH")
     with open_private_log(Path(arguments[0])) as log:
-        while chunk := sys.stdin.buffer.read(65536):
+        while chunk := sys.stdin.buffer.read1(65536):
             sys.stdout.buffer.write(chunk)
             sys.stdout.buffer.flush()
             log.write(chunk)

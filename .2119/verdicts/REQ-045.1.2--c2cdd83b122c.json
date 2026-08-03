@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.1.2--c2cdd83b122c",
+  "requirementId": "REQ-045.1.2",
+  "hash": "c2cdd83b122c",
+  "verdict": "pass",
+  "summary": "Direct and transport-level tests reject retention of a complete non-secret SSE event whose payload ends with a configured token prefix immediately before the blank-line terminator.",
+  "timestamp": "2026-08-03T21:56:26.818Z"
+}

@@ -6,6 +6,7 @@ import asyncio
 import contextlib
 import json
 import logging
+import selectors
 import shlex
 import shutil
 import stat
@@ -843,6 +844,38 @@ def test_integrated_stack_refuses_log_symlink_swapped_after_validation(
     assert captured.read_text() == "sentinel"
 
 
+def test_private_log_tee_forwards_available_output_without_waiting_for_eof(
+    tmp_path: Path,
+) -> None:
+    # 2119: REQ-045.4.1
+    # 2119: REQ-045.4.3
+    state_root = tmp_path / "state-live"
+    state_root.mkdir(mode=0o700)
+    log_path = state_root / "service.log"
+    process = subprocess.Popen(
+        [sys.executable, "-m", "panopticon.terminal.log_tee", str(log_path)],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+    )
+    assert process.stdin is not None
+    assert process.stdout is not None
+    try:
+        process.stdin.write(b"live-line\n")
+        process.stdin.flush()
+        with selectors.DefaultSelector() as ready:
+            ready.register(process.stdout, selectors.EVENT_READ)
+            assert ready.select(timeout=2), "log sink withheld available pane output"
+        assert process.stdout.readline() == b"live-line\n"
+        deadline = time.monotonic() + 2
+        while not log_path.exists() or log_path.read_bytes() != b"live-line\n":
+            if time.monotonic() >= deadline:
+                raise AssertionError("log sink withheld available persisted output")
+            time.sleep(0.01)
+    finally:
+        process.stdin.close()
+        process.wait(timeout=2)
+
+
 @pytest.mark.skipif(not shutil.which("tmux"), reason="needs tmux")
 def test_integrated_stack_tees_identical_output_to_tmux_pane_and_log(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
@@ -851,8 +884,15 @@ def test_integrated_stack_tees_identical_output_to_tmux_pane_and_log(
     # 2119: REQ-045.4.3
     state_root = tmp_path / "state"
     producer = tmp_path / "producer"
+    real_python = sys.executable
     producer.write_text(
-        "#!/bin/sh\nprintf 'stdout-line\\n'\nprintf 'stderr-line\\n' >&2\nsleep 5\n"
+        "#!/bin/sh\n"
+        'if [ "$2" = panopticon.terminal.log_tee ]; then\n'
+        f'  exec {shlex.quote(real_python)} "$@"\n'
+        "fi\n"
+        "printf 'stdout-line\\n'\n"
+        "printf 'stderr-line\\n' >&2\n"
+        "sleep 5\n"
     )
     producer.chmod(0o700)
     monkeypatch.setenv("PANOPTICON_STATE", str(state_root))

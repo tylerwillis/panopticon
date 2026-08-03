@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.4.3--da873fe6973a",
+  "requirementId": "REQ-045.4.3",
+  "hash": "da873fe6973a",
+  "verdict": "pass",
+  "summary": "Tests cover both service and runner startup commands, live pre-EOF forwarding, stdout/stderr persistence, and exact pane/log equality.",
+  "timestamp": "2026-08-03T22:01:12.574Z"
+}

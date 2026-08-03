@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.5.1--3c278133bb70",
+  "requirementId": "REQ-045.5.1",
+  "hash": "3c278133bb70",
+  "verdict": "pass",
+  "summary": "The ASGI-level test covers all three auth modes without credentials, requires GET 200, exact HEAD/GET status-and-header equality, and an empty HEAD body.",
+  "timestamp": "2026-08-03T22:00:55.513Z"
+}
