@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.4.1--e47a9ecddb5c",
+  "requirementId": "REQ-044.4.1",
+  "hash": "e47a9ecddb5c",
+  "verdict": "pass",
+  "summary": "Fresh review confirmed registry-wide file and first-run argv credential secrecy and exact reference near misses.",
+  "timestamp": "2026-08-03T18:18:15.908Z"
+}
