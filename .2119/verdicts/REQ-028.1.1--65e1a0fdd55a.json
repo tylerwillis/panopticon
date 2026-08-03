@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.1.1--65e1a0fdd55a",
-  "requirementId": "REQ-028.1.1",
-  "hash": "65e1a0fdd55a",
-  "verdict": "pass",
-  "summary": "Tests enumerate workflows and reject omission or replacement of the universal artifact skill.",
-  "timestamp": "2026-08-02T23:47:05.757Z"
-}

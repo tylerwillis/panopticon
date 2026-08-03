@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.2.1--4ada9ab61157",
-  "requirementId": "REQ-028.2.1",
-  "hash": "4ada9ab61157",
-  "verdict": "pass",
-  "summary": "Exact skill instructions reject omission of either MCP or REST publishing mechanism.",
-  "timestamp": "2026-08-02T23:47:06.242Z"
-}

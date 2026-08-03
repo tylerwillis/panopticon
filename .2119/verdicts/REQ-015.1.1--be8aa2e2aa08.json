@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-015.1.1--be8aa2e2aa08",
-  "requirementId": "REQ-015.1.1",
-  "hash": "be8aa2e2aa08",
-  "verdict": "pass",
-  "summary": "Both fresh and resumed Codex argv tests reject omission of --no-alt-screen.",
-  "timestamp": "2026-08-02T23:47:05.284Z"
-}

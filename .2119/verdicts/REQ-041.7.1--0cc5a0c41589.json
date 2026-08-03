@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-041.7.1--0cc5a0c41589",
-  "requirementId": "REQ-041.7.1",
-  "hash": "0cc5a0c41589",
-  "verdict": "pass",
-  "summary": "Claude receives the complete shared overview unchanged through append-system-prompt.",
-  "timestamp": "2026-08-03T00:13:29.556Z"
-}

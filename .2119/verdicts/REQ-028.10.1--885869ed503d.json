@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.10.1--885869ed503d",
-  "requirementId": "REQ-028.10.1",
-  "hash": "885869ed503d",
-  "verdict": "pass",
-  "summary": "Exact instructions require artifacts to complement, never replace, the PR and task URL.",
-  "timestamp": "2026-08-02T23:47:09.999Z"
-}

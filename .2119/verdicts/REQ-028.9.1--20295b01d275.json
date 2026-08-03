@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.9.1--20295b01d275",
-  "requirementId": "REQ-028.9.1",
-  "hash": "20295b01d275",
-  "verdict": "pass",
-  "summary": "Duplicate built-in tests require the external filename and actionable removal guidance.",
-  "timestamp": "2026-08-02T23:47:09.502Z"
-}
