@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-041.2.1--1a1537b7628e",
-  "requirementId": "REQ-041.2.1",
-  "hash": "1a1537b7628e",
-  "verdict": "pass",
-  "summary": "The test crosses session establishment and rejects clearing, overwriting, or respawning the detailed launcher failure before release.",
-  "timestamp": "2026-08-03T06:51:59.761Z"
-}

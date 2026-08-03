@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.2.1--3280c48be520",
-  "requirementId": "REQ-033.2.1",
-  "hash": "3280c48be520",
-  "verdict": "pass",
-  "summary": "Tests reject omission of the per-finding scope, rejected-or-deferred genuinely-good boundary, one-paragraph requirement, or any of the three required entry contents across every built-in review skill.",
-  "timestamp": "2026-08-02T05:55:55.620Z"
-}

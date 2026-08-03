@@ -10,6 +10,7 @@ import logging
 import subprocess
 from collections.abc import Callable, Sequence
 from pathlib import Path
+from unittest import mock
 
 import httpx
 import pytest
@@ -580,14 +581,15 @@ def test_spawn_one_reports_the_phase_sequence() -> None:
     assert all(tid == "t1" for tid, _, _ in client.phases)
 
 
-def test_docker_run_failure_before_tmux_session_is_deferred_then_healed() -> None:
+@pytest.mark.parametrize("exit_code", [1, 125])
+def test_docker_run_failure_before_tmux_session_is_deferred_then_healed(exit_code: int) -> None:
     # Exercise the real LocalRunner command sequence: the first docker run exits non-zero before
     # any tmux new-session command; the next ordinary heal pass runs the same path successfully.
     # The deliberately arbitrary exit code demonstrates that the milestone, not a code allowlist,
     # classifies the failure.
-    # 2119: REQ-041.1.2
-    # 2119: REQ-041.1.3
-    # 2119: REQ-041.3.1
+    # 2119: REQ-043.1.2
+    # 2119: REQ-043.1.3
+    # 2119: REQ-043.3.1
     commands: list[list[str]] = []
     docker_runs = 0
 
@@ -604,7 +606,7 @@ def test_docker_run_failure_before_tmux_session_is_deferred_then_healed() -> Non
         if command[:2] == ["docker", "run"]:
             docker_runs += 1
             if docker_runs == 1:
-                raise subprocess.CalledProcessError(17, command)
+                raise subprocess.CalledProcessError(exit_code, command)
         return ""
 
     client = _FakeClient(repo={**_REPO, "env_file": None})
@@ -639,8 +641,9 @@ def test_docker_run_failure_before_tmux_session_is_deferred_then_healed() -> Non
 def test_image_build_failure_before_tmux_session_is_deferred_then_healed() -> None:
     # Drive the real ImageBuilder through its injected command runner. The first actual docker
     # build fails; no task session exists; the later heal retries and reaches the runner.
-    # 2119: REQ-041.1.1
-    # 2119: REQ-041.1.3
+    # 2119: REQ-043.1.1
+    # 2119: REQ-043.1.3
+    # 2119: REQ-043.3.1
     build_attempts = 0
 
     def image_run(
@@ -691,7 +694,7 @@ def test_same_command_exit_is_classified_by_session_milestone(session_establishe
     # Make the identical real LocalRunner `tmux new-session` command return the same nonzero exit
     # in both cases. The fake models the command failing before creating the session versus creating
     # it and then returning nonzero; only the observable session milestone differs.
-    # 2119: REQ-041.3.1
+    # 2119: REQ-043.3.1
     session_up = False
 
     def run(
@@ -802,11 +805,13 @@ def test_heal_skips_a_task_whose_session_is_alive() -> None:
     assert runner.spawned == []  # reachable session (e.g. a runner-only restart) — left untouched
 
 
-def test_heal_skips_post_session_agent_failure_until_claim_release_then_respawns() -> None:
+def test_heal_skips_post_session_agent_failure_until_claim_release_then_respawns(
+    tmp_path: Path,
+) -> None:
     # Start through the real LocalRunner command sequence so the test proves the tmux-session
     # boundary was crossed before emulating the launcher's asynchronous lifecycle report.
-    # 2119: REQ-041.2.1
-    # 2119: REQ-041.2.2
+    # 2119: REQ-043.2.1
+    # 2119: REQ-043.2.2
     session_up = False
     commands: list[list[str]] = []
 
@@ -826,42 +831,53 @@ def test_heal_skips_post_session_agent_failure_until_claim_release_then_respawns
             return "panopticon-t1\n" if session_up else ""
         return ""
 
-    client = _FakeClient(repo={**_REPO, "env_file": None})
-    runner = LocalRunner("http://service", runner_id="host-1", user="1000:1000", run=run)
-    spawner = _spawner(client, runner)
-    fresh = {
-        "id": "t1",
-        "repo_id": "r1",
-        "workflow": "spike",
-        "state": "ITERATING",
-        "claimed_by": None,
-    }
-    assert spawner.spawn_one(fresh) == "panopticon-t1"
-    assert session_up
+    service = TaskService(SqlAlchemyStore(), {"spike": Spike()}, FilesystemArtifactStore(tmp_path))
+    asyncio.run(service.init())
+    asyncio.run(
+        service.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://forge/r1.git"))
+    )
+    asyncio.run(service.register_runner("host-1"))
+    with TestClient(create_app(service)) as http:
+        client = TaskServiceClient(http)
+        task_id = client.create_task("r1", "spike")["id"]
+        runner = LocalRunner("http://service", runner_id="host-1", user="1000:1000", run=run)
+        spawner = _spawner(client, runner)
 
-    client.report_lifecycle("t1", "host-1", "failed", "No codex credentials")
-    session_up = False  # launcher exits and its tmux pane/session is subsequently gone
-    failed = {
-        **_orphan(),
-        "container_status": "failed",
-        "lifecycle_detail": "No codex credentials",
-    }
-    phases_at_failure = list(client.phases)
-    commands_at_failure = list(commands)
-    claims_at_failure = list(client.claims)
+        assert spawner.spawn_one(client.get_task(task_id)) == f"panopticon-{task_id}"
+        assert session_up
 
-    spawner.mark_healing(failed)
-    assert spawner.heal(failed) is None
-    assert client.phases == phases_at_failure  # preserve the status/detail; do not overwrite it
-    assert client.cleared == []  # clearing would discard both the latched status and its detail
-    assert client.releases == []  # neither method may disturb the held claim
-    assert client.claims == claims_at_failure  # no redundant reclaim
-    assert commands == commands_at_failure  # no runner probe, cleanup, or spawn operation
-    assert client.phases[-1] == ("t1", "failed", "No codex credentials")
+        # Exercise the launcher's real lifecycle-reporting API, then read the composed task back
+        # from the service instead of self-supplying a failed task snapshot.
+        client.report_lifecycle(task_id, "host-1", "failed", "No codex credentials")
+        session_up = False  # launcher exits and its tmux pane/session is subsequently gone
+        failed = client.get_task(task_id)
+        assert failed["container_status"] == "failed"
+        assert failed["lifecycle_detail"] == "No codex credentials"
+        commands_at_failure = list(commands)
 
-    client.release("t1")  # operator presses R after fixing credentials
-    retry = {**failed, "claimed_by": None, "container_status": "queued"}
-    assert spawner.spawn_one(retry) == "panopticon-t1"
+        with (
+            mock.patch.object(client, "report_lifecycle", wraps=client.report_lifecycle) as report,
+            mock.patch.object(client, "clear_lifecycle", wraps=client.clear_lifecycle) as clear,
+            mock.patch.object(client, "release", wraps=client.release) as release,
+            mock.patch.object(client, "claim", wraps=client.claim) as claim,
+        ):
+            spawner.mark_healing(failed)
+            assert spawner.heal(failed) is None
+            report.assert_not_called()
+            clear.assert_not_called()
+            release.assert_not_called()
+            claim.assert_not_called()
+        retained = client.get_task(task_id)
+        assert retained["container_status"] == "failed"
+        assert retained["lifecycle_detail"] == "No codex credentials"
+        assert retained["claimed_by"] == "host-1"
+        assert commands == commands_at_failure  # no runner probe, cleanup, or spawn operation
+
+        client.release(task_id)  # operator presses R after fixing credentials
+        released = client.get_task(task_id)
+        assert released["claimed_by"] is None
+        assert released["container_status"] == "queued"
+        assert spawner.spawn_one(released) == f"panopticon-{task_id}"
 
 
 def test_heal_skips_tasks_not_claimed_by_this_runner() -> None:
@@ -956,8 +972,8 @@ def test_pre_session_failures_retain_and_exhaust_the_respawn_budget(
     # Every heal reaches an actual ImageBuilder/LocalRunner command and fails before tmux exists.
     # The failed attempt remains charged, so a persistent environmental-looking failure cannot
     # bypass the same cap that protects genuine task crash loops.
-    # 2119: REQ-041.4.1
-    # 2119: REQ-041.4.2
+    # 2119: REQ-043.4.1
+    # 2119: REQ-043.4.2
     clock = {"t": 0.0}
     docker_runs = 0
     image_builds = 0
@@ -1171,7 +1187,7 @@ def test_heal_shell_task_never_even_consults_daemon_reachability() -> None:
 
 def test_heal_resumes_with_its_prior_budget_once_the_daemon_returns() -> None:
     # 2119: REQ-031.3.5
-    # 2119: REQ-041.4.3
+    # 2119: REQ-043.4.3
     clock = {"t": 0.0}
     client = _FakeClient(repo=_REPO, image_layer="RUN apt-get install --yes graphviz")
     runner = _FakeRunner(session=False)

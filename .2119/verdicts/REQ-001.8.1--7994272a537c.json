@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-001.8.1--7994272a537c",
+  "requirementId": "REQ-001.8.1",
+  "hash": "7994272a537c",
+  "verdict": "pass",
+  "summary": "Deletion request test verifies the exact built-in warning and that the workflow remains intact.",
+  "timestamp": "2026-08-03T00:03:20.868Z"
+}

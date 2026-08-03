@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.3.1--00f6ffac7d2b",
-  "requirementId": "REQ-033.3.1",
-  "hash": "00f6ffac7d2b",
-  "verdict": "pass",
-  "summary": "All built-in review skills exactly match instructions that omit simply-wrong findings; missing, reversed, or contradictory directives fail the assertions.",
-  "timestamp": "2026-08-02T06:00:14.212Z"
-}

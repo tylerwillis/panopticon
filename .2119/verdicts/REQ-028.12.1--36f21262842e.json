@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.12.1--36f21262842e",
+  "requirementId": "REQ-028.12.1",
+  "hash": "36f21262842e",
+  "verdict": "pass",
+  "summary": "Tests cover every built-in, exact isolated Codex invocation, read-only prompts, and unchanged post-review status.",
+  "timestamp": "2026-08-03T00:13:21.398Z"
+}

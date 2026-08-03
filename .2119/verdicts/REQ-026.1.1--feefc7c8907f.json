@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.1.1--feefc7c8907f",
-  "requirementId": "REQ-026.1.1",
-  "hash": "feefc7c8907f",
-  "verdict": "pass",
-  "summary": "Direct candidate and host-pass tests exclude unclaimed non-terminal tasks with active dependencies and admit terminal-dependency controls.",
-  "timestamp": "2026-08-03T06:51:53.713Z"
-}

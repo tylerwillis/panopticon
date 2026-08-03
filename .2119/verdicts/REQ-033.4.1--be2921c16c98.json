@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.4.1--be2921c16c98",
-  "requirementId": "REQ-033.4.1",
-  "hash": "be2921c16c98",
-  "verdict": "pass",
-  "summary": "All built-in review skills are checked against the complete expected instructions and an explicit phrase requiring recommendations for user reaction at the PR approval gate, so omission of any conjunct fails.",
-  "timestamp": "2026-08-02T06:02:53.678Z"
-}

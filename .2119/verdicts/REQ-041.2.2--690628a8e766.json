@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-041.2.2--690628a8e766",
-  "requirementId": "REQ-041.2.2",
-  "hash": "690628a8e766",
-  "verdict": "pass",
-  "summary": "A held post-session launcher failure produces no lifecycle, claim, or runner side effect from mark_healing or heal.",
-  "timestamp": "2026-08-03T06:56:34.399Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.12.1--dcef76c26a19",
-  "requirementId": "REQ-028.12.1",
-  "hash": "dcef76c26a19",
-  "verdict": "pass",
-  "summary": "All conjuncts are covered: every built-in 2119 workflow is enumerated, near-miss Codex argv or missing bypass flag fails exact assertions, reviewer prompts must forbid edits, and omission or weakening of per-run git-status verification fails instruction snapshots.",
-  "timestamp": "2026-08-02T06:07:21.341Z"
-}

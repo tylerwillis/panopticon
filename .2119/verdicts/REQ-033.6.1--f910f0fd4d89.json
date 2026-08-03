@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.6.1--f910f0fd4d89",
-  "requirementId": "REQ-033.6.1",
-  "hash": "f910f0fd4d89",
-  "verdict": "pass",
-  "summary": "Exact prefix assertions cover every built-in 2119 workflow and reject omission of the triage section or reacting user PR comments, as well as placement after merge steps.",
-  "timestamp": "2026-08-02T05:51:39.236Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.3.5--b376a23181ff",
+  "requirementId": "REQ-026.3.5",
+  "hash": "b376a23181ff",
+  "verdict": "pass",
+  "summary": "Tests reject omission of an unclaimed gated dashboard row across initial render and refresh, and reject claim/spawn while dependencies still block.",
+  "timestamp": "2026-08-03T07:27:58.789Z"
+}

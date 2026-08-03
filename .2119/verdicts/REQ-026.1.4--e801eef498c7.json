@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.1.4--e801eef498c7",
-  "requirementId": "REQ-026.1.4",
-  "hash": "e801eef498c7",
-  "verdict": "pass",
-  "summary": "The candidate filter test includes and selects an unclaimed non-terminal task with an empty dependency list.",
-  "timestamp": "2026-08-01T00:38:24.651Z"
-}

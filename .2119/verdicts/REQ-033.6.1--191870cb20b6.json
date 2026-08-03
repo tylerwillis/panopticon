@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.6.1--191870cb20b6",
+  "requirementId": "REQ-033.6.1",
+  "hash": "191870cb20b6",
+  "verdict": "pass",
+  "summary": "Exact merge instructions require rereading suggestions and reacting user comments before queue steps.",
+  "timestamp": "2026-08-03T00:13:24.258Z"
+}

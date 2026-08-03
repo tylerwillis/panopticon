@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-031.3.5--93aa2a3077fa",
-  "requirementId": "REQ-031.3.5",
-  "hash": "93aa2a3077fa",
-  "verdict": "pass",
-  "summary": "A pre-outage count remains exactly one throughout deferral and becomes two only after recovery.",
-  "timestamp": "2026-08-03T06:51:57.116Z"
-}

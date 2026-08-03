@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.3.5--a78d3f058946",
-  "requirementId": "REQ-026.3.5",
-  "hash": "a78d3f058946",
-  "verdict": "pass",
-  "summary": "Tests keep gated tasks listed, rendered, unclaimed, and unspawned across a spawner pass.",
-  "timestamp": "2026-08-03T06:51:55.643Z"
-}

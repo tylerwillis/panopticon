@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-040.2.1--bc8118e4f3a5",
-  "requirementId": "REQ-040.2.1",
-  "hash": "bc8118e4f3a5",
-  "verdict": "pass",
-  "summary": "Valid GitHub PR URLs render exact prefixes and malformed or foreign near-misses do not.",
-  "timestamp": "2026-08-03T06:51:58.063Z"
-}

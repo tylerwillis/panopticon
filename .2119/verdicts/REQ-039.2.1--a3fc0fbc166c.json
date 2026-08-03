@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-039.2.1--a3fc0fbc166c",
-  "requirementId": "REQ-039.2.1",
-  "hash": "a3fc0fbc166c",
-  "verdict": "pass",
-  "summary": "Tests accept canonical and nested HTTP(S) GitHub PR URLs, extract decimal numbers, and reject wrong hosts, schemes, missing numbers, and non-decimal suffixes.",
-  "timestamp": "2026-08-02T23:29:51.531Z"
-}

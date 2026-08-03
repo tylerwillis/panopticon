@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.3.2--ed9b5bdcf90c",
+  "requirementId": "REQ-031.3.2",
+  "hash": "ed9b5bdcf90c",
+  "verdict": "pass",
+  "summary": "A Docker-backed orphan with an unreachable daemon is not spawned and its crash-loop counter remains zero, rejecting both respawn and budget-increment violations.",
+  "timestamp": "2026-08-03T07:24:06.403Z"
+}

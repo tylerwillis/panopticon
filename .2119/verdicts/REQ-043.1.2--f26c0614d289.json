@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-043.1.2--f26c0614d289",
+  "requirementId": "REQ-043.1.2",
+  "hash": "f26c0614d289",
+  "verdict": "pass",
+  "summary": "Real LocalRunner tests cover arbitrary non-zero docker-run exits before tmux creation, retain the non-terminal task's claim without release, clear transient lifecycle state, and prove a later heal retries successfully.",
+  "timestamp": "2026-08-03T07:24:55.907Z"
+}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.9.1--2e019f1f7ff5",
-  "requirementId": "REQ-033.9.1",
-  "hash": "2e019f1f7ff5",
-  "verdict": "pass",
-  "summary": "Exact golden-text assertions reject omission of self-contained scope, idea-bearing title, PR link, review-comment reference, deferral rationale, or implementation scope for every issue.",
-  "timestamp": "2026-08-02T05:51:57.828Z"
-}

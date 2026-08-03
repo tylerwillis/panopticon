@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-039.4.1--5abca90a5d68",
-  "requirementId": "REQ-039.4.1",
-  "hash": "5abca90a5d68",
-  "verdict": "pass",
-  "summary": "Exact outputs cover both indicators, each indicator alone, and neither while preserving tree, disclosure, slug, and first-line memo presentation.",
-  "timestamp": "2026-08-02T23:28:49.259Z"
-}

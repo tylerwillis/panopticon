@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-041.4.1--e0874b7e8790",
-  "requirementId": "REQ-041.4.1",
-  "hash": "e0874b7e8790",
-  "verdict": "pass",
-  "summary": "Both image-build and docker-run failed respawns retain all consumed attempts.",
-  "timestamp": "2026-08-03T06:54:35.747Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.1.2--4b81c8a92fbd",
-  "requirementId": "REQ-026.1.2",
-  "hash": "4b81c8a92fbd",
-  "verdict": "pass",
-  "summary": "Candidate, host-pass, and claim tests exclude DROPPED dependencies while admitting COMPLETE controls.",
-  "timestamp": "2026-08-03T06:51:54.196Z"
-}

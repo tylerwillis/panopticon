@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-031.3.1--825bf5a90e43",
-  "requirementId": "REQ-031.3.1",
-  "hash": "825bf5a90e43",
-  "verdict": "pass",
-  "summary": "Spawner and run_host tests prove an unreachable daemon defers non-shell tasks without a claim or spawn, then retries when reachable.",
-  "timestamp": "2026-08-01T00:38:25.753Z"
-}

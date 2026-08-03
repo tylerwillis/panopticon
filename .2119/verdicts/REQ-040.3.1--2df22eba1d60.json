@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-040.3.1--2df22eba1d60",
-  "requirementId": "REQ-040.3.1",
-  "hash": "2df22eba1d60",
-  "verdict": "pass",
-  "summary": "Exact output proves indicator order and a single separator.",
-  "timestamp": "2026-08-03T06:51:58.540Z"
-}

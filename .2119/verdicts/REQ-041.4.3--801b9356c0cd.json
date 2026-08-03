@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-041.4.3--801b9356c0cd",
-  "requirementId": "REQ-041.4.3",
-  "hash": "801b9356c0cd",
-  "verdict": "pass",
-  "summary": "Daemon preflight preserves the exact prior budget and performs no base, composed-image, or runner work.",
-  "timestamp": "2026-08-03T07:08:44.916Z"
-}

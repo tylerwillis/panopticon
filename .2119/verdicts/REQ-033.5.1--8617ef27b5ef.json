@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.5.1--8617ef27b5ef",
-  "requirementId": "REQ-033.5.1",
-  "hash": "8617ef27b5ef",
-  "verdict": "pass",
-  "summary": "All discovered built-in 2119 workflows are exhaustively identified, and exact ordered responsibility keys reject a missing deferred-issues-filed entry or any placement other than before pr-merged.",
-  "timestamp": "2026-08-02T05:51:34.377Z"
-}

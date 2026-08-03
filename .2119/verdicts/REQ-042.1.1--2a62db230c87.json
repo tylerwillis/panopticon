@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-042.1.1--2a62db230c87",
+  "requirementId": "REQ-042.1.1",
+  "hash": "2a62db230c87",
+  "verdict": "pass",
+  "summary": "Rendered dashboard test supplies one artifact with no PR URL and rejects any label other than the exact '*a | fix-widget' prefix.",
+  "timestamp": "2026-08-03T05:56:13.489Z"
+}

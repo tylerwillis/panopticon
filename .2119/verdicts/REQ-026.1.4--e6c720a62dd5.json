@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.1.4--e6c720a62dd5",
+  "requirementId": "REQ-026.1.4",
+  "hash": "e6c720a62dd5",
+  "verdict": "pass",
+  "summary": "Exact candidate-set test admits unclaimed non-terminal tasks with empty or absent dependency lists and rejects claimed and terminal boundary cases.",
+  "timestamp": "2026-08-03T07:23:40.223Z"
+}
