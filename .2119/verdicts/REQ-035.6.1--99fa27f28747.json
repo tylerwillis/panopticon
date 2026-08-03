@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.6.1--99fa27f28747",
+  "requirementId": "REQ-035.6.1",
+  "hash": "99fa27f28747",
+  "verdict": "pass",
+  "summary": "read tokens are correctly rejected for tool-call and resource-read MCP requests",
+  "timestamp": "2026-08-03T11:21:01.488Z"
+}

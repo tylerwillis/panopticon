@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.29.1--b1175377ff1f",
+  "requirementId": "REQ-035.29.1",
+  "hash": "b1175377ff1f",
+  "verdict": "pass",
+  "summary": "Integrated startup is parsed to require exactly one --host 0.0.0.0, while standalone startup with no host environment directly asserts uvicorn retains 127.0.0.1.",
+  "timestamp": "2026-08-03T04:00:28.820Z"
+}

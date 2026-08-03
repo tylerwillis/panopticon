@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.18.1--b71e73947f28",
+  "requirementId": "REQ-035.18.1",
+  "hash": "b71e73947f28",
+  "verdict": "pass",
+  "summary": "Observable tests across all six boundaries: failure responses reject/redact tokens; logs tested via caplog and custom handlers; database/artifacts verified post-rejection; command lines tested both mocked (arg construction) and live (subprocess capture); startup validation prevents collision tokens.",
+  "timestamp": "2026-08-03T11:17:14.842Z"
+}

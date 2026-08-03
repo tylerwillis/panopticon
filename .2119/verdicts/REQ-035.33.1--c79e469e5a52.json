@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.33.1--c79e469e5a52",
+  "requirementId": "REQ-035.33.1",
+  "hash": "c79e469e5a52",
+  "verdict": "pass",
+  "summary": "Both annotated tests exercise the shared production loader (create_app -> load_tokens, mode-independent per api.py:598): 11-char tokens in either read or write list are rejected with ValueError while 12-char boundary tokens are accepted; mutation check (MIN_TOKEN_LENGTH=1) makes all six rejection cases fail, proving the tests pin the length floor.",
+  "timestamp": "2026-08-03T11:23:11.425Z"
+}

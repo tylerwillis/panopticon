@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.1.1--214627d0dbb0",
+  "requirementId": "REQ-035.1.1",
+  "hash": "214627d0dbb0",
+  "verdict": "pass",
+  "summary": "Test genuinely verifies startup loads from host-local file beneath secrets dir without copying tokens into responses, database, artifacts, or logs",
+  "timestamp": "2026-08-03T11:16:56.874Z"
+}

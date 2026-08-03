@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.30.1--c2fdb0abaad8",
+  "requirementId": "REQ-035.30.1",
+  "hash": "c2fdb0abaad8",
+  "verdict": "pass",
+  "summary": "Distinct read/write tokens exercise both liveness and MCP beneath ordinary, root, and prefix-colliding ASGI root paths; readers are rejected and writers remain authorized.",
+  "timestamp": "2026-08-03T04:00:29.295Z"
+}

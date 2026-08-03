@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.2.1--7c98651cfa45",
+  "requirementId": "REQ-035.2.1",
+  "hash": "7c98651cfa45",
+  "verdict": "pass",
+  "summary": "Credential file format enforced; distinct read/write tokens required; multiple tokens per privilege enable rotation; opaque tokens with exact matching; privilege boundaries observable via HTTP status",
+  "timestamp": "2026-08-03T11:17:33.655Z"
+}

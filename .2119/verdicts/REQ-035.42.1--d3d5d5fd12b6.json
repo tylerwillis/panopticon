@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.42.1--d3d5d5fd12b6",
+  "requirementId": "REQ-035.42.1",
+  "hash": "d3d5d5fd12b6",
+  "verdict": "pass",
+  "summary": "Unmocked end-to-end MCP tools/call and resources/read requests carry all six configured tokens (including opaque grammar-edge values) through the real mounted SDK with caplog at DEBUG, plus token-bearing records injected through the pinned mcp.server.fastmcp.server/mcp.server.lowlevel.server loggers via message args, extra, traceback, and stack_info; assertions scan rendered text, raw record __dict__ reprs, a late-attached handler stream, and response bodies for every token with a [redacted] sentinel guarding vacuity — verified falsifiable: disabling the production redaction installer in-process makes the test fail.",
+  "timestamp": "2026-08-03T11:23:50.436Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.7.1--d4b606aef620",
+  "requirementId": "REQ-035.7.1",
+  "hash": "d4b606aef620",
+  "verdict": "pass",
+  "summary": "Tests verify all authentication failure modes (missing, malformed, unknown, insufficient) consistently return 401 with Bearer header and identical generic JSON body across all protected endpoints.",
+  "timestamp": "2026-08-03T11:20:15.815Z"
+}

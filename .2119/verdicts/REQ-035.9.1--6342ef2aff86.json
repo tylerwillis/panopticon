@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.9.1--6342ef2aff86",
+  "requirementId": "REQ-035.9.1",
+  "hash": "6342ef2aff86",
+  "verdict": "pass",
+  "summary": "Test comprehensively rejects all alternative credential locations and formats; accepts only exact Authorization: Bearer format via direct observable boundary evidence across all endpoints.",
+  "timestamp": "2026-08-03T11:21:33.238Z"
+}
