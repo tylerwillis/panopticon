@@ -68,6 +68,7 @@ def test_start_sessions_places_dash_f_before_new_session(monkeypatch: pytest.Mon
     cli._start_sessions(run=fake_run)
 
     assert calls[0][:4] == ["tmux", "-L", "panopticon", "-f"]
+    assert Path(calls[0][4]).read_text() == server_default_config_text(clipboard=None)
     for tmux_new in (c for c in calls if "new-session" in c):
         assert tmux_new.index("-f") < tmux_new.index("new-session")
 

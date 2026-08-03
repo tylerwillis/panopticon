@@ -6,6 +6,7 @@ from __future__ import annotations
 import hashlib
 import shutil
 import subprocess
+import sys
 import time
 from collections.abc import Sequence
 from pathlib import Path
@@ -285,6 +286,7 @@ def test_spawn_places_dash_f_before_new_session_so_it_applies_at_server_startup(
     first_tmux = next(c for c in rec.calls if c[0] == "tmux")
     tmux_new = rec.calls[-1]
     assert first_tmux[:4] == ["tmux", "-L", "panopticon", "-f"]
+    assert Path(first_tmux[4]).read_text() == server_default_config_text(clipboard=None)
     assert tmux_new.index("-f") < tmux_new.index("new-session")
 
 
@@ -294,8 +296,10 @@ def test_spawn_applies_no_shipped_defaults_without_a_dedicated_socket() -> None:
     ShellRunner("http://svc:8000", tmux_socket=None, run=rec).spawn("t1", script="echo hi")
     tmux_calls = [c for c in rec.calls if c[0] == "tmux"]
     command = tmux_calls[-1][-1]
-    assert hashlib.sha256(command.encode()).hexdigest() == (
-        "a2db93cf06445a9ff8c376cf98766e8cc748b7cb1c3d38936620b3608ef8a8fc"
+    normalized = command.replace(sys.executable, "<python>")
+    normalized = normalized.replace(str(Path.home() / ".config/panopticon/secrets"), "<secrets>")
+    assert hashlib.sha256(normalized.encode()).hexdigest() == (
+        "6d9acd7311bdefc7e6bf81db1d8e1c5605788e4cedefcd0cc008cd81988d0d08"
     )
     assert tmux_calls == [
         ["tmux", "kill-session", "-t", "panopticon-t1"],

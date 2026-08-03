@@ -151,6 +151,7 @@ class LocalRunner(Runner):
         self._tmux_socket = tmux_socket  # isolate panopticon's tmux server when set (-L)
         self._extra_env = dict(extra_env or {})
         self._run = run
+        self._snapshot_dir = Path(tempfile.gettempdir())
 
     def _tmux(self, *args: str) -> list[str]:
         prefix = ["tmux", *(["-L", self._tmux_socket] if self._tmux_socket else [])]
@@ -160,6 +161,11 @@ class LocalRunner(Runner):
         """Reject an unusable control-plane credential before any spawn side effect."""
         if self._auth_file:
             load_service_tokens(self._auth_file, secrets_dir=self._secrets_dir)
+
+    def _remove_auth_snapshots(self, task_id: str) -> None:
+        """Remove private snapshots left by a stopped or replaced task container."""
+        for path in self._snapshot_dir.glob(f"panopticon-service-auth-{task_id}-*.json"):
+            path.unlink(missing_ok=True)
 
     def spawn(
         self,
@@ -222,6 +228,17 @@ class LocalRunner(Runner):
             # and drops to it (so the task runs unprivileged, owning what it writes to /workspace).
             "PANOPTICON_PUID": puid,
             "PANOPTICON_PGID": pgid,
+            # Optional runtime controls are explicit too: Docker applies --env after --env-file,
+            # so empty values prevent a repo credential file from injecting stale control-plane
+            # state when the runner did not supply that option.
+            "PANOPTICON_RECONNECT_BACKOFF": "",
+            "PANOPTICON_PROPOSED_SLUG": "",
+            "PANOPTICON_INITIAL_PROMPT": "",
+            "PANOPTICON_TASK_TURN": "",
+            "PANOPTICON_STARTING_MODEL": "",
+            "PANOPTICON_HARNESS": "",
+            "PANOPTICON_CREDENTIALS": "",
+            "PANOPTICON_DOCKER_IN_DOCKER": "",
             **self._extra_env,
         }
         if initial_prompt:
@@ -269,8 +286,10 @@ class LocalRunner(Runner):
         # (the transcripts live in the config dir, otherwise thrown away with the container).
         docker_run += ["--volume", f"panopticon-config-{task_id}:{config_mount}"]
         if self._auth_file:
+            self._remove_auth_snapshots(task_id)
             auth_snapshot = snapshot_service_tokens(
                 self._auth_file,
+                directory=self._snapshot_dir,
                 secrets_dir=self._secrets_dir,
                 prefix=f"panopticon-service-auth-{task_id}-",
             )
@@ -297,9 +316,10 @@ class LocalRunner(Runner):
             self._run(["docker", "rm", "--force", container], check=False)
             _report(LifecyclePhase.STARTING)  # docker run + the tmux session coming up
             self._run(docker_run)
-        finally:
+        except BaseException:
             if auth_snapshot is not None:
                 auth_snapshot.unlink(missing_ok=True)
+            raise
         # `docker run --detach` returns once the container is running (the entrypoint has remapped +
         # dropped), so the pane execs in as the unprivileged `panopticon` user — `tmux attach` and
         # the agent's `whoami` see that named user, not root.
@@ -432,3 +452,4 @@ class LocalRunner(Runner):
         # Idempotent: tolerate an already-gone session/container.
         self._run(self._tmux("kill-session", "-t", container_id), check=False)
         self._run(["docker", "rm", "--force", container_id], check=False)
+        self._remove_auth_snapshots(container_id.removeprefix("panopticon-"))

@@ -1330,12 +1330,13 @@ def test_runner_injects_write_token_into_docker_and_shell_tasks_without_command_
 
     reference = _credential_file(tmp_path)
     docker_recorder = Recorder()
-    LocalRunner(
+    docker_runner = LocalRunner(
         "http://service",
         auth_file=reference,
         secrets_dir=tmp_path / "secrets",
         run=docker_recorder,
-    ).spawn("t1")
+    )
+    docker_runner.spawn("t1")
     docker_run = next(call for call in docker_recorder.calls if call[:2] == ["docker", "run"])
     assert WRITE_TOKEN not in " ".join(docker_run)
     assert READ_TOKEN not in " ".join(docker_run)
@@ -1345,7 +1346,10 @@ def test_runner_injects_write_token_into_docker_and_shell_tasks_without_command_
         argument for argument in docker_run if "/run/secrets/panopticon-service-auth" in argument
     )
     assert str((tmp_path / "secrets" / reference).resolve()) not in auth_mount
-    assert not Path(auth_mount.split(":", 1)[0]).exists()
+    mounted_snapshot = Path(auth_mount.split(":", 1)[0])
+    assert mounted_snapshot.is_file()
+    docker_runner.stop("panopticon-t1")
+    assert not mounted_snapshot.exists()
 
     shell_recorder = Recorder()
     ShellRunner(

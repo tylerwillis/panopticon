@@ -251,6 +251,17 @@ def test_spawn_resolves_env_file_against_the_runners_secrets_dir() -> None:
     assert docker_run[docker_run.index("--env-file") + 1] == "/host/secrets/r1.env"
     assert "PANOPTICON_SERVICE_AUTH_FILE=" in docker_run
     assert "PANOPTICON_SERVICE_AUTH_TOKEN=" in docker_run
+    for name in (
+        "PANOPTICON_RECONNECT_BACKOFF",
+        "PANOPTICON_PROPOSED_SLUG",
+        "PANOPTICON_INITIAL_PROMPT",
+        "PANOPTICON_TASK_TURN",
+        "PANOPTICON_STARTING_MODEL",
+        "PANOPTICON_HARNESS",
+        "PANOPTICON_CREDENTIALS",
+        "PANOPTICON_DOCKER_IN_DOCKER",
+    ):
+        assert f"{name}=" in docker_run
 
 
 def test_spawn_rejects_env_file_name_escaping_the_secrets_dir() -> None:
@@ -296,11 +307,11 @@ def test_spawn_mounts_the_config_volume_at_the_harness_config_dir() -> None:
     assert "PANOPTICON_HARNESS=codex" in docker_run  # the launcher dispatches on this
 
 
-def test_spawn_omits_the_harness_env_var_by_default() -> None:
+def test_spawn_clears_the_harness_env_var_by_default() -> None:
     rec = _Recorder()
     LocalRunner("http://svc", run=rec).spawn("t1")
     docker_run = rec.calls[2][0]
-    assert not any(a.startswith("PANOPTICON_HARNESS=") for a in docker_run)  # None = default
+    assert "PANOPTICON_HARNESS=" in docker_run  # empty still selects the default
 
 
 def test_spawn_mounts_the_repo_credential_dir_read_write(tmp_path: Path) -> None:
@@ -337,11 +348,11 @@ def test_spawn_passes_turn_as_env_var() -> None:
     assert "PANOPTICON_TASK_TURN=agent" in docker_run
 
 
-def test_spawn_omits_turn_env_var_when_not_set() -> None:
+def test_spawn_clears_turn_env_var_when_not_set() -> None:
     rec = _Recorder()
     LocalRunner("http://svc", run=rec).spawn("t1")
     docker_run = rec.calls[2][0]
-    assert not any("PANOPTICON_TASK_TURN" in arg for arg in docker_run)
+    assert "PANOPTICON_TASK_TURN=" in docker_run
 
 
 def test_spawn_uses_the_composed_image_when_given_else_the_base() -> None:
@@ -429,6 +440,7 @@ def test_spawn_places_dash_f_before_new_session_so_it_applies_at_server_startup(
     first_tmux = next(c for c, _ in rec.calls if c[0] == "tmux")
     tmux_new = next(c for c, _ in rec.calls if "new-session" in c)
     assert first_tmux[:4] == ["tmux", "-L", "panopticon", "-f"]
+    assert Path(first_tmux[4]).read_text() == server_default_config_text(clipboard=None)
     assert tmux_new.index("-f") < tmux_new.index("new-session")
 
 

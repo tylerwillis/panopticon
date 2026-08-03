@@ -377,6 +377,7 @@ def test_session_exists_configures_a_dedicated_socket_before_its_probe(
 
     assert not console.session_exists("dashboard", socket="panopticon")
     assert calls[0][:4] == ["tmux", "-L", "panopticon", "-f"]
+    assert Path(calls[0][4]).read_text() == server_default_config_text(clipboard=None)
     assert calls[0][5:] == ["has-session", "-t", "dashboard"]
 
 

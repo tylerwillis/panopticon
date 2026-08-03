@@ -286,15 +286,18 @@ def test_docker_runner_mounts_a_stable_snapshot_if_source_is_replaced(
         return ""
 
     monkeypatch.setattr(runner_module, "snapshot_service_tokens", snapshot_then_replace)
-    runner_module.LocalRunner(
+    runner = runner_module.LocalRunner(
         "http://service", auth_file=source.name, secrets_dir=tmp_path, run=record
-    ).spawn("task")
+    )
+    runner.spawn("task")
 
     assert stat.S_ISFIFO(source.stat().st_mode)
     assert docker_observations == [
         (True, '{"read": ["stable-reader-token"], "write": ["stable-writer-token"]}')
     ]
-    assert snapshots and not snapshots[0].exists()
+    assert snapshots and snapshots[0].is_file()
+    runner.stop("panopticon-task")
+    assert not snapshots[0].exists()
 
 
 def test_shell_runner_uses_a_stable_snapshot_if_source_is_replaced(
