@@ -52,8 +52,8 @@ def test_real_claude_mcp_transport_bypasses_ambient_proxy(
     home = tmp_path / "home"
     home.mkdir()
     env = {
-        **os.environ,
         "HOME": str(home),
+        "PATH": os.environ.get("PATH", os.defpath),
         "PANOPTICON_SERVICE_AUTH_TOKEN": token,
         "HTTP_PROXY": f"http://127.0.0.1:{proxy.server_address[1]}",
         "http_proxy": f"http://127.0.0.1:{proxy.server_address[1]}",
