@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.2.2--089b4c2a44c2",
+  "requirementId": "REQ-045.2.2",
+  "hash": "089b4c2a44c2",
+  "verdict": "pass",
+  "summary": "Three-token overlap coverage accepts capabilities from the oldest, middle, and newest active write tokens, then verifies remaining generations stay accepted after each removal.",
+  "timestamp": "2026-08-03T23:35:09.366Z"
+}

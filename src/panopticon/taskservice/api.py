@@ -601,7 +601,7 @@ def create_app(
     # parent FastAPI lifespan (a mounted sub-app's own lifespan isn't run by the parent).
     # Imported here, not at module scope: mcp.py imports our ``*Out`` schemas (would cycle).
     from panopticon.taskservice.auth import decode_task_capability, load_tokens
-    from panopticon.taskservice.auth_scope import Action, CredentialScopePolicy, Relation
+    from panopticon.taskservice.auth_scope import Action, CredentialScopePolicy
     from panopticon.taskservice.mcp import build_mcp_server
 
     mode = auth_mode or ("enforced" if auth_file else "disabled")
@@ -876,7 +876,8 @@ def create_app(
                 )
             if request.method == "POST" and route_path == "/tasks":
                 try:
-                    body = json.loads(await request.body())
+                    parsed_body = json.loads(await request.body())
+                    body = parsed_body if isinstance(parsed_body, dict) else {}
                     subject_task = await service.get_task(task_subject)
                 except (json.JSONDecodeError, NotFound):
                     body = {}
@@ -896,7 +897,8 @@ def create_app(
                 if request.method in {"GET", "DELETE", "OPTIONS"}:
                     return await call_next(request)
                 try:
-                    body = json.loads(await request.body())
+                    parsed_body = json.loads(await request.body())
+                    body = parsed_body if isinstance(parsed_body, dict) else {}
                 except json.JSONDecodeError:
                     body = {}
                 if policy.is_mcp_protocol_request(body):
@@ -920,13 +922,6 @@ def create_app(
                     )
                 target_id = matched_target_id
                 decision = await policy.decide(task_subject, action, target_id)
-                if (
-                    not decision.allowed
-                    and action is Action.TASK_LIVENESS
-                    and (await policy.target(task_subject, target_id)).relation is Relation.GOVERNED
-                    and (await policy.target(task_subject, target_id)).orchestrates
-                ):
-                    return await call_next(request)
             if not decision.allowed:
                 return JSONResponse(status_code=403, content=decision.body)
         return await call_next(request)

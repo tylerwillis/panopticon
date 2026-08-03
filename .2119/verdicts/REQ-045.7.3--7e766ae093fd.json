@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.7.3--7e766ae093fd",
+  "requirementId": "REQ-045.7.3",
+  "hash": "7e766ae093fd",
+  "verdict": "pass",
+  "summary": "Authorization-table and REST tests reject every prohibited child capability, including operation/drop, transition/state, claim/release, provisioning, migration, lifecycle set/clear, and governor clear/reassignment.",
+  "timestamp": "2026-08-03T23:34:58.365Z"
+}

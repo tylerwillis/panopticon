@@ -1518,7 +1518,7 @@ def test_orchestrator_can_create_and_preplan_only_its_governed_child(tmp_path: P
                 f"/tasks/{grandchild_id}/live",
                 _task_token(governor["id"]),
             )
-            == 200
+            == 403
         )
         assert (
             client.put(
@@ -1921,6 +1921,19 @@ def test_task_capability_drives_a_real_mcp_session_and_keeps_cross_task_denied(
             client.get(f"/tasks/{own['id']}", headers=_bearer(token)).json()["slug"] == "mcp-self"
         )
         assert sibling["slug"] is None
+
+
+def test_task_capability_rejects_non_object_json_without_crashing(tmp_path: Path) -> None:
+    # 2119: REQ-045.2.2
+    # 2119: REQ-045.2.4
+    with _client(tmp_path) as client:
+        orchestrator = _create_task(client, workflow="orchestrator")
+        headers = _bearer(_task_token(orchestrator["id"]))
+        for body in ([], "not-an-object", 1, None):
+            create = client.post("/tasks", headers=headers, json=body)
+            mcp = client.post("/mcp", headers=headers, json=body)
+            assert (create.status_code, create.json()) == (403, SCOPE_FAILURE)
+            assert (mcp.status_code, mcp.json()) == (403, SCOPE_FAILURE)
 
 
 def test_rest_and_mcp_resolve_equivalent_actions_to_identical_scope_decisions(
