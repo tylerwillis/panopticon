@@ -47,93 +47,77 @@ from panopticon.taskservice.service import (
 
 MAX_AUTH_INSPECTION_BODY_BYTES = 8 * 1024 * 1024
 _log = logging.getLogger(__name__)
-_original_log_record_factory: Callable[..., logging.LogRecord] | None = None
-_original_logger_make_record: Callable[..., logging.LogRecord] | None = None
-_log_redaction_tokens: tuple[str, ...] = ()
-_log_redaction_factory_installed = False
-
-
-def _redact_log_value(value: Any) -> Any:
+def _redact_log_value(value: Any, tokens: tuple[str, ...]) -> Any:
     if isinstance(value, str):
-        for token in _log_redaction_tokens:
+        for token in tokens:
             value = value.replace(token, "[redacted]")
         return value
     if isinstance(value, bytes):
-        for token in _log_redaction_tokens:
+        for token in tokens:
             value = value.replace(token.encode(), b"[redacted]")
         return value
     if isinstance(value, tuple):
-        return tuple(_redact_log_value(item) for item in value)
+        return tuple(_redact_log_value(item, tokens) for item in value)
     if isinstance(value, list):
-        return [_redact_log_value(item) for item in value]
+        return [_redact_log_value(item, tokens) for item in value]
     if isinstance(value, dict):
-        return {key: _redact_log_value(item) for key, item in value.items()}
+        return {key: _redact_log_value(item, tokens) for key, item in value.items()}
     if isinstance(value, set):
-        return {_redact_log_value(item) for item in value}
+        return {_redact_log_value(item, tokens) for item in value}
     if isinstance(value, frozenset):
-        return frozenset(_redact_log_value(item) for item in value)
+        return frozenset(_redact_log_value(item, tokens) for item in value)
     rendered = str(value)
-    if any(token in rendered for token in _log_redaction_tokens):
-        return _redact_log_value(rendered)
+    if any(token in rendered for token in tokens):
+        return _redact_log_value(rendered, tokens)
     return value
 
 
 class _ConfiguredTokenLogFilter(logging.Filter):
+    def __init__(self, tokens: tuple[str, ...]) -> None:
+        super().__init__()
+        self._tokens = tuple(sorted(set(tokens), key=len, reverse=True))
+
     def filter(self, record: logging.LogRecord) -> bool:
-        for key, value in tuple(record.__dict__.items()):
-            record.__dict__[key] = _redact_log_value(value)
-        return True
-
-
-_configured_token_log_filter = _ConfiguredTokenLogFilter()
-
-
-def _redacting_log_record_factory(*args: Any, **kwargs: Any) -> logging.LogRecord:
-    assert _original_log_record_factory is not None
-    record = _original_log_record_factory(*args, **kwargs)
-    if _log_redaction_tokens:
-        record.msg = _redact_log_value(record.getMessage())
+        record.msg = _redact_log_value(record.getMessage(), self._tokens)
         record.args = ()
         if record.exc_info is not None:
             record.exc_text = _redact_log_value(
-                "".join(traceback.format_exception(*record.exc_info))
+                "".join(traceback.format_exception(*record.exc_info)), self._tokens
             )
             record.exc_info = None
         if record.stack_info is not None:
-            record.stack_info = _redact_log_value(record.stack_info)
-    return record
+            record.stack_info = _redact_log_value(record.stack_info, self._tokens)
+        for key, value in tuple(record.__dict__.items()):
+            if key not in {"msg", "args", "exc_info", "stack_info"}:
+                record.__dict__[key] = _redact_log_value(value, self._tokens)
+        return True
 
 
-def _redacting_make_record(self: logging.Logger, *args: Any, **kwargs: Any) -> logging.LogRecord:
-    """Redact after ``Logger.makeRecord`` has attached caller-supplied ``extra`` fields."""
-    assert _original_logger_make_record is not None
-    record = _original_logger_make_record(self, *args, **kwargs)
-    _configured_token_log_filter.filter(record)
-    return record
-
-
-def _install_log_redaction(tokens: tuple[str, ...]) -> None:
-    global _log_redaction_factory_installed, _log_redaction_tokens
-    global _original_log_record_factory, _original_logger_make_record
-    _log_redaction_tokens = tuple(
-        sorted(set(_log_redaction_tokens).union(tokens), key=len, reverse=True)
-    )
-    if not _log_redaction_factory_installed:
-        _original_log_record_factory = logging.getLogRecordFactory()
-        logging.setLogRecordFactory(_redacting_log_record_factory)
-        _original_logger_make_record = logging.Logger.makeRecord
-        logging.Logger.makeRecord = _redacting_make_record  # type: ignore[method-assign]
-        _log_redaction_factory_installed = True
+def _install_log_redaction(
+    tokens: tuple[str, ...],
+) -> tuple[_ConfiguredTokenLogFilter, tuple[logging.Handler, ...]]:
+    """Attach one lifespan-owned filter to every handler currently in the process."""
+    redaction_filter = _ConfiguredTokenLogFilter(tokens)
     loggers = [logging.getLogger()]
     loggers.extend(
         logger
         for logger in logging.root.manager.loggerDict.values()
         if isinstance(logger, logging.Logger)
     )
+    handlers: list[logging.Handler] = []
     for logger in loggers:
         for handler in logger.handlers:
-            if _configured_token_log_filter not in handler.filters:
-                handler.addFilter(_configured_token_log_filter)
+            if handler not in handlers:
+                handler.addFilter(redaction_filter)
+                handlers.append(handler)
+    return redaction_filter, tuple(handlers)
+
+
+def _remove_log_redaction(
+    redaction_filter: _ConfiguredTokenLogFilter, handlers: tuple[logging.Handler, ...]
+) -> None:
+    for handler in handlers:
+        handler.removeFilter(redaction_filter)
 
 
 def _redact_stream_chunk(
@@ -598,18 +582,22 @@ def create_app(
     if mode in {"permissive", "enforced"} and auth_file is None:
         raise ValueError(f"authentication credential file is required in {mode} mode")
     tokens = load_tokens(auth_file, secrets_dir=secrets_dir) if auth_file is not None else None
-    if tokens is not None:
-        _install_log_redaction((*tokens.read, *tokens.write))
-
     mcp = build_mcp_server(service)
     mcp.settings.streamable_http_path = "/"
     mcp_app = mcp.streamable_http_app()
 
     @asynccontextmanager
     async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
-        await service.init()
-        async with mcp.session_manager.run():
-            yield
+        installed = (
+            _install_log_redaction((*tokens.read, *tokens.write)) if tokens is not None else None
+        )
+        try:
+            await service.init()
+            async with mcp.session_manager.run():
+                yield
+        finally:
+            if installed is not None:
+                _remove_log_redaction(*installed)
 
     app = FastAPI(title="panopticon task service", version="0.0.3", lifespan=lifespan)
 
