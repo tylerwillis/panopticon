@@ -20,6 +20,7 @@ from panopticon.core.models import Status
 
 JsonObj = dict[str, Any]
 
+
 def _liveness_timeout() -> httpx.Timeout:
     return httpx.Timeout(
         connect=5.0,
