@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.3.1--972330d71f6f",
+  "requirementId": "REQ-044.3.1",
+  "hash": "972330d71f6f",
+  "verdict": "pass",
+  "summary": "Real spawn-command tests verify all three distinct repo values map to the required env names after --env-file, and absent overrides render each name explicitly empty; spawner propagation is also covered.",
+  "timestamp": "2026-08-03T19:33:48.045Z"
+}

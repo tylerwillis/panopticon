@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.1.1--91dbf7b951a3",
+  "requirementId": "REQ-044.1.1",
+  "hash": "91dbf7b951a3",
+  "verdict": "pass",
+  "summary": "Tests enumerate all three built-in 2119 workflows, reject missing or non-ClassVar reviewer declarations and any non-exact honesty default, and prove reviewers, fable_reviews, and honesty_reviewer remain subclass-overridable.",
+  "timestamp": "2026-08-03T19:32:40.864Z"
+}
