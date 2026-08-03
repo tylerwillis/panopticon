@@ -67,6 +67,7 @@ class HostDaemon:
         spawner: Spawner,
         provisioner: Provisioner,
         *,
+        runner_id: str | None = None,
         waker: EntryWaker | None = None,
         sleep: Callable[[float], None] = time.sleep,
         interval: float = 2.0,
@@ -74,6 +75,7 @@ class HostDaemon:
         self._client = client
         self._spawner = spawner
         self._provisioner = provisioner
+        self._runner_id = runner_id
         self._waker = waker
         self._sleep = sleep
         self._interval = interval
@@ -107,7 +109,10 @@ class HostDaemon:
             try:
                 if task["id"] in spawnable_ids:
                     self._spawner.spawn_one(task)
-                self._provisioner.provision(task)
+                if self._runner_id is None:
+                    self._provisioner.provision(task)
+                else:
+                    self._provisioner.provision(task, runner_id=self._runner_id)
                 self._spawner.reconcile(task)
                 self._spawner.heal(task)
                 self._spawner.cleanup(task)
@@ -224,6 +229,7 @@ def run_host(
         client,
         spawner,
         provisioner,
+        runner_id=runner_id,
         waker=waker,
         interval=interval,
         sleep=sleep,

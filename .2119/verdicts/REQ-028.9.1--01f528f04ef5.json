@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.9.1--01f528f04ef5",
+  "requirementId": "REQ-028.9.1",
+  "hash": "01f528f04ef5",
+  "verdict": "pass",
+  "summary": "Test creates a duplicate for every built-in in the configured home workflow directory and requires discovery to fail with the exact external path and explicit remove-this-file remediation.",
+  "timestamp": "2026-08-02T05:50:42.167Z"
+}

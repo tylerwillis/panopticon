@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-011.1.1--ba019efa2b36",
+  "requirementId": "REQ-011.1.1",
+  "hash": "ba019efa2b36",
+  "verdict": "pass",
+  "summary": "Exhaustively varies claim, registration, runner liveness, and every lifecycle phase and always asserts terminal composition is an en dash.",
+  "timestamp": "2026-08-02T18:46:20.716Z"
+}

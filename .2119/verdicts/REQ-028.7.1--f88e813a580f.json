@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.7.1--f88e813a580f",
+  "requirementId": "REQ-028.7.1",
+  "hash": "f88e813a580f",
+  "verdict": "pass",
+  "summary": "Discovery with no external workflow directory asserts all three required registry names map to their concrete built-in workflow classes.",
+  "timestamp": "2026-08-02T05:50:19.825Z"
+}

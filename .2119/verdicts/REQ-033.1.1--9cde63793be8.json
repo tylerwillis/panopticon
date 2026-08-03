@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.1.1--9cde63793be8",
+  "requirementId": "REQ-033.1.1",
+  "hash": "9cde63793be8",
+  "verdict": "pass",
+  "summary": "All built-in 2119 workflows and their review skills are enumerated, and the test requires the exact directive that the triage summary PR comment end with the named section.",
+  "timestamp": "2026-08-02T05:55:48.023Z"
+}

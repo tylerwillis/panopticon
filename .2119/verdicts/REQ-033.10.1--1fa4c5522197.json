@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.10.1--1fa4c5522197",
-  "requirementId": "REQ-033.10.1",
-  "hash": "1fa4c5522197",
-  "verdict": "pass",
-  "summary": "Exact-equality check on responsibilities[0].description against EXPECTED_DEFERRED_ISSUES_FILED_RESPONSIBILITY, verified byte-identical to the production Responsibility text and confirmed to reject the previously-flagged self-contradictory violating string as well as omission/paraphrase variants; covers all 3 built-in 2119 workflows via the real discover_workflows registry, no mocking.",
-  "timestamp": "2026-08-01T01:03:41.792Z"
-}

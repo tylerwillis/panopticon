@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-029.1.1--cbcabe5752ed",
-  "requirementId": "REQ-029.1.1",
-  "hash": "cbcabe5752ed",
-  "verdict": "pass",
-  "summary": "PASS: production GET /tasks summary omits history yet triggers a full-task fetch and delivery for both advance and free-move entries; the deferred down-observation test proves the updated_at cutoff settles only entries at or before observation and leaves a later-created entry pending; ownership, ordering, and nonblocking observation counterexamples are also covered.",
-  "timestamp": "2026-08-01T02:04:23.731Z"
-}

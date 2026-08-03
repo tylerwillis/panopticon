@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-038.1.1--17916c056f59",
+  "requirementId": "REQ-038.1.1",
+  "hash": "17916c056f59",
+  "verdict": "pass",
+  "summary": "Exact rendered row-order assertions in both sort modes reject active snoozes outside the post-active/pre-terminal section and verify expiry and attention-piercing boundaries retain ordinary ordering.",
+  "timestamp": "2026-08-02T22:26:50.302Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.1.1--36b264e14367",
+  "requirementId": "REQ-029.1.1",
+  "hash": "36b264e14367",
+  "verdict": "pass",
+  "summary": "Covers declared and free-move agent entries end-to-end, live ownership gating, host observation wiring, ordered submission, and ownership rechecks.",
+  "timestamp": "2026-08-02T18:46:21.591Z"
+}

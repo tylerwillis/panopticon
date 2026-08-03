@@ -11,13 +11,15 @@ from __future__ import annotations
 
 import asyncio
 import hmac
+import os
+import secrets
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager, suppress
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, Query, Request, Response
+from fastapi import FastAPI, Header, HTTPException, Query, Request, Response
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, StreamingResponse
@@ -70,6 +72,20 @@ class HistoryOut(BaseModel):
     wake_status: WakeStatus
 
 
+class MigrationOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    source_runner: str
+    destination_runner: str
+    workspace_disposition: str
+    workspace_method: str = "archive"
+    session_history_disposition: str
+    discarded_changes: list[str] = []
+    discard_authorized_by: str | None = None
+    session_history_changed_by: str | None = None
+    session_history_was_requested: bool = False
+
+
 class TaskSummaryOut(BaseModel):
     """Task fields from the tasks table only — no history. Returned by ``GET /tasks``."""
 
@@ -90,6 +106,9 @@ class TaskSummaryOut(BaseModel):
     branch: str | None
     clone: str | None
     claimed_by: str | None
+    provisioned_by: str | None = None
+    workspace_verified_by: str | None = None
+    migration: MigrationOut | None = None
     tokens_used: int | None
     token_estimate: int | None
     starting_model: str | None = None
@@ -127,6 +146,9 @@ class TaskOut(BaseModel):
     branch: str | None
     clone: str | None
     claimed_by: str | None  # the runner that owns this task (the spawn gate), or None
+    provisioned_by: str | None = None
+    workspace_verified_by: str | None = None
+    migration: MigrationOut | None = None
     tokens_used: int | None  # cost-weighted input-equivalent tokens used (None until reported)
     token_estimate: (
         int | None
@@ -295,6 +317,18 @@ class StateIn(BaseModel):
 class ProvisioningIn(BaseModel):
     branch: str
     clone: str
+    runner_id: str
+    workspace_verified: bool
+
+
+class MigrationIn(BaseModel):
+    source_runner: str
+    destination_runner: str
+    workspace_disposition: str
+    workspace_method: str = "archive"
+    session_history_disposition: str
+    discarded_changes: list[str] = []
+    discard_authorized_by: str | None = None
 
 
 class SkillOut(BaseModel):
@@ -412,6 +446,7 @@ def create_app(
     auth_mode: str | None = None,
     secrets_dir: str | Path | None = None,
 ) -> FastAPI:
+    operator_token = os.environ.get("PANOPTICON_OPERATOR_TOKEN")
     # MCP over streamable HTTP, mounted at /mcp on the same control plane (operations=tools,
     # artifacts=resources). Its path is set to "/" so the mount point *is* the endpoint (/mcp).
     # The session manager must run for the app's lifetime, so its context is driven by the
@@ -848,9 +883,46 @@ def create_app(
     @app.put("/tasks/{task_id}/provisioning")
     async def record_provisioning(task_id: str, body: ProvisioningIn) -> TaskOut:
         try:  # the session service reports the host branch + per-task clone it created (ADR 0011)
-            task = await service.record_provisioning(task_id, branch=body.branch, clone=body.clone)
+            task = await service.record_provisioning(
+                task_id,
+                body.branch,
+                body.clone,
+                body.runner_id,
+                body.workspace_verified,
+            )
         except ValueError as exc:  # slug not set yet
             raise HTTPException(status_code=400, detail=str(exc)) from exc
+        except NotReady as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+        return await _task_out(task)
+
+    @app.put("/tasks/{task_id}/migration")
+    async def record_migration(
+        task_id: str,
+        body: MigrationIn,
+        supplied_token: str | None = Header(None, alias="X-Panopticon-Operator-Token"),
+    ) -> TaskOut:
+        if operator_token is None:
+            raise HTTPException(
+                status_code=503, detail="operator migration token is not configured"
+            )
+        if supplied_token is None or not secrets.compare_digest(supplied_token, operator_token):
+            raise HTTPException(status_code=403, detail="operator authorization required")
+        try:
+            task = await service.record_migration(
+                task_id,
+                body.source_runner,
+                body.destination_runner,
+                body.workspace_disposition,
+                body.session_history_disposition,
+                body.discarded_changes,
+                body.discard_authorized_by,
+                body.workspace_method,
+            )
+        except (ValueError, NotReady) as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+        except NotFound as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
         return await _task_out(task)
 
     # -- artifacts ----------------------------------------------------------------

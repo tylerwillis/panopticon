@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.10.1--70b7e2df42ef",
+  "requirementId": "REQ-028.10.1",
+  "hash": "70b7e2df42ef",
+  "verdict": "pass",
+  "summary": "The service-level test pins the complete artifact guidance, rejecting omission or reversal of complement/non-replacement language for either the pull request or dedicated task URL.",
+  "timestamp": "2026-08-02T05:49:22.722Z"
+}

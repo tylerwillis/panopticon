@@ -48,11 +48,13 @@ class ProvisionDaemon:
         client: TaskServiceClient,
         provisioner: Provisioner,
         *,
+        runner_id: str | None = None,
         sleep: Callable[[float], None] = time.sleep,
         interval: float = 2.0,
     ) -> None:
         self._client = client
         self._provisioner = provisioner
+        self._runner_id = runner_id
         self._sleep = sleep
         self._interval = interval
 
@@ -66,7 +68,11 @@ class ProvisionDaemon:
         provisioned: list[str] = []
         for task in watched_tasks(tasks):
             try:
-                branch = self._provisioner.provision(task)
+                branch = (
+                    self._provisioner.provision(task, runner_id=self._runner_id)
+                    if self._runner_id is not None
+                    else self._provisioner.provision(task)
+                )
             except Exception:  # a transient git/REST error on one task must not stall the others
                 _log.warning("provisioning pass failed for task %s", task.get("id"), exc_info=True)
                 continue
@@ -112,10 +118,13 @@ def run_daemon(
     git: GitClones | None = None,
     until: Callable[[], bool] | None = None,
     sleep: Callable[[float], None] = time.sleep,
+    runner_id: str | None = None,
 ) -> None:
     """Build the provisioner + daemon over this host's tasks and run the loop (ADR 0010/0011)."""
     provisioner = Provisioner(client, clones_root=tasks_root, git=git)
-    daemon = ProvisionDaemon(client, provisioner, interval=interval, sleep=sleep)
+    daemon = ProvisionDaemon(
+        client, provisioner, runner_id=runner_id, interval=interval, sleep=sleep
+    )
     daemon.run(until=until)
 
 

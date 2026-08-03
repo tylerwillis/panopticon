@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.9.1--fa4f07893463",
-  "requirementId": "REQ-033.9.1",
-  "hash": "fa4f07893463",
-  "verdict": "pass",
-  "summary": "Exact full-text equality check on the rendered MERGING babysit-merge instructions across all 3 built-in 2119 workflows genuinely encodes all REQ-033.9.1 conjuncts (self-contained, title, PR link, review-comment reference, why-deferred, shipping-scope); confirmed via in-process monkeypatch counterexamples that dropping any clause breaks the match.",
-  "timestamp": "2026-08-01T01:01:36.981Z"
-}

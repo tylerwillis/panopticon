@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-036.2.2--aa8f6713d1a1",
+  "requirementId": "REQ-036.2.2",
+  "hash": "aa8f6713d1a1",
+  "verdict": "pass",
+  "summary": "Rejects absent or non-sole stdout thread IDs, missing/wrong/duplicate correlated rollouts, and zero, duplicate, wrong-type, or non-exact turn_context.payload.model evidence.",
+  "timestamp": "2026-08-02T22:23:15.592Z"
+}

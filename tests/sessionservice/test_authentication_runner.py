@@ -35,8 +35,11 @@ def test_spawn_rejects_missing_service_credential_before_docker(
     secrets = tmp_path / "secrets"
     secrets.mkdir()
     credential = secrets / "task-service-auth.json"
+    original_stat = None
     if existing_kind == "directory":
         credential.mkdir()
+        (credential / "sentinel").write_text("unchanged")
+        original_stat = credential.stat()
     elif existing_kind == "malformed":
         credential.write_text('{"read": [], "write": ["token"]}')
     rec = _Recorder()
@@ -57,5 +60,9 @@ def test_spawn_rejects_missing_service_credential_before_docker(
         assert not credential.exists()
     elif existing_kind == "directory":
         assert credential.is_dir()
+        assert credential.stat() == original_stat
+        assert {path.name: path.read_text() for path in credential.iterdir()} == {
+            "sentinel": "unchanged"
+        }
     else:
         assert credential.is_file()

@@ -18,6 +18,10 @@ the same ``/workspace``, now on its feature branch (ADR 0011 §2/§3).
 
 from __future__ import annotations
 
+import os
+import subprocess
+from collections.abc import Callable
+
 from panopticon.client import JsonObj, TaskServiceClient
 from panopticon.core.git import GitClones, branch_name
 from panopticon.sessionservice.executions import WorkflowExecutions
@@ -39,13 +43,17 @@ class Provisioner:
         clones_root: str,
         git: GitClones | None = None,
         executions: WorkflowExecutions | None = None,
+        workspace_exists: Callable[[str], bool] = os.path.isdir,
+        inspect_repository: Callable[[str], tuple[str, str]] | None = None,
     ) -> None:
         self._client = client
         self._clones_root = clones_root.rstrip("/")
         self._git = git or GitClones()
         self._executions = executions or WorkflowExecutions(client)
+        self._workspace_exists = workspace_exists
+        self._inspect_repository = inspect_repository
 
-    def provision(self, task: JsonObj) -> str | None:
+    def provision(self, task: JsonObj, *, runner_id: str | None = None) -> str | None:
         """Provision ``task`` if it is ready, returning the created branch (else ``None``).
 
         Ready means it has a slug but isn't provisioned yet; otherwise this no-ops (idempotent, so
@@ -57,12 +65,57 @@ class Provisioner:
         is nothing to branch — the guarantee that ``runner_type = "shell"`` means *no clone* holds
         even if such a task somehow acquires a slug.
         """
-        if not task.get("slug") or task.get("provisioned"):
+        if not task.get("slug"):
             return None
         if self._executions.is_shell(task.get("workflow")):
             return None
         clone = f"{self._clones_root}/{task['id']}"
-        branch = branch_name(task["slug"])
-        self._git.create_branch(repo_path=clone, branch=branch)
-        self._client.record_provisioning(task["id"], branch, clone)
+        recorded = task.get("branch")
+        foreign = runner_id is not None and task.get("provisioned_by") not in (None, runner_id)
+        migration = task.get("migration")
+        forge_first = bool(
+            foreign
+            and isinstance(migration, dict)
+            and migration.get("destination_runner") == runner_id
+            and migration.get("workspace_disposition") == "accepted"
+            and migration.get("workspace_method", "forge-first") == "forge-first"
+        )
+        if task.get("provisioned") and not foreign:
+            return None
+        if foreign and not forge_first:
+            return None
+        branch = str(recorded or branch_name(task["slug"]))
+        if forge_first:
+            if not self._workspace_exists(clone):
+                return None
+            self._git.checkout_remote_branch(repo_path=clone, branch=branch)
+            actual_branch = subprocess.run(
+                ["git", "-C", clone, "branch", "--show-current"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+        elif recorded:
+            # Adopt/re-verify an existing branch (including legacy upgraded rows) without trying
+            # to create it again. A mismatch is rejected below.
+            actual_branch = subprocess.run(
+                ["git", "-C", clone, "branch", "--show-current"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+        else:
+            self._git.create_branch(repo_path=clone, branch=branch)
+        if not recorded and not forge_first:
+            actual_branch = branch
+        if actual_branch != branch:
+            from panopticon.sessionservice.migration import MigrationConflict
+
+            raise MigrationConflict("branch mismatch")
+        effective_runner = runner_id or (
+            str(task["claimed_by"]) if task.get("claimed_by") is not None else ""
+        )
+        if not effective_runner:
+            return None
+        self._client.record_provisioning(task["id"], branch, clone, effective_runner, True)
         return branch

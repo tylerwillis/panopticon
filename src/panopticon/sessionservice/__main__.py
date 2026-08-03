@@ -43,12 +43,14 @@ def main(
         help="task service URL the container connects back to",
     )
     parser.add_argument("--image", default=DEFAULT_IMAGE)
+    parser.add_argument("--runner-id", default=os.environ.get("PANOPTICON_RUNNER_ID", "local"))
     args = parser.parse_args(argv)
     migrate_session_dirs(CLONE_CACHE_DIR, TASKS_DIR)
 
     # Look up the task's repo to inject that repo's secrets (ADR 0007), scoped to this task.
     client = client or TaskServiceClient(httpx.Client(base_url=args.service_url))
-    repo = client.get_repo(client.get_task(args.task_id)["repo_id"])
+    task = client.get_task(args.task_id)
+    repo = client.get_repo(task["repo_id"])
 
     # Spawn-prep (ADR 0011): give the task a writable per-task clone, mounted at /workspace.
     workspace = prepare_workspace(
@@ -57,6 +59,8 @@ def main(
         cache=CloneCache(CLONE_CACHE_DIR, run=run),
         tasks_root=TASKS_DIR,
         git=GitClones(run=run),
+        task=task,
+        runner_id=args.runner_id,
     )
     container_id = LocalRunner(args.service_url, image=args.image, run=run).spawn(
         args.task_id,

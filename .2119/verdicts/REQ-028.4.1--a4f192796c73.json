@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.4.1--a4f192796c73",
+  "requirementId": "REQ-028.4.1",
+  "hash": "a4f192796c73",
+  "verdict": "pass",
+  "summary": "The test enumerates every discovered built-in 2119 workflow and requires the exact SPECIFYING responsibility tuple, rejecting a missing, duplicate, misplaced, or differently worded spec-artifact obligation and any unlisted built-in.",
+  "timestamp": "2026-08-02T05:49:58.214Z"
+}

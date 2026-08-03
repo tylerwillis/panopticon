@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import asyncio
 import inspect
+import json
 import logging
 import os
 import uuid
@@ -28,6 +29,7 @@ from panopticon.core.models import (
     Actor,
     ContainerStatus,
     LifecyclePhase,
+    MigrationRecord,
     Repo,
     Responsibility,
     Skill,
@@ -1026,6 +1028,18 @@ class TaskService:
             task = await self.get_task(task_id)
             if task.claimed_by not in (None, runner_id):
                 raise AlreadyClaimed(f"task {task_id!r} is already claimed by {task.claimed_by!r}")
+            if task.claimed_by is None and task.provisioned_by not in (None, runner_id):
+                migration = task.migration
+                if migration is None:
+                    raise NotReady("cross-host claim requires an explicit migration record")
+                if migration.source_runner != task.provisioned_by:
+                    raise NotReady("migration source does not own the recorded workspace")
+                if migration.destination_runner != runner_id:
+                    raise NotReady("migration destination does not match the claiming runner")
+                if migration.workspace_disposition not in {"installed", "accepted"}:
+                    raise NotReady(
+                        f"migration workspace is {migration.workspace_disposition}, not accepted"
+                    )
             if task.claimed_by is None and (
                 self._task_is_terminal(task) or await self.dependencies_blocking(task)
             ):
@@ -1052,7 +1066,14 @@ class TaskService:
 
     # -- provisioning (the session service does the host git; the service only records) ---
 
-    async def record_provisioning(self, task_id: str, *, branch: str, clone: str) -> Task:
+    async def record_provisioning(
+        self,
+        task_id: str,
+        branch: str,
+        clone: str,
+        runner_id: str,
+        workspace_verified: bool,
+    ) -> Task:
         """Record the slug-named branch + per-task clone the session service created **on the
         host** for this task (ADR 0010/0011 / ARCHITECTURE §9).
 
@@ -1066,13 +1087,115 @@ class TaskService:
         host-side-vs-recorded-fact split of that hook an open question; until it's designed (and a
         workflow needs it), ``Workflow.provision`` stays a declared seam, unwired here.
         """
+        try:
+            json.dumps(
+                {
+                    "branch": branch,
+                    "clone": clone,
+                    "runner_id": runner_id,
+                    "workspace_verified": workspace_verified,
+                }
+            )
+        except (TypeError, ValueError) as exc:
+            raise TypeError("runner-reported facts must be JSON serializable") from exc
         task = await self.get_task(task_id)
         if task.slug is None:
             raise ValueError("cannot record provisioning before the task's slug is set")
+        if task.claimed_by != runner_id:
+            raise NotReady("provisioning runner must hold the task claim")
+        if (
+            task.migration is not None
+            and task.migration.destination_runner == runner_id
+            and task.migration.workspace_disposition not in {"installed", "accepted"}
+        ):
+            raise NotReady("destination workspace has not been accepted")
+        expected_branch = f"panopticon/{task.slug}"
+        if branch != expected_branch and task.branch != branch:
+            raise NotReady("provisioning branch does not match the task record or slug")
         task.branch = branch
         task.clone = clone
+        task.provisioned_by = runner_id
+        task.workspace_verified_by = runner_id if workspace_verified else None
         await self._save_task(task)
         _log.info("task %s: provisioned (branch=%s)", task_id, branch)
+        return task
+
+    async def record_migration(
+        self,
+        task_id: str,
+        source_runner: str,
+        destination_runner: str,
+        workspace_disposition: str,
+        session_history_disposition: str,
+        discarded_changes: list[str],
+        discard_authorized_by: str | None,
+        workspace_method: str = "archive",
+    ) -> Task:
+        """Persist only the reported facts of an explicit operator migration decision."""
+        facts = {
+            "source_runner": source_runner,
+            "destination_runner": destination_runner,
+            "workspace_disposition": workspace_disposition,
+            "workspace_method": workspace_method,
+            "session_history_disposition": session_history_disposition,
+            "discarded_changes": discarded_changes,
+            "discard_authorized_by": discard_authorized_by,
+        }
+        try:
+            json.dumps(facts)
+        except (TypeError, ValueError) as exc:
+            raise TypeError("runner-reported facts must be JSON serializable") from exc
+        task = await self.get_task(task_id)
+        if task.provisioned_by is None:
+            raise NotReady("migration requires an existing workspace owner")
+        if source_runner != task.provisioned_by:
+            raise NotReady("migration source does not own the recorded workspace")
+        if destination_runner == source_runner:
+            raise ValueError("migration destination must differ from its source")
+        if workspace_disposition not in {"pending", "installed", "accepted", "failed"}:
+            raise ValueError("invalid workspace disposition")
+        if workspace_method not in {"archive", "forge-first"}:
+            raise ValueError("invalid workspace migration method")
+        if session_history_disposition not in {"requested", "accepted", "omitted", "failed"}:
+            raise ValueError("invalid session-history disposition")
+        previous = task.migration
+        if workspace_disposition in {"installed", "accepted"} and (
+            previous is None
+            or previous.source_runner != source_runner
+            or previous.destination_runner != destination_runner
+            or previous.workspace_method != workspace_method
+            or previous.workspace_disposition
+            not in (
+                {"pending"} if workspace_disposition == "installed" else {"pending", "installed"}
+            )
+        ):
+            raise NotReady("workspace acceptance requires a matching pending migration")
+        if discarded_changes and discard_authorized_by != Actor.USER.value:
+            raise ValueError("discarded changes require explicit user authorization")
+        history_was_requested = bool(
+            task.migration
+            and (
+                task.migration.session_history_disposition == "requested"
+                or task.migration.session_history_was_requested
+            )
+        )
+        task.migration = MigrationRecord(
+            source_runner=source_runner,
+            destination_runner=destination_runner,
+            workspace_disposition=workspace_disposition,
+            workspace_method=workspace_method,
+            session_history_disposition=session_history_disposition,
+            discarded_changes=list(discarded_changes),
+            discard_authorized_by=discard_authorized_by,
+            session_history_changed_by=(
+                Actor.USER.value
+                if history_was_requested and session_history_disposition == "omitted"
+                else None
+            ),
+            session_history_was_requested=history_was_requested
+            or session_history_disposition == "requested",
+        )
+        await self._save_task(task)
         return task
 
     # -- artifacts ----------------------------------------------------------------

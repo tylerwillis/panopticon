@@ -36,8 +36,11 @@ def test_shell_runner_rejects_an_invalid_service_credential_before_tmux(
     # 2119: REQ-035.28.1
     calls: list[list[str]] = []
     invalid = tmp_path / "invalid.json"
+    original_stat = None
     if invalid_kind == "directory":
         invalid.mkdir()
+        (invalid / "sentinel").write_text("unchanged")
+        original_stat = invalid.stat()
     elif invalid_kind == "malformed":
         invalid.write_text("not-json")
 
@@ -57,6 +60,11 @@ def test_shell_runner_rejects_an_invalid_service_credential_before_tmux(
 
     assert calls == []
     assert invalid.exists() is (invalid_kind != "missing")
+    if invalid_kind == "directory":
+        assert invalid.stat() == original_stat
+        assert {path.name: path.read_text() for path in invalid.iterdir()} == {
+            "sentinel": "unchanged"
+        }
 
 
 def test_integrated_stack_explicitly_exposes_service_to_linux_containers() -> None:
