@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.1.4--66190dce8041",
+  "requirementId": "REQ-026.1.4",
+  "hash": "66190dce8041",
+  "verdict": "pass",
+  "summary": "Covers explicit-empty and omitted dependency lists while rejecting claimed and terminal boundaries.",
+  "timestamp": "2026-08-03T18:09:15.612Z"
+}

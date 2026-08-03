@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.2.2--c762be85ac80",
+  "requirementId": "REQ-044.2.2",
+  "hash": "c762be85ac80",
+  "verdict": "pass",
+  "summary": "Both terminal states require backend stop and all snapshots removed before workspace deletion.",
+  "timestamp": "2026-08-03T18:37:48.965Z"
+}

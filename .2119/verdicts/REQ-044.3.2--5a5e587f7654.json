@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.3.2--5a5e587f7654",
+  "requirementId": "REQ-044.3.2",
+  "hash": "5a5e587f7654",
+  "verdict": "pass",
+  "summary": "Both tokens, repeated embedded occurrences, root and child names in all four namespaces, and all five record channels require exact redacted markers.",
+  "timestamp": "2026-08-03T18:37:48.963Z"
+}
