@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.9.1--1bd8663706f2",
+  "requirementId": "REQ-035.9.1",
+  "hash": "1bd8663706f2",
+  "verdict": "pass",
+  "summary": "Behavioral tests accept exact Bearer credentials across dynamically enumerated protected REST/MCP routes (including runner-only session/input) and reject every named query, cookie, JSON, alternate-header carrier plus near-miss Authorization syntax.",
+  "timestamp": "2026-08-03T17:33:19.225Z"
+}

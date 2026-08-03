@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.43.1--1267b87ff23f",
+  "requirementId": "REQ-035.43.1",
+  "hash": "1267b87ff23f",
+  "verdict": "pass",
+  "summary": "Exact startup, low/high-count, authenticated-exclusion, restart-reset, and wire-redaction assertions reject non-monotonic totals, miscounted header-less admissions, and configured-token disclosure.",
+  "timestamp": "2026-08-03T17:35:35.360Z"
+}

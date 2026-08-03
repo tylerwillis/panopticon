@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.2.2--f7e266b968ed",
+  "requirementId": "REQ-045.2.2",
+  "hash": "f7e266b968ed",
+  "verdict": "pass",
+  "summary": "Covers 404 for a missing task and isolated 409 counterexamples for terminal, non-live, unowned, disconnected, and agent-turn tasks, while asserting no delivery records are created.",
+  "timestamp": "2026-08-03T20:43:23.765Z"
+}

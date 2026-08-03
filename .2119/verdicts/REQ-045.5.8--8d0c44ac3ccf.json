@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.5.8--8d0c44ac3ccf",
+  "requirementId": "REQ-045.5.8",
+  "hash": "8d0c44ac3ccf",
+  "verdict": "pass",
+  "summary": "Sequential and concurrent distinct submissions both reject a second pending delivery and verify exactly one persisted pending item for the task.",
+  "timestamp": "2026-08-03T20:59:14.660Z"
+}

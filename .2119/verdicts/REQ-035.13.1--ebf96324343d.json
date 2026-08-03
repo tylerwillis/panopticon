@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.13.1--ebf96324343d",
+  "requirementId": "REQ-035.13.1",
+  "hash": "ebf96324343d",
+  "verdict": "pass",
+  "summary": "Permissive-mode coverage enumerates registered REST routes including runner-only GET session/input, MCP, and liveness, rejecting generic auth failures for headerless and operation-sufficient credentials while insufficient read credentials remain rejected.",
+  "timestamp": "2026-08-03T17:34:09.195Z"
+}

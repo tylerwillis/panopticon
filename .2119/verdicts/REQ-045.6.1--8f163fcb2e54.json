@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.6.1--8f163fcb2e54",
+  "requirementId": "REQ-045.6.1",
+  "hash": "8f163fcb2e54",
+  "verdict": "pass",
+  "summary": "All five session-I/O operations are behaviorally exercised while process launch, executable discovery, and socket creation fail.",
+  "timestamp": "2026-08-03T20:48:50.921Z"
+}

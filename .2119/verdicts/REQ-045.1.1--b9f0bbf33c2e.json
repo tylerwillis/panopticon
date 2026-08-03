@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.1.1--b9f0bbf33c2e",
+  "requirementId": "REQ-045.1.1",
+  "hash": "b9f0bbf33c2e",
+  "verdict": "pass",
+  "summary": "Real enforced-mode API tests accept master write and matching derived task principals while rejecting absent, read-only, cross-task, and one-character-tampered principals.",
+  "timestamp": "2026-08-03T20:41:17.111Z"
+}

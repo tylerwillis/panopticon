@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.5.1--5cea63f250d3",
+  "requirementId": "REQ-035.5.1",
+  "hash": "5cea63f250d3",
+  "verdict": "pass",
+  "summary": "Dynamic route enumeration rejects the nearest violation—a valid write token receiving the generic 401 on any authenticated REST operation—including runner-only GET session/input, while explicit documentation GET/HEAD coverage and accepted validation responses preserve the stated boundary.",
+  "timestamp": "2026-08-03T17:32:34.259Z"
+}

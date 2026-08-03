@@ -10,7 +10,7 @@ plane serves REST and MCP. ``create_app`` builds an app around an injected
 from __future__ import annotations
 
 import asyncio
-import hmac
+import base64
 import json
 import logging
 import os
@@ -21,26 +21,36 @@ from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager, suppress
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 from urllib.parse import unquote_plus
 
 from fastapi import FastAPI, Header, HTTPException, Query, Request, Response
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, StreamingResponse
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from starlette._utils import get_route_path
 from starlette.types import Message, Receive, Scope, Send
 
 from panopticon.core.artifacts import ArtifactError
 from panopticon.core.liveness import LIVENESS_KEEPALIVE_SECONDS
-from panopticon.core.models import Actor, LifecyclePhase, Repo, Status, Task, WakeStatus
+from panopticon.core.models import (
+    Actor,
+    ContainerStatus,
+    LifecyclePhase,
+    Repo,
+    SessionInputStatus,
+    Status,
+    Task,
+    WakeStatus,
+)
 from panopticon.core.store import AlreadyExists, NotFound, StoreError
 from panopticon.core.workflow import IllegalTransition, InvalidWorkflow, ResponsibilitiesNotMet
 from panopticon.taskservice.service import (
     AlreadyClaimed,
     NotAuthorized,
     NotReady,
+    SessionConflict,
     TaskService,
     UnknownWorkflow,
 )
@@ -425,6 +435,86 @@ class StageEntryWakeIn(BaseModel):
     status: WakeStatus
 
 
+class SessionInputIn(BaseModel):
+    text: str
+    submit: bool = Field(strict=True)
+    idempotency_key: str = Field(min_length=8, max_length=128, pattern=r"^[A-Za-z0-9._~-]+$")
+
+    @field_validator("text")
+    @classmethod
+    def validate_text(cls, value: str) -> str:
+        if not value or len(value.encode("utf-8")) > 65536:
+            raise ValueError("text must contain 1 through 65536 UTF-8 bytes")
+        if any(
+            (ord(character) < 32 and character not in {"\n", "\t"}) or 127 <= ord(character) <= 159
+            for character in value
+        ):
+            raise ValueError("text must not contain terminal control characters")
+        return value
+
+
+class SessionInputSettleIn(BaseModel):
+    runner_id: str
+    status: Literal[SessionInputStatus.DELIVERED, SessionInputStatus.FAILED]
+    failure_reason: str | None = None
+
+
+class SessionInputOut(BaseModel):
+    id: str
+    status: SessionInputStatus
+    submit: bool
+    byte_count: int
+    created_at: str
+    settled_at: str | None
+    failure_reason: str | None
+
+
+class RunnerSessionInputOut(SessionInputOut):
+    text: str
+
+
+class SessionTranscriptIn(BaseModel):
+    runner_id: str
+    text: str | None = None
+    text_b64: str | None = None
+    columns: int = Field(ge=1)
+    rows: int = Field(ge=1)
+    truncated: bool = Field(strict=True)
+
+    @model_validator(mode="after")
+    def decode_text(self) -> SessionTranscriptIn:
+        if (self.text is None) == (self.text_b64 is None):
+            raise ValueError("exactly one of text or text_b64 is required")
+        if self.text_b64 is not None:
+            try:
+                self.text = base64.b64decode(self.text_b64, validate=True).decode("utf-8")
+            except (ValueError, UnicodeDecodeError) as error:
+                raise ValueError("text_b64 must be valid base64-encoded UTF-8") from error
+        return self
+
+    @field_validator("text")
+    @classmethod
+    def reject_terminal_escape_sequences(cls, value: str | None) -> str | None:
+        if value is None:
+            return value
+        if "\x1b" in value:
+            raise ValueError("transcript text must not contain terminal escape sequences")
+        if len(value.encode("utf-8")) > 65536 or len(value.splitlines()) > 200:
+            raise ValueError("transcript text exceeds the pane snapshot bounds")
+        return value
+
+
+class SessionTranscriptOut(BaseModel):
+    text: str
+    source: str = "pane"
+    received_at: str
+    columns: int
+    rows: int
+    truncated: bool
+    runner_id: str
+    stale: bool
+
+
 class TransitionIn(BaseModel):
     to_state: str
     trigger: str | None = None
@@ -589,7 +679,7 @@ def create_app(
     # The session manager must run for the app's lifetime, so its context is driven by the
     # parent FastAPI lifespan (a mounted sub-app's own lifespan isn't run by the parent).
     # Imported here, not at module scope: mcp.py imports our ``*Out`` schemas (would cycle).
-    from panopticon.taskservice.auth import load_tokens
+    from panopticon.taskservice.auth import authenticate_token, load_tokens
     from panopticon.taskservice.mcp import build_mcp_server
 
     mode = auth_mode or ("enforced" if auth_file else "disabled")
@@ -748,9 +838,9 @@ def create_app(
             candidate = authorization[7:]
             if candidate and " " not in candidate:
                 presented = candidate
-        presented_bytes = presented.encode()
-        write = any(hmac.compare_digest(presented_bytes, token.encode()) for token in tokens.write)
-        read = any(hmac.compare_digest(presented_bytes, token.encode()) for token in tokens.read)
+        principal = authenticate_token(tokens, presented)
+        write = principal is not None and principal.privilege == "write"
+        read = principal is not None and principal.privilege == "read"
         path_parts = route_path.strip("/").split("/")
         liveness = (
             len(path_parts) == 3
@@ -758,8 +848,33 @@ def create_app(
             and path_parts[2] == "live"
         )
         mutating = (
-            request.method not in {"GET", "HEAD"} or route_path.startswith("/mcp") or liveness
+            request.method not in {"GET", "HEAD"}
+            or route_path.startswith("/mcp")
+            or liveness
+            or (request.method == "GET" and route_path.endswith("/session/input"))
         )
+        task_id = path_parts[1] if len(path_parts) > 1 and path_parts[0] == "tasks" else None
+        session_input_create = (
+            request.method == "POST"
+            and len(path_parts) == 4
+            and path_parts[2:] == ["session", "input"]
+        )
+        runner_session_io = (
+            len(path_parts) >= 4
+            and path_parts[0] == "tasks"
+            and path_parts[2] == "session"
+            and (
+                (request.method == "GET" and path_parts[3:] == ["input"]) or request.method == "PUT"
+            )
+        )
+        if (
+            session_input_create
+            and principal is not None
+            and principal.task_id not in (None, task_id)
+        ):
+            write = False
+        if runner_session_io and principal is not None and principal.task_id is not None:
+            write = False
         if not write and (mutating or not read):
             return JSONResponse(
                 status_code=401,
@@ -819,6 +934,10 @@ def create_app(
 
     @app.exception_handler(AlreadyExists)
     async def _conflict(_: Request, exc: AlreadyExists) -> JSONResponse:
+        return JSONResponse(status_code=409, content={"detail": redact_configured_tokens(str(exc))})
+
+    @app.exception_handler(SessionConflict)
+    async def _session_conflict(_: Request, exc: SessionConflict) -> JSONResponse:
         return JSONResponse(status_code=409, content={"detail": redact_configured_tokens(str(exc))})
 
     @app.exception_handler(IllegalTransition)
@@ -1033,6 +1152,94 @@ def create_app(
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
         return await _task_out(task)
+
+    def _session_input_out(value: Any) -> SessionInputOut:
+        return SessionInputOut(
+            id=value.id,
+            status=value.status,
+            submit=value.submit,
+            byte_count=len(value.text.encode("utf-8")),
+            created_at=value.created_at,
+            settled_at=value.settled_at,
+            failure_reason=value.failure_reason,
+        )
+
+    @app.post(
+        "/tasks/{task_id}/session/input",
+        status_code=202,
+        response_model=SessionInputOut,
+        description="Accept input for runner delivery. Client retries are idempotent. A runner "
+        "crash or settlement-write failure after the tmux side effect can cause a duplicate delivery.",
+    )
+    async def create_session_input(task_id: str, body: SessionInputIn) -> SessionInputOut:
+        value = await service.create_session_input(
+            task_id,
+            text=body.text,
+            submit=body.submit,
+            idempotency_key=body.idempotency_key,
+        )
+        return _session_input_out(value)
+
+    @app.get("/tasks/{task_id}/session/input/{delivery_id}")
+    async def get_session_input(task_id: str, delivery_id: str) -> SessionInputOut:
+        return _session_input_out(await service.get_session_input(task_id, delivery_id))
+
+    @app.get("/tasks/{task_id}/session/input", response_model=list[RunnerSessionInputOut])
+    async def pending_session_input(task_id: str, runner_id: str) -> list[RunnerSessionInputOut]:
+        task = await service.get_task(task_id)
+        if task.claimed_by != runner_id:
+            raise SessionConflict("runner does not own task")
+        return [
+            RunnerSessionInputOut(**_session_input_out(value).model_dump(), text=value.text)
+            for value in await service.list_session_inputs(task_id)
+            if value.status is SessionInputStatus.PENDING
+        ]
+
+    @app.put("/tasks/{task_id}/session/input/{delivery_id}")
+    async def settle_session_input(
+        task_id: str, delivery_id: str, body: SessionInputSettleIn
+    ) -> SessionInputOut:
+        return _session_input_out(
+            await service.settle_session_input(
+                task_id,
+                delivery_id,
+                runner_id=body.runner_id,
+                status=body.status,
+                failure_reason=body.failure_reason,
+            )
+        )
+
+    @app.put("/tasks/{task_id}/session/transcript")
+    async def publish_session_transcript(
+        task_id: str, body: SessionTranscriptIn
+    ) -> SessionTranscriptOut:
+        assert body.text is not None
+        value = await service.publish_session_transcript(
+            task_id,
+            runner_id=body.runner_id,
+            text=body.text,
+            columns=body.columns,
+            rows=body.rows,
+            truncated=body.truncated,
+        )
+        return SessionTranscriptOut(**value.__dict__, stale=False)
+
+    @app.get(
+        "/tasks/{task_id}/session/transcript",
+        description="Return unredacted pane text. It may contain arbitrary terminal output, "
+        "including credentials or other secrets printed in the pane.",
+    )
+    async def get_session_transcript(task_id: str) -> SessionTranscriptOut:
+        try:
+            value = await service.get_session_transcript(task_id)
+        except NotFound as exc:
+            if str(exc) == "session transcript unavailable":
+                raise HTTPException(status_code=503, detail=str(exc)) from exc
+            raise
+        task = await service.get_task(task_id)
+        return SessionTranscriptOut(
+            **value.__dict__, stale=service.container_status(task) is not ContainerStatus.LIVE
+        )
 
     @app.get("/tasks/{task_id}/workflow-overview")
     async def get_workflow_overview(task_id: str) -> dict[str, str]:

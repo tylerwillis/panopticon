@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.46.1--6c7e7884bb8e",
+  "requirementId": "REQ-035.46.1",
+  "hash": "6c7e7884bb8e",
+  "verdict": "pass",
+  "summary": "Oversized protected-body rejection remains green; streaming instrumentation is unrelated to session-input route classification.",
+  "timestamp": "2026-08-03T17:36:14.076Z"
+}

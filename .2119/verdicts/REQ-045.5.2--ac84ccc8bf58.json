@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.5.2--ac84ccc8bf58",
+  "requirementId": "REQ-045.5.2",
+  "hash": "ac84ccc8bf58",
+  "verdict": "pass",
+  "summary": "The annotated test models a successful paste at the runner boundary and requires exactly one settlement with status delivered and no failure reason, rejecting failed, missing, or differently labeled settlement outcomes.",
+  "timestamp": "2026-08-03T20:27:25.429Z"
+}

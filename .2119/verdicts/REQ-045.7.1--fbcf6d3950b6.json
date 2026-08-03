@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.7.1--fbcf6d3950b6",
+  "requirementId": "REQ-045.7.1",
+  "hash": "fbcf6d3950b6",
+  "verdict": "pass",
+  "summary": "Behavioral tests reject 201-line and 65537-byte captures, preserve exact 200-line/64-KiB inputs, verify oldest-first suffix selection across combined and multibyte UTF-8 cases, and exercise owned-runner publication.",
+  "timestamp": "2026-08-03T20:53:05.215Z"
+}

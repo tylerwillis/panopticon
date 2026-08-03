@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.3.3--8c4d5b1b800a",
+  "requirementId": "REQ-045.3.3",
+  "hash": "8c4d5b1b800a",
+  "verdict": "pass",
+  "summary": "Behavioral API tests reject the bracketed-paste terminator and every prohibited C0/C1 code point, allow newline/tab, and prove rejected input creates no delivery record.",
+  "timestamp": "2026-08-03T20:50:27.471Z"
+}

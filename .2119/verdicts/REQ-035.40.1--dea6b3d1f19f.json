@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.40.1--dea6b3d1f19f",
+  "requirementId": "REQ-035.40.1",
+  "hash": "dea6b3d1f19f",
+  "verdict": "pass",
+  "summary": "Reserved-token collision behavior is unchanged and green; read-list duplication is outside this feature delta.",
+  "timestamp": "2026-08-03T17:36:13.001Z"
+}

@@ -75,10 +75,17 @@ def test_ready_pane_gets_one_bracketed_paste_and_one_submit(tmp_path: Path) -> N
     # 2119: REQ-029.3.1
     prompt, raw = _prompt(tmp_path), tmp_path / "raw.log"
     raw.write_bytes(b"")
-    tmux = _Tmux(panes=["%1", "%1", "%1"])
+    tmux = _Tmux(panes=["%1", "%1", "%1", "%1"])
+    sleep_calls = 0
 
     def sleep(_seconds: float) -> None:
-        raw.write_bytes(BRACKETED_PASTE_ON)
+        nonlocal sleep_calls
+        sleep_calls += 1
+        assert not any("load-buffer" in call or "paste-buffer" in call for call in tmux.calls)
+        if sleep_calls == 1:
+            raw.write_bytes(b"almost-ready")
+        elif sleep_calls == 2:
+            raw.write_bytes(BRACKETED_PASTE_ON)
 
     assert (
         prefill_pane(
@@ -101,12 +108,14 @@ def test_ready_pane_gets_one_bracketed_paste_and_one_submit(tmp_path: Path) -> N
         "%1",
         _watch_command(raw),
     ] in tmux.calls
-    assert ["tmux", "load-buffer", "-b", "panopticon-prefill-sess", str(prompt)] in tmux.calls
+    load = ["tmux", "load-buffer", "-b", "panopticon-prefill-sess", str(prompt)]
+    assert load in tmux.calls
     paste = ["tmux", "paste-buffer", "-p", "-d", "-b", "panopticon-prefill-sess", "-t", "%1"]
     submit = ["tmux", "send-keys", "-t", "%1", "Enter"]
     assert tmux.calls.count(paste) == 1
     assert tmux.calls.count(submit) == 1
-    assert tmux.calls.index(paste) < tmux.calls.index(submit)
+    assert sleep_calls >= 2
+    assert tmux.calls.index(load) < tmux.calls.index(paste) < tmux.calls.index(submit)
 
 
 def test_local_runner_submits_the_wake_through_its_real_tmux_path() -> None:
@@ -130,7 +139,7 @@ def test_local_runner_submits_the_wake_through_its_real_tmux_path() -> None:
         "-p",
         "-d",
         "-b",
-        "panopticon-prefill-panopticon-t1",
+        "panopticon-stage-entry-t1",
         "-t",
         "%1",
     ]
