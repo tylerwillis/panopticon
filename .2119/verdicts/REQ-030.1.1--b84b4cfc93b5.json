@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.1.1--b84b4cfc93b5",
+  "requirementId": "REQ-030.1.1",
+  "hash": "b84b4cfc93b5",
+  "verdict": "pass",
+  "summary": "Every panopticon session role is tied to the exact mouse-on config, with real fresh-socket tests verifying mouse is effective for generated and task sessions.",
+  "timestamp": "2026-08-03T03:59:59.977Z"
+}

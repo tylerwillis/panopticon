@@ -364,6 +364,7 @@ def test_make_service_switch_only_switches_when_a_service_session_exists(tmp_pat
 def test_session_exists_configures_a_dedicated_socket_before_its_probe(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr("shutil.which", lambda _tool: None)
     calls: list[list[str]] = []
 
     class Result:

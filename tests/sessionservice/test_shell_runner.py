@@ -13,6 +13,7 @@ from pathlib import Path
 
 import pytest
 
+from panopticon.core.dirs import _secrets_dir
 from panopticon.core.models import LifecyclePhase
 from panopticon.sessionservice.runner import Runner
 from panopticon.sessionservice.shell_runner import ShellRunner, _minify_shell
@@ -297,7 +298,7 @@ def test_spawn_applies_no_shipped_defaults_without_a_dedicated_socket() -> None:
     tmux_calls = [c for c in rec.calls if c[0] == "tmux"]
     command = tmux_calls[-1][-1]
     normalized = command.replace(sys.executable, "<python>")
-    normalized = normalized.replace(str(Path.home() / ".config/panopticon/secrets"), "<secrets>")
+    normalized = normalized.replace(str(_secrets_dir()), "<secrets>")
     assert hashlib.sha256(normalized.encode()).hexdigest() == (
         "6d9acd7311bdefc7e6bf81db1d8e1c5605788e4cedefcd0cc008cd81988d0d08"
     )

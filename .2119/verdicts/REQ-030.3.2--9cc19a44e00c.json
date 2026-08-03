@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.3.2--9cc19a44e00c",
+  "requirementId": "REQ-030.3.2",
+  "hash": "9cc19a44e00c",
+  "verdict": "pass",
+  "summary": "Container, shell, dashboard, service, and runner paths verify their first tmux touch carries the full history-limit config, and -f precedes new-session/pane creation.",
+  "timestamp": "2026-08-03T04:00:00.437Z"
+}

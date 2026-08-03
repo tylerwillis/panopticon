@@ -7,6 +7,7 @@ and closed, so we can assert the connection's lifetime *is* the liveness signal 
 from __future__ import annotations
 
 from collections.abc import Callable, Iterator
+from itertools import pairwise
 from typing import Any
 
 import httpx
@@ -163,3 +164,34 @@ def test_main_reads_env_and_serves(monkeypatch: pytest.MonkeyPatch) -> None:
     assert seen_url == ["http://svc:8000"]
     assert client.live_connections == 2  # held, dropped, re-opened
     assert naps == [0.5]  # PANOPTICON_RECONNECT_BACKOFF threaded through
+
+
+# 2119: REQ-035.17.1
+def test_main_treats_runner_pinned_empty_optional_values_as_absent(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from panopticon.sessionservice.local_runner import LocalRunner
+
+    calls: list[list[str]] = []
+
+    def record(args: list[str], **_kwargs: object) -> str:
+        calls.append(args)
+        return "%1\n" if "display-message" in args else ""
+
+    LocalRunner("http://svc:8000", run=record).spawn("t1")
+    docker_run = next(call for call in calls if call[:2] == ["docker", "run"])
+    emitted = {
+        item.split("=", 1)[0]: item.split("=", 1)[1]
+        for flag, item in pairwise(docker_run)
+        if flag == "--env"
+    }
+    for name, value in emitted.items():
+        monkeypatch.setenv(name, value)
+    client = _FakeClient()
+
+    entrypoint.main(
+        client_factory=lambda _url: client,  # type: ignore[arg-type,return-value]
+        running=lambda: False,
+    )
+
+    assert "set_slug" not in client.calls

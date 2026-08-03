@@ -59,7 +59,18 @@ def _redact_stream_chunk(
     if not configured:
         return data, b""
     pattern = re.compile(b"|".join(re.escape(token) for token in configured))
-    safe_end = len(data) if not more_body else max(0, len(data) - max(map(len, configured)) + 1)
+    held = 0
+    if more_body:
+        held = max(
+            (
+                size
+                for token in configured
+                for size in range(1, min(len(data), len(token) - 1) + 1)
+                if data.endswith(token[:size])
+            ),
+            default=0,
+        )
+    safe_end = len(data) - held
     output = bytearray()
     consumed = 0
     for matched in pattern.finditer(data):

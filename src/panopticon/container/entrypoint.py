@@ -136,8 +136,10 @@ def main(
         env["PANOPTICON_TASK_ID"],
         container_id=env["PANOPTICON_CONTAINER_ID"],
         runner_id=env.get("PANOPTICON_RUNNER_ID"),
-        proposed_slug=env.get("PANOPTICON_PROPOSED_SLUG"),
+        proposed_slug=env.get("PANOPTICON_PROPOSED_SLUG") or None,
         running=running if running is not None else _until_signalled(),
-        reconnect_backoff=float(env.get("PANOPTICON_RECONNECT_BACKOFF", RECONNECT_BACKOFF_SECONDS)),
+        reconnect_backoff=float(
+            env.get("PANOPTICON_RECONNECT_BACKOFF") or RECONNECT_BACKOFF_SECONDS
+        ),
         sleep=sleep,
     )

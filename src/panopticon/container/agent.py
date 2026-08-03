@@ -73,6 +73,8 @@ def main(
     service_url = env["PANOPTICON_SERVICE_URL"]
     if service_token := environment_token():
         env["PANOPTICON_SERVICE_AUTH_TOKEN"] = service_token
+    else:
+        env.pop("PANOPTICON_SERVICE_AUTH_TOKEN", None)
     client = client_factory(service_url)
     harness = get_harness(env.get("PANOPTICON_HARNESS"))
     home = home or Path.home()

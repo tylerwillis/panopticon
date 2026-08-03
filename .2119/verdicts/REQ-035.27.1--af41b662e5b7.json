@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.27.1--af41b662e5b7",
+  "requirementId": "REQ-035.27.1",
+  "hash": "af41b662e5b7",
+  "verdict": "pass",
+  "summary": "Tests require resolved enforced/disabled/permissive startup messages, WARNING level for both non-enforced modes, real-process enforced reporting, and documentation naming only enforced as steady state.",
+  "timestamp": "2026-08-03T04:01:40.188Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.32.1--300f39e18c14",
+  "requirementId": "REQ-035.32.1",
+  "hash": "300f39e18c14",
+  "verdict": "pass",
+  "summary": "Three-generation overlap proves restarted Python and shell clients select the final appended write token, then both remain authenticated after every old generation is removed.",
+  "timestamp": "2026-08-03T04:01:44.708Z"
+}

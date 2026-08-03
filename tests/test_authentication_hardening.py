@@ -45,7 +45,16 @@ def test_mcp_redaction_masks_tokens_across_every_chunk_boundary() -> None:
         assert pending == b""
 
 
-@pytest.mark.parametrize("mode", [0o100, 0o601, 0o610, 0o640, 0o644, 0o660, 0o666])
+def test_mcp_redaction_does_not_delay_a_complete_nonsecret_sse_event() -> None:
+    event = b"event: ping\ndata: safe\n\n"
+    output, pending = _redact_stream_chunk(
+        event, configured=(b"longer-secret-token", b"secret-token"), more_body=True
+    )
+    assert output == event
+    assert pending == b""
+
+
+@pytest.mark.parametrize("mode", [0o640, 0o620, 0o610, 0o604, 0o602, 0o601])
 def test_credential_loader_rejects_group_or_other_permissions(tmp_path: Path, mode: int) -> None:
     # 2119: REQ-035.34.1
     credential = tmp_path / "auth.json"
@@ -58,15 +67,16 @@ def test_credential_loader_rejects_group_or_other_permissions(tmp_path: Path, mo
 
 
 @pytest.mark.parametrize("runner_type", [LocalRunner, ShellRunner])
+@pytest.mark.parametrize("mode", [0o640, 0o620, 0o610, 0o604, 0o602, 0o601])
 def test_runner_preflight_rejects_insecure_credential_permissions(
-    tmp_path: Path, runner_type: type[LocalRunner] | type[ShellRunner]
+    tmp_path: Path, runner_type: type[LocalRunner] | type[ShellRunner], mode: int
 ) -> None:
     # 2119: REQ-035.34.1
     credential = tmp_path / "auth.json"
     credential.write_text(
         json.dumps({"read": ["private-reader-token"], "write": ["private-writer-token"]})
     )
-    credential.chmod(0o644)
+    credential.chmod(mode)
     runner = runner_type(
         "http://service", auth_file=credential.name, secrets_dir=tmp_path, run=lambda *_a, **_k: ""
     )
@@ -106,6 +116,35 @@ def test_credential_loader_rejects_a_foreign_owner(
     monkeypatch.setattr(auth_module.os, "fstat", foreign_owner)
     with pytest.raises(ValueError, match="authentication credential"):
         load_tokens(credential.name, secrets_dir=tmp_path)
+
+
+@pytest.mark.parametrize("runner_type", [LocalRunner, ShellRunner])
+def test_runner_preflight_rejects_a_foreign_credential_owner(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    runner_type: type[LocalRunner] | type[ShellRunner],
+) -> None:
+    # 2119: REQ-035.34.1
+    import panopticon.taskservice.auth as auth_module
+
+    credential = tmp_path / "auth.json"
+    credential.write_text(
+        json.dumps({"read": ["private-reader-token"], "write": ["private-writer-token"]})
+    )
+    credential.chmod(0o600)
+    original_fstat = auth_module.os.fstat
+
+    def foreign_owner(fd: int) -> os.stat_result:
+        values = list(original_fstat(fd))
+        values[4] += 1
+        return os.stat_result(values)
+
+    monkeypatch.setattr(auth_module.os, "fstat", foreign_owner)
+    runner = runner_type(
+        "http://service", auth_file=credential.name, secrets_dir=tmp_path, run=lambda *_a, **_k: ""
+    )
+    with pytest.raises(ValueError, match="authentication credential"):
+        runner.validate_configuration()
 
 
 def test_non_ascii_operator_token_header_is_rejected_without_server_error(
@@ -635,7 +674,12 @@ def test_root_path_does_not_downgrade_write_only_routes(tmp_path: Path) -> None:
     with TestClient(app, root_path="/proxy") as client:
         # 2119: REQ-035.10.1
         assert client.get("/proxy/healthz").status_code == 200
-        for method, path in [("GET", "/proxy/tasks/missing/live"), ("GET", "/proxy/mcp")]:
+        for method, path in [
+            ("GET", "/proxy/tasks/missing/live"),
+            ("GET", "/proxy/mcp"),
+            ("POST", "/proxy/mcp"),
+            ("DELETE", "/proxy/mcp"),
+        ]:
             reader = client.request(
                 method, path, headers={"Authorization": "Bearer read-token-long"}
             )
@@ -653,11 +697,21 @@ def test_root_path_does_not_downgrade_write_only_routes(tmp_path: Path) -> None:
         _home_workflows=tmp_path / "workflows",
     )
     with TestClient(root_app, root_path="/") as client:
-        for path in ["/tasks/missing/live", "/mcp"]:
+        for method, path in [
+            ("GET", "/tasks/missing/live"),
+            ("GET", "/mcp"),
+            ("POST", "/mcp"),
+            ("DELETE", "/mcp"),
+        ]:
             assert (
-                client.get(path, headers={"Authorization": "Bearer read-token-long"}).status_code
+                client.request(
+                    method, path, headers={"Authorization": "Bearer read-token-long"}
+                ).status_code
                 == 401
             )
+            assert client.request(
+                method, path, headers={"Authorization": "Bearer write-token-long"}
+            ).status_code not in {401, 403}
     for root_path, route in [("/task", "/tasks/missing/live"), ("/m", "/mcp")]:
         collision_app = build_app(
             db="sqlite://",
