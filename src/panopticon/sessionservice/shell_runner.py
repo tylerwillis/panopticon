@@ -268,6 +268,7 @@ class ShellRunner(Runner):
                 'if [ -n "${TMUX:-}" ]; then nohup sh -c '
                 + shlex.quote(
                     f"while {session_probe} 2>/dev/null; do sleep 1; done; "
+                    'pkill -TERM -P "$1" 2>/dev/null; '
                     'kill "$1" 2>/dev/null; '
                     '[ -z "$2" ] || rm -f "$2"'
                 )

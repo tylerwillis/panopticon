@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.5.1--ef0821194049",
+  "requirementId": "REQ-030.5.1",
+  "hash": "ef0821194049",
+  "verdict": "pass",
+  "summary": "Fresh review verified exact socketless command streams contain no defaults.",
+  "timestamp": "2026-08-03T12:45:31.325Z"
+}
