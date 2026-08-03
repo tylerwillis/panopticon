@@ -589,9 +589,15 @@ class Spawner:
         container could clean up)."""
         if task["state"] not in TERMINAL_LABELS:
             return
-        # The backend owns runtime credential snapshots as well as the process/session. Its stop is
-        # idempotent, so this handles both a still-running terminal task and one that exited itself.
-        self._runner_for(task).stop(f"panopticon-{task['id']}")
+        backend = self._runner_for(task)
+        if backend is self._runner and not backend.is_running(task["id"]):
+            # The container has already exited. Credentials cannot remain on disk, but preserve the
+            # stopped container and pane until the next spawn so operators retain post-mortem output.
+            self._runner.cleanup_runtime_credentials(task["id"])
+        else:
+            # A live container (or a shell task) must be stopped before its workspace disappears;
+            # LocalRunner.stop removes every credential snapshot in its finally path.
+            backend.stop(f"panopticon-{task['id']}")
         if task.get("claimed_by") == self._runner_id:
             with contextlib.suppress(httpx.HTTPError):
                 self._client.release(task["id"])

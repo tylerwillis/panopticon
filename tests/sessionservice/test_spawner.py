@@ -108,6 +108,9 @@ class _FakeRunner:
     def stop(self, container_id: str) -> None:
         pass
 
+    def cleanup_runtime_credentials(self, task_id: str) -> None:
+        pass
+
     def delete_workspace_contents(self, path: str) -> None:
         pass
 

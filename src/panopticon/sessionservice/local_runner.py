@@ -201,6 +201,15 @@ class LocalRunner(Runner):
         for path in self._snapshot_dir.glob(f"panopticon-service-auth-{task_id}-*.json"):
             path.unlink(missing_ok=True)
 
+    def cleanup_runtime_credentials(self, task_id: str) -> None:
+        """Remove only a task's host-side authentication snapshots.
+
+        Terminal cleanup uses this after a container has already exited so its container and tmux
+        session remain available for post-mortem inspection. Replacement spawn still removes those
+        stale runtime resources before starting a new container.
+        """
+        self._remove_auth_snapshots(task_id)
+
     def spawn(
         self,
         task_id: str,
