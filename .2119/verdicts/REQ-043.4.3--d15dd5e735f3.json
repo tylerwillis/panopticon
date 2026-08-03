@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-043.4.3--d15dd5e735f3",
+  "requirementId": "REQ-043.4.3",
+  "hash": "d15dd5e735f3",
+  "verdict": "pass",
+  "summary": "Annotated test proves daemon-down deferrals attempt neither image build nor docker run, preserve count across an outage beyond the reset window, and resume from the prior budget.",
+  "timestamp": "2026-08-03T08:09:23.088Z"
+}

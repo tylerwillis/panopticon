@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.2.1--e0aa483db2ef",
-  "requirementId": "REQ-028.2.1",
-  "hash": "e0aa483db2ef",
-  "verdict": "pass",
-  "summary": "The service-level test reads the core artifacts skill and exact-matches fixed guidance that explains both put_artifact MCP and REST PUT mechanisms, so omission of either is rejected.",
-  "timestamp": "2026-08-02T05:49:52.191Z"
-}

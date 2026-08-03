@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-039.1.1--df411caa6893",
-  "requirementId": "REQ-039.1.1",
-  "hash": "df411caa6893",
-  "verdict": "pass",
-  "summary": "Tests reject non-finite or non-greater timeouts, independently sourced configuration, and omission or misuse on either stream.",
-  "timestamp": "2026-08-03T00:01:04.693Z"
-}

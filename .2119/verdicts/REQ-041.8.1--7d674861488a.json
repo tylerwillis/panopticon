@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-041.8.1--7d674861488a",
-  "requirementId": "REQ-041.8.1",
-  "hash": "7d674861488a",
-  "verdict": "pass",
-  "summary": "Parses Codex config and requires developer_instructions to equal the complete shared overview, rejecting omission, relocation, truncation, alteration, or loss of orientation/artifact norms.",
-  "timestamp": "2026-08-03T04:15:42.341Z"
-}

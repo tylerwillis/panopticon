@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.1.3--671f263c9754",
-  "requirementId": "REQ-026.1.3",
-  "hash": "671f263c9754",
-  "verdict": "pass",
-  "summary": "Real-service pass tests require all dependencies terminal, accept custom terminal states, then claim, spawn, and deliver the configured prompt.",
-  "timestamp": "2026-08-01T00:38:24.152Z"
-}

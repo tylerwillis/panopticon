@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-006.5.2--78fea691602e",
-  "requirementId": "REQ-006.5.2",
-  "hash": "78fea691602e",
-  "verdict": "pass",
-  "summary": "Sol: Empty and comprehensively enumerated non-down latest snapshots must leave the screen stack unchanged and never call push_screen.",
-  "timestamp": "2026-07-31T23:18:04.516Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-031.3.4--494002552519",
-  "requirementId": "REQ-031.3.4",
-  "hash": "494002552519",
-  "verdict": "pass",
-  "summary": "Shell spawn proceeds while Docker is unreachable, and shell heal never consults the reachability probe.",
-  "timestamp": "2026-08-01T00:38:27.182Z"
-}

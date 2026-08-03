@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.12.1--0c2f9b2a9aa2",
-  "requirementId": "REQ-028.12.1",
-  "hash": "0c2f9b2a9aa2",
-  "verdict": "pass",
-  "summary": "All built-in 2119 review skills are enumerated; tests reject missing Codex sandbox bypass, editable prompts, and any post-run git-status change before publication.",
-  "timestamp": "2026-08-02T06:38:16.932Z"
-}

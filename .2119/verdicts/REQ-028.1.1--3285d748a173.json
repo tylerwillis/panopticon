@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.1.1--3285d748a173",
-  "requirementId": "REQ-028.1.1",
-  "hash": "3285d748a173",
-  "verdict": "pass",
-  "summary": "Tests reject missing artifacts skills across all discovered, skill-less, and workflow-skilled tasks, verify publishing behavior, and reject replacement collisions.",
-  "timestamp": "2026-08-02T05:49:25.017Z"
-}

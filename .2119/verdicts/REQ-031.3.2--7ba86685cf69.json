@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-031.3.2--7ba86685cf69",
-  "requirementId": "REQ-031.3.2",
-  "hash": "7ba86685cf69",
-  "verdict": "pass",
-  "summary": "The orphan-heal test proves daemon outage causes no respawn and leaves the crash-loop count at zero.",
-  "timestamp": "2026-08-01T00:38:26.235Z"
-}

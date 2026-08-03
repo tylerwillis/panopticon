@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-031.3.3--df815a60cd21",
-  "requirementId": "REQ-031.3.3",
-  "hash": "df815a60cd21",
-  "verdict": "pass",
-  "summary": "The orphan-heal outage test proves deferral emits no lifecycle phase, including failed.",
-  "timestamp": "2026-08-01T00:38:26.706Z"
-}

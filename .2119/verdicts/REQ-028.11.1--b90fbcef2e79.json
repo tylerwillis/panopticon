@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.11.1--b90fbcef2e79",
-  "requirementId": "REQ-028.11.1",
-  "hash": "b90fbcef2e79",
-  "verdict": "pass",
-  "summary": "The service-level test exactly verifies all three instruction conjuncts and rejects omission or weakening of document-type scope, the GitHub URL exception, external-URL routing, and p-versus-a hotkey behavior.",
-  "timestamp": "2026-08-02T05:49:25.783Z"
-}

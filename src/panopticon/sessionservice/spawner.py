@@ -35,6 +35,10 @@ from panopticon.sessionservice.spawn import cleanup_workspace, prepare_workspace
 _log = logging.getLogger(__name__)
 
 
+class _SpawnInfrastructureFailure(RuntimeError):
+    """A Docker/image command failure eligible for bounded pre-session recovery."""
+
+
 def _run_repo_hook(hook_file: str, task_id: str, repo_name: str, workspace: str) -> None:
     """Run a repo's pre-launch hook on the host (blocking). Raises on nonzero exit.
 
@@ -131,6 +135,9 @@ class Spawner:
         #: task_id → (respawns in the current burst, monotonic time of the last respawn), the
         #: crash-loop guard state for :meth:`heal`.
         self._respawns: dict[str, tuple[int, float]] = {}
+        #: Tasks whose latest respawn failed before establishing a session. Time spent in a failed
+        #: command is not survival, so these counts cannot receive the survivor-window reset.
+        self._pre_session_failures: set[str] = set()
         #: Whether the Docker daemon is currently reachable (REQ-031.3) — checked before claiming/
         #: respawning a non-shell task, so an unreachable daemon (environmental) defers the attempt
         #: instead of burning that task's crash-loop budget or reporting it ``failed``. Defaults to
@@ -148,8 +155,9 @@ class Spawner:
 
         Reports each spawn phase to the task service as it goes (``CLAIMING`` → ``PREPARING`` →
         ``BUILDING`` → ``STARTING`` → ``AWAITING``) so the dashboard can surface the steps to becoming
-        live; a step raising is reported as ``FAILED`` (with the error) before re-raising, so the
-        host daemon's per-task isolation still applies but the failure is visible, not silent.
+        live. Docker/image command failures before tmux establishment are deferred for bounded
+        recovery; other failures are reported as ``FAILED`` before being re-raised, so the host
+        daemon's per-task isolation still applies without hiding actionable diagnostics.
 
         An unreachable Docker daemon is environmental, not this task's fault (REQ-031.3): a
         non-shell task is left unclaimed so a later pass retries once the daemon returns, with no
@@ -168,6 +176,8 @@ class Spawner:
             if exc.response.status_code == 409:
                 return None  # another runner claimed it first
             raise
+        self._respawns.pop(task["id"], None)  # every fresh claim starts a new respawn budget
+        self._pre_session_failures.discard(task["id"])
         return self._spawn(dict(task, claimed_by=self._runner_id))
 
     def _spawn(self, task: JsonObj) -> str:
@@ -176,19 +186,51 @@ class Spawner:
         runner already holds). Routes on the workflow's ``runner_type``: a ``"shell"`` workflow runs
         its script in a host tmux session (no clone, no image); otherwise the Docker container path.
 
-        Reports each phase (``CLAIMING`` → … → ``AWAITING``); a step raising is reported as
-        ``FAILED`` (with the error) before re-raising, so the host daemon's per-task isolation still
-        applies but the failure is visible, not silent."""
+        Reports each phase (``CLAIMING`` → … → ``AWAITING``). For a container task, a Docker image
+        or container-start command failure before its tmux session exists clears the in-progress
+        lifecycle so the claimed task reads ``down`` and the ordinary bounded heal path retries it.
+        The last permitted retry latches ``FAILED`` so a persistent failure cannot restart after
+        the survivor window. Failures outside that infrastructure segment, failures after the
+        session exists, and shell failures retain the existing ``FAILED`` behavior. The exception
+        is always re-raised so the host daemon's per-task isolation still applies."""
         task_id = task["id"]
+        is_shell: bool | None = None
         try:
             _log.info("task %s: claiming", task_id)
             self._report(task_id, LifecyclePhase.CLAIMING)
             repo = self._client.get_repo(task["repo_id"])
-            if self._executions.is_shell(task["workflow"]):
+            is_shell = self._executions.is_shell(task["workflow"])
+            if is_shell:
                 return self._spawn_shell(task, repo)
             return self._spawn_container(task, repo)
         except Exception as exc:
-            self._report(task_id, LifecyclePhase.FAILED, detail=str(exc))
+            recoverable = is_shell is False and isinstance(exc, _SpawnInfrastructureFailure)
+            session_established = True
+            if recoverable:
+                with contextlib.suppress(Exception):
+                    session_established = self._runner.has_session(task_id)
+            respawn_count, _ = self._respawns.get(task_id, (0, 0.0))
+            budget_exhausted = respawn_count >= self._max_respawns
+            if recoverable and not session_established and not budget_exhausted:
+                self._pre_session_failures.add(task_id)
+                if respawn_count:
+                    self._respawns[task_id] = (respawn_count, self._now())
+                _log.error(
+                    "task %s: spawn infrastructure failed before tmux session — deferring: %s",
+                    task_id,
+                    exc,
+                )
+                with contextlib.suppress(httpx.HTTPError):
+                    self._client.clear_lifecycle(task_id)
+            else:
+                detail = str(exc)
+                if recoverable and not session_established and budget_exhausted:
+                    self._pre_session_failures.add(task_id)
+                    self._respawns[task_id] = (respawn_count, self._now())
+                    detail = (
+                        f"{detail} (respawn budget exhausted after {self._max_respawns} attempts)"
+                    )
+                self._report(task_id, LifecyclePhase.FAILED, detail=detail)
             raise
 
     def _prepare_task_dir(self, task: JsonObj, repo: JsonObj, *, clone: bool) -> str:
@@ -271,27 +313,33 @@ class Spawner:
             repo.get("name", repo["id"]),
         )
         self._report(task_id, LifecyclePhase.BUILDING)
-        self._images.build_base_if_missing(verbose=True)
+        try:
+            self._images.build_base_if_missing(verbose=True)
+        except subprocess.CalledProcessError as exc:
+            raise _SpawnInfrastructureFailure(str(exc)) from exc
         harness = get_harness(task.get("harness"))
         image = self._compose_image(harness, task["workflow"], repo)
-        return self._runner.spawn(
-            task_id,
-            env_file=repo.get("env_file"),
-            workspace=workspace,
-            image=image,
-            docker_in_docker=bool((repo.get("capabilities") or {}).get("docker_in_docker")),
-            initial_prompt=task.get(
-                "initial_prompt"
-            ),  # passed as a CLI arg to the agent on the first run
-            turn=task.get("turn"),  # agent's turn → INTERRUPT_PROMPT on respawn
-            starting_model=task.get(
-                "starting_model"
-            ),  # model selection passed to the agent CLI on first launch
-            harness=task.get("harness"),  # which agent CLI the launcher runs (None = claude)
-            config_mount=f"{CONTAINER_HOME}/{harness.config_dirname}",
-            credential_dir=repo.get("credential_dir"),  # shared credential mount (ADR 0007)
-            progress=lambda phase: self._report(task_id, phase),  # STARTING then AWAITING
-        )
+        try:
+            return self._runner.spawn(
+                task_id,
+                env_file=repo.get("env_file"),
+                workspace=workspace,
+                image=image,
+                docker_in_docker=bool((repo.get("capabilities") or {}).get("docker_in_docker")),
+                initial_prompt=task.get(
+                    "initial_prompt"
+                ),  # passed as a CLI arg to the agent on the first run
+                turn=task.get("turn"),  # agent's turn → INTERRUPT_PROMPT on respawn
+                starting_model=task.get(
+                    "starting_model"
+                ),  # model selection passed to the agent CLI on first launch
+                harness=task.get("harness"),  # which agent CLI the launcher runs (None = claude)
+                config_mount=f"{CONTAINER_HOME}/{harness.config_dirname}",
+                credential_dir=repo.get("credential_dir"),  # shared credential mount (ADR 0007)
+                progress=lambda phase: self._report(task_id, phase),  # STARTING then AWAITING
+            )
+        except subprocess.CalledProcessError as exc:
+            raise _SpawnInfrastructureFailure(str(exc)) from exc
 
     def _spawn_shell(self, task: JsonObj, repo: JsonObj) -> str:
         """The shell path: run the workflow's ``shell_script`` in a host tmux session — no image, no
@@ -388,7 +436,11 @@ class Spawner:
         (a respawn that survived :data:`RESPAWN_RESET_SECONDS` starts a fresh budget). Read-only —
         :meth:`heal` is what records a respawn."""
         count, last = self._respawns.get(task_id, (0, 0.0))
-        if count and now - last >= self._respawn_reset:
+        if (
+            count
+            and task_id not in self._pre_session_failures
+            and now - last >= self._respawn_reset
+        ):
             return 0  # survived long enough since the last respawn → a fresh episode, not a loop
         return count
 
@@ -448,6 +500,7 @@ class Spawner:
         task_id = task["id"]
         if task["state"] in TERMINAL_LABELS and task.get("claimed_by") == self._runner_id:
             self._respawns.pop(task_id, None)  # our task is done — forget any crash-loop tracking
+            self._pre_session_failures.discard(task_id)
         if not self._is_orphan(task):
             return None  # not ours / terminal / a session is up — nothing to heal
         if not self._daemon_reachable():
@@ -471,7 +524,9 @@ class Spawner:
         _log.warning(
             "self-healing orphaned task %s (no tmux session) — respawn %d", task_id, count + 1
         )
-        return self._spawn(task)
+        result = self._spawn(task)
+        self._pre_session_failures.discard(task_id)
+        return result
 
     def startup_reclaim(self, tasks: list[JsonObj]) -> None:
         """Release claims for our tasks whose containers aren't running — the restart reset.
@@ -490,7 +545,8 @@ class Spawner:
         Best-effort per task: a failed release is silently skipped — :meth:`heal` picks it
         up on the next tick, fast but functional. Called once by
         :meth:`~panopticon.sessionservice.host.HostDaemon.run` on the first successful task
-        fetch.
+        fetch. Tasks already reporting ``failed`` stay claimed so neither launcher diagnostics nor
+        an exhausted infrastructure-failure latch is cleared without an explicit claim release.
 
         Shell tasks are left claimed: releasing one would let :meth:`spawn_one` re-run its script
         (the unclaimed-spawn path), but a shell script is run **once** — its exit is completion, not
@@ -501,6 +557,8 @@ class Spawner:
                 continue
             if task["state"] in TERMINAL_LABELS:
                 continue
+            if task.get("container_status") == ContainerStatus.FAILED.value:
+                continue  # preserve launcher/budget diagnostics until explicit claim release
             if self._executions.is_shell(task.get("workflow")):
                 continue  # never auto-respawn a shell task — leave it claimed (reconciles to `down`)
             if self._runner_for(task).is_running(task["id"]):
@@ -550,7 +608,10 @@ class Spawner:
         layers = [layer for layer in layers if layer.strip()]
         if not layers:
             return None
-        return self._images.build(harness.name, workflow, repo["id"], layers, verbose=True)
+        try:
+            return self._images.build(harness.name, workflow, repo["id"], layers, verbose=True)
+        except subprocess.CalledProcessError as exc:
+            raise _SpawnInfrastructureFailure(str(exc)) from exc
 
 
 def spawnable_tasks(
