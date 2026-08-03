@@ -201,6 +201,7 @@ class ShellRunner(Runner):
             f"{self._service_url}/tasks/{task_id}/live"
             f"?container_id={session}&runner_id={self._runner_id}"
         )
+        session_probe = shlex.join(self._tmux("has-session", "-t", session))
         lines = []
         # Repo credentials are caller-controlled. Load literal NAME=VALUE records without sourcing
         # host shell code, then pin every reserved control-plane value below.
@@ -260,20 +261,19 @@ class ShellRunner(Runner):
                 "trap '_panopticon_cleanup' EXIT",
                 "trap '_panopticon_cleanup; exit 129' HUP INT TERM",
                 # tmux may tear down its pane without giving the pane shell a catchable signal.
-                # Keep a sibling watchdog alive long enough to observe that shell disappearing;
+                # Keep a nohup watchdog alive long enough to observe the tmux session disappearing;
                 # it closes the liveness child and removes the private snapshot even when neither
                 # shell trap runs.  Normal exits still use the traps above, making both paths
                 # idempotent.
-                "_panopticon_parent_pid=$$",
-                "(trap '' HUP INT TERM; "
-                'while kill -0 "$_panopticon_parent_pid" 2>/dev/null; do sleep 1; done; '
-                'kill "$_panopticon_live_pid" 2>/dev/null; '
-                + (
-                    "rm -f " + shlex.quote(str(auth_snapshot)) + "; "
-                    if auth_snapshot is not None
-                    else ""
+                "nohup sh -c "
+                + shlex.quote(
+                    f"while {session_probe} 2>/dev/null; do sleep 1; done; "
+                    'kill "$1" 2>/dev/null; '
+                    '[ -z "$2" ] || rm -f "$2"'
                 )
-                + ") </dev/null >/dev/null 2>&1 &",
+                + ' _ "$_panopticon_live_pid" '
+                + shlex.quote(str(auth_snapshot) if auth_snapshot is not None else "")
+                + " </dev/null >/dev/null 2>&1 &",
             ]
         )
         lines.append(script)

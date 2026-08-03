@@ -109,9 +109,9 @@ def test_spawn_holds_a_liveness_registration_open_in_the_background() -> None:
     assert "--no-buffer" in command and command.count(" &\n") >= 1  # backgrounded, streaming GET
     assert "trap '_panopticon_cleanup' EXIT" in command
     assert "trap '_panopticon_cleanup; exit 129' HUP INT TERM" in command
-    assert "_panopticon_parent_pid=$$" in command
-    assert 'while kill -0 "$_panopticon_parent_pid"' in command
-    assert 'kill "$_panopticon_live_pid"' in command
+    assert "nohup sh -c" in command
+    assert "tmux -L panopticon has-session -t panopticon-t1" in command
+    assert '"$_panopticon_live_pid"' in command
     # the registration is established before the workflow script runs
     assert command.index("/live?") < command.index("echo hi")
 
@@ -305,7 +305,7 @@ def test_spawn_applies_no_shipped_defaults_without_a_dedicated_socket() -> None:
     normalized = command.replace(sys.executable, "<python>")
     normalized = normalized.replace(str(_secrets_dir()), "<secrets>")
     assert hashlib.sha256(normalized.encode()).hexdigest() == (
-        "03a0afe0b18dc1300db1e43816c7800371f53df8b43511fd8bf89e35dca09583"
+        "42a7ef01f29529aef84d48fa58fdd2bb11a0cd2e6d956f816fdc8cdb8b350572"
     )
     assert tmux_calls == [
         ["tmux", "kill-session", "-t", "panopticon-t1"],
