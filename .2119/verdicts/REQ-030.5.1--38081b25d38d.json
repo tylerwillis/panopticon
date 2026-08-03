@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.5.1--38081b25d38d",
+  "requirementId": "REQ-030.5.1",
+  "hash": "38081b25d38d",
+  "verdict": "pass",
+  "summary": "Both runner types exercise tmux_socket=None and reject any defaults config flag on ambient-server commands.",
+  "timestamp": "2026-08-03T02:05:01.904Z"
+}

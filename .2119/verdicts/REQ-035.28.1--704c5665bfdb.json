@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.28.1--704c5665bfdb",
+  "requirementId": "REQ-035.28.1",
+  "hash": "704c5665bfdb",
+  "verdict": "pass",
+  "summary": "Local and shell runner tests cover missing, directory, FIFO, and malformed references, assert no Docker/tmux calls, and verify absent/non-file paths remain unchanged.",
+  "timestamp": "2026-08-03T02:05:28.375Z"
+}

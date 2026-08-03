@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.21.1--af8a7f588b21",
+  "requirementId": "REQ-035.21.1",
+  "hash": "af8a7f588b21",
+  "verdict": "pass",
+  "summary": "The rendered authenticated Pi operation is executed with a fake curl and proves the token appears only in stdin config, never in spawned argv.",
+  "timestamp": "2026-08-03T02:05:15.215Z"
+}

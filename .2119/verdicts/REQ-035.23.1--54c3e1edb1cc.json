@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.23.1--54c3e1edb1cc",
+  "requirementId": "REQ-035.23.1",
+  "hash": "54c3e1edb1cc",
+  "verdict": "pass",
+  "summary": "HEAD test proves a read token reaches a protected HEAD-capable route with 200 while the unauthenticated nearest counterexample gets the generic 401.",
+  "timestamp": "2026-08-03T02:05:26.936Z"
+}

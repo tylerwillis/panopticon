@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.34.1--665d6c81d1eb",
+  "requirementId": "REQ-035.34.1",
+  "hash": "665d6c81d1eb",
+  "verdict": "pass",
+  "summary": "PASS: tests reject foreign ownership and representative group/other read, write, and execute bits at startup, with runner preflight checks for both runner types and private-owner controls.",
+  "timestamp": "2026-08-03T02:08:04.079Z"
+}

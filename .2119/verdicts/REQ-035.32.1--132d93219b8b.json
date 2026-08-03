@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.32.1--132d93219b8b",
+  "requirementId": "REQ-035.32.1",
+  "hash": "132d93219b8b",
+  "verdict": "pass",
+  "summary": "PASS: after append, restarted loader, Python client, and shell curl path select the final token and remain authorized after old generations are removed.",
+  "timestamp": "2026-08-03T02:08:03.612Z"
+}

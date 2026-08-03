@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.4.1--a33e2c9b291e",
+  "requirementId": "REQ-035.4.1",
+  "hash": "a33e2c9b291e",
+  "verdict": "pass",
+  "summary": "The OpenAPI-derived operation matrix classifies all mutations and both live GETs, requiring identical 401 rejection and no state change for every read token.",
+  "timestamp": "2026-08-03T02:05:03.773Z"
+}

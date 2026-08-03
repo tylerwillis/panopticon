@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.10.1--714f2214597c",
+  "requirementId": "REQ-035.10.1",
+  "hash": "714f2214597c",
+  "verdict": "pass",
+  "summary": "PASS: unauthenticated health tests assert status 200 and the exact existing {'status': 'ok'} payload, including ASGI root-path access.",
+  "timestamp": "2026-08-03T02:08:00.720Z"
+}

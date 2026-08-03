@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.6.1--1068f39d5846",
+  "requirementId": "REQ-035.6.1",
+  "hash": "1068f39d5846",
+  "verdict": "pass",
+  "summary": "Mounted MCP requests explicitly send tool-call and resource-read JSON-RPC payloads with a read token and require authentication rejection.",
+  "timestamp": "2026-08-03T02:05:04.718Z"
+}

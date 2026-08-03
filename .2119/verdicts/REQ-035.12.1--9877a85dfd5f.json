@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.12.1--9877a85dfd5f",
+  "requirementId": "REQ-035.12.1",
+  "hash": "9877a85dfd5f",
+  "verdict": "pass",
+  "summary": "No-reference startup exercises the enumerated REST surface and GET/POST/DELETE MCP cases and rejects any premature generic authentication failure.",
+  "timestamp": "2026-08-03T02:05:11.389Z"
+}

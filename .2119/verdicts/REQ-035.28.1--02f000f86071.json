@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.28.1--02f000f86071",
+  "requirementId": "REQ-035.28.1",
+  "hash": "02f000f86071",
+  "verdict": "pass",
+  "summary": "PASS: LocalRunner and ShellRunner tests reject missing, directory, FIFO, and malformed references before command or healing side effects and verify paths/entries remain unchanged.",
+  "timestamp": "2026-08-03T02:08:01.638Z"
+}

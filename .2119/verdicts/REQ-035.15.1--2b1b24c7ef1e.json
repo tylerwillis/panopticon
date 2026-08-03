@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.15.1--2b1b24c7ef1e",
+  "requirementId": "REQ-035.15.1",
+  "hash": "2b1b24c7ef1e",
+  "verdict": "pass",
+  "summary": "The shared client captures ordinary GET and PUT plus task and runner liveness requests, asserting the bearer header on all six and absence from every URL.",
+  "timestamp": "2026-08-03T02:05:12.763Z"
+}

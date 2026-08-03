@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.33.1--44b878cc65d5",
+  "requirementId": "REQ-035.33.1",
+  "hash": "44b878cc65d5",
+  "verdict": "pass",
+  "summary": "Both privilege arrays reject representative lengths through the eleven-character boundary and accept exactly twelve characters at startup.",
+  "timestamp": "2026-08-03T02:05:30.760Z"
+}
