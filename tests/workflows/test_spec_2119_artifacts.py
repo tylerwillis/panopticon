@@ -127,8 +127,8 @@ code later.
 1. If `.2119.yml` is missing, check for an open adoption PR before running `npx rfc2119 init`.
 2. Write the next append-only `specs/REQ-NNN-<slug>.md` and run `npx rfc2119 lint`.
 3. Annotate a genuine test for every MUST/SHALL requirement.
-4. Run fresh-context test-honesty reviews with the workflow's configured honesty reviewer,
-   overridden when `PANOPTICON_2119_HONESTY_REVIEWER` is nonblank.
+4. Run fresh-context test-honesty reviews with
+   `codex exec --dangerously-bypass-approvals-and-sandbox -m gpt-5.6-sol`.
    The reviewer prompt must forbid edits. After each reviewer run, you MUST verify
    `git status --porcelain` is unchanged, then record every verdict.
 5. Stop only after `npx rfc2119 check` exits 0.

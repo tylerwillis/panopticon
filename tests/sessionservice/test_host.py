@@ -54,9 +54,6 @@ class _FakeRunner:
         harness: str | None = None,
         config_mount: str = "/home/panopticon/.claude",
         credential_dir: str | None = None,
-        honesty_reviewer: str | None = None,
-        reviewer_1: str | None = None,
-        reviewer_2: str | None = None,
         progress: object = None,
     ) -> str:
         self.spawned.append(task_id)

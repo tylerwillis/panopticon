@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any, TypeAlias
 
 from panopticon.harnesses.base import (
+    REVIEWER_ENV_VARS,
     ReviewerConfig,
     ReviewerDispatchError,
     parse_reviewer_config,
@@ -77,7 +78,7 @@ def resolve_reviewers(
     resolved = []
     for index, default in enumerate(defaults, 1):
         validate_reviewer_config(default, label=f"default reviewer {index}")
-        override = environ.get(f"PANOPTICON_2119_REVIEWER_{index}")
+        override = environ.get(REVIEWER_ENV_VARS[index - 1])
         resolved.append(_parse_reviewer(override) if override and override.strip() else default)
     return resolved[0], resolved[1]
 

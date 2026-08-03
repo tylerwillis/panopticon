@@ -24,6 +24,7 @@ from urllib.parse import urlsplit
 from panopticon.core.dirs import secrets_file_path
 from panopticon.core.models import LifecyclePhase
 from panopticon.harnesses import CREDENTIALS_MOUNT
+from panopticon.harnesses.base import HONESTY_REVIEWER_ENV, REVIEWER_ENV_VARS
 from panopticon.sessionservice.prefill import (
     DEFAULT_WAKE_TIMEOUT,
     prefill_pane,
@@ -310,16 +311,16 @@ class LocalRunner(Runner):
             "PANOPTICON_HARNESS": "",
             "PANOPTICON_CREDENTIALS": "",
             "PANOPTICON_DOCKER_IN_DOCKER": "",
-            "PANOPTICON_2119_HONESTY_REVIEWER": "",
-            "PANOPTICON_2119_REVIEWER_1": "",
-            "PANOPTICON_2119_REVIEWER_2": "",
+            HONESTY_REVIEWER_ENV: "",
+            REVIEWER_ENV_VARS[0]: "",
+            REVIEWER_ENV_VARS[1]: "",
             **self._extra_env,
         }
         # These are repo settings, not secrets. Render them after the env-file transport so an
         # explicit empty value also prevents a credentials file from becoming a config surface.
-        env["PANOPTICON_2119_HONESTY_REVIEWER"] = honesty_reviewer or ""
-        env["PANOPTICON_2119_REVIEWER_1"] = reviewer_1 or ""
-        env["PANOPTICON_2119_REVIEWER_2"] = reviewer_2 or ""
+        env[HONESTY_REVIEWER_ENV] = honesty_reviewer or ""
+        env[REVIEWER_ENV_VARS[0]] = reviewer_1 or ""
+        env[REVIEWER_ENV_VARS[1]] = reviewer_2 or ""
         if initial_prompt:
             # The agent launcher reads this and passes it as a positional arg to `claude` on the
             # first run (no prior session), so the agent's first action is to process the prompt.

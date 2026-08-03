@@ -51,6 +51,11 @@ class ReviewerConfig:
 
 
 SUPPORTED_REVIEWER_HARNESSES = frozenset({"claude", "codex"})
+HONESTY_REVIEWER_ENV = "PANOPTICON_2119_HONESTY_REVIEWER"
+REVIEWER_ENV_VARS = (
+    "PANOPTICON_2119_REVIEWER_1",
+    "PANOPTICON_2119_REVIEWER_2",
+)
 
 
 class ReviewerDispatchError(RuntimeError):

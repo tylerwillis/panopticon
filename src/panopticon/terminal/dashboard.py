@@ -2030,7 +2030,9 @@ class RepoFormScreen(ModalScreen["dict[str, Any] | None"]):
                 self.query_one("#field-default_model", Input).value.strip() or None
             )
             for name in self.REVIEWER_FIELDS:
-                values[name] = self.query_one(f"#field-{name}", Input).value.strip() or None
+                value = self.query_one(f"#field-{name}", Input).value.strip() or None
+                if name in self._repo or value is not None:
+                    values[name] = value
         values["env_file"] = self.query_one("#field-env_file", EnvFileField).env_file_value or None
         values["image_layer_file"] = (
             self.query_one("#field-image_layer_file", ImageLayerField).image_layer_value or None
@@ -2308,6 +2310,9 @@ class ReposScreen(_TableScreen):
                 **self._repos[repo_id].get("capabilities", {}),
                 "docker_in_docker": values["docker_in_docker"],
             }
+            reviewer_changes = {
+                name: values[name] for name in RepoFormScreen.REVIEWER_FIELDS if name in values
+            }
             try:
                 self._client.update_repo(
                     repo_id,
@@ -2316,15 +2321,13 @@ class ReposScreen(_TableScreen):
                     default_base=values["default_base"] or "main",
                     default_harness=values["default_harness"],
                     default_model=values["default_model"],
-                    honesty_reviewer=values["honesty_reviewer"],
-                    reviewer_1=values["reviewer_1"],
-                    reviewer_2=values["reviewer_2"],
                     env_file=values["env_file"] or None,
                     image_layer_file=values["image_layer_file"] or None,
                     hook_file=values["hook_file"] or None,
                     capabilities=capabilities,
                     enabled_workflows=values["enabled_workflows"],
                     disabled_workflows=values["disabled_workflows"],
+                    **reviewer_changes,
                 )
             except httpx.HTTPStatusError as exc:
                 return f"Can't update: {_detail(exc)}"
