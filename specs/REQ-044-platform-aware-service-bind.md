@@ -5,15 +5,16 @@
 The standalone task-service launcher defaults to loopback, but the integrated `panopticon start`
 and `panopticon host` path currently overrides it with an unconditional `--host 0.0.0.0`. That
 broad bind is required on native Linux because task containers reach the host through Docker's
-bridge gateway and cannot reach host loopback. On macOS, Docker Desktop can route
-`host.docker.internal` to a loopback-only host listener, so the broad bind unnecessarily exposes
+bridge gateway and cannot reach host loopback. On macOS, the supported Docker Desktop and OrbStack
+runtimes route `host.docker.internal` to servers on the Mac; the target macOS setup was also
+verified against a loopback-only host listener. The broad bind therefore unnecessarily exposes
 the service on every host interface.
 
 Integrated startup therefore selects a conservative platform-aware default while retaining an
 operator override. Selection is a static decision from the host platform identity; it does not
 probe Docker or depend on daemon state. Linux and Windows retain the compatibility bind because
-their container-to-host networking cannot be assumed to provide Docker Desktop's verified macOS
-loopback behavior. Other platforms may use the same conservative compatibility default.
+their container-to-host networking cannot be assumed to provide the supported macOS runtimes'
+verified loopback behavior. Other platforms may use the same conservative compatibility default.
 
 ## Requirements
 

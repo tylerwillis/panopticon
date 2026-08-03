@@ -40,6 +40,10 @@ paths when the operator selects another container-reachable intended interface. 
 travel over HTTP, so a broad bind is appropriate only where every reachable interface has those
 protections.
 
+On macOS, both OrbStack and Docker Desktop provide the `host.docker.internal` route that lets task
+containers reach the loopback-bound service. Panopticon does not probe which runtime is active;
+the conservative Darwin default is the same for both.
+
 Authentication mode is reported at startup; disabled and permissive modes produce warnings.
 Disabled mode exists only for the staged live-fleet migration below.
 
