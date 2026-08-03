@@ -124,7 +124,7 @@ def _install_log_redaction(tokens: tuple[str, ...]) -> None:
         _original_log_record_factory = logging.getLogRecordFactory()
         logging.setLogRecordFactory(_redacting_log_record_factory)
         _original_logger_make_record = logging.Logger.makeRecord
-        setattr(logging.Logger, "makeRecord", _redacting_make_record)
+        logging.Logger.makeRecord = _redacting_make_record  # type: ignore[method-assign]
         _log_redaction_factory_installed = True
     loggers = [logging.getLogger()]
     loggers.extend(
