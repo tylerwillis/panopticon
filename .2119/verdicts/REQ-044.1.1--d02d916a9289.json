@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.1.1--d02d916a9289",
+  "requirementId": "REQ-044.1.1",
+  "hash": "d02d916a9289",
+  "verdict": "pass",
+  "summary": "Fresh review confirmed composed build_app route sweep, nested and mounted routes, docs/MCP methods, generic auth response, floor, and diagnostics.",
+  "timestamp": "2026-08-03T18:18:15.375Z"
+}
