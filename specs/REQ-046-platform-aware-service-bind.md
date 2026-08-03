@@ -1,4 +1,4 @@
-# REQ-045: Platform-aware integrated service bind
+# REQ-046: Platform-aware integrated service bind
 
 ## Overview
 
@@ -18,29 +18,29 @@ verified loopback behavior. Other platforms may use the same conservative compat
 
 ## Requirements
 
-### REQ-045.1: Darwin default
+### REQ-046.1: Darwin default
 
 1. Integrated service startup on Darwin without a `PANOPTICON_HOST` value MUST pass `127.0.0.1`
    as the task-service host option.
 
-### REQ-045.2: Compatibility default
+### REQ-046.2: Compatibility default
 
 1. Integrated service startup on Linux or Windows without a `PANOPTICON_HOST` value MUST pass
    `0.0.0.0` as the task-service host option.
 
-### REQ-045.3: Operator override
+### REQ-046.3: Operator override
 
 1. Integrated service startup with a nonempty IPv4-address, IPv6-address, or hostname
    `PANOPTICON_HOST` value on Darwin, Linux, or Windows MUST pass that exact value as the
    task-service host option.
 
-### REQ-045.4: Static selection
+### REQ-046.4: Static selection
 
 1. Given the same host-platform string, integrated service startup's default-host selector MUST
    return the same host regardless of process environment, filesystem, Docker, or network state
    and produce no externally observable side effects.
 
-### REQ-045.5: Authentication documentation
+### REQ-046.5: Authentication documentation
 
 1. With Markdown source line wrapping ignored, the authentication documentation's bind-policy
    paragraph MUST consist of the following text:

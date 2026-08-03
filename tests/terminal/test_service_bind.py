@@ -53,9 +53,9 @@ def _host_options(command: str) -> list[str]:
 
 
 # 2119: REQ-035.29.1
-# 2119: REQ-045.1.1
-# 2119: REQ-045.2.1
-# 2119: REQ-045.4.1
+# 2119: REQ-046.1.1
+# 2119: REQ-046.2.1
+# 2119: REQ-046.4.1
 @pytest.mark.parametrize(
     ("platform", "expected_host"),
     [("darwin", "127.0.0.1"), ("linux", "0.0.0.0"), ("win32", "0.0.0.0")],
@@ -71,7 +71,7 @@ def test_integrated_service_uses_static_platform_default(
     assert _host_options(command) == [expected_host]
 
 
-# 2119: REQ-045.4.1
+# 2119: REQ-046.4.1
 def test_default_host_selector_is_a_pure_function_of_platform_identity() -> None:
     selector = cli._default_service_host
     assert list(inspect.signature(selector).parameters) == ["platform"]
@@ -100,7 +100,7 @@ def test_default_host_selector_is_a_pure_function_of_platform_identity() -> None
     assert loaded_names == {"platform"}
 
 
-# 2119: REQ-045.3.1
+# 2119: REQ-046.3.1
 @pytest.mark.parametrize("platform", ["darwin", "linux", "win32"])
 @pytest.mark.parametrize(
     "configured_host",
@@ -109,6 +109,7 @@ def test_default_host_selector_is_a_pure_function_of_platform_identity() -> None
         "127.0.0.2",
         "::1",
         "2001:0DB8:0000:0000:0000:0000:0000:0001",
+        "a",
         "control.example.test",
         "Control.Example.TEST",
     ],
@@ -128,7 +129,7 @@ def test_integrated_service_shell_quotes_configured_host(
     assert _host_options(command) == [configured_host]
 
 
-# 2119: REQ-045.5.1
+# 2119: REQ-046.5.1
 def test_auth_docs_describe_one_coherent_platform_aware_bind_policy() -> None:
     auth_docs = (Path(__file__).parents[2] / "docs" / "auth.md").read_text()
     paragraph = next(
