@@ -23,10 +23,13 @@ EXPECTED_ARTIFACT_INSTRUCTIONS = (
     "specification or spec summary, review outputs, a triage summary, and stage or gate reports, "
     "but these examples are not exhaustive. "
     "Use the `put_artifact` MCP tool. On a harness without MCP, send the artifact bytes with "
-    "`printf 'header = \"Authorization: Bearer %s\"\\n' "
+    '`if [ -n "${PANOPTICON_SERVICE_AUTH_TOKEN:-}" ]; then '
+    "printf 'header = \"Authorization: Bearer %s\"\\n' "
     '"$PANOPTICON_SERVICE_AUTH_TOKEN" | curl --config - --fail --silent --show-error '
     "--request PUT --data-binary @<artifact-file> "
-    '"$PANOPTICON_SERVICE_URL/tasks/$PANOPTICON_TASK_ID/artifacts/<name>"` over REST; this '
+    '"$PANOPTICON_SERVICE_URL/tasks/$PANOPTICON_TASK_ID/artifacts/<name>"; else '
+    "curl --fail --silent --show-error --request PUT --data-binary @<artifact-file> "
+    '"$PANOPTICON_SERVICE_URL/tasks/$PANOPTICON_TASK_ID/artifacts/<name>"; fi` over REST; this '
     "keeps the credential out of process arguments. The operator opens published artifacts "
     "from the dashboard with the `a` hotkey. Artifacts complement the pull request and its "
     "dedicated external task URL; they do not replace either one. The substantial exception is "

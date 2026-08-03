@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.6.1--f3e4e5e797e3",
+  "requirementId": "REQ-028.6.1",
+  "hash": "f3e4e5e797e3",
+  "verdict": "pass",
+  "summary": "Discovery enumerates every built-in 2119 workflow and verifies BUILDING's url-recorded responsibility and exact external-URL instruction.",
+  "timestamp": "2026-08-03T06:34:40.839Z"
+}

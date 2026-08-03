@@ -121,6 +121,24 @@ def test_serve_reconnects_after_a_dropped_connection() -> None:
     assert naps == [0.25]  # backed off once before reconnecting
 
 
+@pytest.mark.parametrize("status", [401, 403])
+def test_serve_stops_after_permanent_liveness_rejection(status: int) -> None:
+    # 2119: REQ-035.36.1
+    request = httpx.Request("GET", "http://service/tasks/t1/live")
+    response = httpx.Response(status, request=request)
+
+    class _RejectedClient(_FakeClient):
+        def live(self, *_args: object, **_kwargs: object) -> Iterator[None]:
+            def rejected() -> Iterator[None]:
+                raise httpx.HTTPStatusError("rejected", request=request, response=response)
+                yield
+
+            return rejected()
+
+    with pytest.raises(RuntimeError, match="permanently rejected"):
+        _serve(_RejectedClient(), running=lambda: True)
+
+
 def test_serve_sets_slug_when_unset_and_proposed() -> None:
     client = _FakeClient(slug=None)
     _serve(client, proposed_slug="fix-widget", running=_stop_after(1))

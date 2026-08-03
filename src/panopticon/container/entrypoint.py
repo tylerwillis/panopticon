@@ -97,6 +97,12 @@ def serve(
             for _ in live:  # each tick is a server keepalive; recheck whether to stop
                 if not running():
                     break
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code in {401, 403}:
+                raise RuntimeError(
+                    "task-service permanently rejected the container liveness credential"
+                ) from exc
+            # A transient status response may recover after the normal reconnect backoff.
         except httpx.HTTPError:
             pass  # connection dropped underneath us — fall through to reconnect
         finally:

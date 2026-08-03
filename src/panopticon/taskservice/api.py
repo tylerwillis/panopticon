@@ -11,9 +11,11 @@ from __future__ import annotations
 
 import asyncio
 import hmac
+import logging
 import os
 import re
 import secrets
+from collections import OrderedDict
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager, suppress
 from datetime import datetime
@@ -45,6 +47,7 @@ from panopticon.taskservice.service import (
 #: client drops, so the registration is removed immediately). The keepalive only keeps idle
 #: proxies from closing the connection and gives the container a tick to notice a clean stop.
 LIVENESS_KEEPALIVE_SECONDS = 5.0
+_log = logging.getLogger(__name__)
 
 
 def _redact_stream_chunk(
@@ -517,6 +520,7 @@ def create_app(
     app = FastAPI(title="panopticon task service", version="0.0.3", lifespan=lifespan)
 
     generic_auth_failure = {"detail": "authentication required"}
+    permissive_unauthenticated: OrderedDict[tuple[str, str, str], int] = OrderedDict()
 
     def redact_configured_tokens(value: Any) -> Any:
         if tokens is None:
@@ -591,6 +595,22 @@ def create_app(
             return await call_next(request)
         authorization = request.headers.get("authorization")
         if mode == "permissive" and authorization is None:
+            client = request.client.host if request.client is not None else "unknown"
+            key = (request.method, route_path, client)
+            count = permissive_unauthenticated.get(key, 0) + 1
+            permissive_unauthenticated[key] = count
+            permissive_unauthenticated.move_to_end(key)
+            if len(permissive_unauthenticated) > 1024:
+                permissive_unauthenticated.popitem(last=False)
+            if count & (count - 1) == 0:
+                _log.warning(
+                    "permissive authentication accepted headerless request: "
+                    "method=%s route=%s client=%s count=%d",
+                    request.method,
+                    route_path,
+                    client,
+                    count,
+                )
             return await call_next(request)
         presented = ""
         if authorization is not None and authorization.startswith("Bearer "):

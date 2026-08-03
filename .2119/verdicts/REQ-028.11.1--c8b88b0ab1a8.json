@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.11.1--c8b88b0ab1a8",
+  "requirementId": "REQ-028.11.1",
+  "hash": "c8b88b0ab1a8",
+  "verdict": "pass",
+  "summary": "Exact live skill instructions cover durable review documents, all document types, and the GitHub-URL external-field exception.",
+  "timestamp": "2026-08-03T06:34:39.833Z"
+}

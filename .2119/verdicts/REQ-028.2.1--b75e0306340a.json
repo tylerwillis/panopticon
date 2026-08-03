@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.2.1--b75e0306340a",
+  "requirementId": "REQ-028.2.1",
+  "hash": "b75e0306340a",
+  "verdict": "pass",
+  "summary": "Exact live core-skill instructions include both put_artifact MCP and the REST PUT route, so omission of either mechanism fails.",
+  "timestamp": "2026-08-03T06:34:28.302Z"
+}

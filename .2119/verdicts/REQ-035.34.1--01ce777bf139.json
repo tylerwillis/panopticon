@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.34.1--01ce777bf139",
+  "requirementId": "REQ-035.34.1",
+  "hash": "01ce777bf139",
+  "verdict": "pass",
+  "summary": "Startup loader and both runner types reject every group/other permission class and simulated foreign ownership, while private owner-only modes establish the boundary.",
+  "timestamp": "2026-08-03T06:36:11.820Z"
+}

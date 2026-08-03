@@ -8,6 +8,10 @@
 # Internal: invoke curl with auth supplied over stdin, never in argv or the assembled command.
 _panopticon_curl() {
     if [ -n "${PANOPTICON_SERVICE_AUTH_FILE:-}" ]; then
+        _panopticon_had_xtrace=
+        case $- in
+            *x*) set +x; _panopticon_had_xtrace=1 ;;
+        esac
         _panopticon_auth_config=$("${PANOPTICON_PYTHON:-python}" - "$PANOPTICON_SERVICE_AUTH_FILE" <<'PY'
 import json
 import sys
@@ -16,8 +20,16 @@ with open(sys.argv[1]) as credential_file:
     token = json.load(credential_file)["write"][-1]
 print(f'header = "Authorization: Bearer {token}"')
 PY
-        ) || return
+        ) || {
+            _panopticon_status=$?
+            [ -n "$_panopticon_had_xtrace" ] && set -x
+            return "$_panopticon_status"
+        }
         printf '%s\n' "$_panopticon_auth_config" | curl --config - "$@"
+        _panopticon_status=$?
+        unset _panopticon_auth_config
+        [ -n "$_panopticon_had_xtrace" ] && set -x
+        return "$_panopticon_status"
     else
         curl "$@"
     fi

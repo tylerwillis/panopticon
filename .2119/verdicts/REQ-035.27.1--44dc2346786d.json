@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.27.1--44dc2346786d",
+  "requirementId": "REQ-035.27.1",
+  "hash": "44dc2346786d",
+  "verdict": "pass",
+  "summary": "Production build wiring logs enforced mode, warns for disabled/permissive, and documentation is partition-checked to reserve permissive for migration and enforced for steady state.",
+  "timestamp": "2026-08-03T06:36:08.804Z"
+}

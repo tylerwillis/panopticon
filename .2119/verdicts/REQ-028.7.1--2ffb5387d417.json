@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.7.1--2ffb5387d417",
+  "requirementId": "REQ-028.7.1",
+  "hash": "2ffb5387d417",
+  "verdict": "pass",
+  "summary": "Discovers with an absent external directory and requires all three exact built-in names and classes.",
+  "timestamp": "2026-08-03T06:34:11.626Z"
+}

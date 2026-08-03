@@ -1052,6 +1052,24 @@ def test_permissive_mode_requires_a_credential_file() -> None:
         create_app(object(), auth_mode="permissive")  # type: ignore[arg-type]
 
 
+def test_permissive_mode_reports_headerless_callers(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    # 2119: REQ-035.35.1
+    with _client(tmp_path, mode="permissive") as client:
+        for _ in range(3):
+            assert client.get("/tasks").status_code == 200
+
+    warnings = [
+        record.getMessage()
+        for record in caplog.records
+        if "permissive authentication accepted headerless request" in record.getMessage()
+    ]
+    assert len(warnings) == 2  # powers-of-two reporting is visible without retry-log flooding
+    assert "method=GET route=/tasks client=testclient count=1" in warnings[0]
+    assert "method=GET route=/tasks client=testclient count=2" in warnings[1]
+
+
 @pytest.mark.parametrize(
     "contents",
     [
@@ -1089,6 +1107,25 @@ def test_enforced_mode_rejects_invalid_credential_files(tmp_path: Path, contents
         create_app(
             _service(tmp_path),
             auth_file="bad.json",
+            auth_mode="enforced",
+            secrets_dir=secrets,
+        )
+
+
+@pytest.mark.parametrize("token", ["authentication", "application/json"])
+def test_startup_rejects_tokens_colliding_with_fixed_failure_response(
+    tmp_path: Path, token: str
+) -> None:
+    # 2119: REQ-035.40.1
+    secrets = tmp_path / "secrets"
+    secrets.mkdir()
+    credential = secrets / "auth.json"
+    credential.write_text(json.dumps({"read": [READ_TOKEN], "write": [token]}))
+    credential.chmod(0o600)
+    with pytest.raises(ValueError, match="authentication credential"):
+        create_app(
+            _service(tmp_path),
+            auth_file=credential.name,
             auth_mode="enforced",
             secrets_dir=secrets,
         )
@@ -1228,6 +1265,7 @@ def test_overlapping_tokens_support_rotation(tmp_path: Path) -> None:
     )
     with TestClient(overlap_app) as client:
         assert client.get("/tasks", headers=_bearer(WRITE_TOKEN)).status_code == 200
+
         assert client.get("/tasks", headers=_bearer(NEXT_WRITE_TOKEN)).status_code == 200
         assert client.get("/tasks", headers=_bearer(READ_TOKEN)).status_code == 200
         assert client.get("/tasks", headers=_bearer(NEXT_READ_TOKEN)).status_code == 200
@@ -1528,6 +1566,34 @@ def test_artifact_rest_fallback_keeps_runtime_token_out_of_curl_argv(tmp_path: P
     assert "--config\n-\n" in argv.read_text()
     assert "--data-binary\n@" in argv.read_text()
     assert stdin.read_text() == f'header = "Authorization: Bearer {WRITE_TOKEN}"\n'
+
+
+def test_artifact_rest_fallback_omits_empty_authorization_during_grace(tmp_path: Path) -> None:
+    # 2119: REQ-035.37.1
+    from panopticon.core.artifact_skills import ARTIFACT_SKILL
+
+    command = ARTIFACT_SKILL.instructions.split("without MCP, send the artifact bytes with `", 1)[
+        1
+    ].split("`", 1)[0]
+    artifact = tmp_path / "report.md"
+    artifact.write_text("proof")
+    command = command.replace("<artifact-file>", str(artifact)).replace("<name>", "report.md")
+    argv = tmp_path / "curl-argv"
+    shell = f"""curl() {{ printf '%s\\n' "$@" > {argv}; }}
+{command}
+"""
+    subprocess.run(
+        ["sh", "-c", shell],
+        env={
+            "PATH": "/usr/bin:/bin",
+            "PANOPTICON_SERVICE_URL": "http://service",
+            "PANOPTICON_TASK_ID": "task",
+        },
+        check=True,
+    )
+    arguments = argv.read_text()
+    assert "--config" not in arguments
+    assert "Authorization" not in arguments
 
 
 @pytest.mark.parametrize("harness_name", ["pi", "outfitter"])

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.6.1--b02c21e095d0",
+  "requirementId": "REQ-033.6.1",
+  "hash": "b02c21e095d0",
+  "verdict": "pass",
+  "summary": "Enumerates every built-in and exactly pins the deferred-issue preface before the unchanged merge instructions, including both triage and user-comment rereads.",
+  "timestamp": "2026-08-03T06:34:13.163Z"
+}

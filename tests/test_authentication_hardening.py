@@ -21,7 +21,7 @@ from fastapi.testclient import TestClient
 from panopticon.client import TaskServiceClient
 from panopticon.core.models import LifecyclePhase
 from panopticon.sessionservice.local_runner import LocalRunner
-from panopticon.sessionservice.shell_runner import ShellRunner
+from panopticon.sessionservice.shell_runner import _TASK_LIB, ShellRunner
 from panopticon.sessionservice.spawner import Spawner
 from panopticon.taskservice import __main__ as taskservice_main
 from panopticon.taskservice.__main__ import build_app
@@ -45,6 +45,58 @@ def test_mcp_redaction_masks_tokens_across_every_chunk_boundary() -> None:
         )
         assert first + second == expected
         assert pending == b""
+
+
+def test_shell_library_hides_token_from_xtrace(tmp_path: Path) -> None:
+    # 2119: REQ-035.38.1
+    credential = tmp_path / "auth.json"
+    credential.write_text(json.dumps({"read": ["private-reader"], "write": ["trace-secret"]}))
+    credential.chmod(0o600)
+    argv = tmp_path / "argv"
+    shell = f"""curl() {{ cat >/dev/null; printf '%s\\n' "$@" > {argv}; }}
+{_TASK_LIB}
+set -x
+panopticon_advance
+"""
+    completed = subprocess.run(
+        ["sh", "-c", shell],
+        env={
+            "PATH": "/usr/bin:/bin",
+            "PANOPTICON_PYTHON": sys.executable,
+            "PANOPTICON_SERVICE_AUTH_FILE": str(credential),
+            "PANOPTICON_SERVICE_URL": "http://service",
+            "PANOPTICON_TASK_ID": "task",
+        },
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    assert "trace-secret" not in completed.stderr
+    assert "trace-secret" not in argv.read_text()
+
+
+def test_runtime_snapshot_contains_only_active_write_token(tmp_path: Path) -> None:
+    # 2119: REQ-035.39.1
+    from panopticon.taskservice.auth import snapshot_tokens
+
+    credential = tmp_path / "auth.json"
+    credential.write_text(
+        json.dumps(
+            {
+                "read": ["reader-old-token", "reader-next-token"],
+                "write": ["writer-old-token", "writer-next-token"],
+            }
+        )
+    )
+    credential.chmod(0o600)
+    snapshot = snapshot_tokens(credential.name, secrets_dir=tmp_path, directory=tmp_path)
+    try:
+        assert json.loads(snapshot.read_text()) == {
+            "read": [],
+            "write": ["writer-next-token"],
+        }
+    finally:
+        snapshot.unlink()
 
 
 def test_mcp_redaction_does_not_delay_a_complete_nonsecret_sse_event() -> None:
@@ -333,9 +385,7 @@ def test_docker_runner_mounts_a_stable_snapshot_if_source_is_replaced(
     runner.spawn("task")
 
     assert stat.S_ISFIFO(source.stat().st_mode)
-    assert docker_observations == [
-        (True, '{"read": ["stable-reader-token"], "write": ["stable-writer-token"]}')
-    ]
+    assert docker_observations == [(True, '{"read": [], "write": ["stable-writer-token"]}')]
     assert snapshots and snapshots[0].is_file()
     runner.stop("panopticon-task")
     assert not snapshots[0].exists()
@@ -482,9 +532,7 @@ def test_shell_runner_uses_a_stable_snapshot_if_source_is_replaced(
     ).spawn("task", script="true")
 
     assert stat.S_ISFIFO(source.stat().st_mode)
-    assert tmux_observations == [
-        (True, '{"read": ["stable-reader-token"], "write": ["stable-writer-token"]}')
-    ]
+    assert tmux_observations == [(True, '{"read": [], "write": ["stable-writer-token"]}')]
     snapshots[0].unlink()
 
 
@@ -780,6 +828,7 @@ def test_root_path_does_not_downgrade_write_only_routes(tmp_path: Path) -> None:
         assert client.get("/proxy/healthz").status_code == 200
         for method, path in [
             ("GET", "/proxy/tasks/missing/live"),
+            ("GET", "/proxy/runners/missing/live"),
             ("GET", "/proxy/mcp"),
             ("POST", "/proxy/mcp"),
             ("DELETE", "/proxy/mcp"),
@@ -787,10 +836,12 @@ def test_root_path_does_not_downgrade_write_only_routes(tmp_path: Path) -> None:
             reader = client.request(
                 method, path, headers={"Authorization": "Bearer read-token-long"}
             )
+            assert reader.status_code == 401
+            if "/runners/" in path:
+                continue
             writer = client.request(
                 method, path, headers={"Authorization": "Bearer write-token-long"}
             )
-            assert reader.status_code == 401
             assert writer.status_code not in {401, 403}
     root_app = build_app(
         db="sqlite://",
@@ -803,6 +854,7 @@ def test_root_path_does_not_downgrade_write_only_routes(tmp_path: Path) -> None:
     with TestClient(root_app, root_path="/") as client:
         for method, path in [
             ("GET", "/tasks/missing/live"),
+            ("GET", "/runners/missing/live"),
             ("GET", "/mcp"),
             ("POST", "/mcp"),
             ("DELETE", "/mcp"),
@@ -813,10 +865,16 @@ def test_root_path_does_not_downgrade_write_only_routes(tmp_path: Path) -> None:
                 ).status_code
                 == 401
             )
+            if "/runners/" in path:
+                continue
             assert client.request(
                 method, path, headers={"Authorization": "Bearer write-token-long"}
             ).status_code not in {401, 403}
-    for root_path, route in [("/task", "/tasks/missing/live"), ("/m", "/mcp")]:
+    for root_path, route in [
+        ("/task", "/tasks/missing/live"),
+        ("/runner", "/runners/missing/live"),
+        ("/m", "/mcp"),
+    ]:
         collision_app = build_app(
             db="sqlite://",
             artifacts_root=str(tmp_path / f"collision-{root_path[1:]}"),
@@ -827,8 +885,10 @@ def test_root_path_does_not_downgrade_write_only_routes(tmp_path: Path) -> None:
         )
         with TestClient(collision_app, root_path=root_path) as client:
             reader = client.get(route, headers={"Authorization": "Bearer read-token-long"})
-            writer = client.get(route, headers={"Authorization": "Bearer write-token-long"})
             assert reader.status_code == 401
+            if "/runners/" in route:
+                continue
+            writer = client.get(route, headers={"Authorization": "Bearer write-token-long"})
             assert writer.status_code not in {401, 403}
 
 

@@ -149,3 +149,27 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 ### REQ-035.34: Private credential permissions
 
 1. Authentication startup and runner preflight MUST reject a credential file not owned by the current effective user or readable, writable, or executable by its group or other users.
+
+### REQ-035.35: Permissive convergence signal
+
+1. Permissive mode MUST emit a rate-limited warning identifying the request method, route, caller address, and cumulative count whenever it admits a header-less protected request.
+
+### REQ-035.36: Permanent liveness rejection
+
+1. A task container whose liveness request receives HTTP 401 or 403 MUST terminate instead of retrying as though the rejection were a transient connection failure.
+
+### REQ-035.37: Credential-less artifact grace
+
+1. A credential-less container following the rendered REST artifact instructions MUST omit the Authorization header so permissive migration mode admits its request.
+
+### REQ-035.38: Shell trace secrecy
+
+1. An authenticated shell-library request executed with shell xtrace enabled MUST NOT write the configured token to the trace stream.
+
+### REQ-035.39: Least-exposure runtime snapshot
+
+1. A per-task runtime credential snapshot MUST contain only the active write token selected when that task is spawned.
+
+### REQ-035.40: Fixed-response collision
+
+1. Authentication startup MUST reject a configured token that would appear verbatim in the service's generic authentication-failure body or response headers.

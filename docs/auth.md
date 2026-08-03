@@ -5,7 +5,9 @@
 The task service accepts bearer tokens from one host-local JSON file. Store it under
 `~/.config/panopticon/secrets/` (or `$PANOPTICON_CONFIG/secrets`) and refer to it by filename; do
 not put its contents in a repo env-file, task, database field, or artifact. Use distinct tokens for
-the read-only dashboard and for clients that mutate control-plane state:
+an off-host read-only client and for clients that mutate control-plane state. The shipped terminal
+dashboard has mutating actions and therefore uses a write token; a future phone dashboard must use
+its read token only for ordinary GET requests:
 
 ```json
 {
@@ -56,17 +58,19 @@ command arguments. `GET /healthz` stays open; every other route is protected.
 Read tokens may call ordinary GET endpoints. Write tokens may call every endpoint, including the
 task and runner liveness streams and MCP.
 
-The runtime snapshot contains the complete configured token set, including read tokens and both
-generations during an overlap rotation. Task containers are therefore inside this control-plane
-trust boundary. If a container is suspected of disclosure, complete the normal overlap rollout
-and then rotate once more after the suspected container is gone; removing only the old generation
-does not revoke a next-generation token that the container could already read.
+The runtime snapshot contains only the active write token selected when the task is spawned; it
+does not expose read tokens or inactive overlap generations. Existing containers retain that one
+generation until respawn, so removing it from the service before those containers converge will
+disconnect them. A suspected container can be locked out by removing its generation after trusted
+callers have respawned onto the next one.
 
 Roll a live fleet out without killing existing containers:
 
 1. Put the old write token in the credential file and temporarily start the service in
    `permissive` mode. Do not expose this grace mode to an untrusted interface: a request that omits
-   Authorization has full legacy access. The startup warning remains until migration is complete.
+   Authorization has full legacy access. Startup logs both the active mode and rate-limited
+   warnings for every method/route/caller still making header-less requests; do not cut over until
+   those warnings show that migration has converged.
    Restart each runner, dashboard, and CLI host so new containers receive the credential mount;
    existing unauthenticated containers continue working.
 2. Respawn or naturally replace the in-flight containers until all callers send the token, then

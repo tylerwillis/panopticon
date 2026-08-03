@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.13.1--9401134c9a20",
+  "requirementId": "REQ-035.13.1",
+  "hash": "9401134c9a20",
+  "verdict": "pass",
+  "summary": "Permissive-mode tests enumerate live REST operations plus MCP and liveness paths, admitting absent or sufficient credentials while rejecting insufficient read credentials.",
+  "timestamp": "2026-08-03T06:34:43.219Z"
+}

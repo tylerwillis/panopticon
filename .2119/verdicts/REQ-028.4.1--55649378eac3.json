@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.4.1--55649378eac3",
+  "requirementId": "REQ-028.4.1",
+  "hash": "55649378eac3",
+  "verdict": "pass",
+  "summary": "Enumerates all three built-ins and compares the complete SPECIFYING responsibility sequence, so a missing, duplicate, or altered artifact responsibility fails.",
+  "timestamp": "2026-08-03T06:34:11.162Z"
+}

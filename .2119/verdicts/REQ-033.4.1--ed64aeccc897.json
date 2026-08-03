@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.4.1--ed64aeccc897",
+  "requirementId": "REQ-033.4.1",
+  "hash": "ed64aeccc897",
+  "verdict": "pass",
+  "summary": "Every final-review skill is checked for exact instructions and explicit user endorse/reject/edit recommendations at the PR approval gate.",
+  "timestamp": "2026-08-03T06:34:30.355Z"
+}

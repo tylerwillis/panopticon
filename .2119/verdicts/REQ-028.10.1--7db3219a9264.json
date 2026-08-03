@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.10.1--7db3219a9264",
+  "requirementId": "REQ-028.10.1",
+  "hash": "7db3219a9264",
+  "verdict": "pass",
+  "summary": "Exact live skill text requires artifacts to complement both the pull request and dedicated task URL and explicitly forbids replacement, rejecting omission or reversal.",
+  "timestamp": "2026-08-03T06:34:27.782Z"
+}

@@ -16,7 +16,9 @@ from panopticon.core.dirs import _secrets_dir
 AuthMode = Literal["disabled", "permissive", "enforced"]
 MIN_TOKEN_LENGTH = 12
 _BEARER_TOKEN = re.compile(r"[A-Za-z0-9._~+/-]+=*\Z")
-_RESERVED_TOKENS = frozenset({"authentication"})
+# Fixed values emitted by the generic 401 must never themselves be configurable credentials.
+# Otherwise rejecting a request would disclose that credential in the response body/header.
+_RESERVED_TOKENS = frozenset({"authentication", "application/json"})
 
 
 @dataclass(frozen=True)
@@ -41,13 +43,15 @@ def credential_path(reference: str, *, secrets_dir: str | Path | None = None) ->
     return resolved
 
 
-def _parse_tokens(contents: str) -> AuthTokens:
+def _parse_tokens(contents: str, *, allow_runtime_snapshot: bool = False) -> AuthTokens:
     try:
         raw = json.loads(contents)
         if not isinstance(raw, dict) or set(raw) != {"read", "write"}:
             raise _credential_error()
         read, write = raw["read"], raw["write"]
-        if not all(isinstance(values, list) and values for values in (read, write)):
+        if not isinstance(read, list) or not isinstance(write, list) or not write:
+            raise _credential_error()
+        if not allow_runtime_snapshot and not read:
             raise _credential_error()
         if not all(
             isinstance(token, str)
@@ -112,7 +116,7 @@ def snapshot_tokens(
     path = Path(raw_path)
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as handle:
-            json.dump({"read": list(tokens.read), "write": list(tokens.write)}, handle)
+            json.dump({"read": [], "write": [tokens.write[-1]]}, handle)
         return path
     except BaseException:
         path.unlink(missing_ok=True)
@@ -125,6 +129,9 @@ def environment_token(*, privilege: Literal["read", "write"] = "write") -> str |
         return None
     path = Path(reference)
     if path.is_absolute():
-        tokens = _parse_tokens(_read_regular_file(path))
-        return (tokens.read if privilege == "read" else tokens.write)[-1]
+        tokens = _parse_tokens(_read_regular_file(path), allow_runtime_snapshot=True)
+        values = tokens.read if privilege == "read" else tokens.write
+        if not values:
+            raise _credential_error()
+        return values[-1]
     return load_client_token(reference, privilege=privilege)

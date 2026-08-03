@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.7.1--423b70b31e12",
+  "requirementId": "REQ-033.7.1",
+  "hash": "423b70b31e12",
+  "verdict": "pass",
+  "summary": "Every built-in merge skill's exact prefix requires gh issue create for each endorsed or unopposed suggestion and incorporation of user edits.",
+  "timestamp": "2026-08-03T06:34:30.855Z"
+}
