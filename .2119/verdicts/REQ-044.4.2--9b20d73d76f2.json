@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.4.2--9b20d73d76f2",
-  "requirementId": "REQ-044.4.2",
-  "hash": "9b20d73d76f2",
-  "verdict": "pass",
-  "summary": "Tests require exact private modes and reject directory, service-log, and runner-log symlinks including existing targets without writes.",
-  "timestamp": "2026-08-03T18:37:48.942Z"
-}

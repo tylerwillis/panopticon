@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.2.1--0de38025e933",
-  "requirementId": "REQ-044.2.1",
-  "hash": "0de38025e933",
-  "verdict": "pass",
-  "summary": "Both terminal states require all task snapshots removed while rejecting stop, tmux, container, or unrelated-snapshot cleanup.",
-  "timestamp": "2026-08-03T18:37:48.971Z"
-}

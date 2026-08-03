@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.5.1--eb93da9e8ad1",
-  "requirementId": "REQ-044.5.1",
-  "hash": "eb93da9e8ad1",
-  "verdict": "pass",
-  "summary": "Raw unauthenticated ASGI exchanges in all modes reject non-success GET, any HEAD status or header difference, and any HEAD body.",
-  "timestamp": "2026-08-03T18:37:48.955Z"
-}

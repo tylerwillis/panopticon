@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.1.1--0a257109a519",
-  "requirementId": "REQ-044.1.1",
-  "hash": "0a257109a519",
-  "verdict": "pass",
-  "summary": "Two token lengths, repeats, every two-chunk split, bytewise multi-boundary streaming, and MCP transport reject nonconstant or missed redaction.",
-  "timestamp": "2026-08-03T18:37:48.955Z"
-}

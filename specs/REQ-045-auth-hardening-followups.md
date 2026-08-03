@@ -1,4 +1,4 @@
-# REQ-044: Authentication hardening follow-ups
+# REQ-045: Authentication hardening follow-ups
 
 ## Overview
 
@@ -25,7 +25,7 @@ every affected code path; that follow-up must preserve the enforced-mode rejecti
 
 ## Requirements
 
-### REQ-044.1: Constant-width MCP redaction
+### REQ-045.1: Constant-width MCP redaction
 
 1. MCP response streaming MUST replace every configured token occurrence with the same fixed
    `[redacted]` byte marker regardless of the token's length, including occurrences split across any
@@ -33,7 +33,7 @@ every affected code path; that follow-up must preserve the enforced-mode rejecti
 2. MCP response streaming MUST emit a complete non-secret SSE event without retaining bytes merely
    because an event suffix is a configured token prefix.
 
-### REQ-044.2: Post-mortem evidence and credential cleanup
+### REQ-045.2: Post-mortem evidence and credential cleanup
 
 1. Cleanup of a terminal container task whose container has already exited MUST remove every
    remaining runtime authentication snapshot for that task without killing its tmux session or
@@ -43,7 +43,7 @@ every affected code path; that follow-up must preserve the enforced-mode rejecti
 3. Spawning a replacement for a task with preserved post-mortem resources MUST remove the stale tmux
    session and container before starting the replacement.
 
-### REQ-044.3: Application-scoped log redaction
+### REQ-045.3: Application-scoped log redaction
 
 1. Importing the task service and creating, running, or closing authenticated application
    lifespans MUST leave the process-wide log-record factory and `logging.Logger.makeRecord` class
@@ -55,7 +55,7 @@ every affected code path; that follow-up must preserve the enforced-mode rejecti
 3. Ending an authenticated application's lifespan MUST discard its redaction tokens without
    disabling redaction for another application whose lifespan overlaps it.
 
-### REQ-044.4: Private integrated-stack logs
+### REQ-045.4: Private integrated-stack logs
 
 1. Integrated stack startup MUST persist service and runner logs beneath a Panopticon per-user state
    directory resolved as `$PANOPTICON_STATE`, then `$XDG_STATE_HOME/panopticon`, then
@@ -65,7 +65,7 @@ every affected code path; that follow-up must preserve the enforced-mode rejecti
 3. Integrated stack startup MUST continue sending service and runner output to their tmux panes while
    persisting the same output in the private log files.
 
-### REQ-044.5: Public HEAD health probe
+### REQ-045.5: Public HEAD health probe
 
 1. In disabled, permissive, and enforced authentication modes, unauthenticated `HEAD /healthz` MUST
    return the same success status and response headers as unauthenticated `GET /healthz`, with an

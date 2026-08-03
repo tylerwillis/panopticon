@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.2.3--d7262bf1f776",
-  "requirementId": "REQ-044.2.3",
-  "hash": "d7262bf1f776",
-  "verdict": "pass",
-  "summary": "Tests reject omitted, misordered, wrong-target, or failed stale tmux and container cleanup before replacement start.",
-  "timestamp": "2026-08-03T18:37:48.964Z"
-}

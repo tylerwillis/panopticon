@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.4.3--ba542d31209d",
-  "requirementId": "REQ-044.4.3",
-  "hash": "ba542d31209d",
-  "verdict": "pass",
-  "summary": "Real tmux execution requires identical complete stdout and stderr in each service and runner pane and private log.",
-  "timestamp": "2026-08-03T18:37:48.945Z"
-}

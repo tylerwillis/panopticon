@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.3.3--ea6801ddbeea",
-  "requirementId": "REQ-044.3.3",
-  "hash": "ea6801ddbeea",
-  "verdict": "pass",
-  "summary": "Both overlapping-lifespan teardown orders reject retained ended tokens, lost surviving redaction, and tokens retained after both end.",
-  "timestamp": "2026-08-03T18:37:48.974Z"
-}
