@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-041.5.1--ae2aa708ef54",
+  "requirementId": "REQ-041.5.1",
+  "hash": "ae2aa708ef54",
+  "verdict": "pass",
+  "summary": "Exact base-overview assertions reject omission or alteration of the section, container context, all four durable surfaces, and each operator-visible effect.",
+  "timestamp": "2026-08-03T04:10:03.054Z"
+}

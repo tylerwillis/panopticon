@@ -32,7 +32,8 @@ surfaces for collaborating with the operator:
 
 - **Task artifacts** hold reviewable documents. Publish each reviewable document as a task
   artifact when you produce it, without waiting for the user to ask. The operator opens artifacts
-  with the dashboard `a` hotkey. The system prompt states this standing expectation; use the
+  with the dashboard `a` hotkey, and published artifacts remain readable through the task's MCP
+  resource URI. The system prompt states this standing expectation; use the
   universal `artifacts` skill for the publishing procedure. Don't print non-code deliverables
   inline or leave them solely in the ephemeral container filesystem.
 - **The task external URL** points to the pull request or other primary external work. The
@@ -143,8 +144,6 @@ def test_workflow_overview_maps_the_ordered_phases() -> None:
 # 2119: REQ-041.2.1
 # 2119: REQ-041.5.1
 # 2119: REQ-041.6.1
-# 2119: REQ-041.7.1
-# 2119: REQ-041.8.1
 def test_workflow_overview_sets_the_panopticon_working_norms() -> None:
     text = Workflow.overview(GithubPeerReviewed())
 

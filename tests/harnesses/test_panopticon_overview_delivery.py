@@ -10,6 +10,22 @@ from panopticon.harnesses.claude import ClaudeHarness, write_workflow_overview
 from panopticon.harnesses.codex import render_config
 from panopticon.workflows import GithubPeerReviewed
 
+PANOPTICON_NORM_MARKERS = (
+    "## Working in panopticon",
+    "inside a panopticon task container",
+    "Publish each reviewable document as a task artifact when you produce it",
+    "without waiting for the user to ask",
+    "**The task external URL**",
+    "**Responsibilities**",
+    "**`advance` and `drop`**",
+)
+
+
+def _assert_panopticon_norms(delivered: str) -> None:
+    normalized = " ".join(delivered.split())
+    for marker in PANOPTICON_NORM_MARKERS:
+        assert marker in normalized
+
 
 # 2119: REQ-041.7.1
 def test_claude_delivers_panopticon_orientation_in_the_system_prompt(tmp_path: Path) -> None:
@@ -19,8 +35,7 @@ def test_claude_delivers_panopticon_orientation_in_the_system_prompt(tmp_path: P
     argv = ClaudeHarness().argv(LaunchContext(home=tmp_path, cwd=Path("/workspace")))
     index = argv.index("--append-system-prompt")
     assert argv[index + 1] == overview
-    assert "## Working in panopticon" in argv[index + 1]
-    assert "when you produce" in argv[index + 1]
+    _assert_panopticon_norms(argv[index + 1])
 
 
 # 2119: REQ-041.8.1
@@ -29,5 +44,4 @@ def test_codex_delivers_panopticon_orientation_as_developer_instructions() -> No
     config = tomllib.loads(render_config("http://svc:8000", overview, Path("/workspace")))
 
     assert config["developer_instructions"] == overview
-    assert "## Working in panopticon" in config["developer_instructions"]
-    assert "when you produce" in config["developer_instructions"]
+    _assert_panopticon_norms(config["developer_instructions"])
