@@ -1,0 +1,58 @@
+# REQ-044: Platform-aware integrated service bind
+
+## Overview
+
+The standalone task-service launcher defaults to loopback, but the integrated `panopticon start`
+and `panopticon host` path currently overrides it with an unconditional `--host 0.0.0.0`. That
+broad bind is required on native Linux because task containers reach the host through Docker's
+bridge gateway and cannot reach host loopback. On macOS, Docker Desktop can route
+`host.docker.internal` to a loopback-only host listener, so the broad bind unnecessarily exposes
+the service on every host interface.
+
+Integrated startup therefore selects a conservative platform-aware default while retaining an
+operator override. Selection is a static decision from the host platform identity; it does not
+probe Docker or depend on daemon state. Linux and Windows retain the compatibility bind because
+their container-to-host networking cannot be assumed to provide Docker Desktop's verified macOS
+loopback behavior. Other platforms may use the same conservative compatibility default.
+
+## Requirements
+
+### REQ-044.1: Darwin default
+
+1. Integrated service startup on Darwin without a `PANOPTICON_HOST` value MUST pass `127.0.0.1`
+   as the task-service host option.
+
+### REQ-044.2: Compatibility default
+
+1. Integrated service startup on Linux or Windows without a `PANOPTICON_HOST` value MUST pass
+   `0.0.0.0` as the task-service host option.
+
+### REQ-044.3: Operator override
+
+1. Integrated service startup with a nonempty IPv4-address, IPv6-address, or hostname
+   `PANOPTICON_HOST` value on Darwin, Linux, or Windows MUST pass that exact value as the
+   task-service host option.
+
+### REQ-044.4: Static selection
+
+1. Integrated service startup's default-host selector MUST be a pure function of one supplied
+   host-platform string, with no calls or other runtime inputs.
+
+### REQ-044.5: Authentication documentation
+
+1. With Markdown source line wrapping ignored, the authentication documentation's bind-policy
+   paragraph MUST consist of the following text:
+   "The standalone task-service launcher defaults to `127.0.0.1`. The integrated `panopticon
+   start` and `panopticon host` commands default to `127.0.0.1` on Darwin and `0.0.0.0` on Linux
+   and Windows so native containers can reach the service. `PANOPTICON_HOST` overrides both launch
+   paths when the operator needs a different intended interface. Bearer tokens are sent over HTTP,
+   so do not bind the service to a plain LAN or other interface whose transport is not independently
+   encrypted and access-controlled."
+
+## Non-goals
+
+- Changing the standalone task-service launcher's loopback default is out of scope.
+- Changing Docker's `host.docker.internal:host-gateway` configuration is out of scope.
+- Detecting Docker Desktop, OrbStack, bridge addresses, or container reachability at runtime is out
+  of scope.
+- Changing authentication modes or credential handling is out of scope.

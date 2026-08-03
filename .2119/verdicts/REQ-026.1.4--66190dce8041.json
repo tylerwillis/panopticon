@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.1.4--66190dce8041",
+  "requirementId": "REQ-026.1.4",
+  "hash": "66190dce8041",
+  "verdict": "pass",
+  "summary": "An unclaimed non-terminal task with an empty dependency list must appear in the exact eligible-task result.",
+  "timestamp": "2026-08-03T18:08:12.492Z"
+}

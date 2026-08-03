@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.1.1--0173850cb88f",
+  "requirementId": "REQ-044.1.1",
+  "hash": "0173850cb88f",
+  "verdict": "pass",
+  "summary": "Darwin absent and empty override cases reject omitted, duplicate, broad, or other host options.",
+  "timestamp": "2026-08-03T18:14:27.133Z"
+}

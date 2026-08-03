@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.3.1--9c3197236b85",
+  "requirementId": "REQ-044.3.1",
+  "hash": "9c3197236b85",
+  "verdict": "pass",
+  "summary": "All three platforms and IPv4, IPv6, and hostname overrides use exact singleton equality, rejecting substitution, normalization, duplication, or fallback.",
+  "timestamp": "2026-08-03T18:15:18.308Z"
+}

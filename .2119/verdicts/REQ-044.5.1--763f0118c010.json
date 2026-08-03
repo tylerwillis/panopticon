@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.5.1--763f0118c010",
+  "requirementId": "REQ-044.5.1",
+  "hash": "763f0118c010",
+  "verdict": "pass",
+  "summary": "Exact normalized paragraph equality rejects missing, contradicted, reordered, or altered bind-policy statements while permitting only Markdown line wrapping.",
+  "timestamp": "2026-08-03T18:18:03.035Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.4.1--a189e9841f21",
+  "requirementId": "REQ-044.4.1",
+  "hash": "a189e9841f21",
+  "verdict": "pass",
+  "summary": "Signature and exact AST-shape checks reject extra inputs, calls, global reads, assignments, and other side effects.",
+  "timestamp": "2026-08-03T18:17:33.909Z"
+}
