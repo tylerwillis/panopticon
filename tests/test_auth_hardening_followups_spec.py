@@ -148,11 +148,13 @@ def test_mcp_transport_applies_constant_redaction_to_streamed_responses(
 
 def test_mcp_redaction_does_not_hold_a_complete_nonsecret_sse_event() -> None:
     # 2119: REQ-045.1.2
-    event = b"event: ping\ndata: safe\n\n"
+    payload_suffix = b"safe"
+    event = b"event: ping\ndata: " + payload_suffix + b"\n\n"
+    configured = (payload_suffix + b"-prefix-extended-secret", b"other-secret")
 
     output, pending = _redact_stream_chunk(
         event,
-        configured=(b"safe-prefix-extended-secret", b"other-secret"),
+        configured=configured,
         more_body=True,
     )
 
@@ -236,7 +238,9 @@ def test_mcp_transport_emits_a_complete_nonsecret_sse_event_immediately(
         return messages
 
     monkeypatch.setattr(mcp_module, "build_mcp_server", lambda _service: _FakeMcp())
-    messages = asyncio.run(exchange(_authenticated_app(tmp_path)))
+    messages = asyncio.run(
+        exchange(_authenticated_app(tmp_path, read="safe-prefix-extended-secret"))
+    )
     bodies = [message for message in messages if message["type"] == "http.response.body"]
     assert bodies[0]["body"] == event
     assert bodies[0]["more_body"] is True
@@ -359,13 +363,18 @@ def test_replacement_spawn_removes_preserved_resources_before_docker_run() -> No
             resources["tmux"] = False
         elif args[:3] == ["docker", "rm", "--force"]:
             resources["container"] = False
+        elif "list-sessions" in args:
+            return "panopticon-task\n" if resources["tmux"] else ""
+        elif args[:3] == ["docker", "ps", "--all"]:
+            return "panopticon-task\n" if resources["container"] else ""
         elif args[:3] == ["docker", "run", "--detach"]:
             assert resources == {"tmux": False, "container": False}
         return "%1\n" if "display-message" in args else ""
 
     LocalRunner("http://service", run=record).spawn("task")
 
-    kill_session, remove_container, docker_run = (call[0] for call in calls[:3])
+    kill_session, remove_container = (call[0] for call in calls[:2])
+    docker_run = next(call[0] for call in calls if call[0][:3] == ["docker", "run", "--detach"])
     assert kill_session[-3:] == ["kill-session", "-t", "panopticon-task"]
     assert remove_container == ["docker", "rm", "--force", "panopticon-task"]
     assert docker_run[:3] == ["docker", "run", "--detach"]
@@ -389,6 +398,28 @@ def test_replacement_does_not_start_when_preserved_resource_cleanup_fails(
         return ""
 
     with pytest.raises(RuntimeError, match="cleanup failed"):
+        LocalRunner("http://service", run=record).spawn("task")
+    assert not docker_started
+
+
+@pytest.mark.parametrize("preserved_resource", ["tmux", "container"])
+def test_replacement_does_not_start_when_cleanup_leaves_a_resource(
+    preserved_resource: str,
+) -> None:
+    # 2119: REQ-045.2.3
+    docker_started = False
+
+    def record(args: list[str], **_kwargs: object) -> str:
+        nonlocal docker_started
+        if "list-sessions" in args:
+            return "panopticon-task\n" if preserved_resource == "tmux" else ""
+        if args[:3] == ["docker", "ps", "--all"]:
+            return "panopticon-task\n" if preserved_resource == "container" else ""
+        if args[:3] == ["docker", "run", "--detach"]:
+            docker_started = True
+        return ""
+
+    with pytest.raises(RuntimeError, match="failed to remove stale runtime resources"):
         LocalRunner("http://service", run=record).spawn("task")
     assert not docker_started
 
@@ -440,12 +471,23 @@ assert logging.Logger.makeRecord is make_record
 def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> None:
     # 2119: REQ-045.3.2
     names = [
+        "panopticon.taskservice",
         "panopticon.taskservice.api",
         "panopticon.taskservice.api.child",
+        "panopticon.taskservice.service",
+        "panopticon.taskservice.service.child",
         "fastapi",
         "fastapi.child",
+        "fastapi.routing",
+        "fastapi.routing.child",
+        "uvicorn",
         "uvicorn.error",
         "uvicorn.error.child",
+        "uvicorn.access",
+        "uvicorn.protocols.http",
+        "mcp",
+        "mcp.client",
+        "mcp.client.child",
         "mcp.server.fastmcp.server",
         "mcp.server.fastmcp.server.child",
     ]
@@ -453,7 +495,8 @@ def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> 
     handlers = {name: logging.StreamHandler(streams[name]) for name in names}
     loggers = {name: logging.getLogger(name) for name in names}
     formatter = logging.Formatter(
-        "%(message)s %(credential)s %(other_credential)s %(exc_text)s %(stack_info)s"
+        "%(message)s %(credential)s %(other_credential)s %(arbitrary_key)s "
+        "%(exc_text)s %(stack_info)s"
     )
     for name in names:
         handlers[name].setFormatter(formatter)
@@ -466,12 +509,20 @@ def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> 
             for name in names:
                 for token in (READ_TOKEN, WRITE_TOKEN):
                     payload = f"prefix-{token}-{token}-suffix"
-                    safe_extra = {"credential": "safe", "other_credential": "also-safe"}
+                    safe_extra = {
+                        "credential": "safe",
+                        "other_credential": "also-safe",
+                        "arbitrary_key": "arbitrary-safe",
+                    }
                     loggers[name].info(f"template {payload}", extra=safe_extra)
-                    loggers[name].info("message %s", payload, extra=safe_extra)
+                    loggers[name].info("message %s %s", payload, payload, extra=safe_extra)
                     loggers[name].info(
                         "extra",
-                        extra={"credential": payload, "other_credential": payload},
+                        extra={
+                            "credential": payload,
+                            "other_credential": payload,
+                            "arbitrary_key": payload,
+                        },
                     )
                     try:
                         raise RuntimeError(f"exception {payload}")
@@ -482,6 +533,7 @@ def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> 
                     )
                     stack_record.credential = "safe"
                     stack_record.other_credential = "also-safe"
+                    stack_record.arbitrary_key = "arbitrary-safe"
                     stack_record.stack_info = f"stack {payload}"
                     loggers[name].handle(stack_record)
     finally:
@@ -491,9 +543,12 @@ def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> 
     for stream in streams.values():
         observed = stream.getvalue()
         redacted_payload = "prefix-[redacted]-[redacted]-suffix"
-        assert f"template {redacted_payload} safe also-safe" in observed
-        assert f"message {redacted_payload} safe also-safe" in observed
-        assert f"extra {redacted_payload} {redacted_payload}" in observed
+        assert f"template {redacted_payload} safe also-safe arbitrary-safe" in observed
+        assert (
+            f"message {redacted_payload} {redacted_payload} safe also-safe arbitrary-safe"
+            in observed
+        )
+        assert f"extra {redacted_payload} {redacted_payload} {redacted_payload}" in observed
         assert f"exception {redacted_payload}" in observed
         assert f"stack {redacted_payload}" in observed
         assert READ_TOKEN not in observed

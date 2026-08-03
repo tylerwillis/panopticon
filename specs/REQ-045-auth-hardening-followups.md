@@ -31,7 +31,8 @@ every affected code path; that follow-up must preserve the enforced-mode rejecti
    `[redacted]` byte marker regardless of the token's length, including occurrences split across any
    response-chunk boundary.
 2. MCP response streaming MUST emit a complete non-secret SSE event without retaining bytes merely
-   because an event suffix is a configured token prefix.
+   because its payload suffix immediately before the terminating blank line is a configured token
+   prefix.
 
 ### REQ-045.2: Post-mortem evidence and credential cleanup
 

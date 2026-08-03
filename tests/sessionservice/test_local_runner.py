@@ -34,6 +34,8 @@ class _Recorder:
         interactive: bool = False,
         verbose: bool = False,
     ) -> str:
+        if "list-sessions" in args or list(args[:3]) == ["docker", "ps", "--all"]:
+            return ""
         self.calls.append((list(args), check))
         self.interactive.append(interactive)
         if "display-message" in args:
@@ -163,7 +165,8 @@ class _ReturningRecorder(_Recorder):
         interactive: bool = False,
         verbose: bool = False,
     ) -> str:
-        super().__call__(args, check=check, interactive=interactive)
+        self.calls.append((list(args), check))
+        self.interactive.append(interactive)
         return self._output
 
 
@@ -469,7 +472,9 @@ def test_spawn_places_dash_f_before_new_session_so_it_applies_at_server_startup(
     first_tmux = next(c for c, _ in rec.calls if c[0] == "tmux")
     tmux_new = next(c for c, _ in rec.calls if "new-session" in c)
     assert first_tmux[:4] == ["tmux", "-L", "panopticon", "-f"]
-    assert Path(first_tmux[4]).read_text() == server_default_config_text(clipboard=None)
+    config = Path(first_tmux[4]).read_text()
+    assert config == server_default_config_text(clipboard=None)
+    assert "set-option -g history-limit 50000\n" in config
     assert tmux_new.index("-f") < tmux_new.index("new-session")
 
 

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.2.3--a301f7d544f4",
+  "requirementId": "REQ-045.2.3",
+  "hash": "a301f7d544f4",
+  "verdict": "pass",
+  "summary": "Tests reject replacement startup unless the exact stale tmux session and container are both removed and verified absent before docker run.",
+  "timestamp": "2026-08-03T20:48:35.568Z"
+}

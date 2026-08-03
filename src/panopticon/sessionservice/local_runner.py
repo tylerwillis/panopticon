@@ -363,6 +363,8 @@ class LocalRunner(Runner):
                 check=False,
             )
             self._run(["docker", "rm", "--force", container], check=False)
+            if self.has_session(task_id) or self._container_exists(task_id):
+                raise RuntimeError(f"failed to remove stale runtime resources for {container}")
             _report(LifecyclePhase.STARTING)  # docker run + the tmux session coming up
             self._run(docker_run)
             # Docker has opened the bind source by the time detached ``docker run`` returns. The
@@ -444,6 +446,23 @@ class LocalRunner(Runner):
             check=False,
         )
         return bool(names.strip())
+
+    def _container_exists(self, task_id: str) -> bool:
+        """Whether Docker still retains the task's running or exited container."""
+        container = session_name(task_id)
+        names = self._run(
+            [
+                "docker",
+                "ps",
+                "--all",
+                "--filter",
+                f"name=^{container}$",
+                "--format",
+                "{{.Names}}",
+            ],
+            check=False,
+        )
+        return container in names.splitlines()
 
     def has_session(self, task_id: str) -> bool:
         """Whether the task's host tmux session exists on this runner's tmux server.

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.47.1--98dbe5761077",
+  "requirementId": "REQ-035.47.1",
+  "hash": "98dbe5761077",
+  "verdict": "pass",
+  "summary": "Runner command tests reject omission of the configured host or loss of existing NO_PROXY/no_proxy entries, and the real Claude MCP transport test rejects proxy routing by requiring zero proxy hits and the authenticated target hit.",
+  "timestamp": "2026-08-03T20:47:48.886Z"
+}
