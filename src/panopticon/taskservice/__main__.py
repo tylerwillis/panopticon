@@ -119,6 +119,7 @@ def build_app(
     auth_file: str | None = None,
     auth_mode: str | None = None,
     secrets_dir: str | Path | None = None,
+    browser_origins: Sequence[str] | None = None,
 ) -> FastAPI:
     """Build the task-service app around the default control-plane wiring (no LLM).
 
@@ -144,6 +145,15 @@ def build_app(
         auth_mode if auth_mode is not None else os.environ.get("PANOPTICON_SERVICE_AUTH_MODE")
     )
     effective_mode = resolved_auth_mode or ("enforced" if resolved_auth_file else "disabled")
+    resolved_browser_origins = (
+        list(browser_origins)
+        if browser_origins is not None
+        else [
+            origin.strip()
+            for origin in os.environ.get("PANOPTICON_BROWSER_ORIGINS", "").split(",")
+            if origin.strip()
+        ]
+    )
     log = logging.warning if effective_mode in {"disabled", "permissive"} else logging.info
     log("panopticon: task-service authentication mode: %s", effective_mode)
     return create_app(
@@ -151,6 +161,7 @@ def build_app(
         auth_file=resolved_auth_file,
         auth_mode=resolved_auth_mode,
         secrets_dir=secrets_dir,
+        browser_origins=resolved_browser_origins,
     )
 
 

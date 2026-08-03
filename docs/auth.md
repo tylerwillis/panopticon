@@ -6,8 +6,8 @@ The task service accepts bearer tokens from one host-local JSON file. Store it u
 `~/.config/panopticon/secrets/` (or `$PANOPTICON_CONFIG/secrets`) and refer to it by filename; do
 not put its contents in a repo env-file, task, database field, or artifact. Use distinct tokens for
 an off-host read-only client and for clients that mutate control-plane state. The shipped terminal
-dashboard has mutating actions and therefore uses a write token; a future phone dashboard must use
-its read token only for ordinary GET requests:
+dashboard has mutating actions and therefore uses a write token; a phoneopticon board uses its read
+token only for ordinary GET requests:
 
 ```json
 {
@@ -16,8 +16,9 @@ its read token only for ordinary GET requests:
 }
 ```
 
-The arrays may contain multiple tokens for rotation, but must be nonempty, have no duplicates, and
-never overlap. Tokens use the transport-safe ASCII bearer grammar: letters, digits,
+The `write` array is required and nonempty. The `read` array is optional (and may be empty) when no
+read-only client is deployed. Arrays may contain multiple tokens for rotation, but may not contain
+duplicates or overlap. Tokens use the transport-safe ASCII bearer grammar: letters, digits,
 `-._~+/`, followed by optional `=` padding, with a minimum length of twelve characters. Generate
 long random values using that alphabet; short values, spaces, control characters, non-ASCII text,
 quotes, and backslashes are rejected at startup. The file must be owned by the Panopticon process
@@ -58,11 +59,34 @@ command arguments. `GET /healthz` stays open; every other route is protected.
 Read tokens may call ordinary GET endpoints. Write tokens may call every endpoint, including the
 task and runner liveness streams and MCP.
 
-The runtime snapshot contains only the active write token selected when the task is spawned; it
-does not expose read tokens or inactive overlap generations. Existing containers retain that one
-generation until respawn, so removing it from the service before those containers converge will
-disconnect them. A suspected container can be locked out by removing its generation after trusted
-callers have respawned onto the next one.
+Docker task containers do not receive either fleet token. The runner derives a deterministic,
+opaque capability for the task from the active write token and snapshots only that capability.
+It permits the container to read and mutate its own task, publish its own artifacts, hold its own
+registration and liveness stream, and perform its own workflow operations. An orchestrator task
+may additionally list, create, and pre-plan only its transitively governed descendants. It cannot
+mutate or drop a sibling or unrelated task. Shell workflows run directly on the trusted host and
+retain the fleet write-token snapshot needed for their host-side operation.
+
+Existing Docker containers retain their derived capability until respawn. Removing its source
+write-token generation from the service invalidates that generation's derived capabilities; keep
+the old generation active until trusted callers and task containers have converged during a normal
+rotation. To lock out a suspected container, remove that generation after trusted callers have
+respawned onto the next one.
+
+## Browser read-only transport
+
+Configure an exact-origin allowlist for the phoneopticon board as a comma-separated environment
+variable on the task service:
+
+```sh
+export PANOPTICON_BROWSER_ORIGINS=https://phone.example,https://phone-alt.example:8443
+```
+
+With no allowlist, cross-origin task-service access is disabled. Entries must be complete
+`http://` or `https://` scheme-host-port origins, without wildcards, paths, queries, fragments, or
+embedded credentials. The browser sends its fleet read token only as
+`Authorization: Bearer <token>` and uses `GET /tasks`; cookies, URL credentials, alternate auth
+headers, and cross-origin mutations are rejected. The CORS response does not enable credentials.
 
 Roll a live fleet out without killing existing containers:
 
