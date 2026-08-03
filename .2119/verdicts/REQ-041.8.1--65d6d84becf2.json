@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-041.8.1--65d6d84becf2",
+  "requirementId": "REQ-041.8.1",
+  "hash": "65d6d84becf2",
+  "verdict": "pass",
+  "summary": "The test parses the rendered Codex config, requires developer_instructions to equal the workflow overview, and independently rejects omission of the shared orientation or standing artifact-expectation markers.",
+  "timestamp": "2026-08-03T05:28:44.011Z"
+}

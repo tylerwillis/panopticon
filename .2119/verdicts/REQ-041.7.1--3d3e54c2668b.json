@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-041.7.1--3d3e54c2668b",
+  "requirementId": "REQ-041.7.1",
+  "hash": "3d3e54c2668b",
+  "verdict": "pass",
+  "summary": "The test rejects a missing --append-system-prompt, any non-overview argument, and overviews missing either the shared orientation markers or the standing artifact expectation.",
+  "timestamp": "2026-08-03T05:28:16.010Z"
+}

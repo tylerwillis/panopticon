@@ -56,3 +56,8 @@ the workflow overview passed through `--append-system-prompt`.
 
 1. The Codex harness MUST deliver the shared orientation and standing artifact expectation in the
 workflow overview rendered as `developer_instructions`.
+
+### REQ-041.9: Pi delivery
+
+1. The Pi harness MUST deliver the shared orientation and standing artifact expectation in the
+workflow overview passed through `--append-system-prompt`.
