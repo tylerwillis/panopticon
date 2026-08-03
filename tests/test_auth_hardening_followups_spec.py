@@ -511,6 +511,8 @@ def test_overlapping_app_lifespans_retain_only_active_tokens(
     stream = StringIO()
     handler = logging.StreamHandler(stream)
     logger = logging.getLogger("uvicorn.error")
+    previous_disabled = logger.disabled
+    logger.disabled = False
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
     first_client = TestClient(first_app)
@@ -543,6 +545,7 @@ def test_overlapping_app_lifespans_retain_only_active_tokens(
         if first_active:
             first_client.__exit__(None, None, None)
         logger.removeHandler(handler)
+        logger.disabled = previous_disabled
 
     both, remaining, neither = stream.getvalue().splitlines()
     assert all(token not in both for token in (first_read, WRITE_TOKEN, second_read, second_token))
