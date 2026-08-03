@@ -1859,6 +1859,7 @@ class RepoFormScreen(ModalScreen["dict[str, Any] | None"]):
     # and these, separately, since it's editable only in create mode. ``env_file`` is rendered
     # as an EnvFileField (dropdown + custom-path input) rather than a plain Input.
     FIELDS = ("git_url", "name", "default_base")
+    REVIEWER_FIELDS = ("honesty_reviewer", "reviewer_1", "reviewer_2")
     # Fields auto-derived from git_url → how to derive each (create mode only; see
     # _autofill_from_git_url). id and name are the bare repo name.
     _DERIVED: dict[str, Callable[[str], str]] = {
@@ -1935,6 +1936,12 @@ class RepoFormScreen(ModalScreen["dict[str, Any] | None"]):
                             f"({self._launch.source})",
                             id="default-model-effective",
                         )
+                        for name in self.REVIEWER_FIELDS:
+                            yield Input(
+                                value=self._initial(name),
+                                placeholder=f"{name} (<harness>:<model>)",
+                                id=f"field-{name}",
+                            )
                     yield EnvFileField(initial=self._initial("env_file"), id="field-env_file")
                     yield ImageLayerField(
                         initial=self._initial("image_layer_file"), id="field-image_layer_file"
@@ -2022,6 +2029,8 @@ class RepoFormScreen(ModalScreen["dict[str, Any] | None"]):
             values["default_model"] = (
                 self.query_one("#field-default_model", Input).value.strip() or None
             )
+            for name in self.REVIEWER_FIELDS:
+                values[name] = self.query_one(f"#field-{name}", Input).value.strip() or None
         values["env_file"] = self.query_one("#field-env_file", EnvFileField).env_file_value or None
         values["image_layer_file"] = (
             self.query_one("#field-image_layer_file", ImageLayerField).image_layer_value or None
@@ -2307,6 +2316,9 @@ class ReposScreen(_TableScreen):
                     default_base=values["default_base"] or "main",
                     default_harness=values["default_harness"],
                     default_model=values["default_model"],
+                    honesty_reviewer=values["honesty_reviewer"],
+                    reviewer_1=values["reviewer_1"],
+                    reviewer_2=values["reviewer_2"],
                     env_file=values["env_file"] or None,
                     image_layer_file=values["image_layer_file"] or None,
                     hook_file=values["hook_file"] or None,

@@ -261,6 +261,13 @@ class Repo:
     #: control plane; harness adapters own their vocabulary. A non-null model requires a
     #: non-null :attr:`default_harness`, so the vocabulary always has an explicit owner.
     default_model: str | None = None
+    #: Optional repo-owned override for the workflow's test-honesty reviewer. This is ordinary
+    #: configuration, not a credential; the runner transports it into the task container.
+    honesty_reviewer: str | None = None
+    #: Optional repo-owned overrides for the workflow's two stage-4 reviewer slots. Each value is
+    #: an atomic ``<harness>:<model>`` pair; the model suffix remains harness-owned and opaque.
+    reviewer_1: str | None = None
+    reviewer_2: str | None = None
 
 
 @dataclass(frozen=True)

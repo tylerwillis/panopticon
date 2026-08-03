@@ -46,6 +46,7 @@ from panopticon.core.state import TERMINAL_LABELS, Dropped
 from panopticon.core.store import NotFound, Store
 from panopticon.core.workflow import InvalidWorkflow, Workflow
 from panopticon.harnesses import HARNESSES, get_harness
+from panopticon.harnesses.base import ReviewerDispatchError, parse_reviewer_config
 
 _log = logging.getLogger(__name__)
 
@@ -312,12 +313,25 @@ class TaskService:
     # -- repos --------------------------------------------------------------------
 
     async def create_repo(self, repo: Repo) -> Repo:
+        for field in ("honesty_reviewer", "reviewer_1", "reviewer_2"):
+            setattr(repo, field, self._normalize_reviewer_override(field, getattr(repo, field)))
         await self._validate_env_file(repo.env_file)
         self._validate_harness_name(repo.default_harness)
         self._validate_repo_harness_model(repo)
         await self._validate_credential_dir(repo.credential_dir)
         await self._store.create_repo(repo)
         return repo
+
+    @staticmethod
+    def _normalize_reviewer_override(field: str, value: str | None) -> str | None:
+        """Normalize blank repo overrides and reject invalid atomic reviewer pairs."""
+        if value is None or not value.strip():
+            return None
+        try:
+            parse_reviewer_config(value)
+        except ReviewerDispatchError as exc:
+            raise ValueError(f"{field}: {exc}") from exc
+        return value
 
     async def _validate_credential_dir(self, credential_dir: str | None) -> None:
         """Reject a repo whose credential-dir reference points at a missing directory.
@@ -396,7 +410,11 @@ class TaskService:
         existing = await self.get_repo(repo_id)  # raises NotFound
         if "id" in changes and changes["id"] != repo_id:
             raise ValueError("a repo's id cannot be changed")
-        updated = replace(existing, **{k: v for k, v in changes.items() if k != "id"})
+        normalized = {k: v for k, v in changes.items() if k != "id"}
+        for field in ("honesty_reviewer", "reviewer_1", "reviewer_2"):
+            if field in normalized:
+                normalized[field] = self._normalize_reviewer_override(field, normalized[field])
+        updated = replace(existing, **normalized)
         if "env_file" in changes:  # validate only when the caller is actually setting the field,
             await self._validate_env_file(
                 updated.env_file

@@ -100,6 +100,9 @@ class _RepoRow(_Base):
     default_harness: Mapped[str | None] = mapped_column(default=None)
     default_model: Mapped[str | None] = mapped_column(default=None)
     credential_dir: Mapped[str | None] = mapped_column(default=None)
+    honesty_reviewer: Mapped[str | None] = mapped_column(default=None)
+    reviewer_1: Mapped[str | None] = mapped_column(default=None)
+    reviewer_2: Mapped[str | None] = mapped_column(default=None)
 
     def to_domain(self) -> Repo:
         return Repo(
@@ -116,6 +119,9 @@ class _RepoRow(_Base):
             default_harness=self.default_harness,
             default_model=self.default_model,
             credential_dir=self.credential_dir,
+            honesty_reviewer=self.honesty_reviewer,
+            reviewer_1=self.reviewer_1,
+            reviewer_2=self.reviewer_2,
         )
 
     @classmethod
@@ -134,6 +140,9 @@ class _RepoRow(_Base):
             default_harness=repo.default_harness,
             default_model=repo.default_model,
             credential_dir=repo.credential_dir,
+            honesty_reviewer=repo.honesty_reviewer,
+            reviewer_1=repo.reviewer_1,
+            reviewer_2=repo.reviewer_2,
         )
 
 
@@ -472,6 +481,9 @@ class SqlAlchemyStore(Store):
             row.default_harness = repo.default_harness
             row.default_model = repo.default_model
             row.credential_dir = repo.credential_dir
+            row.honesty_reviewer = repo.honesty_reviewer
+            row.reviewer_1 = repo.reviewer_1
+            row.reviewer_2 = repo.reviewer_2
 
     # -- tasks: reads + persistence primitives (the base's template methods drive these) --
 
