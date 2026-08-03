@@ -360,6 +360,14 @@ class Workflow(ABC):
         """
         return ()
 
+    def container_skills(self) -> Sequence[Skill]:
+        """Materialize the workflow skills delivered to a task container.
+
+        Most workflows deliver their declarations unchanged. A workflow may override this seam
+        when its container instructions need to embed workflow-owned execution defaults.
+        """
+        return self.skills()
+
     def tools(self) -> Sequence[Tool]:
         """Command-line tools this workflow expects, named so the agent's system prompt can tell it
         what to use (e.g. github-peer-reviewed's base-installed `gh`). Declared independently of

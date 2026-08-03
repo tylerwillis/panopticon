@@ -6,6 +6,7 @@ move into the deterministic control plane.
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import re
@@ -16,6 +17,7 @@ from pathlib import Path
 from typing import Any, TypeAlias
 
 from panopticon.harnesses.base import (
+    HONESTY_REVIEWER_ENV,
     REVIEWER_ENV_VARS,
     ReviewerConfig,
     ReviewerDispatchError,
@@ -34,6 +36,26 @@ Publish: TypeAlias = Callable[[str], None]
 GitStatus: TypeAlias = Callable[[], str]
 GitHead: TypeAlias = Callable[[], str]
 VerifiedIdentity: TypeAlias = tuple[str, str]
+
+
+def resolve_honesty_reviewer(default: ReviewerConfig, environ: Mapping[str, str]) -> ReviewerConfig:
+    """Resolve the repo-transported honesty reviewer over its workflow default."""
+
+    validate_reviewer_config(default, label="default honesty reviewer")
+    override = environ.get(HONESTY_REVIEWER_ENV)
+    return parse_reviewer_config(override) if override and override.strip() else default
+
+
+def honesty_reviewer_command(default: ReviewerConfig, environ: Mapping[str, str]) -> str:
+    """Render the executable reviewer command selected inside the task container."""
+
+    config = resolve_honesty_reviewer(default, environ)
+    if config.harness == "claude":
+        return (
+            "claude --print --output-format json --safe-mode "
+            f"--dangerously-skip-permissions --model {config.model}"
+        )
+    return f"codex exec --dangerously-bypass-approvals-and-sandbox -m {config.model}"
 
 
 @dataclass(frozen=True)
@@ -522,3 +544,20 @@ def complete_review_stage(
     validate_review_gate(comments, reviewers=reviewers, commit=commit, round_number=round_number)
     triage()
     resolve_responsibility()
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Resolve task-container reviewer configuration")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+    honesty = subparsers.add_parser(
+        "honesty-command", help="print the configured test-honesty reviewer command"
+    )
+    honesty.add_argument("--default", required=True, help="workflow <harness>:<model> default")
+    args = parser.parse_args(argv)
+    if args.command == "honesty-command":
+        print(honesty_reviewer_command(parse_reviewer_config(args.default), os.environ))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

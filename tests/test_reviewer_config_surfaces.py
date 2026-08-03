@@ -22,6 +22,7 @@ from panopticon.container.reviewers import (
     ReviewerConfig,
     ReviewerDispatchError,
     dispatch_reviews,
+    main,
     resolve_reviewers,
 )
 from panopticon.core.models import Repo
@@ -38,8 +39,9 @@ from panopticon.workflows.discovery import discover_workflows
 
 @pytest.fixture
 def client(tmp_path: Path) -> Iterator[TestClient]:
+    store = SqlAlchemyStore()
     service = TaskService(
-        SqlAlchemyStore(),
+        store,
         {"spike": Spike()},
         FilesystemArtifactStore(tmp_path),
     )
@@ -47,6 +49,7 @@ def client(tmp_path: Path) -> Iterator[TestClient]:
     asyncio.run(service.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1")))
     with TestClient(create_app(service)) as test_client:
         yield test_client
+    asyncio.run(store.close())
 
 
 def test_workflows_own_configurable_honesty_reviewer_defaults() -> None:
@@ -88,7 +91,22 @@ def test_workflows_own_configurable_honesty_reviewer_defaults() -> None:
         assert variant.honesty_reviewer == ReviewerConfig("claude", "claude-opus-5")
         assert variant.reviewers == (ReviewerConfig("codex", "one"),) * 2
         assert variant.fable_reviews is False
-        variant_workflow = object.__new__(variant)
+        reviewer_only = type(
+            "ReviewerOnlyVariant",
+            (type(workflow),),
+            {"reviewers": (ReviewerConfig("codex", "two"),) * 2},
+        )
+        assert reviewer_only.honesty_reviewer == workflow.honesty_reviewer
+        assert reviewer_only.fable_reviews == workflow.fable_reviews
+        fable_only = type(
+            "FableOnlyVariant",
+            (type(workflow),),
+            {"fable_reviews": not workflow.fable_reviews},
+        )
+        assert fable_only.fable_reviews is not workflow.fable_reviews
+        assert fable_only.honesty_reviewer == workflow.honesty_reviewer
+        assert fable_only.reviewers == workflow.reviewers
+        variant_workflow = variant()
         expected_variant = (
             "claude --print --output-format json --safe-mode "
             "--dangerously-skip-permissions --model claude-opus-5"
@@ -109,6 +127,41 @@ def test_workflows_own_configurable_honesty_reviewer_defaults() -> None:
             variant_workflow._honesty_reviewer_cmd({"PANOPTICON_2119_HONESTY_REVIEWER": "claude"})
 
 
+def test_rendered_spec_skill_resolves_honesty_reviewer_inside_container(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    # 2119: REQ-045.1.2
+    workflow = discover_workflows(_home_workflows=Path("/nonexistent"))["2119-auto-spec"]
+    declared = next(skill for skill in workflow.skills() if skill.name == "spec-2119")
+    delivered = next(skill for skill in workflow.container_skills() if skill.name == "spec-2119")
+    instructions = delivered.instructions
+    assert instructions != declared.instructions
+    assert (
+        "python -m panopticon.container.reviewers honesty-command --default codex:gpt-5.6-sol"
+    ) in instructions
+    variant = type(
+        "HonestyVariant",
+        (type(workflow),),
+        {"honesty_reviewer": ReviewerConfig("claude", "claude-fable-5")},
+    )()
+    variant_instructions = next(
+        skill for skill in variant.container_skills() if skill.name == "spec-2119"
+    ).instructions
+    assert "honesty-command --default claude:claude-fable-5" in variant_instructions
+    monkeypatch.delenv("PANOPTICON_2119_HONESTY_REVIEWER", raising=False)
+    assert main(["honesty-command", "--default", "claude:claude-fable-5"]) == 0
+    assert capsys.readouterr().out.strip().endswith("--model claude-fable-5")
+    monkeypatch.setenv("PANOPTICON_2119_HONESTY_REVIEWER", "   ")
+    assert main(["honesty-command", "--default", "claude:claude-fable-5"]) == 0
+    assert capsys.readouterr().out.strip().endswith("--model claude-fable-5")
+    monkeypatch.setenv("PANOPTICON_2119_HONESTY_REVIEWER", "claude:claude-opus-5")
+    assert main(["honesty-command", "--default", "codex:gpt-5.6-sol"]) == 0
+    assert capsys.readouterr().out.strip() == (
+        "claude --print --output-format json --safe-mode "
+        "--dangerously-skip-permissions --model claude-opus-5"
+    )
+
+
 def test_repo_reviewer_overrides_persist_through_api_and_store(client: TestClient) -> None:
     # 2119: REQ-044.2.1
     created = client.post(
@@ -118,7 +171,7 @@ def test_repo_reviewer_overrides_persist_through_api_and_store(client: TestClien
             "name": "acme/other",
             "git_url": "https://x/r2.git",
             "honesty_reviewer": "claude:claude-opus-5",
-            "reviewer_1": "codex:provider/model:high",
+            "reviewer_1": "  codex:provider/model:high  ",
             "reviewer_2": "claude:claude-fable-5",
         },
     )
@@ -147,13 +200,56 @@ def test_repo_reviewer_overrides_persist_through_api_and_store(client: TestClien
         assert client.get("/repos/r2").json()[name] is None
 
 
+@pytest.mark.asyncio
+async def test_repo_reviewer_overrides_survive_store_reopen(tmp_path: Path) -> None:
+    # 2119: REQ-045.2.1
+    url = f"sqlite:///{tmp_path / 'repos.db'}"
+    values = {
+        "honesty_reviewer": "claude:claude-opus-5",
+        "reviewer_1": "codex:gpt-5.6-sol",
+        "reviewer_2": "claude:claude-fable-5",
+    }
+    first_store = SqlAlchemyStore(url)
+    first = TaskService(first_store, {"spike": Spike()}, FilesystemArtifactStore(tmp_path))
+    await first.init()
+    await first.create_repo(
+        Repo(id="durable", name="durable", git_url="https://x/durable", **values)
+    )
+    await first_store.close()
+
+    second_store = SqlAlchemyStore(url)
+    second = TaskService(second_store, {"spike": Spike()}, FilesystemArtifactStore(tmp_path))
+    await second.init()
+    reopened = await second.get_repo("durable")
+    assert {name: getattr(reopened, name) for name in values} == values
+    await second.update_repo("durable", {"reviewer_1": None})
+    await second_store.close()
+
+    third_store = SqlAlchemyStore(url)
+    third = TaskService(third_store, {"spike": Spike()}, FilesystemArtifactStore(tmp_path))
+    await third.init()
+    cleared = await third.get_repo("durable")
+    assert cleared.honesty_reviewer == values["honesty_reviewer"]
+    assert cleared.reviewer_1 is None
+    assert cleared.reviewer_2 == values["reviewer_2"]
+    await third_store.close()
+
+
 @pytest.mark.parametrize(
-    "value",
-    ["claude", ":claude-opus-5", "claude:", "pi:anthropic/claude-opus-5"],
+    ("value", "reason"),
+    [
+        ("claude", "malformed reviewer pair"),
+        (":claude-opus-5", "missing harness"),
+        ("   :claude-opus-5", "missing harness"),
+        ("claude:", "missing model"),
+        ("claude:   ", "missing model"),
+        ("pi:anthropic/claude-opus-5", "unsupported harness"),
+        ("claudee:claude-opus-5", "unsupported harness"),
+    ],
 )
 @pytest.mark.parametrize("field", ["honesty_reviewer", "reviewer_1", "reviewer_2"])
 def test_repo_rejects_malformed_reviewer_overrides(
-    client: TestClient, field: str, value: str
+    client: TestClient, field: str, value: str, reason: str
 ) -> None:
     # 2119: REQ-044.2.2
     created = client.post(
@@ -165,6 +261,10 @@ def test_repo_rejects_malformed_reviewer_overrides(
     assert patched.status_code == 400, patched.text
     assert field in created.json()["detail"]
     assert field in patched.json()["detail"]
+    assert reason in created.json()["detail"]
+    assert reason in patched.json()["detail"]
+    assert "Remediation:" in created.json()["detail"]
+    assert "Remediation:" in patched.json()["detail"]
 
 
 @pytest.mark.parametrize("field", ["honesty_reviewer", "reviewer_1", "reviewer_2"])
@@ -207,6 +307,45 @@ async def test_repo_form_exposes_all_reviewer_override_fields() -> None:
     assert saved[0]["honesty_reviewer"] == "codex:gpt-5.6-sol"
     assert saved[0]["reviewer_1"] == "claude:claude-fable-5"
     assert saved[0]["reviewer_2"] == "codex:gpt-5.6-sol:medium"
+
+
+async def test_repo_create_form_exposes_and_submits_reviewer_overrides() -> None:
+    # 2119: REQ-045.2.1
+    saved: list[dict[str, Any]] = []
+    values = {
+        "honesty_reviewer": "claude:claude-opus-5",
+        "reviewer_1": "codex:gpt-5.6-sol",
+        "reviewer_2": "claude:claude-fable-5",
+    }
+    app = App()
+    async with app.run_test() as pilot:
+        await app.push_screen(
+            RepoFormScreen("new repo", on_submit=lambda result: saved.append(result))
+        )
+        await pilot.pause()
+        app.screen.query_one("#field-git_url", Input).value = "https://x/widgets.git"
+        for name, value in values.items():
+            app.screen.query_one(f"#field-{name}", Input).value = value
+        await pilot.press("ctrl+s")
+        await pilot.pause()
+    assert {name: saved[0][name] for name in values} == values
+
+
+async def test_repo_create_form_submits_blank_reviewer_overrides_as_null() -> None:
+    # 2119: REQ-045.2.1
+    saved: list[dict[str, Any]] = []
+    app = App()
+    async with app.run_test() as pilot:
+        await app.push_screen(
+            RepoFormScreen("new repo", on_submit=lambda result: saved.append(result))
+        )
+        await pilot.pause()
+        app.screen.query_one("#field-git_url", Input).value = "https://x/widgets.git"
+        await pilot.press("ctrl+s")
+        await pilot.pause()
+    assert {name: saved[0][name] for name in RepoFormScreen.REVIEWER_FIELDS} == dict.fromkeys(
+        RepoFormScreen.REVIEWER_FIELDS
+    )
 
 
 def _alembic_config(db_url: str) -> Config:
@@ -257,7 +396,8 @@ def test_spawn_renders_repo_reviewer_overrides_after_env_file() -> None:
         reviewer_1="codex:provider/model:high",
         reviewer_2="claude:claude-fable-5",
     )
-    docker_run = recorder.calls[2]
+    docker_run = next(call for call in recorder.calls if call[:2] == ["docker", "run"])
+    assert docker_run.count("--env-file") == 1
     env_file_value_index = docker_run.index("--env-file") + 1
     assert docker_run[env_file_value_index] == "/host/secrets/r1.env"
     rendered = (
@@ -267,6 +407,8 @@ def test_spawn_renders_repo_reviewer_overrides_after_env_file() -> None:
     )
     assert all(value in docker_run for value in rendered)
     for value in rendered:
+        name = value.partition("=")[0]
+        assert [item for item in docker_run if item.startswith(f"{name}=")] == [value]
         value_index = docker_run.index(value)
         assert value_index > env_file_value_index
         assert docker_run[value_index - 1] == "--env"
@@ -275,7 +417,8 @@ def test_spawn_renders_repo_reviewer_overrides_after_env_file() -> None:
     LocalRunner("http://svc", secrets_dir="/host/secrets", run=empty_recorder).spawn(
         "t2", env_file="r1.env"
     )
-    empty_run = empty_recorder.calls[2]
+    empty_run = next(call for call in empty_recorder.calls if call[:2] == ["docker", "run"])
+    assert empty_run.count("--env-file") == 1
     empty_env_value_index = empty_run.index("--env-file") + 1
     assert empty_run[empty_env_value_index] == "/host/secrets/r1.env"
     for name in (
@@ -284,8 +427,22 @@ def test_spawn_renders_repo_reviewer_overrides_after_env_file() -> None:
         "PANOPTICON_2119_REVIEWER_2",
     ):
         value_index = empty_run.index(f"{name}=")
+        assert [item for item in empty_run if item.startswith(f"{name}=")] == [f"{name}="]
         assert value_index > empty_env_value_index
         assert empty_run[value_index - 1] == "--env"
+
+    mixed_recorder = _Recorder()
+    LocalRunner("http://svc", run=mixed_recorder).spawn("t3", reviewer_1="codex:one")
+    mixed_run = next(call for call in mixed_recorder.calls if call[:2] == ["docker", "run"])
+    assert [item for item in mixed_run if item.startswith("PANOPTICON_2119_HONESTY_REVIEWER=")] == [
+        "PANOPTICON_2119_HONESTY_REVIEWER="
+    ]
+    assert [item for item in mixed_run if item.startswith("PANOPTICON_2119_REVIEWER_1=")] == [
+        "PANOPTICON_2119_REVIEWER_1=codex:one"
+    ]
+    assert [item for item in mixed_run if item.startswith("PANOPTICON_2119_REVIEWER_2=")] == [
+        "PANOPTICON_2119_REVIEWER_2="
+    ]
 
     captured: dict[str, Any] = {}
     spawner = object.__new__(Spawner)
@@ -344,10 +501,27 @@ def test_reviewer_resolution_uses_repo_override_then_workflow_default() -> None:
             (ReviewerConfig("pi", "model"), defaults[1]),
             (ReviewerConfig("", "model"), defaults[1]),
             (ReviewerConfig("claude", ""), defaults[1]),
+            (ReviewerConfig("claude", "   "), defaults[1]),
         )
     ) + tuple(
         (defaults, {"PANOPTICON_2119_REVIEWER_2": value})
-        for value in ("claude", ":model", "claude:", "pi:model")
+        for value in ("claude", ":model", "   :model", "claude:", "claude:   ", "pi:model")
+    )
+    invalid_cases += (
+        (
+            (ReviewerConfig("pi", "model"), defaults[1]),
+            {"PANOPTICON_2119_REVIEWER_1": "claude:claude-opus-5"},
+        ),
+        (
+            (ReviewerConfig("claude", "   "), defaults[1]),
+            {"PANOPTICON_2119_REVIEWER_1": "claude:claude-opus-5"},
+        ),
+        (
+            (defaults[0], ReviewerConfig("pi", "model")),
+            {"PANOPTICON_2119_REVIEWER_2": "codex:gpt-5.6-sol"},
+        ),
+        ((defaults[0], ReviewerConfig("pi", "model")), {}),
+        (defaults, {"PANOPTICON_2119_REVIEWER_1": "claude"}),
     )
     for invalid_defaults, environment in invalid_cases:
         with pytest.raises(ReviewerDispatchError):

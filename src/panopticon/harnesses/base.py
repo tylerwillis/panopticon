@@ -83,9 +83,9 @@ def parse_reviewer_config(value: str) -> ReviewerConfig:
             f"malformed reviewer pair {value!r}; expected <harness>:<model>"
         )
     harness, model = value.split(":", 1)
-    if not harness:
+    if not harness.strip():
         raise ReviewerDispatchError("reviewer pair has a missing harness", requested_model=model)
-    if not model:
+    if not model.strip():
         raise ReviewerDispatchError("reviewer pair has a missing model")
     if harness not in SUPPORTED_REVIEWER_HARNESSES:
         raise ReviewerDispatchError(
@@ -97,7 +97,7 @@ def parse_reviewer_config(value: str) -> ReviewerConfig:
 
 def validate_reviewer_config(config: ReviewerConfig, *, label: str = "reviewer") -> None:
     """Reject a malformed programmatic default before any reviewer command can run."""
-    if config.harness not in SUPPORTED_REVIEWER_HARNESSES or not config.model:
+    if config.harness not in SUPPORTED_REVIEWER_HARNESSES or not config.model.strip():
         raise ReviewerDispatchError(
             f"invalid {label}",
             requested_model=config.model,

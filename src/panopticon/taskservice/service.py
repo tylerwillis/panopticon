@@ -62,7 +62,7 @@ def _uuid_hex() -> str:
 def _validate_agent_surface(workflow: Workflow) -> None:
     workflow.validate_registration(HARNESSES)
     surface_names = {PROVISION_SKILL.name, ARTIFACT_SKILL.name}
-    for skill in workflow.skills():
+    for skill in workflow.container_skills():
         if skill.name in surface_names:
             raise InvalidWorkflow(f"{workflow.name!r}: duplicate agent surface name {skill.name!r}")
         surface_names.add(skill.name)
@@ -327,6 +327,7 @@ class TaskService:
         """Normalize blank repo overrides and reject invalid atomic reviewer pairs."""
         if value is None or not value.strip():
             return None
+        value = value.strip()
         try:
             parse_reviewer_config(value)
         except ReviewerDispatchError as exc:
@@ -748,7 +749,7 @@ class TaskService:
     async def skills(self, task_id: str) -> list[Skill]:
         """The universal core skills followed by the active workflow's own skills."""
         task = await self.get_task(task_id)
-        return [PROVISION_SKILL, ARTIFACT_SKILL, *self._workflow(task.workflow).skills()]
+        return [PROVISION_SKILL, ARTIFACT_SKILL, *self._workflow(task.workflow).container_skills()]
 
     async def briefing(self, task_id: str) -> str:
         """A short briefing on the task's current phase (state + responsibilities + how it advances),

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.1.2--89be38e691df",
+  "requirementId": "REQ-045.1.2",
+  "hash": "89be38e691df",
+  "verdict": "pass",
+  "summary": "Real resolver and rendered-skill tests reject absent/blank/malformed overrides, prove valid env precedence, and prove a non-Codex workflow default controls fallback command construction.",
+  "timestamp": "2026-08-03T21:09:11.546Z"
+}

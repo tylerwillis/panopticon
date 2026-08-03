@@ -1936,12 +1936,12 @@ class RepoFormScreen(ModalScreen["dict[str, Any] | None"]):
                             f"({self._launch.source})",
                             id="default-model-effective",
                         )
-                        for name in self.REVIEWER_FIELDS:
-                            yield Input(
-                                value=self._initial(name),
-                                placeholder=f"{name} (<harness>:<model>)",
-                                id=f"field-{name}",
-                            )
+                    for name in self.REVIEWER_FIELDS:
+                        yield Input(
+                            value=self._initial(name),
+                            placeholder=f"{name} (<harness>:<model>)",
+                            id=f"field-{name}",
+                        )
                     yield EnvFileField(initial=self._initial("env_file"), id="field-env_file")
                     yield ImageLayerField(
                         initial=self._initial("image_layer_file"), id="field-image_layer_file"
@@ -2029,10 +2029,10 @@ class RepoFormScreen(ModalScreen["dict[str, Any] | None"]):
             values["default_model"] = (
                 self.query_one("#field-default_model", Input).value.strip() or None
             )
-            for name in self.REVIEWER_FIELDS:
-                value = self.query_one(f"#field-{name}", Input).value.strip() or None
-                if name in self._repo or value is not None:
-                    values[name] = value
+        for name in self.REVIEWER_FIELDS:
+            value = self.query_one(f"#field-{name}", Input).value.strip() or None
+            if not self._editing or name in self._repo or value is not None:
+                values[name] = value
         values["env_file"] = self.query_one("#field-env_file", EnvFileField).env_file_value or None
         values["image_layer_file"] = (
             self.query_one("#field-image_layer_file", ImageLayerField).image_layer_value or None
@@ -2276,6 +2276,11 @@ class ReposScreen(_TableScreen):
         def create(values: dict[str, Any]) -> str | None:
             if not (values["id"] and values["name"] and values["git_url"]):
                 return "id, name and git_url are required."
+            reviewer_values = {
+                name: values[name]
+                for name in RepoFormScreen.REVIEWER_FIELDS
+                if values[name] is not None
+            }
             try:
                 self._client.create_repo(
                     values["id"],
@@ -2288,6 +2293,7 @@ class ReposScreen(_TableScreen):
                     capabilities={"docker_in_docker": values["docker_in_docker"]},
                     enabled_workflows=values["enabled_workflows"],
                     disabled_workflows=values["disabled_workflows"],
+                    **reviewer_values,
                 )
             except httpx.HTTPStatusError as exc:
                 return f"Can't create: {_detail(exc)}"
