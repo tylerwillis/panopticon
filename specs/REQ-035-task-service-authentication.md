@@ -152,7 +152,7 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 
 ### REQ-035.35: Permissive convergence signal
 
-1. Permissive mode MUST emit a rate-limited warning identifying the request method, route, caller address, and cumulative count whenever it admits a header-less protected request.
+1. Permissive mode MUST emit rate-limited warnings that identify the admitted header-less request method, route, caller address, and cumulative count.
 
 ### REQ-035.36: Permanent liveness rejection
 
@@ -177,3 +177,11 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 ### REQ-035.41: Rendered shell trace secrecy
 
 1. Authenticated Pi-operation and REST-artifact commands executed with shell xtrace enabled MUST NOT write the configured token to the trace stream.
+
+### REQ-035.42: MCP SDK log secrecy
+
+1. Caller-controlled MCP request or resource data containing a configured token MUST NOT write that token through the pinned MCP SDK loggers.
+
+### REQ-035.43: Migration convergence counter
+
+1. Permissive mode health responses MUST expose a monotonic total of header-less requests admitted since application startup without disclosing configured tokens.

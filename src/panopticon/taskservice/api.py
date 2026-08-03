@@ -47,6 +47,30 @@ from panopticon.taskservice.service import (
 #: proxies from closing the connection and gives the container a tick to notice a clean stop.
 LIVENESS_KEEPALIVE_SECONDS = 5.0
 _log = logging.getLogger(__name__)
+_original_log_record_factory = logging.getLogRecordFactory()
+_log_redaction_tokens: tuple[str, ...] = ()
+_log_redaction_factory_installed = False
+
+
+def _redacting_log_record_factory(*args: Any, **kwargs: Any) -> logging.LogRecord:
+    record = _original_log_record_factory(*args, **kwargs)
+    if _log_redaction_tokens:
+        message = record.getMessage()
+        for token in _log_redaction_tokens:
+            message = message.replace(token, "[redacted]")
+        record.msg = message
+        record.args = ()
+    return record
+
+
+def _install_log_redaction(tokens: tuple[str, ...]) -> None:
+    global _log_redaction_factory_installed, _log_redaction_tokens
+    _log_redaction_tokens = tuple(
+        sorted(set(_log_redaction_tokens).union(tokens), key=len, reverse=True)
+    )
+    if not _log_redaction_factory_installed:
+        logging.setLogRecordFactory(_redacting_log_record_factory)
+        _log_redaction_factory_installed = True
 
 
 def _redact_stream_chunk(
@@ -505,6 +529,8 @@ def create_app(
     if mode in {"permissive", "enforced"} and auth_file is None:
         raise ValueError(f"authentication credential file is required in {mode} mode")
     tokens = load_tokens(auth_file, secrets_dir=secrets_dir) if auth_file is not None else None
+    if tokens is not None:
+        _install_log_redaction((*tokens.read, *tokens.write))
 
     mcp = build_mcp_server(service)
     mcp.settings.streamable_http_path = "/"
@@ -709,7 +735,11 @@ def create_app(
     # -- health & discovery -------------------------------------------------------
 
     @app.get("/healthz")
-    async def healthz() -> dict[str, str]:
+    async def healthz(response: Response) -> dict[str, str]:
+        if mode == "permissive":
+            response.headers["X-Panopticon-Permissive-Unauthenticated-Total"] = str(
+                permissive_unauthenticated_total
+            )
         return {"status": "ok"}
 
     @app.get("/workflows")

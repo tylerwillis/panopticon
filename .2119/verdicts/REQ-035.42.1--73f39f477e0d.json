@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.42.1--73f39f477e0d",
+  "requirementId": "REQ-035.42.1",
+  "hash": "73f39f477e0d",
+  "verdict": "pass",
+  "summary": "Actual MCP tool-call and resource-read requests inject every configured token while root caplog captures pinned SDK logging; any logged or returned token fails the test.",
+  "timestamp": "2026-08-03T08:56:01.456Z"
+}

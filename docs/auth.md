@@ -69,8 +69,10 @@ Roll a live fleet out without killing existing containers:
 1. Put the old write token in the credential file and temporarily start the service in
    `permissive` mode. Do not expose this grace mode to an untrusted interface: a request that omits
    Authorization has full legacy access. Startup logs both the active mode and rate-limited
-   warnings for every method/route/caller still making header-less requests; do not cut over until
-   those warnings show that migration has converged.
+   warnings for methods/routes/callers still making header-less requests. Every permissive
+   `GET /healthz` response also carries
+   `X-Panopticon-Permissive-Unauthenticated-Total`; poll it across a representative fleet interval
+   and do not cut over unless the monotonic total remains unchanged.
    Restart each runner, dashboard, and CLI host so new containers receive the credential mount;
    existing unauthenticated containers continue working.
 2. Respawn or naturally replace the in-flight containers until all callers send the token, then

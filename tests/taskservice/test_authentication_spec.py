@@ -437,6 +437,7 @@ def test_mcp_tool_arguments_never_log_or_return_configured_tokens(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
     # 2119: REQ-035.18.1
+    # 2119: REQ-035.42.1
     configured = (
         READ_TOKEN,
         NEXT_READ_TOKEN,
@@ -445,7 +446,7 @@ def test_mcp_tool_arguments_never_log_or_return_configured_tokens(
         NEXT_WRITE_TOKEN,
         OPAQUE_WRITE_TOKEN,
     )
-    caplog.set_level("DEBUG", logger="panopticon")
+    caplog.set_level("DEBUG")
     app = create_app(
         _service(tmp_path),
         auth_file=_credential_file(tmp_path, overlap=True, opaque=True),
@@ -494,6 +495,19 @@ def test_mcp_tool_arguments_never_log_or_return_configured_tokens(
             )
             for index, token in enumerate(configured)
         ]
+        responses.extend(
+            client.post(
+                "/mcp/",
+                headers=session_headers,
+                json={
+                    "jsonrpc": "2.0",
+                    "id": index + 20,
+                    "method": "resources/read",
+                    "params": {"uri": f"panopticon://tasks/{token}/artifacts/missing"},
+                },
+            )
+            for index, token in enumerate(configured)
+        )
 
     assert all(response.status_code == 200 for response in responses)
     observed = caplog.text + "".join(response.text for response in responses)
@@ -1063,9 +1077,33 @@ def test_permissive_mode_reports_headerless_callers(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
     # 2119: REQ-035.35.1
+    # 2119: REQ-035.43.1
     with _client(tmp_path, mode="permissive") as client:
-        for _ in range(3):
+
+        def observed_health_total() -> int:
+            health = client.get("/healthz")
+            health_wire = health.text + str(health.headers)
+            assert READ_TOKEN not in health_wire
+            assert WRITE_TOKEN not in health_wire
+            return int(health.headers["x-panopticon-permissive-unauthenticated-total"])
+
+        observed_totals = [observed_health_total()]
+        for index in range(3):
             assert client.get("/tasks").status_code == 200
+            observed_totals.append(observed_health_total())
+            if index == 0:
+                assert client.get("/tasks", headers=_bearer(WRITE_TOKEN)).status_code == 200
+                observed_totals.append(observed_health_total())
+                assert client.get("/tasks", headers=_bearer(READ_TOKEN)).status_code == 200
+                observed_totals.append(observed_health_total())
+        assert observed_totals == [0, 1, 1, 1, 2, 3]
+
+    with _client(tmp_path / "restarted", mode="permissive") as restarted:
+        restarted_health = restarted.get("/healthz")
+        assert restarted_health.headers["x-panopticon-permissive-unauthenticated-total"] == "0"
+        restarted_wire = restarted_health.text + str(restarted_health.headers)
+        assert READ_TOKEN not in restarted_wire
+        assert WRITE_TOKEN not in restarted_wire
 
     warnings = [
         record.getMessage()
@@ -1082,11 +1120,13 @@ def test_permissive_warning_redacts_tokens_and_keeps_a_monotonic_bounded_signal(
 ) -> None:
     # 2119: REQ-035.18.1
     # 2119: REQ-035.35.1
+    # 2119: REQ-035.43.1
     with _client(tmp_path, mode="permissive") as client:
         assert client.get(f"/tasks/{WRITE_TOKEN}").status_code == 404
         for index in range(1024):
             assert client.get(f"/missing-{index}").status_code == 404
         assert client.get(f"/tasks/{WRITE_TOKEN}").status_code == 404
+        health = client.get("/healthz")
 
     warnings = [
         record.getMessage()
@@ -1097,6 +1137,10 @@ def test_permissive_warning_redacts_tokens_and_keeps_a_monotonic_bounded_signal(
     assert "route=/tasks/[redacted]" in warnings[0]
     counts = [int(message.rsplit("count=", 1)[1]) for message in warnings]
     assert counts == [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
+    assert health.headers["x-panopticon-permissive-unauthenticated-total"] == "1026"
+    health_wire = health.text + str(health.headers)
+    assert READ_TOKEN not in health_wire
+    assert WRITE_TOKEN not in health_wire
 
 
 @pytest.mark.parametrize(
