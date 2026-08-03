@@ -39,13 +39,20 @@ class _Client:
         return [] if self.delivery is None else [vars(self.delivery)]
 
     def settle_session_input(
-        self, task_id: str, delivery_id: str, status: str, failure_reason: str | None
+        self,
+        task_id: str,
+        delivery_id: str,
+        status: str,
+        failure_reason: str | None,
+        runner_id: str,
     ) -> None:
-        del task_id
+        del task_id, runner_id
         self.settlements.append((delivery_id, status, failure_reason))
 
-    def publish_session_transcript(self, task_id: str, snapshot: dict[str, Any]) -> None:
-        del task_id
+    def publish_session_transcript(
+        self, task_id: str, snapshot: dict[str, Any], runner_id: str
+    ) -> None:
+        del task_id, runner_id
         self.transcripts.append(snapshot)
 
 
@@ -136,6 +143,29 @@ def test_worker_revalidates_authoritative_task_before_each_delivery(
     assert client.settlements == [("delivery-1", "delivered", None)]
 
 
+@pytest.mark.parametrize(
+    "changed",
+    [
+        {"turn": "agent"},
+        {"claimed_by": "host-2"},
+        {"container_status": "down"},
+    ],
+)
+def test_worker_rejects_stale_eligible_snapshot_before_first_delivery(
+    changed: dict[str, str],
+) -> None:
+    # 2119: REQ-044.5.1
+    from panopticon.sessionservice.session_io import SessionIOWorker
+
+    client, runner = _Client(_Delivery()), _Runner()
+    client.task = client.task | changed
+    SessionIOWorker(client, runner, runner_id="host-1", dispatch=lambda call: call()).process(
+        {"id": "t1", "claimed_by": "host-1", "container_status": "live", "turn": "user"}
+    )
+    assert runner.deliveries == []
+    assert client.settlements == []
+
+
 @pytest.mark.parametrize("submit", [False, True])
 def test_prefill_stages_or_submits_with_exact_tmux_commands(tmp_path: Path, submit: bool) -> None:
     # 2119: REQ-044.3.1
@@ -178,6 +208,33 @@ def test_prefill_stages_or_submits_with_exact_tmux_commands(tmp_path: Path, subm
         assert calls.index(paste) < calls.index(enter)
 
 
+def test_remote_delivery_preserves_nonempty_whitespace_input(tmp_path: Path) -> None:
+    # 2119: REQ-044.2.3
+    from panopticon.sessionservice.session_io import deliver_pane_input
+
+    raw = tmp_path / "ready"
+    raw.write_bytes(BRACKETED_PASTE_ON)
+    loaded: list[str] = []
+
+    def run(args: list[str], *, check: bool = True) -> str:
+        del check
+        if "display-message" in args:
+            return "%1\n"
+        if "load-buffer" in args:
+            loaded.append(Path(args[-1]).read_text())
+        return ""
+
+    assert deliver_pane_input(
+        "sess",
+        " \n",
+        submit=False,
+        run=run,
+        raw_log=str(raw),
+        sleep=lambda _: None,
+    ) == (True, None)
+    assert loaded == [" \n"]
+
+
 def test_worker_records_stable_delivery_failure() -> None:
     # 2119: REQ-044.5.3
     from panopticon.sessionservice.session_io import SessionIOWorker
@@ -193,6 +250,7 @@ def test_worker_records_stable_delivery_failure() -> None:
 def test_worker_settlement_uses_local_runner_prefill_path(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, submit: bool, fail: bool
 ) -> None:
+    # 2119: REQ-044.3.1
     # 2119: REQ-044.3.2
     # 2119: REQ-044.5.3
     from panopticon.sessionservice.local_runner import LocalRunner
@@ -283,9 +341,14 @@ def test_settled_idempotent_request_is_not_delivered_twice(submit: bool) -> None
 
     class SettlingClient(_Client):
         def settle_session_input(
-            self, task_id: str, delivery_id: str, status: str, failure_reason: str | None
+            self,
+            task_id: str,
+            delivery_id: str,
+            status: str,
+            failure_reason: str | None,
+            runner_id: str,
         ) -> None:
-            super().settle_session_input(task_id, delivery_id, status, failure_reason)
+            super().settle_session_input(task_id, delivery_id, status, failure_reason, runner_id)
             self.delivery = None
 
     client, runner = SettlingClient(_Delivery(submit=submit)), _Runner()

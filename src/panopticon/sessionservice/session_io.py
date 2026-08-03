@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import re
 import tempfile
 import threading
@@ -10,6 +11,8 @@ from pathlib import Path
 from typing import Any, Protocol
 
 from panopticon.sessionservice.prefill import DEFAULT_WAKE_TIMEOUT, prefill_pane
+
+_log = logging.getLogger(__name__)
 
 FAILURE_REASON = "tmux-delivery-failed"
 MAX_TRANSCRIPT_BYTES = 64 * 1024
@@ -31,10 +34,17 @@ class _Client(Protocol):
     def pending_session_input(self, task_id: str, runner_id: str) -> list[dict[str, Any]]: ...
 
     def settle_session_input(
-        self, task_id: str, delivery_id: str, status: str, failure_reason: str | None
+        self,
+        task_id: str,
+        delivery_id: str,
+        status: str,
+        failure_reason: str | None,
+        runner_id: str,
     ) -> None: ...
 
-    def publish_session_transcript(self, task_id: str, snapshot: dict[str, Any]) -> None: ...
+    def publish_session_transcript(
+        self, task_id: str, snapshot: dict[str, Any], runner_id: str
+    ) -> None: ...
 
 
 class _Runner(Protocol):
@@ -160,14 +170,18 @@ class SessionIOWorker:
                             or current.get("turn") != "user"
                         ):
                             break
-                        ok, reason = self._runner.deliver_session_input(
-                            task_id, str(delivery["text"]), submit=bool(delivery["submit"])
-                        )
+                        try:
+                            ok, reason = self._runner.deliver_session_input(
+                                task_id, str(delivery["text"]), submit=bool(delivery["submit"])
+                            )
+                        except (OSError, ValueError):
+                            ok, reason = False, FAILURE_REASON
                         self._client.settle_session_input(
                             task_id,
                             str(delivery["id"]),
                             "delivered" if ok else "failed",
                             None if ok else (reason or FAILURE_REASON),
+                            self._runner_id,
                         )
                 current = self._client.get_task(task_id)
                 if (
@@ -175,7 +189,9 @@ class SessionIOWorker:
                     and current.get("container_status") == "live"
                     and (snapshot := self._runner.capture_session_transcript(task_id))
                 ):
-                    self._client.publish_session_transcript(task_id, snapshot)
+                    self._client.publish_session_transcript(task_id, snapshot, self._runner_id)
+            except Exception:
+                _log.warning("session I/O failed for task %s", task_id, exc_info=True)
             finally:
                 with self._lock:
                     self._inflight.discard(task_id)

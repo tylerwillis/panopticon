@@ -680,10 +680,45 @@ def test_submitted_request_retry_after_settlement_returns_original(tmp_path: Pat
             headers=_auth(WRITE),
             json={"runner_id": "host-1", "status": "delivered"},
         )
+        http.put(f"/tasks/{task_id}/turn", headers=_auth(WRITE), json={"turn": "agent"})
         retry = http.post(f"/tasks/{task_id}/session/input", headers=_auth(WRITE), json=body)
     assert settled.status_code == 200
     assert retry.status_code == 202
     assert retry.json() == settled.json()
+
+
+def test_agent_turn_worker_publishes_with_explicit_runner_identity(tmp_path: Path) -> None:
+    # 2119: REQ-044.6.2
+    # 2119: REQ-044.7.2
+    from panopticon.sessionservice.session_io import SessionIOWorker
+
+    class Runner:
+        def deliver_session_input(
+            self, task_id: str, text: str, *, submit: bool
+        ) -> tuple[bool, str | None]:
+            raise AssertionError((task_id, text, submit))
+
+        def capture_session_transcript(self, task_id: str) -> dict[str, object]:
+            assert task_id
+            return {"text": "working λ", "columns": 80, "rows": 24, "truncated": False}
+
+    service, client = _app(tmp_path)
+    with client as http:
+        task_id = _live_user_task(service, http)
+        task = http.put(
+            f"/tasks/{task_id}/turn", headers=_auth(WRITE), json={"turn": "agent"}
+        ).json()
+        SessionIOWorker(
+            TaskServiceClient(http, token=WRITE),
+            Runner(),
+            runner_id="host-1",
+            dispatch=lambda call: call(),
+        ).process(task)
+        transcript = http.get(f"/tasks/{task_id}/session/transcript", headers=_auth(READ))
+    assert transcript.status_code == 200
+    assert transcript.json()["text"] == "working λ"
+    assert transcript.json()["runner_id"] == "host-1"
+    assert transcript.json()["truncated"] is False
 
 
 def test_submitted_delivery_uses_existing_prompt_hook_contract(
@@ -832,7 +867,13 @@ def test_transcript_is_readable_bounded_structured_stale_and_unredacted(
     )
 
 
-def test_transcript_publication_rejects_terminal_escape_sequences(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    "control",
+    ["\x1b[31mred", "\x1b]0;title\x07", "\x1bPdata\x1b\\", "\x1b_payload\x1b\\"],
+)
+def test_transcript_publication_rejects_terminal_escape_sequences(
+    tmp_path: Path, control: str
+) -> None:
     # 2119: REQ-044.7.5
     service, client = _app(tmp_path)
     with client as http:
@@ -842,7 +883,7 @@ def test_transcript_publication_rejects_terminal_escape_sequences(tmp_path: Path
             headers=_auth(WRITE),
             json={
                 "runner_id": "host-1",
-                "text": "visible\x1b[31mred\x1b[0m λ",
+                "text": f"visible{control} λ",
                 "columns": 80,
                 "rows": 24,
                 "truncated": False,

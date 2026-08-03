@@ -211,6 +211,11 @@ class TaskService:
     ) -> SessionInput:
         async with self._transition_lock(task_id):
             task = await self.get_task(task_id)
+            for existing in await self._store.list_session_inputs(task_id):
+                if existing.idempotency_key == idempotency_key:
+                    if existing.text != text or existing.submit != submit:
+                        raise SessionConflict("idempotency key already has different input")
+                    return existing
             if (
                 self.task_is_terminal(task)
                 or task.claimed_by is None
@@ -219,11 +224,6 @@ class TaskService:
                 or task.turn is not Actor.USER
             ):
                 raise SessionConflict("task session is not accepting input")
-            for existing in await self._store.list_session_inputs(task_id):
-                if existing.idempotency_key == idempotency_key:
-                    if existing.text != text or existing.submit != submit:
-                        raise SessionConflict("idempotency key already has different input")
-                    return existing
             return await self._store.create_session_input(
                 SessionInput(
                     id=self._id(),
