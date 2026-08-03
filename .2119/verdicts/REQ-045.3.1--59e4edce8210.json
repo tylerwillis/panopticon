@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.3.1--59e4edce8210",
+  "requirementId": "REQ-045.3.1",
+  "hash": "59e4edce8210",
+  "verdict": "pass",
+  "summary": "Covers import and creation invariance, active and sequential lifespans, both overlapping close orders, and exact restoration of a custom pre-lifespan Handler.handle identity after the last authenticated lifespan closes.",
+  "timestamp": "2026-08-03T22:19:01.743Z"
+}

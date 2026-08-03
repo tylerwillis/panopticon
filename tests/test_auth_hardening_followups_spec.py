@@ -6,6 +6,7 @@ import asyncio
 import contextlib
 import json
 import logging
+import os
 import selectors
 import shlex
 import shutil
@@ -13,7 +14,7 @@ import stat
 import subprocess
 import sys
 import time
-from io import StringIO
+from io import BytesIO, StringIO
 from pathlib import Path
 
 import pytest
@@ -122,7 +123,16 @@ def test_mcp_transport_applies_constant_redaction_to_streamed_responses(
 
         def streamable_http_app(self):
             async def app(_scope, _receive, send):
-                await send({"type": "http.response.start", "status": 200, "headers": []})
+                plaintext = (
+                    f"before:{WRITE_TOKEN}:{WRITE_TOKEN}:{READ_TOKEN}:{READ_TOKEN}:after"
+                ).encode()
+                await send(
+                    {
+                        "type": "http.response.start",
+                        "status": 200,
+                        "headers": [(b"content-length", str(len(plaintext)).encode())],
+                    }
+                )
                 await send(
                     {
                         "type": "http.response.body",
@@ -147,6 +157,7 @@ def test_mcp_transport_applies_constant_redaction_to_streamed_responses(
         response = client.post("/mcp/", headers={"Authorization": f"Bearer {WRITE_TOKEN}"})
 
     assert response.status_code == 200
+    assert "content-length" not in response.headers
     assert response.content == b"before:[redacted]:[redacted]:[redacted]:[redacted]:after"
 
 
@@ -591,6 +602,8 @@ def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> 
                     loggers[name].info(f"template {payload}", extra=safe_extra)
                     loggers[name].info("message %s %s", payload, payload, extra=safe_extra)
                     loggers[name].info("mapping %(value)s", {"value": payload}, extra=safe_extra)
+                    split = len(token) // 2
+                    loggers[name].info("split %s%s", token[:split], token[split:], extra=safe_extra)
                     loggers[name].info(
                         "extra",
                         extra={
@@ -626,6 +639,7 @@ def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> 
             in observed
         )
         assert f"mapping {redacted_payload} safe also-safe arbitrary-safe" in observed
+        assert "split [redacted] safe also-safe arbitrary-safe" in observed
         assert f"extra {redacted_payload} {redacted_payload}" in observed
         assert f"'nested': ['{redacted_payload}']" in observed
         assert f"exception {redacted_payload}" in observed
@@ -644,6 +658,10 @@ def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> 
         assert any(
             record.get("msg") == "mapping %(value)s"
             and record.get("args") == {"value": redacted_payload}
+            for record in records
+        )
+        assert any(
+            record.get("msg") == "split [redacted]" and record.get("args") == ()
             for record in records
         )
         assert any(
@@ -874,6 +892,26 @@ def test_private_log_tee_forwards_available_output_without_waiting_for_eof(
     finally:
         process.stdin.close()
         process.wait(timeout=2)
+
+
+def test_private_log_tee_keeps_forwarding_after_persistence_fails() -> None:
+    # 2119: REQ-045.4.3
+    class _FailedLog(BytesIO):
+        def write(self, data: bytes) -> int:
+            raise OSError("disk full")
+
+    read_fd, write_fd = os.pipe()
+    try:
+        os.write(write_fd, b"still-visible\n")
+    finally:
+        os.close(write_fd)
+    output = BytesIO()
+    try:
+        log_tee.copy_available(read_fd, output, _FailedLog())
+    finally:
+        os.close(read_fd)
+
+    assert output.getvalue() == b"still-visible\n"
 
 
 @pytest.mark.skipif(not shutil.which("tmux"), reason="needs tmux")

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.5.1--ef40852e01bb",
+  "requirementId": "REQ-045.5.1",
+  "hash": "ef40852e01bb",
+  "verdict": "pass",
+  "summary": "Real ASGI exchanges cover unauthenticated disabled, permissive, and enforced modes; they require GET 200, exact HEAD status/header equality, and zero HEAD body bytes.",
+  "timestamp": "2026-08-03T22:26:16.297Z"
+}

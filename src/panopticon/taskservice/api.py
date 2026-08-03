@@ -83,6 +83,10 @@ class _ConfiguredTokenLogFilter(logging.Filter):
     def filter(self, record: logging.LogRecord) -> bool:
         record.msg = _redact_log_value(record.msg, self._tokens)
         record.args = _redact_log_value(record.args, self._tokens)
+        rendered = record.getMessage()
+        if any(token in rendered for token in self._tokens):
+            record.msg = _redact_log_value(rendered, self._tokens)
+            record.args = ()
         if record.exc_info is not None:
             record.exc_text = _redact_log_value(
                 "".join(traceback.format_exception(*record.exc_info)), self._tokens
@@ -691,7 +695,16 @@ def create_app(
 
         async def send_redacted(message: Message) -> None:
             nonlocal pending
-            if message["type"] == "http.response.body":
+            if message["type"] == "http.response.start" and configured:
+                message = {
+                    **message,
+                    "headers": [
+                        (name, value)
+                        for name, value in message.get("headers", [])
+                        if name.lower() != b"content-length"
+                    ],
+                }
+            elif message["type"] == "http.response.body":
                 more_body = bool(message.get("more_body", False))
                 output, pending = _redact_stream_chunk(
                     message.get("body", b""),

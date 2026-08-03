@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.1.1--8e02c230d959",
+  "requirementId": "REQ-045.1.1",
+  "hash": "8e02c230d959",
+  "verdict": "pass",
+  "summary": "Tests reject missed repeated/configured-token occurrences and nonconstant markers, exercise every two-chunk boundary plus byte-wise streaming, and verify the MCP response middleware emits exact [redacted] bytes.",
+  "timestamp": "2026-08-03T22:17:08.127Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.2.3--9f121da9544b",
+  "requirementId": "REQ-045.2.3",
+  "hash": "9f121da9544b",
+  "verdict": "pass",
+  "summary": "Tests reject replacement startup when either stale tmux or container cleanup fails or leaves the resource present, and verify both removals precede docker run.",
+  "timestamp": "2026-08-03T22:18:44.864Z"
+}
