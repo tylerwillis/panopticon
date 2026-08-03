@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.1.4--e1bfcb387f09",
+  "requirementId": "REQ-026.1.4",
+  "hash": "e1bfcb387f09",
+  "verdict": "pass",
+  "summary": "The test keeps unclaimed non-terminal tasks spawnable with both an empty and omitted dependency list, while claimed and terminal near-counterexamples are excluded.",
+  "timestamp": "2026-08-03T07:51:02.243Z"
+}

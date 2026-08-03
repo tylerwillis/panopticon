@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-043.2.2--d649fc7b2f9f",
-  "requirementId": "REQ-043.2.2",
-  "hash": "d649fc7b2f9f",
-  "verdict": "pass",
-  "summary": "Annotated integration test keeps the post-session failure claim held and rejects lifecycle report/clear, release/reclaim, and any LocalRunner command from mark_healing plus heal.",
-  "timestamp": "2026-08-03T07:25:11.672Z"
-}

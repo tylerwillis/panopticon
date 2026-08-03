@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.3.5--e87e5ce895ee",
+  "requirementId": "REQ-026.3.5",
+  "hash": "e87e5ce895ee",
+  "verdict": "pass",
+  "summary": "Tests reject omission before spawn and after refresh: a gated dependent stays unclaimed, is excluded from spawn, remains listed, and renders as a dashboard row.",
+  "timestamp": "2026-08-03T07:51:09.551Z"
+}

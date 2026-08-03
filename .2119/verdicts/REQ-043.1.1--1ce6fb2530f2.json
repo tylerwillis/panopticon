@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-043.1.1--1ce6fb2530f2",
+  "requirementId": "REQ-043.1.1",
+  "hash": "1ce6fb2530f2",
+  "verdict": "pass",
+  "summary": "Real image-build exit 1 before session creation retains the non-terminal claim, clears lifecycle, and an available-budget heal retries successfully without release.",
+  "timestamp": "2026-08-03T07:51:14.235Z"
+}

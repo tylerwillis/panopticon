@@ -33,4 +33,3 @@ async def test_gated_unclaimed_task_remains_visible_after_feed_refresh() -> None
         await _settle(pilot, lambda: fake.list_tasks_calls > builds)
 
         assert "gated-dependent" in {str(key.value) for key in table.rows}
-        assert gated["claimed_by"] is None

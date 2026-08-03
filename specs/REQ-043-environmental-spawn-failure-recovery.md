@@ -20,20 +20,21 @@ Unlike REQ-031.3's daemon-unreachable preflight, a command was actually attempte
 spawn-time infrastructure failure was observed. Each failed respawn therefore remains charged to
 the existing crash-loop budget. This allows transient failures to recover automatically while
 bounding persistent image or Docker configuration failures at `MAX_RESPAWNS`; the existing
-`RESPAWN_RESET_SECONDS` survivor rule remains the only way an attempted-respawn burst earns a new
-budget. A daemon-unreachable preflight still consumes no attempt and refreshes only the existing
-budget timestamp, as specified by REQ-031.3.
+`RESPAWN_RESET_SECONDS` survivor rule still resets ordinary crash-recovery bursts, while exhausting
+the budget on repeated pre-session command failures latches the last diagnostic until an operator
+releases the claim. A daemon-unreachable preflight still consumes no attempt and refreshes only the
+existing budget timestamp, as specified by REQ-031.3.
 
 ## Requirements
 
 ### REQ-043.1: Pre-session spawn failures remain recoverable
 
-1. A non-zero Docker image-build command before the task tmux session is established MUST leave
-   the claimed non-terminal task eligible for a later `SessionSpawner.heal` attempt without an
-   operator releasing its claim.
-2. A non-zero `docker run` command before the task tmux session is established MUST leave the
-   claimed non-terminal task eligible for a later `SessionSpawner.heal` attempt without an
-   operator releasing its claim.
+1. While the crash-loop budget remains available, a non-zero Docker image-build command before the
+   task tmux session is established MUST leave the claimed non-terminal task eligible for a later
+   `SessionSpawner.heal` attempt without an operator releasing its claim.
+2. While the crash-loop budget remains available, a non-zero `docker run` command before the task
+   tmux session is established MUST leave the claimed non-terminal task eligible for a later
+   `SessionSpawner.heal` attempt without an operator releasing its claim.
 3. A pre-session failure covered by REQ-043.1.1 or REQ-043.1.2 MUST clear its in-progress lifecycle
    report instead of reporting the task lifecycle as `failed`.
 
@@ -51,13 +52,17 @@ budget timestamp, as specified by REQ-031.3.
 1. Spawn failure recovery MUST classify failures by whether the task tmux session was established,
    rather than interpreting a Docker command's numeric exit code as a reliable task-versus-host
    diagnosis.
+2. A failure outside the Docker image-build or container-start command segment MUST retain the
+   existing `failed` lifecycle status and diagnostic even when it occurs before tmux session
+   establishment.
 
 ### REQ-043.4: Bounded retries
 
 1. A respawn attempt that reaches an image-build or `docker run` command and fails before session
    establishment MUST retain the attempt already consumed from that task's crash-loop budget.
-2. Repeated pre-session spawn failures MUST stop automatic respawning when the task reaches
-   `MAX_RESPAWNS` within `RESPAWN_RESET_SECONDS`.
+2. The last of `MAX_RESPAWNS` repeated pre-session spawn failures within
+   `RESPAWN_RESET_SECONDS` MUST latch the task's `failed` lifecycle status and diagnostic until
+   claim release, preventing any later survivor-window reset from restarting the failed spawn.
 3. A daemon-unreachable preflight that defers before attempting an image-build or `docker run`
    command MUST preserve the zero-cost budget behavior specified by REQ-031.3.
 

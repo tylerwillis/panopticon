@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-043.1.2--6ca2614c283c",
+  "requirementId": "REQ-043.1.2",
+  "hash": "6ca2614c283c",
+  "verdict": "pass",
+  "summary": "Real LocalRunner test rejects claim release or tmux-session creation after non-zero docker run and proves a claimed non-terminal task heals on the next within-budget attempt.",
+  "timestamp": "2026-08-03T07:50:54.462Z"
+}

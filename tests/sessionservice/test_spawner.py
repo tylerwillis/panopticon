@@ -620,7 +620,7 @@ def test_docker_run_failure_before_tmux_session_is_deferred_then_healed(exit_cod
         "claimed_by": None,
     }
 
-    with pytest.raises(subprocess.CalledProcessError):
+    with pytest.raises(RuntimeError, match="exit status"):
         spawner.spawn_one(task)
 
     assert client.claims == [("t1", "host-1")]  # retain ownership for self-heal
@@ -673,7 +673,7 @@ def test_image_build_failure_before_tmux_session_is_deferred_then_healed() -> No
         "claimed_by": None,
     }
 
-    with pytest.raises(subprocess.CalledProcessError):
+    with pytest.raises(RuntimeError, match="exit status"):
         spawner.spawn_one(task)
 
     assert client.claims == [("t1", "host-1")]
@@ -687,6 +687,43 @@ def test_image_build_failure_before_tmux_session_is_deferred_then_healed() -> No
         == "panopticon-t1"
     )
     assert build_attempts == 2
+
+
+def test_pre_session_lifecycle_clear_failure_does_not_replace_the_command_error() -> None:
+    class ClearErrorClient(_FakeClient):
+        def clear_lifecycle(self, task_id: str) -> JsonObj:
+            request = httpx.Request("DELETE", f"http://svc/tasks/{task_id}/lifecycle")
+            raise httpx.HTTPStatusError(
+                "service unavailable",
+                request=request,
+                response=httpx.Response(503, request=request),
+            )
+
+    def run(
+        args: Sequence[str],
+        *,
+        check: bool = True,
+        interactive: bool = False,
+        verbose: bool = False,
+    ) -> str:
+        command = list(args)
+        if command[:2] == ["docker", "run"]:
+            raise subprocess.CalledProcessError(125, command)
+        return ""
+
+    client = ClearErrorClient(repo={**_REPO, "env_file": None})
+    runner = LocalRunner("http://service", runner_id="host-1", user="1000:1000", run=run)
+    with pytest.raises(RuntimeError, match="exit status 125") as raised:
+        _spawner(client, runner).spawn_one(
+            {
+                "id": "t1",
+                "repo_id": "r1",
+                "workflow": "spike",
+                "state": "ITERATING",
+                "claimed_by": None,
+            }
+        )
+    assert isinstance(raised.value.__cause__, subprocess.CalledProcessError)
 
 
 @pytest.mark.parametrize("session_established", [False, True])
@@ -716,7 +753,7 @@ def test_same_command_exit_is_classified_by_session_milestone(session_establishe
     client = _FakeClient(repo={**_REPO, "env_file": None})
     runner = LocalRunner("http://service", runner_id="host-1", user="1000:1000", run=run)
 
-    with pytest.raises(subprocess.CalledProcessError):
+    with pytest.raises(RuntimeError, match="exit status"):
         _spawner(client, runner).spawn_one(
             {
                 "id": "t1",
@@ -966,8 +1003,8 @@ def test_heal_caps_respawns_then_surfaces_a_crash_looping_task() -> None:
 
 
 @pytest.mark.parametrize("failure_site", ["image_build", "docker_run"])
-def test_pre_session_failures_retain_and_exhaust_the_respawn_budget(
-    failure_site: str,
+def test_pre_session_failures_latch_when_the_respawn_budget_is_exhausted(
+    failure_site: str, tmp_path: Path
 ) -> None:
     # Every heal reaches an actual ImageBuilder/LocalRunner command and fails before tmux exists.
     # The failed attempt remains charged, so a persistent environmental-looking failure cannot
@@ -1008,40 +1045,64 @@ def test_pre_session_failures_retain_and_exhaust_the_respawn_budget(
             raise subprocess.CalledProcessError(1, command)
         return ""
 
-    client = _FakeClient(repo={**_REPO, "env_file": None})
-    runner: object
-    images: object
-    if failure_site == "docker_run":
-        runner = LocalRunner("http://service", runner_id="host-1", user="1000:1000", run=run)
-        images = _FakeImageBuilder()
-    else:
-        runner = _FakeRunner(session=False)
-        images = ImageBuilder(run=image_run)
-    spawner = Spawner(
-        client,
-        runner,  # type: ignore[arg-type]
-        runner_id="host-1",
-        cache=CloneCache(
-            "/cache", run=_no_op_run, exists=lambda _p: True, makedirs=lambda _p: None
-        ),
-        tasks_root="/tasks",
-        git=GitClones(run=_no_op_run),
-        images=images,  # type: ignore[arg-type]
-        makedirs=lambda _p: None,
-        now=lambda: clock["t"],
-        max_respawns=3,
-        respawn_reset=60.0,
+    service = TaskService(SqlAlchemyStore(), {"spike": Spike()}, FilesystemArtifactStore(tmp_path))
+    asyncio.run(service.init())
+    asyncio.run(
+        service.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://forge/r1.git"))
     )
+    asyncio.run(service.register_runner("host-1"))
+    with TestClient(create_app(service)) as http:
+        client = TaskServiceClient(http)
+        task_id = client.create_task("r1", "spike")["id"]
+        client.claim(task_id, "host-1")
+        runner: object
+        images: object
+        if failure_site == "docker_run":
+            runner = LocalRunner("http://service", runner_id="host-1", user="1000:1000", run=run)
+            images = _FakeImageBuilder()
+        else:
+            runner = _FakeRunner(session=False)
+            images = ImageBuilder(run=image_run)
+        spawner = Spawner(
+            client,
+            runner,  # type: ignore[arg-type]
+            runner_id="host-1",
+            cache=CloneCache(
+                "/cache", run=_no_op_run, exists=lambda _p: True, makedirs=lambda _p: None
+            ),
+            tasks_root="/tasks",
+            git=GitClones(run=_no_op_run),
+            images=images,  # type: ignore[arg-type]
+            makedirs=lambda _p: None,
+            now=lambda: clock["t"],
+            max_respawns=3,
+            respawn_reset=60.0,
+        )
 
-    for _ in range(6):
-        with contextlib.suppress(subprocess.CalledProcessError):
-            spawner.heal({**_orphan(), "container_status": "down"})
-        clock["t"] += 10.0
+        for _ in range(3):
+            with contextlib.suppress(RuntimeError):
+                spawner.heal(client.get_task(task_id))
+            clock["t"] += 10.0
 
-    assert (docker_runs if failure_site == "docker_run" else image_builds) == 3
-    assert spawner._respawn_count("t1", clock["t"]) == 3
-    assert client.cleared == ["t1", "t1", "t1"]
-    assert all(phase != "failed" for _, phase, _ in client.phases)
+        attempts = docker_runs if failure_site == "docker_run" else image_builds
+        assert attempts == 3
+        failed = client.get_task(task_id)
+        assert failed["container_status"] == "failed"
+        assert "respawn budget exhausted after 3 attempts" in failed["lifecycle_detail"]
+
+        clock["t"] += 120.0
+        assert spawner.heal(failed) is None
+        assert (docker_runs if failure_site == "docker_run" else image_builds) == attempts
+        retained = client.get_task(task_id)
+        assert retained["container_status"] == "failed"
+        assert retained["lifecycle_detail"] == failed["lifecycle_detail"]
+
+        client.release(task_id)
+        released = client.get_task(task_id)
+        assert released["container_status"] == "queued"
+        with contextlib.suppress(RuntimeError):
+            spawner.spawn_one(released)
+        assert (docker_runs if failure_site == "docker_run" else image_builds) == attempts + 1
 
 
 def test_heal_resets_the_respawn_budget_after_a_survivor_window() -> None:
@@ -1680,11 +1741,12 @@ def test_cleanup_unknown_workflow_releases_claim_and_cleans_workspace() -> None:
 
 
 def test_spawn_hook_failure_aborts_spawn() -> None:
+    # 2119: REQ-043.3.2
     def _boom(hook_file: str, task_id: str, repo_name: str, workspace: str) -> None:
         raise RuntimeError("hook exited 1")
 
     repo = {**_REPO, "name": "acme/widgets", "hook_file": "/hooks/acme.sh"}
-    client, runner = _FakeClient(repo=repo), _FakeRunner()
+    client, runner = _FakeClient(repo=repo), _FakeRunner(session=False)
     cache = CloneCache("/cache", run=_no_op_run, exists=lambda _p: True, makedirs=lambda _p: None)  # type: ignore[arg-type]
     spawner = Spawner(
         client,
@@ -1708,7 +1770,9 @@ def test_spawn_hook_failure_aborts_spawn() -> None:
             }
         )
     assert not runner.spawned  # docker run was never called
-    assert any(p == "failed" for _, p, _ in client.phases)  # reported as FAILED
+    assert client.cleared == []
+    assert any(p == "failed" for _, p, _ in client.phases)  # actionable hook error stays latched
+    assert client.phases[-1] == ("t1", "failed", "hook exited 1")
 
 
 def test_spawn_skips_hook_when_repo_has_no_hook_file() -> None:

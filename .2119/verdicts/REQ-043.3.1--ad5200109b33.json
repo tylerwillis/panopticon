@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-043.3.1--ad5200109b33",
+  "requirementId": "REQ-043.3.1",
+  "hash": "ad5200109b33",
+  "verdict": "pass",
+  "summary": "Tests force identical exit status 17 to classify differently solely by tmux-session existence, and arbitrary Docker exits 1/125 remain pre-session recoverable.",
+  "timestamp": "2026-08-03T07:51:32.403Z"
+}
