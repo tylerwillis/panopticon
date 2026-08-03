@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.5.1--322c80ed2fb0",
+  "requirementId": "REQ-030.5.1",
+  "hash": "322c80ed2fb0",
+  "verdict": "pass",
+  "summary": "Both runner types pin the complete no-dedicated-socket tmux sequence; ShellRunner additionally hashes the assembled command, so any embedded shipped defaults fail.",
+  "timestamp": "2026-08-03T05:19:31.869Z"
+}

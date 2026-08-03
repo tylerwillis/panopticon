@@ -363,13 +363,19 @@ class LocalRunner(Runner):
                     *self._agent_command,
                 )
             )
+            _report(
+                LifecyclePhase.AWAITING
+            )  # container + tmux up; waiting for its /live registration
         except BaseException:
-            self._run(self._tmux("kill-session", "-t", container), check=False)
-            self._run(["docker", "rm", "--force", container], check=False)
-            if auth_snapshot is not None:
-                auth_snapshot.unlink(missing_ok=True)
+            try:
+                self._run(self._tmux("kill-session", "-t", container), check=False)
+            finally:
+                try:
+                    self._run(["docker", "rm", "--force", container], check=False)
+                finally:
+                    if auth_snapshot is not None:
+                        auth_snapshot.unlink(missing_ok=True)
             raise
-        _report(LifecyclePhase.AWAITING)  # container + tmux up; waiting for its /live registration
         return container
 
     def is_running(self, task_id: str) -> bool:
@@ -457,6 +463,10 @@ class LocalRunner(Runner):
 
     def stop(self, container_id: str) -> None:
         # Idempotent: tolerate an already-gone session/container.
-        self._run(self._tmux("kill-session", "-t", container_id), check=False)
-        self._run(["docker", "rm", "--force", container_id], check=False)
-        self._remove_auth_snapshots(container_id.removeprefix("panopticon-"))
+        try:
+            self._run(self._tmux("kill-session", "-t", container_id), check=False)
+        finally:
+            try:
+                self._run(["docker", "rm", "--force", container_id], check=False)
+            finally:
+                self._remove_auth_snapshots(container_id.removeprefix("panopticon-"))

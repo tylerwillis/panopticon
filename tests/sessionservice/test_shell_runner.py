@@ -113,7 +113,7 @@ def test_spawn_holds_a_liveness_registration_open_in_the_background() -> None:
     assert command.index("/live?") < command.index("echo hi")
 
 
-def test_spawn_resolves_and_sources_the_env_file_against_the_secrets_dir() -> None:
+def test_spawn_resolves_and_loads_the_env_file_without_executing_it() -> None:
     # env_file is a name relative to this runner's secrets dir (ADR 0007), resolved host-locally.
     rec = _Recorder()
     ShellRunner("http://svc:8000", secrets_dir="/host/secrets", run=rec).spawn(
@@ -123,9 +123,11 @@ def test_spawn_resolves_and_sources_the_env_file_against_the_secrets_dir() -> No
     assert (
         "export PANOPTICON_ENV_FILE=/host/secrets/r1.env" in command
     )  # path exposed to the script
-    # resolved + sourced (guarded on existence — a not-yet-created secrets file is fine)
+    # resolved + loaded as literal NAME=VALUE records (guarded on existence — a
+    # not-yet-created secrets file is fine)
     assert "[ -f /host/secrets/r1.env ]" in command
-    assert "set -a; . /host/secrets/r1.env; set +a" in command
+    assert 'export "$_pan_env_line"' in command
+    assert ". /host/secrets/r1.env" not in command
 
 
 def test_spawn_rejects_an_env_file_name_escaping_the_secrets_dir() -> None:

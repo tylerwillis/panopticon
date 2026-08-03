@@ -19,6 +19,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from panopticon.client import TaskServiceClient
+from panopticon.core.models import LifecyclePhase
 from panopticon.sessionservice.local_runner import LocalRunner
 from panopticon.sessionservice.shell_runner import ShellRunner
 from panopticon.sessionservice.spawner import Spawner
@@ -34,9 +35,9 @@ class _Completed:
 
 
 def test_mcp_redaction_masks_tokens_across_every_chunk_boundary() -> None:
-    tokens = (b"longer-secret-token", b"secret-token")
-    plaintext = b"before:longer-secret-token:secret-token:after"
-    expected = b"before:" + b"*" * 19 + b":" + b"*" * 12 + b":after"
+    tokens = (b"prefix-secret-token-next", b"prefix-secret-token")
+    plaintext = b"before:prefix-secret-token-next:prefix-secret-token:after"
+    expected = b"before:" + b"*" * 24 + b":" + b"*" * 19 + b":after"
     for split in range(len(plaintext) + 1):
         first, pending = _redact_stream_chunk(plaintext[:split], configured=tokens, more_body=True)
         second, pending = _redact_stream_chunk(
@@ -367,6 +368,47 @@ def test_docker_runner_removes_snapshot_and_container_when_tmux_setup_fails(
 
     assert list(tmp_path.glob("panopticon-service-auth-task-*.json")) == []
     assert ["docker", "rm", "--force", "panopticon-task"] in calls
+
+
+def test_docker_runner_removes_snapshot_when_awaiting_report_fails(tmp_path: Path) -> None:
+    # 2119: REQ-035.18.1
+    credential = tmp_path / "auth.json"
+    credential.write_text(
+        json.dumps({"read": ["private-reader-token"], "write": ["private-writer-token"]})
+    )
+    credential.chmod(0o600)
+    runner = LocalRunner(
+        "http://service", auth_file=credential.name, secrets_dir=tmp_path, run=lambda *_a, **_k: ""
+    )
+    runner._snapshot_dir = tmp_path
+
+    def fail_awaiting(phase: object) -> None:
+        if phase == LifecyclePhase.AWAITING:
+            raise RuntimeError("awaiting report failed")
+
+    with pytest.raises(RuntimeError, match="awaiting report failed"):
+        runner.spawn("task", progress=fail_awaiting)  # type: ignore[arg-type]
+
+    assert list(tmp_path.glob("panopticon-service-auth-task-*.json")) == []
+
+
+def test_docker_stop_removes_snapshot_even_when_cleanup_command_fails(tmp_path: Path) -> None:
+    # 2119: REQ-035.18.1
+    snapshot = tmp_path / "panopticon-service-auth-task-stranded.json"
+    snapshot.write_text("secret")
+
+    def fail_tmux(args: list[str], **_kwargs: object) -> str:
+        if args[0] == "tmux":
+            raise RuntimeError("tmux cleanup failed")
+        return ""
+
+    runner = LocalRunner("http://service", run=fail_tmux)
+    runner._snapshot_dir = tmp_path
+
+    with pytest.raises(RuntimeError, match="tmux cleanup failed"):
+        runner.stop("panopticon-task")
+
+    assert not snapshot.exists()
 
 
 def test_terminal_cleanup_stops_backend_to_remove_runtime_credentials(

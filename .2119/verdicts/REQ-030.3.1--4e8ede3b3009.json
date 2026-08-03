@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.3.1--4e8ede3b3009",
+  "requirementId": "REQ-030.3.1",
+  "hash": "4e8ede3b3009",
+  "verdict": "pass",
+  "summary": "Tests enumerate every currently shipped panopticon session-creation role and require the complete defaults config before new-session; hypothetical future call sites are not current behavior.",
+  "timestamp": "2026-08-03T05:19:24.365Z"
+}

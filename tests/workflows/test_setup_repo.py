@@ -158,11 +158,14 @@ def test_shell_runner_pins_auth_after_conflicting_repo_environment(tmp_path: Pat
     credential = tmp_path / "task-service-auth.json"
     credential.write_text(json.dumps({"read": ["setup-repo-read-token"], "write": [token]}))
     credential.chmod(0o600)
+    executed = tmp_path / "repo-env-executed"
     repo_env = tmp_path / "repo.env"
     repo_env.write_text(
         "PANOPTICON_SERVICE_AUTH_FILE=/wrong/auth.json\n"
         "PANOPTICON_SERVICE_URL=http://wrong\nPANOPTICON_TASK_ID=wrong\n"
         "PANOPTICON_ENV_FILE=/wrong/write.env\n"
+        f"ATTACK=$(touch {executed})\n"
+        "readonly PANOPTICON_SERVICE_URL=http://readonly-wrong\n"
     )
     argv = tmp_path / "curl-argv"
     stdin = tmp_path / "curl-stdin"
@@ -206,6 +209,7 @@ printf '%s\n%s\n%s\n' "$PANOPTICON_ENV_FILE" "$PANOPTICON_SERVICE_URL" "$PANOPTI
     inputs = stdin.read_text().split("CALL\n")[1:]
     assert inputs == [f'header = "Authorization: Bearer {token}"\n'] * 3
     assert runtime.read_text().splitlines() == [str(repo_env), "http://service", "task"]
+    assert not executed.exists()
 
 
 def test_shell_runner_unsets_repo_auth_override_when_service_auth_is_disabled(

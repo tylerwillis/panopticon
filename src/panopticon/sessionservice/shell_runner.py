@@ -202,13 +202,21 @@ class ShellRunner(Runner):
             f"?container_id={session}&runner_id={self._runner_id}"
         )
         lines = []
-        # Repo credentials are caller-controlled. Source them first, then pin every reserved
-        # control-plane value so stale PANOPTICON_* entries cannot redirect or deauthenticate us.
+        # Repo credentials are caller-controlled. Load literal NAME=VALUE records without sourcing
+        # host shell code, then pin every reserved control-plane value below.
         if env_path:
             quoted = shlex.quote(env_path)
             lines.extend(
                 [
-                    f"[ -f {quoted} ] && {{ set -a; . {quoted}; set +a; }}",
+                    f"if [ -f {quoted} ]; then",
+                    'while IFS= read -r _pan_env_line || [ -n "$_pan_env_line" ]; do',
+                    "case $_pan_env_line in ''|'#'*) continue ;; esac",
+                    "_pan_env_name=${_pan_env_line%%=*}",
+                    "case $_pan_env_line in *=*) ;; *) continue ;; esac",
+                    "case $_pan_env_name in ''|[0-9]*|*[!A-Za-z0-9_]*) continue ;; esac",
+                    'export "$_pan_env_line"',
+                    f"done < {quoted}",
+                    "fi",
                     f"export PANOPTICON_ENV_FILE={quoted}",
                 ]
             )

@@ -522,9 +522,8 @@ class Spawner:
         """Remove the per-task workspace once a terminal task's container has exited.
 
         Self-gates on two conditions so calling this on every task each pass is safe:
-        the task must be terminal (COMPLETE/DROPPED) **and** the container must no longer
-        be running — so we never delete a workspace while the agent is still active, and
-        we don't need to force-stop anything.
+        the task must be terminal (COMPLETE/DROPPED). Reaching a terminal state ends the task, so
+        cleanup stops any still-running backend before deleting its workspace and runtime secrets.
 
         Also releases a lingering claim (best-effort) before cleaning the workspace. In the
         normal flow the container agent releases its own claim on exit; this catches the case
@@ -532,10 +531,8 @@ class Spawner:
         container could clean up)."""
         if task["state"] not in TERMINAL_LABELS:
             return
-        if self._runner_for(task).is_running(task["id"]):
-            return  # container/session still up — wait for it to exit naturally
-        # The backend owns runtime credential snapshots as well as the process/session. Even when
-        # the process exited by itself, its idempotent stop performs the final secret cleanup.
+        # The backend owns runtime credential snapshots as well as the process/session. Its stop is
+        # idempotent, so this handles both a still-running terminal task and one that exited itself.
         self._runner_for(task).stop(f"panopticon-{task['id']}")
         if task.get("claimed_by") == self._runner_id:
             with contextlib.suppress(httpx.HTTPError):
