@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.3.3--5228eb1e0c8a",
+  "requirementId": "REQ-031.3.3",
+  "hash": "5228eb1e0c8a",
+  "verdict": "pass",
+  "summary": "Daemon-down heal defers with no spawn and no failed lifecycle report.",
+  "timestamp": "2026-08-03T07:08:44.437Z"
+}
