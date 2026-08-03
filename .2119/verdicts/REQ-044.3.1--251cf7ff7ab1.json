@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.3.1--251cf7ff7ab1",
+  "requirementId": "REQ-044.3.1",
+  "hash": "251cf7ff7ab1",
+  "verdict": "pass",
+  "summary": "Behavioral command-capture tests cover Darwin, Linux, and Windows with nonempty IPv4, IPv6, and hostname values, and exact list equality rejects omission, duplication, default substitution, case-folding, and IPv6 normalization.",
+  "timestamp": "2026-08-03T18:42:32.179Z"
+}

@@ -52,6 +52,7 @@ def _host_options(command: str) -> list[str]:
     return [argv[index + 1] for index, item in enumerate(argv) if item == "--host"]
 
 
+# 2119: REQ-035.29.1
 # 2119: REQ-044.1.1
 # 2119: REQ-044.2.1
 @pytest.mark.parametrize(
@@ -98,12 +99,28 @@ def test_default_host_selector_is_a_pure_function_of_platform_identity() -> None
 # 2119: REQ-044.3.1
 @pytest.mark.parametrize("platform", ["darwin", "linux", "win32"])
 @pytest.mark.parametrize(
-    "configured_host", ["100.101.102.103", "127.0.0.2", "::1", "control.example.test"]
+    "configured_host",
+    [
+        "100.101.102.103",
+        "127.0.0.2",
+        "::1",
+        "2001:0DB8:0000:0000:0000:0000:0000:0001",
+        "control.example.test",
+        "Control.Example.TEST",
+    ],
 )
 def test_integrated_service_honors_panopticon_host_on_every_platform(
     monkeypatch: pytest.MonkeyPatch, platform: str, configured_host: str
 ) -> None:
     command = _service_command(monkeypatch, platform=platform, configured_host=configured_host)
+    assert _host_options(command) == [configured_host]
+
+
+def test_integrated_service_shell_quotes_configured_host(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    configured_host = "control.example.test; echo injected"
+    command = _service_command(monkeypatch, platform="linux", configured_host=configured_host)
     assert _host_options(command) == [configured_host]
 
 
@@ -119,8 +136,10 @@ def test_auth_docs_describe_one_coherent_platform_aware_bind_policy() -> None:
         "The standalone task-service launcher defaults to `127.0.0.1`. The integrated "
         "`panopticon start` and `panopticon host` commands default to `127.0.0.1` on Darwin and "
         "`0.0.0.0` on Linux and Windows so native containers can reach the service. "
-        "`PANOPTICON_HOST` overrides both launch paths when the operator needs a different "
-        "intended interface. Bearer tokens are sent over HTTP, so do not bind the service to a "
-        "plain LAN or other interface whose transport is not independently encrypted and "
-        "access-controlled."
+        "On native Linux this compatibility default intentionally listens on every host interface "
+        "because bridge containers cannot reach host loopback; safe operation therefore depends "
+        "on enforced task-service authentication plus independently encrypted and access-controlled "
+        "transport. `PANOPTICON_HOST` overrides both launch paths when the operator selects another "
+        "container-reachable intended interface. Bearer tokens travel over HTTP, so a broad bind "
+        "is appropriate only where every reachable interface has those protections."
     )

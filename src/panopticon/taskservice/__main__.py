@@ -161,7 +161,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     parser = argparse.ArgumentParser(
         prog="python -m panopticon.taskservice", description="Run the task service over HTTP."
     )
-    parser.add_argument("--host", default=os.environ.get("PANOPTICON_HOST", "127.0.0.1"))
+    parser.add_argument("--host", default=os.environ.get("PANOPTICON_HOST") or "127.0.0.1")
     parser.add_argument("--port", type=int, default=int(os.environ.get("PANOPTICON_PORT", "8000")))
     parser.add_argument("--db", default=os.environ.get("PANOPTICON_DB", DB_URL))
     parser.add_argument(

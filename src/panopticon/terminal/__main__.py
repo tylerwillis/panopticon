@@ -20,6 +20,7 @@ from __future__ import annotations
 import argparse
 import contextlib
 import os
+import shlex
 import subprocess
 from collections.abc import Callable, Sequence
 from pathlib import Path
@@ -66,7 +67,7 @@ def _start_sessions(
     for name, cmd in [
         (
             "service",
-            f"{python} -m panopticon.taskservice --host {service_host} "
+            f"{python} -m panopticon.taskservice --host {shlex.quote(service_host)} "
             "2>&1 | tee /tmp/panopticon-service.log",
         ),
         (

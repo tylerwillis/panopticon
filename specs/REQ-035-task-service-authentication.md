@@ -128,7 +128,9 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 
 ### REQ-035.29: Integrated Linux container reachability
 
-1. The integrated local stack MUST launch the task service with an explicit `0.0.0.0` bind while standalone service startup retains its `127.0.0.1` default.
+1. On native Linux without a nonempty `PANOPTICON_HOST` override, the integrated local stack MUST
+   launch the task service with an explicit `0.0.0.0` bind so bridge-networked containers can
+   reach it, while standalone service startup retains its loopback default.
 
 ### REQ-035.30: Root-path authorization
 

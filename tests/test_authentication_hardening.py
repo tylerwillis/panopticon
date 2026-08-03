@@ -644,8 +644,12 @@ def test_killing_real_shell_session_removes_credential_snapshot(tmp_path: Path) 
         subprocess.run(["tmux", "-L", socket_name, "kill-server"], check=False)
 
 
-def test_integrated_stack_explicitly_exposes_service_to_linux_containers() -> None:
+def test_integrated_stack_explicitly_exposes_service_to_linux_containers(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     # 2119: REQ-035.29.1
+    monkeypatch.delenv("PANOPTICON_HOST", raising=False)
+    monkeypatch.setattr("sys.platform", "linux")
     calls: list[list[str]] = []
 
     def record(args: list[str], **_kwargs: object) -> _Completed:

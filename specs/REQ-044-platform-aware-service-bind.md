@@ -44,10 +44,13 @@ loopback behavior. Other platforms may use the same conservative compatibility d
    paragraph MUST consist of the following text:
    "The standalone task-service launcher defaults to `127.0.0.1`. The integrated `panopticon
    start` and `panopticon host` commands default to `127.0.0.1` on Darwin and `0.0.0.0` on Linux
-   and Windows so native containers can reach the service. `PANOPTICON_HOST` overrides both launch
-   paths when the operator needs a different intended interface. Bearer tokens are sent over HTTP,
-   so do not bind the service to a plain LAN or other interface whose transport is not independently
-   encrypted and access-controlled."
+   and Windows so native containers can reach the service. On native Linux this compatibility
+   default intentionally listens on every host interface because bridge containers cannot reach
+   host loopback; safe operation therefore depends on enforced task-service authentication plus
+   independently encrypted and access-controlled transport. `PANOPTICON_HOST` overrides both
+   launch paths when the operator selects another container-reachable intended interface. Bearer
+   tokens travel over HTTP, so a broad bind is appropriate only where every reachable interface
+   has those protections."
 
 ## Non-goals
 

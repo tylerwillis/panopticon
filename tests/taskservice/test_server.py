@@ -71,6 +71,9 @@ def test_main_defaults_to_loopback_and_disables_raw_access_log(
 
     server.main(["--db", "sqlite://"])
     assert calls == [{"host": "127.0.0.1", "port": 8000, "access_log": False}]
+    monkeypatch.setenv("PANOPTICON_HOST", "")
+    server.main(["--db", "sqlite://"])
+    assert calls[-1] == {"host": "127.0.0.1", "port": 8000, "access_log": False}
     monkeypatch.setenv("PANOPTICON_HOST", "100.64.0.10")
     server.main(["--db", "sqlite://"])
     assert calls[-1] == {"host": "100.64.0.10", "port": 8000, "access_log": False}
