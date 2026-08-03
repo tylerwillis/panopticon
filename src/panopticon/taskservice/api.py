@@ -166,7 +166,7 @@ def _redact_stream_chunk(
         if matched.start() >= safe_end:
             break
         output.extend(data[consumed : matched.start()])
-        output.extend(b"*" * (matched.end() - matched.start()))
+        output.extend(b"[redacted]")
         consumed = matched.end()
     if consumed < safe_end:
         output.extend(data[consumed:safe_end])

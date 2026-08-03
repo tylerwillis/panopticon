@@ -37,7 +37,7 @@ class _Completed:
 def test_mcp_redaction_masks_tokens_across_every_chunk_boundary() -> None:
     tokens = (b"prefix-secret-token-next", b"prefix-secret-token")
     plaintext = b"before:prefix-secret-token-next:prefix-secret-token:after"
-    expected = b"before:" + b"*" * 24 + b":" + b"*" * 19 + b":after"
+    expected = b"before:[redacted]:[redacted]:after"
     for split in range(len(plaintext) + 1):
         first, pending = _redact_stream_chunk(plaintext[:split], configured=tokens, more_body=True)
         second, pending = _redact_stream_chunk(
