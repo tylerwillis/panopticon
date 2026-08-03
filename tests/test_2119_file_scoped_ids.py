@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import re
 import subprocess
 from pathlib import Path
@@ -102,13 +103,20 @@ def test_070_resolves_both_grammars_and_distinct_file_namespaces(tmp_path: Path)
     assert list(verdicts.glob("REQ-*.json"))
     assert list(verdicts.glob("file-scoped-requirement-ids.*.json"))
     result = subprocess.run(
-        ["npx", "--yes", "rfc2119@0.7.0", "check"],
+        ["npx", "--yes", "rfc2119@0.7.0", "check", "--json"],
         cwd=ROOT,
         capture_output=True,
         text=True,
     )
     assert result.returncode == 0, result.stdout + result.stderr
-    assert "check: all enforced requirements are covered and passing" in result.stdout
+    report = json.loads(result.stdout)
+    legacy_verdict_ids = {
+        json.loads(path.read_text())["requirementId"] for path in verdicts.glob("REQ-*.json")
+    }
+    assert report["ok"] is True
+    assert report["staleReviews"] == []
+    assert report["requirementCount"] >= len(legacy_verdict_ids) + 35
+    assert report["coveredCount"] == report["requirementCount"]
 
     (tmp_path / "specs").mkdir()
     (tmp_path / "tests").mkdir()
@@ -140,6 +148,47 @@ def test_070_resolves_both_grammars_and_distinct_file_namespaces(tmp_path: Path)
     )
     assert collision.returncode == 0, collision.stdout + collision.stderr
     assert "3 requirement(s) covered, 0 uncovered" in collision.stdout
+
+    pending = subprocess.run(
+        ["npx", "--yes", "rfc2119@0.7.0", "review", "--dispatch"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+    )
+    assert pending.returncode == 1
+    for requirement_id in ("alpha-feature.1.1", "beta-feature.1.1", "REQ-900.1.1"):
+        assert f"- {requirement_id} (test-quality):" in pending.stdout
+
+    for instruction in sorted((tmp_path / ".2119" / "reviews").glob("*.md")):
+        match = re.search(r"npx rfc2119 pass ([^ ]+) --summary", instruction.read_text())
+        assert match is not None
+        recorded = subprocess.run(
+            [
+                "npx",
+                "--yes",
+                "rfc2119@0.7.0",
+                "pass",
+                match.group(1),
+                "--summary",
+                "fixture verdict",
+            ],
+            cwd=tmp_path,
+            capture_output=True,
+            text=True,
+        )
+        assert recorded.returncode == 0, recorded.stdout + recorded.stderr
+
+    mixed_check = subprocess.run(
+        ["npx", "--yes", "rfc2119@0.7.0", "check", "--json"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+    )
+    assert mixed_check.returncode == 0, mixed_check.stdout + mixed_check.stderr
+    mixed_report = json.loads(mixed_check.stdout)
+    assert mixed_report["ok"] is True
+    assert mixed_report["requirementCount"] == 3
+    assert mixed_report["coveredCount"] == 3
 
 
 # 2119: 5.1

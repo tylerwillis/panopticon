@@ -1,8 +1,0 @@
-{
-  "reviewId": "file-scoped-requirement-ids.4.1--b62cd5ae124b",
-  "requirementId": "file-scoped-requirement-ids.4.1",
-  "hash": "b62cd5ae124b",
-  "verdict": "pass",
-  "summary": "Fresh-context Sol re-review confirmed the corrected evidence honestly tests this requirement.",
-  "timestamp": "2026-08-02T22:58:54.232Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "file-scoped-requirement-ids.2.6--acbe835aa496",
-  "requirementId": "file-scoped-requirement-ids.2.6",
-  "hash": "acbe835aa496",
-  "verdict": "pass",
-  "summary": "Fresh-context Sol re-review confirmed the corrected evidence honestly tests this requirement.",
-  "timestamp": "2026-08-02T22:58:49.963Z"
-}
