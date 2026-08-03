@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.3.1--c5b0f9d217d8",
+  "requirementId": "REQ-044.3.1",
+  "hash": "c5b0f9d217d8",
+  "verdict": "pass",
+  "summary": "Registry-derived real harness surfaces execute every qualifying single-backtick curl span; boundary, per-harness observation, argv/xtrace leak, and actionable diagnostic counterexamples are all rejected.",
+  "timestamp": "2026-08-03T18:11:40.130Z"
+}
