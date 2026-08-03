@@ -14,6 +14,7 @@ from __future__ import annotations
 import os
 import subprocess
 import tempfile
+import time
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Protocol
@@ -190,6 +191,30 @@ class LocalRunner(Runner):
     def _tmux(self, *args: str) -> list[str]:
         prefix = ["tmux", *(["-L", self._tmux_socket] if self._tmux_socket else [])]
         return [*prefix, *args]
+
+    def deliver_session_input(
+        self, task_id: str, text: str, *, submit: bool
+    ) -> tuple[bool, str | None]:
+        """Deliver through the same pre-armed watcher used by startup prompt delivery."""
+        from panopticon.sessionservice.session_io import deliver_pane_input
+
+        return deliver_pane_input(
+            session_name(task_id),
+            text,
+            submit=submit,
+            run=self._run,
+            raw_log=readiness_log(session_name(task_id)),
+            sleep=time.sleep,
+            prefix=tuple(self._tmux()),
+        )
+
+    def capture_session_transcript(self, task_id: str) -> dict[str, object] | None:
+        """Capture a bounded, terminal-control-free pane snapshot."""
+        from panopticon.sessionservice.session_io import capture_pane_snapshot
+
+        return capture_pane_snapshot(
+            session_name(task_id), run=self._run, prefix=tuple(self._tmux())
+        )
 
     def validate_configuration(self) -> None:
         """Reject an unusable control-plane credential before any spawn side effect."""

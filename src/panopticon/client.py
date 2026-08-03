@@ -391,6 +391,33 @@ class TaskServiceClient:
         resp.raise_for_status()
         return resp.content
 
+    # -- runner-owned session I/O ------------------------------------------------
+
+    def pending_session_input(self, task_id: str, runner_id: str) -> list[JsonObj]:
+        """Fetch durable pending deliveries owned by this runner."""
+        self._session_io_runner_id = runner_id
+        return cast(
+            list[JsonObj],
+            self._json(
+                self._http.get(f"/tasks/{task_id}/session/input", params={"runner_id": runner_id})
+            ),
+        )
+
+    def settle_session_input(
+        self, task_id: str, delivery_id: str, status: str, failure_reason: str | None
+    ) -> None:
+        runner_id = getattr(self, "_session_io_runner_id", None)
+        body = {
+            "runner_id": runner_id,
+            "status": status,
+            "failure_reason": failure_reason,
+        }
+        self._json(self._http.put(f"/tasks/{task_id}/session/input/{delivery_id}", json=body))
+
+    def publish_session_transcript(self, task_id: str, snapshot: JsonObj) -> None:
+        body = {**snapshot, "runner_id": getattr(self, "_session_io_runner_id", None)}
+        self._json(self._http.put(f"/tasks/{task_id}/session/transcript", json=body))
+
     # -- liveness -----------------------------------------------------------------
 
     def register(self, task_id: str, container_id: str, runner_id: str | None = None) -> JsonObj:
