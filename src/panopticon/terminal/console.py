@@ -33,7 +33,7 @@ import httpx
 
 from panopticon.client import TaskServiceClient
 from panopticon.sessionservice.local_runner import TMUX_SOCKET
-from panopticon.sessionservice.tmux_defaults import defaults_argv
+from panopticon.sessionservice.tmux_defaults import defaults_argv, new_session_argv
 from panopticon.terminal.attach import attach_command, task_context_label
 from panopticon.terminal.session_environment import session_environment_argv
 
@@ -146,8 +146,7 @@ def ensure_dashboard_session(
             "tmux",
             "-L",
             socket,
-            *defaults_argv(socket),
-            "new-session",
+            *new_session_argv(socket),
             "-d",
             "-s",
             DASHBOARD_SESSION,

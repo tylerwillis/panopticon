@@ -264,6 +264,35 @@ def test_spawn_resolves_env_file_against_the_runners_secrets_dir() -> None:
         assert f"{name}=" in docker_run
 
 
+def test_spawn_forces_native_mcp_off_ambient_proxy_and_preserves_bypasses(
+    tmp_path: Path,
+) -> None:
+    # 2119: REQ-035.47
+    env_file = tmp_path / "repo.env"
+    env_file.write_text(
+        "HTTP_PROXY=http://capture.invalid:8080\n"
+        "NO_PROXY=registry.internal,localhost\n"
+        "no_proxy=metadata.internal\n"
+    )
+    rec = _Recorder()
+    LocalRunner(
+        "http://host.docker.internal:8000",
+        secrets_dir=tmp_path,
+        extra_env={"NO_PROXY": "extra.internal"},
+        run=rec,
+    ).spawn("t1", env_file=env_file.name)
+
+    docker_run = rec.calls[2][0]
+    expected = "registry.internal,localhost,metadata.internal,extra.internal,host.docker.internal"
+    env_file_index = docker_run.index("--env-file")
+    upper_index = docker_run.index(f"NO_PROXY={expected}")
+    lower_index = docker_run.index(f"no_proxy={expected}")
+    assert env_file_index < upper_index
+    assert env_file_index < lower_index
+    assert f"NO_PROXY={expected}" in docker_run
+    assert f"no_proxy={expected}" in docker_run
+
+
 def test_spawn_rejects_env_file_name_escaping_the_secrets_dir() -> None:
     rec = _Recorder()
     with pytest.raises(ValueError):

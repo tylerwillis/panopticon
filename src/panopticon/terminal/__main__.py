@@ -54,7 +54,7 @@ def _start_sessions(
 ) -> None:
     import sys
 
-    from panopticon.sessionservice.tmux_defaults import defaults_argv
+    from panopticon.sessionservice.tmux_defaults import defaults_argv, new_session_argv
 
     do_run = run or subprocess.run
     python = sys.executable
@@ -97,8 +97,7 @@ def _start_sessions(
                 "tmux",
                 "-L",
                 "panopticon",
-                *defaults_argv("panopticon"),
-                "new-session",
+                *new_session_argv("panopticon"),
                 "-d",
                 "-s",
                 name,

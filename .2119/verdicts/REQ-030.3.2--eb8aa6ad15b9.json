@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.3.2--eb8aa6ad15b9",
+  "requirementId": "REQ-030.3.2",
+  "hash": "eb8aa6ad15b9",
+  "verdict": "pass",
+  "summary": "Tests reject an unconfigured first socket touch, missing/wrong history-limit config, and -f placed after pane-creating new-session across all covered entry paths.",
+  "timestamp": "2026-08-03T14:53:43.343Z"
+}

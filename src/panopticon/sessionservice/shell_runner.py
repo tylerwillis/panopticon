@@ -33,7 +33,7 @@ from panopticon.sessionservice.local_runner import (
     session_name,
 )
 from panopticon.sessionservice.runner import Runner
-from panopticon.sessionservice.tmux_defaults import defaults_argv
+from panopticon.sessionservice.tmux_defaults import defaults_argv, new_session_argv
 from panopticon.taskservice.auth import load_tokens, snapshot_tokens
 
 #: The panopticon shell lib (``task_lib.sh``): functions a shell workflow's script uses to drive its
@@ -305,8 +305,7 @@ class ShellRunner(Runner):
         # -c sets the pane's start directory (the task's own dir) so the script runs in a known place.
         self._run(
             self._tmux(
-                *defaults_argv(self._tmux_socket),
-                "new-session",
+                *new_session_argv(self._tmux_socket),
                 "-d",
                 "-s",
                 session,

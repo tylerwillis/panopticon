@@ -58,9 +58,9 @@ moment that pane is created, not retroactively — before that pane specifically
 
 ### REQ-030.3: Ordering independence
 
-1. Regardless of which panopticon-owned operation is the first to touch the dedicated tmux socket
-   in a given process lifetime, that operation MUST leave every REQ-030.1 and REQ-030.2 default
-   applied before it creates its own session.
+1. Container-runner, shell-runner, integrated-stack, and dashboard session creation MUST leave
+   every REQ-030.1 and REQ-030.2 default applied before creating a session on the dedicated tmux
+   socket.
 
 2. The first panopticon-owned operation to touch the dedicated tmux socket MUST apply the
    REQ-030.1.2 `history-limit` option before creating the pane it will use, not merely before

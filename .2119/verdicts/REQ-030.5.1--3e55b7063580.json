@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.5.1--3e55b7063580",
+  "requirementId": "REQ-030.5.1",
+  "hash": "3e55b7063580",
+  "verdict": "pass",
+  "summary": "Both no-dedicated-socket session creators pin the complete tmux sequence and payload, rejecting -L/-f, defaults-setting calls, or embedded REQ-030 defaults.",
+  "timestamp": "2026-08-03T14:55:15.994Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.48.1--1d21c06d270d",
+  "requirementId": "REQ-035.48.1",
+  "hash": "1d21c06d270d",
+  "verdict": "pass",
+  "summary": "Both 401 and 403 drive an exact tmux kill-session command for the named socket/session and remove the real credential snapshot; wrong target, broader kill, missing cleanup, or either omitted status fails.",
+  "timestamp": "2026-08-03T15:01:56.027Z"
+}

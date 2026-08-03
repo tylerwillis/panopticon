@@ -197,3 +197,11 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 ### REQ-035.46: Bounded authentication inspection
 
 1. Authentication inspection MUST reject an over-limit request without buffering an unbounded body or dispatching it to a protected endpoint.
+
+### REQ-035.47: Native MCP proxy isolation
+
+1. A task container MUST bypass ambient HTTP proxies for native harness MCP traffic to the configured task-service host while preserving its other proxy-bypass entries.
+
+### REQ-035.48: Permanent shell-task rejection
+
+1. A host shell task whose liveness request receives HTTP 401 or 403 MUST terminate its exact tmux session and remove its runtime credential snapshot.

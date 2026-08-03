@@ -23,6 +23,11 @@ def _session_exists(socket: str, session: str) -> bool:
     return subprocess.run(command, capture_output=True, check=False).returncode == 0
 
 
+def _kill_session(socket: str, session: str) -> None:
+    command = ["tmux", *(["-L", socket] if socket else []), "kill-session", "-t", session]
+    subprocess.run(command, capture_output=True, check=False)
+
+
 def hold_shell_liveness(args: argparse.Namespace) -> None:
     snapshot = Path(args.snapshot) if args.snapshot else None
 
@@ -44,6 +49,10 @@ def hold_shell_liveness(args: argparse.Namespace) -> None:
                     pass
             except httpx.HTTPStatusError as exc:
                 if exc.response.status_code in {401, 403}:
+                    # Revocation is permanent for this credential snapshot. Stop the owning task,
+                    # not merely its liveness helper: shell tasks are intentionally excluded from
+                    # container healing and would otherwise keep running without control-plane access.
+                    _kill_session(args.socket, args.session)
                     if snapshot is not None:
                         snapshot.unlink(missing_ok=True)
                     return

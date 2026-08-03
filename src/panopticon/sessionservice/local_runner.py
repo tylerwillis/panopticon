@@ -17,6 +17,7 @@ import tempfile
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Protocol
+from urllib.parse import urlsplit
 
 from panopticon.core.dirs import secrets_file_path
 from panopticon.core.models import LifecyclePhase
@@ -28,7 +29,7 @@ from panopticon.sessionservice.prefill import (
     watch_pane,
 )
 from panopticon.sessionservice.runner import Runner
-from panopticon.sessionservice.tmux_defaults import defaults_argv
+from panopticon.sessionservice.tmux_defaults import defaults_argv, new_session_argv
 from panopticon.taskservice.auth import (
     load_tokens as load_service_tokens,
 )
@@ -113,6 +114,39 @@ def _invoking_user() -> str:
     owned by the operator, not root. Matching the workspace owner's uid also sidesteps git's
     "dubious ownership" guard on the mounted checkout."""
     return f"{os.getuid()}:{os.getgid()}"
+
+
+def _env_file_values(path: str | None, names: set[str]) -> list[str]:
+    """Read literal values used by Docker's env-file format for selected names."""
+
+    if path is None or not Path(path).is_file():
+        return []
+    values: list[str] = []
+    for raw_line in Path(path).read_text().splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        name, value = line.split("=", 1)
+        if name in names:
+            values.append(value)
+    return values
+
+
+def _service_no_proxy(service_url: str, env_path: str | None, env: Mapping[str, str]) -> str:
+    """Preserve configured bypasses and force the control-plane host off ambient proxies."""
+
+    host = urlsplit(service_url).hostname
+    if host is None:
+        raise ValueError(f"task-service URL has no host: {service_url!r}")
+    configured = _env_file_values(env_path, {"NO_PROXY", "no_proxy"})
+    configured.extend(value for name in ("NO_PROXY", "no_proxy") if (value := env.get(name)))
+    entries: list[str] = []
+    for value in (*configured, host):
+        for entry in value.split(","):
+            entry = entry.strip()
+            if entry and entry not in entries:
+                entries.append(entry)
+    return ",".join(entries)
 
 
 class LocalRunner(Runner):
@@ -300,6 +334,12 @@ class LocalRunner(Runner):
             # controlled control-plane credential when this runner has authentication disabled.
             env["PANOPTICON_SERVICE_AUTH_FILE"] = ""
         env["PANOPTICON_SERVICE_AUTH_TOKEN"] = ""
+        # Native MCP clients honor the standard proxy variables inherited from the repo env-file.
+        # Pin both spellings after that file so neither Claude nor Codex can send the fleet bearer
+        # through an ambient proxy, while retaining bypasses needed by the repo's other traffic.
+        no_proxy = _service_no_proxy(self._service_url, env_path, env)
+        env["NO_PROXY"] = no_proxy
+        env["no_proxy"] = no_proxy
         for key, value in env.items():
             docker_run += ["--env", f"{key}={value}"]
         docker_run.append(
@@ -338,8 +378,7 @@ class LocalRunner(Runner):
         try:
             self._run(
                 self._tmux(
-                    *defaults_argv(self._tmux_socket),
-                    "new-session",
+                    *new_session_argv(self._tmux_socket),
                     "-d",
                     "-s",
                     container,
