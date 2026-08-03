@@ -534,6 +534,9 @@ class Spawner:
             return
         if self._runner_for(task).is_running(task["id"]):
             return  # container/session still up — wait for it to exit naturally
+        # The backend owns runtime credential snapshots as well as the process/session. Even when
+        # the process exited by itself, its idempotent stop performs the final secret cleanup.
+        self._runner_for(task).stop(f"panopticon-{task['id']}")
         if task.get("claimed_by") == self._runner_id:
             with contextlib.suppress(httpx.HTTPError):
                 self._client.release(task["id"])

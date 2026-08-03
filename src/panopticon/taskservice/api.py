@@ -613,7 +613,7 @@ def create_app(
         if not write and (mutating or not read):
             return JSONResponse(
                 status_code=401,
-                content=redact_configured_tokens(generic_auth_failure),
+                content=generic_auth_failure,
                 headers={"WWW-Authenticate": "Bearer"},
             )
         return await call_next(request)

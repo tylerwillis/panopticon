@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.31.1--b62e72a1bc1b",
+  "requirementId": "REQ-035.31.1",
+  "hash": "b62e72a1bc1b",
+  "verdict": "pass",
+  "summary": "Tests cover service, runner, and dashboard with exact current values, absent-value clearing, and a real tmux stale-environment replacement counterexample.",
+  "timestamp": "2026-08-03T04:45:43.529Z"
+}

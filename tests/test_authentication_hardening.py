@@ -21,6 +21,7 @@ from fastapi.testclient import TestClient
 from panopticon.client import TaskServiceClient
 from panopticon.sessionservice.local_runner import LocalRunner
 from panopticon.sessionservice.shell_runner import ShellRunner
+from panopticon.sessionservice.spawner import Spawner
 from panopticon.taskservice import __main__ as taskservice_main
 from panopticon.taskservice.__main__ import build_app
 from panopticon.taskservice.api import _redact_stream_chunk
@@ -337,6 +338,67 @@ def test_docker_runner_mounts_a_stable_snapshot_if_source_is_replaced(
     assert snapshots and snapshots[0].is_file()
     runner.stop("panopticon-task")
     assert not snapshots[0].exists()
+
+
+def test_docker_runner_removes_snapshot_and_container_when_tmux_setup_fails(
+    tmp_path: Path,
+) -> None:
+    # 2119: REQ-035.18.1
+    credential = tmp_path / "auth.json"
+    credential.write_text(
+        json.dumps({"read": ["private-reader-token"], "write": ["private-writer-token"]})
+    )
+    credential.chmod(0o600)
+    calls: list[list[str]] = []
+
+    def fail_new_session(args: list[str], **_kwargs: object) -> str:
+        calls.append(args)
+        if "new-session" in args:
+            raise RuntimeError("tmux failed")
+        return ""
+
+    runner = LocalRunner(
+        "http://service", auth_file=credential.name, secrets_dir=tmp_path, run=fail_new_session
+    )
+    runner._snapshot_dir = tmp_path
+
+    with pytest.raises(RuntimeError, match="tmux failed"):
+        runner.spawn("task")
+
+    assert list(tmp_path.glob("panopticon-service-auth-task-*.json")) == []
+    assert ["docker", "rm", "--force", "panopticon-task"] in calls
+
+
+def test_terminal_cleanup_stops_backend_to_remove_runtime_credentials(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # 2119: REQ-035.18.1
+    stopped: list[str] = []
+
+    class _Runner:
+        def is_running(self, _task_id: str) -> bool:
+            return False
+
+        def stop(self, container_id: str) -> None:
+            stopped.append(container_id)
+
+    class _Client:
+        def release(self, _task_id: str) -> None:
+            raise AssertionError("unclaimed task must not be released")
+
+    spawner = object.__new__(Spawner)
+    spawner._client = _Client()  # type: ignore[assignment]
+    spawner._runner_id = "runner"
+    spawner._tasks_root = str(tmp_path)
+    spawner._exists = lambda _path: False
+    spawner._rmtree = lambda _path: None
+    spawner._docker_cleanup = None
+    runner = _Runner()
+    monkeypatch.setattr(Spawner, "_runner_for", lambda _self, _task: runner)
+
+    spawner.cleanup({"id": "task", "state": "COMPLETE", "claimed_by": None})
+
+    assert stopped == ["panopticon-task"]
 
 
 def test_shell_runner_uses_a_stable_snapshot_if_source_is_replaced(

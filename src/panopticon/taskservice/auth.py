@@ -16,6 +16,7 @@ from panopticon.core.dirs import _secrets_dir
 AuthMode = Literal["disabled", "permissive", "enforced"]
 MIN_TOKEN_LENGTH = 12
 _BEARER_TOKEN = re.compile(r"[A-Za-z0-9._~+/-]+=*\Z")
+_RESERVED_TOKENS = frozenset({"authentication"})
 
 
 @dataclass(frozen=True)
@@ -52,6 +53,7 @@ def _parse_tokens(contents: str) -> AuthTokens:
             isinstance(token, str)
             and len(token) >= MIN_TOKEN_LENGTH
             and _BEARER_TOKEN.fullmatch(token)
+            and token not in _RESERVED_TOKENS
             for token in [*read, *write]
         ):
             raise _credential_error()

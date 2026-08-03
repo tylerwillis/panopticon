@@ -330,38 +330,45 @@ class LocalRunner(Runner):
         # its own bracketed-paste-ready marker before the agent CLI ever starts. This is also the
         # session-creating call, so it's the one that must carry the shipped tmux defaults (REQ-030)
         # via `-f`: a fresh socket's server only picks them up from whichever call starts it.
-        self._run(
-            self._tmux(
-                *defaults_argv(self._tmux_socket),
-                "new-session",
-                "-d",
-                "-s",
-                container,
-                "sleep 86400",
+        try:
+            self._run(
+                self._tmux(
+                    *defaults_argv(self._tmux_socket),
+                    "new-session",
+                    "-d",
+                    "-s",
+                    container,
+                    "sleep 86400",
+                )
             )
-        )
-        pane = watch_pane(
-            container,
-            run=self._run,
-            prefix=self._tmux(),
-            raw_log=readiness_log(container),
-        )
-        self._run(
-            self._tmux(
-                "respawn-pane",
-                "-k",
-                "-t",
-                pane or container,
-                "docker",
-                "exec",
-                "--interactive",
-                "--tty",
-                "--user",
-                CONTAINER_USER,
+            pane = watch_pane(
                 container,
-                *self._agent_command,
+                run=self._run,
+                prefix=self._tmux(),
+                raw_log=readiness_log(container),
             )
-        )
+            self._run(
+                self._tmux(
+                    "respawn-pane",
+                    "-k",
+                    "-t",
+                    pane or container,
+                    "docker",
+                    "exec",
+                    "--interactive",
+                    "--tty",
+                    "--user",
+                    CONTAINER_USER,
+                    container,
+                    *self._agent_command,
+                )
+            )
+        except BaseException:
+            self._run(self._tmux("kill-session", "-t", container), check=False)
+            self._run(["docker", "rm", "--force", container], check=False)
+            if auth_snapshot is not None:
+                auth_snapshot.unlink(missing_ok=True)
+            raise
         _report(LifecyclePhase.AWAITING)  # container + tmux up; waiting for its /live registration
         return container
 
