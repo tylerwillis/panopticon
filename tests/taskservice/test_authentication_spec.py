@@ -545,6 +545,7 @@ def test_mcp_tool_arguments_never_log_or_return_configured_tokens(
         + "".join(response.text for response in responses)
     )
     late_logger.removeHandler(late_handler)
+    assert "[redacted]" in observed
     assert all(token not in observed for token in configured)
 
 
@@ -1636,15 +1637,17 @@ def test_runner_injects_write_token_into_docker_and_shell_tasks_without_command_
         "PANOPTICON_TASK_ID": "t2",
     }
     recorded_live_input = tmp_path / "shell-live-curl-input"
-    executable_command = f"""curl() {{ cat >> {recorded_live_input}; printf 'CALL\\n'; printf '%s\\n' "$@"; }} >> {recorded_live}
+    executable_command = f"""curl() {{ printf 'CALL\\n' >> {recorded_live_input}; cat >> {recorded_live_input}; printf '\\nEND\\n' >> {recorded_live_input}; printf 'CALL\\n'; printf '%s\\n' "$@"; }} >> {recorded_live}
 {command}
 """
     subprocess.run(["sh", "-c", executable_command], env=live_env, check=True)
-    calls = recorded_live.read_text().split("CALL\n")
-    live_call = next(call for call in calls if "/tasks/t2/live" in call)
+    calls = recorded_live.read_text().split("CALL\n")[1:]
+    live_call_index = next(index for index, call in enumerate(calls) if "/tasks/t2/live" in call)
+    live_call = calls[live_call_index]
+    curl_inputs = recorded_live_input.read_text().split("CALL\n")[1:]
     assert WRITE_TOKEN not in live_call
-    assert "Authorization: Bearer" in recorded_live_input.read_text()
-    assert WRITE_TOKEN in recorded_live_input.read_text()
+    assert "Authorization: Bearer" in curl_inputs[live_call_index]
+    assert WRITE_TOKEN in curl_inputs[live_call_index]
 
 
 def test_container_python_callers_and_shell_library_use_injected_auth_file(
