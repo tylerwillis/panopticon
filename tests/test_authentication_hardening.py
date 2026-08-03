@@ -8,6 +8,7 @@ import os
 import shlex
 import shutil
 import socket
+import stat
 import subprocess
 import sys
 import time
@@ -29,7 +30,35 @@ class _Completed:
     returncode = 1
 
 
-@pytest.mark.parametrize("invalid_kind", ["missing", "directory", "malformed"])
+def test_non_ascii_operator_token_header_is_rejected_without_server_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("PANOPTICON_OPERATOR_TOKEN", "operator-secret")
+    app = build_app(
+        db="sqlite://",
+        artifacts_root=str(tmp_path / "artifacts"),
+        layers_root=str(tmp_path / "layers"),
+        _home_workflows=tmp_path / "workflows",
+    )
+    with TestClient(app, raise_server_exceptions=False) as client:
+        response = client.put(
+            "/tasks/missing/migration",
+            headers={"X-Panopticon-Operator-Token": b"caf\xe9"},  # type: ignore[dict-item]
+            json={
+                "source_runner": "source",
+                "destination_runner": "destination",
+                "workspace_disposition": "preserved",
+                "session_history_disposition": "preserved",
+                "discarded_changes": False,
+                "workspace_method": "shared",
+            },
+        )
+
+    assert response.status_code in {403, 422}
+    assert response.status_code < 500
+
+
+@pytest.mark.parametrize("invalid_kind", ["missing", "directory", "fifo", "malformed"])
 def test_shell_runner_rejects_an_invalid_service_credential_before_tmux(
     tmp_path: Path, invalid_kind: str
 ) -> None:
@@ -40,6 +69,9 @@ def test_shell_runner_rejects_an_invalid_service_credential_before_tmux(
     if invalid_kind == "directory":
         invalid.mkdir()
         (invalid / "sentinel").write_text("unchanged")
+        original_stat = invalid.stat()
+    elif invalid_kind == "fifo":
+        os.mkfifo(invalid)
         original_stat = invalid.stat()
     elif invalid_kind == "malformed":
         invalid.write_text("not-json")
@@ -65,6 +97,9 @@ def test_shell_runner_rejects_an_invalid_service_credential_before_tmux(
         assert {path.name: path.read_text() for path in invalid.iterdir()} == {
             "sentinel": "unchanged"
         }
+    elif invalid_kind == "fifo":
+        assert invalid.stat() == original_stat
+        assert stat.S_ISFIFO(invalid.stat().st_mode)
 
 
 def test_integrated_stack_explicitly_exposes_service_to_linux_containers() -> None:
@@ -100,12 +135,21 @@ def test_integrated_sessions_pin_current_auth_environment(
     commands = {call[call.index("-s") + 1]: call[-1] for call in calls if "new-session" in call}
     assert set(commands) == {"service", "runner"}
     for command in commands.values():
-        assert "-u PANOPTICON_SERVICE_AUTH_FILE" in command
-        assert "-u PANOPTICON_SERVICE_AUTH_MODE" in command
-        assert "-u PANOPTICON_CONFIG" in command
-        assert "PANOPTICON_SERVICE_AUTH_FILE=current-auth.json" in command
-        assert "PANOPTICON_SERVICE_AUTH_MODE=enforced" in command
-        assert "PANOPTICON_CONFIG=/current/config" in command
+        command_argv = shlex.split(command)
+        assert command_argv[:7] == [
+            "env",
+            "-u",
+            "PANOPTICON_SERVICE_AUTH_FILE",
+            "-u",
+            "PANOPTICON_SERVICE_AUTH_MODE",
+            "-u",
+            "PANOPTICON_CONFIG",
+        ]
+        assert command_argv[7:10] == [
+            "PANOPTICON_SERVICE_AUTH_FILE=current-auth.json",
+            "PANOPTICON_SERVICE_AUTH_MODE=enforced",
+            "PANOPTICON_CONFIG=/current/config",
+        ]
 
     for name in [
         "PANOPTICON_SERVICE_AUTH_FILE",
@@ -120,12 +164,17 @@ def test_integrated_sessions_pin_current_auth_environment(
     }
     assert set(cleared_commands) == {"service", "runner"}
     for command in cleared_commands.values():
-        assert "-u PANOPTICON_SERVICE_AUTH_FILE" in command
-        assert "-u PANOPTICON_SERVICE_AUTH_MODE" in command
-        assert "-u PANOPTICON_CONFIG" in command
-        assert "PANOPTICON_SERVICE_AUTH_FILE=" not in command
-        assert "PANOPTICON_SERVICE_AUTH_MODE=" not in command
-        assert "PANOPTICON_CONFIG=" not in command
+        command_argv = shlex.split(command)
+        assert command_argv[:7] == [
+            "env",
+            "-u",
+            "PANOPTICON_SERVICE_AUTH_FILE",
+            "-u",
+            "PANOPTICON_SERVICE_AUTH_MODE",
+            "-u",
+            "PANOPTICON_CONFIG",
+        ]
+        assert not any(argument.startswith("PANOPTICON_") for argument in command_argv[7:])
 
 
 @pytest.mark.skipif(not shutil.which("tmux"), reason="needs tmux")

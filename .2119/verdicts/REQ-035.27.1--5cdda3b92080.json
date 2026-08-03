@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.27.1--5cdda3b92080",
+  "requirementId": "REQ-035.27.1",
+  "hash": "5cdda3b92080",
+  "verdict": "pass",
+  "summary": "Tests require resolved enforced/disabled/permissive mode reporting, WARNING severity for both non-enforced modes, a real enforced production-process log, and documentation that places only enforced mode in the required steady-state section.",
+  "timestamp": "2026-08-03T00:38:45.385Z"
+}

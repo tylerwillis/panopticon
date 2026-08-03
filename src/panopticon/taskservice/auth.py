@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import stat
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -56,11 +57,25 @@ def _parse_tokens(contents: str) -> AuthTokens:
         raise _credential_error() from exc
 
 
-def load_tokens(reference: str, *, secrets_dir: str | Path | None = None) -> AuthTokens:
+def _read_regular_file(path: Path) -> str:
+    """Read only a regular file without blocking on a swapped-in FIFO or device."""
+    fd = -1
     try:
-        return _parse_tokens(credential_path(reference, secrets_dir=secrets_dir).read_text())
-    except OSError as exc:
+        fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK | getattr(os, "O_NOFOLLOW", 0))
+        if not stat.S_ISREG(os.fstat(fd).st_mode):
+            raise _credential_error()
+        with os.fdopen(fd, encoding="utf-8") as handle:
+            fd = -1  # ownership transferred to the file object
+            return handle.read()
+    except (OSError, UnicodeError) as exc:
         raise _credential_error() from exc
+    finally:
+        if fd >= 0:
+            os.close(fd)
+
+
+def load_tokens(reference: str, *, secrets_dir: str | Path | None = None) -> AuthTokens:
+    return _parse_tokens(_read_regular_file(credential_path(reference, secrets_dir=secrets_dir)))
 
 
 def load_client_token(
@@ -77,9 +92,6 @@ def environment_token(*, privilege: Literal["read", "write"] = "write") -> str |
         return None
     path = Path(reference)
     if path.is_absolute():
-        try:
-            tokens = _parse_tokens(path.read_text())
-        except OSError as exc:
-            raise _credential_error() from exc
+        tokens = _parse_tokens(_read_regular_file(path))
         return (tokens.read if privilege == "read" else tokens.write)[-1]
     return load_client_token(reference, privilege=privilege)

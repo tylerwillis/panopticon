@@ -160,7 +160,22 @@ def test_tokens_are_host_local_and_never_serialized(
     # 2119: REQ-035.14.1
     # 2119: REQ-035.18.1
     caplog.set_level("DEBUG", logger="panopticon")
-    with _client(tmp_path) as client:
+    configured = (
+        READ_TOKEN,
+        NEXT_READ_TOKEN,
+        OPAQUE_READ_TOKEN,
+        WRITE_TOKEN,
+        NEXT_WRITE_TOKEN,
+        OPAQUE_WRITE_TOKEN,
+    )
+    with TestClient(
+        create_app(
+            _service(tmp_path),
+            auth_file=_credential_file(tmp_path, overlap=True, opaque=True),
+            auth_mode="enforced",
+            secrets_dir=tmp_path / "secrets",
+        )
+    ) as client:
         repo = client.get("/repos/r1", headers=_bearer(WRITE_TOKEN))
         assert repo.status_code == 200
         task = client.post(
@@ -173,9 +188,10 @@ def test_tokens_are_host_local_and_never_serialized(
             headers=_bearer(WRITE_TOKEN),
             content=b"safe",
         )
-        validation = client.post(
-            "/tasks", headers=_bearer(WRITE_TOKEN), json={"repo_id": WRITE_TOKEN}
-        )
+        validations = [
+            client.post("/tasks", headers=_bearer(WRITE_TOKEN), json={"repo_id": token})
+            for token in configured
+        ]
         domain_failure = client.post(
             "/repos",
             headers=_bearer(WRITE_TOKEN),
@@ -188,17 +204,18 @@ def test_tokens_are_host_local_and_never_serialized(
         )
         assert domain_failure.status_code == 400
         image_layer = client.get("/workflows/spike/image-layer", headers=_bearer(WRITE_TOKEN))
-        not_found = client.get(f"/tasks/{WRITE_TOKEN}", headers=_bearer(WRITE_TOKEN))
+        not_found = [
+            client.get(f"/tasks/{token}", headers=_bearer(WRITE_TOKEN)) for token in configured
+        ]
         serialized = (
             repo.text
             + client.get(f"/tasks/{task['id']}", headers=_bearer(WRITE_TOKEN)).text
-            + validation.text
+            + "".join(response.text for response in validations)
             + domain_failure.text
             + image_layer.text
-            + not_found.text
+            + "".join(response.text for response in not_found)
         )
-        assert READ_TOKEN not in serialized
-        assert WRITE_TOKEN not in serialized
+        assert all(token not in serialized for token in configured)
         rejected = client.post(
             "/tasks",
             headers=_bearer(READ_TOKEN),
@@ -208,8 +225,7 @@ def test_tokens_are_host_local_and_never_serialized(
         assert client.put(
             "/tasks/missing/artifacts/proof", headers=_bearer(WRITE_TOKEN), content=b"safe"
         ).status_code in {204, 404}
-    assert READ_TOKEN not in caplog.text
-    assert WRITE_TOKEN not in caplog.text
+    assert all(token not in caplog.text for token in configured)
     secrets = tmp_path / "bad-secrets"
     secrets.mkdir()
     (secrets / "bad.json").write_text(json.dumps({"read": [WRITE_TOKEN], "write": [WRITE_TOKEN]}))
@@ -246,12 +262,9 @@ def test_tokens_are_host_local_and_never_serialized(
     # serialization, so a copied credential value cannot hide in durable service state.
     for path in tmp_path.rglob("*"):
         if path.is_file() and path.resolve() not in credential_paths:
-            assert READ_TOKEN.encode() not in path.read_bytes()
-            assert WRITE_TOKEN.encode() not in path.read_bytes()
-            assert file_only_token.encode() not in path.read_bytes()
-    assert READ_TOKEN not in caplog.text
-    assert WRITE_TOKEN not in caplog.text
-    assert file_only_token not in caplog.text
+            contents = path.read_bytes()
+            assert all(token.encode() not in contents for token in (*configured, file_only_token))
+    assert all(token not in caplog.text for token in (*configured, file_only_token))
     with pytest.raises(ValueError, match="authentication credential"):
         create_app(
             _service(tmp_path / "escape"),
@@ -283,11 +296,25 @@ def test_tokens_are_host_local_and_never_serialized(
 
 def test_tokens_never_reach_any_failure_body_or_spawned_command(tmp_path: Path) -> None:
     # 2119: REQ-035.18.1
-    with _client(tmp_path) as client:
+    configured = (
+        READ_TOKEN,
+        NEXT_READ_TOKEN,
+        OPAQUE_READ_TOKEN,
+        WRITE_TOKEN,
+        NEXT_WRITE_TOKEN,
+        OPAQUE_WRITE_TOKEN,
+    )
+    with TestClient(
+        create_app(
+            _service(tmp_path),
+            auth_file=_credential_file(tmp_path, overlap=True, opaque=True),
+            auth_mode="enforced",
+            secrets_dir=tmp_path / "secrets",
+        )
+    ) as client:
         for method, path in _rest_operations(client):
             body = client.request(method, path).content
-            assert READ_TOKEN.encode() not in body
-            assert WRITE_TOKEN.encode() not in body
+            assert all(token.encode() not in body for token in configured)
 
     from panopticon.sessionservice.local_runner import LocalRunner
     from panopticon.sessionservice.shell_runner import ShellRunner
@@ -306,8 +333,46 @@ def test_tokens_never_reach_any_failure_body_or_spawned_command(tmp_path: Path) 
         "http://service", auth_file=reference, secrets_dir=tmp_path / "secrets", run=record
     ).spawn("shell-task", script="true")
     emitted = "\n".join(" ".join(call) for call in calls)
-    assert READ_TOKEN not in emitted
-    assert WRITE_TOKEN not in emitted
+    assert all(token not in emitted for token in configured)
+
+
+def test_mcp_validation_failure_redacts_a_configured_token(tmp_path: Path) -> None:
+    # 2119: REQ-035.18.1
+    configured = (
+        READ_TOKEN,
+        NEXT_READ_TOKEN,
+        OPAQUE_READ_TOKEN,
+        WRITE_TOKEN,
+        NEXT_WRITE_TOKEN,
+        OPAQUE_WRITE_TOKEN,
+    )
+    with TestClient(
+        create_app(
+            _service(tmp_path),
+            auth_file=_credential_file(tmp_path, overlap=True, opaque=True),
+            auth_mode="enforced",
+            secrets_dir=tmp_path / "secrets",
+        )
+    ) as client:
+        for token in configured:
+            response = client.post(
+                "/mcp",
+                headers={
+                    **_bearer(NEXT_WRITE_TOKEN),
+                    "Content-Type": "application/json",
+                    "Accept": "application/json, text/event-stream",
+                },
+                json={
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "tools/call",
+                    "params": token,
+                },
+            )
+
+            assert response.status_code == 400
+            assert all(configured_token not in response.text for configured_token in configured)
+            assert "*" * len(token) in response.text
 
 
 def test_read_and_write_tokens_can_read_but_only_write_token_can_mutate(tmp_path: Path) -> None:

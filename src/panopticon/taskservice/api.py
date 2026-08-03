@@ -24,6 +24,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+from starlette.types import Message, Receive, Scope, Send
 
 from panopticon.core.artifacts import ArtifactError
 from panopticon.core.models import Actor, LifecyclePhase, Repo, Status, Task, WakeStatus
@@ -490,6 +491,47 @@ def create_app(
             return {key: redact_configured_tokens(item) for key, item in value.items()}
         return value
 
+    async def redacted_mcp_app(scope: Scope, receive: Receive, send: Send) -> None:
+        """Redact mounted MCP responses, which bypass the parent exception handlers."""
+        configured = (
+            tuple(
+                sorted(
+                    (token.encode() for token in (*tokens.read, *tokens.write)),
+                    key=len,
+                    reverse=True,
+                )
+            )
+            if tokens
+            else ()
+        )
+        pending = b""
+
+        async def send_redacted(message: Message) -> None:
+            nonlocal pending
+            if message["type"] == "http.response.body":
+                data = pending + message.get("body", b"")
+                pending = b""
+                output = bytearray()
+                more_body = bool(message.get("more_body", False))
+                while data:
+                    matched = next((token for token in configured if data.startswith(token)), None)
+                    if matched is not None:
+                        output.extend(b"*" * len(matched))
+                        data = data[len(matched) :]
+                    elif more_body and any(token.startswith(data) for token in configured):
+                        pending = data
+                        break
+                    else:
+                        output.append(data[0])
+                        data = data[1:]
+                message = {
+                    **message,
+                    "body": bytes(output),
+                }
+            await send(message)
+
+        await mcp_app(scope, receive, send_redacted)
+
     @app.exception_handler(RequestValidationError)
     async def validation_error(_request: Request, exc: RequestValidationError) -> JSONResponse:
         return JSONResponse(
@@ -906,7 +948,9 @@ def create_app(
             raise HTTPException(
                 status_code=503, detail="operator migration token is not configured"
             )
-        if supplied_token is None or not secrets.compare_digest(supplied_token, operator_token):
+        if supplied_token is None or not secrets.compare_digest(
+            supplied_token.encode(), operator_token.encode()
+        ):
             raise HTTPException(status_code=403, detail="operator authorization required")
         try:
             task = await service.record_migration(
@@ -1058,5 +1102,7 @@ def create_app(
         """Release a (dead) runner's non-terminal claims so a healthy host respawns them."""
         return [await _task_out(t) for t in await service.reclaim(runner_id)]
 
-    app.mount("/mcp", mcp_app)  # in-container agents connect here for task operations + artifacts
+    # In-container agents connect here for task operations + artifacts. The mounted app does not
+    # inherit the parent's exception handlers, so keep its response redactor at this boundary.
+    app.mount("/mcp", redacted_mcp_app)
     return app

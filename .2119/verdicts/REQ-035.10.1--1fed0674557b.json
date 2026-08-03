@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.10.1--1fed0674557b",
+  "requirementId": "REQ-035.10.1",
+  "hash": "1fed0674557b",
+  "verdict": "pass",
+  "summary": "Unauthenticated enforced-mode requests return HTTP 200 with exactly the existing {status: ok} payload, including under a root path.",
+  "timestamp": "2026-08-03T00:32:49.200Z"
+}
