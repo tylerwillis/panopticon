@@ -708,7 +708,9 @@ def create_app(
         route_path = get_route_path(request.scope)
         if not route_path.startswith("/"):
             route_path = f"/{route_path}"
-        if mode == "disabled" or (request.method == "GET" and route_path == "/healthz"):
+        if mode == "disabled" or (
+            request.method in {"GET", "HEAD"} and route_path == "/healthz"
+        ):
             return await call_next(request)
         authorization = request.headers.get("authorization")
         if mode == "permissive" and authorization is None:
@@ -839,13 +841,25 @@ def create_app(
 
     # -- health & discovery -------------------------------------------------------
 
-    @app.get("/healthz")
-    async def healthz(response: Response) -> dict[str, str]:
+    def health_response(*, include_body: bool) -> JSONResponse:
+        response = JSONResponse({"status": "ok"})
         if mode == "permissive":
             response.headers["X-Panopticon-Permissive-Unauthenticated-Total"] = str(
                 permissive_unauthenticated_total
             )
-        return {"status": "ok"}
+        if not include_body:
+            # HEAD describes the same representation as GET, including its Content-Length, while
+            # emitting no representation bytes on the ASGI transport.
+            response.body = b""
+        return response
+
+    @app.get("/healthz")
+    async def healthz() -> JSONResponse:
+        return health_response(include_body=True)
+
+    @app.head("/healthz")
+    async def healthz_head() -> JSONResponse:
+        return health_response(include_body=False)
 
     @app.get("/workflows")
     async def list_workflows() -> list[WorkflowInfo]:
