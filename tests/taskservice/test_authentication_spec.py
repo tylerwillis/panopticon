@@ -116,7 +116,11 @@ def _rest_operations(client: TestClient) -> list[tuple[str, str]]:
 
 
 def _is_mutating(method: str, path: str) -> bool:
-    return method not in {"GET", "HEAD"} or path.endswith("/live")
+    return (
+        method not in {"GET", "HEAD"}
+        or path.endswith("/live")
+        or (method == "GET" and path.endswith("/session/input"))
+    )
 
 
 def _asgi_status(

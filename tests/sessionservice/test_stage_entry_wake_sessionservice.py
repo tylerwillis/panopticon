@@ -424,11 +424,13 @@ def test_run_host_wires_the_stage_entry_waker_into_the_daemon(
             *,
             runner_id: str | None = None,
             waker: object = None,
+            session_io: object = None,
             interval: float,
             sleep: object,
         ) -> None:
             captured["runner_id"] = runner_id
             captured["waker"] = waker
+            captured["session_io"] = session_io
 
         def run(self, *, until: object) -> None:
             captured["ran"] = True
@@ -450,5 +452,6 @@ def test_run_host_wires_the_stage_entry_waker_into_the_daemon(
     )
 
     assert isinstance(captured["waker"], StageEntryWaker)
+    assert captured["session_io"] is not None
     assert captured["runner_id"] == "host-1"
     assert captured["ran"] is True
