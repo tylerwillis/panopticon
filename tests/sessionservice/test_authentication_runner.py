@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import socket
 import stat
 from collections.abc import Sequence
 from pathlib import Path
@@ -29,7 +30,9 @@ class _Recorder:
         return ""
 
 
-@pytest.mark.parametrize("existing_kind", ["missing", "directory", "fifo", "symlink", "malformed"])
+@pytest.mark.parametrize(
+    "existing_kind", ["missing", "directory", "fifo", "socket", "symlink", "malformed"]
+)
 def test_spawn_rejects_missing_service_credential_before_docker(
     tmp_path: Path, existing_kind: str
 ) -> None:
@@ -44,6 +47,10 @@ def test_spawn_rejects_missing_service_credential_before_docker(
         original_stat = credential.stat()
     elif existing_kind == "fifo":
         os.mkfifo(credential)
+        original_stat = credential.stat()
+    elif existing_kind == "socket":
+        bound_socket = socket.socket(socket.AF_UNIX)
+        bound_socket.bind(str(credential))
         original_stat = credential.stat()
     elif existing_kind == "symlink":
         target = secrets / "target.json"
@@ -77,6 +84,10 @@ def test_spawn_rejects_missing_service_credential_before_docker(
     elif existing_kind == "fifo":
         assert credential.stat() == original_stat
         assert stat.S_ISFIFO(credential.stat().st_mode)
+    elif existing_kind == "socket":
+        assert credential.stat() == original_stat
+        assert stat.S_ISSOCK(credential.stat().st_mode)
+        bound_socket.close()
     elif existing_kind == "symlink":
         assert credential.is_symlink()
         assert credential.readlink() == target

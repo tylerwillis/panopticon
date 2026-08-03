@@ -74,6 +74,14 @@ def test_integrated_dashboard_pins_current_auth_environment(
         ]
         assert not any(argument.startswith(f"{name}=") for argument in cleared_dashboard)
 
+    monkeypatch.setenv("PANOPTICON_SERVICE_AUTH_FILE", "only-current-auth.json")
+    captured.clear()
+    terminal_console.run_console_local("http://service")
+    mixed_dashboard = captured[0]
+    assert "PANOPTICON_SERVICE_AUTH_FILE=only-current-auth.json" in mixed_dashboard
+    assert not any(item.startswith("PANOPTICON_SERVICE_AUTH_MODE=") for item in mixed_dashboard)
+    assert not any(item.startswith("PANOPTICON_CONFIG=") for item in mixed_dashboard)
+
 
 def test_spawner_validates_runner_credential_before_claiming() -> None:
     claims: list[tuple[str, str]] = []

@@ -13,6 +13,7 @@ from typing import Any
 import httpx
 import pytest
 
+from panopticon.client import TaskServiceClient
 from panopticon.container import entrypoint
 
 
@@ -142,6 +143,23 @@ def test_serve_stops_after_permanent_liveness_rejection(status: int) -> None:
 
     with pytest.raises(RuntimeError, match="permanently rejected"):
         _serve(_RejectedClient(), running=lambda: True, sleep=naps.append)
+    assert len(attempts) == 1
+    assert naps == []
+
+
+@pytest.mark.parametrize("status", [401, 403])
+def test_real_client_serve_stops_after_permanent_liveness_rejection(status: int) -> None:
+    # 2119: REQ-035.36.1
+    attempts: list[httpx.Request] = []
+    naps: list[float] = []
+
+    def reject(request: httpx.Request) -> httpx.Response:
+        attempts.append(request)
+        return httpx.Response(status, json={"detail": "authentication required"})
+
+    http = httpx.Client(base_url="http://service", transport=httpx.MockTransport(reject))
+    with pytest.raises(RuntimeError, match="permanently rejected"):
+        _serve(TaskServiceClient(http), running=lambda: True, sleep=naps.append)  # type: ignore[arg-type]
     assert len(attempts) == 1
     assert naps == []
 

@@ -29,6 +29,7 @@ from starlette.responses import Response
 
 from panopticon.client import TaskServiceClient
 from panopticon.core.models import Repo
+from panopticon.core.workflow import ResponsibilitiesNotMet
 from panopticon.taskservice.api import create_app
 from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
 from panopticon.taskservice.service import TaskService
@@ -547,6 +548,26 @@ def test_mcp_tool_arguments_never_log_or_return_configured_tokens(
     late_logger.removeHandler(late_handler)
     assert "[redacted]" in observed
     assert all(token not in observed for token in configured)
+
+
+def test_authenticated_domain_error_redacts_configured_token(tmp_path: Path) -> None:
+    # 2119: REQ-035.18.1
+    app = create_app(
+        _service(tmp_path),
+        auth_file=_credential_file(tmp_path),
+        auth_mode="enforced",
+        secrets_dir=tmp_path / "secrets",
+    )
+
+    @app.get("/redaction-domain-error")
+    async def domain_error() -> None:
+        raise ResponsibilitiesNotMet(f"unresolved {WRITE_TOKEN}")
+
+    with TestClient(app) as client:
+        response = client.get("/redaction-domain-error", headers=_bearer(WRITE_TOKEN))
+    assert response.status_code == 409
+    assert response.json() == {"detail": "unresolved [redacted]"}
+    assert WRITE_TOKEN not in response.text
 
 
 def test_configured_tokens_are_rejected_before_persistence_or_success(

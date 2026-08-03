@@ -118,6 +118,16 @@ def test_credential_loader_rejects_group_or_other_permissions(tmp_path: Path, mo
     credential.chmod(mode)
     with pytest.raises(ValueError, match="authentication credential"):
         load_tokens(credential.name, secrets_dir=tmp_path)
+    with pytest.raises(ValueError, match="authentication credential"):
+        build_app(
+            db="sqlite+aiosqlite:///:memory:",
+            artifacts_root=str(tmp_path / "artifacts"),
+            layers_root=str(tmp_path / "layers"),
+            auth_file=credential.name,
+            auth_mode="enforced",
+            secrets_dir=tmp_path,
+            _home_workflows=tmp_path / "workflows",
+        )
 
 
 @pytest.mark.parametrize("runner_type", [LocalRunner, ShellRunner])
@@ -229,7 +239,9 @@ def test_non_ascii_operator_token_header_is_rejected_without_server_error(
     assert response.status_code < 500
 
 
-@pytest.mark.parametrize("invalid_kind", ["missing", "directory", "fifo", "symlink", "malformed"])
+@pytest.mark.parametrize(
+    "invalid_kind", ["missing", "directory", "fifo", "socket", "symlink", "malformed"]
+)
 def test_shell_runner_rejects_an_invalid_service_credential_before_tmux(
     tmp_path: Path, invalid_kind: str
 ) -> None:
@@ -243,6 +255,10 @@ def test_shell_runner_rejects_an_invalid_service_credential_before_tmux(
         original_stat = invalid.stat()
     elif invalid_kind == "fifo":
         os.mkfifo(invalid)
+        original_stat = invalid.stat()
+    elif invalid_kind == "socket":
+        bound_socket = socket.socket(socket.AF_UNIX)
+        bound_socket.bind(str(invalid))
         original_stat = invalid.stat()
     elif invalid_kind == "symlink":
         target = tmp_path / "target.json"
@@ -276,6 +292,10 @@ def test_shell_runner_rejects_an_invalid_service_credential_before_tmux(
     elif invalid_kind == "fifo":
         assert invalid.stat() == original_stat
         assert stat.S_ISFIFO(invalid.stat().st_mode)
+    elif invalid_kind == "socket":
+        assert invalid.stat() == original_stat
+        assert stat.S_ISSOCK(invalid.stat().st_mode)
+        bound_socket.close()
     elif invalid_kind == "symlink":
         assert invalid.is_symlink()
         assert invalid.readlink() == target
@@ -638,6 +658,16 @@ def test_integrated_sessions_pin_current_auth_environment(
             "PANOPTICON_CONFIG",
         ]
         assert not any(argument.startswith("PANOPTICON_") for argument in command_argv[7:])
+
+    monkeypatch.setenv("PANOPTICON_SERVICE_AUTH_FILE", "only-current-auth.json")
+    calls.clear()
+    terminal_cli._start_sessions(run=record)
+    mixed_commands = [call[-1] for call in calls if "new-session" in call]
+    for command in mixed_commands:
+        command_argv = shlex.split(command)
+        assert "PANOPTICON_SERVICE_AUTH_FILE=only-current-auth.json" in command_argv
+        assert not any(item.startswith("PANOPTICON_SERVICE_AUTH_MODE=") for item in command_argv)
+        assert not any(item.startswith("PANOPTICON_CONFIG=") for item in command_argv)
 
 
 @pytest.mark.skipif(not shutil.which("tmux"), reason="needs tmux")
