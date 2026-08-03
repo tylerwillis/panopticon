@@ -180,6 +180,16 @@ def test_credential_loader_rejects_a_foreign_owner(
     monkeypatch.setattr(auth_module.os, "fstat", foreign_owner)
     with pytest.raises(ValueError, match="authentication credential"):
         load_tokens(credential.name, secrets_dir=tmp_path)
+    with pytest.raises(ValueError, match="authentication credential"):
+        build_app(
+            db="sqlite+aiosqlite:///:memory:",
+            artifacts_root=str(tmp_path / "artifacts"),
+            layers_root=str(tmp_path / "layers"),
+            auth_file=credential.name,
+            auth_mode="enforced",
+            secrets_dir=tmp_path,
+            _home_workflows=tmp_path / "workflows",
+        )
 
 
 @pytest.mark.parametrize("runner_type", [LocalRunner, ShellRunner])
@@ -283,7 +293,7 @@ def test_shell_runner_rejects_an_invalid_service_credential_before_tmux(
         ).spawn("t1", script="echo hi")
 
     assert calls == []
-    assert invalid.exists() is (invalid_kind != "missing")
+    assert os.path.lexists(invalid) is (invalid_kind != "missing")
     if invalid_kind == "directory":
         assert invalid.stat() == original_stat
         assert {path.name: path.read_text() for path in invalid.iterdir()} == {

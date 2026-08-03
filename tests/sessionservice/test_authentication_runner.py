@@ -74,7 +74,7 @@ def test_spawn_rejects_missing_service_credential_before_docker(
 
     assert rec.calls == []
     if existing_kind == "missing":
-        assert not credential.exists()
+        assert not os.path.lexists(credential)
     elif existing_kind == "directory":
         assert credential.is_dir()
         assert credential.stat() == original_stat

@@ -164,6 +164,26 @@ def test_real_client_serve_stops_after_permanent_liveness_rejection(status: int)
     assert naps == []
 
 
+def test_main_propagates_permanent_liveness_rejection(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # 2119: REQ-035.36.1
+    attempts: list[httpx.Request] = []
+
+    def reject(request: httpx.Request) -> httpx.Response:
+        attempts.append(request)
+        return httpx.Response(401, json={"detail": "authentication required"})
+
+    http = httpx.Client(base_url="http://service", transport=httpx.MockTransport(reject))
+    client = TaskServiceClient(http)
+    monkeypatch.setenv("PANOPTICON_TASK_ID", "t1")
+    monkeypatch.setenv("PANOPTICON_CONTAINER_ID", "c1")
+    monkeypatch.setenv("PANOPTICON_SERVICE_URL", "http://service")
+    with pytest.raises(RuntimeError, match="permanently rejected"):
+        entrypoint.main(client_factory=lambda _url: client, running=lambda: True)
+    assert len(attempts) == 1
+
+
 def test_serve_sets_slug_when_unset_and_proposed() -> None:
     client = _FakeClient(slug=None)
     _serve(client, proposed_slug="fix-widget", running=_stop_after(1))
