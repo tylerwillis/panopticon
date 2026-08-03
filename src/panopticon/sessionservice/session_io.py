@@ -183,6 +183,8 @@ class SessionIOWorker:
                             None if ok else (reason or FAILURE_REASON),
                             self._runner_id,
                         )
+                        if ok and bool(delivery["submit"]):
+                            break
                 current = self._client.get_task(task_id)
                 if (
                     current.get("claimed_by") == self._runner_id

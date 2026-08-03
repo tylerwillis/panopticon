@@ -143,6 +143,26 @@ def test_worker_revalidates_authoritative_task_before_each_delivery(
     assert client.settlements == [("delivery-1", "delivered", None)]
 
 
+def test_worker_stops_after_one_successfully_submitted_delivery() -> None:
+    # 2119: REQ-044.5.1
+    from panopticon.sessionservice.session_io import SessionIOWorker
+
+    class SubmittedClient(_Client):
+        def pending_session_input(self, task_id: str, runner_id: str) -> list[dict[str, Any]]:
+            del task_id, runner_id
+            return [
+                vars(_Delivery(id="delivery-1", submit=True)),
+                vars(_Delivery(id="delivery-2", submit=True)),
+            ]
+
+    client, runner = SubmittedClient(), _Runner()
+    SessionIOWorker(client, runner, runner_id="host-1", dispatch=lambda call: call()).process(
+        client.task
+    )
+    assert runner.deliveries == [("t1", "hello\nworld", True)]
+    assert client.settlements == [("delivery-1", "delivered", None)]
+
+
 @pytest.mark.parametrize(
     "changed",
     [
