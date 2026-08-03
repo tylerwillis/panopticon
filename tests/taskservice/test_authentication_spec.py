@@ -640,6 +640,21 @@ def test_read_and_write_tokens_can_read_but_only_write_token_can_mutate(tmp_path
             secrets_dir=tmp_path / "secrets",
         )
     ) as client:
+        created = client.post(
+            "/tasks",
+            headers=_bearer(WRITE_TOKEN),
+            json={"repo_id": "r1", "workflow": "spike"},
+        )
+        assert created.status_code == 201
+        task_id = created.json()["id"]
+        for path in [
+            f"/tasks/{task_id}",
+            f"/tasks/{task_id}/skills",
+            f"/tasks/{task_id}/transitions",
+            f"/tasks/{task_id}/artifacts",
+        ]:
+            assert client.get(path, headers=_bearer(READ_TOKEN)).status_code == 200
+            assert client.get(path, headers=_bearer(WRITE_TOKEN)).status_code == 200
         operations = _rest_operations(client)
         assert operations
         mutating_gets = {
@@ -1245,6 +1260,18 @@ def test_permissive_warning_redacts_tokens_and_keeps_a_monotonic_bounded_signal(
         )
         assert first == 404
         assert second == 404
+        assert client.get(f"/tasks/{WRITE_TOKEN}").status_code == 400
+        assert (
+            client.post(
+                "/tasks",
+                headers={"Content-Type": "application/json"},
+                json={"memo": READ_TOKEN},
+            ).status_code
+            == 400
+        )
+        assert (
+            client.get("/healthz").headers["x-panopticon-permissive-unauthenticated-total"] == "2"
+        )
         for index in range(1022):
             assert client.get(f"/missing-{index}").status_code == 404
         health = client.get("/healthz")
@@ -1337,6 +1364,14 @@ def test_startup_rejects_tokens_colliding_with_fixed_failure_response(
             auth_mode="enforced",
             secrets_dir=secrets,
         )
+    with _client(tmp_path / "control") as client:
+        rejected = client.get("/tasks")
+    wire = (
+        rejected.text
+        + "\n"
+        + "\n".join(f"{name}: {value}" for name, value in rejected.headers.items())
+    )
+    assert token.lower() in wire.lower()
 
 
 @pytest.mark.parametrize("privilege", ["read", "write"])
