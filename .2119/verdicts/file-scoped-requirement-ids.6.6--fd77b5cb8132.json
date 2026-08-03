@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.6.6--fd77b5cb8132",
+  "requirementId": "file-scoped-requirement-ids.6.6",
+  "hash": "fd77b5cb8132",
+  "verdict": "pass",
+  "summary": "PASS: the test requires guidance that lifecycle scripts cannot be silently enabled for a future gate dependency, rejecting permissive silent-enablement wording.",
+  "timestamp": "2026-08-03T20:29:43.614Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.1.6--1be2b0ee4bfb",
+  "requirementId": "file-scoped-requirement-ids.1.6",
+  "hash": "1be2b0ee4bfb",
+  "verdict": "pass",
+  "summary": "PASS: gate match requires rfc2119@0.7.0 check with NPM_CONFIG_IGNORE_SCRIPTS true and rejects absent or differently scoped lifecycle hardening",
+  "timestamp": "2026-08-03T20:29:29.645Z"
+}

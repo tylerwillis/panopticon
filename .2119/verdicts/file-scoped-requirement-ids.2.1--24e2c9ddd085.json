@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.2.1--24e2c9ddd085",
+  "requirementId": "file-scoped-requirement-ids.2.1",
+  "hash": "24e2c9ddd085",
+  "verdict": "pass",
+  "summary": "Merge-base path diff rejects any legacy spec rename, deletion, or addition",
+  "timestamp": "2026-08-03T20:29:34.329Z"
+}

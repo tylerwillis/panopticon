@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.2.5--45190503d385",
+  "requirementId": "file-scoped-requirement-ids.2.5",
+  "hash": "45190503d385",
+  "verdict": "pass",
+  "summary": "Guidance must explicitly prescribe lowercase kebab-case filenames as namespaces; snake_case wording is rejected.",
+  "timestamp": "2026-08-03T20:30:24.755Z"
+}

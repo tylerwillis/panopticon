@@ -440,7 +440,7 @@ tautological or over-mocked tests will be rejected. Renaming a file-scoped spec
 changes its canonical IDs, invalidates its verdicts, and requires re-review.
 
 **Reviewer diversity**: use reviewer models from different providers, routinely
-or as periodic `npx rfc2119 review --audit` sweeps — adversarial audits of
+or as periodic `npx --yes rfc2119@0.7.0 review --audit` sweeps — adversarial audits of
 passing verdicts. Audit especially the challenging or high-consequence
 requirements; a single model family shares blind spots.
 

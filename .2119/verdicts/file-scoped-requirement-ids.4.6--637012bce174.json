@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.4.6--637012bce174",
+  "requirementId": "file-scoped-requirement-ids.4.6",
+  "hash": "637012bce174",
+  "verdict": "pass",
+  "summary": "PASS: exact assertions require lint, review --dispatch, and check guidance to each use rfc2119@0.7.0; wrong, missing, or unpinned command counterexamples fail.",
+  "timestamp": "2026-08-03T20:29:41.865Z"
+}

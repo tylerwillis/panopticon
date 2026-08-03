@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.5.1--55c375eb9277",
+  "requirementId": "file-scoped-requirement-ids.5.1",
+  "hash": "55c375eb9277",
+  "verdict": "pass",
+  "summary": "PASS: merge-base tree must contain each exact REQ-035 through REQ-038 filename and byte-identical working content before adoption",
+  "timestamp": "2026-08-03T20:29:33.742Z"
+}

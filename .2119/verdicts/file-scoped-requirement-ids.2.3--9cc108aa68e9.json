@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.2.3--9cc108aa68e9",
+  "requirementId": "file-scoped-requirement-ids.2.3",
+  "hash": "9cc108aa68e9",
+  "verdict": "pass",
+  "summary": "PASS: merge-base diff rejects any changed pre-existing test file, preserving its legacy annotations while allowing only the new adoption test",
+  "timestamp": "2026-08-03T20:29:30.229Z"
+}

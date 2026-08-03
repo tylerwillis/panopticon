@@ -1,8 +1,0 @@
-{
-  "reviewId": "file-scoped-requirement-ids.4.1--4189e3fd3f00",
-  "requirementId": "file-scoped-requirement-ids.4.1",
-  "hash": "4189e3fd3f00",
-  "verdict": "pass",
-  "summary": "Fresh-context Sol review confirmed exact mixed-grammar IDs, coverage, and verdict resolution are tested honestly.",
-  "timestamp": "2026-08-03T05:19:07.661Z"
-}

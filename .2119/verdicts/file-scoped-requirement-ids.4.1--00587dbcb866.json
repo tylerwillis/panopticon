@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.4.1--00587dbcb866",
+  "requirementId": "file-scoped-requirement-ids.4.1",
+  "hash": "00587dbcb866",
+  "verdict": "pass",
+  "summary": "PASS: one isolated 0.7.0 check must report all five requirements after legacy and two file-scoped grammars are jointly linted, covered, and reviewed",
+  "timestamp": "2026-08-03T20:29:32.623Z"
+}

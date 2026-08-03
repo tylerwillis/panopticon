@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.1.5--01dcbb7a8276",
+  "requirementId": "file-scoped-requirement-ids.1.5",
+  "hash": "01dcbb7a8276",
+  "verdict": "pass",
+  "summary": "Tracked contributor guidance rejects an exact rfc2119@0.6.9 pin while permitting the 0.7.0 baseline.",
+  "timestamp": "2026-08-03T20:30:23.548Z"
+}
