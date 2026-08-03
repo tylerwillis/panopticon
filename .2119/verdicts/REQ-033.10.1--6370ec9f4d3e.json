@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.10.1--6370ec9f4d3e",
+  "requirementId": "REQ-033.10.1",
+  "hash": "6370ec9f4d3e",
+  "verdict": "pass",
+  "summary": "`responsibilities[0].description` asserted equal to the literal ending \"Filing zero issues is a legal outcome.\" for all three builtins.",
+  "timestamp": "2026-08-03T13:19:47.576Z"
+}

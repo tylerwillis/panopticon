@@ -194,7 +194,7 @@ def operation_instructions(
         "_panopticon_had_xtrace=; case $- in *x*) set +x; "
         "_panopticon_had_xtrace=1 ;; esac; "
         "printf 'header = \"Authorization: Bearer %s\"\\n' "
-        '"$PANOPTICON_SERVICE_AUTH_TOKEN" | curl --config - '
+        "\"$PANOPTICON_SERVICE_AUTH_TOKEN\" | curl --disable --noproxy '*' --config - "
         if authenticated
         else "curl "
     )

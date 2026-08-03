@@ -29,7 +29,7 @@ EXPECTED_ARTIFACT_INSTRUCTIONS = (
     "_panopticon_had_xtrace=1 ;; esac; "
     'if [ -n "${PANOPTICON_SERVICE_AUTH_TOKEN:-}" ]; then '
     "printf 'header = \"Authorization: Bearer %s\"\\n' "
-    '"$PANOPTICON_SERVICE_AUTH_TOKEN" | curl --config - --fail --silent --show-error '
+    "\"$PANOPTICON_SERVICE_AUTH_TOKEN\" | curl --disable --noproxy '*' --config - --fail --silent --show-error "
     "--request PUT --data-binary @<artifact-file> "
     '"$PANOPTICON_SERVICE_URL/tasks/$PANOPTICON_TASK_ID/artifacts/<name>"; else '
     "curl --fail --silent --show-error --request PUT --data-binary @<artifact-file> "

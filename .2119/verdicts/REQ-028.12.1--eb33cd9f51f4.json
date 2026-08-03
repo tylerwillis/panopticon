@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.12.1--eb33cd9f51f4",
+  "requirementId": "REQ-028.12.1",
+  "hash": "eb33cd9f51f4",
+  "verdict": "pass",
+  "summary": "Behavioral, not keyword: `test_codex_dispatch_uses_isolated_command_...` asserts the exact dispatch argv `codex exec --dangerously-bypass-approvals-and-sandbox --model gpt-5.6-sol --json`, and a before/after `git_status` mismatch raises \"changed git status\" with nothing posted or published; `reviewe",
+  "timestamp": "2026-08-03T13:19:40.710Z"
+}

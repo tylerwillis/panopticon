@@ -201,7 +201,25 @@ class ShellRunner(Runner):
             f"{self._service_url}/tasks/{task_id}/live"
             f"?container_id={session}&runner_id={self._runner_id}"
         )
-        session_probe = shlex.join(self._tmux("has-session", "-t", session))
+        liveness_helper = shlex.join(
+            [
+                sys.executable,
+                "-m",
+                "panopticon.sessionservice.shell_liveness",
+                "--service-url",
+                self._service_url,
+                "--task-id",
+                task_id,
+                "--runner-id",
+                self._runner_id,
+                "--socket",
+                self._tmux_socket or "",
+                "--session",
+                session,
+                "--snapshot",
+                str(auth_snapshot) if auth_snapshot is not None else "",
+            ]
+        )
         lines = []
         # Repo credentials are caller-controlled. Load literal NAME=VALUE records without sourcing
         # host shell code, then pin every reserved control-plane value below.
@@ -248,8 +266,13 @@ class ShellRunner(Runner):
                 ),
                 # Load the panopticon shell lib so the script can drive its task (panopticon_advance, …).
                 _TASK_LIB,
+                'if [ -n "${TMUX:-}" ]; then',
+                f"nohup {liveness_helper} </dev/null >/dev/null 2>&1 &",
+                "_panopticon_live_pid=$!",
+                "else",
                 f"_panopticon_curl --silent --no-buffer {shlex.quote(live_url)} >/dev/null 2>&1 &",
                 "_panopticon_live_pid=$!",
+                "fi",
                 "_panopticon_cleanup() { trap - EXIT HUP INT TERM; "
                 "kill $_panopticon_live_pid 2>/dev/null; "
                 + (
@@ -260,21 +283,6 @@ class ShellRunner(Runner):
                 + "}",
                 "trap '_panopticon_cleanup' EXIT",
                 "trap '_panopticon_cleanup; exit 129' HUP INT TERM",
-                # tmux may tear down its pane without giving the pane shell a catchable signal.
-                # Keep a nohup watchdog alive long enough to observe the tmux session disappearing;
-                # it closes the liveness child and removes the private snapshot even when neither
-                # shell trap runs.  Normal exits still use the traps above, making both paths
-                # idempotent.
-                'if [ -n "${TMUX:-}" ]; then nohup sh -c '
-                + shlex.quote(
-                    f"while {session_probe} 2>/dev/null; do sleep 1; done; "
-                    'pkill -TERM -P "$1" 2>/dev/null; '
-                    'kill "$1" 2>/dev/null; '
-                    '[ -z "$2" ] || rm -f "$2"'
-                )
-                + ' _ "$_panopticon_live_pid" '
-                + shlex.quote(str(auth_snapshot) if auth_snapshot is not None else "")
-                + " </dev/null >/dev/null 2>&1 & fi",
             ]
         )
         lines.append(script)

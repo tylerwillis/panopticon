@@ -25,13 +25,13 @@ PY
             [ -n "$_panopticon_had_xtrace" ] && set -x
             return "$_panopticon_status"
         }
-        printf '%s\n' "$_panopticon_auth_config" | curl --config - "$@"
+        printf '%s\n' "$_panopticon_auth_config" | curl --disable --noproxy '*' --config - "$@"
         _panopticon_status=$?
         unset _panopticon_auth_config
         [ -n "$_panopticon_had_xtrace" ] && set -x
         return "$_panopticon_status"
     else
-        curl "$@"
+        curl --disable --noproxy '*' "$@"
     fi
 }
 

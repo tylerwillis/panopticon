@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.1.1--faa17d3e62b7",
+  "requirementId": "REQ-033.1.1",
+  "hash": "faa17d3e62b7",
+  "verdict": "pass",
+  "summary": "Independent substring assertion 'End the triage summary PR comment with a \"Suggested placeholder issues\" section.' runs against every review skill of all three builtins (`test_2119_skills_publish_spec_and_review_material`), and the review-skill list is pinned so no unchecked review skill can exist.",
+  "timestamp": "2026-08-03T13:19:43.171Z"
+}

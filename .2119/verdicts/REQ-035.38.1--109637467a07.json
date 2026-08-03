@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.38.1--109637467a07",
+  "requirementId": "REQ-035.38.1",
+  "hash": "109637467a07",
+  "verdict": "pass",
+  "summary": "`test_shell_library_hides_token_from_xtrace` runs the real `task_lib.sh` under a real `sh` with `set -x` and a configured write token, then asserts the token is absent from stderr (the actual trace stream) and from curl argv, while confirming the auth path executed (`--config` stdin form). Since `pa",
+  "timestamp": "2026-08-03T13:19:48.549Z"
+}

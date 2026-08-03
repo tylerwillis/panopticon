@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.8.1--e9f27f8d2667",
+  "requirementId": "REQ-028.8.1",
+  "hash": "e9f27f8d2667",
+  "verdict": "pass",
+  "summary": "Test-honesty→Sol is verified by the independent spec-skill literal (step 4: `codex exec ... -m gpt-5.6-sol`); Fable+Sol vs Sol-only final review by the independent prefix literals (`claude:claude-fable-5, codex:gpt-5.6-sol` / `codex:gpt-5.6-sol, codex:gpt-5.6-sol`) and by `test_reviewers.py` pinning",
+  "timestamp": "2026-08-03T13:19:38.780Z"
+}

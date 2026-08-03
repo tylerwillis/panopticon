@@ -46,12 +46,13 @@ from panopticon.sessionservice.provisioner import Provisioner
 from panopticon.sessionservice.shell_runner import ShellRunner
 from panopticon.sessionservice.spawner import Spawner, spawnable_tasks
 from panopticon.sessionservice.stage_entry_wake import StageEntryWaker
+from panopticon.taskservice.auth import environment_token
 
 _log = logging.getLogger(__name__)
 
 
 def _make_client(service_url: str) -> TaskServiceClient:
-    return TaskServiceClient(httpx.Client(base_url=service_url))
+    return TaskServiceClient(httpx.Client(base_url=service_url, trust_env=False))
 
 
 class EntryWaker(Protocol):
@@ -291,6 +292,8 @@ def main(
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
     )
+    if client is None:
+        environment_token()
     preflight_or_exit()
     migrate_session_dirs(CLONE_CACHE_DIR, TASKS_DIR)
     client = client or _make_client(args.service_url)

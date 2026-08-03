@@ -33,7 +33,7 @@ from panopticon.terminal.session_environment import (
 
 
 def _make_client(service_url: str) -> TaskServiceClient:
-    return TaskServiceClient(httpx.Client(base_url=service_url))
+    return TaskServiceClient(httpx.Client(base_url=service_url, trust_env=False))
 
 
 DEFAULT_SERVICE_URL = "http://localhost:8000"
@@ -170,9 +170,11 @@ def main(
         return doctor.report(doctor.run_checks())
     elif args.command == "host":
         from panopticon.sessionservice import docker_daemon
+        from panopticon.taskservice.auth import environment_token
 
         # Fail fast on an unreachable Docker daemon (REQ-031.1) rather than spawning every task
         # into a crash loop — e.g. after a host reboot, before OrbStack/Docker Desktop is back up.
+        environment_token()
         if (message := docker_daemon.preflight_message("host")) is not None:
             print(message)
             return 1

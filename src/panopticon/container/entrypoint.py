@@ -125,7 +125,7 @@ def _until_signalled() -> Callable[[], bool]:
 
 
 def _make_client(service_url: str) -> TaskServiceClient:
-    return TaskServiceClient(httpx.Client(base_url=service_url))
+    return TaskServiceClient(httpx.Client(base_url=service_url, trust_env=False))
 
 
 def main(

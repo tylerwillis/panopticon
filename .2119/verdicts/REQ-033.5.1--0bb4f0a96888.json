@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.5.1--0bb4f0a96888",
+  "requirementId": "REQ-033.5.1",
+  "hash": "0bb4f0a96888",
+  "verdict": "pass",
+  "summary": "`test_merging_gains_deferred_issues_filed_before_pr_merged` asserts MERGING responsibility keys are exactly `[\"deferred-issues-filed\", \"pr-merged\"]` — list equality proves both presence and precedence.",
+  "timestamp": "2026-08-03T13:19:45.165Z"
+}

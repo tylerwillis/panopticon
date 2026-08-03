@@ -53,7 +53,7 @@ def _stop_container() -> None:  # pragma: no cover - signals the real container'
 
 
 def _default_client(service_url: str) -> TaskServiceClient:
-    return TaskServiceClient(httpx.Client(base_url=service_url))
+    return TaskServiceClient(httpx.Client(base_url=service_url, trust_env=False))
 
 
 def main(

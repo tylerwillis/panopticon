@@ -510,7 +510,7 @@ def main(argv: list[str] | None = None) -> None:
     accept.add_argument("--session-archive", type=Path)
     accept.add_argument("--image", default=DEFAULT_IMAGE)
     args = parser.parse_args(argv)
-    client = TaskServiceClient(httpx.Client(base_url=args.service_url))
+    client = TaskServiceClient(httpx.Client(base_url=args.service_url, trust_env=False))
     if args.command == "request":
         request_migration(
             client,

@@ -73,6 +73,55 @@ panopticon_advance
     )
     assert "trace-secret" not in completed.stderr
     assert "trace-secret" not in argv.read_text()
+    assert argv.read_text().splitlines()[:4] == ["--disable", "--noproxy", "*", "--config"]
+
+
+def test_host_validates_auth_before_docker_preflight(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # 2119: REQ-035.28.1
+    from panopticon.sessionservice import host
+
+    monkeypatch.setenv("PANOPTICON_CONFIG", str(tmp_path))
+    monkeypatch.setenv("PANOPTICON_SERVICE_AUTH_FILE", "missing.json")
+    preflight_called = False
+
+    def preflight(_surface: str) -> str | None:
+        nonlocal preflight_called
+        preflight_called = True
+        return None
+
+    monkeypatch.setattr(host.docker_daemon, "preflight_message", preflight)
+    with pytest.raises(ValueError, match="authentication credential"):
+        host.main([])
+    assert not preflight_called
+
+
+@pytest.mark.skipif(not shutil.which("curl"), reason="needs curl")
+def test_shell_library_ignores_hostile_curlrc(tmp_path: Path) -> None:
+    credential = tmp_path / "auth.json"
+    credential.write_text(json.dumps({"read": ["private-reader"], "write": ["curlrc-secret"]}))
+    credential.chmod(0o600)
+    curl_home = tmp_path / "curl-home"
+    curl_home.mkdir()
+    (curl_home / ".curlrc").write_text("verbose\n")
+    completed = subprocess.run(
+        [
+            "sh",
+            "-c",
+            _TASK_LIB + "\n_panopticon_curl --connect-timeout 0.1 http://127.0.0.1:9 >/dev/null\n",
+        ],
+        env={
+            "PATH": "/usr/bin:/bin",
+            "CURL_HOME": str(curl_home),
+            "PANOPTICON_PYTHON": sys.executable,
+            "PANOPTICON_SERVICE_AUTH_FILE": str(credential),
+        },
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert "curlrc-secret" not in completed.stderr
 
 
 def test_runtime_snapshot_contains_only_active_write_token(tmp_path: Path) -> None:
