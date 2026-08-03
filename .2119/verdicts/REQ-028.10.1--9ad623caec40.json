@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.10.1--9ad623caec40",
+  "requirementId": "REQ-028.10.1",
+  "hash": "9ad623caec40",
+  "verdict": "pass",
+  "summary": "Exact live artifact guidance says artifacts complement and do not replace both the pull request and dedicated task URL.",
+  "timestamp": "2026-08-03T07:08:29.319Z"
+}

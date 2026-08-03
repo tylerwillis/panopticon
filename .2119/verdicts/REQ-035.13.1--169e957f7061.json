@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.13.1--169e957f7061",
+  "requirementId": "REQ-035.13.1",
+  "hash": "169e957f7061",
+  "verdict": "pass",
+  "summary": "Permissive mode verifies parity for headerless and sufficient write credentials across REST, liveness, and MCP transports while retaining rejection of insufficient credentials.",
+  "timestamp": "2026-08-03T07:18:58.002Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.6.1--4df5aaa4057a",
+  "requirementId": "REQ-033.6.1",
+  "hash": "4df5aaa4057a",
+  "verdict": "pass",
+  "summary": "`test_babysit_merge_...` proves the merge skill equals `EXPECTED_DEFERRED_ISSUES_MERGE_INSTRUCTIONS` (test-local literal, step 2: re-read the \"Suggested placeholder issues\" section and user PR reactions) as an exact prefix before the untouched base merge-queue text — position \"before merging\" is str",
+  "timestamp": "2026-08-03T13:19:45.633Z"
+}

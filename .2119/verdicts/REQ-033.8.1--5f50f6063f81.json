@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.8.1--5f50f6063f81",
+  "requirementId": "REQ-033.8.1",
+  "hash": "5f50f6063f81",
+  "verdict": "pass",
+  "summary": "Exact per-workflow merge instructions explicitly require skipping every user-rejected suggestion.",
+  "timestamp": "2026-08-03T02:37:13.135Z"
+}

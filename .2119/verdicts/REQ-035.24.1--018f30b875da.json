@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.24.1--018f30b875da",
+  "requirementId": "REQ-035.24.1",
+  "hash": "018f30b875da",
+  "verdict": "pass",
+  "summary": "Test enumerates all 128 ASCII chars against the grammar plus non-ASCII, interior '=', and padding-only tokens in both read/write positions via the shared load_tokens path used by every auth mode; runtime-neutered regex mutant fails 128/147 cases, and opaque trailing-'==' tokens are accepted elsewhere, proving non-vacuous startup rejection.",
+  "timestamp": "2026-08-03T11:24:15.317Z"
+}

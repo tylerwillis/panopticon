@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.3.1--366365b64bd0",
+  "requirementId": "REQ-035.3.1",
+  "hash": "366365b64bd0",
+  "verdict": "pass",
+  "summary": "Actual registered safe REST operations plus framework GET/HEAD documentation reads are enumerated and exercised with both read and write tokens.",
+  "timestamp": "2026-08-03T09:21:34.690Z"
+}

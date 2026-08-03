@@ -1648,7 +1648,7 @@ def test_cleanup_removes_workspace_when_terminal_and_container_gone() -> None:
     assert removed == ["/tasks/t1"]
 
 
-def test_cleanup_waits_when_container_still_running() -> None:
+def test_cleanup_stops_terminal_backend_even_when_still_running() -> None:
     removed: list[str] = []
     runner = _FakeRunner(running=True)
     client = _FakeClient(repo=_REPO)
@@ -1666,7 +1666,7 @@ def test_cleanup_waits_when_container_still_running() -> None:
         rmtree=removed.append,
     )
     spawner.cleanup({"id": "t1", "state": "COMPLETE"})
-    assert removed == []  # container still up — leave workspace alone
+    assert removed == ["/tasks/t1"]
 
 
 def test_cleanup_is_a_no_op_for_non_terminal_task() -> None:

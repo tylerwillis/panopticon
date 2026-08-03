@@ -377,8 +377,9 @@ class Workflow(ABC):
         """The shell script a ``runner_type = "shell"`` workflow runs (in a host tmux session, no
         container). The session service injects ``PANOPTICON_SERVICE_URL`` and
         ``PANOPTICON_TASK_ID`` into the environment, so the script can drive its own lifecycle over
-        REST (e.g. ``POST $PANOPTICON_SERVICE_URL/tasks/$PANOPTICON_TASK_ID/operations/advance`` on
-        success). Empty for a ``"docker"`` workflow; a shell workflow overrides it."""
+        REST through the injected authenticated helpers (e.g. ``panopticon_advance`` on success;
+        use ``_panopticon_curl`` for a route without a dedicated helper). Empty for a ``"docker"``
+        workflow; a shell workflow overrides it."""
         return ""
 
     # -- agent-facing briefing (the "where am I" prose; LLM-free string building) --------

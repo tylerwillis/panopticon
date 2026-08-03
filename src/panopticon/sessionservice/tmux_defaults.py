@@ -144,3 +144,9 @@ def defaults_argv(socket: str | None) -> list[str]:
     if not socket:
         return []
     return ["-f", str(write_default_config(socket))]
+
+
+def new_session_argv(socket: str | None, *args: str) -> list[str]:
+    """Build the only supported panopticon-owned tmux session-creation command tail."""
+
+    return [*defaults_argv(socket), "new-session", *args]

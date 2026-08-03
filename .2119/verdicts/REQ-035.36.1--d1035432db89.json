@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.36.1--d1035432db89",
+  "requirementId": "REQ-035.36.1",
+  "hash": "d1035432db89",
+  "verdict": "pass",
+  "summary": "Tests verify termination and no-retry on 401/403 via parametrized real-client integration with end-to-end main() validation",
+  "timestamp": "2026-08-03T10:53:27.389Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.28.1--3b659b8afc4a",
+  "requirementId": "REQ-035.28.1",
+  "hash": "3b659b8afc4a",
+  "verdict": "fail",
+  "summary": "Existing non-file coverage only exercises a directory; no test rejects a FIFO/socket-like credential while proving it remains unchanged and Docker/tmux are not invoked.",
+  "timestamp": "2026-08-03T00:32:55.279Z"
+}

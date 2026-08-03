@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.43.1--f84cf0a750f7",
+  "requirementId": "REQ-035.43.1",
+  "hash": "f84cf0a750f7",
+  "verdict": "pass",
+  "summary": "Exact low/high-count health assertions prove header-less admissions increment monotonically, authenticated and health requests do not, restart resets to zero, and configured tokens never appear on the response wire.",
+  "timestamp": "2026-08-03T09:03:36.241Z"
+}

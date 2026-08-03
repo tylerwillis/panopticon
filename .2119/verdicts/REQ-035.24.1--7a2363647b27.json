@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.24.1--7a2363647b27",
+  "requirementId": "REQ-035.24.1",
+  "hash": "7a2363647b27",
+  "verdict": "pass",
+  "summary": "Startup rejects empty and padding-only tokens, every disallowed ASCII character (including interior '='), and representative non-ASCII values in both credential roles.",
+  "timestamp": "2026-08-02T22:06:15.254Z"
+}

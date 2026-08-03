@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.19.1--d2018f2a0bb0",
+  "requirementId": "REQ-035.19.1",
+  "hash": "d2018f2a0bb0",
+  "verdict": "pass",
+  "summary": "Three startup generations prove old-only, overlapping old/new continuity, unchanged running snapshots after file edits, and old-token rejection only after the final restart.",
+  "timestamp": "2026-08-03T02:05:14.727Z"
+}

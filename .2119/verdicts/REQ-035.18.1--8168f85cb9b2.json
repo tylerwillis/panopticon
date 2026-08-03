@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.18.1--8168f85cb9b2",
+  "requirementId": "REQ-035.18.1",
+  "hash": "8168f85cb9b2",
+  "verdict": "pass",
+  "summary": "Tests verify tokens never appear in failure bodies, validation errors, logs, command lines, serialization, database, or artifacts; active redaction demonstrated",
+  "timestamp": "2026-08-03T10:52:09.209Z"
+}

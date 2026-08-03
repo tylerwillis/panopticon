@@ -184,7 +184,11 @@ class OutfitterHarness(Harness):
                 name=name,
                 description=f"Apply the workflow's '{name}' operation.",
                 instructions=operation_instructions(
-                    name, target_state, ctx.task_id, ctx.service_url
+                    name,
+                    target_state,
+                    ctx.task_id,
+                    ctx.service_url,
+                    authenticated=bool(ctx.environ.get("PANOPTICON_SERVICE_AUTH_TOKEN")),
                 ),
             )
             for name, target_state in ctx.operations.items()

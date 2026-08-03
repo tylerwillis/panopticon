@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.7.1--96dca2da1792",
+  "requirementId": "REQ-035.7.1",
+  "hash": "96dca2da1792",
+  "verdict": "pass",
+  "summary": "Tests cover missing, malformed, wrong-scheme/case, unknown, near-match, non-ASCII, and insufficient tokens across protected REST and MCP routes, asserting identical 401 body and Bearer challenge.",
+  "timestamp": "2026-08-03T01:17:03.426Z"
+}

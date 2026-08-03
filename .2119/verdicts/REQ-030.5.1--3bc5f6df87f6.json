@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.5.1--3bc5f6df87f6",
+  "requirementId": "REQ-030.5.1",
+  "hash": "3bc5f6df87f6",
+  "verdict": "pass",
+  "summary": "With `tmux_socket=None`, both runner tests assert the exact, complete tmux argv list — no `-L`, no `-f`, no set-option anywhere — so adding any shipped default breaks list equality; this is the strongest possible \"MUST NOT receive any\" check.",
+  "timestamp": "2026-08-03T13:19:42.702Z"
+}

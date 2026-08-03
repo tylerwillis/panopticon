@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.1.1--df7b29150ce3",
+  "requirementId": "REQ-025.1.1",
+  "hash": "df7b29150ce3",
+  "verdict": "pass",
+  "summary": "Exact unit and end-to-end command tests require slug [memo] for the both-present case and verify it reaches local and remote target-session status-left before attach.",
+  "timestamp": "2026-08-03T03:17:06.174Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-039.4.1--897041148ac3",
+  "requirementId": "REQ-039.4.1",
+  "hash": "897041148ac3",
+  "verdict": "pass",
+  "summary": "Fresh review verified runner liveness reconnects with stable identity after drops.",
+  "timestamp": "2026-08-03T11:59:01.053Z"
+}

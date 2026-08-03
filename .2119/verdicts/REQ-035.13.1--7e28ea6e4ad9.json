@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.13.1--7e28ea6e4ad9",
+  "requirementId": "REQ-035.13.1",
+  "hash": "7e28ea6e4ad9",
+  "verdict": "pass",
+  "summary": "Permissive mode accepts legacy and authenticated requests without generic failure; insufficient credentials correctly rejected",
+  "timestamp": "2026-08-03T11:16:42.386Z"
+}

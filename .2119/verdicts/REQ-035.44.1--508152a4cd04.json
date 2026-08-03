@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.44.1--508152a4cd04",
+  "requirementId": "REQ-035.44.1",
+  "hash": "508152a4cd04",
+  "verdict": "pass",
+  "summary": "Test verifies configured tokens in decoded target (URL path) and semantic body (JSON, raw, encoded forms) are rejected before persistence to database/artifacts.",
+  "timestamp": "2026-08-03T10:55:54.080Z"
+}

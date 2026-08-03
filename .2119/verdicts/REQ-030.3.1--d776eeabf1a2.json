@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.3.1--d776eeabf1a2",
+  "requirementId": "REQ-030.3.1",
+  "hash": "d776eeabf1a2",
+  "verdict": "pass",
+  "summary": "All four enumerated creation paths require the full generated config before new-session, while unit and real-tmux tests reject missing defaults and prove they are effective.",
+  "timestamp": "2026-08-03T15:04:13.216Z"
+}

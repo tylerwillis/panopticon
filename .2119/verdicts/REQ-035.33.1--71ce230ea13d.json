@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.33.1--71ce230ea13d",
+  "requirementId": "REQ-035.33.1",
+  "hash": "71ce230ea13d",
+  "verdict": "pass",
+  "summary": "Both read and write token lists reject lengths 1, 5, and the nearest boundary 11, while accepting the exact 12-character boundary.",
+  "timestamp": "2026-08-03T02:32:19.617Z"
+}

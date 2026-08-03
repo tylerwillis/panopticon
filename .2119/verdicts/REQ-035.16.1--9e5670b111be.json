@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.16.1--9e5670b111be",
+  "requirementId": "REQ-035.16.1",
+  "hash": "9e5670b111be",
+  "verdict": "pass",
+  "summary": "Runner, console/dashboard, and CLI factories each resolve the write token from the configured local file and their returned shared clients succeed only when protected requests carry that token.",
+  "timestamp": "2026-08-03T09:21:53.239Z"
+}

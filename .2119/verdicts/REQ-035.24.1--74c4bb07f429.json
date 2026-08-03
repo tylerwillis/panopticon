@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.24.1--74c4bb07f429",
+  "requirementId": "REQ-035.24.1",
+  "hash": "74c4bb07f429",
+  "verdict": "pass",
+  "summary": "Rejects every disallowed ASCII character in an otherwise valid token, non-ASCII cases, empty/padding-only values, and non-trailing equals while valid grammar tokens are exercised elsewhere.",
+  "timestamp": "2026-08-03T07:19:09.416Z"
+}

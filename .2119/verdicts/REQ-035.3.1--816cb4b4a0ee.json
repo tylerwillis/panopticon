@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.3.1--816cb4b4a0ee",
+  "requirementId": "REQ-035.3.1",
+  "hash": "816cb4b4a0ee",
+  "verdict": "pass",
+  "summary": "Pass: registered non-mutating REST routes are dynamically enumerated for every read and write token, with framework GET/HEAD documentation reads covered explicitly.",
+  "timestamp": "2026-08-03T01:20:37.873Z"
+}

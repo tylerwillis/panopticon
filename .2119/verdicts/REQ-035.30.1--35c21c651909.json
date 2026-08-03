@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.30.1--35c21c651909",
+  "requirementId": "REQ-035.30.1",
+  "hash": "35c21c651909",
+  "verdict": "pass",
+  "summary": "Read and write tokens are exercised against both liveness routes and every MCP method beneath nontrivial, slash, and prefix-collision root paths; only write avoids auth rejection.",
+  "timestamp": "2026-08-03T06:36:10.271Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-039.3.1--cecc1e60df5c",
+  "requirementId": "REQ-039.3.1",
+  "hash": "cecc1e60df5c",
+  "verdict": "pass",
+  "summary": "Fresh review verified container liveness closes and reopens identical registration after timeout.",
+  "timestamp": "2026-08-03T11:59:00.544Z"
+}

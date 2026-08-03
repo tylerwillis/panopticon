@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.1.1--1fa14a821b01",
+  "requirementId": "REQ-030.1.1",
+  "hash": "1fa14a821b01",
+  "verdict": "pass",
+  "summary": "Fresh-socket real-tmux tests reject mouse off, and every dedicated-socket session creation path is verified to load the mouse-on config before new-session.",
+  "timestamp": "2026-08-03T14:53:34.739Z"
+}

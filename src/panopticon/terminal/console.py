@@ -33,8 +33,9 @@ import httpx
 
 from panopticon.client import TaskServiceClient
 from panopticon.sessionservice.local_runner import TMUX_SOCKET
-from panopticon.sessionservice.tmux_defaults import defaults_argv
+from panopticon.sessionservice.tmux_defaults import defaults_argv, new_session_argv
 from panopticon.terminal.attach import attach_command, task_context_label
+from panopticon.terminal.session_environment import session_environment_argv
 
 #: tmux session name the dashboard runs in (on the panopticon socket, beside the task sessions).
 DASHBOARD_SESSION = "dashboard"
@@ -120,7 +121,8 @@ def session_exists(session: str, *, socket: str = TMUX_SOCKET) -> bool:
     """Whether the named tmux session is running on the panopticon socket."""
     return (
         subprocess.run(
-            ["tmux", "-L", socket, "has-session", "-t", session], capture_output=True
+            ["tmux", "-L", socket, *defaults_argv(socket), "has-session", "-t", session],
+            capture_output=True,
         ).returncode
         == 0
     )
@@ -144,8 +146,7 @@ def ensure_dashboard_session(
             "tmux",
             "-L",
             socket,
-            *defaults_argv(socket),
-            "new-session",
+            *new_session_argv(socket),
             "-d",
             "-s",
             DASHBOARD_SESSION,
@@ -206,7 +207,12 @@ def make_runner_switch(
 def _service_ready(service_url: str) -> bool:
     """Whether the task service answers its health check (gates the dashboard on startup)."""
     try:
-        return httpx.get(f"{service_url.rstrip('/')}/healthz", timeout=1.0).status_code == 200
+        return (
+            httpx.get(
+                f"{service_url.rstrip('/')}/healthz", timeout=1.0, trust_env=False
+            ).status_code
+            == 200
+        )
     except httpx.HTTPError:
         return False
 
@@ -284,6 +290,10 @@ def run_console(*, show_dashboard: Selector, attach: Attacher, initial: str | No
         attach(session)
 
 
+def _make_client(service_url: str) -> TaskServiceClient:
+    return TaskServiceClient(httpx.Client(base_url=service_url, trust_env=False))
+
+
 def run_console_local(
     service_url: str,
     *,
@@ -304,7 +314,7 @@ def run_console_local(
         return
     initial: str | None = None
     if join:
-        client = client or TaskServiceClient(httpx.Client(base_url=service_url))
+        client = client or _make_client(service_url)
         # Poll across the container's /live reconnect window: `start`/`quickstart` may have just
         # (re)started the runner, and a freshly created task (quickstart's setup-repo) is only
         # claimed + spawned a beat later — resolve on the first hit, ~10s ceiling.
@@ -313,16 +323,18 @@ def run_console_local(
             print(f"no running container for task '{join}'; opening the dashboard", file=sys.stderr)
     switch_file = switch_file_path(socket)
     switch_file.parent.mkdir(parents=True, exist_ok=True)
-    dashboard = [
-        sys.executable,
-        "-m",
-        "panopticon.terminal",
-        "--service-url",
-        service_url,
-        "dashboard",
-        "--switch-file",
-        str(switch_file),
-    ]
+    dashboard = session_environment_argv(
+        [
+            sys.executable,
+            "-m",
+            "panopticon.terminal",
+            "--service-url",
+            service_url,
+            "dashboard",
+            "--switch-file",
+            str(switch_file),
+        ]
+    )
 
     def _tmux(*args: str) -> subprocess.CompletedProcess[bytes]:
         return subprocess.run(["tmux", "-L", socket, *args], check=False)

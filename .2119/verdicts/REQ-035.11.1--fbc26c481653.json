@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.11.1--fbc26c481653",
+  "requirementId": "REQ-035.11.1",
+  "hash": "fbc26c481653",
+  "verdict": "pass",
+  "summary": "Test verifies authentication outcome is identical across loopback, tailnet, and other source addresses for unauthenticated and both token types",
+  "timestamp": "2026-08-03T11:16:18.465Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.15.1--9b4120e3f771",
+  "requirementId": "REQ-035.15.1",
+  "hash": "9b4120e3f771",
+  "verdict": "pass",
+  "summary": "Direct observable HTTP boundary evidence: Bearer token in Authorization header for all GET, PUT, and liveness requests; token not in URL path or query string",
+  "timestamp": "2026-08-03T11:17:11.271Z"
+}

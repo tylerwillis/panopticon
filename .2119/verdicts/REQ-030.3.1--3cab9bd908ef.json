@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.3.1--3cab9bd908ef",
+  "requirementId": "REQ-030.3.1",
+  "hash": "3cab9bd908ef",
+  "verdict": "pass",
+  "summary": "Container, shell, dashboard, service, and runner creation paths all require the complete defaults config before new-session, with fresh-socket integration evidence.",
+  "timestamp": "2026-08-03T03:21:11.104Z"
+}

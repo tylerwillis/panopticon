@@ -10,16 +10,27 @@ plane serves REST and MCP. ``create_app`` builds an app around an injected
 from __future__ import annotations
 
 import asyncio
+import hmac
+import json
+import logging
 import os
+import re
 import secrets
-from collections.abc import AsyncIterator, Callable
+import traceback
+from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager, suppress
 from datetime import datetime
+from pathlib import Path
 from typing import Any
+from urllib.parse import unquote_plus
 
 from fastapi import FastAPI, Header, HTTPException, Query, Request, Response
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+from starlette._utils import get_route_path
+from starlette.types import Message, Receive, Scope, Send
 
 from panopticon.core.artifacts import ArtifactError
 from panopticon.core.liveness import LIVENESS_KEEPALIVE_SECONDS
@@ -33,6 +44,134 @@ from panopticon.taskservice.service import (
     TaskService,
     UnknownWorkflow,
 )
+
+MAX_AUTH_INSPECTION_BODY_BYTES = 8 * 1024 * 1024
+_log = logging.getLogger(__name__)
+_original_log_record_factory: Callable[..., logging.LogRecord] | None = None
+_original_logger_make_record: Callable[..., logging.LogRecord] | None = None
+_log_redaction_tokens: tuple[str, ...] = ()
+_log_redaction_factory_installed = False
+
+
+def _redact_log_value(value: Any) -> Any:
+    if isinstance(value, str):
+        for token in _log_redaction_tokens:
+            value = value.replace(token, "[redacted]")
+        return value
+    if isinstance(value, bytes):
+        for token in _log_redaction_tokens:
+            value = value.replace(token.encode(), b"[redacted]")
+        return value
+    if isinstance(value, tuple):
+        return tuple(_redact_log_value(item) for item in value)
+    if isinstance(value, list):
+        return [_redact_log_value(item) for item in value]
+    if isinstance(value, dict):
+        return {key: _redact_log_value(item) for key, item in value.items()}
+    if isinstance(value, set):
+        return {_redact_log_value(item) for item in value}
+    if isinstance(value, frozenset):
+        return frozenset(_redact_log_value(item) for item in value)
+    rendered = str(value)
+    if any(token in rendered for token in _log_redaction_tokens):
+        return _redact_log_value(rendered)
+    return value
+
+
+class _ConfiguredTokenLogFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        for key, value in tuple(record.__dict__.items()):
+            record.__dict__[key] = _redact_log_value(value)
+        return True
+
+
+_configured_token_log_filter = _ConfiguredTokenLogFilter()
+
+
+def _redacting_log_record_factory(*args: Any, **kwargs: Any) -> logging.LogRecord:
+    assert _original_log_record_factory is not None
+    record = _original_log_record_factory(*args, **kwargs)
+    if _log_redaction_tokens:
+        record.msg = _redact_log_value(record.getMessage())
+        record.args = ()
+        if record.exc_info is not None:
+            record.exc_text = _redact_log_value(
+                "".join(traceback.format_exception(*record.exc_info))
+            )
+            record.exc_info = None
+        if record.stack_info is not None:
+            record.stack_info = _redact_log_value(record.stack_info)
+    return record
+
+
+def _redacting_make_record(self: logging.Logger, *args: Any, **kwargs: Any) -> logging.LogRecord:
+    """Redact after ``Logger.makeRecord`` has attached caller-supplied ``extra`` fields."""
+    assert _original_logger_make_record is not None
+    record = _original_logger_make_record(self, *args, **kwargs)
+    _configured_token_log_filter.filter(record)
+    return record
+
+
+def _install_log_redaction(tokens: tuple[str, ...]) -> None:
+    global _log_redaction_factory_installed, _log_redaction_tokens
+    global _original_log_record_factory, _original_logger_make_record
+    _log_redaction_tokens = tuple(
+        sorted(set(_log_redaction_tokens).union(tokens), key=len, reverse=True)
+    )
+    if not _log_redaction_factory_installed:
+        _original_log_record_factory = logging.getLogRecordFactory()
+        logging.setLogRecordFactory(_redacting_log_record_factory)
+        _original_logger_make_record = logging.Logger.makeRecord
+        logging.Logger.makeRecord = _redacting_make_record  # type: ignore[method-assign]
+        _log_redaction_factory_installed = True
+    loggers = [logging.getLogger()]
+    loggers.extend(
+        logger
+        for logger in logging.root.manager.loggerDict.values()
+        if isinstance(logger, logging.Logger)
+    )
+    for logger in loggers:
+        for handler in logger.handlers:
+            if _configured_token_log_filter not in handler.filters:
+                handler.addFilter(_configured_token_log_filter)
+
+
+def _redact_stream_chunk(
+    data: bytes,
+    *,
+    configured: tuple[bytes, ...],
+    pending: bytes = b"",
+    more_body: bool,
+) -> tuple[bytes, bytes]:
+    """Redact configured values while retaining a possible cross-chunk token prefix."""
+    data = pending + data
+    if not configured:
+        return data, b""
+    pattern = re.compile(b"|".join(re.escape(token) for token in configured))
+    held = 0
+    if more_body:
+        held = max(
+            (
+                size
+                for token in configured
+                for size in range(1, min(len(data), len(token) - 1) + 1)
+                if data.endswith(token[:size])
+            ),
+            default=0,
+        )
+    safe_end = len(data) - held
+    output = bytearray()
+    consumed = 0
+    for matched in pattern.finditer(data):
+        if matched.start() >= safe_end:
+            break
+        output.extend(data[consumed : matched.start()])
+        output.extend(b"*" * (matched.end() - matched.start()))
+        consumed = matched.end()
+    if consumed < safe_end:
+        output.extend(data[consumed:safe_end])
+        consumed = safe_end
+    return bytes(output), data[consumed:]
 
 
 async def _wait_for_liveness_keepalive() -> None:
@@ -437,14 +576,30 @@ class ChangeFeed:
         return self._version()
 
 
-def create_app(service: TaskService) -> FastAPI:
+def create_app(
+    service: TaskService,
+    *,
+    auth_file: str | None = None,
+    auth_mode: str | None = None,
+    secrets_dir: str | Path | None = None,
+) -> FastAPI:
     operator_token = os.environ.get("PANOPTICON_OPERATOR_TOKEN")
     # MCP over streamable HTTP, mounted at /mcp on the same control plane (operations=tools,
     # artifacts=resources). Its path is set to "/" so the mount point *is* the endpoint (/mcp).
     # The session manager must run for the app's lifetime, so its context is driven by the
     # parent FastAPI lifespan (a mounted sub-app's own lifespan isn't run by the parent).
     # Imported here, not at module scope: mcp.py imports our ``*Out`` schemas (would cycle).
+    from panopticon.taskservice.auth import load_tokens
     from panopticon.taskservice.mcp import build_mcp_server
+
+    mode = auth_mode or ("enforced" if auth_file else "disabled")
+    if mode not in {"disabled", "permissive", "enforced"}:
+        raise ValueError("authentication mode must be disabled, permissive, or enforced")
+    if mode in {"permissive", "enforced"} and auth_file is None:
+        raise ValueError(f"authentication credential file is required in {mode} mode")
+    tokens = load_tokens(auth_file, secrets_dir=secrets_dir) if auth_file is not None else None
+    if tokens is not None:
+        _install_log_redaction((*tokens.read, *tokens.write))
 
     mcp = build_mcp_server(service)
     mcp.settings.streamable_http_path = "/"
@@ -457,6 +612,166 @@ def create_app(service: TaskService) -> FastAPI:
             yield
 
     app = FastAPI(title="panopticon task service", version="0.0.3", lifespan=lifespan)
+
+    generic_auth_failure = {"detail": "authentication required"}
+    permissive_unauthenticated_total = 0
+
+    def redact_configured_tokens(value: Any) -> Any:
+        if tokens is None:
+            return value
+        configured = sorted((*tokens.read, *tokens.write), key=len, reverse=True)
+        if isinstance(value, str):
+            for token in configured:
+                value = value.replace(token, "[redacted]")
+            return value
+        if isinstance(value, list):
+            return [redact_configured_tokens(item) for item in value]
+        if isinstance(value, dict):
+            return {key: redact_configured_tokens(item) for key, item in value.items()}
+        return value
+
+    def value_contains_configured_token(value: Any) -> bool:
+        if tokens is None:
+            return False
+        configured = (*tokens.read, *tokens.write)
+        if isinstance(value, str):
+            return any(token in value for token in configured)
+        if isinstance(value, bytes):
+            return any(token.encode() in value for token in configured)
+        if isinstance(value, (list, tuple, set, frozenset)):
+            return any(value_contains_configured_token(item) for item in value)
+        if isinstance(value, dict):
+            return any(
+                value_contains_configured_token(key) or value_contains_configured_token(item)
+                for key, item in value.items()
+            )
+        return False
+
+    async def request_contains_configured_token(request: Request) -> bool | None:
+        chunks: list[bytes] = []
+        size = 0
+        async for chunk in request.stream():
+            size += len(chunk)
+            if size > MAX_AUTH_INSPECTION_BODY_BYTES:
+                return None
+            chunks.append(chunk)
+        body = b"".join(chunks)
+        request._body = body  # preserve the bounded body downstream
+        values: list[Any] = [request.url.path, unquote_plus(request.url.query), body]
+        content_type = request.headers.get("content-type", "").lower()
+        if not content_type or "json" in content_type:
+            with suppress(json.JSONDecodeError, UnicodeDecodeError):
+                values.append(json.loads(body))
+        return value_contains_configured_token(values)
+
+    async def redacted_mcp_app(scope: Scope, receive: Receive, send: Send) -> None:
+        """Redact mounted MCP responses, which bypass the parent exception handlers."""
+        configured = (
+            tuple(
+                sorted(
+                    (token.encode() for token in (*tokens.read, *tokens.write)),
+                    key=len,
+                    reverse=True,
+                )
+            )
+            if tokens
+            else ()
+        )
+        pending = b""
+
+        async def send_redacted(message: Message) -> None:
+            nonlocal pending
+            if message["type"] == "http.response.body":
+                more_body = bool(message.get("more_body", False))
+                output, pending = _redact_stream_chunk(
+                    message.get("body", b""),
+                    configured=configured,
+                    pending=pending,
+                    more_body=more_body,
+                )
+                message = {
+                    **message,
+                    "body": output,
+                }
+            await send(message)
+
+        await mcp_app(scope, receive, send_redacted)
+
+    @app.exception_handler(RequestValidationError)
+    async def validation_error(_request: Request, exc: RequestValidationError) -> JSONResponse:
+        return JSONResponse(
+            status_code=422,
+            content={"detail": redact_configured_tokens(jsonable_encoder(exc.errors()))},
+        )
+
+    @app.exception_handler(HTTPException)
+    async def http_error(_request: Request, exc: HTTPException) -> JSONResponse:
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": redact_configured_tokens(exc.detail)},
+            headers=exc.headers,
+        )
+
+    @app.middleware("http")
+    async def authenticate(
+        request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
+        nonlocal permissive_unauthenticated_total
+        route_path = get_route_path(request.scope)
+        if not route_path.startswith("/"):
+            route_path = f"/{route_path}"
+        if mode == "disabled" or (request.method == "GET" and route_path == "/healthz"):
+            return await call_next(request)
+        authorization = request.headers.get("authorization")
+        if mode == "permissive" and authorization is None:
+            assert tokens is not None
+            inspection = await request_contains_configured_token(request)
+            if inspection is None:
+                return JSONResponse(status_code=413, content={"detail": "request too large"})
+            if inspection:
+                return JSONResponse(status_code=400, content={"detail": "request rejected"})
+            client = request.client.host if request.client is not None else "unknown"
+            permissive_unauthenticated_total += 1
+            if permissive_unauthenticated_total & (permissive_unauthenticated_total - 1) == 0:
+                _log.warning(
+                    "permissive authentication accepted headerless request: "
+                    "method=%s route=%s client=%s count=%d",
+                    redact_configured_tokens(request.method),
+                    redact_configured_tokens(route_path),
+                    redact_configured_tokens(client),
+                    permissive_unauthenticated_total,
+                )
+            return await call_next(request)
+        assert tokens is not None
+        presented = ""
+        if authorization is not None and authorization.startswith("Bearer "):
+            candidate = authorization[7:]
+            if candidate and " " not in candidate:
+                presented = candidate
+        presented_bytes = presented.encode()
+        write = any(hmac.compare_digest(presented_bytes, token.encode()) for token in tokens.write)
+        read = any(hmac.compare_digest(presented_bytes, token.encode()) for token in tokens.read)
+        path_parts = route_path.strip("/").split("/")
+        liveness = (
+            len(path_parts) == 3
+            and path_parts[0] in {"tasks", "runners"}
+            and path_parts[2] == "live"
+        )
+        mutating = (
+            request.method not in {"GET", "HEAD"} or route_path.startswith("/mcp") or liveness
+        )
+        if not write and (mutating or not read):
+            return JSONResponse(
+                status_code=401,
+                content=generic_auth_failure,
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        inspection = await request_contains_configured_token(request)
+        if inspection is None:
+            return JSONResponse(status_code=413, content={"detail": "request too large"})
+        if inspection:
+            return JSONResponse(status_code=400, content={"detail": "request rejected"})
+        return await call_next(request)
 
     # The block-until-change feed: a store mutation bumps the version + wakes parked GET /tasks
     # long-polls (the seam the daemons/dashboard migrate onto, replacing their interval re-polls).
@@ -500,44 +815,48 @@ def create_app(service: TaskService) -> FastAPI:
 
     @app.exception_handler(NotFound)
     async def _not_found(_: Request, exc: NotFound) -> JSONResponse:
-        return JSONResponse(status_code=404, content={"detail": str(exc)})
+        return JSONResponse(status_code=404, content={"detail": redact_configured_tokens(str(exc))})
 
     @app.exception_handler(AlreadyExists)
     async def _conflict(_: Request, exc: AlreadyExists) -> JSONResponse:
-        return JSONResponse(status_code=409, content={"detail": str(exc)})
+        return JSONResponse(status_code=409, content={"detail": redact_configured_tokens(str(exc))})
 
     @app.exception_handler(IllegalTransition)
     async def _illegal(_: Request, exc: IllegalTransition) -> JSONResponse:
-        return JSONResponse(status_code=409, content={"detail": str(exc)})
+        return JSONResponse(status_code=409, content={"detail": redact_configured_tokens(str(exc))})
 
     @app.exception_handler(ResponsibilitiesNotMet)
     async def _responsibilities(_: Request, exc: ResponsibilitiesNotMet) -> JSONResponse:
-        return JSONResponse(status_code=409, content={"detail": str(exc)})
+        return JSONResponse(status_code=409, content={"detail": redact_configured_tokens(str(exc))})
 
     @app.exception_handler(NotAuthorized)
     async def _not_authorized(_: Request, exc: NotAuthorized) -> JSONResponse:
-        return JSONResponse(status_code=403, content={"detail": str(exc)})
+        return JSONResponse(status_code=403, content={"detail": redact_configured_tokens(str(exc))})
 
     @app.exception_handler(UnknownWorkflow)
     async def _unknown_wf(_: Request, exc: UnknownWorkflow) -> JSONResponse:
-        return JSONResponse(status_code=400, content={"detail": str(exc)})
+        return JSONResponse(status_code=400, content={"detail": redact_configured_tokens(str(exc))})
 
     @app.exception_handler(InvalidWorkflow)
     async def _invalid_wf(_: Request, exc: InvalidWorkflow) -> JSONResponse:
-        return JSONResponse(status_code=400, content={"detail": str(exc)})
+        return JSONResponse(status_code=400, content={"detail": redact_configured_tokens(str(exc))})
 
     @app.exception_handler(ArtifactError)
     async def _artifact(_: Request, exc: ArtifactError) -> JSONResponse:
-        return JSONResponse(status_code=400, content={"detail": str(exc)})
+        return JSONResponse(status_code=400, content={"detail": redact_configured_tokens(str(exc))})
 
     @app.exception_handler(StoreError)
     async def _store_error(_: Request, exc: StoreError) -> JSONResponse:
-        return JSONResponse(status_code=409, content={"detail": str(exc)})
+        return JSONResponse(status_code=409, content={"detail": redact_configured_tokens(str(exc))})
 
     # -- health & discovery -------------------------------------------------------
 
     @app.get("/healthz")
-    async def healthz() -> dict[str, str]:
+    async def healthz(response: Response) -> dict[str, str]:
+        if mode == "permissive":
+            response.headers["X-Panopticon-Permissive-Unauthenticated-Total"] = str(
+                permissive_unauthenticated_total
+            )
         return {"status": "ok"}
 
     @app.get("/workflows")
@@ -826,7 +1145,9 @@ def create_app(service: TaskService) -> FastAPI:
             raise HTTPException(
                 status_code=503, detail="operator migration token is not configured"
             )
-        if supplied_token is None or not secrets.compare_digest(supplied_token, operator_token):
+        if supplied_token is None or not secrets.compare_digest(
+            supplied_token.encode(), operator_token.encode()
+        ):
             raise HTTPException(status_code=403, detail="operator authorization required")
         try:
             task = await service.record_migration(
@@ -978,5 +1299,7 @@ def create_app(service: TaskService) -> FastAPI:
         """Release a (dead) runner's non-terminal claims so a healthy host respawns them."""
         return [await _task_out(t) for t in await service.reclaim(runner_id)]
 
-    app.mount("/mcp", mcp_app)  # in-container agents connect here for task operations + artifacts
+    # In-container agents connect here for task operations + artifacts. The mounted app does not
+    # inherit the parent's exception handlers, so keep its response redactor at this boundary.
+    app.mount("/mcp", redacted_mcp_app)
     return app

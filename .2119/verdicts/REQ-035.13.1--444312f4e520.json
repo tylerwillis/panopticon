@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.13.1--444312f4e520",
+  "requirementId": "REQ-035.13.1",
+  "hash": "444312f4e520",
+  "verdict": "pass",
+  "summary": "Permissive-mode tests enumerate REST and MCP surfaces for legacy unauthenticated and operation-sufficient tokens, while separately rejecting insufficient read credentials on writes.",
+  "timestamp": "2026-08-03T09:21:51.733Z"
+}

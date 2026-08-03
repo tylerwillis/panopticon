@@ -267,7 +267,7 @@ def test_operation_instructions_curl_the_rest_api_not_an_mcp_tool(tmp_path: Path
     assert "apply_operation" not in operation
     assert "MCP" in operation  # names the reason, for the agent's benefit
     assert (
-        "curl --fail --silent --show-error --request POST "
+        "curl --disable --noproxy '*' --fail --silent --show-error --request POST "
         '"http://host.docker.internal:8000/tasks/t7/operations/advance"' in operation
     )
 

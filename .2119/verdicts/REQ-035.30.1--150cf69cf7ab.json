@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.30.1--150cf69cf7ab",
+  "requirementId": "REQ-035.30.1",
+  "hash": "150cf69cf7ab",
+  "verdict": "pass",
+  "summary": "Exercises liveness and MCP beneath /proxy (plus root and prefix-collision cases), rejecting read tokens while allowing the same write token across all constrained methods.",
+  "timestamp": "2026-08-03T05:11:11.017Z"
+}

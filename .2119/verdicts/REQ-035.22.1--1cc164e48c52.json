@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.22.1--1cc164e48c52",
+  "requirementId": "REQ-035.22.1",
+  "hash": "1cc164e48c52",
+  "verdict": "pass",
+  "summary": "Production subprocess test sends a rejected query credential and proves the combined stdout/stderr stream omits its exact value.",
+  "timestamp": "2026-08-03T02:05:26.471Z"
+}

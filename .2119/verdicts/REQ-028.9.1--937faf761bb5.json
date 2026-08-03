@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.9.1--937faf761bb5",
+  "requirementId": "REQ-028.9.1",
+  "hash": "937faf761bb5",
+  "verdict": "pass",
+  "summary": "Exercises every built-in collision through the real home-directory discovery path and rejects errors lacking the exact external path and removal remediation.",
+  "timestamp": "2026-08-03T02:37:17.501Z"
+}

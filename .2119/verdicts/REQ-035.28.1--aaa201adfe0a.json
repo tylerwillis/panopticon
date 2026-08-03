@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.28.1--aaa201adfe0a",
+  "requirementId": "REQ-035.28.1",
+  "hash": "aaa201adfe0a",
+  "verdict": "pass",
+  "summary": "Docker and shell runner tests reject missing, directory, and FIFO credentials before any command call, while asserting missing paths remain absent and non-file entries retain type, stat, and directory contents.",
+  "timestamp": "2026-08-03T04:45:06.596Z"
+}

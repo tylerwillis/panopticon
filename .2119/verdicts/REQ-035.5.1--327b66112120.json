@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.5.1--327b66112120",
+  "requirementId": "REQ-035.5.1",
+  "hash": "327b66112120",
+  "verdict": "pass",
+  "summary": "Write tokens reach all authenticated REST endpoints without auth failure; coverage via dynamic route enumeration and explicit endpoint iteration",
+  "timestamp": "2026-08-03T11:20:12.817Z"
+}

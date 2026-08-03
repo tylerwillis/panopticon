@@ -27,6 +27,14 @@ from pathlib import Path
 import httpx
 
 from panopticon.client import TaskServiceClient
+from panopticon.terminal.session_environment import (
+    session_environment_command as _session_command,
+)
+
+
+def _make_client(service_url: str) -> TaskServiceClient:
+    return TaskServiceClient(httpx.Client(base_url=service_url, trust_env=False))
+
 
 DEFAULT_SERVICE_URL = "http://localhost:8000"
 
@@ -46,12 +54,16 @@ def _start_sessions(
 ) -> None:
     import sys
 
-    from panopticon.sessionservice.tmux_defaults import defaults_argv
+    from panopticon.sessionservice.tmux_defaults import defaults_argv, new_session_argv
 
     do_run = run or subprocess.run
     python = sys.executable
     for name, cmd in [
-        ("service", f"{python} -m panopticon.taskservice 2>&1 | tee /tmp/panopticon-service.log"),
+        (
+            "service",
+            f"{python} -m panopticon.taskservice --host 0.0.0.0 "
+            "2>&1 | tee /tmp/panopticon-service.log",
+        ),
         (
             "runner",
             f"{python} -m panopticon.sessionservice.host 2>&1 | tee /tmp/panopticon-runner.log",
@@ -63,7 +75,15 @@ def _start_sessions(
         # stream — the join races the reconnect and falls back to the dashboard. Leave it be.
         if (
             do_run(
-                ["tmux", "-L", "panopticon", "has-session", "-t", name],
+                [
+                    "tmux",
+                    "-L",
+                    "panopticon",
+                    *defaults_argv("panopticon"),
+                    "has-session",
+                    "-t",
+                    name,
+                ],
                 capture_output=True,
             ).returncode
             == 0
@@ -77,12 +97,11 @@ def _start_sessions(
                 "tmux",
                 "-L",
                 "panopticon",
-                *defaults_argv("panopticon"),
-                "new-session",
+                *new_session_argv("panopticon"),
                 "-d",
                 "-s",
                 name,
-                cmd,
+                _session_command(cmd),
             ],
             check=True,
         )
@@ -150,9 +169,11 @@ def main(
         return doctor.report(doctor.run_checks())
     elif args.command == "host":
         from panopticon.sessionservice import docker_daemon
+        from panopticon.taskservice.auth import environment_token
 
         # Fail fast on an unreachable Docker daemon (REQ-031.1) rather than spawning every task
         # into a crash loop — e.g. after a host reboot, before OrbStack/Docker Desktop is back up.
+        environment_token()
         if (message := docker_daemon.preflight_message("host")) is not None:
             print(message)
             return 1
@@ -160,12 +181,14 @@ def main(
         _start_sessions()
         return 0
     elif args.command == "quickstart":
+        from panopticon.taskservice.auth import environment_token
         from panopticon.terminal import doctor
         from panopticon.terminal import quickstart as _qs
 
         # Fail fast on missing host prerequisites before touching the DB or starting sessions,
         # so a missing binary / stopped Docker daemon surfaces as the doctor report rather than
         # a cryptic failure deep inside session or container spawn.
+        environment_token()
         if doctor.report(doctor.run_checks()) != 0:
             return 1
 
@@ -177,7 +200,7 @@ def main(
             _qs.detect_harnesses(environ=_qs.harness_environment(env_file))
         )
         git_url = _qs.detect_git_url()
-        qs_client = TaskServiceClient(httpx.Client(base_url=args.service_url))
+        qs_client = _make_client(args.service_url)
         repo_id, repo_name = _qs.setup_repo(qs_client, git_url, env_file, default_harness=harness)
         task_id = _qs.ensure_setup_repo_task(qs_client, repo_id, repo_name)
         from panopticon.terminal.console import run_console_local
@@ -207,7 +230,7 @@ def main(
             )
         return 0
 
-    client = client or TaskServiceClient(httpx.Client(base_url=args.service_url))
+    client = client or _make_client(args.service_url)
     if args.command == "tasks":
         for t in client.list_tasks():
             print(f"{t['id']}  {t['state']:<10}  {t['turn']:<5}  {t['slug'] or '-'}")

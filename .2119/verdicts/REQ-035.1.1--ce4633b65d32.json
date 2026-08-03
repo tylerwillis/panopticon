@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.1.1--ce4633b65d32",
+  "requirementId": "REQ-035.1.1",
+  "hash": "ce4633b65d32",
+  "verdict": "pass",
+  "summary": "Loads a referenced file beneath secrets at startup, rejects traversal/absolute/symlink escapes, and scans API, DB, artifacts, and logs for copied token values.",
+  "timestamp": "2026-08-03T09:21:33.751Z"
+}

@@ -162,11 +162,11 @@ json_field() {
 # Fetch the setup task's repo and set repo_id/default_harness/credential_dir in the current shell.
 # The task service URL and task id are injected into every shell workflow by ShellRunner.
 load_repo_auth_context() {
-    _rac_task=$(curl --silent --show-error --fail \
+    _rac_task=$(_panopticon_curl --silent --show-error --fail \
         "$PANOPTICON_SERVICE_URL/tasks/$PANOPTICON_TASK_ID") || return 1
     repo_id=$(printf '%s' "$_rac_task" | json_field repo_id) || return 1
     [ -n "$repo_id" ] || return 1
-    _rac_repo=$(curl --silent --show-error --fail \
+    _rac_repo=$(_panopticon_curl --silent --show-error --fail \
         "$PANOPTICON_SERVICE_URL/repos/$repo_id") || return 1
     default_harness=$(printf '%s' "$_rac_repo" | json_field default_harness) || return 1
     credential_dir=$(printf '%s' "$_rac_repo" | json_field credential_dir) || return 1
@@ -178,7 +178,7 @@ set_repo_credential_dir() {
     _srcd_value=$1
     _srcd_json=$(printf '%s' "$_srcd_value" | "$PANOPTICON_PYTHON" -c \
         'import json, sys; print(json.dumps({"credential_dir": sys.stdin.read()}))') || return 1
-    curl --silent --show-error --fail --request PATCH \
+    _panopticon_curl --silent --show-error --fail --request PATCH \
         "$PANOPTICON_SERVICE_URL/repos/$repo_id" \
         --header 'Content-Type: application/json' --data "$_srcd_json" >/dev/null
 }

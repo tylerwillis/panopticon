@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.7.1--7e481e8b1c94",
+  "requirementId": "REQ-035.7.1",
+  "hash": "7e481e8b1c94",
+  "verdict": "pass",
+  "summary": "All authentication failures (missing, malformed, unknown, insufficient tokens) consistently return HTTP 401 with WWW-Authenticate: Bearer and identical generic response body across all endpoints and methods",
+  "timestamp": "2026-08-03T10:54:28.307Z"
+}

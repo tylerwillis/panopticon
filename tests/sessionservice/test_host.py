@@ -424,6 +424,34 @@ def test_hold_runner_liveness_reconnects_after_a_drop_until_stopped() -> None:
     assert naps == [0.25, 0.25]
 
 
+@pytest.mark.parametrize("status_code", [401, 403])
+def test_hold_runner_liveness_terminates_on_permanent_auth_rejection(
+    status_code: int,
+) -> None:
+    # 2119: REQ-035.45.1
+    class _RejectedClient:
+        def live_runner(
+            self, runner_id: str, *, host: str | None = None
+        ) -> Generator[None, None, None]:
+            def gen() -> Generator[None, None, None]:
+                response = httpx.Response(
+                    status_code,
+                    request=httpx.Request("GET", f"http://service/runners/{runner_id}/live"),
+                )
+                response.raise_for_status()
+                yield None
+
+            return gen()
+
+    with pytest.raises(RuntimeError, match="permanently rejected the runner liveness credential"):
+        hold_runner_liveness(
+            _RejectedClient(),  # type: ignore[arg-type]
+            "host-1",
+            running=lambda: True,
+            sleep=lambda _seconds: pytest.fail("permanent rejection must not retry"),
+        )
+
+
 def test_hold_runner_liveness_passes_host_to_client() -> None:
     # The host= param is forwarded from hold_runner_liveness to client.live_runner every reconnect
     # so the task service receives and records it (used for remote tmux attach, M5).
@@ -573,6 +601,31 @@ def test_main_proceeds_to_migrate_and_build_runners_when_docker_is_reachable(
     host_module.main([], client=MagicMock())  # a client bypasses building a real TaskServiceClient
     mock_migrate.assert_called_once_with(host_module.CLONE_CACHE_DIR, host_module.TASKS_DIR)
     mock_run_host.assert_called_once()  # actually enters the spawn/heal loop, not just migrates
+
+
+def test_main_terminates_when_liveness_thread_is_permanently_rejected(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # 2119: REQ-035.45.1
+    from panopticon.sessionservice import host as host_module
+
+    monkeypatch.setattr(host_module.docker_daemon, "preflight_message", lambda command: None)
+    monkeypatch.setattr(host_module, "migrate_session_dirs", MagicMock())
+    monkeypatch.setattr(host_module, "LocalRunner", MagicMock())
+    monkeypatch.setattr(host_module, "ShellRunner", MagicMock())
+    rejection = RuntimeError("task-service permanently rejected the runner liveness credential")
+    monkeypatch.setattr(host_module, "hold_runner_liveness", MagicMock(side_effect=rejection))
+
+    def wait_for_rejection(*args: object, until: Callable[[], bool], **kwargs: object) -> None:
+        for _ in range(10_000):
+            if until():
+                return
+        pytest.fail("liveness rejection was not propagated to the host loop")
+
+    monkeypatch.setattr(host_module, "run_host", wait_for_rejection)
+    with pytest.raises(RuntimeError, match="runner liveness terminated") as raised:
+        host_module.main([], client=MagicMock())
+    assert raised.value.__cause__ is rejection
 
 
 def test_run_host_spawns_then_provisions_end_to_end(tmp_path: Path) -> None:

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.1.4--50db83564915",
+  "requirementId": "REQ-026.1.4",
+  "hash": "50db83564915",
+  "verdict": "pass",
+  "summary": "The real spawnable-task filter includes unclaimed non-terminal tasks with both empty and omitted dependency lists, while excluding the nearest claimed and terminal counterexamples.",
+  "timestamp": "2026-08-03T05:08:32.014Z"
+}

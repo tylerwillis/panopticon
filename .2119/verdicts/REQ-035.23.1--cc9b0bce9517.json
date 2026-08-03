@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.23.1--cc9b0bce9517",
+  "requirementId": "REQ-035.23.1",
+  "hash": "cc9b0bce9517",
+  "verdict": "pass",
+  "summary": "Read token successfully reaches protected HEAD route with 200 status; route protection verified by 401 on missing credentials",
+  "timestamp": "2026-08-03T10:52:28.295Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.10.1--3cc147826099",
+  "requirementId": "REQ-035.10.1",
+  "hash": "3cc147826099",
+  "verdict": "pass",
+  "summary": "Enforced-auth tests reject credential-gating via unauthenticated 200 checks (including root_path), and exact JSON equality rejects missing, altered, or extra readiness payload fields.",
+  "timestamp": "2026-08-03T04:43:43.678Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.37.1--d59003ddbe4c",
+  "requirementId": "REQ-035.37.1",
+  "hash": "d59003ddbe4c",
+  "verdict": "pass",
+  "summary": "Artifact REST fallback integration test verifies credential-less containers omit Authorization header in permissive mode via production ARTIFACT_SKILL instructions",
+  "timestamp": "2026-08-03T11:18:00.102Z"
+}

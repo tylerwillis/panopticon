@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.32.1--ced4b2610300",
+  "requirementId": "REQ-035.32.1",
+  "hash": "ced4b2610300",
+  "verdict": "pass",
+  "summary": "Three-generation overlap proves restarted Python and shell clients choose the final token, then both authenticate successfully after old generations are removed.",
+  "timestamp": "2026-08-03T04:00:30.272Z"
+}

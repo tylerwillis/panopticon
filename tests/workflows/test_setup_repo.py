@@ -4,14 +4,17 @@ COMPLETE, run as a host shell script rather than a task container."""
 from __future__ import annotations
 
 import importlib.resources
+import json
 import shlex
 import stat
 import subprocess
+import sys
 from pathlib import Path
 
 from panopticon.core import Actor
 from panopticon.core.workflow import Workflow
 from panopticon.harnesses.pi import API_KEY_ENV_VARS
+from panopticon.sessionservice.shell_runner import ShellRunner
 from panopticon.workflows import SetupRepo
 
 WF = SetupRepo()
@@ -20,6 +23,7 @@ WF = SetupRepo()
 # functional tests exercise in a real `sh`, no LLM — the token is a literal fixture, `claude`/`gh`/
 # `script` are never invoked.
 _LIB = (importlib.resources.files("panopticon.workflows") / "setup_repo_lib.sh").read_text()
+_TASK_LIB = (importlib.resources.files("panopticon.sessionservice") / "task_lib.sh").read_text()
 _FULL_SCRIPT = WF.shell_script()
 
 
@@ -100,6 +104,147 @@ def test_shell_script_runs_setup_repo_and_advances() -> None:
     assert "claude setup-token" in script
     # completes the task via the panopticon shell lib (loaded by the shell runner), not raw curl
     assert "panopticon_advance" in script
+
+
+def test_setup_repo_control_plane_calls_use_runtime_auth_without_argv_leak(tmp_path: Path) -> None:
+    # 2119: REQ-035.17.1
+    # 2119: REQ-035.20.1
+    token = "setup-repo-write-token"
+    credential = tmp_path / "task-service-auth.json"
+    credential.write_text('{"read":["setup-repo-read-token"],"write":["' + token + '"]}')
+    argv = tmp_path / "curl-argv"
+    stdin = tmp_path / "curl-stdin"
+    shell = f"""
+curl() {{
+    printf 'CALL\n' >> {stdin}
+    cat >> {stdin}
+    printf 'CALL\\n%s\\n' "$*" >> {argv}
+    case "$*" in
+        *'/tasks/task'*) printf '%s' '{{"repo_id":"repo"}}' ;;
+        *'/repos/repo'*'PATCH'*) ;;
+        *'/repos/repo'*) printf '%s' '{{"default_harness":"codex","credential_dir":""}}' ;;
+    esac
+}}
+{_TASK_LIB}
+{_LIB}
+load_repo_auth_context
+set_repo_credential_dir openai.d
+printf '%s\\n' "$repo_id:$default_harness"
+"""
+    env = {
+        "PATH": "/usr/bin:/bin",
+        "PANOPTICON_PYTHON": sys.executable,
+        "PANOPTICON_SERVICE_URL": "http://service",
+        "PANOPTICON_TASK_ID": "task",
+        "PANOPTICON_SERVICE_AUTH_FILE": str(credential),
+    }
+    completed = subprocess.run(
+        ["sh", "-c", shell], env=env, check=True, capture_output=True, text=True
+    )
+    assert completed.stdout == "repo:codex\n"
+    calls = argv.read_text().split("CALL\n")[1:]
+    assert len(calls) == 3
+    assert "/tasks/task" in calls[0] and "--request" not in calls[0]
+    assert "/repos/repo" in calls[1] and "--request" not in calls[1]
+    assert "/repos/repo" in calls[2] and "--request PATCH" in calls[2]
+    assert '--data {"credential_dir": "openai.d"}' in calls[2]
+    assert token not in "".join(calls)
+    inputs = stdin.read_text().split("CALL\n")[1:]
+    assert inputs == [f'header = "Authorization: Bearer {token}"\n'] * 3
+
+
+def test_shell_runner_pins_auth_after_conflicting_repo_environment(tmp_path: Path) -> None:
+    token = "setup-repo-write-token"
+    credential = tmp_path / "task-service-auth.json"
+    credential.write_text(json.dumps({"read": ["setup-repo-read-token"], "write": [token]}))
+    credential.chmod(0o600)
+    executed = tmp_path / "repo-env-executed"
+    repo_env = tmp_path / "repo.env"
+    repo_env.write_text(
+        "PANOPTICON_SERVICE_AUTH_FILE=/wrong/auth.json\n"
+        "PANOPTICON_SERVICE_URL=http://wrong\nPANOPTICON_TASK_ID=wrong\n"
+        "PANOPTICON_ENV_FILE=/wrong/write.env\n"
+        f"ATTACK=$(touch {executed})\n"
+        "readonly PANOPTICON_SERVICE_URL=http://readonly-wrong\n"
+    )
+    argv = tmp_path / "curl-argv"
+    stdin = tmp_path / "curl-stdin"
+    runtime = tmp_path / "runtime-environment"
+    emitted: list[list[str]] = []
+
+    def record(args: list[str], **_kwargs: object) -> str:
+        emitted.append(args)
+        return ""
+
+    script = f"""
+curl() {{
+    printf 'CALL\n' >> {stdin}
+    cat >> {stdin}
+    printf 'CALL\\n%s\\n' "$*" >> {argv}
+    case "$*" in
+        *'/tasks/task'*) printf '%s' '{{"repo_id":"repo"}}' ;;
+        *'/repos/repo'*'PATCH'*) ;;
+        *'/repos/repo'*) printf '%s' '{{"default_harness":"codex","credential_dir":""}}' ;;
+    esac
+}}
+{_LIB}
+load_repo_auth_context
+set_repo_credential_dir openai.d
+printf '%s\n%s\n%s\n' "$PANOPTICON_ENV_FILE" "$PANOPTICON_SERVICE_URL" "$PANOPTICON_TASK_ID" > {runtime}
+"""
+    ShellRunner(
+        "http://service",
+        auth_file=credential.name,
+        secrets_dir=tmp_path,
+        script_dir=tmp_path,
+        run=record,
+    ).spawn("task", script=script, env_file=repo_env.name)
+    command = next(call[-1] for call in emitted if "new-session" in call)
+    subprocess.run(["sh", "-c", command], env={"PATH": "/usr/bin:/bin"}, check=True)
+
+    calls = argv.read_text().split("CALL\n")[1:]
+    assert len(calls) == 3
+    assert all("http://wrong" not in call and "/wrong" not in call for call in calls)
+    assert all(token not in call for call in calls)
+    inputs = stdin.read_text().split("CALL\n")[1:]
+    assert inputs == [f'header = "Authorization: Bearer {token}"\n'] * 3
+    assert runtime.read_text().splitlines() == [str(repo_env), "http://service", "task"]
+    assert not executed.exists()
+
+
+def test_shell_runner_unsets_repo_auth_override_when_service_auth_is_disabled(
+    tmp_path: Path,
+) -> None:
+    repo_env = tmp_path / "repo.env"
+    repo_env.write_text(
+        "PANOPTICON_SERVICE_AUTH_FILE=/wrong/auth.json\n"
+        "PANOPTICON_SERVICE_AUTH_TOKEN=wrong-token\n"
+        "PANOPTICON_ENV_FILE=/wrong/write.env\n"
+        "PANOPTICON_GIT_URL=https://wrong.invalid/repo\n"
+        "PANOPTICON_REPO_NAME=wrong-repo\n"
+    )
+    runtime = tmp_path / "runtime-environment"
+    emitted: list[list[str]] = []
+
+    ShellRunner(
+        "http://service",
+        secrets_dir=tmp_path,
+        script_dir=tmp_path,
+        run=lambda args, **_kwargs: emitted.append(args) or "",
+    ).spawn(
+        "task",
+        env_file=repo_env.name,
+        script=(
+            f"printf '%s\\n%s\\n%s\\n%s\\n%s\\n' \"$PANOPTICON_ENV_FILE\" "
+            f'"${{PANOPTICON_SERVICE_AUTH_FILE-unset}}" '
+            f'"${{PANOPTICON_SERVICE_AUTH_TOKEN-unset}}" '
+            f'"${{PANOPTICON_GIT_URL-unset}}" "${{PANOPTICON_REPO_NAME-unset}}" > {runtime}'
+        ),
+    )
+    command = next(call[-1] for call in emitted if "new-session" in call)
+    subprocess.run(["sh", "-c", command], env={"PATH": "/usr/bin:/bin"}, check=True)
+
+    assert runtime.read_text().splitlines() == [str(repo_env), "unset", "unset", "unset", "unset"]
 
 
 def test_harness_auth_dispatch_routes_the_approved_harnesses() -> None:

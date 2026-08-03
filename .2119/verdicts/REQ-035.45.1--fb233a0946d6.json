@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.45.1--fb233a0946d6",
+  "requirementId": "REQ-035.45.1",
+  "hash": "fb233a0946d6",
+  "verdict": "pass",
+  "summary": "Test 1 directly verifies 401/403 causes termination without retry. Test 2 over-mocks hold_runner_liveness but requirement is covered.",
+  "timestamp": "2026-08-03T10:03:18.718Z"
+}

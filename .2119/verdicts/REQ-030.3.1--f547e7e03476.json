@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.3.1--f547e7e03476",
+  "requirementId": "REQ-030.3.1",
+  "hash": "f547e7e03476",
+  "verdict": "pass",
+  "summary": "All four `defaults_argv` new-session sites in src (shell_runner.py:309, local_runner.py:342, console.py:150, terminal/__main__.py:101 — grep confirms no others) each have a test asserting the complete `server_default_config_text` is loaded via `-f` on that site's own new-session; the fresh-socket in",
+  "timestamp": "2026-08-03T13:19:41.712Z"
+}

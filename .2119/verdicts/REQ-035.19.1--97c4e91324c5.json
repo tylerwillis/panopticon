@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.19.1--97c4e91324c5",
+  "requirementId": "REQ-035.19.1",
+  "hash": "97c4e91324c5",
+  "verdict": "pass",
+  "summary": "Overlapping token rotation verified: both old/new work when configured, old rejected after removal and restart only",
+  "timestamp": "2026-08-03T10:52:17.749Z"
+}

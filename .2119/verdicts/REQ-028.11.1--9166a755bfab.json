@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.11.1--9166a755bfab",
+  "requirementId": "REQ-028.11.1",
+  "hash": "9166a755bfab",
+  "verdict": "pass",
+  "summary": "Literal covers all three conjuncts: \"An artifact is a durable task document that the user can review\", \"publish each reviewable document ... these examples are not exhaustive\" (regardless of type), and the GitHub-URL exception routed to the external URL field / `p` hotkey.",
+  "timestamp": "2026-08-03T13:19:40.225Z"
+}

@@ -164,6 +164,7 @@ class Spawner:
         claim taken and no ``FAILED`` report. A shell task never touches Docker, so it's unaffected."""
         if task["state"] in TERMINAL_LABELS or task.get("claimed_by"):
             return None
+        self._validate_runner_configuration(task)
         if not self._executions.is_shell(task.get("workflow")) and not self._daemon_reachable():
             _log.error(
                 "docker daemon unreachable — deferring spawn of task %s until it returns",
@@ -179,6 +180,12 @@ class Spawner:
         self._respawns.pop(task["id"], None)  # every fresh claim starts a new respawn budget
         self._pre_session_failures.discard(task["id"])
         return self._spawn(dict(task, claimed_by=self._runner_id))
+
+    def _validate_runner_configuration(self, task: JsonObj) -> None:
+        """Validate the selected backend before any claim or respawn side effect."""
+        validate = getattr(self._runner_for(task), "validate_configuration", None)
+        if validate is not None:
+            validate()
 
     def _spawn(self, task: JsonObj) -> str:
         """Spawn the execution backend for an **already claimed** task — the body shared by
@@ -457,6 +464,7 @@ class Spawner:
         stopped respawning it — let it read ``down``/``failed``, not a perpetual ``healing``)."""
         if not self._is_orphan(task):
             return
+        self._validate_runner_configuration(task)
         if self._respawn_count(task["id"], self._now()) >= self._max_respawns:
             return  # crash-looped out — not actually healing it any more
         if task.get("container_status") == ContainerStatus.HEALING.value:
@@ -503,6 +511,7 @@ class Spawner:
             self._pre_session_failures.discard(task_id)
         if not self._is_orphan(task):
             return None  # not ours / terminal / a session is up — nothing to heal
+        self._validate_runner_configuration(task)
         if not self._daemon_reachable():
             if task_id in self._respawns:
                 count, _ = self._respawns[task_id]
@@ -571,9 +580,8 @@ class Spawner:
         """Remove the per-task workspace once a terminal task's container has exited.
 
         Self-gates on two conditions so calling this on every task each pass is safe:
-        the task must be terminal (COMPLETE/DROPPED) **and** the container must no longer
-        be running — so we never delete a workspace while the agent is still active, and
-        we don't need to force-stop anything.
+        the task must be terminal (COMPLETE/DROPPED). Reaching a terminal state ends the task, so
+        cleanup stops any still-running backend before deleting its workspace and runtime secrets.
 
         Also releases a lingering claim (best-effort) before cleaning the workspace. In the
         normal flow the container agent releases its own claim on exit; this catches the case
@@ -581,8 +589,9 @@ class Spawner:
         container could clean up)."""
         if task["state"] not in TERMINAL_LABELS:
             return
-        if self._runner_for(task).is_running(task["id"]):
-            return  # container/session still up — wait for it to exit naturally
+        # The backend owns runtime credential snapshots as well as the process/session. Its stop is
+        # idempotent, so this handles both a still-running terminal task and one that exited itself.
+        self._runner_for(task).stop(f"panopticon-{task['id']}")
         if task.get("claimed_by") == self._runner_id:
             with contextlib.suppress(httpx.HTTPError):
                 self._client.release(task["id"])

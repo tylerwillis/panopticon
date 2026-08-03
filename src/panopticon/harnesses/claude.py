@@ -133,7 +133,7 @@ def write_settings(home: Path) -> Path:
     return path
 
 
-def write_mcp_config(config_dir: Path, service_url: str) -> Path:
+def write_mcp_config(config_dir: Path, service_url: str, *, authenticated: bool = False) -> Path:
     """Write claude's MCP client config so it connects to the task service's MCP server.
 
     A single ``panopticon`` HTTP server at ``<service_url>/mcp`` — the same control plane the
@@ -143,7 +143,9 @@ def write_mcp_config(config_dir: Path, service_url: str) -> Path:
 
     config_dir.mkdir(parents=True, exist_ok=True)
     path = config_dir / MCP_CONFIG_FILE
-    server = {"type": "http", "url": f"{service_url.rstrip('/')}/mcp"}
+    server: dict[str, Any] = {"type": "http", "url": f"{service_url.rstrip('/')}/mcp"}
+    if authenticated:
+        server["headers"] = {"Authorization": "Bearer ${PANOPTICON_SERVICE_AUTH_TOKEN}"}
     path.write_text(json.dumps({"mcpServers": {"panopticon": server}}, indent=2))
     return path
 
@@ -240,7 +242,11 @@ class ClaudeHarness(Harness):
         config_dir = self.config_dir(ctx.home)
         write_commands(ctx.workflow_skills(), ctx.home, ctx.task_id)
         write_settings(ctx.home)  # turn-flip hooks → <home>/.claude/settings.json
-        write_mcp_config(config_dir, ctx.service_url)  # point claude at the task service's MCP
+        write_mcp_config(
+            config_dir,
+            ctx.service_url,
+            authenticated=bool(ctx.environ.get("PANOPTICON_SERVICE_AUTH_TOKEN")),
+        )
         write_workflow_overview(config_dir, ctx.overview)  # → system prompt (the map)
         trust_workspace(config_dir, ctx.cwd)  # pre-accept the trust dialog (no operator to)
 

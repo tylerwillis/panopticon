@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.3.1--c5e1ef26d88e",
+  "requirementId": "REQ-033.3.1",
+  "hash": "c5e1ef26d88e",
+  "verdict": "pass",
+  "summary": "Fresh review verified findings rejected as wrong are omitted.",
+  "timestamp": "2026-08-03T11:58:55.920Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.2.1--672c0a32eeb4",
+  "requirementId": "REQ-033.2.1",
+  "hash": "672c0a32eeb4",
+  "verdict": "pass",
+  "summary": "Every built-in review skill is checked against exact instructions requiring one paragraph with idea, deferral reason, and implementer context.",
+  "timestamp": "2026-08-03T06:34:41.822Z"
+}

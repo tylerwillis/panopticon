@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.2.1--c8a4da9ac6da",
+  "requirementId": "REQ-035.2.1",
+  "hash": "c8a4da9ac6da",
+  "verdict": "pass",
+  "summary": "Tests exercise distinct read/write opaque tokens, reject cross-privilege duplication, and prove simultaneous old/new tokens work for both privileges during rotation.",
+  "timestamp": "2026-08-03T01:17:00.816Z"
+}

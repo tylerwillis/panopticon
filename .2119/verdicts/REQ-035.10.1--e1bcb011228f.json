@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.10.1--e1bcb011228f",
+  "requirementId": "REQ-035.10.1",
+  "hash": "e1bcb011228f",
+  "verdict": "pass",
+  "summary": "Unauthenticated health is asserted available in base and prefixed deployments, with exact readiness JSON equality rejecting credentials or additional payload fields.",
+  "timestamp": "2026-08-03T04:02:46.731Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.10.1--178b12fc2131",
+  "requirementId": "REQ-035.10.1",
+  "hash": "178b12fc2131",
+  "verdict": "pass",
+  "summary": "Unauthenticated health access is asserted at normal and root-path-mounted locations, with exact status and readiness JSON payload at the primary boundary.",
+  "timestamp": "2026-08-03T09:21:38.064Z"
+}

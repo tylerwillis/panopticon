@@ -3,14 +3,17 @@ the command runner is a fake that records calls. LLM-free (a shell task runs no 
 
 from __future__ import annotations
 
+import hashlib
 import shutil
 import subprocess
+import sys
 import time
 from collections.abc import Sequence
 from pathlib import Path
 
 import pytest
 
+from panopticon.core.dirs import _secrets_dir
 from panopticon.core.models import LifecyclePhase
 from panopticon.sessionservice.runner import Runner
 from panopticon.sessionservice.shell_runner import ShellRunner, _minify_shell
@@ -50,7 +53,9 @@ def test_spawn_kills_stale_session_then_starts_the_script_in_the_task_dir() -> N
     kill = rec.calls[0]
     new_session = rec.calls[-1]
     # a stale session of the same name is cleared first (idempotent restart)
-    assert kill == ["tmux", "-L", "panopticon", "kill-session", "-t", "panopticon-t1"]
+    assert kill[:3] == ["tmux", "-L", "panopticon"]
+    assert kill[3] == "-f"
+    assert kill[-3:] == ["kill-session", "-t", "panopticon-t1"]
     assert new_session[:3] == ["tmux", "-L", "panopticon"]
     tail = new_session[new_session.index("new-session") :]
     assert tail[:4] == ["new-session", "-d", "-s", "panopticon-t1"]
@@ -102,12 +107,17 @@ def test_spawn_holds_a_liveness_registration_open_in_the_background() -> None:
         "/tasks/t1/live?container_id=panopticon-t1&runner_id=r1" in command
     )  # holds liveness open
     assert "--no-buffer" in command and command.count(" &\n") >= 1  # backgrounded, streaming GET
-    assert "trap 'kill $_panopticon_live_pid 2>/dev/null' EXIT" in command  # dropped when it exits
+    assert "trap '_panopticon_cleanup' EXIT" in command
+    assert "trap '_panopticon_cleanup; exit 129' HUP INT TERM" in command
+    assert "nohup" in command
+    assert "panopticon.sessionservice.shell_liveness" in command
+    assert "--socket panopticon --session panopticon-t1" in command
+    assert "kill $_panopticon_live_pid" in command
     # the registration is established before the workflow script runs
     assert command.index("/live?") < command.index("echo hi")
 
 
-def test_spawn_resolves_and_sources_the_env_file_against_the_secrets_dir() -> None:
+def test_spawn_resolves_and_loads_the_env_file_without_executing_it() -> None:
     # env_file is a name relative to this runner's secrets dir (ADR 0007), resolved host-locally.
     rec = _Recorder()
     ShellRunner("http://svc:8000", secrets_dir="/host/secrets", run=rec).spawn(
@@ -117,9 +127,11 @@ def test_spawn_resolves_and_sources_the_env_file_against_the_secrets_dir() -> No
     assert (
         "export PANOPTICON_ENV_FILE=/host/secrets/r1.env" in command
     )  # path exposed to the script
-    # resolved + sourced (guarded on existence — a not-yet-created secrets file is fine)
+    # resolved + loaded as literal NAME=VALUE records (guarded on existence — a
+    # not-yet-created secrets file is fine)
     assert "[ -f /host/secrets/r1.env ]" in command
-    assert "set -a; . /host/secrets/r1.env; set +a" in command
+    assert 'export "$_pan_env_line"' in command
+    assert ". /host/secrets/r1.env" not in command
 
 
 def test_spawn_rejects_an_env_file_name_escaping_the_secrets_dir() -> None:
@@ -134,7 +146,8 @@ def test_spawn_omits_env_sourcing_without_a_file() -> None:
     rec = _Recorder()
     ShellRunner("http://svc:8000", run=rec).spawn("t1", script="echo hi")
     command = rec.calls[-1][-1]
-    assert "set -a" not in command and "PANOPTICON_ENV_FILE" not in command  # no source line
+    assert "set -a" not in command
+    assert "unset PANOPTICON_ENV_FILE" in command  # no repo file may inject a stale path
 
 
 def test_spawn_exports_the_git_url_when_given() -> None:
@@ -151,7 +164,7 @@ def test_spawn_omits_the_git_url_export_without_one() -> None:
     rec = _Recorder()
     ShellRunner("http://svc:8000", run=rec).spawn("t1", script="echo hi")
     command = rec.calls[-1][-1]
-    assert "PANOPTICON_GIT_URL" not in command
+    assert "unset PANOPTICON_GIT_URL" in command
 
 
 def test_spawn_exports_the_repo_name_when_given() -> None:
@@ -166,7 +179,7 @@ def test_spawn_omits_the_repo_name_export_without_one() -> None:
     rec = _Recorder()
     ShellRunner("http://svc:8000", run=rec).spawn("t1", script="echo hi")
     command = rec.calls[-1][-1]
-    assert "PANOPTICON_REPO_NAME" not in command
+    assert "unset PANOPTICON_REPO_NAME" in command
 
 
 def test_minify_shell_drops_full_line_comments_and_blanks_only() -> None:
@@ -239,6 +252,20 @@ def test_stop_kills_the_session() -> None:
     assert rec.calls == [["tmux", "-L", "panopticon", "kill-session", "-t", "panopticon-t1"]]
 
 
+def test_spawn_and_stop_remove_stranded_auth_snapshots(tmp_path: Path) -> None:
+    rec = _Recorder()
+    runner = ShellRunner("http://svc:8000", run=rec, script_dir=tmp_path)
+    stale = tmp_path / "panopticon-service-auth-t1-stranded.json"
+    stale.write_text("secret")
+    runner.spawn("t1", script="true")
+    assert not stale.exists()
+
+    stranded = tmp_path / "panopticon-service-auth-t1-after-spawn.json"
+    stranded.write_text("secret")
+    runner.stop("panopticon-t1")
+    assert not stranded.exists()
+
+
 # 2119: REQ-030.3.1
 def test_spawn_loads_every_shipped_tmux_server_default_via_dash_f_on_its_own_new_session(
     monkeypatch: pytest.MonkeyPatch,
@@ -263,7 +290,10 @@ def test_spawn_places_dash_f_before_new_session_so_it_applies_at_server_startup(
     monkeypatch.setattr("shutil.which", lambda _tool: None)
     rec = _Recorder()
     ShellRunner("http://svc:8000", run=rec).spawn("t1", script="echo hi")
+    first_tmux = next(c for c in rec.calls if c[0] == "tmux")
     tmux_new = rec.calls[-1]
+    assert first_tmux[:4] == ["tmux", "-L", "panopticon", "-f"]
+    assert Path(first_tmux[4]).read_text() == server_default_config_text(clipboard=None)
     assert tmux_new.index("-f") < tmux_new.index("new-session")
 
 
@@ -271,7 +301,28 @@ def test_spawn_places_dash_f_before_new_session_so_it_applies_at_server_startup(
 def test_spawn_applies_no_shipped_defaults_without_a_dedicated_socket() -> None:
     rec = _Recorder()
     ShellRunner("http://svc:8000", tmux_socket=None, run=rec).spawn("t1", script="echo hi")
-    assert not any("-f" in c for c in rec.calls)
+    tmux_calls = [c for c in rec.calls if c[0] == "tmux"]
+    command = tmux_calls[-1][-1]
+    normalized = command.replace(sys.executable, "<python>")
+    normalized = normalized.replace(str(_secrets_dir()), "<secrets>")
+    assert hashlib.sha256(normalized.encode()).hexdigest() == (
+        "c6d48ef6bfb5b7a43065837ef79d6bd107d979bf0bce160aca2f0428bb3da619"
+    )
+    assert tmux_calls == [
+        ["tmux", "kill-session", "-t", "panopticon-t1"],
+        [
+            "tmux",
+            "new-session",
+            "-d",
+            "-s",
+            "panopticon-t1",
+            "-c",
+            str(Path.home()),
+            "sh",
+            "-c",
+            command,
+        ],
+    ]
 
 
 # -- integration: a real host tmux session (no container) ---------------------------

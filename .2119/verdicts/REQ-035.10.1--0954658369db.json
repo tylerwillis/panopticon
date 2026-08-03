@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.10.1--0954658369db",
+  "requirementId": "REQ-035.10.1",
+  "hash": "0954658369db",
+  "verdict": "pass",
+  "summary": "Unauthenticated /healthz is asserted 200 with exactly the existing status-only JSON payload, including rooted deployment coverage.",
+  "timestamp": "2026-08-03T07:18:56.520Z"
+}

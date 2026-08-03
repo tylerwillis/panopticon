@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.8.1--634260340792",
+  "requirementId": "REQ-035.8.1",
+  "hash": "634260340792",
+  "verdict": "pass",
+  "summary": "Unauthenticated requests to all resource types (task, repo, runner, registration, artifact, workflow, MCP method) both existing and absent receive identical 401 generic-failure response with Bearer challenge; test covers all 5 HTTP methods with direct observable boundary evidence",
+  "timestamp": "2026-08-03T10:54:58.542Z"
+}

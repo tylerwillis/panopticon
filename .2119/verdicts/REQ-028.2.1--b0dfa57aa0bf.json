@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.2.1--b0dfa57aa0bf",
+  "requirementId": "REQ-028.2.1",
+  "hash": "b0dfa57aa0bf",
+  "verdict": "pass",
+  "summary": "Exact instruction comparison rejects omission or alteration of either put_artifact MCP guidance or the REST PUT artifact endpoint mechanism.",
+  "timestamp": "2026-08-03T02:37:16.120Z"
+}

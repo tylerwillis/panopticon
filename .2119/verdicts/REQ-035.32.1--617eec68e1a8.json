@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.32.1--617eec68e1a8",
+  "requirementId": "REQ-035.32.1",
+  "hash": "617eec68e1a8",
+  "verdict": "pass",
+  "summary": "The test appends a third write token, restarts both Python and shell client paths, requires each to emit/select that exact final token, then removes every old token and proves both captured client tokens still authenticate against the converged service; selecting either earlier overlap entry fails.",
+  "timestamp": "2026-08-02T22:32:53.619Z"
+}

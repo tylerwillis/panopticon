@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.17.1--bdf98b8ad8cf",
+  "requirementId": "REQ-035.17.1",
+  "hash": "bdf98b8ad8cf",
+  "verdict": "pass",
+  "summary": "Docker and shell spawns without repo env files are both checked for separate runtime credential delivery, and shared-client, task-liveness, container caller, and shell-library consumers are exercised without argv leakage.",
+  "timestamp": "2026-08-03T09:21:53.727Z"
+}

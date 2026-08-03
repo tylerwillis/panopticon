@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.28.1--e4e81bbff67f",
+  "requirementId": "REQ-035.28.1",
+  "hash": "e4e81bbff67f",
+  "verdict": "pass",
+  "summary": "Tests comprehensively verify credential validation happens before Docker/tmux invocation, covering missing and all non-file types (directory, FIFO, socket, symlink, malformed JSON) for both LocalRunner and ShellRunner with direct observable evidence of exception, subprocess non-invocation, and filesystem preservation.",
+  "timestamp": "2026-08-03T11:19:22.781Z"
+}

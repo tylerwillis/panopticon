@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.5.1--1247b2189ca3",
+  "requirementId": "REQ-030.5.1",
+  "hash": "1247b2189ca3",
+  "verdict": "pass",
+  "summary": "Both Docker and shell runners exercise tmux_socket=None and pin the complete tmux call sequence without -L, -f, option-setting, clipboard, or history-default operations; the shell payload is also digest-pinned.",
+  "timestamp": "2026-08-03T06:42:44.723Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.1.1--a08cfa0a37c7",
+  "requirementId": "REQ-030.1.1",
+  "hash": "a08cfa0a37c7",
+  "verdict": "pass",
+  "summary": "Config generation asserts mouse on, and real fresh-socket runner tests observe the resulting global tmux option.",
+  "timestamp": "2026-08-03T02:05:00.430Z"
+}

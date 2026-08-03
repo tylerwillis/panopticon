@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.8.1--4a059a7219f3",
+  "requirementId": "REQ-028.8.1",
+  "hash": "4a059a7219f3",
+  "verdict": "pass",
+  "summary": "Sol honesty review pinned by test-local `EXPECTED_SOL_SPEC_INSTRUCTIONS` containing `codex exec ... -m gpt-5.6-sol`; final-review split pinned by test-local header literals `claude:claude-fable-5, codex:gpt-5.6-sol` vs `codex:gpt-5.6-sol, codex:gpt-5.6-sol` plus `fable_reviews` and skill-name assert",
+  "timestamp": "2026-08-03T13:46:46.756Z"
+}

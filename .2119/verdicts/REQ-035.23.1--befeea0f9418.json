@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.23.1--befeea0f9418",
+  "requirementId": "REQ-035.23.1",
+  "hash": "befeea0f9418",
+  "verdict": "pass",
+  "summary": "The HEAD test proves an unauthenticated protected route gets generic rejection while the read-token request reaches the supported route and returns 200.",
+  "timestamp": "2026-08-03T01:20:44.175Z"
+}

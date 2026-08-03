@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.8.1--85012e6c98b1",
+  "requirementId": "REQ-035.8.1",
+  "hash": "85012e6c98b1",
+  "verdict": "pass",
+  "summary": "Pass: all five required verbs receive identical failures across existing and missing routes/resources for every named class, with existing and unknown MCP methods paired.",
+  "timestamp": "2026-08-03T01:20:40.353Z"
+}

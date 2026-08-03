@@ -19,6 +19,9 @@ from abc import ABC, abstractmethod
 class Runner(ABC):
     """Spawns task containers and owns their tmux sessions (ADR 0008)."""
 
+    def validate_configuration(self) -> None:
+        """Fail before claiming work when this backend cannot launch securely."""
+
     @abstractmethod
     def spawn(self, task_id: str) -> str:
         """Start a container working on ``task_id``; return its container id.

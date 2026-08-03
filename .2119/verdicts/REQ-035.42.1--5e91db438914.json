@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.42.1--5e91db438914",
+  "requirementId": "REQ-035.42.1",
+  "hash": "5e91db438914",
+  "verdict": "pass",
+  "summary": "Genuine behavioral coverage: real MCP tool arguments and resource URIs exercise every configured token, while direct pinned-SDK logger probes verify redaction from formatted arguments, exception tracebacks, structured extras, and stack_info; captured records reject each nearest token-write counterexample.",
+  "timestamp": "2026-08-03T09:29:57.412Z"
+}

@@ -48,7 +48,7 @@ def main(
     migrate_session_dirs(CLONE_CACHE_DIR, TASKS_DIR)
 
     # Look up the task's repo to inject that repo's secrets (ADR 0007), scoped to this task.
-    client = client or TaskServiceClient(httpx.Client(base_url=args.service_url))
+    client = client or TaskServiceClient(httpx.Client(base_url=args.service_url, trust_env=False))
     task = client.get_task(args.task_id)
     repo = client.get_repo(task["repo_id"])
 

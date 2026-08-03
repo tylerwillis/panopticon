@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.19.1--a742756f2a4a",
+  "requirementId": "REQ-035.19.1",
+  "hash": "a742756f2a4a",
+  "verdict": "pass",
+  "summary": "Test verifies both conjuncts: old tokens persist after file change without restart, then rejected after restart with old tokens removed from file",
+  "timestamp": "2026-08-03T11:17:09.463Z"
+}

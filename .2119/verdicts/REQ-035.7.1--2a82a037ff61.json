@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.7.1--2a82a037ff61",
+  "requirementId": "REQ-035.7.1",
+  "hash": "2a82a037ff61",
+  "verdict": "pass",
+  "summary": "Pass: missing, malformed (including non-ASCII), unknown, near-match, and insufficient tokens are checked across REST and MCP for identical 401 JSON and Bearer challenge.",
+  "timestamp": "2026-08-03T01:20:39.838Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.9.1--15537e969a08",
+  "requirementId": "REQ-033.9.1",
+  "hash": "15537e969a08",
+  "verdict": "pass",
+  "summary": "Exact merge-preface equality covers a self-contained title and every required body field: PR link, source review comment, deferral reason, and implementation scope.",
+  "timestamp": "2026-08-03T07:08:30.772Z"
+}

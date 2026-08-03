@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.1.1--e5fa45c1e2e8",
+  "requirementId": "REQ-030.1.1",
+  "hash": "e5fa45c1e2e8",
+  "verdict": "pass",
+  "summary": "Chain is closed end to end: unit tests pin `set-option -g mouse on` in the generated config; every new-session call site (ShellRunner, LocalRunner, dashboard, `_start_sessions`) is asserted to pass `-f <config>` with the full config text; and real-tmux integration (`test_config_loads_correctly_via_d",
+  "timestamp": "2026-08-03T13:19:41.217Z"
+}

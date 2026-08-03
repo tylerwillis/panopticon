@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.2.1--c6308a0e4c42",
+  "requirementId": "REQ-031.2.1",
+  "hash": "c6308a0e4c42",
+  "verdict": "pass",
+  "summary": "Tests verify early exit before loop entry when Docker unreachable at startup; would fail if loop was entered or error suppressed",
+  "timestamp": "2026-08-03T10:11:54.824Z"
+}

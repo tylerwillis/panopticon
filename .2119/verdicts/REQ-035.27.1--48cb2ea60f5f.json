@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.27.1--48cb2ea60f5f",
+  "requirementId": "REQ-035.27.1",
+  "hash": "48cb2ea60f5f",
+  "verdict": "pass",
+  "summary": "Tests verify resolved enforced startup reporting, WARNING-level disabled/permissive reporting, and documentation that uniquely names enforced mode as steady state.",
+  "timestamp": "2026-08-03T00:32:50.219Z"
+}

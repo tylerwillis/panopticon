@@ -223,7 +223,11 @@ def main(
     try:
         with _callback_deadline():
             callback_client = client or TaskServiceClient(
-                httpx.Client(base_url=env["PANOPTICON_SERVICE_URL"], timeout=_HTTP_TIMEOUT_SECONDS)
+                httpx.Client(
+                    base_url=env["PANOPTICON_SERVICE_URL"],
+                    timeout=_HTTP_TIMEOUT_SECONDS,
+                    trust_env=False,
+                )
             )
             _run_callback(callback_client, task_id, actor, event, stdin or sys.stdin)
     except Exception:

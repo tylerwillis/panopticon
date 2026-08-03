@@ -180,6 +180,9 @@ def _expected_new_session_commands() -> list[list[str]]:
     constant, so its `defaults_argv` call (which writes a config file as a side effect) only runs
     for the tests that need it."""
     defaults = defaults_argv("panopticon")
+    environment = (
+        "env -u PANOPTICON_SERVICE_AUTH_FILE -u PANOPTICON_SERVICE_AUTH_MODE -u PANOPTICON_CONFIG "
+    )
     return [
         [
             "tmux",
@@ -190,7 +193,8 @@ def _expected_new_session_commands() -> list[list[str]]:
             "-d",
             "-s",
             "service",
-            f"{sys.executable} -m panopticon.taskservice 2>&1 | tee /tmp/panopticon-service.log",
+            f"{environment}{sys.executable} -m panopticon.taskservice --host 0.0.0.0 "
+            "2>&1 | tee /tmp/panopticon-service.log",
         ],
         [
             "tmux",
@@ -201,7 +205,8 @@ def _expected_new_session_commands() -> list[list[str]]:
             "-d",
             "-s",
             "runner",
-            f"{sys.executable} -m panopticon.sessionservice.host 2>&1 | tee /tmp/panopticon-runner.log",
+            f"{environment}{sys.executable} -m panopticon.sessionservice.host "
+            "2>&1 | tee /tmp/panopticon-runner.log",
         ],
     ]
 

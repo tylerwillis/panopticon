@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.28.1--9eeab6cec79f",
+  "requirementId": "REQ-035.28.1",
+  "hash": "9eeab6cec79f",
+  "verdict": "pass",
+  "summary": "Docker and shell runners reject missing, directory, FIFO, and malformed credential references before any command; tests preserve missing absence and exact non-file type/stat/content, with orchestration preflight checks too.",
+  "timestamp": "2026-08-03T04:01:40.390Z"
+}

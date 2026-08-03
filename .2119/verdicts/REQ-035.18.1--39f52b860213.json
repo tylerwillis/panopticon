@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.18.1--39f52b860213",
+  "requirementId": "REQ-035.18.1",
+  "hash": "39f52b860213",
+  "verdict": "pass",
+  "summary": "Covers each prohibited sink with configured-token counterexamples: failures/validation, logs, argv, serialization, SQLite state, and artifacts.",
+  "timestamp": "2026-08-03T08:56:00.427Z"
+}

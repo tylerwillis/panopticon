@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.5.1--c086140b369e",
+  "requirementId": "REQ-033.5.1",
+  "hash": "c086140b369e",
+  "verdict": "pass",
+  "summary": "MERGING responsibility keys asserted equal to exactly `[\"deferred-issues-filed\", \"pr-merged\"]` (order-sensitive list equality, line 464) for all three builtins; reordering or removal fails.",
+  "timestamp": "2026-08-03T13:46:51.931Z"
+}

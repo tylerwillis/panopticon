@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.3.1--922cb5f17f1a",
+  "requirementId": "REQ-030.3.1",
+  "hash": "922cb5f17f1a",
+  "verdict": "pass",
+  "summary": "Every panopticon new-session path is exercised as a possible first socket operation and must supply the exact complete REQ-030 defaults config via -f before session creation.",
+  "timestamp": "2026-08-03T03:41:09.899Z"
+}

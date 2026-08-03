@@ -101,7 +101,9 @@ def _toml_str(value: str) -> str:
     return json.dumps(value)
 
 
-def render_config(service_url: str, overview: str, cwd: Path) -> str:
+def render_config(
+    service_url: str, overview: str, cwd: Path, *, authenticated: bool = False
+) -> str:
     """The ``config.toml`` panopticon owns for a task's codex (regenerated each start).
 
     Top-level keys first (TOML requires it), then the tables: the panopticon MCP server
@@ -119,6 +121,7 @@ def render_config(service_url: str, overview: str, cwd: Path) -> str:
         "",
         "[mcp_servers.panopticon]",
         f"url = {_toml_str(service_url.rstrip('/') + '/mcp')}",
+        *(['bearer_token_env_var = "PANOPTICON_SERVICE_AUTH_TOKEN"'] if authenticated else []),
         "",
         # codex's built-in apps connector can't start in the container and would stall every
         # spawn on its 30s MCP timeout. The correct disable is the feature flag — an
@@ -229,7 +232,12 @@ class CodexHarness(Harness):
         config_dir = self.config_dir(ctx.home)
         config_dir.mkdir(parents=True, exist_ok=True)
         (config_dir / "config.toml").write_text(
-            render_config(ctx.service_url, ctx.overview, ctx.cwd)
+            render_config(
+                ctx.service_url,
+                ctx.overview,
+                ctx.cwd,
+                authenticated=bool(ctx.environ.get("PANOPTICON_SERVICE_AUTH_TOKEN")),
+            )
         )
         write_skills(ctx.workflow_skills(), ctx.home, ctx.task_id)
         self._ensure_auth(config_dir, ctx.environ)

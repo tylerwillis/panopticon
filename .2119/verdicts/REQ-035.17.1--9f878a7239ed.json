@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.17.1--9f878a7239ed",
+  "requirementId": "REQ-035.17.1",
+  "hash": "9f878a7239ed",
+  "verdict": "pass",
+  "summary": "Docker and shell spawn tests verify separate-secret injection without repo env files, while container shared clients, liveness, MCP configs, Pi, and shell-library paths consume that credential.",
+  "timestamp": "2026-08-03T02:05:13.694Z"
+}

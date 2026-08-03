@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.30.1--1ee7893d9823",
+  "requirementId": "REQ-035.30.1",
+  "hash": "1ee7893d9823",
+  "verdict": "pass",
+  "summary": "Under a non-root /proxy ASGI root path, tests independently reject read-only authorization and require write authorization to pass authentication for both liveness and MCP requests.",
+  "timestamp": "2026-08-03T00:38:42.362Z"
+}

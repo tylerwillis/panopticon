@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.11.1--42a3503a8a49",
+  "requirementId": "REQ-035.11.1",
+  "hash": "42a3503a8a49",
+  "verdict": "pass",
+  "summary": "Pass: unauthenticated/read/write outcomes are compared across loopback IPv4/IPv6, tailnet boundary/interior addresses, and non-tailnet sources for every REST route and MCP method.",
+  "timestamp": "2026-08-03T01:20:50.342Z"
+}

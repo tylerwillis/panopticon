@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.5.1--b227ce097fda",
+  "requirementId": "REQ-035.5.1",
+  "hash": "b227ce097fda",
+  "verdict": "pass",
+  "summary": "All OpenAPI operations, live streams, and framework documentation routes are exercised with every write token and must get past authentication.",
+  "timestamp": "2026-08-03T02:05:04.222Z"
+}

@@ -29,6 +29,7 @@ class _FakeCompletedProcess:
         self.returncode = returncode
 
 
+# 2119: REQ-030.1.1
 # 2119: REQ-030.3.1
 def test_start_sessions_loads_shipped_tmux_defaults_via_dash_f_for_service_and_runner(
     monkeypatch: pytest.MonkeyPatch,
@@ -66,6 +67,8 @@ def test_start_sessions_places_dash_f_before_new_session(monkeypatch: pytest.Mon
 
     cli._start_sessions(run=fake_run)
 
+    assert calls[0][:4] == ["tmux", "-L", "panopticon", "-f"]
+    assert Path(calls[0][4]).read_text() == server_default_config_text(clipboard=None)
     for tmux_new in (c for c in calls if "new-session" in c):
         assert tmux_new.index("-f") < tmux_new.index("new-session")
 
@@ -131,11 +134,13 @@ def test_standalone_dashboard_has_no_switch_hooks(monkeypatch: pytest.MonkeyPatc
 
 
 def test_quickstart_invokes_all_steps(monkeypatch: pytest.MonkeyPatch) -> None:
+    from panopticon.taskservice import auth
     from panopticon.terminal import console, doctor
     from panopticon.terminal import quickstart as qs
 
     calls: list[str] = []
 
+    monkeypatch.setattr(auth, "environment_token", lambda: calls.append("auth"))
     monkeypatch.setattr(doctor, "run_checks", list)
     monkeypatch.setattr(doctor, "report", lambda results: (calls.append("doctor"), 0)[1])
     monkeypatch.setattr(cli, "_run_migrate", lambda: calls.append("migrate"))
@@ -165,8 +170,9 @@ def test_quickstart_invokes_all_steps(monkeypatch: pytest.MonkeyPatch) -> None:
 
     rc = cli.main(["quickstart"])
     assert rc == 0
-    # Doctor runs first, before any side effects.
+    # Credential validation precedes even the doctor's Docker probe.
     assert calls == [
+        "auth",
         "doctor",
         "migrate",
         "sessions",

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.28.1--9b6472e49ea3",
+  "requirementId": "REQ-035.28.1",
+  "hash": "9b6472e49ea3",
+  "verdict": "fail",
+  "summary": "The tests check only final filesystem state, so a runner that transiently creates then removes a missing credential path—or deletes and recreates a directory reference—still passes despite violating 'without creating the referenced filesystem entry'; no filesystem-operation monitor rejects that temporal counterexample.",
+  "timestamp": "2026-08-03T00:12:48.812Z"
+}

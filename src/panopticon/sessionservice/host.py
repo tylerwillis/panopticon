@@ -46,8 +46,13 @@ from panopticon.sessionservice.provisioner import Provisioner
 from panopticon.sessionservice.shell_runner import ShellRunner
 from panopticon.sessionservice.spawner import Spawner, spawnable_tasks
 from panopticon.sessionservice.stage_entry_wake import StageEntryWaker
+from panopticon.taskservice.auth import environment_token
 
 _log = logging.getLogger(__name__)
+
+
+def _make_client(service_url: str) -> TaskServiceClient:
+    return TaskServiceClient(httpx.Client(base_url=service_url, trust_env=False))
 
 
 class EntryWaker(Protocol):
@@ -177,6 +182,11 @@ def hold_runner_liveness(
             for _ in live:  # each tick is a server keepalive; recheck whether to stop
                 if not running():
                     break
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code in {401, 403}:
+                raise RuntimeError(
+                    "task-service permanently rejected the runner liveness credential"
+                ) from exc
         except httpx.HTTPError:
             pass  # connection dropped underneath us — fall through to reconnect
         finally:
@@ -282,9 +292,11 @@ def main(
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
     )
+    if client is None:
+        environment_token()
     preflight_or_exit()
     migrate_session_dirs(CLONE_CACHE_DIR, TASKS_DIR)
-    client = client or TaskServiceClient(httpx.Client(base_url=args.service_url))
+    client = client or _make_client(args.service_url)
     runner = LocalRunner(args.container_service_url, image=args.image, runner_id=args.runner_id)
     # A shell workflow runs directly on the host (no container), so it reaches the task service at
     # the host's own view (--service-url), not the in-container host.docker.internal address.
@@ -292,10 +304,18 @@ def main(
     # Hold this host's liveness connection for the daemon's whole life, alongside the spawn/provision
     # loop, so the control plane knows the host is alive (and can reclaim its claims when it isn't).
     # A daemon thread: it dies with the process, dropping the connection (a clean deregister).
+    permanent_rejection = threading.Event()
+    liveness_errors: list[BaseException] = []
+
+    def hold_liveness() -> None:
+        try:
+            hold_runner_liveness(client, args.runner_id, running=lambda: True, host=args.host)
+        except BaseException as exc:
+            liveness_errors.append(exc)
+            permanent_rejection.set()
+
     liveness = threading.Thread(
-        target=hold_runner_liveness,
-        args=(client, args.runner_id),
-        kwargs={"running": lambda: True, "host": args.host},
+        target=hold_liveness,
         daemon=True,
     )
     liveness.start()
@@ -311,7 +331,10 @@ def main(
             base=args.image
         ),  # compose workflow layers onto the same base (ADR 0005)
         interval=args.interval,
+        until=permanent_rejection.is_set,
     )
+    if liveness_errors:
+        raise RuntimeError("runner liveness terminated") from liveness_errors[0]
 
 
 if __name__ == "__main__":  # pragma: no cover

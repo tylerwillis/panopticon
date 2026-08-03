@@ -1,4 +1,94 @@
-# Container authentication — giving tasks their agent credentials
+# Authentication
+
+## Task-service authentication
+
+The task service accepts bearer tokens from one host-local JSON file. Store it under
+`~/.config/panopticon/secrets/` (or `$PANOPTICON_CONFIG/secrets`) and refer to it by filename; do
+not put its contents in a repo env-file, task, database field, or artifact. Use distinct tokens for
+an off-host read-only client and for clients that mutate control-plane state. The shipped terminal
+dashboard has mutating actions and therefore uses a write token; a future phone dashboard must use
+its read token only for ordinary GET requests:
+
+```json
+{
+  "read": ["generate-a-long-random-dashboard-token"],
+  "write": ["generate-a-different-long-random-fleet-token"]
+}
+```
+
+The arrays may contain multiple tokens for rotation, but must be nonempty, have no duplicates, and
+never overlap. Tokens use the transport-safe ASCII bearer grammar: letters, digits,
+`-._~+/`, followed by optional `=` padding, with a minimum length of twelve characters. Generate
+long random values using that alphabet; short values, spaces, control characters, non-ASCII text,
+quotes, and backslashes are rejected at startup. The file must be owned by the Panopticon process
+user with no group or other permissions (normally mode `0600`); insecure files are rejected.
+Configure every task-service and runner host with the same filename reference.
+The required steady-state configuration is enforced mode:
+
+```sh
+export PANOPTICON_SERVICE_AUTH_FILE=task-service-auth.json
+export PANOPTICON_SERVICE_AUTH_MODE=enforced
+```
+
+The service binds to `127.0.0.1` by default. To expose it on a tailnet, explicitly set
+`PANOPTICON_HOST` to that machine's tailnet address (preferred) or another intended interface.
+Bearer tokens are sent over HTTP, so do not bind the service to a plain LAN or other interface
+whose transport is not independently encrypted and access-controlled.
+Authentication mode is reported at startup; disabled and permissive modes produce warnings.
+The integrated `panopticon start` and `panopticon host` commands deliberately bind `0.0.0.0` so
+native Linux Docker containers can reach the service through `host.docker.internal`; run the
+documented enforced authentication configuration before using that integrated multi-container
+stack. This broad integrated bind remains an explicit compatibility exception—not a safe
+unauthenticated default—because binding it to loopback would lock Linux task containers out of the
+control plane. `PANOPTICON_HOST` configures only the standalone service launcher; it does not narrow
+this integrated bind. Disabled mode exists only for the staged live-fleet migration below.
+
+Integrated startup creates missing tmux sessions with the invoking process's current authentication
+environment, but deliberately leaves existing service, runner, dashboard, and task sessions alive.
+It does not restart them to converge changed credentials: doing so would interrupt the live fleet.
+During migration or rotation, explicitly restart each component at the corresponding rollout step
+below; do not treat a second `panopticon start` invocation as proof that existing sessions changed.
+
+Host clients (runner, dashboard, and CLI) resolve the file against their own secrets directory.
+For each new task, the runner validates it and creates a private regular-file snapshot: Docker tasks
+receive that snapshot as a read-only mount—even when the repo has no `env_file`—and shell tasks use
+the snapshot for their session lifetime. This prevents a rotation-time file replacement from
+changing the object being launched. Tokens are sent in the `Authorization` header, never in URLs or
+command arguments. `GET /healthz` stays open; every other route is protected.
+Read tokens may call ordinary GET endpoints. Write tokens may call every endpoint, including the
+task and runner liveness streams and MCP.
+
+The runtime snapshot contains only the active write token selected when the task is spawned; it
+does not expose read tokens or inactive overlap generations. Existing containers retain that one
+generation until respawn, so removing it from the service before those containers converge will
+disconnect them. A suspected container can be locked out by removing its generation after trusted
+callers have respawned onto the next one.
+
+Roll a live fleet out without killing existing containers:
+
+1. Put the old write token in the credential file and temporarily start the service in
+   `permissive` mode. Do not expose this grace mode to an untrusted interface: a request that omits
+   Authorization has full legacy access. Startup logs both the active mode and rate-limited
+   warnings for methods/routes/callers still making header-less requests. Every permissive
+   `GET /healthz` response also carries
+   `X-Panopticon-Permissive-Unauthenticated-Total`; poll it across a representative fleet interval
+   and do not cut over unless the monotonic total remains unchanged.
+   Restart each runner, dashboard, and CLI host so new containers receive the credential mount;
+   existing unauthenticated containers continue working.
+2. Respawn or naturally replace the in-flight containers until all callers send the token, then
+   restart the service with `PANOPTICON_SERVICE_AUTH_MODE=enforced`.
+3. To rotate, append the next read/write tokens after the old tokens in their arrays; the last
+   token is the active token selected by clients. Restart the service, then restart all hosts and
+   respawn containers so callers select the new last token while both generations work. Remove the
+   old tokens only after the fleet has converged, then restart the service again.
+
+An enforced service refuses to start when the reference is absent or invalid. Authentication
+failures always return `401`, `WWW-Authenticate: Bearer`, and
+`{"detail":"authentication required"}` without revealing whether a resource exists. Loopback is
+not exempt: once the process binds beyond localhost, a loopback bypass would also bypass local
+proxies and port forwards.
+
+## Container authentication — giving tasks their agent credentials
 
 Each **harness** (the agent CLI a task runs) authenticates its own way. `panopticon quickstart`
 detects installed/authenticated harnesses, asks you to confirm or choose one, stores it as the
@@ -35,14 +125,8 @@ survives concurrent tasks and respawns. There is no Claude `login` command; use 
 
    Keep the file `0600` and out of version control. If the repo has no `env_file` yet, create one
    under the secrets dir (e.g. `~/.config/panopticon/secrets/<repo>.env`) and set the repo's
-   `env_file` to its **name** (`<repo>.env`) — in the dashboard's repo form (which accepts an
-   absolute or relative path and normalizes it to a name), or via the API:
-
-   ```sh
-   curl -X PATCH "$PANOPTICON_SERVICE_URL/repos/<repo-id>" \
-     -H 'content-type: application/json' \
-     -d '{"env_file": "<repo>.env"}'
-   ```
+   `env_file` to its **name** (`<repo>.env`) in the dashboard's repo form, which accepts an
+   absolute or relative path and normalizes it to a name.
 
 That's it — new task containers for that repo now authenticate from the token.
 
@@ -126,10 +210,7 @@ OpenAI's Codex CLI in its container. Three credential tiers, in order of setup e
    mkdir -p ~/.config/panopticon/secrets/openai.d
    cp ~/.codex/auth.json ~/.config/panopticon/secrets/openai.d/
    chmod 0600 ~/.config/panopticon/secrets/openai.d/auth.json
-   # then point the repo at it:
-   curl -X PATCH "$PANOPTICON_SERVICE_URL/repos/<repo-id>" \
-     -H 'content-type: application/json' \
-     -d '{"credential_dir": "openai.d"}'
+   # then set credential_dir to openai.d in the dashboard's repo form
    ```
 
    The runner mounts the dir **read-write and shared** into that repo's task containers; the
@@ -176,10 +257,7 @@ environment variable itself — so the harness usually renders nothing at all:
    mkdir -p ~/.config/panopticon/secrets/pi.d
    cp ~/.pi/agent/auth.json ~/.config/panopticon/secrets/pi.d/
    chmod 0600 ~/.config/panopticon/secrets/pi.d/auth.json
-   # then point the repo at it:
-   curl -X PATCH "$PANOPTICON_SERVICE_URL/repos/<repo-id>" \
-     -H 'content-type: application/json' \
-     -d '{"credential_dir": "pi.d"}'
+   # then set credential_dir to pi.d in the dashboard's repo form
    ```
 
    The runner mounts the dir **read-write and shared** into that repo's task containers; the

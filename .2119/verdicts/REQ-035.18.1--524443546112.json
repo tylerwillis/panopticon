@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.18.1--524443546112",
+  "requirementId": "REQ-035.18.1",
+  "hash": "524443546112",
+  "verdict": "pass",
+  "summary": "Configured tokens are exercised across REST/MCP failures, validation, logs, command argv, serialization, SQLite state, and artifacts, with assertions rejecting each leakage sink.",
+  "timestamp": "2026-08-03T02:32:17.474Z"
+}

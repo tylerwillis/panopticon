@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.32.1--ba36ba95890e",
+  "requirementId": "REQ-035.32.1",
+  "hash": "ba36ba95890e",
+  "verdict": "pass",
+  "summary": "Test appends a distinct final token after multiple old tokens, proves restarted Python and subprocess shell clients select it, removes old generations, and verifies both retained tokens still authenticate.",
+  "timestamp": "2026-08-03T04:45:37.950Z"
+}

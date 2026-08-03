@@ -33,7 +33,8 @@ from panopticon.sessionservice.local_runner import (
     session_name,
 )
 from panopticon.sessionservice.runner import Runner
-from panopticon.sessionservice.tmux_defaults import defaults_argv
+from panopticon.sessionservice.tmux_defaults import defaults_argv, new_session_argv
+from panopticon.taskservice.auth import load_tokens, snapshot_tokens
 
 #: The panopticon shell lib (``task_lib.sh``): functions a shell workflow's script uses to drive its
 #: task over REST (``panopticon_advance``/``_drop``/``_set_slug``/…) instead of hand-rolling curl.
@@ -68,6 +69,7 @@ class ShellRunner(Runner):
         runner_id: str = "local",
         tmux_socket: str | None = TMUX_SOCKET,
         secrets_dir: str | Path | None = None,
+        auth_file: str | None = None,
         script_dir: str | Path | None = None,
         run: CommandRunner = _subprocess_run,
     ) -> None:
@@ -77,12 +79,25 @@ class ShellRunner(Runner):
         # Root the repo's `env_file` *name* resolves against — this host's local secrets dir, matching
         # LocalRunner (ADR 0007). None = resolve the host's secrets dir dynamically at spawn.
         self._secrets_dir = secrets_dir
+        self._auth_file = (
+            auth_file if auth_file is not None else os.environ.get("PANOPTICON_SERVICE_AUTH_FILE")
+        )
         self._script_dir = Path(script_dir or tempfile.gettempdir())
         self._run = run
 
     def _tmux(self, *args: str) -> list[str]:
         prefix = ["tmux", *(["-L", self._tmux_socket] if self._tmux_socket else [])]
         return [*prefix, *args]
+
+    def validate_configuration(self) -> None:
+        """Reject an unusable control-plane credential before any spawn side effect."""
+        if self._auth_file:
+            load_tokens(self._auth_file, secrets_dir=self._secrets_dir)
+
+    def _remove_auth_snapshots(self, task_id: str) -> None:
+        """Remove private snapshots left by a killed shell session."""
+        for path in self._script_dir.glob(f"panopticon-service-auth-{task_id}-*.json"):
+            path.unlink(missing_ok=True)
 
     def spawn(
         self,
@@ -122,6 +137,60 @@ class ShellRunner(Runner):
 
         start_dir = workdir or os.path.expanduser("~")
         session = session_name(task_id)
+        # Resolve caller-controlled references before creating a credential snapshot, so a
+        # rejected repo secret cannot strand a copy of the control-plane credentials.
+        env_path = secrets_file_path(env_file, secrets_dir=self._secrets_dir)
+        self._remove_auth_snapshots(task_id)
+        auth_snapshot = (
+            snapshot_tokens(
+                self._auth_file,
+                directory=self._script_dir,
+                secrets_dir=self._secrets_dir,
+                prefix=f"panopticon-service-auth-{task_id}-",
+            )
+            if self._auth_file
+            else None
+        )
+        auth_path = auth_snapshot
+        try:
+            return self._spawn_with_snapshot(
+                task_id=task_id,
+                script=script,
+                session=session,
+                start_dir=start_dir,
+                env_path=env_path,
+                auth_snapshot=auth_snapshot,
+                auth_path=auth_path,
+                git_url=git_url,
+                repo_name=repo_name,
+                progress=progress,
+            )
+        except BaseException:
+            if auth_snapshot is not None:
+                auth_snapshot.unlink(missing_ok=True)
+            (self._script_dir / f"panopticon-shell-{task_id}.sh").unlink(missing_ok=True)
+            raise
+
+    def _spawn_with_snapshot(
+        self,
+        *,
+        task_id: str,
+        script: str,
+        session: str,
+        start_dir: str,
+        env_path: str | None,
+        auth_snapshot: Path | None,
+        auth_path: Path | None,
+        git_url: str | None,
+        repo_name: str | None,
+        progress: Callable[[LifecyclePhase], None] | None,
+    ) -> str:
+        """Assemble and launch after snapshot creation; the caller owns failure cleanup."""
+
+        def _report(phase: LifecyclePhase) -> None:
+            if progress is not None:
+                progress(phase)
+
         # A shell task runs no agent to open its own `/live` registration, so the dashboard would
         # read it as `awaiting` for its whole life. Hold the liveness stream open in the background
         # for the session's lifetime instead — the task then composes as `live` while the script
@@ -132,27 +201,90 @@ class ShellRunner(Runner):
             f"{self._service_url}/tasks/{task_id}/live"
             f"?container_id={session}&runner_id={self._runner_id}"
         )
-        lines = [
-            f"export PANOPTICON_SERVICE_URL={shlex.quote(self._service_url)}",
-            f"export PANOPTICON_TASK_ID={shlex.quote(task_id)}",
-            f"export PANOPTICON_RUNNER_ID={shlex.quote(self._runner_id)}",
-            f"export PANOPTICON_PYTHON={shlex.quote(sys.executable)}",
-            f"export PANOPTICON_SECRETS_DIR={shlex.quote(str(self._secrets_dir or _secrets_dir()))}",
-            *([f"export PANOPTICON_GIT_URL={shlex.quote(git_url)}"] if git_url else []),
-            *([f"export PANOPTICON_REPO_NAME={shlex.quote(repo_name)}"] if repo_name else []),
-            f"curl --silent --no-buffer {shlex.quote(live_url)} >/dev/null 2>&1 &",
-            "_panopticon_live_pid=$!",
-            "trap 'kill $_panopticon_live_pid 2>/dev/null' EXIT",
-            # Load the panopticon shell lib so the script can drive its task (panopticon_advance, …).
-            _TASK_LIB,
-        ]
-        # Resolve the env_file *name* to an absolute path under this host's secrets dir, expose the
-        # path (so a script can tell the operator where to add their own credential), then source it
-        # if it exists (a not-yet-created secrets file is fine — the script sees the vars unset).
-        if env_path := secrets_file_path(env_file, secrets_dir=self._secrets_dir):
+        liveness_helper = shlex.join(
+            [
+                sys.executable,
+                "-m",
+                "panopticon.sessionservice.shell_liveness",
+                "--service-url",
+                self._service_url,
+                "--task-id",
+                task_id,
+                "--runner-id",
+                self._runner_id,
+                "--socket",
+                self._tmux_socket or "",
+                "--session",
+                session,
+                "--snapshot",
+                str(auth_snapshot) if auth_snapshot is not None else "",
+            ]
+        )
+        lines = []
+        # Repo credentials are caller-controlled. Load literal NAME=VALUE records without sourcing
+        # host shell code, then pin every reserved control-plane value below.
+        if env_path:
             quoted = shlex.quote(env_path)
-            lines.append(f"export PANOPTICON_ENV_FILE={quoted}")
-            lines.append(f"[ -f {quoted} ] && {{ set -a; . {quoted}; set +a; }}")
+            lines.extend(
+                [
+                    f"if [ -f {quoted} ]; then",
+                    'while IFS= read -r _pan_env_line || [ -n "$_pan_env_line" ]; do',
+                    "case $_pan_env_line in ''|'#'*) continue ;; esac",
+                    "_pan_env_name=${_pan_env_line%%=*}",
+                    "case $_pan_env_line in *=*) ;; *) continue ;; esac",
+                    "case $_pan_env_name in ''|[0-9]*|*[!A-Za-z0-9_]*) continue ;; esac",
+                    'export "$_pan_env_line"',
+                    f"done < {quoted}",
+                    "fi",
+                    f"export PANOPTICON_ENV_FILE={quoted}",
+                ]
+            )
+        else:
+            lines.append("unset PANOPTICON_ENV_FILE")
+        lines.extend(
+            [
+                f"export PANOPTICON_SERVICE_URL={shlex.quote(self._service_url)}",
+                f"export PANOPTICON_TASK_ID={shlex.quote(task_id)}",
+                f"export PANOPTICON_RUNNER_ID={shlex.quote(self._runner_id)}",
+                f"export PANOPTICON_PYTHON={shlex.quote(sys.executable)}",
+                f"export PANOPTICON_SECRETS_DIR={shlex.quote(str(self._secrets_dir or _secrets_dir()))}",
+                *(
+                    ["export PANOPTICON_SERVICE_AUTH_FILE=" + shlex.quote(str(auth_path))]
+                    if auth_path is not None
+                    else ["unset PANOPTICON_SERVICE_AUTH_FILE"]
+                ),
+                "unset PANOPTICON_SERVICE_AUTH_TOKEN",
+                *(
+                    [f"export PANOPTICON_GIT_URL={shlex.quote(git_url)}"]
+                    if git_url
+                    else ["unset PANOPTICON_GIT_URL"]
+                ),
+                *(
+                    [f"export PANOPTICON_REPO_NAME={shlex.quote(repo_name)}"]
+                    if repo_name
+                    else ["unset PANOPTICON_REPO_NAME"]
+                ),
+                # Load the panopticon shell lib so the script can drive its task (panopticon_advance, …).
+                _TASK_LIB,
+                'if [ -n "${TMUX:-}" ]; then',
+                f"nohup {liveness_helper} </dev/null >/dev/null 2>&1 &",
+                "_panopticon_live_pid=$!",
+                "else",
+                f"_panopticon_curl --silent --no-buffer {shlex.quote(live_url)} >/dev/null 2>&1 &",
+                "_panopticon_live_pid=$!",
+                "fi",
+                "_panopticon_cleanup() { trap - EXIT HUP INT TERM; "
+                "kill $_panopticon_live_pid 2>/dev/null; "
+                + (
+                    "rm -f " + shlex.quote(str(auth_snapshot)) + "; "
+                    if auth_snapshot is not None
+                    else ""
+                )
+                + "}",
+                "trap '_panopticon_cleanup' EXIT",
+                "trap '_panopticon_cleanup; exit 129' HUP INT TERM",
+            ]
+        )
         lines.append(script)
         # Strip comments/blank lines so the assembled command stays under tmux's 16 KiB imsg cap.
         command = _minify_shell("\n".join(lines))
@@ -165,13 +297,15 @@ class ShellRunner(Runner):
             quoted_script = shlex.quote(str(script_path))
             command = f"trap 'rm -f {quoted_script}' EXIT; sh {quoted_script}"
         # Clear any stale session first so a respawn is idempotent (no-op when none exists).
-        self._run(self._tmux("kill-session", "-t", session), check=False)
+        self._run(
+            self._tmux(*defaults_argv(self._tmux_socket), "kill-session", "-t", session),
+            check=False,
+        )
         _report(LifecyclePhase.STARTING)
         # -c sets the pane's start directory (the task's own dir) so the script runs in a known place.
         self._run(
             self._tmux(
-                *defaults_argv(self._tmux_socket),
-                "new-session",
+                *new_session_argv(self._tmux_socket),
                 "-d",
                 "-s",
                 session,
@@ -202,3 +336,4 @@ class ShellRunner(Runner):
     def stop(self, session_id: str) -> None:
         # Idempotent: tolerate an already-gone session.
         self._run(self._tmux("kill-session", "-t", session_id), check=False)
+        self._remove_auth_snapshots(session_id.removeprefix("panopticon-"))

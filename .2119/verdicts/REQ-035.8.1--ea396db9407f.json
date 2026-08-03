@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.8.1--ea396db9407f",
+  "requirementId": "REQ-035.8.1",
+  "hash": "ea396db9407f",
+  "verdict": "pass",
+  "summary": "All five methods are crossed with existing and absent routes, resources, artifacts, workflows, runners, registrations, and MCP methods and require an identical challenge.",
+  "timestamp": "2026-08-03T02:05:05.908Z"
+}

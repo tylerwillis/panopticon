@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.3.2--33214ed9fa9d",
+  "requirementId": "REQ-030.3.2",
+  "hash": "33214ed9fa9d",
+  "verdict": "pass",
+  "summary": "Ordering tests at every call site assert `argv.index(\"-f\") < argv.index(\"new-session\")` (the pane is created by new-session itself), and the console probe test proves even `has-session` carries `-f` first; the companion integration test confirms the pane-level `#{history_limit}` is 50000, closing th",
+  "timestamp": "2026-08-03T13:19:42.189Z"
+}

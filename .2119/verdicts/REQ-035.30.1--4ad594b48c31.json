@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.30.1--4ad594b48c31",
+  "requirementId": "REQ-035.30.1",
+  "hash": "4ad594b48c31",
+  "verdict": "pass",
+  "summary": "Under a non-root ASGI prefix, the test exercises both liveness and MCP through the real application, rejects the nearest privilege downgrade (read token) on each, and requires a write token to clear authentication/authorization; root deployment is checked as a control.",
+  "timestamp": "2026-08-02T22:31:17.703Z"
+}

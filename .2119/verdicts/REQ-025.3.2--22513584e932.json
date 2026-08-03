@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.3.2--22513584e932",
+  "requirementId": "REQ-025.3.2",
+  "hash": "22513584e932",
+  "verdict": "pass",
+  "summary": "Directly compares local label bytes with the safely quoted remote command and verifies current remote task context reaches the SSH-wrapped attach.",
+  "timestamp": "2026-08-03T03:17:20.357Z"
+}

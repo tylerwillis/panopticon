@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.9.1--8e96c0cc6b36",
+  "requirementId": "REQ-028.9.1",
+  "hash": "8e96c0cc6b36",
+  "verdict": "pass",
+  "summary": "`test_duplicate_error_identifies_external_file_and_remediation` writes a real duplicate workflow file per builtin name into a monkeypatched home dir and asserts the exact error message including the external file path and \"remove this external workflow file\"; also proves `_skip_duplicates=True` cann",
+  "timestamp": "2026-08-03T13:19:39.247Z"
+}

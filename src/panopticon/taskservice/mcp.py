@@ -69,12 +69,12 @@ def build_mcp_server(service: TaskService, *, name: str = "panopticon") -> FastM
 
     @mcp.tool(description="Apply a named core operation (e.g. 'advance', 'drop').")
     async def apply_operation(task_id: str, operation: str) -> dict[str, Any]:
-        _log.debug("mcp apply_operation task=%s operation=%s", task_id, operation)
+        _log.debug("mcp apply_operation")
         return _task(service, await service.apply_operation(task_id, operation))
 
     @mcp.tool(description="Move the task to any state directly (free move; bypasses the gate).")
     async def set_state(task_id: str, state: str) -> dict[str, Any]:
-        _log.debug("mcp set_state task=%s state=%s", task_id, state)
+        _log.debug("mcp set_state")
         return _task(service, await service.set_state(task_id, state))
 
     @mcp.tool(
@@ -83,7 +83,7 @@ def build_mcp_server(service: TaskService, *, name: str = "panopticon") -> FastM
     async def resolve_responsibility(
         task_id: str, key: str, status: str, comment: str | None = None
     ) -> dict[str, Any]:
-        _log.debug("mcp resolve_responsibility task=%s key=%s status=%s", task_id, key, status)
+        _log.debug("mcp resolve_responsibility")
         return _task(
             service,
             await service.resolve_responsibility(
@@ -152,7 +152,7 @@ def build_mcp_server(service: TaskService, *, name: str = "panopticon") -> FastM
         artifacts: dict[str, str] | None = None,
         depends_on_task_ids: list[str] | None = None,
     ) -> dict[str, Any]:
-        _log.debug("mcp create_task orchestrator=%s workflow=%s", orchestrator_task_id, workflow)
+        _log.debug("mcp create_task")
         return _task(
             service,
             await service.create_task_as(

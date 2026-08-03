@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.12.1--c8894110c56d",
+  "requirementId": "REQ-035.12.1",
+  "hash": "c8894110c56d",
+  "verdict": "pass",
+  "summary": "Tests directly verify app without auth config returns 404 or domain errors before generic auth failure; enumerates REST/MCP boundary cases with real composition.",
+  "timestamp": "2026-08-03T10:51:11.062Z"
+}

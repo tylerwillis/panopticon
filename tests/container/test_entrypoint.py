@@ -7,11 +7,13 @@ and closed, so we can assert the connection's lifetime *is* the liveness signal 
 from __future__ import annotations
 
 from collections.abc import Callable, Iterator
+from itertools import pairwise
 from typing import Any
 
 import httpx
 import pytest
 
+from panopticon.client import TaskServiceClient
 from panopticon.container import entrypoint
 
 
@@ -97,7 +99,7 @@ def _serve(client: _FakeClient, **kw: Any) -> None:
         container_id="c1",
         runner_id="runner-1",
         running=kw.pop("running", _stop_after(2)),
-        sleep=lambda _s: None,
+        sleep=kw.pop("sleep", lambda _s: None),
         **kw,
     )
 
@@ -129,6 +131,68 @@ def test_serve_reconnects_after_a_dropped_connection() -> None:
     assert client.runners == ["runner-1", "runner-1"]
     assert client.calls == ["live", "close", "live", "close"]
     assert naps == [0.25]  # backed off once before reconnecting
+
+
+@pytest.mark.parametrize("status", [401, 403])
+def test_serve_stops_after_permanent_liveness_rejection(status: int) -> None:
+    # 2119: REQ-035.36.1
+    request = httpx.Request("GET", "http://service/tasks/t1/live")
+    response = httpx.Response(status, request=request)
+
+    attempts: list[int] = []
+    naps: list[float] = []
+
+    class _RejectedClient(_FakeClient):
+        def live(self, *_args: object, **_kwargs: object) -> Iterator[None]:
+            attempts.append(1)
+
+            def rejected() -> Iterator[None]:
+                raise httpx.HTTPStatusError("rejected", request=request, response=response)
+                yield
+
+            return rejected()
+
+    with pytest.raises(RuntimeError, match="permanently rejected"):
+        _serve(_RejectedClient(), running=lambda: True, sleep=naps.append)
+    assert len(attempts) == 1
+    assert naps == []
+
+
+@pytest.mark.parametrize("status", [401, 403])
+def test_real_client_serve_stops_after_permanent_liveness_rejection(status: int) -> None:
+    # 2119: REQ-035.36.1
+    attempts: list[httpx.Request] = []
+    naps: list[float] = []
+
+    def reject(request: httpx.Request) -> httpx.Response:
+        attempts.append(request)
+        return httpx.Response(status, json={"detail": "authentication required"})
+
+    http = httpx.Client(base_url="http://service", transport=httpx.MockTransport(reject))
+    with pytest.raises(RuntimeError, match="permanently rejected"):
+        _serve(TaskServiceClient(http), running=lambda: True, sleep=naps.append)  # type: ignore[arg-type]
+    assert len(attempts) == 1
+    assert naps == []
+
+
+def test_main_propagates_permanent_liveness_rejection(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # 2119: REQ-035.36.1
+    attempts: list[httpx.Request] = []
+
+    def reject(request: httpx.Request) -> httpx.Response:
+        attempts.append(request)
+        return httpx.Response(401, json={"detail": "authentication required"})
+
+    http = httpx.Client(base_url="http://service", transport=httpx.MockTransport(reject))
+    client = TaskServiceClient(http)
+    monkeypatch.setenv("PANOPTICON_TASK_ID", "t1")
+    monkeypatch.setenv("PANOPTICON_CONTAINER_ID", "c1")
+    monkeypatch.setenv("PANOPTICON_SERVICE_URL", "http://service")
+    with pytest.raises(RuntimeError, match="permanently rejected"):
+        entrypoint.main(client_factory=lambda _url: client, running=lambda: True)
+    assert len(attempts) == 1
 
 
 def test_serve_sets_slug_when_unset_and_proposed() -> None:
@@ -174,3 +238,33 @@ def test_main_reads_env_and_serves(monkeypatch: pytest.MonkeyPatch) -> None:
     assert seen_url == ["http://svc:8000"]
     assert client.live_connections == 2  # held, dropped, re-opened
     assert naps == [0.5]  # PANOPTICON_RECONNECT_BACKOFF threaded through
+
+
+def test_main_treats_runner_pinned_empty_optional_values_as_absent(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from panopticon.sessionservice.local_runner import LocalRunner
+
+    calls: list[list[str]] = []
+
+    def record(args: list[str], **_kwargs: object) -> str:
+        calls.append(args)
+        return "%1\n" if "display-message" in args else ""
+
+    LocalRunner("http://svc:8000", run=record).spawn("t1")
+    docker_run = next(call for call in calls if call[:2] == ["docker", "run"])
+    emitted = {
+        item.split("=", 1)[0]: item.split("=", 1)[1]
+        for flag, item in pairwise(docker_run)
+        if flag == "--env"
+    }
+    for name, value in emitted.items():
+        monkeypatch.setenv(name, value)
+    client = _FakeClient()
+
+    entrypoint.main(
+        client_factory=lambda _url: client,  # type: ignore[arg-type,return-value]
+        running=lambda: False,
+    )
+
+    assert "set_slug" not in client.calls

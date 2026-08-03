@@ -12,6 +12,7 @@ from typing import Any
 import pytest
 
 from panopticon.sessionservice.tmux_defaults import server_default_config_text
+from panopticon.terminal import console
 from panopticon.terminal.console import (
     attach_target,
     decode_switch_target,
@@ -359,6 +360,29 @@ def test_make_service_switch_only_switches_when_a_service_session_exists(tmp_pat
     assert switch.read_text() == ""
 
 
+# 2119: REQ-030.3.2
+def test_session_exists_configures_a_dedicated_socket_before_its_probe(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr("shutil.which", lambda _tool: None)
+    calls: list[list[str]] = []
+
+    class Result:
+        returncode = 1
+
+    def fake_run(args: list[str], **_kwargs: object) -> Result:
+        calls.append(args)
+        return Result()
+
+    monkeypatch.setattr(console.subprocess, "run", fake_run)
+
+    assert not console.session_exists("dashboard", socket="panopticon")
+    assert calls[0][:4] == ["tmux", "-L", "panopticon", "-f"]
+    assert Path(calls[0][4]).read_text() == server_default_config_text(clipboard=None)
+    assert calls[0][5:] == ["has-session", "-t", "dashboard"]
+
+
+# 2119: REQ-030.1.1
 # 2119: REQ-030.3.1
 def test_ensure_dashboard_session_loads_every_shipped_default_via_dash_f(
     monkeypatch: pytest.MonkeyPatch,

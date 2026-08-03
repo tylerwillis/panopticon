@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.1.1--e33432f0ff1a",
+  "requirementId": "REQ-035.1.1",
+  "hash": "e33432f0ff1a",
+  "verdict": "pass",
+  "summary": "Test proves startup loads tokens from bounded credential file without persistence via file inspection, response redaction, log redaction, path escaping rejection, and startup-reload boundary evidence.",
+  "timestamp": "2026-08-03T10:51:37.643Z"
+}

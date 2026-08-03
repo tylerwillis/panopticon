@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.28.1--62f30b454909",
+  "requirementId": "REQ-035.28.1",
+  "hash": "62f30b454909",
+  "verdict": "fail",
+  "summary": "The new observable 'existing non-file entry unchanged' conjunct is not verified: LocalRunner checks only is_dir(), and ShellRunner checks only exists(), so adding directory contents or replacing the directory (even with a file in the shell case) violates unchanged while all annotated assertions pass.",
+  "timestamp": "2026-08-03T00:16:24.335Z"
+}

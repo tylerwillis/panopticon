@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.5.1--521c5c370e29",
+  "requirementId": "REQ-035.5.1",
+  "hash": "521c5c370e29",
+  "verdict": "pass",
+  "summary": "Pass: all registered REST operations plus framework documentation GET/HEAD routes accept old, new, and opaque write tokens past authentication while preserving domain errors.",
+  "timestamp": "2026-08-03T01:20:38.867Z"
+}

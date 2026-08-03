@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.11.1--660f1f383944",
+  "requirementId": "REQ-035.11.1",
+  "hash": "660f1f383944",
+  "verdict": "pass",
+  "summary": "Test enumerates loopback, tailnet, and other addresses, verifies identical outcomes across unauthenticated/read/write for all routes and MCP methods",
+  "timestamp": "2026-08-03T10:51:05.843Z"
+}

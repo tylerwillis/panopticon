@@ -17,6 +17,7 @@ import httpx
 
 from panopticon.core.liveness import LIVENESS_READ_TIMEOUT_SECONDS
 from panopticon.core.models import Status
+from panopticon.taskservice.auth import environment_token
 
 JsonObj = dict[str, Any]
 
@@ -31,8 +32,17 @@ def _liveness_timeout() -> httpx.Timeout:
 
 
 class TaskServiceClient:
-    def __init__(self, http: httpx.Client, *, operator_token: str | None = None) -> None:
+    def __init__(
+        self,
+        http: httpx.Client,
+        *,
+        token: str | None = None,
+        operator_token: str | None = None,
+    ) -> None:
         self._http = http
+        token = token if token is not None else environment_token()
+        if token:
+            self._http.headers["Authorization"] = f"Bearer {token}"
         self._operator_token = operator_token or os.environ.get("PANOPTICON_OPERATOR_TOKEN")
 
     @staticmethod

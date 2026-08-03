@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.18.1--6179ff1f8a30",
+  "requirementId": "REQ-035.18.1",
+  "hash": "6179ff1f8a30",
+  "verdict": "pass",
+  "summary": "Configured tokens are checked absent from generic and validation failures, MCP results, logs, command argv, serialized domain responses, SQLite/artifact files, and spawned Docker/shell commands.",
+  "timestamp": "2026-08-03T02:05:14.244Z"
+}

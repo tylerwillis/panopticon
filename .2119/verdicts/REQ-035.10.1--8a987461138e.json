@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.10.1--8a987461138e",
+  "requirementId": "REQ-035.10.1",
+  "hash": "8a987461138e",
+  "verdict": "pass",
+  "summary": "Enforced-auth tests make an unauthenticated /healthz request and require status 200 with the exact existing {'status': 'ok'} payload, rejecting authentication or any added/changed readiness fields.",
+  "timestamp": "2026-08-03T00:38:44.897Z"
+}

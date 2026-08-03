@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.4.1--bb8a288d727b",
+  "requirementId": "REQ-035.4.1",
+  "hash": "bb8a288d727b",
+  "verdict": "pass",
+  "summary": "All actual registered mutating REST operations and both live-stream GETs are enumerated and required to return the generic 401 for each read token.",
+  "timestamp": "2026-08-03T09:21:35.158Z"
+}

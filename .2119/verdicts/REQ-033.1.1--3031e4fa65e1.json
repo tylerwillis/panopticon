@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.1.1--3031e4fa65e1",
+  "requirementId": "REQ-033.1.1",
+  "hash": "3031e4fa65e1",
+  "verdict": "pass",
+  "summary": "Checks every built-in review skill against the full instruction contract requiring the triage PR comment to end with the named section.",
+  "timestamp": "2026-08-03T02:37:19.599Z"
+}

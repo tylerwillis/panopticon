@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.3.1--818e1d65ad6c",
+  "requirementId": "REQ-033.3.1",
+  "hash": "818e1d65ad6c",
+  "verdict": "pass",
+  "summary": "Pins complete review instructions and explicitly requires the omit-wrong-findings directive while rejecting its negation.",
+  "timestamp": "2026-08-03T06:34:12.675Z"
+}

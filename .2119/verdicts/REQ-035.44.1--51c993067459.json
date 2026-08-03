@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.44.1--51c993067459",
+  "requirementId": "REQ-035.44.1",
+  "hash": "51c993067459",
+  "verdict": "pass",
+  "summary": "Tests send configured tokens in both JSON and raw artifact bodies, require rejection rather than endpoint success, and inspect the real SQLite and filesystem artifact adapters to exclude persistence.",
+  "timestamp": "2026-08-03T09:26:17.626Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.5.1--efc6f4915397",
+  "requirementId": "REQ-035.5.1",
+  "hash": "efc6f4915397",
+  "verdict": "fail",
+  "summary": "The every-endpoint boundary is incomplete: REST coverage is derived from OpenAPI plus four docs paths, so a schema-hidden authenticated route could reject a valid write token without failing these tests.",
+  "timestamp": "2026-08-03T01:13:24.394Z"
+}

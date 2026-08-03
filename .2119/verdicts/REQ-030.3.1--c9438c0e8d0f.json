@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.3.1--c9438c0e8d0f",
+  "requirementId": "REQ-030.3.1",
+  "hash": "c9438c0e8d0f",
+  "verdict": "pass",
+  "summary": "Fresh review verified every first-touch call site supplies the complete defaults config.",
+  "timestamp": "2026-08-03T12:28:53.547Z"
+}

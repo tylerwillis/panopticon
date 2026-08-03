@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.10.1--33d2ab6e3b2b",
+  "requirementId": "REQ-035.10.1",
+  "hash": "33d2ab6e3b2b",
+  "verdict": "pass",
+  "summary": "Tests make unauthenticated /healthz requests, require the exact existing 200 JSON readiness payload, and cover proxy root-path handling.",
+  "timestamp": "2026-08-03T01:17:11.246Z"
+}

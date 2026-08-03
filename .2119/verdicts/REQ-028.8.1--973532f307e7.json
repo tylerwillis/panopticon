@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.8.1--973532f307e7",
+  "requirementId": "REQ-028.8.1",
+  "hash": "973532f307e7",
+  "verdict": "pass",
+  "summary": "Tests cover Sol honesty review for every built-in, exact Fable-plus-Sol final-review defaults for human/auto, and exact Sol-only skill/defaults/responsibilities for auto-sol.",
+  "timestamp": "2026-08-03T02:37:17.417Z"
+}

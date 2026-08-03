@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.21.1--f721a7e1941e",
+  "requirementId": "REQ-035.21.1",
+  "hash": "f721a7e1941e",
+  "verdict": "pass",
+  "summary": "The executed authenticated Pi command exposes exact curl argv and stdin: omission or substitution fails the exact stdin assertion, while putting the credential in any spawned argument fails the argv assertion.",
+  "timestamp": "2026-08-03T10:46:45.124Z"
+}

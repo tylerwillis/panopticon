@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.2.1--5074911449fe",
+  "requirementId": "REQ-033.2.1",
+  "hash": "5074911449fe",
+  "verdict": "pass",
+  "summary": "Literal substring: \"For each finding you rejected or deferred that is nonetheless a genuinely good idea, add a one-paragraph entry: what the idea is, why it was deferred rather than done now, and what an implementer would need to know.\" (line 338).",
+  "timestamp": "2026-08-03T13:46:50.380Z"
+}

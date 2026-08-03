@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.10.1--115d8d7b10e7",
+  "requirementId": "REQ-028.10.1",
+  "hash": "115d8d7b10e7",
+  "verdict": "pass",
+  "summary": "Fresh review verified artifacts complement rather than replace PR URL evidence.",
+  "timestamp": "2026-08-03T11:58:53.394Z"
+}

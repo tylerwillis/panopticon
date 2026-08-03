@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.21.1--cc4a6c7af3cf",
+  "requirementId": "REQ-035.21.1",
+  "hash": "cc4a6c7af3cf",
+  "verdict": "pass",
+  "summary": "The generated authenticated Pi command is executed with a sentinel token and proves curl argv omits it while stdin config carries the Authorization header.",
+  "timestamp": "2026-08-03T01:17:30.487Z"
+}

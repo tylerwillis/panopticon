@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.21.1--621f552ecc96",
+  "requirementId": "REQ-035.21.1",
+  "hash": "621f552ecc96",
+  "verdict": "pass",
+  "summary": "Authenticated Pi operation execution proves the runtime write token is absent from every curl argument and delivered exactly via stdin config; argv, omission, and substitution counterexamples fail.",
+  "timestamp": "2026-08-02T22:05:51.710Z"
+}

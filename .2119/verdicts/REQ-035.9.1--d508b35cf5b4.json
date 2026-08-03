@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.9.1--d508b35cf5b4",
+  "requirementId": "REQ-035.9.1",
+  "hash": "d508b35cf5b4",
+  "verdict": "pass",
+  "summary": "Accepts valid Bearer credentials and rejects every named query, cookie, JSON, alternate-header, and near-miss Authorization form across REST and MCP.",
+  "timestamp": "2026-08-03T02:05:09.935Z"
+}

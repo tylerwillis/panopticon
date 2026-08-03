@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.14.1--ef338282caa1",
+  "requirementId": "REQ-035.14.1",
+  "hash": "ef338282caa1",
+  "verdict": "pass",
+  "summary": "Tests startup rejection for absent, missing, unreadable, relative/absolute/symlink escaping, malformed/non-object, wrong or empty array, non-string, and overlapping credentials.",
+  "timestamp": "2026-08-03T01:17:13.185Z"
+}

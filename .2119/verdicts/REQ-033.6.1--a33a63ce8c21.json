@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.6.1--a33a63ce8c21",
+  "requirementId": "REQ-033.6.1",
+  "hash": "a33a63ce8c21",
+  "verdict": "pass",
+  "summary": "Exact per-workflow merge-skill prefixes require rereading both the triage suggestion section and reacting user PR comments before queue steps.",
+  "timestamp": "2026-08-03T02:37:12.131Z"
+}

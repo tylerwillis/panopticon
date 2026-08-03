@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.17.1--0edb2c3bcd06",
+  "requirementId": "REQ-035.17.1",
+  "hash": "0edb2c3bcd06",
+  "verdict": "pass",
+  "summary": "Covers both no-env-file spawn types and behaviorally verifies the separate credential across shared clients, entrypoint liveness, shell library, setup, and artifact fallback.",
+  "timestamp": "2026-08-03T04:00:17.005Z"
+}

@@ -97,6 +97,12 @@ def serve(
             for _ in live:  # each tick is a server keepalive; recheck whether to stop
                 if not running():
                     break
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code in {401, 403}:
+                raise RuntimeError(
+                    "task-service permanently rejected the container liveness credential"
+                ) from exc
+            # A transient status response may recover after the normal reconnect backoff.
         except httpx.HTTPError:
             pass  # connection dropped underneath us — fall through to reconnect
         finally:
@@ -119,7 +125,7 @@ def _until_signalled() -> Callable[[], bool]:
 
 
 def _make_client(service_url: str) -> TaskServiceClient:
-    return TaskServiceClient(httpx.Client(base_url=service_url))
+    return TaskServiceClient(httpx.Client(base_url=service_url, trust_env=False))
 
 
 def main(
@@ -136,8 +142,10 @@ def main(
         env["PANOPTICON_TASK_ID"],
         container_id=env["PANOPTICON_CONTAINER_ID"],
         runner_id=env.get("PANOPTICON_RUNNER_ID"),
-        proposed_slug=env.get("PANOPTICON_PROPOSED_SLUG"),
+        proposed_slug=env.get("PANOPTICON_PROPOSED_SLUG") or None,
         running=running if running is not None else _until_signalled(),
-        reconnect_backoff=float(env.get("PANOPTICON_RECONNECT_BACKOFF", RECONNECT_BACKOFF_SECONDS)),
+        reconnect_backoff=float(
+            env.get("PANOPTICON_RECONNECT_BACKOFF") or RECONNECT_BACKOFF_SECONDS
+        ),
         sleep=sleep,
     )

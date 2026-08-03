@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.41.1--9db2fb1548b1",
+  "requirementId": "REQ-035.41.1",
+  "hash": "9db2fb1548b1",
+  "verdict": "pass",
+  "summary": "Both authenticated Pi-operation and REST-artifact commands run under real shell xtrace and prove the token is absent from stderr and argv while delivered via stdin.",
+  "timestamp": "2026-08-03T09:22:04.918Z"
+}

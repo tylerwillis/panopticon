@@ -17,6 +17,7 @@ import tempfile
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Protocol
+from urllib.parse import urlsplit
 
 from panopticon.core.dirs import secrets_file_path
 from panopticon.core.models import LifecyclePhase
@@ -28,7 +29,11 @@ from panopticon.sessionservice.prefill import (
     watch_pane,
 )
 from panopticon.sessionservice.runner import Runner
-from panopticon.sessionservice.tmux_defaults import defaults_argv
+from panopticon.sessionservice.tmux_defaults import defaults_argv, new_session_argv
+from panopticon.taskservice.auth import (
+    load_tokens as load_service_tokens,
+)
+from panopticon.taskservice.auth import snapshot_tokens as snapshot_service_tokens
 
 #: Default composed image (base layer, ADR 0005); built in a later PR of this slice.
 DEFAULT_IMAGE = "panopticon-base"
@@ -70,6 +75,7 @@ CONTAINER_HOME = "/home/panopticon"
 #: container layer is thrown away each spawn, but the volume persists. Per-task (not per-repo)
 #: so concurrent tasks don't share state.
 CONFIG_MOUNT = "/home/panopticon/.claude"
+SERVICE_AUTH_MOUNT = "/run/secrets/panopticon-service-auth"
 
 
 class CommandRunner(Protocol):
@@ -110,6 +116,39 @@ def _invoking_user() -> str:
     return f"{os.getuid()}:{os.getgid()}"
 
 
+def _env_file_values(path: str | None, names: set[str]) -> list[str]:
+    """Read literal values used by Docker's env-file format for selected names."""
+
+    if path is None or not Path(path).is_file():
+        return []
+    values: list[str] = []
+    for raw_line in Path(path).read_text().splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        name, value = line.split("=", 1)
+        if name in names:
+            values.append(value)
+    return values
+
+
+def _service_no_proxy(service_url: str, env_path: str | None, env: Mapping[str, str]) -> str:
+    """Preserve configured bypasses and force the control-plane host off ambient proxies."""
+
+    host = urlsplit(service_url).hostname
+    if host is None:
+        raise ValueError(f"task-service URL has no host: {service_url!r}")
+    configured = _env_file_values(env_path, {"NO_PROXY", "no_proxy"})
+    configured.extend(value for name in ("NO_PROXY", "no_proxy") if (value := env.get(name)))
+    entries: list[str] = []
+    for value in (*configured, host):
+        for entry in value.split(","):
+            entry = entry.strip()
+            if entry and entry not in entries:
+                entries.append(entry)
+    return ",".join(entries)
+
+
 class LocalRunner(Runner):
     """Runs task containers + host tmux on the local Docker daemon (one host)."""
 
@@ -124,6 +163,7 @@ class LocalRunner(Runner):
         extra_env: Mapping[str, str] | None = None,
         user: str | None = None,
         secrets_dir: str | Path | None = None,
+        auth_file: str | None = None,
         run: CommandRunner = _subprocess_run,
     ) -> None:
         self._service_url = service_url
@@ -133,6 +173,9 @@ class LocalRunner(Runner):
         # remote runner uses its own secrets (the stored value is host-agnostic; ADR 0007). None =
         # resolve the host's secrets dir dynamically at spawn.
         self._secrets_dir = secrets_dir
+        self._auth_file = (
+            auth_file if auth_file is not None else os.environ.get("PANOPTICON_SERVICE_AUTH_FILE")
+        )
         # Run the task container unprivileged as the invoking user (uid:gid), so it can't act as
         # root on the host and its writes to the mounted workspace are owned by the operator.
         self._user = user if user is not None else _invoking_user()
@@ -142,10 +185,21 @@ class LocalRunner(Runner):
         self._tmux_socket = tmux_socket  # isolate panopticon's tmux server when set (-L)
         self._extra_env = dict(extra_env or {})
         self._run = run
+        self._snapshot_dir = Path(tempfile.gettempdir())
 
     def _tmux(self, *args: str) -> list[str]:
         prefix = ["tmux", *(["-L", self._tmux_socket] if self._tmux_socket else [])]
         return [*prefix, *args]
+
+    def validate_configuration(self) -> None:
+        """Reject an unusable control-plane credential before any spawn side effect."""
+        if self._auth_file:
+            load_service_tokens(self._auth_file, secrets_dir=self._secrets_dir)
+
+    def _remove_auth_snapshots(self, task_id: str) -> None:
+        """Remove private snapshots left by a stopped or replaced task container."""
+        for path in self._snapshot_dir.glob(f"panopticon-service-auth-{task_id}-*.json"):
+            path.unlink(missing_ok=True)
 
     def spawn(
         self,
@@ -208,6 +262,17 @@ class LocalRunner(Runner):
             # and drops to it (so the task runs unprivileged, owning what it writes to /workspace).
             "PANOPTICON_PUID": puid,
             "PANOPTICON_PGID": pgid,
+            # Optional runtime controls are explicit too: Docker applies --env after --env-file,
+            # so empty values prevent a repo credential file from injecting stale control-plane
+            # state when the runner did not supply that option.
+            "PANOPTICON_RECONNECT_BACKOFF": "",
+            "PANOPTICON_PROPOSED_SLUG": "",
+            "PANOPTICON_INITIAL_PROMPT": "",
+            "PANOPTICON_TASK_TURN": "",
+            "PANOPTICON_STARTING_MODEL": "",
+            "PANOPTICON_HARNESS": "",
+            "PANOPTICON_CREDENTIALS": "",
+            "PANOPTICON_DOCKER_IN_DOCKER": "",
             **self._extra_env,
         }
         if initial_prompt:
@@ -239,6 +304,7 @@ class LocalRunner(Runner):
             env["PANOPTICON_DOCKER_IN_DOCKER"] = "1"
         if env_path := secrets_file_path(env_file, secrets_dir=self._secrets_dir):
             docker_run += ["--env-file", env_path]  # per-repo secrets, resolved host-locally
+        auth_snapshot: Path | None = None
         if workspace:  # the per-task clone — the agent's writable working dir (ADR 0011)
             docker_run += [
                 "--volume",
@@ -253,6 +319,27 @@ class LocalRunner(Runner):
         # Per-task config volume: persists the agent CLI's session history across respawn/recreate
         # (the transcripts live in the config dir, otherwise thrown away with the container).
         docker_run += ["--volume", f"panopticon-config-{task_id}:{config_mount}"]
+        if self._auth_file:
+            self._remove_auth_snapshots(task_id)
+            auth_snapshot = snapshot_service_tokens(
+                self._auth_file,
+                directory=self._snapshot_dir,
+                secrets_dir=self._secrets_dir,
+                prefix=f"panopticon-service-auth-{task_id}-",
+            )
+            docker_run += ["--volume", f"{auth_snapshot}:{SERVICE_AUTH_MOUNT}:ro"]
+            env["PANOPTICON_SERVICE_AUTH_FILE"] = SERVICE_AUTH_MOUNT
+        else:
+            # An env-file belongs to the repo and must not opt a task into a stale or attacker-
+            # controlled control-plane credential when this runner has authentication disabled.
+            env["PANOPTICON_SERVICE_AUTH_FILE"] = ""
+        env["PANOPTICON_SERVICE_AUTH_TOKEN"] = ""
+        # Native MCP clients honor the standard proxy variables inherited from the repo env-file.
+        # Pin both spellings after that file so neither Claude nor Codex can send the fleet bearer
+        # through an ambient proxy, while retaining bypasses needed by the repo's other traffic.
+        no_proxy = _service_no_proxy(self._service_url, env_path, env)
+        env["NO_PROXY"] = no_proxy
+        env["no_proxy"] = no_proxy
         for key, value in env.items():
             docker_run += ["--env", f"{key}={value}"]
         docker_run.append(
@@ -261,10 +348,23 @@ class LocalRunner(Runner):
         # Clear any stale tmux session + container first — handles both a prior exited run and a
         # live force-respawn (dashboard `R` kills and restarts). Both are no-ops when nothing
         # exists, so spawn is fully idempotent. (`stop()` does the same pair.)
-        self._run(self._tmux("kill-session", "-t", container), check=False)
-        self._run(["docker", "rm", "--force", container], check=False)
-        _report(LifecyclePhase.STARTING)  # docker run + the tmux session coming up
-        self._run(docker_run)
+        try:
+            self._run(
+                self._tmux(*defaults_argv(self._tmux_socket), "kill-session", "-t", container),
+                check=False,
+            )
+            self._run(["docker", "rm", "--force", container], check=False)
+            _report(LifecyclePhase.STARTING)  # docker run + the tmux session coming up
+            self._run(docker_run)
+            # Docker has opened the bind source by the time detached ``docker run`` returns. The
+            # mount retains that inode, so remove the host pathname immediately; this prevents a
+            # one-shot runner process from stranding a fleet credential after it exits.
+            if auth_snapshot is not None:
+                auth_snapshot.unlink(missing_ok=True)
+        except BaseException:
+            if auth_snapshot is not None:
+                auth_snapshot.unlink(missing_ok=True)
+            raise
         # `docker run --detach` returns once the container is running (the entrypoint has remapped +
         # dropped), so the pane execs in as the unprivileged `panopticon` user — `tmux attach` and
         # the agent's `whoami` see that named user, not root.
@@ -275,39 +375,51 @@ class LocalRunner(Runner):
         # its own bracketed-paste-ready marker before the agent CLI ever starts. This is also the
         # session-creating call, so it's the one that must carry the shipped tmux defaults (REQ-030)
         # via `-f`: a fresh socket's server only picks them up from whichever call starts it.
-        self._run(
-            self._tmux(
-                *defaults_argv(self._tmux_socket),
-                "new-session",
-                "-d",
-                "-s",
-                container,
-                "sleep 86400",
+        try:
+            self._run(
+                self._tmux(
+                    *new_session_argv(self._tmux_socket),
+                    "-d",
+                    "-s",
+                    container,
+                    "sleep 86400",
+                )
             )
-        )
-        pane = watch_pane(
-            container,
-            run=self._run,
-            prefix=self._tmux(),
-            raw_log=readiness_log(container),
-        )
-        self._run(
-            self._tmux(
-                "respawn-pane",
-                "-k",
-                "-t",
-                pane or container,
-                "docker",
-                "exec",
-                "--interactive",
-                "--tty",
-                "--user",
-                CONTAINER_USER,
+            pane = watch_pane(
                 container,
-                *self._agent_command,
+                run=self._run,
+                prefix=self._tmux(),
+                raw_log=readiness_log(container),
             )
-        )
-        _report(LifecyclePhase.AWAITING)  # container + tmux up; waiting for its /live registration
+            self._run(
+                self._tmux(
+                    "respawn-pane",
+                    "-k",
+                    "-t",
+                    pane or container,
+                    "docker",
+                    "exec",
+                    "--interactive",
+                    "--tty",
+                    "--user",
+                    CONTAINER_USER,
+                    container,
+                    *self._agent_command,
+                )
+            )
+            _report(
+                LifecyclePhase.AWAITING
+            )  # container + tmux up; waiting for its /live registration
+        except BaseException:
+            try:
+                self._run(self._tmux("kill-session", "-t", container), check=False)
+            finally:
+                try:
+                    self._run(["docker", "rm", "--force", container], check=False)
+                finally:
+                    if auth_snapshot is not None:
+                        auth_snapshot.unlink(missing_ok=True)
+            raise
         return container
 
     def is_running(self, task_id: str) -> bool:
@@ -395,5 +507,10 @@ class LocalRunner(Runner):
 
     def stop(self, container_id: str) -> None:
         # Idempotent: tolerate an already-gone session/container.
-        self._run(self._tmux("kill-session", "-t", container_id), check=False)
-        self._run(["docker", "rm", "--force", container_id], check=False)
+        try:
+            self._run(self._tmux("kill-session", "-t", container_id), check=False)
+        finally:
+            try:
+                self._run(["docker", "rm", "--force", container_id], check=False)
+            finally:
+                self._remove_auth_snapshots(container_id.removeprefix("panopticon-"))

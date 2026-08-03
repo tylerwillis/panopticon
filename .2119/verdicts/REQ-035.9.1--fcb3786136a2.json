@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.9.1--fcb3786136a2",
+  "requirementId": "REQ-035.9.1",
+  "hash": "fcb3786136a2",
+  "verdict": "pass",
+  "summary": "Proves exact Bearer headers succeed and exhaustively rejects every named query, cookie, JSON, and alternate-header carrier plus near-miss Bearer syntax across protected routes.",
+  "timestamp": "2026-08-03T07:18:57.978Z"
+}
