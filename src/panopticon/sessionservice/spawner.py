@@ -590,7 +590,7 @@ class Spawner:
         if task["state"] not in TERMINAL_LABELS:
             return
         backend = self._runner_for(task)
-        container_runner = getattr(self, "_runner", None)
+        container_runner: LocalRunner | None = getattr(self, "_runner", None)
         if (
             container_runner is not None
             and backend is container_runner
