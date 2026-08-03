@@ -460,7 +460,7 @@ def test_mcp_tool_arguments_never_log_or_return_configured_tokens(
     late_stream = StringIO()
     late_handler = logging.StreamHandler(late_stream)
     late_handler.setFormatter(logging.Formatter("%(message)s %(payload)s"))
-    late_logger = logging.getLogger("late.configured.handler")
+    late_logger = logging.getLogger("mcp.late.configured.handler")
     late_logger.addHandler(late_handler)
     late_logger.setLevel(logging.INFO)
 

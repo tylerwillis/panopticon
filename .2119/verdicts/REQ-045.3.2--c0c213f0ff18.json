@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.3.2--c0c213f0ff18",
+  "requirementId": "REQ-045.3.2",
+  "hash": "c0c213f0ff18",
+  "verdict": "pass",
+  "summary": "Covers both configured tokens during the active authenticated lifespan across messages, arguments, arbitrary extra fields, exceptions, stacks, and every named logger namespace/root descendant, with repeated-token exact [redacted] assertions and raw-token absence checks.",
+  "timestamp": "2026-08-03T21:00:53.487Z"
+}

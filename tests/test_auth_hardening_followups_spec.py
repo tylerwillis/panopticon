@@ -494,12 +494,14 @@ def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> 
     streams = {name: StringIO() for name in names}
     handlers = {name: logging.StreamHandler(streams[name]) for name in names}
     loggers = {name: logging.getLogger(name) for name in names}
+    previous_states = {name: (loggers[name].disabled, loggers[name].level) for name in names}
     formatter = logging.Formatter(
         "%(message)s %(credential)s %(other_credential)s %(arbitrary_key)s "
         "%(exc_text)s %(stack_info)s"
     )
     for name in names:
         handlers[name].setFormatter(formatter)
+        loggers[name].disabled = False
         loggers[name].setLevel(logging.INFO)
     try:
         with TestClient(_authenticated_app(tmp_path)):
@@ -539,6 +541,7 @@ def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> 
     finally:
         for name in names:
             loggers[name].removeHandler(handlers[name])
+            loggers[name].disabled, loggers[name].level = previous_states[name]
 
     for stream in streams.values():
         observed = stream.getvalue()
