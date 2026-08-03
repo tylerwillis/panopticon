@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.3.3--d78d75f5dc98",
+  "requirementId": "REQ-025.3.3",
+  "hash": "d78d75f5dc98",
+  "verdict": "pass",
+  "summary": "Exact attach commands contain only targeted status decoration followed by attach to the unchanged session, rejecting any rename or target substitution.",
+  "timestamp": "2026-08-03T03:17:20.888Z"
+}

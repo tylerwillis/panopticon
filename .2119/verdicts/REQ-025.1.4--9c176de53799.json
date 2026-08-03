@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.1.4--9c176de53799",
+  "requirementId": "REQ-025.1.4",
+  "hash": "9c176de53799",
+  "verdict": "pass",
+  "summary": "The neither-present matrix case requires the existing session identifier as fallback and verifies that value is written to status-left on the same session being attached.",
+  "timestamp": "2026-08-03T03:17:06.801Z"
+}

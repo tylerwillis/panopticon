@@ -121,7 +121,8 @@ def session_exists(session: str, *, socket: str = TMUX_SOCKET) -> bool:
     """Whether the named tmux session is running on the panopticon socket."""
     return (
         subprocess.run(
-            ["tmux", "-L", socket, "has-session", "-t", session], capture_output=True
+            ["tmux", "-L", socket, *defaults_argv(socket), "has-session", "-t", session],
+            capture_output=True,
         ).returncode
         == 0
     )

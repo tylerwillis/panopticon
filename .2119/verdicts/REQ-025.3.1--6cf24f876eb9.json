@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.3.1--6cf24f876eb9",
+  "requirementId": "REQ-025.3.1",
+  "hash": "6cf24f876eb9",
+  "verdict": "pass",
+  "summary": "Exact local and remote attach argv plus end-to-end target resolution require status-left on the target before the ordered attach subcommand.",
+  "timestamp": "2026-08-03T03:17:19.807Z"
+}

@@ -208,10 +208,12 @@ class ShellRunner(Runner):
             quoted = shlex.quote(env_path)
             lines.extend(
                 [
-                    f"export PANOPTICON_ENV_FILE={quoted}",
                     f"[ -f {quoted} ] && {{ set -a; . {quoted}; set +a; }}",
+                    f"export PANOPTICON_ENV_FILE={quoted}",
                 ]
             )
+        else:
+            lines.append("unset PANOPTICON_ENV_FILE")
         lines.extend(
             [
                 f"export PANOPTICON_SERVICE_URL={shlex.quote(self._service_url)}",
@@ -222,10 +224,19 @@ class ShellRunner(Runner):
                 *(
                     ["export PANOPTICON_SERVICE_AUTH_FILE=" + shlex.quote(str(auth_path))]
                     if auth_path is not None
-                    else []
+                    else ["unset PANOPTICON_SERVICE_AUTH_FILE"]
                 ),
-                *([f"export PANOPTICON_GIT_URL={shlex.quote(git_url)}"] if git_url else []),
-                *([f"export PANOPTICON_REPO_NAME={shlex.quote(repo_name)}"] if repo_name else []),
+                "unset PANOPTICON_SERVICE_AUTH_TOKEN",
+                *(
+                    [f"export PANOPTICON_GIT_URL={shlex.quote(git_url)}"]
+                    if git_url
+                    else ["unset PANOPTICON_GIT_URL"]
+                ),
+                *(
+                    [f"export PANOPTICON_REPO_NAME={shlex.quote(repo_name)}"]
+                    if repo_name
+                    else ["unset PANOPTICON_REPO_NAME"]
+                ),
                 # Load the panopticon shell lib so the script can drive its task (panopticon_advance, …).
                 _TASK_LIB,
                 f"_panopticon_curl --silent --no-buffer {shlex.quote(live_url)} >/dev/null 2>&1 &",
@@ -254,7 +265,10 @@ class ShellRunner(Runner):
             quoted_script = shlex.quote(str(script_path))
             command = f"trap 'rm -f {quoted_script}' EXIT; sh {quoted_script}"
         # Clear any stale session first so a respawn is idempotent (no-op when none exists).
-        self._run(self._tmux("kill-session", "-t", session), check=False)
+        self._run(
+            self._tmux(*defaults_argv(self._tmux_socket), "kill-session", "-t", session),
+            check=False,
+        )
         _report(LifecyclePhase.STARTING)
         # -c sets the pane's start directory (the task's own dir) so the script runs in a known place.
         self._run(

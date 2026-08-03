@@ -29,6 +29,7 @@ class _FakeCompletedProcess:
         self.returncode = returncode
 
 
+# 2119: REQ-030.1.1
 # 2119: REQ-030.3.1
 def test_start_sessions_loads_shipped_tmux_defaults_via_dash_f_for_service_and_runner(
     monkeypatch: pytest.MonkeyPatch,
@@ -66,6 +67,7 @@ def test_start_sessions_places_dash_f_before_new_session(monkeypatch: pytest.Mon
 
     cli._start_sessions(run=fake_run)
 
+    assert calls[0][:4] == ["tmux", "-L", "panopticon", "-f"]
     for tmux_new in (c for c in calls if "new-session" in c):
         assert tmux_new.index("-f") < tmux_new.index("new-session")
 

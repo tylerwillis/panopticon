@@ -75,7 +75,15 @@ def _start_sessions(
         # stream — the join races the reconnect and falls back to the dashboard. Leave it be.
         if (
             do_run(
-                ["tmux", "-L", "panopticon", "has-session", "-t", name],
+                [
+                    "tmux",
+                    "-L",
+                    "panopticon",
+                    *defaults_argv("panopticon"),
+                    "has-session",
+                    "-t",
+                    name,
+                ],
                 capture_output=True,
             ).returncode
             == 0

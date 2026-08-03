@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.1.2--09bb440d4ef4",
+  "requirementId": "REQ-025.1.2",
+  "hash": "09bb440d4ef4",
+  "verdict": "pass",
+  "summary": "The slug-only matrix case requires the exact slug label and verifies that exact value is set as the target tmux session's status-left before attach.",
+  "timestamp": "2026-08-03T03:17:06.399Z"
+}

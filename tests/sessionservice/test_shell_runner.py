@@ -3,6 +3,7 @@ the command runner is a fake that records calls. LLM-free (a shell task runs no 
 
 from __future__ import annotations
 
+import hashlib
 import shutil
 import subprocess
 import time
@@ -50,7 +51,9 @@ def test_spawn_kills_stale_session_then_starts_the_script_in_the_task_dir() -> N
     kill = rec.calls[0]
     new_session = rec.calls[-1]
     # a stale session of the same name is cleared first (idempotent restart)
-    assert kill == ["tmux", "-L", "panopticon", "kill-session", "-t", "panopticon-t1"]
+    assert kill[:3] == ["tmux", "-L", "panopticon"]
+    assert kill[3] == "-f"
+    assert kill[-3:] == ["kill-session", "-t", "panopticon-t1"]
     assert new_session[:3] == ["tmux", "-L", "panopticon"]
     tail = new_session[new_session.index("new-session") :]
     assert tail[:4] == ["new-session", "-d", "-s", "panopticon-t1"]
@@ -135,7 +138,8 @@ def test_spawn_omits_env_sourcing_without_a_file() -> None:
     rec = _Recorder()
     ShellRunner("http://svc:8000", run=rec).spawn("t1", script="echo hi")
     command = rec.calls[-1][-1]
-    assert "set -a" not in command and "PANOPTICON_ENV_FILE" not in command  # no source line
+    assert "set -a" not in command
+    assert "unset PANOPTICON_ENV_FILE" in command  # no repo file may inject a stale path
 
 
 def test_spawn_exports_the_git_url_when_given() -> None:
@@ -152,7 +156,7 @@ def test_spawn_omits_the_git_url_export_without_one() -> None:
     rec = _Recorder()
     ShellRunner("http://svc:8000", run=rec).spawn("t1", script="echo hi")
     command = rec.calls[-1][-1]
-    assert "PANOPTICON_GIT_URL" not in command
+    assert "unset PANOPTICON_GIT_URL" in command
 
 
 def test_spawn_exports_the_repo_name_when_given() -> None:
@@ -167,7 +171,7 @@ def test_spawn_omits_the_repo_name_export_without_one() -> None:
     rec = _Recorder()
     ShellRunner("http://svc:8000", run=rec).spawn("t1", script="echo hi")
     command = rec.calls[-1][-1]
-    assert "PANOPTICON_REPO_NAME" not in command
+    assert "unset PANOPTICON_REPO_NAME" in command
 
 
 def test_minify_shell_drops_full_line_comments_and_blanks_only() -> None:
@@ -278,7 +282,9 @@ def test_spawn_places_dash_f_before_new_session_so_it_applies_at_server_startup(
     monkeypatch.setattr("shutil.which", lambda _tool: None)
     rec = _Recorder()
     ShellRunner("http://svc:8000", run=rec).spawn("t1", script="echo hi")
+    first_tmux = next(c for c in rec.calls if c[0] == "tmux")
     tmux_new = rec.calls[-1]
+    assert first_tmux[:4] == ["tmux", "-L", "panopticon", "-f"]
     assert tmux_new.index("-f") < tmux_new.index("new-session")
 
 
@@ -286,7 +292,26 @@ def test_spawn_places_dash_f_before_new_session_so_it_applies_at_server_startup(
 def test_spawn_applies_no_shipped_defaults_without_a_dedicated_socket() -> None:
     rec = _Recorder()
     ShellRunner("http://svc:8000", tmux_socket=None, run=rec).spawn("t1", script="echo hi")
-    assert not any("-f" in c for c in rec.calls)
+    tmux_calls = [c for c in rec.calls if c[0] == "tmux"]
+    command = tmux_calls[-1][-1]
+    assert hashlib.sha256(command.encode()).hexdigest() == (
+        "a2db93cf06445a9ff8c376cf98766e8cc748b7cb1c3d38936620b3608ef8a8fc"
+    )
+    assert tmux_calls == [
+        ["tmux", "kill-session", "-t", "panopticon-t1"],
+        [
+            "tmux",
+            "new-session",
+            "-d",
+            "-s",
+            "panopticon-t1",
+            "-c",
+            str(Path.home()),
+            "sh",
+            "-c",
+            command,
+        ],
+    ]
 
 
 # -- integration: a real host tmux session (no container) ---------------------------

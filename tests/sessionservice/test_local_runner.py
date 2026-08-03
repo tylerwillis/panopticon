@@ -62,7 +62,9 @@ def test_spawn_runs_detached_container_then_tmux_pane_execing_in() -> None:
         (respawn, _),
     ) = rec.calls
     # clear any stale tmux session first (idempotent — no-op when nothing exists)
-    assert kill_session == ["tmux", "-L", "panopticon", "kill-session", "-t", "panopticon-t1"]
+    assert kill_session[:3] == ["tmux", "-L", "panopticon"]
+    assert kill_session[3] == "-f"
+    assert kill_session[-3:] == ["kill-session", "-t", "panopticon-t1"]
     assert rm == ["docker", "rm", "--force", "panopticon-t1"]  # then clear a stale container
     assert docker_run[:3] == ["docker", "run", "--detach"]
     assert docker_run[-1] == "img:1"  # the image is the final positional arg (its entrypoint runs)
@@ -247,6 +249,8 @@ def test_spawn_resolves_env_file_against_the_runners_secrets_dir() -> None:
     LocalRunner("http://svc", secrets_dir="/host/secrets", run=rec).spawn("t1", env_file="r1.env")
     docker_run = rec.calls[2][0]
     assert docker_run[docker_run.index("--env-file") + 1] == "/host/secrets/r1.env"
+    assert "PANOPTICON_SERVICE_AUTH_FILE=" in docker_run
+    assert "PANOPTICON_SERVICE_AUTH_TOKEN=" in docker_run
 
 
 def test_spawn_rejects_env_file_name_escaping_the_secrets_dir() -> None:
@@ -422,7 +426,9 @@ def test_spawn_places_dash_f_before_new_session_so_it_applies_at_server_startup(
     monkeypatch.setattr("shutil.which", lambda _tool: None)
     rec = _Recorder()
     LocalRunner("http://svc", run=rec).spawn("t1")
+    first_tmux = next(c for c, _ in rec.calls if c[0] == "tmux")
     tmux_new = next(c for c, _ in rec.calls if "new-session" in c)
+    assert first_tmux[:4] == ["tmux", "-L", "panopticon", "-f"]
     assert tmux_new.index("-f") < tmux_new.index("new-session")
 
 
@@ -432,7 +438,37 @@ def test_spawn_applies_no_shipped_defaults_without_a_dedicated_socket() -> None:
     # operator's own personal server, which panopticon's shipped defaults must never touch.
     rec = _Recorder()
     LocalRunner("http://svc", tmux_socket=None, run=rec).spawn("t1")
-    assert not any("-f" in c for c, _ in rec.calls)
+    tmux_calls = [c for c, _ in rec.calls if c[0] == "tmux"]
+    assert tmux_calls == [
+        ["tmux", "kill-session", "-t", "panopticon-t1"],
+        ["tmux", "new-session", "-d", "-s", "panopticon-t1", "sleep 86400"],
+        ["tmux", "display-message", "-p", "-t", "panopticon-t1", "#{pane_id}"],
+        [
+            "tmux",
+            "pipe-pane",
+            "-O",
+            "-t",
+            "%1",
+            readiness_watch_command(readiness_log("panopticon-t1")),
+        ],
+        [
+            "tmux",
+            "respawn-pane",
+            "-k",
+            "-t",
+            "%1",
+            "docker",
+            "exec",
+            "--interactive",
+            "--tty",
+            "--user",
+            "panopticon",
+            "panopticon-t1",
+            "python",
+            "-m",
+            "panopticon.container.agent",
+        ],
+    ]
 
 
 # -- integration: real docker + tmux ------------------------------------------------

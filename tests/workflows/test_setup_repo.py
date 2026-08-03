@@ -116,6 +116,7 @@ def test_setup_repo_control_plane_calls_use_runtime_auth_without_argv_leak(tmp_p
     stdin = tmp_path / "curl-stdin"
     shell = f"""
 curl() {{
+    printf 'CALL\n' >> {stdin}
     cat >> {stdin}
     printf 'CALL\\n%s\\n' "$*" >> {argv}
     case "$*" in
@@ -148,7 +149,8 @@ printf '%s\\n' "$repo_id:$default_harness"
     assert "/repos/repo" in calls[2] and "--request PATCH" in calls[2]
     assert '--data {"credential_dir": "openai.d"}' in calls[2]
     assert token not in "".join(calls)
-    assert stdin.read_text().count(f'header = "Authorization: Bearer {token}"') == 3
+    inputs = stdin.read_text().split("CALL\n")[1:]
+    assert inputs == [f'header = "Authorization: Bearer {token}"\n'] * 3
 
 
 def test_shell_runner_pins_auth_after_conflicting_repo_environment(tmp_path: Path) -> None:
@@ -160,9 +162,11 @@ def test_shell_runner_pins_auth_after_conflicting_repo_environment(tmp_path: Pat
     repo_env.write_text(
         "PANOPTICON_SERVICE_AUTH_FILE=/wrong/auth.json\n"
         "PANOPTICON_SERVICE_URL=http://wrong\nPANOPTICON_TASK_ID=wrong\n"
+        "PANOPTICON_ENV_FILE=/wrong/write.env\n"
     )
     argv = tmp_path / "curl-argv"
     stdin = tmp_path / "curl-stdin"
+    runtime = tmp_path / "runtime-environment"
     emitted: list[list[str]] = []
 
     def record(args: list[str], **_kwargs: object) -> str:
@@ -171,6 +175,7 @@ def test_shell_runner_pins_auth_after_conflicting_repo_environment(tmp_path: Pat
 
     script = f"""
 curl() {{
+    printf 'CALL\n' >> {stdin}
     cat >> {stdin}
     printf 'CALL\\n%s\\n' "$*" >> {argv}
     case "$*" in
@@ -182,6 +187,7 @@ curl() {{
 {_LIB}
 load_repo_auth_context
 set_repo_credential_dir openai.d
+printf '%s\n%s\n%s\n' "$PANOPTICON_ENV_FILE" "$PANOPTICON_SERVICE_URL" "$PANOPTICON_TASK_ID" > {runtime}
 """
     ShellRunner(
         "http://service",
@@ -197,7 +203,44 @@ set_repo_credential_dir openai.d
     assert len(calls) == 3
     assert all("http://wrong" not in call and "/wrong" not in call for call in calls)
     assert all(token not in call for call in calls)
-    assert stdin.read_text().count(f'header = "Authorization: Bearer {token}"') == 3
+    inputs = stdin.read_text().split("CALL\n")[1:]
+    assert inputs == [f'header = "Authorization: Bearer {token}"\n'] * 3
+    assert runtime.read_text().splitlines() == [str(repo_env), "http://service", "task"]
+
+
+def test_shell_runner_unsets_repo_auth_override_when_service_auth_is_disabled(
+    tmp_path: Path,
+) -> None:
+    repo_env = tmp_path / "repo.env"
+    repo_env.write_text(
+        "PANOPTICON_SERVICE_AUTH_FILE=/wrong/auth.json\n"
+        "PANOPTICON_SERVICE_AUTH_TOKEN=wrong-token\n"
+        "PANOPTICON_ENV_FILE=/wrong/write.env\n"
+        "PANOPTICON_GIT_URL=https://wrong.invalid/repo\n"
+        "PANOPTICON_REPO_NAME=wrong-repo\n"
+    )
+    runtime = tmp_path / "runtime-environment"
+    emitted: list[list[str]] = []
+
+    ShellRunner(
+        "http://service",
+        secrets_dir=tmp_path,
+        script_dir=tmp_path,
+        run=lambda args, **_kwargs: emitted.append(args) or "",
+    ).spawn(
+        "task",
+        env_file=repo_env.name,
+        script=(
+            f"printf '%s\\n%s\\n%s\\n%s\\n%s\\n' \"$PANOPTICON_ENV_FILE\" "
+            f'"${{PANOPTICON_SERVICE_AUTH_FILE-unset}}" '
+            f'"${{PANOPTICON_SERVICE_AUTH_TOKEN-unset}}" '
+            f'"${{PANOPTICON_GIT_URL-unset}}" "${{PANOPTICON_REPO_NAME-unset}}" > {runtime}'
+        ),
+    )
+    command = next(call[-1] for call in emitted if "new-session" in call)
+    subprocess.run(["sh", "-c", command], env={"PATH": "/usr/bin:/bin"}, check=True)
+
+    assert runtime.read_text().splitlines() == [str(repo_env), "unset", "unset", "unset", "unset"]
 
 
 def test_harness_auth_dispatch_routes_the_approved_harnesses() -> None:

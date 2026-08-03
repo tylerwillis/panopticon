@@ -276,6 +276,11 @@ class LocalRunner(Runner):
             )
             docker_run += ["--volume", f"{auth_snapshot}:{SERVICE_AUTH_MOUNT}:ro"]
             env["PANOPTICON_SERVICE_AUTH_FILE"] = SERVICE_AUTH_MOUNT
+        else:
+            # An env-file belongs to the repo and must not opt a task into a stale or attacker-
+            # controlled control-plane credential when this runner has authentication disabled.
+            env["PANOPTICON_SERVICE_AUTH_FILE"] = ""
+        env["PANOPTICON_SERVICE_AUTH_TOKEN"] = ""
         for key, value in env.items():
             docker_run += ["--env", f"{key}={value}"]
         docker_run.append(
@@ -285,7 +290,10 @@ class LocalRunner(Runner):
         # live force-respawn (dashboard `R` kills and restarts). Both are no-ops when nothing
         # exists, so spawn is fully idempotent. (`stop()` does the same pair.)
         try:
-            self._run(self._tmux("kill-session", "-t", container), check=False)
+            self._run(
+                self._tmux(*defaults_argv(self._tmux_socket), "kill-session", "-t", container),
+                check=False,
+            )
             self._run(["docker", "rm", "--force", container], check=False)
             _report(LifecyclePhase.STARTING)  # docker run + the tmux session coming up
             self._run(docker_run)

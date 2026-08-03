@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.1.1--ca3889ece064",
+  "requirementId": "REQ-030.1.1",
+  "hash": "ca3889ece064",
+  "verdict": "pass",
+  "summary": "Every dedicated-socket session creation path loads the complete config, and fresh real-tmux runner/config tests verify mouse is effectively on for the created session.",
+  "timestamp": "2026-08-03T03:21:10.602Z"
+}
