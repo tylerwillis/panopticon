@@ -313,8 +313,14 @@ class TaskService:
     # -- repos --------------------------------------------------------------------
 
     async def create_repo(self, repo: Repo) -> Repo:
-        for field in ("honesty_reviewer", "reviewer_1", "reviewer_2"):
-            setattr(repo, field, self._normalize_reviewer_override(field, getattr(repo, field)))
+        repo = replace(
+            repo,
+            honesty_reviewer=self._normalize_reviewer_override(
+                "honesty_reviewer", repo.honesty_reviewer
+            ),
+            reviewer_1=self._normalize_reviewer_override("reviewer_1", repo.reviewer_1),
+            reviewer_2=self._normalize_reviewer_override("reviewer_2", repo.reviewer_2),
+        )
         await self._validate_env_file(repo.env_file)
         self._validate_harness_name(repo.default_harness)
         self._validate_repo_harness_model(repo)

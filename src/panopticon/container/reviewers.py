@@ -22,6 +22,7 @@ from panopticon.harnesses.base import (
     ReviewerConfig,
     ReviewerDispatchError,
     parse_reviewer_config,
+    render_reviewer_command,
     validate_reviewer_config,
 )
 
@@ -49,13 +50,7 @@ def resolve_honesty_reviewer(default: ReviewerConfig, environ: Mapping[str, str]
 def honesty_reviewer_command(default: ReviewerConfig, environ: Mapping[str, str]) -> str:
     """Render the executable reviewer command selected inside the task container."""
 
-    config = resolve_honesty_reviewer(default, environ)
-    if config.harness == "claude":
-        return (
-            "claude --print --output-format json --safe-mode "
-            f"--dangerously-skip-permissions --model {config.model}"
-        )
-    return f"codex exec --dangerously-bypass-approvals-and-sandbox -m {config.model}"
+    return render_reviewer_command(resolve_honesty_reviewer(default, environ))
 
 
 @dataclass(frozen=True)

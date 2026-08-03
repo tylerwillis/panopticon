@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import importlib.resources
+import shlex
 from collections.abc import Iterator, Sequence
 from dataclasses import fields
 from pathlib import Path
@@ -14,7 +15,7 @@ import pytest
 from alembic import command
 from alembic.config import Config
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, inspect
+from sqlalchemy import create_engine, inspect, text
 from textual.app import App
 from textual.widgets import Input
 
@@ -160,6 +161,16 @@ def test_rendered_spec_skill_resolves_honesty_reviewer_inside_container(
         "claude --print --output-format json --safe-mode "
         "--dangerously-skip-permissions --model claude-opus-5"
     )
+    malicious_model = "provider model; touch /tmp/not-a-command"
+    monkeypatch.setenv("PANOPTICON_2119_HONESTY_REVIEWER", f"codex:{malicious_model}")
+    assert main(["honesty-command", "--default", "claude:claude-fable-5"]) == 0
+    assert shlex.split(capsys.readouterr().out.strip()) == [
+        "codex",
+        "exec",
+        "--dangerously-bypass-approvals-and-sandbox",
+        "-m",
+        malicious_model,
+    ]
 
 
 def test_repo_reviewer_overrides_persist_through_api_and_store(client: TestClient) -> None:
@@ -188,11 +199,21 @@ def test_repo_reviewer_overrides_persist_through_api_and_store(client: TestClien
         "reviewer_1": "codex:provider/model:high",
         "reviewer_2": "claude:claude-fable-5",
     }
-    patched = client.patch("/repos/r2", json={"reviewer_2": "codex:gpt-5.6-sol:medium"})
-    assert patched.status_code == 200, patched.text
-    assert patched.json()["honesty_reviewer"] == "claude:claude-opus-5"
-    assert patched.json()["reviewer_1"] == "codex:provider/model:high"
-    assert patched.json()["reviewer_2"] == "codex:gpt-5.6-sol:medium"
+    current = {
+        "honesty_reviewer": "claude:claude-opus-5",
+        "reviewer_1": "codex:provider/model:high",
+        "reviewer_2": "claude:claude-fable-5",
+    }
+    updates = {
+        "honesty_reviewer": "codex:gpt-5.6-sol",
+        "reviewer_1": "claude:claude-opus-5",
+        "reviewer_2": "codex:gpt-5.6-sol:medium",
+    }
+    for name, value in updates.items():
+        patched = client.patch("/repos/r2", json={name: value})
+        assert patched.status_code == 200, patched.text
+        current[name] = value
+        assert {field: patched.json()[field] for field in names} == current
     for name in names:
         cleared = client.patch("/repos/r2", json={name: None})
         assert cleared.status_code == 200, cleared.text
@@ -299,12 +320,14 @@ async def test_repo_form_exposes_all_reviewer_override_fields() -> None:
         assert app.screen.query_one("#field-honesty_reviewer", Input).value == (
             "claude:claude-opus-5"
         )
-        app.screen.query_one("#field-honesty_reviewer", Input).value = "codex:gpt-5.6-sol"
+        assert app.screen.query_one("#field-reviewer_1", Input).value == "codex:gpt-5.6-sol:high"
+        assert app.screen.query_one("#field-reviewer_2", Input).value == ""
+        app.screen.query_one("#field-honesty_reviewer", Input).value = ""
         app.screen.query_one("#field-reviewer_1", Input).value = "claude:claude-fable-5"
         app.screen.query_one("#field-reviewer_2", Input).value = "codex:gpt-5.6-sol:medium"
         await pilot.press("ctrl+s")
         await pilot.pause()
-    assert saved[0]["honesty_reviewer"] == "codex:gpt-5.6-sol"
+    assert saved[0]["honesty_reviewer"] is None
     assert saved[0]["reviewer_1"] == "claude:claude-fable-5"
     assert saved[0]["reviewer_2"] == "codex:gpt-5.6-sol:medium"
 
@@ -370,6 +393,35 @@ def test_migration_adds_nullable_repo_reviewer_columns(tmp_path: Path) -> None:
     assert all(columns[name]["nullable"] for name in names)
 
 
+def test_migration_preserves_existing_repo_from_prior_revision(tmp_path: Path) -> None:
+    # 2119: REQ-045.2.1
+    url = f"sqlite:///{tmp_path / 'upgrade.db'}"
+    config = _alembic_config(url)
+    command.upgrade(config, "a3f8c21d4e90")
+    engine = create_engine(url)
+    try:
+        with engine.begin() as connection:
+            connection.execute(
+                text(
+                    "INSERT INTO repo "
+                    "(id, name, git_url, default_base, capabilities, enabled_workflows, "
+                    "disabled_workflows) VALUES "
+                    "('existing', 'existing', 'https://x/existing', 'main', '{}', '[]', '[]')"
+                )
+            )
+        command.upgrade(config, "head")
+        with engine.connect() as connection:
+            row = connection.execute(
+                text(
+                    "SELECT honesty_reviewer, reviewer_1, reviewer_2 "
+                    "FROM repo WHERE id = 'existing'"
+                )
+            ).one()
+        assert tuple(row) == (None, None, None)
+    finally:
+        engine.dispose()
+
+
 class _Recorder:
     def __init__(self) -> None:
         self.calls: list[list[str]] = []
@@ -431,18 +483,40 @@ def test_spawn_renders_repo_reviewer_overrides_after_env_file() -> None:
         assert value_index > empty_env_value_index
         assert empty_run[value_index - 1] == "--env"
 
-    mixed_recorder = _Recorder()
-    LocalRunner("http://svc", run=mixed_recorder).spawn("t3", reviewer_1="codex:one")
-    mixed_run = next(call for call in mixed_recorder.calls if call[:2] == ["docker", "run"])
-    assert [item for item in mixed_run if item.startswith("PANOPTICON_2119_HONESTY_REVIEWER=")] == [
-        "PANOPTICON_2119_HONESTY_REVIEWER="
-    ]
-    assert [item for item in mixed_run if item.startswith("PANOPTICON_2119_REVIEWER_1=")] == [
-        "PANOPTICON_2119_REVIEWER_1=codex:one"
-    ]
-    assert [item for item in mixed_run if item.startswith("PANOPTICON_2119_REVIEWER_2=")] == [
-        "PANOPTICON_2119_REVIEWER_2="
-    ]
+    mixed_cases = (
+        (
+            {"honesty_reviewer": "claude:one"},
+            ("claude:one", "", ""),
+        ),
+        (
+            {"reviewer_1": "codex:one"},
+            ("", "codex:one", ""),
+        ),
+        (
+            {"reviewer_2": "claude:two"},
+            ("", "", "claude:two"),
+        ),
+    )
+    names = (
+        "PANOPTICON_2119_HONESTY_REVIEWER",
+        "PANOPTICON_2119_REVIEWER_1",
+        "PANOPTICON_2119_REVIEWER_2",
+    )
+    for index, (overrides, expected) in enumerate(mixed_cases, 3):
+        mixed_recorder = _Recorder()
+        LocalRunner("http://svc", secrets_dir="/host/secrets", run=mixed_recorder).spawn(
+            f"t{index}",
+            env_file="r1.env",
+            **overrides,  # type: ignore[arg-type]
+        )
+        mixed_run = next(call for call in mixed_recorder.calls if call[:2] == ["docker", "run"])
+        assert mixed_run.count("--env-file") == 1
+        env_file_index = mixed_run.index("--env-file")
+        assert mixed_run[env_file_index + 1] == "/host/secrets/r1.env"
+        for name, value in zip(names, expected, strict=True):
+            assignments = [item for item in mixed_run if item.startswith(f"{name}=")]
+            assert assignments == [f"{name}={value}"]
+            assert mixed_run.index(assignments[0]) > env_file_index
 
     captured: dict[str, Any] = {}
     spawner = object.__new__(Spawner)

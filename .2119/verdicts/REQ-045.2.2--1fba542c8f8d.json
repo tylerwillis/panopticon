@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.2.2--1fba542c8f8d",
+  "requirementId": "REQ-045.2.2",
+  "hash": "1fba542c8f8d",
+  "verdict": "pass",
+  "summary": "Create and patch tests reject malformed, missing-component, and unsupported reviewer pairs for every override field with field-specific remediation, while preserving the blank boundary.",
+  "timestamp": "2026-08-03T21:35:31.367Z"
+}

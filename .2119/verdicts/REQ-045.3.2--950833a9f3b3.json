@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.3.2--950833a9f3b3",
+  "requirementId": "REQ-045.3.2",
+  "hash": "950833a9f3b3",
+  "verdict": "pass",
+  "summary": "Tests genuinely cover per-slot override precedence, blank fallback, first-colon splitting, invalid defaults/overrides, and rejection before any reviewer command runs.",
+  "timestamp": "2026-08-03T21:35:15.474Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.1.2--fd49d3c55eb5",
+  "requirementId": "REQ-045.1.2",
+  "hash": "fd49d3c55eb5",
+  "verdict": "pass",
+  "summary": "Tests reject blank-env override, hardcoded-Codex fallback, ignored valid override, and malformed pair violations through direct and rendered container command resolution.",
+  "timestamp": "2026-08-03T21:34:59.400Z"
+}

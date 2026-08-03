@@ -11,6 +11,7 @@ from panopticon.harnesses.base import (
     HONESTY_REVIEWER_ENV,
     ReviewerConfig,
     parse_reviewer_config,
+    render_reviewer_command,
     validate_reviewer_config,
 )
 from panopticon.harnesses.codex import CodexHarness
@@ -277,12 +278,7 @@ class _Spec2119Workflow(GithubForgeWorkflow):
             if override is not None and override.strip()
             else self.honesty_reviewer
         )
-        if config.harness == "claude":
-            return (
-                "claude --print --output-format json --safe-mode "
-                f"--dangerously-skip-permissions --model {config.model}"
-            )
-        return f"codex exec --dangerously-bypass-approvals-and-sandbox -m {config.model}"
+        return render_reviewer_command(config)
 
     def _spec_skill(self) -> Skill:
         return Skill(

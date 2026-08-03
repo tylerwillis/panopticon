@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.1.1--e71d425f7255",
+  "requirementId": "REQ-045.1.1",
+  "hash": "e71d425f7255",
+  "verdict": "pass",
+  "summary": "Tests reject missing or non-Sol built-in defaults and prove subclass honesty overrides remain independent in both directions from stage-4 reviewers and Fable selection.",
+  "timestamp": "2026-08-03T21:34:55.555Z"
+}

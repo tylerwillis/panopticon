@@ -15,6 +15,7 @@ session service look the name up here when they need the CLI's mechanics.
 
 from __future__ import annotations
 
+import shlex
 from abc import ABC, abstractmethod
 from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
@@ -102,6 +103,19 @@ def validate_reviewer_config(config: ReviewerConfig, *, label: str = "reviewer")
             f"invalid {label}",
             requested_model=config.model,
         )
+
+
+def render_reviewer_command(config: ReviewerConfig) -> str:
+    """Render one validated reviewer pair as a shell-safe task-container command."""
+
+    validate_reviewer_config(config)
+    model = shlex.quote(config.model)
+    if config.harness == "claude":
+        return (
+            "claude --print --output-format json --safe-mode "
+            f"--dangerously-skip-permissions --model {model}"
+        )
+    return f"codex exec --dangerously-bypass-approvals-and-sandbox -m {model}"
 
 
 def task_id_note(task_id: str) -> str:
