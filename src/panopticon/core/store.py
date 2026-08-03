@@ -161,9 +161,7 @@ class Store(ABC):
         return result
 
     async def put_session_transcript(self, transcript: SessionTranscript) -> SessionTranscript:
-        result = await self._put_session_transcript(transcript)
-        self._bump_version()
-        return result
+        return await self._put_session_transcript(transcript)
 
     async def get_session_transcript(self, task_id: str) -> SessionTranscript | None:
         return await self._get_session_transcript(task_id)

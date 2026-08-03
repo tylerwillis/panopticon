@@ -779,6 +779,7 @@ def test_transcript_is_readable_bounded_structured_stale_and_unredacted(
     with client as http:
         task_id = _live_user_task(service, http)
         empty = http.get(f"/tasks/{task_id}/session/transcript", headers=_auth(READ))
+        version_before_publish = service.tasks_version()
         published = http.put(
             f"/tasks/{task_id}/session/transcript",
             headers=_auth(WRITE),
@@ -790,6 +791,7 @@ def test_transcript_is_readable_bounded_structured_stale_and_unredacted(
                 "truncated": False,
             },
         )
+        version_after_publish = service.tasks_version()
         latest_text = "\r\n newest password=hunter2 Authorization: Bearer secret sk-test λ \n"
         latest = http.put(
             f"/tasks/{task_id}/session/transcript",
@@ -836,6 +838,7 @@ def test_transcript_is_readable_bounded_structured_stale_and_unredacted(
     assert empty.status_code == 503
     assert empty.json() == {"detail": "session transcript unavailable"}
     assert published.status_code == latest.status_code == 200
+    assert version_after_publish == version_before_publish
     assert forbidden_publish.status_code == 401
     assert missing_publish.status_code == 401
     assert wrong_runner_publish.status_code == 409

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-044.6.1--46fac787d1bc",
+  "requirementId": "REQ-044.6.1",
+  "hash": "46fac787d1bc",
+  "verdict": "pass",
+  "summary": "All five operations are asserted successful while executable discovery returns none and process/socket access raises, so any tmux/Docker host dependency fails the test.",
+  "timestamp": "2026-08-03T19:05:05.164Z"
+}
