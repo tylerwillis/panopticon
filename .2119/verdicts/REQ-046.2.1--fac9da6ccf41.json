@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-046.2.1--fac9da6ccf41",
+  "requirementId": "REQ-046.2.1",
+  "hash": "fac9da6ccf41",
+  "verdict": "pass",
+  "summary": "The integrated startup command test covers Linux and Windows with PANOPTICON_HOST both unset and empty, and requires exactly one --host value equal to 0.0.0.0.",
+  "timestamp": "2026-08-03T23:28:58.568Z"
+}

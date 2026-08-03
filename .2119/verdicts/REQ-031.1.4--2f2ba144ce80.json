@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.1.4--2f2ba144ce80",
+  "requirementId": "REQ-031.1.4",
+  "hash": "2f2ba144ce80",
+  "verdict": "pass",
+  "summary": "Real subprocess tests force Docker preflight failure for both start and host and reject the sole boundary violation, OS exit status 0.",
+  "timestamp": "2026-08-03T23:27:40.791Z"
+}

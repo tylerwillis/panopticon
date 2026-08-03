@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-046.5.1--ac0cfd01171a",
+  "requirementId": "REQ-046.5.1",
+  "hash": "ac0cfd01171a",
+  "verdict": "pass",
+  "summary": "Exact normalized-paragraph equality rejects every omitted, added, substituted, or reordered word while permitting only Markdown source line wrapping.",
+  "timestamp": "2026-08-03T23:29:42.206Z"
+}

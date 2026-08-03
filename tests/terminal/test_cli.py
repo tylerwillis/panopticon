@@ -236,6 +236,7 @@ def test_start_actually_starts_both_sessions_with_their_real_commands_when_reach
     # both detached — an exact argv match, not a substring, so a mutant that keeps the names but
     # swaps in an inert/wrong/foregrounded command is caught too.
     # 2119: REQ-031.1.5
+    # 2119: REQ-035.29.1
     state_root = tmp_path / "state"
     with (
         patch.dict(
@@ -257,6 +258,7 @@ def test_host_actually_starts_both_sessions_with_their_real_commands_when_reacha
     # Same as above for `panopticon host` — a wiring bug that starts only one session, drops
     # detachment, or uses the wrong command for this entry point specifically must be caught too.
     # 2119: REQ-031.1.5
+    # 2119: REQ-035.29.1
     state_root = tmp_path / "state"
     with (
         patch.dict(

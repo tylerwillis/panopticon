@@ -822,6 +822,7 @@ def test_integrated_stack_uses_private_per_user_state_logs(
         assert argv[-3:-1] == ["-m", "panopticon.terminal.log_tee"]
         log_path = Path(argv[-1])
         log_path.relative_to(expected_root)
+        assert log_path.parent == expected_root
         paths.append(log_path)
         assert "2>&1" in command and "|" in argv
         assert stat.S_IMODE(log_path.stat().st_mode) == 0o600
@@ -924,6 +925,9 @@ def test_private_log_tee_forwards_available_output_without_waiting_for_eof(
     finally:
         process.stdin.close()
         process.wait(timeout=2)
+
+    assert process.returncode == 0
+    assert log_path.read_bytes() == b"live-line\n"
 
 
 def test_private_log_tee_keeps_forwarding_after_persistence_fails() -> None:

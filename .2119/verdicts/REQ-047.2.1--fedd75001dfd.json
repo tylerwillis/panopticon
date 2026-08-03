@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.2.1--fedd75001dfd",
+  "requirementId": "REQ-047.2.1",
+  "hash": "fedd75001dfd",
+  "verdict": "pass",
+  "summary": "Tests cover both terminal states with an exited container, remove multiple task snapshots while preserving another task's snapshot, and reject any tmux/docker stop command.",
+  "timestamp": "2026-08-03T23:30:27.010Z"
+}

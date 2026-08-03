@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.4.3--ec798e86d3a6",
+  "requirementId": "REQ-047.4.3",
+  "hash": "ec798e86d3a6",
+  "verdict": "pass",
+  "summary": "Tests reject missing service/runner coverage, pane-only or log-only output, buffering until EOF, and non-identical stdout/stderr copies while asserting private log paths and modes.",
+  "timestamp": "2026-08-03T23:31:51.735Z"
+}

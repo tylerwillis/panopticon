@@ -41,6 +41,8 @@ def test_spawn_rejects_missing_service_credential_before_docker(
     secrets.mkdir()
     credential = secrets / "task-service-auth.json"
     original_stat = None
+    symlink_stat = None
+    target_stat = None
     if existing_kind == "directory":
         credential.mkdir()
         (credential / "sentinel").write_text("unchanged")
@@ -56,6 +58,8 @@ def test_spawn_rejects_missing_service_credential_before_docker(
         target = secrets / "target.json"
         target.write_text("unchanged")
         credential.symlink_to(target)
+        symlink_stat = credential.lstat()
+        target_stat = target.stat()
     elif existing_kind == "malformed":
         credential.write_text('{"read": [], "write": ["token"]}')
         credential.chmod(0o600)
@@ -89,7 +93,15 @@ def test_spawn_rejects_missing_service_credential_before_docker(
         assert stat.S_ISSOCK(credential.stat().st_mode)
         bound_socket.close()
     elif existing_kind == "symlink":
+        assert symlink_stat is not None
+        assert target_stat is not None
         assert credential.is_symlink()
         assert credential.readlink() == target
+        assert (credential.lstat().st_dev, credential.lstat().st_ino) == (
+            symlink_stat.st_dev,
+            symlink_stat.st_ino,
+        )
+        assert target.stat() == target_stat
+        assert target.read_text() == "unchanged"
     else:
         assert credential.is_file()
