@@ -77,6 +77,9 @@ class _FakeRunner:
         harness: str | None = None,
         config_mount: str = "/home/panopticon/.claude",
         credential_dir: str | None = None,
+        honesty_reviewer: str | None = None,
+        reviewer_1: str | None = None,
+        reviewer_2: str | None = None,
         progress: Callable[[LifecyclePhase], None] | None = None,
     ) -> str:
         self.spawned.append(
@@ -92,6 +95,9 @@ class _FakeRunner:
                 "harness": harness,
                 "config_mount": config_mount,
                 "credential_dir": credential_dir,
+                "honesty_reviewer": honesty_reviewer,
+                "reviewer_1": reviewer_1,
+                "reviewer_2": reviewer_2,
             }
         )
         if progress is not None:  # the real runner reports these two sub-steps

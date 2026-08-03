@@ -249,6 +249,9 @@ class LocalRunner(Runner):
         harness: str | None = None,
         config_mount: str = CONFIG_MOUNT,
         credential_dir: str | None = None,
+        honesty_reviewer: str | None = None,
+        reviewer_1: str | None = None,
+        reviewer_2: str | None = None,
         progress: Callable[[LifecyclePhase], None] | None = None,
     ) -> str:
         """Spawn the task container. ``env_file`` is the task's repo's secret reference (ADR
@@ -307,8 +310,16 @@ class LocalRunner(Runner):
             "PANOPTICON_HARNESS": "",
             "PANOPTICON_CREDENTIALS": "",
             "PANOPTICON_DOCKER_IN_DOCKER": "",
+            "PANOPTICON_2119_HONESTY_REVIEWER": "",
+            "PANOPTICON_2119_REVIEWER_1": "",
+            "PANOPTICON_2119_REVIEWER_2": "",
             **self._extra_env,
         }
+        # These are repo settings, not secrets. Render them after the env-file transport so an
+        # explicit empty value also prevents a credentials file from becoming a config surface.
+        env["PANOPTICON_2119_HONESTY_REVIEWER"] = honesty_reviewer or ""
+        env["PANOPTICON_2119_REVIEWER_1"] = reviewer_1 or ""
+        env["PANOPTICON_2119_REVIEWER_2"] = reviewer_2 or ""
         if initial_prompt:
             # The agent launcher reads this and passes it as a positional arg to `claude` on the
             # first run (no prior session), so the agent's first action is to process the prompt.

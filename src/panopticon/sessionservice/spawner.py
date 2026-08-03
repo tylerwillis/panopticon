@@ -343,6 +343,9 @@ class Spawner:
                 harness=task.get("harness"),  # which agent CLI the launcher runs (None = claude)
                 config_mount=f"{CONTAINER_HOME}/{harness.config_dirname}",
                 credential_dir=repo.get("credential_dir"),  # shared credential mount (ADR 0007)
+                honesty_reviewer=repo.get("honesty_reviewer"),
+                reviewer_1=repo.get("reviewer_1"),
+                reviewer_2=repo.get("reviewer_2"),
                 progress=lambda phase: self._report(task_id, phase),  # STARTING then AWAITING
             )
         except subprocess.CalledProcessError as exc:
