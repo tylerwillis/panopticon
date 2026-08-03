@@ -591,8 +591,10 @@ class Spawner:
             return
         backend = self._runner_for(task)
         container_runner = getattr(self, "_runner", None)
-        if container_runner is not None and backend is container_runner and not backend.is_running(
-            task["id"]
+        if (
+            container_runner is not None
+            and backend is container_runner
+            and not backend.is_running(task["id"])
         ):
             # The container has already exited. Credentials cannot remain on disk, but preserve the
             # stopped container and pane until the next spawn so operators retain post-mortem output.

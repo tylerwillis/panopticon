@@ -483,6 +483,7 @@ def test_mcp_tool_arguments_never_log_or_return_configured_tokens(
         )
         stack_record.stack_info = f"stack carried {WRITE_TOKEN}"
         logging.getLogger(stack_record.name).handle(stack_record)
+
     headers = {
         **_bearer(WRITE_TOKEN),
         "Content-Type": "application/json",

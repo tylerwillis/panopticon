@@ -47,6 +47,8 @@ from panopticon.taskservice.service import (
 
 MAX_AUTH_INSPECTION_BODY_BYTES = 8 * 1024 * 1024
 _log = logging.getLogger(__name__)
+
+
 def _redact_log_value(value: Any, tokens: tuple[str, ...]) -> Any:
     if isinstance(value, str):
         for token in tokens:
@@ -708,9 +710,7 @@ def create_app(
         route_path = get_route_path(request.scope)
         if not route_path.startswith("/"):
             route_path = f"/{route_path}"
-        if mode == "disabled" or (
-            request.method in {"GET", "HEAD"} and route_path == "/healthz"
-        ):
+        if mode == "disabled" or (request.method in {"GET", "HEAD"} and route_path == "/healthz"):
             return await call_next(request)
         authorization = request.headers.get("authorization")
         if mode == "permissive" and authorization is None:
