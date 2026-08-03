@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.37.1--e77b64f36238",
+  "requirementId": "REQ-035.37.1",
+  "hash": "e77b64f36238",
+  "verdict": "pass",
+  "summary": "Executes the rendered REST command without credentials against permissive mode, rejects any Authorization header presence, and proves admission by storing the artifact.",
+  "timestamp": "2026-08-03T22:00:57.672Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.29.1--5ddf1c34fe9d",
+  "requirementId": "REQ-035.29.1",
+  "hash": "5ddf1c34fe9d",
+  "verdict": "pass",
+  "summary": "Tests reject missing, duplicate, or non-0.0.0.0 integrated host arguments and reject any standalone no-env default other than 127.0.0.1 at the launch boundary.",
+  "timestamp": "2026-08-03T22:00:05.963Z"
+}

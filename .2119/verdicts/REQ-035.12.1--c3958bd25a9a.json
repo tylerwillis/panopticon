@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.12.1--c3958bd25a9a",
+  "requirementId": "REQ-035.12.1",
+  "hash": "c3958bd25a9a",
+  "verdict": "pass",
+  "summary": "Covers absent and empty credential references, all registered protected REST operations, REST 404 validation, and GET/POST/DELETE MCP validation including malformed requests, rejecting the generic authentication failure in every case.",
+  "timestamp": "2026-08-03T21:58:15.622Z"
+}

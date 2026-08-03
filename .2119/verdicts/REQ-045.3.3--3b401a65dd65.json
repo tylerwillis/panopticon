@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.3.3--3b401a65dd65",
+  "requirementId": "REQ-045.3.3",
+  "hash": "3b401a65dd65",
+  "verdict": "pass",
+  "summary": "Rotation tests remove generations from the credential file, restart the app, reject removed-generation capabilities across tasks and routes, and preserve retained-generation read/write access.",
+  "timestamp": "2026-08-03T21:48:33.107Z"
+}

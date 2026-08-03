@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.10.1--f159d0af262d",
+  "requirementId": "REQ-045.10.1",
+  "hash": "f159d0af262d",
+  "verdict": "pass",
+  "summary": "Cross-origin GET /tasks accepts the exact Bearer header, rejects malformed header shapes, and rejects every named query, cookie, JSON, and alternate-header channel both alone and alongside a valid header.",
+  "timestamp": "2026-08-03T21:46:40.312Z"
+}

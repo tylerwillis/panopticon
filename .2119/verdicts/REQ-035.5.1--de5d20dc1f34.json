@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.5.1--de5d20dc1f34",
+  "requirementId": "REQ-035.5.1",
+  "hash": "de5d20dc1f34",
+  "verdict": "pass",
+  "summary": "Dynamic route enumeration plus docs GET/HEAD coverage rejects any endpoint that returns the generic auth-failure response for current, rotated, or opaque write tokens.",
+  "timestamp": "2026-08-03T22:05:13.335Z"
+}

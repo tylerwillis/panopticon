@@ -80,7 +80,7 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 
 ### REQ-035.17: Container callers
 
-1. Every Docker or shell task spawned without a repo `env_file` MUST receive the task-service write credential through a separate runtime secret and use it for shared-client, liveness, and shell-library requests.
+1. Every Docker or shell task spawned without a repo `env_file` MUST receive its task-service credential through a separate runtime secret and use it for shared-client, liveness, and shell-library requests.
 
 ### REQ-035.18: Secret non-disclosure
 
@@ -152,7 +152,7 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 
 ### REQ-035.35: Permissive convergence signal
 
-1. Permissive mode MUST emit rate-limited warnings that identify the admitted header-less request method, route, caller address, and cumulative count.
+1. Permissive mode MUST emit warnings at positive-power-of-two cumulative admitted header-less request counts that identify the request method, route, caller address, and cumulative count.
 
 ### REQ-035.36: Permanent liveness rejection
 

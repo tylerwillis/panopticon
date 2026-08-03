@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.19.1--5e0759c7c79a",
+  "requirementId": "REQ-035.19.1",
+  "hash": "5e0759c7c79a",
+  "verdict": "pass",
+  "summary": "Test verifies the full rotation boundary: old-only startup rejects new tokens, overlap restart accepts both read/write sets, file removal alone leaves both accepted, and the next restart rejects old while retaining new.",
+  "timestamp": "2026-08-03T21:59:08.534Z"
+}

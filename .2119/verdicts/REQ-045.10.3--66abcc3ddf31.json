@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.10.3--66abcc3ddf31",
+  "requirementId": "REQ-045.10.3",
+  "hash": "66abcc3ddf31",
+  "verdict": "pass",
+  "summary": "Tests exercise unauthenticated preflights, restrict the body to empty or OK, enforce a transport-only header allowlist with max-age absent or 600, and reject seeded protected values plus path-dependent responses.",
+  "timestamp": "2026-08-03T21:46:52.257Z"
+}

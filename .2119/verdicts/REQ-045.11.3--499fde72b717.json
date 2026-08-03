@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.11.3--499fde72b717",
+  "requirementId": "REQ-045.11.3",
+  "hash": "499fde72b717",
+  "verdict": "pass",
+  "summary": "Behavioral preflights accept GET/HEAD/OPTIONS with Authorization and Content-Type alone or together, while rejecting mutation/extension methods and requests containing representative extra headers across allowed origins and routes.",
+  "timestamp": "2026-08-03T21:47:28.001Z"
+}

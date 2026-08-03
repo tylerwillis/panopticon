@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.46.1--a67ece988bbb",
+  "requirementId": "REQ-035.46.1",
+  "hash": "a67ece988bbb",
+  "verdict": "pass",
+  "summary": "Tests reject limit-plus-one input, stop consuming a longer chunked body after the bounded inspection threshold, and prove the protected endpoint is not dispatched.",
+  "timestamp": "2026-08-03T22:02:15.895Z"
+}

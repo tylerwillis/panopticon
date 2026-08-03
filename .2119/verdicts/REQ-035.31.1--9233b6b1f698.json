@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.31.1--9233b6b1f698",
+  "requirementId": "REQ-035.31.1",
+  "hash": "9233b6b1f698",
+  "verdict": "pass",
+  "summary": "Tests reject omitted or wrong auth reference, mode, and config root across service, runner, and dashboard sessions, including mixed absence and stale tmux inheritance.",
+  "timestamp": "2026-08-03T22:00:19.512Z"
+}

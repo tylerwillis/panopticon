@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.6.3--6cde308a69f9",
+  "requirementId": "REQ-045.6.3",
+  "hash": "6cde308a69f9",
+  "verdict": "pass",
+  "summary": "Exhaustive route and policy tests reject existing-vs-missing differences and require both to return the exact generic 403 scope-denial body.",
+  "timestamp": "2026-08-03T21:49:27.540Z"
+}

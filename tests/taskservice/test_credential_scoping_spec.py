@@ -1201,6 +1201,25 @@ def test_fleet_administration_route_inventory_is_complete_and_task_denied(tmp_pa
     with _client(tmp_path) as client:
         task = _create_task(client)
         policy = client.app.state.credential_scope_policy
+        registered = {
+            (method, route.path)
+            for route in client.app.routes
+            if hasattr(route, "methods")
+            for method in route.methods
+        }
+        independently_derived_admin = {
+            entry
+            for entry in registered
+            if (
+                (entry[1].startswith("/repos") and entry[0] not in {"GET", "HEAD"})
+                or entry[1] == "/workflow-files"
+                or entry[1].endswith(
+                    ("/claim", "/provisioning", "/migration", "/lifecycle", "/governor", "/snooze")
+                )
+                or entry[1].startswith("/runners")
+            )
+        }
+        assert independently_derived_admin == expected
         assert policy.fleet_administration_rest_surfaces() == expected
         token = _task_token(task["id"])
         for method, template in expected:
@@ -1848,6 +1867,8 @@ def test_rest_and_mcp_resolve_equivalent_actions_to_identical_scope_decisions(
         sibling = _create_task(client)
         orchestrator = _create_task(client, workflow="orchestrator")
         governed = _create_task(client, governor_task_id=str(orchestrator["id"]))
+        grandchild = _create_task(client, governor_task_id=str(governed["id"]))
+        great_grandchild = _create_task(client, governor_task_id=str(grandchild["id"]))
         policy = client.app.state.credential_scope_policy
         pairs = [
             (("GET", "/tasks/{task_id}"), ("tool", "get_task")),
@@ -1881,6 +1902,8 @@ def test_rest_and_mcp_resolve_equivalent_actions_to_identical_scope_decisions(
             for subject, target in (
                 (own, own["id"]),
                 (orchestrator, governed["id"]),
+                (orchestrator, grandchild["id"]),
+                (orchestrator, great_grandchild["id"]),
                 (own, sibling["id"]),
                 (own, "missing"),
             ):
@@ -2015,6 +2038,7 @@ def test_every_rest_and_mcp_surface_has_a_scope_classification(tmp_path: Path) -
 
 
 def test_read_array_is_optional_but_configured_read_token_stays_read_only(tmp_path: Path) -> None:
+    # 2119: REQ-035.14.1
     # 2119: REQ-045.9.1
     # 2119: REQ-045.9.2
     with _client(tmp_path) as no_reader:
@@ -3096,8 +3120,10 @@ def test_fleet_write_retains_host_duties_while_task_token_cannot_claim(tmp_path:
 
 
 def test_runner_injects_only_the_subject_task_capability(
-    tmp_path: Path, caplog: pytest.LogCaptureFixture
+    tmp_path: Path, caplog: pytest.LogCaptureFixture, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    # 2119: REQ-035.17.1
+    # 2119: REQ-035.39.1
     # 2119: REQ-045.1.1
     # 2119: REQ-045.3.1
     # 2119: REQ-045.3.2
@@ -3107,6 +3133,7 @@ def test_runner_injects_only_the_subject_task_capability(
     mounted_snapshot: dict[str, str] = {}
     mounted_files: dict[str, str] = {}
     mounted_targets: list[tuple[str, str, bool]] = []
+    shared_client_headers: list[str] = []
     caplog.set_level(1)
 
     def run(args: list[str], **_: object) -> str:
@@ -3141,6 +3168,12 @@ def test_runner_injects_only_the_subject_task_capability(
             ]
             assert len(designated) == 1
             mounted_snapshot.update(json.loads(Path(designated[0]).read_text()))
+            monkeypatch.setenv("PANOPTICON_SERVICE_AUTH_FILE", designated[0])
+            from panopticon.container.agent import _default_client
+
+            shared_client_headers.append(
+                _default_client("http://service")._http.headers["authorization"]
+            )
         return ""
 
     with _client(
@@ -3179,6 +3212,7 @@ def test_runner_injects_only_the_subject_task_capability(
         assert all(expected not in " ".join(call) for call in calls)
         assert expected not in caplog.text
         assert mounted_snapshot == {"task": expected}
+        assert shared_client_headers == [f"Bearer {expected}"]
         auth_environment = [
             value for value in docker if value.startswith("PANOPTICON_SERVICE_AUTH_FILE=")
         ]
@@ -3238,6 +3272,7 @@ def test_runner_injects_only_the_subject_task_capability(
             client.get(f"/tasks/{task_id}", headers=_bearer(mounted_snapshot["task"])).status_code
             == 200
         )
+        assert _stream_start_status(client.app, f"/tasks/{task_id}/live", expected) == 200
         assert (
             client.get(
                 f"/tasks/{sibling['id']}", headers=_bearer(mounted_snapshot["task"])

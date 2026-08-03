@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.2.4--7f7498c7f43b",
+  "requirementId": "REQ-045.2.4",
+  "hash": "7f7498c7f43b",
+  "verdict": "pass",
+  "summary": "Repeated identical version, subject, profile, and fleet-token inputs are checked across calls and a fresh process, rejecting nondeterministic derivation.",
+  "timestamp": "2026-08-03T21:48:03.101Z"
+}

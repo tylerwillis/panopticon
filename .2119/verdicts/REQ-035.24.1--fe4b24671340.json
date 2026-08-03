@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.24.1--fe4b24671340",
+  "requirementId": "REQ-035.24.1",
+  "hash": "fe4b24671340",
+  "verdict": "pass",
+  "summary": "Startup tests reject invalid read and write tokens across every disallowed ASCII character, representative non-ASCII input, empty/padding-only values, leading equals, and non-trailing equals.",
+  "timestamp": "2026-08-03T22:05:18.825Z"
+}

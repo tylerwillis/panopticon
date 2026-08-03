@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.28.1--113565cf9276",
+  "requirementId": "REQ-035.28.1",
+  "hash": "113565cf9276",
+  "verdict": "pass",
+  "summary": "Tests reject missing, directory, FIFO, socket, and symlink credential references before any Docker/tmux command and verify absent paths remain absent and non-file entries remain unchanged.",
+  "timestamp": "2026-08-03T21:59:55.420Z"
+}

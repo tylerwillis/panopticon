@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.5.3--472969ac62b5",
+  "requirementId": "REQ-045.5.3",
+  "hash": "472969ac62b5",
+  "verdict": "pass",
+  "summary": "Tests prove the subject can open and close its own registration, reject the nearest sibling-registration and sibling-stream violations, and keep its own liveness stream open through a keepalive.",
+  "timestamp": "2026-08-03T21:49:20.643Z"
+}

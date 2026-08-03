@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.8.2--6f0b359786ba",
+  "requirementId": "REQ-045.8.2",
+  "hash": "6f0b359786ba",
+  "verdict": "pass",
+  "summary": "Tests reject sibling tool/resource targets under an own-task capability and prove a conflicting actor_task_id cannot override the capability-derived subject across every task-targeted MCP surface.",
+  "timestamp": "2026-08-03T21:50:19.393Z"
+}

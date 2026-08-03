@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.41.1--da9aadd072cd",
+  "requirementId": "REQ-035.41.1",
+  "hash": "da9aadd072cd",
+  "verdict": "pass",
+  "summary": "Both Pi-operation and REST-artifact commands run under set -x with a configured token; tests reject any token in captured stderr while confirming auth is delivered via curl stdin config.",
+  "timestamp": "2026-08-03T22:01:18.555Z"
+}

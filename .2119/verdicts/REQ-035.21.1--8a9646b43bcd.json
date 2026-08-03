@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.21.1--8a9646b43bcd",
+  "requirementId": "REQ-035.21.1",
+  "hash": "8a9646b43bcd",
+  "verdict": "pass",
+  "summary": "The test executes an authenticated Pi operation with a sentinel credential, rejects the nearest argv-leak counterexample, and proves delivery via curl stdin config rather than process arguments.",
+  "timestamp": "2026-08-03T21:59:18.803Z"
+}

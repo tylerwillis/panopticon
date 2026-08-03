@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.2.1--f9f3f0ba6d45",
+  "requirementId": "REQ-035.2.1",
+  "hash": "f9f3f0ba6d45",
+  "verdict": "pass",
+  "summary": "Tests verify distinct read/write authorization, multiple concurrently valid tokens per privilege, exact opaque-token matching, and reject cross-privilege token reuse.",
+  "timestamp": "2026-08-03T21:57:13.723Z"
+}

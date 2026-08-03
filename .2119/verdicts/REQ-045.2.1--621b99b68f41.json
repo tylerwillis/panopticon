@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.2.1--621b99b68f41",
+  "requirementId": "REQ-045.2.1",
+  "hash": "621b99b68f41",
+  "verdict": "pass",
+  "summary": "Independently rejects wrong version/profile, padded or noncanonical base64url subject/MAC, altered task binding, key, domain string, separators, or digest by reconstructing the exact HMAC-SHA256 token.",
+  "timestamp": "2026-08-03T21:47:57.160Z"
+}

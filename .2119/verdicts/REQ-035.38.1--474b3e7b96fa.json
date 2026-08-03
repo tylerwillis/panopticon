@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.38.1--474b3e7b96fa",
+  "requirementId": "REQ-035.38.1",
+  "hash": "474b3e7b96fa",
+  "verdict": "pass",
+  "summary": "Real shell-library execution under set -x proves the configured write token authenticates via curl config while being absent from both the trace stream and argv.",
+  "timestamp": "2026-08-03T22:05:50.438Z"
+}

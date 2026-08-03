@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.34.1--7cca89d73da9",
+  "requirementId": "REQ-035.34.1",
+  "hash": "7cca89d73da9",
+  "verdict": "pass",
+  "summary": "Tests reject foreign ownership and each group/other read, write, or execute bit at authentication startup and both runner preflights, while accepting owner-only 0400/0600 boundaries.",
+  "timestamp": "2026-08-03T22:00:44.333Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.1.1--0bc6def69d38",
+  "requirementId": "REQ-045.1.1",
+  "hash": "0bc6def69d38",
+  "verdict": "pass",
+  "summary": "Exercises the real LocalRunner spawn seam and rejects extra/misdirected snapshots, wrong or sibling-bound capabilities, duplicate auth references, plaintext capability exposure, and fleet read/write tokens in both Docker argv and mounted files.",
+  "timestamp": "2026-08-03T21:46:29.458Z"
+}

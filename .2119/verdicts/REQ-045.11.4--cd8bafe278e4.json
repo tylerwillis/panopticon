@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.11.4--cd8bafe278e4",
+  "requirementId": "REQ-045.11.4",
+  "hash": "cd8bafe278e4",
+  "verdict": "pass",
+  "summary": "Behavioral actual-response tests require exact allowed-origin echo with Vary: Origin and reject authorization for trailing-slash, scheme, port, hostile-host, and null near-misses.",
+  "timestamp": "2026-08-03T21:47:25.736Z"
+}

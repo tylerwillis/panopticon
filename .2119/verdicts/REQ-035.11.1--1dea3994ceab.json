@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.11.1--1dea3994ceab",
+  "requirementId": "REQ-035.11.1",
+  "hash": "1dea3994ceab",
+  "verdict": "pass",
+  "summary": "Exercises unauthenticated, read-token, and write-token authorization across loopback boundaries, tailnet IPv4 boundaries plus IPv6, and varied non-tailnet addresses over all REST routes and MCP methods, rejecting any source-specific outcome.",
+  "timestamp": "2026-08-03T21:58:17.105Z"
+}

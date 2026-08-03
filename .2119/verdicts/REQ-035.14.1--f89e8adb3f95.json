@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.14.1--f89e8adb3f95",
+  "requirementId": "REQ-035.14.1",
+  "hash": "f89e8adb3f95",
+  "verdict": "pass",
+  "summary": "Behavioral startup tests reject absent/nonexistent/unreadable and escaping references, malformed or schema-invalid credential objects, empty write arrays, and direct or deeper read/write token overlap, while accepting omitted or empty optional read arrays.",
+  "timestamp": "2026-08-03T21:58:44.091Z"
+}

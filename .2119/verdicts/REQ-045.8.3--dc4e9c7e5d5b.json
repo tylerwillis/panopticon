@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.8.3--dc4e9c7e5d5b",
+  "requirementId": "REQ-045.8.3",
+  "hash": "dc4e9c7e5d5b",
+  "verdict": "pass",
+  "summary": "Live-registry equality rejects omitted or extra REST methods, MCP tools, and resource templates; duplicate REST entries and any class outside the five-value closed set are also rejected.",
+  "timestamp": "2026-08-03T21:50:36.081Z"
+}

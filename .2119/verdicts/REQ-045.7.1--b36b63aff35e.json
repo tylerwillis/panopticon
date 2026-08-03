@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.7.1--b36b63aff35e",
+  "requirementId": "REQ-045.7.1",
+  "hash": "b36b63aff35e",
+  "verdict": "pass",
+  "summary": "Behavioral REST tests prove an alternate stored orchestrates=True workflow can create a self-governed child and reject the nearest wrong-governor cases: missing, unrelated, and descendant IDs.",
+  "timestamp": "2026-08-03T21:49:41.068Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.18.1--9fef77f0a013",
+  "requirementId": "REQ-035.18.1",
+  "hash": "9fef77f0a013",
+  "verdict": "pass",
+  "summary": "Tests reject configured-token leakage across failure and validation bodies, logs, command lines, serialization, database files, and artifacts, including prefix-overlap and encoded-input counterexamples.",
+  "timestamp": "2026-08-03T21:59:08.382Z"
+}

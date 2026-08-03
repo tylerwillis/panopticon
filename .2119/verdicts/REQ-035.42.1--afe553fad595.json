@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.42.1--afe553fad595",
+  "requirementId": "REQ-035.42.1",
+  "hash": "afe553fad595",
+  "verdict": "pass",
+  "summary": "Real MCP tool and resource inputs exercise every configured token; capture of rendered and raw records across both pinned SDK loggers rejects any exact token write, including args, extras, traceback, stack_info, and late handlers.",
+  "timestamp": "2026-08-03T22:01:39.842Z"
+}
