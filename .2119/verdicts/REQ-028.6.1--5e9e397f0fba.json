@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.6.1--5e9e397f0fba",
+  "requirementId": "REQ-028.6.1",
+  "hash": "5e9e397f0fba",
+  "verdict": "pass",
+  "summary": "Every built-in 2119 workflow's BUILDING responsibilities must contain url-recorded with the exact PR external-URL and set_url instruction.",
+  "timestamp": "2026-08-03T02:37:16.985Z"
+}

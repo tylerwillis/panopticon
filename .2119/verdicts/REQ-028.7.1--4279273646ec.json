@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.7.1--4279273646ec",
+  "requirementId": "REQ-028.7.1",
+  "hash": "4279273646ec",
+  "verdict": "pass",
+  "summary": "Discovery with a nonexistent external directory must return each exact built-in name mapped to its expected workflow class.",
+  "timestamp": "2026-08-03T02:37:17.203Z"
+}

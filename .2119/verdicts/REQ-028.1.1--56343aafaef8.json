@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.1.1--56343aafaef8",
+  "requirementId": "REQ-028.1.1",
+  "hash": "56343aafaef8",
+  "verdict": "pass",
+  "summary": "Exercises tasks across all discovered and custom skill-less/skilled workflows, and rejects both skill and operation collisions with the reserved artifact surface.",
+  "timestamp": "2026-08-03T02:37:15.898Z"
+}

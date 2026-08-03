@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.10.1--8abb65744d6c",
+  "requirementId": "REQ-028.10.1",
+  "hash": "8abb65744d6c",
+  "verdict": "pass",
+  "summary": "Pins the complete artifact guidance, including that artifacts complement and do not replace both the pull request and dedicated task URL.",
+  "timestamp": "2026-08-03T02:37:18.008Z"
+}

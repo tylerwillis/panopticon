@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.9.1--6a643c473763",
+  "requirementId": "REQ-033.9.1",
+  "hash": "6a643c473763",
+  "verdict": "pass",
+  "summary": "Exact merge instruction snapshots require a self-contained idea title and all four specified body context fields.",
+  "timestamp": "2026-08-03T02:37:13.652Z"
+}
