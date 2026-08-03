@@ -42,6 +42,12 @@ def hold_shell_liveness(args: argparse.Namespace) -> None:
                     args.task_id, container_id=args.session, runner_id=args.runner_id
                 ):
                     pass
+            except httpx.HTTPStatusError as exc:
+                if exc.response.status_code in {401, 403}:
+                    if snapshot is not None:
+                        snapshot.unlink(missing_ok=True)
+                    return
+                time.sleep(0.25)
             except httpx.HTTPError:
                 time.sleep(0.25)
 

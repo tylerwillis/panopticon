@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.11.1--e79fdc355287",
+  "requirementId": "REQ-028.11.1",
+  "hash": "e79fdc355287",
+  "verdict": "pass",
+  "summary": "Golden text defines \"a durable task document that the user can review\", establishes publish-when-produced with non-exhaustive examples, and carves out \"The substantial exception is GitHub URLs: record those in the task's external URL field so the dashboard `p` hotkey opens them\"; all via literal equ",
+  "timestamp": "2026-08-03T13:46:48.346Z"
+}

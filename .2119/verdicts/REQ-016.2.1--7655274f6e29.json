@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-016.2.1--7655274f6e29",
+  "requirementId": "REQ-016.2.1",
+  "hash": "7655274f6e29",
+  "verdict": "pass",
+  "summary": "Real-subprocess hooks vs. blackholed socket, stalling server, slow server, and malformed JSON all assert `returncode == 0` and `stderr == \"\"` (test_hooks.py:157-424); parameterized in-process test covers every client op × connection/timeout/protocol/status error (test_hooks.py:440); Pi handlers run ",
+  "timestamp": "2026-08-03T13:46:42.684Z"
+}

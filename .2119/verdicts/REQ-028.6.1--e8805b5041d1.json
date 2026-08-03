@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.6.1--e8805b5041d1",
+  "requirementId": "REQ-028.6.1",
+  "hash": "e8805b5041d1",
+  "verdict": "pass",
+  "summary": "`_responsibility_descriptions(workflow, \"BUILDING\")[\"url-recorded\"]` compared to a test-local literal (\"Record the PR URL in the task's external URL field with the `set_url` MCP tool.\") for all three builtins; removal → KeyError, rewording → mismatch (line 357).",
+  "timestamp": "2026-08-03T13:46:45.711Z"
+}

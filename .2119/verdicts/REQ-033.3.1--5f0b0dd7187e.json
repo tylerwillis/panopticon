@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.3.1--5f0b0dd7187e",
+  "requirementId": "REQ-033.3.1",
+  "hash": "5f0b0dd7187e",
+  "verdict": "pass",
+  "summary": "Asserts \"Omit findings rejected as simply wrong\" present *and* explicitly rejects the nearest violating texts (\"Do not omit findings rejected as simply wrong\", \"Include every rejected finding in that section\" asserted absent, lines 343-345) — a genuine counterexample guard against substring-negation",
+  "timestamp": "2026-08-03T13:46:50.926Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-041.4.1--8f3e7fce8dcc",
+  "requirementId": "REQ-041.4.1",
+  "hash": "8f3e7fce8dcc",
+  "verdict": "pass",
+  "summary": "All three durable-surface distinctions (`a` hotkey for artifacts, complement-not-replace, GitHub URLs → external URL field / `p` hotkey) present in the test-local golden asserted equal to the delivered skill.",
+  "timestamp": "2026-08-03T13:46:55.515Z"
+}

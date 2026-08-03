@@ -196,7 +196,7 @@ def operation_instructions(
         "printf 'header = \"Authorization: Bearer %s\"\\n' "
         "\"$PANOPTICON_SERVICE_AUTH_TOKEN\" | curl --disable --noproxy '*' --config - "
         if authenticated
-        else "curl "
+        else "curl --disable --noproxy '*' "
     )
     restore = (
         "; _panopticon_status=$?; "

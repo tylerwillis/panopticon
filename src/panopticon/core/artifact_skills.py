@@ -21,7 +21,7 @@ ARTIFACT_SKILL = Skill(
     "\"$PANOPTICON_SERVICE_AUTH_TOKEN\" | curl --disable --noproxy '*' --config - --fail --silent --show-error "
     "--request PUT --data-binary @<artifact-file> "
     '"$PANOPTICON_SERVICE_URL/tasks/$PANOPTICON_TASK_ID/artifacts/<name>"; else '
-    "curl --fail --silent --show-error --request PUT --data-binary @<artifact-file> "
+    "curl --disable --noproxy '*' --fail --silent --show-error --request PUT --data-binary @<artifact-file> "
     '"$PANOPTICON_SERVICE_URL/tasks/$PANOPTICON_TASK_ID/artifacts/<name>"; fi; '
     "_panopticon_status=$?; "
     '[ -n "$_panopticon_had_xtrace" ] && set -x; (exit "$_panopticon_status")` over REST; this '

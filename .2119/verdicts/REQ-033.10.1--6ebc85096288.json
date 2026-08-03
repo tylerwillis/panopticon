@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.10.1--6ebc85096288",
+  "requirementId": "REQ-033.10.1",
+  "hash": "6ebc85096288",
+  "verdict": "pass",
+  "summary": "`deferred-issues-filed` description compared to a test-local literal ending \"Filing zero issues is a legal outcome.\" (lines 72-76, 465).",
+  "timestamp": "2026-08-03T13:46:54.490Z"
+}

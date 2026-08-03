@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.7.1--899bd8a5e295",
+  "requirementId": "REQ-033.7.1",
+  "hash": "899bd8a5e295",
+  "verdict": "pass",
+  "summary": "Same exact-prefix literal contains step 3: \"file it with `gh issue create`, incorporating any user edits\" for suggestions the user \"endorsed, or left without objection\".",
+  "timestamp": "2026-08-03T13:46:52.940Z"
+}

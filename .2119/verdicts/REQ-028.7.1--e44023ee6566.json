@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.7.1--e44023ee6566",
+  "requirementId": "REQ-028.7.1",
+  "hash": "e44023ee6566",
+  "verdict": "pass",
+  "summary": "Calls real `discover_workflows(_home_workflows=Path(\"/nonexistent\"))` (no external dir) and asserts all three names map to the expected concrete classes (line 368); a missing registration raises KeyError.",
+  "timestamp": "2026-08-03T13:46:46.229Z"
+}

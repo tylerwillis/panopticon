@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.4.1--77ba675e0027",
+  "requirementId": "REQ-028.4.1",
+  "hash": "77ba675e0027",
+  "verdict": "pass",
+  "summary": "\"Exactly one\" is enforced by full ordered-tuple equality of all SPECIFYING responsibilities against a test-local literal containing exactly one `spec-artifact` entry, for all three builtins (test_spec_2119_artifacts.py:293); adding a second artifact responsibility or removing the one fails.",
+  "timestamp": "2026-08-03T13:46:44.748Z"
+}

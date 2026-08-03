@@ -182,12 +182,14 @@ def main(
         _start_sessions()
         return 0
     elif args.command == "quickstart":
+        from panopticon.taskservice.auth import environment_token
         from panopticon.terminal import doctor
         from panopticon.terminal import quickstart as _qs
 
         # Fail fast on missing host prerequisites before touching the DB or starting sessions,
         # so a missing binary / stopped Docker daemon surfaces as the doctor report rather than
         # a cryptic failure deep inside session or container spawn.
+        environment_token()
         if doctor.report(doctor.run_checks()) != 0:
             return 1
 

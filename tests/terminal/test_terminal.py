@@ -134,11 +134,13 @@ def test_standalone_dashboard_has_no_switch_hooks(monkeypatch: pytest.MonkeyPatc
 
 
 def test_quickstart_invokes_all_steps(monkeypatch: pytest.MonkeyPatch) -> None:
+    from panopticon.taskservice import auth
     from panopticon.terminal import console, doctor
     from panopticon.terminal import quickstart as qs
 
     calls: list[str] = []
 
+    monkeypatch.setattr(auth, "environment_token", lambda: calls.append("auth"))
     monkeypatch.setattr(doctor, "run_checks", list)
     monkeypatch.setattr(doctor, "report", lambda results: (calls.append("doctor"), 0)[1])
     monkeypatch.setattr(cli, "_run_migrate", lambda: calls.append("migrate"))
@@ -168,8 +170,9 @@ def test_quickstart_invokes_all_steps(monkeypatch: pytest.MonkeyPatch) -> None:
 
     rc = cli.main(["quickstart"])
     assert rc == 0
-    # Doctor runs first, before any side effects.
+    # Credential validation precedes even the doctor's Docker probe.
     assert calls == [
+        "auth",
         "doctor",
         "migrate",
         "sessions",

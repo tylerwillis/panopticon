@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.9.1--030ec03ee564",
+  "requirementId": "REQ-033.9.1",
+  "hash": "030ec03ee564",
+  "verdict": "pass",
+  "summary": "Same exact-prefix literal requires \"self-contained: a title stating the idea, and a body carrying context — a link to the PR, a reference to the review comment it came from, why it was deferred rather than done now, and what implementing it would involve.\"",
+  "timestamp": "2026-08-03T13:46:54.001Z"
+}

@@ -208,7 +208,12 @@ def make_runner_switch(
 def _service_ready(service_url: str) -> bool:
     """Whether the task service answers its health check (gates the dashboard on startup)."""
     try:
-        return httpx.get(f"{service_url.rstrip('/')}/healthz", timeout=1.0).status_code == 200
+        return (
+            httpx.get(
+                f"{service_url.rstrip('/')}/healthz", timeout=1.0, trust_env=False
+            ).status_code
+            == 200
+        )
     except httpx.HTTPError:
         return False
 
