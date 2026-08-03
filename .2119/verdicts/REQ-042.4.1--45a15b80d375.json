@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-042.4.1--45a15b80d375",
+  "requirementId": "REQ-042.4.1",
+  "hash": "45a15b80d375",
+  "verdict": "pass",
+  "summary": "Exact rendered-output tests reject altered connector/disclosure/slug, leaked memo lines, misplaced indicators, and a stray separator when neither indicator applies.",
+  "timestamp": "2026-08-03T05:58:10.873Z"
+}

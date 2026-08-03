@@ -1,4 +1,4 @@
-# REQ-039: Dashboard artifact and pull-request prefixes
+# REQ-042: Dashboard artifact and pull-request prefixes
 
 ## Overview
 
@@ -12,24 +12,24 @@ non-empty sequence of decimal digits terminated by the end of the path or the ne
 
 ## Requirements
 
-### REQ-039.1: Artifact indicator
+### REQ-042.1: Artifact indicator
 
 1. The dashboard MUST include `*a` in the displayed task-label prefix when the task has at least
    one artifact, including when the task has no associated GitHub pull request.
 
-### REQ-039.2: GitHub pull-request indicator
+### REQ-042.2: GitHub pull-request indicator
 
 1. The dashboard MUST include `*PR###` in the displayed task-label prefix, substituting the
    decimal pull-request number for `###`, when the task's external URL identifies an associated
    GitHub pull request.
 
-### REQ-039.3: Indicator composition
+### REQ-042.3: Indicator composition
 
 1. The dashboard MUST render the artifact indicator before the pull-request indicator when both
    apply, separate the two indicators with one space, and append exactly ` | ` once between the
    complete indicator prefix and the existing task label.
 
-### REQ-039.4: Existing label presentation
+### REQ-042.4: Existing label presentation
 
 1. The dashboard MUST preserve the existing slug, first-line memo, tree connector, and disclosure
    presentation after applying any artifact and pull-request indicators, and display no indicator
