@@ -16,7 +16,9 @@ from pathlib import Path
 import httpx
 import pytest
 
+from panopticon import client as client_module
 from panopticon.client import TaskServiceClient
+from panopticon.container import entrypoint
 from panopticon.core.models import Repo
 from panopticon.taskservice.api import create_app
 from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
@@ -83,6 +85,7 @@ def test_live_connection_registers_on_connect_and_reaps_on_disconnect(
     )
 
 
+# 2119: REQ-039.3.1
 def test_reconnect_re_registers_after_a_drop(served: tuple[TaskService, str]) -> None:
     service, base = served
     task_id = asyncio.run(service.create_task("r1", "spike")).id
@@ -102,3 +105,38 @@ def test_reconnect_re_registers_after_a_drop(served: tuple[TaskService, str]) ->
     )
     second.close()
     assert _wait_until(lambda: not service.registrations(task_id))
+
+
+# 2119: REQ-039.3.1
+def test_silent_stream_timeout_reconnects_and_reestablishes_container_registration(
+    served: tuple[TaskService, str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    service, base = served
+    task_id = asyncio.run(service.create_task("r1", "spike")).id
+    monkeypatch.setattr(client_module, "LIVENESS_READ_TIMEOUT_SECONDS", 0.1)
+    client = TaskServiceClient(httpx.Client(base_url=base))
+    running = threading.Event()
+    running.set()
+    loop = threading.Thread(
+        target=entrypoint.serve,
+        args=(client, task_id),
+        kwargs={
+            "container_id": "c-live",
+            "runner_id": "runner-1",
+            "running": running.is_set,
+            "reconnect_backoff": 0.01,
+        },
+        daemon=True,
+    )
+    loop.start()
+    registration_ids: set[str] = set()
+    deadline = time.monotonic() + 2
+    try:
+        while time.monotonic() < deadline and len(registration_ids) < 2:
+            registration_ids.update(r.id for r in service.registrations(task_id))
+            time.sleep(0.01)
+    finally:
+        running.clear()
+        loop.join(timeout=2)
+    assert len(registration_ids) >= 2, "timeout did not create a fresh registration"
+    assert not loop.is_alive()

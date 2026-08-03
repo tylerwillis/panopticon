@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-039.2.1--7031f1e91892",
+  "requirementId": "REQ-039.2.1",
+  "hash": "7031f1e91892",
+  "verdict": "pass",
+  "summary": "Real accepted silent container stream must raise ReadTimeout promptly.",
+  "timestamp": "2026-08-03T00:10:35.088Z"
+}

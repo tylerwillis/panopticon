@@ -15,9 +15,19 @@ from typing import Any, cast
 
 import httpx
 
+from panopticon.core.liveness import LIVENESS_READ_TIMEOUT_SECONDS
 from panopticon.core.models import Status
 
 JsonObj = dict[str, Any]
+
+
+def _liveness_timeout() -> httpx.Timeout:
+    return httpx.Timeout(
+        connect=5.0,
+        read=LIVENESS_READ_TIMEOUT_SECONDS,
+        write=5.0,
+        pool=5.0,
+    )
 
 
 class TaskServiceClient:
@@ -399,7 +409,7 @@ class TaskServiceClient:
             "GET",
             f"/tasks/{task_id}/live",
             params={"container_id": container_id, "runner_id": runner_id},
-            timeout=None,  # the connection is meant to stay open for the container's lifetime
+            timeout=_liveness_timeout(),
         ) as resp:
             resp.raise_for_status()
             for _ in resp.iter_lines():
@@ -441,7 +451,7 @@ class TaskServiceClient:
             "GET",
             f"/runners/{runner_id}/live",
             params=params,
-            timeout=None,  # the connection is meant to stay open for the daemon's lifetime
+            timeout=_liveness_timeout(),
         ) as resp:
             resp.raise_for_status()
             for _ in resp.iter_lines():

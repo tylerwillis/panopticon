@@ -22,6 +22,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from panopticon.core.artifacts import ArtifactError
+from panopticon.core.liveness import LIVENESS_KEEPALIVE_SECONDS
 from panopticon.core.models import Actor, LifecyclePhase, Repo, Status, Task, WakeStatus
 from panopticon.core.store import AlreadyExists, NotFound, StoreError
 from panopticon.core.workflow import IllegalTransition, InvalidWorkflow, ResponsibilitiesNotMet
@@ -33,11 +34,11 @@ from panopticon.taskservice.service import (
     UnknownWorkflow,
 )
 
-#: How often the held ``/live`` stream emits a keepalive byte. This does **not** govern how fast
-#: death is noticed — disconnect is event-driven (Starlette cancels the stream the instant the
-#: client drops, so the registration is removed immediately). The keepalive only keeps idle
-#: proxies from closing the connection and gives the container a tick to notice a clean stop.
-LIVENESS_KEEPALIVE_SECONDS = 5.0
+
+async def _wait_for_liveness_keepalive() -> None:
+    """Wait for the shared server keepalive interval."""
+    await asyncio.sleep(LIVENESS_KEEPALIVE_SECONDS)
+
 
 # -- wire schemas -------------------------------------------------------------------
 
@@ -874,7 +875,7 @@ def create_app(service: TaskService) -> FastAPI:
             try:
                 yield b":ok\n"  # flush headers + confirm liveness is established
                 while True:
-                    await asyncio.sleep(LIVENESS_KEEPALIVE_SECONDS)
+                    await _wait_for_liveness_keepalive()
                     yield b":keepalive\n"
             finally:  # client disconnected (Starlette cancels us) or the loop ended — reap now
                 await service.deregister(reg.id)
@@ -943,7 +944,7 @@ def create_app(service: TaskService) -> FastAPI:
             try:
                 yield b":ok\n"  # flush headers + confirm host liveness is established
                 while True:
-                    await asyncio.sleep(LIVENESS_KEEPALIVE_SECONDS)
+                    await _wait_for_liveness_keepalive()
                     yield b":keepalive\n"
             finally:  # daemon disconnected (Starlette cancels us) or the loop ended — drop it now
                 await service.deregister_runner(reg.id)

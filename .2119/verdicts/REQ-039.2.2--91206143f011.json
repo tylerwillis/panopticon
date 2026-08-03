@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-039.2.2--91206143f011",
+  "requirementId": "REQ-039.2.2",
+  "hash": "91206143f011",
+  "verdict": "pass",
+  "summary": "A real silent accepted runner stream must raise ReadTimeout promptly rather than block or return another outcome.",
+  "timestamp": "2026-08-03T00:01:05.813Z"
+}

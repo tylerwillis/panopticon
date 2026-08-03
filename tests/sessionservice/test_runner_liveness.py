@@ -17,6 +17,7 @@ from pathlib import Path
 import httpx
 import pytest
 
+from panopticon import client as client_module
 from panopticon.client import TaskServiceClient
 from panopticon.core.models import Repo
 from panopticon.sessionservice.host import hold_runner_liveness
@@ -65,6 +66,7 @@ def served(tmp_path: Path) -> Iterator[tuple[TaskService, str]]:
         thread.join(timeout=5)
 
 
+# 2119: REQ-039.4.1
 def test_runner_live_connection_registers_on_connect_and_drops_on_disconnect(
     served: tuple[TaskService, str],
 ) -> None:
@@ -103,6 +105,39 @@ def test_hold_runner_liveness_loop_goes_live_then_drops_when_stopped(
         running = False
     assert _wait_until(lambda: not service.live_runners()), "loop did not drop the runner on stop"
     loop.join(timeout=5)
+
+
+# 2119: REQ-039.4.1
+def test_silent_stream_timeout_reconnects_and_reestablishes_runner_registration(
+    served: tuple[TaskService, str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    service, base = served
+    monkeypatch.setattr(client_module, "LIVENESS_READ_TIMEOUT_SECONDS", 0.1)
+    client = TaskServiceClient(httpx.Client(base_url=base))
+    running = threading.Event()
+    running.set()
+    loop = threading.Thread(
+        target=hold_runner_liveness,
+        args=(client, "host-7"),
+        kwargs={
+            "host": "box.example.com",
+            "running": running.is_set,
+            "reconnect_backoff": 0.01,
+        },
+        daemon=True,
+    )
+    loop.start()
+    registration_ids: set[str] = set()
+    deadline = time.monotonic() + 2
+    try:
+        while time.monotonic() < deadline and len(registration_ids) < 2:
+            registration_ids.update(r.id for r in service.live_runner_registrations())
+            time.sleep(0.01)
+    finally:
+        running.clear()
+        loop.join(timeout=2)
+    assert len(registration_ids) >= 2, "timeout did not create a fresh runner registration"
+    assert not loop.is_alive()
 
 
 def test_reclaim_releases_only_the_dead_runners_non_terminal_claims(
