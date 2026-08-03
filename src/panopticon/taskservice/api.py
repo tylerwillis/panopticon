@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import asyncio
 import hmac
+import json
 import logging
 import os
 import re
@@ -49,6 +50,7 @@ from panopticon.taskservice.service import (
 LIVENESS_KEEPALIVE_SECONDS = 5.0
 _log = logging.getLogger(__name__)
 _original_log_record_factory: Callable[..., logging.LogRecord] | None = None
+_original_logger_make_record: Callable[..., logging.LogRecord] | None = None
 _log_redaction_tokens: tuple[str, ...] = ()
 _log_redaction_factory_installed = False
 
@@ -58,12 +60,23 @@ def _redact_log_value(value: Any) -> Any:
         for token in _log_redaction_tokens:
             value = value.replace(token, "[redacted]")
         return value
+    if isinstance(value, bytes):
+        for token in _log_redaction_tokens:
+            value = value.replace(token.encode(), b"[redacted]")
+        return value
     if isinstance(value, tuple):
         return tuple(_redact_log_value(item) for item in value)
     if isinstance(value, list):
         return [_redact_log_value(item) for item in value]
     if isinstance(value, dict):
         return {key: _redact_log_value(item) for key, item in value.items()}
+    if isinstance(value, set):
+        return {_redact_log_value(item) for item in value}
+    if isinstance(value, frozenset):
+        return frozenset(_redact_log_value(item) for item in value)
+    rendered = str(value)
+    if any(token in rendered for token in _log_redaction_tokens):
+        return _redact_log_value(rendered)
     return value
 
 
@@ -93,15 +106,25 @@ def _redacting_log_record_factory(*args: Any, **kwargs: Any) -> logging.LogRecor
     return record
 
 
+def _redacting_make_record(self: logging.Logger, *args: Any, **kwargs: Any) -> logging.LogRecord:
+    """Redact after ``Logger.makeRecord`` has attached caller-supplied ``extra`` fields."""
+    assert _original_logger_make_record is not None
+    record = _original_logger_make_record(self, *args, **kwargs)
+    _configured_token_log_filter.filter(record)
+    return record
+
+
 def _install_log_redaction(tokens: tuple[str, ...]) -> None:
     global _log_redaction_factory_installed, _log_redaction_tokens
-    global _original_log_record_factory
+    global _original_log_record_factory, _original_logger_make_record
     _log_redaction_tokens = tuple(
         sorted(set(_log_redaction_tokens).union(tokens), key=len, reverse=True)
     )
     if not _log_redaction_factory_installed:
         _original_log_record_factory = logging.getLogRecordFactory()
         logging.setLogRecordFactory(_redacting_log_record_factory)
+        _original_logger_make_record = logging.Logger.makeRecord
+        setattr(logging.Logger, "makeRecord", _redacting_make_record)
         _log_redaction_factory_installed = True
     loggers = [logging.getLogger()]
     loggers.extend(
@@ -603,6 +626,31 @@ def create_app(
             return {key: redact_configured_tokens(item) for key, item in value.items()}
         return value
 
+    def value_contains_configured_token(value: Any) -> bool:
+        if tokens is None:
+            return False
+        configured = (*tokens.read, *tokens.write)
+        if isinstance(value, str):
+            return any(token in value for token in configured)
+        if isinstance(value, bytes):
+            return any(token.encode() in value for token in configured)
+        if isinstance(value, (list, tuple, set, frozenset)):
+            return any(value_contains_configured_token(item) for item in value)
+        if isinstance(value, dict):
+            return any(
+                value_contains_configured_token(key) or value_contains_configured_token(item)
+                for key, item in value.items()
+            )
+        return False
+
+    async def request_contains_configured_token(request: Request) -> bool:
+        body = await request.body()
+        values: list[Any] = [request.url.path, request.url.query, body]
+        if "json" in request.headers.get("content-type", "").lower():
+            with suppress(json.JSONDecodeError, UnicodeDecodeError):
+                values.append(json.loads(body))
+        return value_contains_configured_token(values)
+
     async def redacted_mcp_app(scope: Scope, receive: Receive, send: Send) -> None:
         """Redact mounted MCP responses, which bypass the parent exception handlers."""
         configured = (
@@ -663,9 +711,8 @@ def create_app(
             return await call_next(request)
         authorization = request.headers.get("authorization")
         if mode == "permissive" and authorization is None:
-            request_body = await request.body()
             assert tokens is not None
-            if any(token.encode() in request_body for token in (*tokens.read, *tokens.write)):
+            if await request_contains_configured_token(request):
                 return JSONResponse(status_code=400, content={"detail": "request rejected"})
             client = request.client.host if request.client is not None else "unknown"
             permissive_unauthenticated_total += 1
@@ -703,8 +750,7 @@ def create_app(
                 content=generic_auth_failure,
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        request_body = await request.body()
-        if any(token.encode() in request_body for token in (*tokens.read, *tokens.write)):
+        if await request_contains_configured_token(request):
             return JSONResponse(status_code=400, content={"detail": "request rejected"})
         return await call_next(request)
 

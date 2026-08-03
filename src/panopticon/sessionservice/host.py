@@ -301,10 +301,18 @@ def main(
     # Hold this host's liveness connection for the daemon's whole life, alongside the spawn/provision
     # loop, so the control plane knows the host is alive (and can reclaim its claims when it isn't).
     # A daemon thread: it dies with the process, dropping the connection (a clean deregister).
+    permanent_rejection = threading.Event()
+    liveness_errors: list[BaseException] = []
+
+    def hold_liveness() -> None:
+        try:
+            hold_runner_liveness(client, args.runner_id, running=lambda: True, host=args.host)
+        except BaseException as exc:
+            liveness_errors.append(exc)
+            permanent_rejection.set()
+
     liveness = threading.Thread(
-        target=hold_runner_liveness,
-        args=(client, args.runner_id),
-        kwargs={"running": lambda: True, "host": args.host},
+        target=hold_liveness,
         daemon=True,
     )
     liveness.start()
@@ -320,7 +328,10 @@ def main(
             base=args.image
         ),  # compose workflow layers onto the same base (ADR 0005)
         interval=args.interval,
+        until=permanent_rejection.is_set,
     )
+    if liveness_errors:
+        raise RuntimeError("runner liveness terminated") from liveness_errors[0]
 
 
 if __name__ == "__main__":  # pragma: no cover

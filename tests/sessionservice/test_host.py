@@ -584,6 +584,31 @@ def test_main_proceeds_to_migrate_and_build_runners_when_docker_is_reachable(
     mock_run_host.assert_called_once()  # actually enters the spawn/heal loop, not just migrates
 
 
+def test_main_terminates_when_liveness_thread_is_permanently_rejected(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # 2119: REQ-035.45.1
+    from panopticon.sessionservice import host as host_module
+
+    monkeypatch.setattr(host_module.docker_daemon, "preflight_message", lambda command: None)
+    monkeypatch.setattr(host_module, "migrate_session_dirs", MagicMock())
+    monkeypatch.setattr(host_module, "LocalRunner", MagicMock())
+    monkeypatch.setattr(host_module, "ShellRunner", MagicMock())
+    rejection = RuntimeError("task-service permanently rejected the runner liveness credential")
+    monkeypatch.setattr(host_module, "hold_runner_liveness", MagicMock(side_effect=rejection))
+
+    def wait_for_rejection(*args: object, until: Callable[[], bool], **kwargs: object) -> None:
+        for _ in range(10_000):
+            if until():
+                return
+        pytest.fail("liveness rejection was not propagated to the host loop")
+
+    monkeypatch.setattr(host_module, "run_host", wait_for_rejection)
+    with pytest.raises(RuntimeError, match="runner liveness terminated") as raised:
+        host_module.main([], client=MagicMock())
+    assert raised.value.__cause__ is rejection
+
+
 def test_run_host_spawns_then_provisions_end_to_end(tmp_path: Path) -> None:
     service = TaskService(SqlAlchemyStore(), {"spike": Spike()}, FilesystemArtifactStore(tmp_path))
     asyncio.run(service.init())

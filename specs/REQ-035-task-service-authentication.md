@@ -188,7 +188,7 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 
 ### REQ-035.44: Persistent secret rejection
 
-1. A protected request body containing a configured token MUST be rejected before the token enters database state, artifacts, or a successful response.
+1. A protected request whose decoded target or semantic body content contains a configured token MUST be rejected before the token enters database state, artifacts, or a successful response.
 
 ### REQ-035.45: Permanent runner rejection
 

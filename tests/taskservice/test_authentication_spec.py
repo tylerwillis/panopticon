@@ -17,6 +17,7 @@ import sys
 import threading
 import time
 from collections.abc import Awaitable, Callable
+from io import StringIO
 from pathlib import Path
 
 import httpx
@@ -349,8 +350,8 @@ def test_rest_redaction_masks_longest_prefix_related_token_first(tmp_path: Path)
     ) as client:
         rejected = client.get(f"/tasks/{longer}", headers=_bearer(WRITE_TOKEN))
 
-    assert rejected.status_code == 404
-    assert rejected.json()["detail"] == "task '[redacted]' does not exist"
+    assert rejected.status_code == 400
+    assert rejected.json() == {"detail": "request rejected"}
 
 
 def test_tokens_never_reach_any_failure_body_or_spawned_command(tmp_path: Path) -> None:
@@ -454,6 +455,13 @@ def test_mcp_tool_arguments_never_log_or_return_configured_tokens(
         auth_mode="enforced",
         secrets_dir=tmp_path / "secrets",
     )
+    late_stream = StringIO()
+    late_handler = logging.StreamHandler(late_stream)
+    late_handler.setFormatter(logging.Formatter("%(message)s %(payload)s"))
+    late_logger = logging.getLogger("late.configured.handler")
+    late_logger.addHandler(late_handler)
+    late_logger.setLevel(logging.INFO)
+    late_logger.info("late payload", extra={"payload": WRITE_TOKEN.encode()})
     try:
         raise RuntimeError(f"traceback carried {WRITE_TOKEN}")
     except RuntimeError:
@@ -529,7 +537,13 @@ def test_mcp_tool_arguments_never_log_or_return_configured_tokens(
 
     assert all(response.status_code == 400 for response in responses)
     captured_records = "".join(repr(record.__dict__) for record in caplog.records)
-    observed = caplog.text + captured_records + "".join(response.text for response in responses)
+    observed = (
+        caplog.text
+        + captured_records
+        + late_stream.getvalue()
+        + "".join(response.text for response in responses)
+    )
+    late_logger.removeHandler(late_handler)
     assert all(token not in observed for token in configured)
 
 
@@ -553,14 +567,32 @@ def test_configured_tokens_are_rejected_before_persistence_or_success(
             headers=_bearer(WRITE_TOKEN),
             json={"repo_id": "r1", "workflow": "spike", "memo": WRITE_TOKEN},
         )
+        escaped_response = client.post(
+            "/tasks",
+            headers={**_bearer(WRITE_TOKEN), "Content-Type": "application/json"},
+            content=(
+                '{"repo_id":"r1","workflow":"spike","memo":"'
+                + WRITE_TOKEN[:-1]
+                + f'\\u{ord(WRITE_TOKEN[-1]):04x}"}}'
+            ),
+        )
+        path_response = client.put(
+            f"/tasks/missing/artifacts/{READ_TOKEN}",
+            headers=_bearer(WRITE_TOKEN),
+            content=b"safe",
+        )
         artifact_response = client.put(
             "/tasks/missing/artifacts/proof",
             headers=_bearer(WRITE_TOKEN),
             content=f"prefix {READ_TOKEN} suffix",
         )
         assert task_response.status_code == 400
+        assert escaped_response.status_code == 400
+        assert path_response.status_code == 400
         assert artifact_response.status_code == 400
         assert task_response.json() == {"detail": "request rejected"}
+        assert escaped_response.json() == {"detail": "request rejected"}
+        assert path_response.json() == {"detail": "request rejected"}
         assert artifact_response.json() == {"detail": "request rejected"}
 
     durable = (service_root / "task.db").read_bytes()
@@ -1179,10 +1211,10 @@ def test_permissive_warning_redacts_tokens_and_keeps_a_monotonic_bounded_signal(
     # 2119: REQ-035.35.1
     # 2119: REQ-035.43.1
     with _client(tmp_path, mode="permissive") as client:
-        assert client.get(f"/tasks/{WRITE_TOKEN}").status_code == 404
+        assert client.get("/tasks/not-secret").status_code == 404
         for index in range(1024):
             assert client.get(f"/missing-{index}").status_code == 404
-        assert client.get(f"/tasks/{WRITE_TOKEN}").status_code == 404
+        assert client.get("/tasks/still-not-secret").status_code == 404
         health = client.get("/healthz")
 
     warnings = [
@@ -1191,7 +1223,7 @@ def test_permissive_warning_redacts_tokens_and_keeps_a_monotonic_bounded_signal(
         if "permissive authentication accepted headerless request" in record.getMessage()
     ]
     assert WRITE_TOKEN not in "\n".join(warnings)
-    assert "route=/tasks/[redacted]" in warnings[0]
+    assert "route=/tasks/not-secret" in warnings[0]
     counts = [int(message.rsplit("count=", 1)[1]) for message in warnings]
     assert counts == [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
     assert health.headers["x-panopticon-permissive-unauthenticated-total"] == "1026"
