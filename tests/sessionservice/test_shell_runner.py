@@ -305,7 +305,7 @@ def test_spawn_applies_no_shipped_defaults_without_a_dedicated_socket() -> None:
     normalized = command.replace(sys.executable, "<python>")
     normalized = normalized.replace(str(_secrets_dir()), "<secrets>")
     assert hashlib.sha256(normalized.encode()).hexdigest() == (
-        "42a7ef01f29529aef84d48fa58fdd2bb11a0cd2e6d956f816fdc8cdb8b350572"
+        "80dca71cec96f4cef13a10c919f00d992df48447d9215ed8484ba3726f527ae7"
     )
     assert tmux_calls == [
         ["tmux", "kill-session", "-t", "panopticon-t1"],

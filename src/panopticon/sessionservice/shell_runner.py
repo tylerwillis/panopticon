@@ -265,7 +265,7 @@ class ShellRunner(Runner):
                 # it closes the liveness child and removes the private snapshot even when neither
                 # shell trap runs.  Normal exits still use the traps above, making both paths
                 # idempotent.
-                "nohup sh -c "
+                'if [ -n "${TMUX:-}" ]; then nohup sh -c '
                 + shlex.quote(
                     f"while {session_probe} 2>/dev/null; do sleep 1; done; "
                     'kill "$1" 2>/dev/null; '
@@ -273,7 +273,7 @@ class ShellRunner(Runner):
                 )
                 + ' _ "$_panopticon_live_pid" '
                 + shlex.quote(str(auth_snapshot) if auth_snapshot is not None else "")
-                + " </dev/null >/dev/null 2>&1 &",
+                + " </dev/null >/dev/null 2>&1 & fi",
             ]
         )
         lines.append(script)
