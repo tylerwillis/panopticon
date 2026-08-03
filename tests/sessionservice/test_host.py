@@ -405,6 +405,34 @@ def test_hold_runner_liveness_reconnects_after_a_drop_until_stopped() -> None:
     assert opens["n"] == 3  # reconnected after each drop until `running()` said stop
 
 
+@pytest.mark.parametrize("status_code", [401, 403])
+def test_hold_runner_liveness_terminates_on_permanent_auth_rejection(
+    status_code: int,
+) -> None:
+    # 2119: REQ-035.45.1
+    class _RejectedClient:
+        def live_runner(
+            self, runner_id: str, *, host: str | None = None
+        ) -> Generator[None, None, None]:
+            def gen() -> Generator[None, None, None]:
+                response = httpx.Response(
+                    status_code,
+                    request=httpx.Request("GET", f"http://service/runners/{runner_id}/live"),
+                )
+                response.raise_for_status()
+                yield None
+
+            return gen()
+
+    with pytest.raises(RuntimeError, match="permanently rejected the runner liveness credential"):
+        hold_runner_liveness(
+            _RejectedClient(),  # type: ignore[arg-type]
+            "host-1",
+            running=lambda: True,
+            sleep=lambda _seconds: pytest.fail("permanent rejection must not retry"),
+        )
+
+
 def test_hold_runner_liveness_passes_host_to_client() -> None:
     # The host= param is forwarded from hold_runner_liveness to client.live_runner every reconnect
     # so the task service receives and records it (used for remote tmux attach, M5).

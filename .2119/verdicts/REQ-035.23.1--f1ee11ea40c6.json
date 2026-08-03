@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.23.1--f1ee11ea40c6",
+  "requirementId": "REQ-035.23.1",
+  "hash": "f1ee11ea40c6",
+  "verdict": "pass",
+  "summary": "The test proves missing credentials are rejected while read and write tokens reach a real protected HEAD route successfully.",
+  "timestamp": "2026-08-03T09:22:04.903Z"
+}

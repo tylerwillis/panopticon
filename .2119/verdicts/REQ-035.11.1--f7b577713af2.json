@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.11.1--f7b577713af2",
+  "requirementId": "REQ-035.11.1",
+  "hash": "f7b577713af2",
+  "verdict": "pass",
+  "summary": "Equivalent unauthenticated/read/write requests are exercised across loopback IPv4/IPv6, tailnet boundary/interior, and other addresses over every REST route and all MCP transport methods, with identical outcomes required.",
+  "timestamp": "2026-08-03T09:21:50.750Z"
+}

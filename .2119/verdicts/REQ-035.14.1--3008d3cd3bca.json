@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.14.1--3008d3cd3bca",
+  "requirementId": "REQ-035.14.1",
+  "hash": "3008d3cd3bca",
+  "verdict": "pass",
+  "summary": "Pass: startup construction rejects absent, missing, unreadable, escaping/absolute/symlink references and malformed, non-object, extra-key, empty, non-string, missing-key, and overlapping read/write credential schemas before a client can serve requests.",
+  "timestamp": "2026-08-03T09:26:18.370Z"
+}

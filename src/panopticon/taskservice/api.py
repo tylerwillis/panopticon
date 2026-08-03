@@ -15,6 +15,7 @@ import logging
 import os
 import re
 import secrets
+import traceback
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager, suppress
 from datetime import datetime
@@ -47,30 +48,71 @@ from panopticon.taskservice.service import (
 #: proxies from closing the connection and gives the container a tick to notice a clean stop.
 LIVENESS_KEEPALIVE_SECONDS = 5.0
 _log = logging.getLogger(__name__)
-_original_log_record_factory = logging.getLogRecordFactory()
+_original_log_record_factory: Callable[..., logging.LogRecord] | None = None
 _log_redaction_tokens: tuple[str, ...] = ()
 _log_redaction_factory_installed = False
 
 
+def _redact_log_value(value: Any) -> Any:
+    if isinstance(value, str):
+        for token in _log_redaction_tokens:
+            value = value.replace(token, "[redacted]")
+        return value
+    if isinstance(value, tuple):
+        return tuple(_redact_log_value(item) for item in value)
+    if isinstance(value, list):
+        return [_redact_log_value(item) for item in value]
+    if isinstance(value, dict):
+        return {key: _redact_log_value(item) for key, item in value.items()}
+    return value
+
+
+class _ConfiguredTokenLogFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        for key, value in tuple(record.__dict__.items()):
+            record.__dict__[key] = _redact_log_value(value)
+        return True
+
+
+_configured_token_log_filter = _ConfiguredTokenLogFilter()
+
+
 def _redacting_log_record_factory(*args: Any, **kwargs: Any) -> logging.LogRecord:
+    assert _original_log_record_factory is not None
     record = _original_log_record_factory(*args, **kwargs)
     if _log_redaction_tokens:
-        message = record.getMessage()
-        for token in _log_redaction_tokens:
-            message = message.replace(token, "[redacted]")
-        record.msg = message
+        record.msg = _redact_log_value(record.getMessage())
         record.args = ()
+        if record.exc_info is not None:
+            record.exc_text = _redact_log_value(
+                "".join(traceback.format_exception(*record.exc_info))
+            )
+            record.exc_info = None
+        if record.stack_info is not None:
+            record.stack_info = _redact_log_value(record.stack_info)
     return record
 
 
 def _install_log_redaction(tokens: tuple[str, ...]) -> None:
     global _log_redaction_factory_installed, _log_redaction_tokens
+    global _original_log_record_factory
     _log_redaction_tokens = tuple(
         sorted(set(_log_redaction_tokens).union(tokens), key=len, reverse=True)
     )
     if not _log_redaction_factory_installed:
+        _original_log_record_factory = logging.getLogRecordFactory()
         logging.setLogRecordFactory(_redacting_log_record_factory)
         _log_redaction_factory_installed = True
+    loggers = [logging.getLogger()]
+    loggers.extend(
+        logger
+        for logger in logging.root.manager.loggerDict.values()
+        if isinstance(logger, logging.Logger)
+    )
+    for logger in loggers:
+        for handler in logger.handlers:
+            if _configured_token_log_filter not in handler.filters:
+                handler.addFilter(_configured_token_log_filter)
 
 
 def _redact_stream_chunk(
@@ -621,6 +663,10 @@ def create_app(
             return await call_next(request)
         authorization = request.headers.get("authorization")
         if mode == "permissive" and authorization is None:
+            request_body = await request.body()
+            assert tokens is not None
+            if any(token.encode() in request_body for token in (*tokens.read, *tokens.write)):
+                return JSONResponse(status_code=400, content={"detail": "request rejected"})
             client = request.client.host if request.client is not None else "unknown"
             permissive_unauthenticated_total += 1
             if permissive_unauthenticated_total & (permissive_unauthenticated_total - 1) == 0:
@@ -633,12 +679,12 @@ def create_app(
                     permissive_unauthenticated_total,
                 )
             return await call_next(request)
+        assert tokens is not None
         presented = ""
         if authorization is not None and authorization.startswith("Bearer "):
             candidate = authorization[7:]
             if candidate and " " not in candidate:
                 presented = candidate
-        assert tokens is not None
         presented_bytes = presented.encode()
         write = any(hmac.compare_digest(presented_bytes, token.encode()) for token in tokens.write)
         read = any(hmac.compare_digest(presented_bytes, token.encode()) for token in tokens.read)
@@ -657,6 +703,9 @@ def create_app(
                 content=generic_auth_failure,
                 headers={"WWW-Authenticate": "Bearer"},
             )
+        request_body = await request.body()
+        if any(token.encode() in request_body for token in (*tokens.read, *tokens.write)):
+            return JSONResponse(status_code=400, content={"detail": "request rejected"})
         return await call_next(request)
 
     # The block-until-change feed: a store mutation bumps the version + wakes parked GET /tasks

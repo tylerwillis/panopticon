@@ -181,6 +181,11 @@ def hold_runner_liveness(
             for _ in live:  # each tick is a server keepalive; recheck whether to stop
                 if not running():
                     break
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code in {401, 403}:
+                raise RuntimeError(
+                    "task-service permanently rejected the runner liveness credential"
+                ) from exc
         except httpx.HTTPError:
             pass  # connection dropped underneath us — fall through to reconnect
         finally:

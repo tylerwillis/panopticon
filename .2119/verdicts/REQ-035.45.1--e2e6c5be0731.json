@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.45.1--e2e6c5be0731",
+  "requirementId": "REQ-035.45.1",
+  "hash": "e2e6c5be0731",
+  "verdict": "pass",
+  "summary": "Parameterized 401 and 403 liveness responses must raise the permanent-rejection error, while any retry sleep fails the test; a separate drop test preserves the transient-retry boundary.",
+  "timestamp": "2026-08-03T09:26:18.154Z"
+}

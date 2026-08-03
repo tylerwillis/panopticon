@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.9.1--88fa34dc15fa",
+  "requirementId": "REQ-035.9.1",
+  "hash": "88fa34dc15fa",
+  "verdict": "pass",
+  "summary": "Exact Bearer acceptance is proven and every forbidden query, cookie, JSON, alternate-header name and near-miss Authorization syntax is rejected across protected operations.",
+  "timestamp": "2026-08-03T09:21:37.588Z"
+}

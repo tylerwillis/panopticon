@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import re
 import socket
 import subprocess
@@ -430,7 +431,7 @@ def test_mcp_validation_failure_redacts_a_configured_token(tmp_path: Path) -> No
 
             assert response.status_code == 400
             assert all(configured_token not in response.text for configured_token in configured)
-            assert "*" * len(token) in response.text
+            assert response.json() == {"detail": "request rejected"}
 
 
 def test_mcp_tool_arguments_never_log_or_return_configured_tokens(
@@ -453,6 +454,23 @@ def test_mcp_tool_arguments_never_log_or_return_configured_tokens(
         auth_mode="enforced",
         secrets_dir=tmp_path / "secrets",
     )
+    try:
+        raise RuntimeError(f"traceback carried {WRITE_TOKEN}")
+    except RuntimeError:
+        logging.getLogger("mcp.server.fastmcp.server").exception(
+            "SDK failure for %s", READ_TOKEN, extra={"credential": WRITE_TOKEN}
+        )
+    stack_record = logging.LogRecord(
+        "mcp.server.lowlevel.server",
+        logging.ERROR,
+        __file__,
+        0,
+        "SDK stack failure",
+        (),
+        None,
+    )
+    stack_record.stack_info = f"stack carried {WRITE_TOKEN}"
+    logging.getLogger(stack_record.name).handle(stack_record)
     headers = {
         **_bearer(WRITE_TOKEN),
         "Content-Type": "application/json",
@@ -509,9 +527,48 @@ def test_mcp_tool_arguments_never_log_or_return_configured_tokens(
             for index, token in enumerate(configured)
         )
 
-    assert all(response.status_code == 200 for response in responses)
-    observed = caplog.text + "".join(response.text for response in responses)
+    assert all(response.status_code == 400 for response in responses)
+    captured_records = "".join(repr(record.__dict__) for record in caplog.records)
+    observed = caplog.text + captured_records + "".join(response.text for response in responses)
     assert all(token not in observed for token in configured)
+
+
+def test_configured_tokens_are_rejected_before_persistence_or_success(
+    tmp_path: Path,
+) -> None:
+    # 2119: REQ-035.18.1
+    # 2119: REQ-035.44.1
+    service_root = tmp_path / "service"
+    service = _service(service_root)
+    with TestClient(
+        create_app(
+            service,
+            auth_file=_credential_file(tmp_path),
+            auth_mode="enforced",
+            secrets_dir=tmp_path / "secrets",
+        )
+    ) as client:
+        task_response = client.post(
+            "/tasks",
+            headers=_bearer(WRITE_TOKEN),
+            json={"repo_id": "r1", "workflow": "spike", "memo": WRITE_TOKEN},
+        )
+        artifact_response = client.put(
+            "/tasks/missing/artifacts/proof",
+            headers=_bearer(WRITE_TOKEN),
+            content=f"prefix {READ_TOKEN} suffix",
+        )
+        assert task_response.status_code == 400
+        assert artifact_response.status_code == 400
+        assert task_response.json() == {"detail": "request rejected"}
+        assert artifact_response.json() == {"detail": "request rejected"}
+
+    durable = (service_root / "task.db").read_bytes()
+    artifact_files = list((service_root / "artifacts").glob("**/*"))
+    artifact_bytes = b"".join(path.read_bytes() for path in artifact_files if path.is_file())
+    for token in (READ_TOKEN, WRITE_TOKEN):
+        assert token.encode() not in durable
+        assert token.encode() not in artifact_bytes
 
 
 def test_read_and_write_tokens_can_read_but_only_write_token_can_mutate(tmp_path: Path) -> None:
@@ -1152,6 +1209,7 @@ def test_permissive_warning_redacts_tokens_and_keeps_a_monotonic_bounded_signal(
         json.dumps({"read": [1], "write": [WRITE_TOKEN]}),
         json.dumps({"read": [READ_TOKEN], "write": WRITE_TOKEN}),
         json.dumps({"read": [READ_TOKEN], "write": [1]}),
+        json.dumps({"read": [READ_TOKEN], "write": [WRITE_TOKEN], "extra": []}),
         json.dumps({"read": [], "write": [WRITE_TOKEN]}),
         json.dumps({"read": [READ_TOKEN]}),
         json.dumps({"write": [WRITE_TOKEN]}),

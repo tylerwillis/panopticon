@@ -94,11 +94,12 @@ def test_production_composition_treats_empty_auth_reference_as_unset(
 
 
 def test_production_launcher_does_not_persist_rejected_query_credentials(tmp_path: Path) -> None:
+    # 2119: REQ-035.18.1
     # 2119: REQ-035.22.1
     config = tmp_path / "config"
     secrets = config / "secrets"
     secrets.mkdir(parents=True)
-    query_token = "rejected-query-secret"
+    query_token = "write-token-long"
     (secrets / "auth.json").write_text(
         json.dumps({"read": ["read-token-long"], "write": ["write-token-long"]})
     )

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.21.1--b03b00656f63",
+  "requirementId": "REQ-035.21.1",
+  "hash": "b03b00656f63",
+  "verdict": "pass",
+  "summary": "The rendered authenticated Pi operation is executed with a fake curl and xtrace, proving the token arrives through curl config stdin while remaining absent from process arguments and trace output.",
+  "timestamp": "2026-08-03T09:21:55.194Z"
+}

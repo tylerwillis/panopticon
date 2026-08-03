@@ -68,7 +68,7 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 
 ### REQ-035.14: Enforced mode validation
 
-1. A service configured to enforce authentication MUST fail startup before serving requests when its credential reference is missing, escapes the secrets directory, is unreadable, is not a JSON object of nonempty `read` and `write` string arrays, or assigns any token to both privileges.
+1. A service configured to enforce authentication MUST fail startup before serving requests when its credential reference is missing, escapes the secrets directory, is unreadable, is not a JSON object containing only nonempty `read` and `write` string arrays, or assigns any token to both privileges.
 
 ### REQ-035.15: Shared client propagation
 
@@ -185,3 +185,11 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 ### REQ-035.43: Migration convergence counter
 
 1. Permissive mode health responses MUST expose a monotonic total of header-less requests admitted since application startup without disclosing configured tokens.
+
+### REQ-035.44: Persistent secret rejection
+
+1. A protected request body containing a configured token MUST be rejected before the token enters database state, artifacts, or a successful response.
+
+### REQ-035.45: Permanent runner rejection
+
+1. A host runner whose liveness request receives HTTP 401 or 403 MUST terminate instead of retrying as though the rejection were a transient connection failure.
