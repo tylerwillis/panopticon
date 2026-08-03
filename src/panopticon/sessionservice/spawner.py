@@ -135,6 +135,9 @@ class Spawner:
         #: task_id → (respawns in the current burst, monotonic time of the last respawn), the
         #: crash-loop guard state for :meth:`heal`.
         self._respawns: dict[str, tuple[int, float]] = {}
+        #: Tasks whose latest respawn failed before establishing a session. Time spent in a failed
+        #: command is not survival, so these counts cannot receive the survivor-window reset.
+        self._pre_session_failures: set[str] = set()
         #: Whether the Docker daemon is currently reachable (REQ-031.3) — checked before claiming/
         #: respawning a non-shell task, so an unreachable daemon (environmental) defers the attempt
         #: instead of burning that task's crash-loop budget or reporting it ``failed``. Defaults to
@@ -173,7 +176,8 @@ class Spawner:
             if exc.response.status_code == 409:
                 return None  # another runner claimed it first
             raise
-        self._respawns.pop(task["id"], None)  # an operator-released fresh claim starts a new budget
+        self._respawns.pop(task["id"], None)  # every fresh claim starts a new respawn budget
+        self._pre_session_failures.discard(task["id"])
         return self._spawn(dict(task, claimed_by=self._runner_id))
 
     def _spawn(self, task: JsonObj) -> str:
@@ -205,8 +209,12 @@ class Spawner:
             if recoverable:
                 with contextlib.suppress(Exception):
                     session_established = self._runner.has_session(task_id)
-            budget_exhausted = self._respawn_count(task_id, self._now()) >= self._max_respawns
+            respawn_count, _ = self._respawns.get(task_id, (0, 0.0))
+            budget_exhausted = respawn_count >= self._max_respawns
             if recoverable and not session_established and not budget_exhausted:
+                self._pre_session_failures.add(task_id)
+                if respawn_count:
+                    self._respawns[task_id] = (respawn_count, self._now())
                 _log.error(
                     "task %s: spawn infrastructure failed before tmux session — deferring: %s",
                     task_id,
@@ -217,6 +225,8 @@ class Spawner:
             else:
                 detail = str(exc)
                 if recoverable and not session_established and budget_exhausted:
+                    self._pre_session_failures.add(task_id)
+                    self._respawns[task_id] = (respawn_count, self._now())
                     detail = (
                         f"{detail} (respawn budget exhausted after {self._max_respawns} attempts)"
                     )
@@ -426,7 +436,11 @@ class Spawner:
         (a respawn that survived :data:`RESPAWN_RESET_SECONDS` starts a fresh budget). Read-only —
         :meth:`heal` is what records a respawn."""
         count, last = self._respawns.get(task_id, (0, 0.0))
-        if count and now - last >= self._respawn_reset:
+        if (
+            count
+            and task_id not in self._pre_session_failures
+            and now - last >= self._respawn_reset
+        ):
             return 0  # survived long enough since the last respawn → a fresh episode, not a loop
         return count
 
@@ -486,6 +500,7 @@ class Spawner:
         task_id = task["id"]
         if task["state"] in TERMINAL_LABELS and task.get("claimed_by") == self._runner_id:
             self._respawns.pop(task_id, None)  # our task is done — forget any crash-loop tracking
+            self._pre_session_failures.discard(task_id)
         if not self._is_orphan(task):
             return None  # not ours / terminal / a session is up — nothing to heal
         if not self._daemon_reachable():
@@ -509,7 +524,9 @@ class Spawner:
         _log.warning(
             "self-healing orphaned task %s (no tmux session) — respawn %d", task_id, count + 1
         )
-        return self._spawn(task)
+        result = self._spawn(task)
+        self._pre_session_failures.discard(task_id)
+        return result
 
     def startup_reclaim(self, tasks: list[JsonObj]) -> None:
         """Release claims for our tasks whose containers aren't running — the restart reset.
@@ -528,7 +545,8 @@ class Spawner:
         Best-effort per task: a failed release is silently skipped — :meth:`heal` picks it
         up on the next tick, fast but functional. Called once by
         :meth:`~panopticon.sessionservice.host.HostDaemon.run` on the first successful task
-        fetch.
+        fetch. Tasks already reporting ``failed`` stay claimed so neither launcher diagnostics nor
+        an exhausted infrastructure-failure latch is cleared without an explicit claim release.
 
         Shell tasks are left claimed: releasing one would let :meth:`spawn_one` re-run its script
         (the unclaimed-spawn path), but a shell script is run **once** — its exit is completion, not
@@ -539,6 +557,8 @@ class Spawner:
                 continue
             if task["state"] in TERMINAL_LABELS:
                 continue
+            if task.get("container_status") == ContainerStatus.FAILED.value:
+                continue  # preserve launcher/budget diagnostics until explicit claim release
             if self._executions.is_shell(task.get("workflow")):
                 continue  # never auto-respawn a shell task — leave it claimed (reconciles to `down`)
             if self._runner_for(task).is_running(task["id"]):

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-043.2.1--f10b88539355",
-  "requirementId": "REQ-043.2.1",
-  "hash": "f10b88539355",
-  "verdict": "pass",
-  "summary": "Test crosses the established-session boundary, rejects heal-time clearing or respawn while claimed, retains failed status and credential detail, and verifies claim release clears the failure and permits respawn.",
-  "timestamp": "2026-08-03T07:25:06.989Z"
-}

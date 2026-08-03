@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-043.4.2--f7daf3f39aff",
-  "requirementId": "REQ-043.4.2",
-  "hash": "f7daf3f39aff",
-  "verdict": "pass",
-  "summary": "Tests exhaust exactly 3 pre-session failures within 60s, preserve failed status and diagnostic past a 120s reset window with no retry, and permit retry only after claim release.",
-  "timestamp": "2026-08-03T07:53:05.923Z"
-}

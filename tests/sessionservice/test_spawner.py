@@ -1026,6 +1026,7 @@ def test_pre_session_failures_latch_when_the_respawn_budget_is_exhausted(
         command = list(args)
         if command[:2] == ["docker", "run"]:
             docker_runs += 1
+            clock["t"] += 61.0  # slow failure time is not a session surviving the reset window
             raise subprocess.CalledProcessError(125, command)
         return ""
 
@@ -1042,6 +1043,7 @@ def test_pre_session_failures_latch_when_the_respawn_budget_is_exhausted(
             return ""
         if command[:2] == ["docker", "build"]:
             image_builds += 1
+            clock["t"] += 61.0  # command duration must not reset the failed attempt's budget
             raise subprocess.CalledProcessError(1, command)
         return ""
 
@@ -1402,6 +1404,27 @@ def test_startup_reclaim_keeps_claims_when_container_is_still_running() -> None:
     ]
     _spawner(client, runner).startup_reclaim(tasks)
     assert client.releases == []
+
+
+# 2119: REQ-043.2.1
+# 2119: REQ-043.4.2
+def test_startup_reclaim_preserves_failed_latches_until_explicit_release() -> None:
+    client = _FakeClient(repo=_REPO)
+    runner = _FakeRunner(running=False, session=False)
+    task = {
+        "id": "t1",
+        "repo_id": "r1",
+        "workflow": "spike",
+        "state": "ITERATING",
+        "claimed_by": "host-1",
+        "container_status": "failed",
+        "lifecycle_detail": "No codex credentials",
+    }
+
+    _spawner(client, runner).startup_reclaim([task])
+
+    assert client.releases == []
+    assert client.cleared == []
 
 
 def test_startup_reclaim_skips_tasks_not_claimed_by_us() -> None:

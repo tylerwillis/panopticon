@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-043.4.3--d267138c8741",
-  "requirementId": "REQ-043.4.3",
-  "hash": "d267138c8741",
-  "verdict": "pass",
-  "summary": "Test rejects deferred budget consumption or reset across a long outage, rejects image-build/docker-run attempts while unreachable, and proves recovery resumes from the prior count.",
-  "timestamp": "2026-08-03T07:25:34.345Z"
-}

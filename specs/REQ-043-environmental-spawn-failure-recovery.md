@@ -52,9 +52,9 @@ existing budget timestamp, as specified by REQ-031.3.
 1. Spawn failure recovery MUST classify failures by whether the task tmux session was established,
    rather than interpreting a Docker command's numeric exit code as a reliable task-versus-host
    diagnosis.
-2. A failure outside the Docker image-build or container-start command segment MUST retain the
-   existing `failed` lifecycle status and diagnostic even when it occurs before tmux session
-   establishment.
+2. A failure outside the Docker image-build or the Docker runner's container-and-session-start
+   sequence MUST retain the existing `failed` lifecycle status and diagnostic even when it occurs
+   before tmux session establishment.
 
 ### REQ-043.4: Bounded retries
 

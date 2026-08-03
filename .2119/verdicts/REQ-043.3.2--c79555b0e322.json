@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-043.3.2--c79555b0e322",
-  "requirementId": "REQ-043.3.2",
-  "hash": "c79555b0e322",
-  "verdict": "pass",
-  "summary": "Hook failure before tmux is outside Docker build/start; the test requires failed to remain uncleared and preserves the exact original diagnostic.",
-  "timestamp": "2026-08-03T07:53:07.311Z"
-}
