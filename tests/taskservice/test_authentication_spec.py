@@ -1616,6 +1616,7 @@ def test_runner_injects_write_token_into_docker_and_shell_tasks_without_command_
     assert str((tmp_path / "secrets" / reference).resolve()) not in auth_mount
     mounted_snapshot = Path(auth_mount.split(":", 1)[0])
     assert mounted_snapshot.is_file()
+    assert json.loads(mounted_snapshot.read_text()) == {"read": [], "write": [WRITE_TOKEN]}
     docker_runner.stop("panopticon-t1")
     assert not mounted_snapshot.exists()
 
