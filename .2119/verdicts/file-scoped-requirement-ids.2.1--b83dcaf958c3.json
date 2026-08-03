@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.2.1--b83dcaf958c3",
+  "requirementId": "file-scoped-requirement-ids.2.1",
+  "hash": "b83dcaf958c3",
+  "verdict": "pass",
+  "summary": "Merge-base path diff rejects any legacy spec rename, deletion, or addition; the one-shot migration guard now reports SKIPPED once adoption is on the base",
+  "timestamp": "2026-08-03T22:10:43.093Z"
+}

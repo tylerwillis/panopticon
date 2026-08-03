@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.5.3--613254d5c76e",
+  "requirementId": "file-scoped-requirement-ids.5.3",
+  "hash": "613254d5c76e",
+  "verdict": "pass",
+  "summary": "PASS: the test requires the explicit post-adoption branch/file-scoped-ID sentence, rejecting omission and the nearest pre-adoption-boundary substitution.",
+  "timestamp": "2026-08-03T22:10:54.734Z"
+}

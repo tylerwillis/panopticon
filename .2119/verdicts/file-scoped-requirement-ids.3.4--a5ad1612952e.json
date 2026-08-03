@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.3.4--a5ad1612952e",
+  "requirementId": "file-scoped-requirement-ids.3.4",
+  "hash": "a5ad1612952e",
+  "verdict": "pass",
+  "summary": "PASS: isolated alpha/beta specs reuse both section and item numbers and the CLI must expose all four distinct canonical IDs",
+  "timestamp": "2026-08-03T22:10:48.904Z"
+}

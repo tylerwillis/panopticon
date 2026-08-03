@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.3.3--89df012c8a90",
+  "requirementId": "file-scoped-requirement-ids.3.3",
+  "hash": "89df012c8a90",
+  "verdict": "pass",
+  "summary": "Real 0.7.0 lint, cover, and dispatch require filename-stem plus section and item components; wrong stem or either wrong number is rejected.",
+  "timestamp": "2026-08-03T22:10:48.359Z"
+}
