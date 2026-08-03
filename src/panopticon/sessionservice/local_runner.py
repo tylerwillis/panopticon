@@ -41,7 +41,7 @@ from panopticon.taskservice.auth import snapshot_tokens as snapshot_service_toke
 DEFAULT_IMAGE = "panopticon-base"
 
 #: Lets the container reach the host task service (container→host addressing, ADR 0008).
-#: ``host-gateway`` maps to the host's gateway IP; the service binds 0.0.0.0.
+#: ``host-gateway`` maps to the host's gateway IP; native Linux uses the compatibility broad bind.
 HOST_GATEWAY = "host.docker.internal:host-gateway"
 
 #: Dedicated tmux server socket for panopticon's task sessions — isolates them from the

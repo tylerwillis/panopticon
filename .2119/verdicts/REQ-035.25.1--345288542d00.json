@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.25.1--345288542d00",
+  "requirementId": "REQ-035.25.1",
+  "hash": "345288542d00",
+  "verdict": "pass",
+  "summary": "Launcher test rejects absent or empty host configuration resolving anywhere but 127.0.0.1 and permits a non-loopback bind only after an explicit PANOPTICON_HOST setting.",
+  "timestamp": "2026-08-03T18:41:32.989Z"
+}

@@ -180,6 +180,7 @@ def _expected_new_session_commands() -> list[list[str]]:
     constant, so its `defaults_argv` call (which writes a config file as a side effect) only runs
     for the tests that need it."""
     defaults = defaults_argv("panopticon")
+    service_host = "127.0.0.1" if sys.platform == "darwin" else "0.0.0.0"
     environment = (
         "env -u PANOPTICON_SERVICE_AUTH_FILE -u PANOPTICON_SERVICE_AUTH_MODE -u PANOPTICON_CONFIG "
     )
@@ -193,7 +194,7 @@ def _expected_new_session_commands() -> list[list[str]]:
             "-d",
             "-s",
             "service",
-            f"{environment}{sys.executable} -m panopticon.taskservice --host 0.0.0.0 "
+            f"{environment}{sys.executable} -m panopticon.taskservice --host {service_host} "
             "2>&1 | tee /tmp/panopticon-service.log",
         ],
         [
@@ -231,6 +232,7 @@ def test_start_actually_starts_both_sessions_with_their_real_commands_when_reach
     # swaps in an inert/wrong/foregrounded command is caught too.
     # 2119: REQ-031.1.5
     with (
+        patch.dict(os.environ, {"PANOPTICON_HOST": ""}),
         patch("subprocess.run", side_effect=_fake_subprocess_run) as mock_run,
         patch("panopticon.terminal.__main__._run_migrate"),
         patch("panopticon.terminal.console.run_console_local"),
@@ -245,6 +247,7 @@ def test_host_actually_starts_both_sessions_with_their_real_commands_when_reacha
     # detachment, or uses the wrong command for this entry point specifically must be caught too.
     # 2119: REQ-031.1.5
     with (
+        patch.dict(os.environ, {"PANOPTICON_HOST": ""}),
         patch("subprocess.run", side_effect=_fake_subprocess_run) as mock_run,
         patch("panopticon.terminal.__main__._run_migrate"),
     ):

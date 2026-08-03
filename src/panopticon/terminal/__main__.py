@@ -20,6 +20,7 @@ from __future__ import annotations
 import argparse
 import contextlib
 import os
+import shlex
 import subprocess
 from collections.abc import Callable, Sequence
 from pathlib import Path
@@ -37,6 +38,10 @@ def _make_client(service_url: str) -> TaskServiceClient:
 
 
 DEFAULT_SERVICE_URL = "http://localhost:8000"
+
+
+def _default_service_host(platform: str) -> str:
+    return "127.0.0.1" if platform == "darwin" else "0.0.0.0"
 
 
 def _run_migrate() -> None:
@@ -58,10 +63,11 @@ def _start_sessions(
 
     do_run = run or subprocess.run
     python = sys.executable
+    service_host = os.environ.get("PANOPTICON_HOST") or _default_service_host(sys.platform)
     for name, cmd in [
         (
             "service",
-            f"{python} -m panopticon.taskservice --host 0.0.0.0 "
+            f"{python} -m panopticon.taskservice --host {shlex.quote(service_host)} "
             "2>&1 | tee /tmp/panopticon-service.log",
         ),
         (
