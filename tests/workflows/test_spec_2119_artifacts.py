@@ -18,8 +18,10 @@ from panopticon.workflows.spec_2119 import _VERIFIED_REVIEW_INSTRUCTIONS
 
 WORKFLOW_NAMES = ("2119-human-spec", "2119-auto-spec", "2119-auto-sol")
 EXPECTED_ARTIFACT_INSTRUCTIONS = (
-    "An artifact is a durable task document that the user can review. Publish anything you want "
-    "the user to review as an artifact, regardless of document type. Examples include a "
+    "The system prompt establishes a standing expectation: publish each reviewable document as "
+    "a task artifact when you produce it, without waiting for the user to ask. This skill is the "
+    "procedure for fulfilling that expectation. An artifact is a durable task document that the "
+    "user can review. Examples include a "
     "specification or spec summary, review outputs, a triage summary, and stage or gate reports, "
     "but these examples are not exhaustive. "
     "Use the `put_artifact` MCP tool. On a harness without MCP, send the artifact bytes with "
@@ -149,6 +151,7 @@ def _responsibility_descriptions(workflow: Workflow, state: str) -> dict[str, st
 @pytest.mark.asyncio
 async def test_every_task_exposes_the_core_artifact_skill(tmp_path: Path) -> None:
     # 2119: REQ-028.1.1
+    # 2119: REQ-041.3.1
     class SkillLess(Workflow):
         name = "skill-less"
 
@@ -198,7 +201,10 @@ async def test_every_task_exposes_the_core_artifact_skill(tmp_path: Path) -> Non
                 governor_task_id=governor_id,
                 harness=harness,
             )
-            assert [skill.name for skill in await service.skills(task.id)] == expected
+            task_skills = await service.skills(task.id)
+            assert [skill.name for skill in task_skills] == expected
+            artifact_skill = next(skill for skill in task_skills if skill.name == "artifacts")
+            assert artifact_skill.instructions == EXPECTED_ARTIFACT_INSTRUCTIONS
 
 
 @pytest.mark.asyncio
@@ -208,6 +214,8 @@ async def test_artifact_skill_explains_both_write_mechanisms(tmp_path: Path) -> 
     # 2119: REQ-028.3.1
     # 2119: REQ-028.10.1
     # 2119: REQ-028.11.1
+    # 2119: REQ-041.3.1
+    # 2119: REQ-041.4.1
     service = TaskService(
         SqlAlchemyStore(),
         {"spike": discover_workflows(_home_workflows=Path("/nonexistent"))["spike"]},
@@ -319,6 +327,9 @@ def test_2119_skills_publish_spec_and_review_material() -> None:
         assert review_skills
         for review_skill in review_skills:
             assert review_skill.instructions == expected_review
+            assert review_skill.instructions.endswith(
+                "Also publish the final review outputs and triage summary as task artifacts."
+            )
             normalized = " ".join(review_skill.instructions.split())
             assert (
                 'End the triage summary PR comment with a "Suggested placeholder issues" section.'
@@ -331,6 +342,7 @@ def test_2119_skills_publish_spec_and_review_material() -> None:
             ) in normalized
             assert "Omit findings rejected as simply wrong" in normalized
             assert "Do not omit findings rejected as simply wrong" not in normalized
+            assert "Include every rejected finding in that section" not in normalized
             assert (
                 "recommendations for the user to react to (endorse, reject, or edit) at the PR "
                 "approval gate"

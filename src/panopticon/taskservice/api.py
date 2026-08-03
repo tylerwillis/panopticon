@@ -33,6 +33,7 @@ from starlette._utils import get_route_path
 from starlette.types import Message, Receive, Scope, Send
 
 from panopticon.core.artifacts import ArtifactError
+from panopticon.core.liveness import LIVENESS_KEEPALIVE_SECONDS
 from panopticon.core.models import Actor, LifecyclePhase, Repo, Status, Task, WakeStatus
 from panopticon.core.store import AlreadyExists, NotFound, StoreError
 from panopticon.core.workflow import IllegalTransition, InvalidWorkflow, ResponsibilitiesNotMet
@@ -44,11 +45,6 @@ from panopticon.taskservice.service import (
     UnknownWorkflow,
 )
 
-#: How often the held ``/live`` stream emits a keepalive byte. This does **not** govern how fast
-#: death is noticed — disconnect is event-driven (Starlette cancels the stream the instant the
-#: client drops, so the registration is removed immediately). The keepalive only keeps idle
-#: proxies from closing the connection and gives the container a tick to notice a clean stop.
-LIVENESS_KEEPALIVE_SECONDS = 5.0
 MAX_AUTH_INSPECTION_BODY_BYTES = 8 * 1024 * 1024
 _log = logging.getLogger(__name__)
 _original_log_record_factory: Callable[..., logging.LogRecord] | None = None
@@ -178,6 +174,11 @@ def _redact_stream_chunk(
     return bytes(output), data[consumed:]
 
 
+async def _wait_for_liveness_keepalive() -> None:
+    """Wait for the shared server keepalive interval."""
+    await asyncio.sleep(LIVENESS_KEEPALIVE_SECONDS)
+
+
 # -- wire schemas -------------------------------------------------------------------
 
 
@@ -259,6 +260,7 @@ class TaskSummaryOut(BaseModel):
     runner_host: str | None = (
         None  # hostname the claiming runner registered with (M5: remote attach)
     )
+    has_artifacts: bool = False
 
 
 class TaskOut(BaseModel):
@@ -792,7 +794,9 @@ def create_app(
             out.runner_host = service.runner_host(task.claimed_by)
         return out
 
-    def _task_summary_out(task: Task, tasks_by_id: dict[str, Task]) -> TaskSummaryOut:
+    def _task_summary_out(
+        task: Task, tasks_by_id: dict[str, Task], *, has_artifacts: bool
+    ) -> TaskSummaryOut:
         """Serialize a task to the cheap summary shape (no history), with computed status fields."""
         out = TaskSummaryOut.model_validate(task)
         out.terminal = service.task_is_terminal(task)
@@ -804,6 +808,7 @@ def create_app(
         out.lifecycle_detail = lifecycle.detail if lifecycle is not None else None
         if task.claimed_by is not None:
             out.runner_host = service.runner_host(task.claimed_by)
+        out.has_artifacts = has_artifacts
         return out
 
     # -- error mapping: domain exceptions -> HTTP status --------------------------
@@ -972,7 +977,13 @@ def create_app(
             if terminal is None
             else [task for task in all_tasks if service.task_is_terminal(task) == terminal]
         )
-        tasks = [_task_summary_out(task, tasks_by_id) for task in tasks_raw]
+        artifact_names = await asyncio.gather(
+            *(service.list_artifacts(task.id) for task in tasks_raw)
+        )
+        tasks = [
+            _task_summary_out(task, tasks_by_id, has_artifacts=bool(names))
+            for task, names in zip(tasks_raw, artifact_names, strict=True)
+        ]
         response.headers[TASKS_VERSION_HEADER] = str(version)
         return tasks
 
@@ -1195,7 +1206,7 @@ def create_app(
             try:
                 yield b":ok\n"  # flush headers + confirm liveness is established
                 while True:
-                    await asyncio.sleep(LIVENESS_KEEPALIVE_SECONDS)
+                    await _wait_for_liveness_keepalive()
                     yield b":keepalive\n"
             finally:  # client disconnected (Starlette cancels us) or the loop ended — reap now
                 await service.deregister(reg.id)
@@ -1264,7 +1275,7 @@ def create_app(
             try:
                 yield b":ok\n"  # flush headers + confirm host liveness is established
                 while True:
-                    await asyncio.sleep(LIVENESS_KEEPALIVE_SECONDS)
+                    await _wait_for_liveness_keepalive()
                     yield b":keepalive\n"
             finally:  # daemon disconnected (Starlette cancels us) or the loop ended — drop it now
                 await service.deregister_runner(reg.id)

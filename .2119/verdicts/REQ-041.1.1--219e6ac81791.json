@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-041.1.1--219e6ac81791",
+  "requirementId": "REQ-041.1.1",
+  "hash": "219e6ac81791",
+  "verdict": "pass",
+  "summary": "Fixed exact-output evidence requires every reviewable document to be published as a task artifact when produced and unconditionally, rejecting omissions, weakened scope/timing/destination, and added request conditions.",
+  "timestamp": "2026-08-03T04:12:31.415Z"
+}

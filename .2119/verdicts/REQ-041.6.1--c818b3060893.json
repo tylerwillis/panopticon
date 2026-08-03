@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-041.6.1--c818b3060893",
+  "requirementId": "REQ-041.6.1",
+  "hash": "c818b3060893",
+  "verdict": "pass",
+  "summary": "Tests reject omission or drift of the full shared orientation/artifact guidance for a workflow with responsibilities/tools and Spike without them, and directly reject non-empty Spike ITERATING responsibilities.",
+  "timestamp": "2026-08-03T04:11:30.010Z"
+}

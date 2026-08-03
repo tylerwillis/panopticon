@@ -7,8 +7,10 @@ from panopticon.core.models import Skill
 ARTIFACT_SKILL = Skill(
     "artifacts",
     "Publish durable work products for operator review.",
-    "An artifact is a durable task document that the user can review. Publish anything you want "
-    "the user to review as an artifact, regardless of document type. Examples include a "
+    "The system prompt establishes a standing expectation: publish each reviewable document as "
+    "a task artifact when you produce it, without waiting for the user to ask. This skill is the "
+    "procedure for fulfilling that expectation. An artifact is a durable task document that the "
+    "user can review. Examples include a "
     "specification or spec summary, review outputs, a triage summary, and stage or gate reports, "
     "but these examples are not exhaustive. "
     "Use the `put_artifact` MCP tool. On a harness without MCP, send the artifact bytes with "

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.2.1--48047b6c9caa",
+  "requirementId": "REQ-028.2.1",
+  "hash": "48047b6c9caa",
+  "verdict": "pass",
+  "summary": "Exact independently defined instructions require both put_artifact and the REST artifact endpoint.",
+  "timestamp": "2026-08-03T00:13:16.622Z"
+}

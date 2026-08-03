@@ -1211,7 +1211,8 @@ async def test_shift_e_sets_an_indefinite_snooze_with_visible_dim_label() -> Non
         "attention": False,
         "snoozed_until": None,
     }
-    fake = _FakeClient([task])
+    other = {**task, "id": "task-other456789", "slug": "other-task"}
+    fake = _FakeClient([task, other])
     app = Dashboard(fake, now=lambda: _SNOOZE_NOW, refresh_interval=0)  # type: ignore[arg-type]
     async with app.run_test() as pilot:
         await pilot.pause()
@@ -1219,6 +1220,7 @@ async def test_shift_e_sets_an_indefinite_snooze_with_visible_dim_label() -> Non
         await pilot.pause()
 
         assert fake.snoozes == [(_TASK["id"], _INDEFINITE_SNOOZE)]
+        assert other["snoozed_until"] is None
         row = app.query_one("#tasks", DataTable).get_row(_TASK["id"])
         assert row[1].plain == "snoozed"
         _assert_fully_dimmed(row)
@@ -4031,6 +4033,8 @@ async def test_bulk_respawn_with_no_down_tasks_notifies_without_opening_modal(
             "live",
             "failed",
             "disconnected",
+            "Down",
+            "down ",
         ]
     ],
 )
@@ -4095,6 +4099,90 @@ def test_slug_cell_combines_slug_and_memo() -> None:
     # multi-line memo → only the first line shown in the table cell
     assert _slug_cell({"slug": "s", "memo": "line one\nline two"}).plain == "s[line one]"
     assert _slug_cell({"memo": "line one\nline two"}).plain == "[line one]"
+
+
+# 2119: REQ-042.1
+async def test_dashboard_slug_prefix_identifies_a_task_with_artifacts() -> None:
+    task = {**_TASK, "has_artifacts": True}
+    fake = _FakeClient([task], artifacts={_TASK["id"]: ["specification.md"]})
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.pause()
+        slug_cell = app.query_one("#tasks", DataTable).get_row(_TASK["id"])[4]
+        assert slug_cell.plain == "*a | fix-widget"
+
+
+# 2119: REQ-042.2
+async def test_dashboard_slug_prefix_identifies_github_pull_request_number() -> None:
+    urls_and_labels = [
+        ("https://github.com/acme/widgets/pull/123", "*PR123 | fix-widget"),
+        ("http://github.com/acme/widgets/pull/456/files?diff=split#top", "*PR456 | fix-widget"),
+        ("https://example.com/acme/widgets/pull/123", "fix-widget"),
+        ("ssh://github.com/acme/widgets/pull/123", "fix-widget"),
+        ("https://github.com.example/acme/widgets/pull/123", "fix-widget"),
+        ("https://github.com/acme/widgets/pull/123abc", "fix-widget"),
+        ("https://github.com/acme/widgets/pull/", "fix-widget"),
+        ("http://[", "fix-widget"),
+        ("https://github.com／evil/acme/widgets/pull/123", "fix-widget"),
+    ]
+    tasks = [
+        {**_TASK, "id": f"task-url-{number}", "url": url}
+        for number, (url, _) in enumerate(urls_and_labels)
+    ]
+    app = Dashboard(_FakeClient(tasks), refresh_interval=0)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        table = app.query_one("#tasks", DataTable)
+        for number, (_, expected) in enumerate(urls_and_labels):
+            assert table.get_row(f"task-url-{number}")[4].plain == expected
+
+
+async def test_dashboard_task_refresh_does_not_list_artifacts_per_task() -> None:
+    class NoArtifactListingClient(_FakeClient):
+        def list_artifacts(self, task_id: str) -> list[str]:
+            raise AssertionError(f"unexpected per-task artifact request for {task_id}")
+
+    tasks = [
+        {**_TASK, "id": f"task-{number}", "has_artifacts": number == 7} for number in range(20)
+    ]
+    app = Dashboard(
+        NoArtifactListingClient(tasks, artifacts={"task-7": ["review.md"]}),
+        refresh_interval=0,
+    )  # type: ignore[arg-type]
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        table = app.query_one("#tasks", DataTable)
+        assert table.get_row("task-7")[4].plain == "*a | fix-widget"
+
+
+# 2119: REQ-042.3
+def test_slug_cell_stacks_artifact_then_pull_request_with_one_separator() -> None:
+    task = {
+        **_TASK,
+        "url": "https://github.com/acme/widgets/pull/123/files?diff=split#discussion",
+    }
+    assert _slug_cell(task, has_artifacts=True).plain == "*a *PR123 | fix-widget"
+
+
+# 2119: REQ-042.4
+def test_slug_cell_indicators_preserve_structural_prefix_slug_and_memo() -> None:
+    task = {
+        **_TASK,
+        "url": "https://github.com/acme/widgets/pull/7",
+        "memo": "make it green\nextra detail",
+    }
+    assert _slug_cell(task, "├─ ", "▾ ", has_artifacts=True).plain == (
+        "├─ ▾ *a *PR7 | fix-widget[make it green]"
+    )
+    assert _slug_cell({**task, "url": None}, "├─ ", "▾ ", has_artifacts=True).plain == (
+        "├─ ▾ *a | fix-widget[make it green]"
+    )
+    assert _slug_cell(task, "├─ ", "▾ ").plain == ("├─ ▾ *PR7 | fix-widget[make it green]")
+    assert _slug_cell({**task, "url": "https://example.com/pull/7"}, "├─ ", "▾ ").plain == (
+        "├─ ▾ fix-widget[make it green]"
+    )
 
 
 def test_memo_textarea_height_logic() -> None:
@@ -5695,6 +5783,7 @@ def test_footer_shows_only_the_essential_keys() -> None:
         "R",
         "ctrl+r",
         "p",
+        "f",
         "g",
         "w",
         "a",
@@ -5729,6 +5818,123 @@ def test_task_snooze_keybindings_are_unique() -> None:
     actions = {hotkey.key: hotkey.action for hotkey in dashboard.HOTKEYS}
     assert actions["e"] == "snooze"
     assert actions["E"] == "snooze_indefinitely"
+
+
+# 2119: REQ-040.1.1
+def test_open_checkout_is_a_hidden_global_unique_hotkey() -> None:
+    keys = [hotkey.key for hotkey in dashboard.HOTKEYS]
+    assert len(keys) == len(set(keys))
+    binding = next(hotkey for hotkey in dashboard.HOTKEYS if hotkey.key == "f")
+    assert binding.action == "open_checkout"
+    assert binding.show is False
+
+
+def _open_checkout_app(task: dict[str, Any] | None) -> Dashboard:
+    app = Dashboard(_FakeClient([]))  # type: ignore[arg-type]
+    app._current = task["id"] if task is not None else None
+    app._tasks = {task["id"]: task} if task is not None else {}
+    return app
+
+
+# 2119: REQ-040.2.1
+def test_open_checkout_warns_when_no_task_is_highlighted(monkeypatch: Any) -> None:
+    notices: list[tuple[str, str]] = []
+    opened: list[str] = []
+    app = _open_checkout_app(None)
+    monkeypatch.setattr(
+        app, "notify", lambda message, severity="information": notices.append((message, severity))
+    )
+    monkeypatch.setattr(dashboard, "_open_path", opened.append)
+
+    app.action_open_checkout()
+
+    assert notices == [("No task highlighted.", "warning")]
+    assert opened == []
+
+    notices.clear()
+    app._current = "stale-row-key"
+    app.action_open_checkout()
+
+    assert notices == [("No task highlighted.", "warning")]
+    assert opened == []
+
+
+# 2119: REQ-040.3.1
+def test_open_checkout_warns_when_task_is_not_provisioned(monkeypatch: Any) -> None:
+    notices: list[tuple[str, str]] = []
+    opened: list[str] = []
+    app = _open_checkout_app({**_TASK, "clone": None})
+    monkeypatch.setattr(
+        app, "notify", lambda message, severity="information": notices.append((message, severity))
+    )
+    monkeypatch.setattr(dashboard, "_open_path", opened.append)
+
+    app.action_open_checkout()
+
+    assert notices == [("This task has not been provisioned yet.", "warning")]
+    assert opened == []
+
+
+# 2119: REQ-040.5.1
+@pytest.mark.parametrize(
+    ("runner_host", "message"),
+    [
+        ("mac-mini", "This task runs on mac-mini; its checkout isn't on this machine."),
+        (None, "This task's checkout isn't on this machine."),
+    ],
+)
+def test_open_checkout_warns_when_clone_is_not_a_local_directory(
+    monkeypatch: Any, runner_host: str | None, message: str
+) -> None:
+    checked: list[str] = []
+    opened: list[str] = []
+    notices: list[tuple[str, str]] = []
+    clone = "/runner/checkouts/task-abcdef0123"
+    app = _open_checkout_app({**_TASK, "clone": clone, "runner_host": runner_host})
+    monkeypatch.setattr(dashboard.os.path, "isdir", lambda path: bool(checked.append(path)))
+    monkeypatch.setattr(dashboard, "_open_path", opened.append)
+    monkeypatch.setattr(
+        app, "notify", lambda text, severity="information": notices.append((text, severity))
+    )
+
+    app.action_open_checkout()
+
+    assert checked == [clone]
+    assert opened == []
+    assert notices == [(message, "warning")]
+
+
+# 2119: REQ-040.4.1
+# 2119: REQ-040.6.1
+def test_open_checkout_uses_local_directory_evidence_despite_runner_host(monkeypatch: Any) -> None:
+    clone = "/local/checkouts/task-abcdef0123"
+    opened: list[str] = []
+    app = _open_checkout_app({**_TASK, "clone": clone, "runner_host": "mac-mini"})
+    monkeypatch.setattr(dashboard.os.path, "isdir", lambda path: path == clone)
+    monkeypatch.setattr(dashboard, "_open_path", opened.append)
+
+    app.action_open_checkout()
+
+    assert opened == [clone]
+
+
+# 2119: REQ-040.7.1
+def test_open_checkout_handles_missing_file_manager_opener(monkeypatch: Any) -> None:
+    notices: list[tuple[str, str]] = []
+    app = _open_checkout_app({**_TASK, "clone": "/local/checkout"})
+    monkeypatch.setattr(dashboard.os.path, "isdir", lambda path: True)
+    monkeypatch.setattr(
+        dashboard,
+        "_open_path",
+        lambda path: (_ for _ in ()).throw(FileNotFoundError(path)),
+    )
+    monkeypatch.setattr(
+        app, "notify", lambda text, severity="information": notices.append((text, severity))
+    )
+
+    app.action_open_checkout()
+
+    assert notices == [("No file manager opener is installed on this machine.", "warning")]
 
 
 async def test_pressing_question_mark_opens_the_help_screen() -> None:

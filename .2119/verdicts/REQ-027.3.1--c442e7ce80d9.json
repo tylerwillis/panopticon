@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-027.3.1--c442e7ce80d9",
+  "requirementId": "REQ-027.3.1",
+  "hash": "c442e7ce80d9",
+  "verdict": "pass",
+  "summary": "Tests reject non-dim cells and altered finite, four-hour-boundary, or indefinite labels.",
+  "timestamp": "2026-08-02T23:39:54.062Z"
+}

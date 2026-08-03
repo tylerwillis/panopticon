@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-040.7.1--1c5c1c080abf",
+  "requirementId": "REQ-040.7.1",
+  "hash": "1c5c1c080abf",
+  "verdict": "pass",
+  "summary": "Forced FileNotFoundError verifies non-propagation and the exact missing-opener notice.",
+  "timestamp": "2026-08-03T00:03:24.284Z"
+}

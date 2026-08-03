@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-040.1.1--561ab53e81f9",
+  "requirementId": "REQ-040.1.1",
+  "hash": "561ab53e81f9",
+  "verdict": "pass",
+  "summary": "Test rejects absent, visible, duplicated, or wrongly mapped global f bindings.",
+  "timestamp": "2026-08-03T00:03:21.359Z"
+}

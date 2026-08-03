@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-042.2.1--3ca272e63263",
+  "requirementId": "REQ-042.2.1",
+  "hash": "3ca272e63263",
+  "verdict": "pass",
+  "summary": "Rendered dashboard rows require the exact *PR<number> prefix for HTTP(S) GitHub pull URLs and reject lookalike hosts, invalid schemes, and missing or non-decimal pull numbers.",
+  "timestamp": "2026-08-03T05:56:45.914Z"
+}

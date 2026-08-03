@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.3.1--bd8e75ee99cf",
+  "requirementId": "REQ-033.3.1",
+  "hash": "bd8e75ee99cf",
+  "verdict": "pass",
+  "summary": "Independent assertions reject including simply-wrong findings or contradictory inclusion wording.",
+  "timestamp": "2026-08-03T00:13:22.814Z"
+}

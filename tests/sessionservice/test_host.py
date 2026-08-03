@@ -383,26 +383,45 @@ def test_run_survives_a_whole_pass_failure() -> None:
     assert passes["n"] >= 3  # did not die on the first pass's error; kept going
 
 
+# 2119: REQ-039.4.1
 def test_hold_runner_liveness_reconnects_after_a_drop_until_stopped() -> None:
     # The host-liveness loop re-opens the connection if it drops underneath a still-running daemon
     # (a transient blip), and stops cleanly when `running()` flips — no heartbeat, no clock.
     opens = {"n": 0}
+    attempts: list[tuple[str, str | None]] = []
+    closes = {"n": 0}
+    naps: list[float] = []
 
     class _DroppingClient:
         def live_runner(
             self, runner_id: str, *, host: str | None = None
         ) -> Generator[None, None, None]:
             opens["n"] += 1
+            attempts.append((runner_id, host))
 
             def gen() -> Generator[None, None, None]:
-                yield None  # connected
-                raise httpx.ConnectError("dropped")  # then the connection drops underneath us
+                try:
+                    yield None  # connected
+                    request = httpx.Request("GET", f"http://service/runners/{runner_id}/live")
+                    raise httpx.ReadTimeout("simulated silent stream", request=request)
+                finally:
+                    closes["n"] += 1
 
             return gen()
 
     daemon_running = lambda: opens["n"] < 3  # flip after a couple of reconnects
-    hold_runner_liveness(_DroppingClient(), "host-1", running=daemon_running, sleep=lambda _s: None)  # type: ignore[arg-type]
+    hold_runner_liveness(
+        _DroppingClient(),  # type: ignore[arg-type]
+        "host-1",
+        running=daemon_running,
+        host="box.example.com",
+        reconnect_backoff=0.25,
+        sleep=naps.append,
+    )
     assert opens["n"] == 3  # reconnected after each drop until `running()` said stop
+    assert attempts == [("host-1", "box.example.com")] * 3
+    assert closes["n"] == 3
+    assert naps == [0.25, 0.25]
 
 
 @pytest.mark.parametrize("status_code", [401, 403])

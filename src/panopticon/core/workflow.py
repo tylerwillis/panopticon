@@ -437,10 +437,24 @@ class Workflow(ABC):
             "user redirects you, you can move straight to any phase (a free move — e.g. back to an "
             "earlier phase to redo work).",
             "",
-            "When the user requests a report, analysis, or other non-code deliverable, upload it as a "
-            "task artifact using the `put_artifact` MCP tool — don't print it inline and don't write it "
-            "to a file (files in the container are ephemeral and lost on exit). Artifacts persist and "
-            "are reachable via the task's MCP resource URI.",
+            "## Working in panopticon",
+            "",
+            "You are working inside a panopticon task container. Panopticon gives you durable control-plane",
+            "surfaces for collaborating with the operator:",
+            "",
+            "- **Task artifacts** hold reviewable documents. Publish each reviewable document as a task",
+            "  artifact when you produce it, without waiting for the user to ask. The operator opens artifacts",
+            "  with the dashboard `a` hotkey, and published artifacts remain readable through the task's MCP",
+            "  resource URI. The system prompt states this standing expectation; use the",
+            "  universal `artifacts` skill for the publishing procedure. Don't print non-code deliverables",
+            "  inline or leave them solely in the ephemeral container filesystem.",
+            "- **The task external URL** points to the pull request or other primary external work. The",
+            "  operator opens it with the dashboard `p` hotkey; GitHub URLs belong there rather than in the",
+            "  artifact list.",
+            "- **Responsibilities** are durable promises for the current phase. Their status is visible to the",
+            "  operator and gates `advance` when the workflow declares them.",
+            "- **`advance` and `drop`** are durable lifecycle operations. The operator sees the resulting task",
+            "  state; `advance` follows the governed path and `drop` abandons the task.",
         ]
 
         tools = list(self.tools())

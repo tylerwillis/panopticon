@@ -30,6 +30,8 @@ class _FakeClient:
         self.live_connections = 0
         self.closed = 0
         self.containers: list[str] = []
+        self.runners: list[str | None] = []
+        self.tasks: list[str] = []
         self._drops = drops
 
     def get_task(self, task_id: str) -> dict[str, Any]:
@@ -45,14 +47,17 @@ class _FakeClient:
     ) -> Iterator[None]:
         self.calls.append("live")
         self.live_connections += 1
+        self.tasks.append(task_id)
         self.containers.append(container_id)
+        self.runners.append(runner_id)
         conn = self.live_connections
 
         def _gen() -> Iterator[None]:
             try:
                 while True:
                     if conn <= self._drops:
-                        raise httpx.ConnectError("simulated connection drop")
+                        request = httpx.Request("GET", "http://service/tasks/t1/live")
+                        raise httpx.ReadTimeout("simulated silent stream", request=request)
                     yield None
             finally:
                 self.closed += 1
@@ -92,6 +97,7 @@ def _serve(client: _FakeClient, **kw: Any) -> None:
         client,  # type: ignore[arg-type]
         "t1",
         container_id="c1",
+        runner_id="runner-1",
         running=kw.pop("running", _stop_after(2)),
         sleep=kw.pop("sleep", lambda _s: None),
         **kw,
@@ -106,6 +112,7 @@ def test_serve_holds_liveness_connection_and_closes_cleanly() -> None:
     assert client.calls[-1] == "close"
 
 
+# 2119: REQ-039.3.1
 def test_serve_reconnects_after_a_dropped_connection() -> None:
     client = _FakeClient(drops=1)  # first connection drops underneath us
     naps: list[float] = []
@@ -113,12 +120,16 @@ def test_serve_reconnects_after_a_dropped_connection() -> None:
         client,  # type: ignore[arg-type]
         "t1",
         container_id="c1",
+        runner_id="runner-1",
         running=_stop_after(3),
         reconnect_backoff=0.25,
         sleep=naps.append,
     )
     assert client.live_connections == 2  # dropped once, re-opened
+    assert client.tasks == ["t1", "t1"]
     assert client.containers == ["c1", "c1"]  # the same container re-asserts liveness
+    assert client.runners == ["runner-1", "runner-1"]
+    assert client.calls == ["live", "close", "live", "close"]
     assert naps == [0.25]  # backed off once before reconnecting
 
 

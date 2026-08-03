@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-039.3.1--3ccb9552b348",
+  "requirementId": "REQ-039.3.1",
+  "hash": "3ccb9552b348",
+  "verdict": "pass",
+  "summary": "Tests enforce closure, backoff, reconnection while running, identity reuse, and fresh registration; a real silent socket produces a new registration.",
+  "timestamp": "2026-08-03T00:01:36.618Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.1.3--0620edca5331",
+  "requirementId": "REQ-026.1.3",
+  "hash": "0620edca5331",
+  "verdict": "pass",
+  "summary": "Tests reject active or DROPPED dependencies, require all dependencies terminal, cover COMPLETE and a custom terminal state, and verify next-pass claim/spawn with exact prompt delivery.",
+  "timestamp": "2026-08-02T23:58:24.046Z"
+}
