@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-049.3.1--606020bdde69",
-  "requirementId": "REQ-049.3.1",
-  "hash": "606020bdde69",
-  "verdict": "pass",
-  "summary": "Real API tests reject a derived task principal and missing or non-owning runner IDs, while accepting the fleet principal with the owning runner ID.",
-  "timestamp": "2026-08-04T21:18:44.833Z"
-}

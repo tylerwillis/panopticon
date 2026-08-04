@@ -171,15 +171,22 @@ def test_client_rejects_escape_at_transcript_boundaries(tmp_path: Path, invalid_
 
 
 def test_transcript_publication_keeps_auth_and_runner_ansi_layers(tmp_path: Path) -> None:
-    # 2119: REQ-049.3.1
     # 2119: REQ-049.3.2
     service, client = _app(tmp_path)
     with client as http:
         task_id = _live_task(service, http)
         scoped = TaskServiceClient(http, token=scoped_task_token(WRITE, task_id))
+        csi_parameters = [
+            "",
+            "1;2",
+            "38;5;196",
+            "?25",
+            "1:2<=>?",
+            *(chr(parameter) for parameter in range(ord("0"), ord("?") + 1)),
+        ]
         csi_sequences = [
             f"\x1b[{parameters}{chr(final)}"
-            for parameters in ("", "2", "?25", "1;2", "38;5;196")
+            for parameters in csi_parameters
             for final in range(ord("@"), ord("~") + 1)
         ]
         csi_sequences.extend(
@@ -200,6 +207,7 @@ def test_transcript_publication_keeps_auth_and_runner_ansi_layers(tmp_path: Path
             for final in (*range(ord("0"), ord("?") + 1), *range(ord("@"), ord("_") + 1))
             if chr(final) not in "[P]X^_"
         ]
+        introducer_sequences = [f"\x1b{introducer}" for introducer in "[P]X^_"]
         ansi_sequences = [
             *csi_sequences,
             *osc_sequences,
@@ -221,13 +229,31 @@ def test_transcript_publication_keeps_auth_and_runner_ansi_layers(tmp_path: Path
                 assert snapshot is not None
                 assert snapshot["text"] == "visible"
                 snapshots.append(snapshot)
+        for sequence in introducer_sequences:
+            for captured, expected in ((sequence, ""), (f"visible{sequence}", "visible")):
+                pane_values = iter([captured, "80\t24"])
+                introducer_snapshot = capture_pane_snapshot(
+                    task_id,
+                    run=lambda *_args, _values=pane_values, **_kwargs: next(_values),
+                )
+                assert introducer_snapshot is not None
+                assert introducer_snapshot["text"] == expected
         snapshot = snapshots[-1]
+        split_values = iter(["visible\x1b[31\nmplain", "80\t24"])
+        split_snapshot = capture_pane_snapshot(
+            task_id,
+            run=lambda *_args, **_kwargs: next(split_values),
+        )
+        assert split_snapshot is not None
+        assert split_snapshot["text"] == "visible31\nmplain"
 
+        # 2119: REQ-049.3.1
         with pytest.raises(httpx.HTTPStatusError) as forbidden:
             scoped.publish_session_transcript(task_id, snapshot, runner_id="host-1")
 
         owner = TaskServiceClient(http, token=WRITE)
         owner.publish_session_transcript(task_id, snapshot, runner_id="host-1")
+        asyncio.run(service.register_runner("host-2"))
         with pytest.raises(httpx.HTTPStatusError) as wrong_runner:
             owner.publish_session_transcript(task_id, snapshot, runner_id="host-2")
         missing_runner = http.put(

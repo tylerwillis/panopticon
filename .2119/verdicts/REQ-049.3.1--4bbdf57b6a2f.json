@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-049.3.1--4bbdf57b6a2f",
+  "requirementId": "REQ-049.3.1",
+  "hash": "4bbdf57b6a2f",
+  "verdict": "pass",
+  "summary": "Enforced-auth evidence rejects a derived task token, a registered non-owner runner, and a missing runner while accepting the fleet principal with the owning runner.",
+  "timestamp": "2026-08-04T22:12:53.626Z"
+}

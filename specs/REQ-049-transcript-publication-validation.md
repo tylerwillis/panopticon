@@ -14,6 +14,12 @@ database and returned unchanged to terminal-rendering consumers.
 
 File-scoped requirement numbering scopes sub-requirements within this file; the document ID itself remains globally scoped across `specs/`.
 
+For pane capture, complete supported ANSI sequences are CSI sequences with parameter bytes
+`0x30`–`0x3f`, intermediate bytes `0x20`–`0x2f`, and a final byte `0x40`–`0x7e`; OSC sequences
+terminated by BEL or ST; `DCS`, `SOS`, `PM`, and `APC` strings terminated by ST; and
+single-character escape sequences with a final byte from `0x30`–`0x5f`, including an introducer
+byte when no longer supported sequence completes on that captured line.
+
 ## Requirements
 
 ### REQ-049.1: Representation-independent validation

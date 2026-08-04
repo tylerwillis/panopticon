@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-049.3.2--cde1d3817b3c",
-  "requirementId": "REQ-049.3.2",
-  "hash": "cde1d3817b3c",
-  "verdict": "pass",
-  "summary": "Grammar-driven tests cover supported CSI, OSC, string-control, and single-character sequences at line-leading, embedded, and trailing positions plus independent control-plane ESC rejection.",
-  "timestamp": "2026-08-04T21:35:38.511Z"
-}
