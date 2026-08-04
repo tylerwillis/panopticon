@@ -28,6 +28,7 @@ from pathlib import Path
 import httpx
 
 from panopticon.client import TaskServiceClient
+from panopticon.terminal.log_tee import open_private_directory
 from panopticon.terminal.session_environment import (
     session_environment_command as _session_command,
 )
@@ -48,11 +49,7 @@ def _private_log_paths() -> dict[str, Path]:
         root = Path(xdg_state) / "panopticon"
     else:
         root = Path.home() / ".local" / "state" / "panopticon"
-    root.mkdir(mode=0o700, parents=True, exist_ok=True)
-    directory_fd = os.open(
-        root,
-        os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC,
-    )
+    directory_fd = open_private_directory(root, create=True)
     try:
         os.fchmod(directory_fd, 0o700)
         paths: dict[str, Path] = {}

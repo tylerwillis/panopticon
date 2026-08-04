@@ -934,6 +934,28 @@ def test_integrated_stack_refuses_log_symlink_swapped_after_validation(
     assert captured.read_text() == "sentinel"
 
 
+def test_private_logs_refuse_symlinked_intermediate_directories(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # 2119: REQ-047.4.2
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    linked_parent = tmp_path / "linked-parent"
+    linked_parent.symlink_to(outside, target_is_directory=True)
+    state_root = linked_parent / "state"
+    monkeypatch.setenv("PANOPTICON_STATE", str(state_root))
+
+    with pytest.raises(OSError):
+        terminal_cli._start_sessions(run=lambda *_args, **_kwargs: _Completed())
+    assert list(outside.iterdir()) == []
+
+    escaped_state = outside / "state"
+    escaped_state.mkdir()
+    with pytest.raises(OSError):
+        log_tee.open_private_log(state_root / "service.log")
+    assert list(escaped_state.iterdir()) == []
+
+
 def test_private_log_tee_forwards_available_output_without_waiting_for_eof(
     tmp_path: Path,
 ) -> None:
