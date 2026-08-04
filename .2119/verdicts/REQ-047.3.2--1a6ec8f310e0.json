@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.3.2--1a6ec8f310e0",
-  "requirementId": "REQ-047.3.2",
-  "hash": "1a6ec8f310e0",
-  "verdict": "pass",
-  "summary": "Runner capture strips supported ANSI families at both boundaries while control-plane publication rejects leading, interior, and trailing escapes.",
-  "timestamp": "2026-08-04T05:32:00.000Z"
-}

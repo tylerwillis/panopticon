@@ -29,7 +29,7 @@ database and returned unchanged to terminal-rendering consumers.
 ### REQ-047.3: Defense-in-depth boundary
 
 1. Transcript publication MUST remain unavailable to a derived per-task principal and require the fleet master principal plus the identifier of the runner that owns the task.
-2. Runner-side pane capture MUST remove ANSI escape sequences before publication while control-plane transcript publication rejects escape-bearing text.
+2. Runner-side pane capture MUST remove complete supported ANSI escape sequences contained within an individual captured line before publication while control-plane transcript publication rejects escape-bearing text.
 
 ## Non-goals
 

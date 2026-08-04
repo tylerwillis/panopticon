@@ -158,9 +158,15 @@ def test_client_rejects_escape_at_transcript_boundaries(tmp_path: Path, invalid_
                 runner_id="host-1",
             )
 
+        plain_rejected = http.put(
+            f"/tasks/{task_id}/session/transcript",
+            headers=_auth(WRITE),
+            json={**snapshot, "text": invalid_text, "runner_id": "host-1"},
+        )
         stored = http.get(f"/tasks/{task_id}/session/transcript", headers=_auth(READ))
 
     assert rejected.value.response.status_code == 422
+    assert plain_rejected.status_code == 422
     assert stored.json()["text"] == "safe"
 
 

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.3.2--a72cc1f51b6a",
+  "requirementId": "REQ-047.3.2",
+  "hash": "a72cc1f51b6a",
+  "verdict": "pass",
+  "summary": "Tests cover complete supported ANSI sequence families within single captured lines and verify control-plane rejection of escape-bearing text, without claiming multiline sequence stripping.",
+  "timestamp": "2026-08-04T06:07:00.000Z"
+}
