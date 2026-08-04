@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.8.3--156df3a7c512",
+  "requirementId": "REQ-048.8.3",
+  "hash": "156df3a7c512",
+  "verdict": "pass",
+  "summary": "Runtime inventories of all non-exempt APIRoutes, MCP tools, resources, and templates exactly equal classification maps whose values are constrained to the closed authorization set.",
+  "timestamp": "2026-08-04T07:33:28.972Z"
+}

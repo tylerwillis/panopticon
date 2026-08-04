@@ -78,6 +78,22 @@ class _AlternateOrchestrator(Workflow):
     initial = Coordinating
 
 
+class _PlannedScopedWorkflow(Workflow):
+    name = "planned-scoped"
+
+    class Planning(InitialState):
+        label = "PLANNING"
+        responsibilities = (Responsibility(key="ready", description="Ready."),)
+        transitions = ("ITERATING",)
+
+    class Iterating(State):
+        label = "ITERATING"
+        responsibilities = (Responsibility(key="implemented", description="Implemented."),)
+        transitions = (Complete,)
+
+    initial = Planning
+
+
 def _bearer(token: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {token}"}
 
@@ -94,6 +110,7 @@ def _service(tmp_path: Path) -> TaskService:
             "spike": Spike(),
             "orchestrator": Orchestrator(),
             "alternate-orchestrator": _AlternateOrchestrator(),
+            "planned-scoped": _PlannedScopedWorkflow(),
             "scoped": _ScopedWorkflow(),
         },
         FilesystemArtifactStore(tmp_path / "artifacts"),
@@ -111,6 +128,7 @@ def _reloaded_service(tmp_path: Path) -> TaskService:
             "spike": Spike(),
             "orchestrator": Orchestrator(),
             "alternate-orchestrator": _AlternateOrchestrator(),
+            "planned-scoped": _PlannedScopedWorkflow(),
             "scoped": _ScopedWorkflow(),
         },
         FilesystemArtifactStore(tmp_path / "artifacts"),
@@ -1384,7 +1402,6 @@ def test_task_scope_action_table_is_exhaustive_and_relationship_sensitive() -> N
         "read_artifact",
         "set_slug",
         "set_token_estimate",
-        "resolve_responsibility",
         "set_turn",
         "set_dependencies",
     }
@@ -1492,15 +1509,15 @@ def test_orchestrator_can_create_and_preplan_only_its_governed_child(tmp_path: P
             headers=headers,
             json={
                 "repo_id": "r1",
-                "workflow": "scoped",
+                "workflow": "planned-scoped",
                 "governor_task_id": governor["id"],
             },
         )
         assert child.status_code == 201
         child_id = child.json()["id"]
-        grandchild = _create_task(client, workflow="scoped", governor_task_id=str(child_id))
+        grandchild = _create_task(client, workflow="planned-scoped", governor_task_id=str(child_id))
         great_grandchild = _create_task(
-            client, workflow="scoped", governor_task_id=str(grandchild["id"])
+            client, workflow="planned-scoped", governor_task_id=str(grandchild["id"])
         )
         assert client.get(f"/tasks/{child_id}", headers=headers).status_code == 200
         assert client.get(f"/tasks/{grandchild['id']}", headers=headers).status_code == 200
@@ -1667,6 +1684,17 @@ def test_orchestrator_can_create_and_preplan_only_its_governed_child(tmp_path: P
         assert (
             client.get(f"/tasks/{child_id}/artifacts/plan.md", headers=headers).content == b"plan"
         )
+        client.put(
+            f"/tasks/{child_id}/state",
+            headers=_bearer(WRITE_TOKEN),
+            json={"state": "ITERATING"},
+        )
+        post_planning = client.post(
+            f"/tasks/{child_id}/responsibilities",
+            headers=headers,
+            json={"key": "implemented", "status": "met"},
+        )
+        assert (post_planning.status_code, post_planning.json()) == (403, SCOPE_FAILURE)
         denied = [
             ("post", f"/tasks/{child_id}/operations/drop", None),
             ("post", f"/tasks/{child_id}/operations/advance", None),
@@ -1737,6 +1765,16 @@ def test_orchestrator_can_create_and_preplan_only_its_governed_child(tmp_path: P
                 },
             )
             assert (response.status_code, response.json()) == (403, SCOPE_FAILURE)
+        wrong_repo = client.post(
+            "/tasks",
+            headers=headers,
+            json={
+                "repo_id": "r2",
+                "workflow": "planned-scoped",
+                "governor_task_id": governor["id"],
+            },
+        )
+        assert (wrong_repo.status_code, wrong_repo.json()) == (403, SCOPE_FAILURE)
 
 
 def test_non_orchestrator_cannot_create_a_governed_child(tmp_path: Path) -> None:
@@ -1859,6 +1897,57 @@ def test_orchestrator_authority_uses_workflow_flag_not_a_hard_coded_name(tmp_pat
         )
         assert response.status_code == 201
         assert response.json()["governor_task_id"] == governor["id"]
+
+
+def test_stale_orchestrator_workflow_fails_closed_without_authentication_500(
+    tmp_path: Path,
+) -> None:
+    # 2119: REQ-048.12.1
+    with _client(tmp_path) as client:
+        governor = _create_task(client, workflow="orchestrator")
+        child = _create_task(client, governor_task_id=str(governor["id"]))
+        policy = client.app.state.credential_scope_policy
+        policy._service._workflows.pop("orchestrator")
+        headers = _bearer(_task_token(governor["id"]))
+
+        assert client.get(f"/tasks/{governor['id']}", headers=headers).status_code == 200
+        listed = client.get("/tasks", headers=headers)
+        assert listed.status_code == 200
+        assert [task["id"] for task in listed.json()] == [governor["id"]]
+        create = client.post(
+            "/tasks",
+            headers=headers,
+            json={
+                "repo_id": "r1",
+                "workflow": "spike",
+                "governor_task_id": governor["id"],
+            },
+        )
+        assert (create.status_code, create.json()) == (403, SCOPE_FAILURE)
+        assert client.get(f"/tasks/{child['id']}", headers=headers).status_code == 403
+
+
+def test_sync_mcp_policy_delegates_to_the_enforced_async_policy(tmp_path: Path) -> None:
+    # 2119: REQ-048.8.1
+    with _client(tmp_path) as client:
+        orchestrator = _create_task(client, workflow="orchestrator")
+        policy = client.app.state.credential_scope_policy
+        for name, arguments in (
+            ("create_task", {"orchestrator_task_id": orchestrator["id"]}),
+            ("list_workflows", {"orchestrator_task_id": orchestrator["id"]}),
+        ):
+            request = {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "tools/call",
+                "params": {"name": name, "arguments": arguments},
+            }
+            asynchronous = asyncio.run(
+                policy.authorize_mcp_async(_task_token(orchestrator["id"]), request)
+            )
+            synchronous = policy.authorize_mcp(_task_token(orchestrator["id"]), request)
+            assert synchronous == asynchronous
+            assert synchronous.allowed is True
 
 
 def test_mcp_uses_the_same_scope_for_tool_arguments_and_artifact_resources(tmp_path: Path) -> None:

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.14.1--c2bd4a6927dc",
+  "requirementId": "REQ-035.14.1",
+  "hash": "c2bd4a6927dc",
+  "verdict": "pass",
+  "summary": "Startup tests reject absent, missing, escaping, symlink-escaping, unreadable, non-object, malformed privilege arrays, empty write arrays, and overlapping tokens before an app can serve.",
+  "timestamp": "2026-08-04T07:33:01.883Z"
+}

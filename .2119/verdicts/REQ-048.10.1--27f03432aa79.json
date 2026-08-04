@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.10.1--27f03432aa79",
+  "requirementId": "REQ-048.10.1",
+  "hash": "27f03432aa79",
+  "verdict": "pass",
+  "summary": "The valid exact bearer succeeds; all named query, cookie, JSON, and alternate-header channels fail both alone and beside the valid header, and near-miss Authorization shapes are rejected.",
+  "timestamp": "2026-08-04T07:33:29.911Z"
+}

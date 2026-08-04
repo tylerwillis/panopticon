@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.4.1--4520768ee63e",
+  "requirementId": "REQ-048.4.1",
+  "hash": "4520768ee63e",
+  "verdict": "pass",
+  "summary": "Tests exercise identity, maps, states, skills, briefing, wake text, overview, artifact names/bytes, registrations, and sustained liveness bytes using the subject capability.",
+  "timestamp": "2026-08-04T07:33:24.129Z"
+}

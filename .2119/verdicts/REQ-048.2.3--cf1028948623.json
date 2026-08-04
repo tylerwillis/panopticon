@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.2.3--cf1028948623",
+  "requirementId": "REQ-048.2.3",
+  "hash": "cf1028948623",
+  "verdict": "pass",
+  "summary": "Parameterized malformed, forged, wrong-version, wrong-profile, padded, truncated, extra-segment, and differently bound capabilities are rejected with indistinguishable existing/missing-subject responses.",
+  "timestamp": "2026-08-04T07:33:04.546Z"
+}

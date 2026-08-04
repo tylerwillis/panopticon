@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.1.1--ee3b66b1650c",
+  "requirementId": "REQ-048.1.1",
+  "hash": "ee3b66b1650c",
+  "verdict": "pass",
+  "summary": "The emitted Docker command is inspected for exactly one designated read-only snapshot mount, the spawned task binding, and absence of capability and fleet-token plaintext from command and environment surfaces.",
+  "timestamp": "2026-08-04T07:33:02.934Z"
+}

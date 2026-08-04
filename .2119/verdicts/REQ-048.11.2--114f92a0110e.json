@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.11.2--114f92a0110e",
+  "requirementId": "REQ-048.11.2",
+  "hash": "114f92a0110e",
+  "verdict": "pass",
+  "summary": "Startup rejects wildcard, path, query, fragment, credentials, opaque, malformed, missing-scheme/host, and bad-port entries, including invalid entries mixed with valid ones, while valid explicit-port origins work.",
+  "timestamp": "2026-08-04T07:33:31.285Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.3.1--84dc17609020",
+  "requirementId": "REQ-048.3.1",
+  "hash": "84dc17609020",
+  "verdict": "pass",
+  "summary": "The runner test inspects the real emitted command and mounted file, proving a sole task-bound capability snapshot and the exact container-side credential-file configuration.",
+  "timestamp": "2026-08-04T07:33:05.183Z"
+}

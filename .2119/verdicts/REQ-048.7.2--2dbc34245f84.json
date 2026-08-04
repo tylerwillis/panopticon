@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.7.2--2dbc34245f84",
+  "requirementId": "REQ-048.7.2",
+  "hash": "2dbc34245f84",
+  "verdict": "pass",
+  "summary": "Governed descendants at multiple depths are read and receive each fixed preplanning effect, including artifact publication and planning-only responsibility resolution, with persisted results.",
+  "timestamp": "2026-08-04T07:33:27.350Z"
+}

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
@@ -103,11 +103,7 @@ class ScopeDecision:
     subject_task_id: str
     target_task_id: str
     status: int = 403
-    body: dict[str, str] = None  # type: ignore[assignment]
-
-    def __post_init__(self) -> None:
-        if self.body is None:
-            object.__setattr__(self, "body", SCOPE_FAILURE)
+    body: dict[str, str] = field(default_factory=lambda: dict(SCOPE_FAILURE))
 
 
 @dataclass(frozen=True)
@@ -158,7 +154,6 @@ _CHILD_ACTIONS = frozenset(
         Action.READ_ARTIFACT,
         Action.SET_SLUG,
         Action.SET_TOKEN_ESTIMATE,
-        Action.RESOLVE_RESPONSIBILITY,
         Action.SET_TURN,
         Action.SET_DEPENDENCIES,
     }
@@ -260,9 +255,7 @@ class CredentialScopePolicy:
         by_id = {task.id: task for task in tasks}
         target = by_id.get(target_id)
         subject_task = by_id.get(subject)
-        orchestrates = bool(
-            subject_task is not None and self._service._workflow(subject_task.workflow).orchestrates
-        )
+        orchestrates = self._service.task_orchestrates(subject_task)
         if target is None:
             relation = Relation.MISSING
         elif target.id == subject and subject_task is not None:
@@ -287,11 +280,36 @@ class CredentialScopePolicy:
     async def decide(self, subject: str, action: Action, target_id: str) -> ScopeDecision:
         return authorize(Principal.task(subject), action, await self.target(subject, target_id))
 
+    async def decide_responsibility(
+        self, subject: str, target_id: str, responsibility_key: str
+    ) -> ScopeDecision:
+        """Authorize self resolution or a governed child's current planning responsibility."""
+
+        tasks = await self._service.list_tasks()
+        target = self._target(subject, target_id, tasks)
+        if target.relation is Relation.SELF:
+            return authorize(Principal.task(subject), Action.RESOLVE_RESPONSIBILITY, target)
+        target_task = next((task for task in tasks if task.id == target_id), None)
+        planning_key = bool(
+            target_task is not None
+            and target_task.state == "PLANNING"
+            and any(
+                item.key == responsibility_key
+                for item in target_task.current_entry.responsibilities
+            )
+        )
+        allowed = bool(
+            target.relation is Relation.GOVERNED and target.orchestrates and planning_key
+        )
+        return ScopeDecision(allowed, subject, target_id)
+
     async def authorize_mcp_async(self, token: str, request: dict[str, Any]) -> ScopeDecision:
         subject = decode_task_capability(token, self._write_tokens) or ""
         action: Action | None
         params = request.get("params") if isinstance(request, dict) else None
         params = params if isinstance(params, dict) else {}
+        raw_arguments = params.get("arguments")
+        arguments = raw_arguments if isinstance(raw_arguments, dict) else {}
         if request.get("method") == "resources/read":
             match = re.fullmatch(
                 r"(?:panopticon://tasks/|task://)([^/]+)/artifacts/(.+)",
@@ -301,8 +319,6 @@ class CredentialScopePolicy:
             action = Action.READ_ARTIFACT
         else:
             name = str(params.get("name", ""))
-            arguments = params.get("arguments")
-            arguments = arguments if isinstance(arguments, dict) else {}
             if name in {"create_task", "list_workflows"}:
                 target_id = str(arguments.get("orchestrator_task_id", ""))
                 action = Action.CREATE_CHILD if name == "create_task" else Action.LIST_WORKFLOWS
@@ -317,6 +333,10 @@ class CredentialScopePolicy:
                 target.relation is Relation.SELF and target.orchestrates and target_id == subject
             )
             return ScopeDecision(allowed, subject, target_id)
+        if action is Action.RESOLVE_RESPONSIBILITY:
+            return await self.decide_responsibility(
+                subject, target_id, str(arguments.get("key", ""))
+            )
         return await self.decide(subject, action, target_id)
 
     @staticmethod
@@ -383,18 +403,7 @@ class CredentialScopePolicy:
         )
 
     def authorize_mcp(self, token: str, request: dict[str, Any]) -> ScopeDecision:
-        params = request.get("params") if isinstance(request, dict) else None
-        params = params if isinstance(params, dict) else {}
-        if request.get("method") == "resources/read":
-            uri = params.get("uri", "")
-            match = re.fullmatch(r"(?:panopticon://tasks/|task://)([^/]+)/artifacts/(.+)", str(uri))
-            target = match.group(1) if match else ""
-            return self.authorize_mcp_surface(token, ("resource", "artifact"), {"task_id": target})
-        name = str(params.get("name", ""))
-        arguments = params.get("arguments")
-        return self.authorize_mcp_surface(
-            token, ("tool", name), arguments if isinstance(arguments, dict) else {}
-        )
+        return asyncio.run(self.authorize_mcp_async(token, request))
 
     def classified_surfaces(self) -> ClassifiedSurfaces:
         rest_entries = {

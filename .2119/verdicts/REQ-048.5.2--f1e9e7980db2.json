@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.5.2--f1e9e7980db2",
+  "requirementId": "REQ-048.5.2",
+  "hash": "f1e9e7980db2",
+  "verdict": "pass",
+  "summary": "The capability creates, lists, reads, and replaces its artifact while sibling create/read/list/replace attempts are denied without altering sibling data.",
+  "timestamp": "2026-08-04T07:33:25.372Z"
+}

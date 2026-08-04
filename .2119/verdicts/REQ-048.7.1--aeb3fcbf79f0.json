@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.7.1--aeb3fcbf79f0",
+  "requirementId": "REQ-048.7.1",
+  "hash": "aeb3fcbf79f0",
+  "verdict": "pass",
+  "summary": "Creation succeeds only for orchestrates-flag workflows with subject governor and matching repo; absent, unrelated, child governor, wrong repo, and non-orchestrator counterexamples are rejected.",
+  "timestamp": "2026-08-04T07:33:27.023Z"
+}

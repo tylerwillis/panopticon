@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.11.1--85e1569c725f",
+  "requirementId": "REQ-048.11.1",
+  "hash": "85e1569c725f",
+  "verdict": "pass",
+  "summary": "Absent and explicitly empty allowlists are tested across every registered route, actual methods, preflights, and streaming responses and emit no cross-origin authorization.",
+  "timestamp": "2026-08-04T07:33:30.950Z"
+}

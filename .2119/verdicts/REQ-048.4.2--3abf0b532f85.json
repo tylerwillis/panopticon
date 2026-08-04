@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.4.2--3abf0b532f85",
+  "requirementId": "REQ-048.4.2",
+  "hash": "3abf0b532f85",
+  "verdict": "pass",
+  "summary": "Collection tests require exactly self plus authorized descendants for orchestrators and exclude ancestors, peers, siblings, and descendants of non-orchestrators.",
+  "timestamp": "2026-08-04T07:33:24.454Z"
+}

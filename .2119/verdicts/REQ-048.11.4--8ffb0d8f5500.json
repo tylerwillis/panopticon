@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.11.4--8ffb0d8f5500",
+  "requirementId": "REQ-048.11.4",
+  "hash": "8ffb0d8f5500",
+  "verdict": "pass",
+  "summary": "Allowed actual responses echo the exact configured origin with Vary: Origin, including error responses, while scheme, port, path, opaque, and unrelated-origin variants receive no authorization.",
+  "timestamp": "2026-08-04T07:33:31.922Z"
+}

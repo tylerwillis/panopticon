@@ -74,7 +74,7 @@ reasonable.
 
 ### REQ-048.7: Orchestrator delegation
 
-1. A task whose stored workflow declares `orchestrates=True` MUST be allowed to create a child only when the new task's governor is the capability subject.
+1. A task whose stored workflow declares `orchestrates=True` MUST be allowed to create a child only when the new task's governor is the capability subject and the child uses the subject task's repository.
 2. An orchestrating task capability MUST allow reads of its governed descendants and the fixed child-preplanning actions of publishing artifacts, setting slug, recording a token estimate, resolving planning responsibilities, setting turn, and setting dependencies.
 3. An orchestrating task capability MUST reject child workflow operations, state changes, drops, claims, provisioning, migration, lifecycle reporting, and governor reassignment.
 4. A non-orchestrating task capability MUST reject every governed-child delegation action.

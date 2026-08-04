@@ -1052,7 +1052,7 @@ def create_app(
                     subject_task = None
                 allowed = bool(
                     subject_task is not None
-                    and service._workflow(subject_task.workflow).orchestrates
+                    and service.task_orchestrates(subject_task)
                     and body.get("governor_task_id") == task_subject
                     and body.get("repo_id") == subject_task.repo_id
                 )
@@ -1080,7 +1080,7 @@ def create_app(
                 registration = next(
                     (item for item in service.registrations() if item.id == registration_id), None
                 )
-                target_id = registration.task_id if registration is not None else "missing"
+                target_id = registration.task_id if registration is not None else ""
                 decision = await policy.decide(task_subject, Action.DEREGISTER_CONTAINER, target_id)
             else:
                 action, matched_target_id = policy._match_rest(request.method, route_path)
@@ -1089,7 +1089,17 @@ def create_app(
                         status_code=403, content={"detail": "credential scope forbids operation"}
                     )
                 target_id = matched_target_id
-                decision = await policy.decide(task_subject, action, target_id)
+                if action is Action.RESOLVE_RESPONSIBILITY:
+                    try:
+                        parsed_body = json.loads(await request.body())
+                        body = parsed_body if isinstance(parsed_body, dict) else {}
+                    except json.JSONDecodeError:
+                        body = {}
+                    decision = await policy.decide_responsibility(
+                        task_subject, target_id, str(body.get("key", ""))
+                    )
+                else:
+                    decision = await policy.decide(task_subject, action, target_id)
             if not decision.allowed:
                 return JSONResponse(status_code=403, content=decision.body)
         return await call_next(request)
@@ -1314,7 +1324,7 @@ def create_app(
         if principal_task_id is not None:
             principal = tasks_by_id.get(principal_task_id)
             visible_ids = {principal_task_id} if principal is not None else set()
-            if principal is not None and service._workflow(principal.workflow).orchestrates:
+            if service.task_orchestrates(principal):
                 changed = True
                 while changed:
                     before = len(visible_ids)

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.2.4--951faf307db3",
+  "requirementId": "REQ-048.2.4",
+  "hash": "951faf307db3",
+  "verdict": "pass",
+  "summary": "Repeated and fresh-process derivations are equal across multiple tokens and subjects while the format test fixes version and profile.",
+  "timestamp": "2026-08-04T07:33:04.864Z"
+}

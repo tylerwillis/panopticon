@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.3.3--cec522b724c0",
+  "requirementId": "REQ-048.3.3",
+  "hash": "cec522b724c0",
+  "verdict": "pass",
+  "summary": "Two successive credential-file rotations and service restarts revoke each removed generation across registered surfaces while retaining remaining-generation capabilities.",
+  "timestamp": "2026-08-04T07:33:23.797Z"
+}
