@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.1--912cbb7e241b",
+  "requirementId": "adversarial-review-mutations.1.1",
+  "hash": "912cbb7e241b",
+  "verdict": "pass",
+  "summary": "Exact description equality across both applicable workflows rejects omission or weakening of every required conjunct.",
+  "timestamp": "2026-08-04T22:53:11.091Z"
+}
