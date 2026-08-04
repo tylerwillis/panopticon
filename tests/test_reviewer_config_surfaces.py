@@ -740,15 +740,22 @@ def test_spawn_does_not_warn_for_env_files_without_reviewer_transport_keys(
     assert caplog.records == []
 
 
-@pytest.mark.parametrize("value", ["", "   "])
-def test_spawn_warns_when_reviewer_transport_key_has_blank_value(
+@pytest.mark.parametrize(
+    "line",
+    [
+        "PANOPTICON_2119_REVIEWER_1=",
+        "PANOPTICON_2119_REVIEWER_1=   ",
+        "PANOPTICON_2119_REVIEWER_1",
+    ],
+)
+def test_spawn_warns_when_reviewer_transport_key_has_blank_or_inherited_value(
     tmp_path: Path,
     caplog: pytest.LogCaptureFixture,
-    value: str,
+    line: str,
 ) -> None:
     # 2119: reviewer-config-surfaces.3.3
     env_file = tmp_path / "repo.env"
-    env_file.write_text(f"PANOPTICON_2119_REVIEWER_1={value}\n")
+    env_file.write_text(f"{line}\n")
     logging.getLogger("panopticon.sessionservice.local_runner").disabled = False
     caplog.set_level(logging.WARNING)
 

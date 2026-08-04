@@ -147,9 +147,9 @@ def _env_file_names(path: str, names: set[str]) -> set[str]:
     found: set[str] = set()
     for raw_line in env_path.read_text().splitlines():
         line = raw_line.strip()
-        if not line or line.startswith("#") or "=" not in line:
+        if not line or line.startswith("#"):
             continue
-        name, _ = line.split("=", 1)
+        name = line.split("=", 1)[0]
         if name in names:
             found.add(name)
     return found
