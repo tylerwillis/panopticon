@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-046.1.2--701ad06ff3ba",
-  "requirementId": "REQ-046.1.2",
-  "hash": "701ad06ff3ba",
-  "verdict": "pass",
-  "summary": "A lone embedded ESC is rejected with 422 on both representations without replacing the stored snapshot.",
-  "timestamp": "2026-08-03T23:15:33.546Z"
-}

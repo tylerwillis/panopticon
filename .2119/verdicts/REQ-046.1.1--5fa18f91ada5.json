@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-046.1.1--5fa18f91ada5",
-  "requirementId": "REQ-046.1.1",
-  "hash": "5fa18f91ada5",
-  "verdict": "pass",
-  "summary": "Both representations accept exact boundaries and reject identical decoded ESC, byte-limit, and line-limit counterexamples.",
-  "timestamp": "2026-08-03T23:15:32.729Z"
-}

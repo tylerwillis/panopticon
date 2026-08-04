@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-046.3.2--23fd2913be1d",
-  "requirementId": "REQ-046.3.2",
-  "hash": "23fd2913be1d",
-  "verdict": "pass",
-  "summary": "Runner capture strips CSI, OSC, DCS/SOS/PM/APC, and two-byte forms while the control plane rejects bare and structured escapes.",
-  "timestamp": "2026-08-03T23:16:32.821Z"
-}

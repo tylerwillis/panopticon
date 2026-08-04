@@ -1,4 +1,4 @@
-# REQ-046: Transcript publication validation parity
+# REQ-047: Transcript publication validation parity
 
 ## Overview
 
@@ -14,19 +14,19 @@ database and returned unchanged to terminal-rendering consumers.
 
 ## Requirements
 
-### REQ-046.1: Representation-independent validation
+### REQ-047.1: Representation-independent validation
 
 1. Transcript publication MUST apply the same post-decoding validation to plain `text` and base64-encoded `text_b64` representations.
 2. Transcript publication MUST reject decoded text containing an ESC character with HTTP 422 before replacing the latest stored snapshot.
 3. Transcript publication MUST reject decoded text larger than 64 KiB encoded as UTF-8 with HTTP 422 before replacing the latest stored snapshot.
 4. Transcript publication MUST reject decoded text exceeding 200 logical lines with HTTP 422 before replacing the latest stored snapshot.
 
-### REQ-046.2: Production-path regression coverage
+### REQ-047.2: Production-path regression coverage
 
 1. `TaskServiceClient` MUST publish snapshot text using the `text_b64` request representation.
 2. Automated regression coverage MUST exercise escape rejection and both transcript bounds through `TaskServiceClient.publish_session_transcript` against an enforced-auth application.
 
-### REQ-046.3: Defense-in-depth boundary
+### REQ-047.3: Defense-in-depth boundary
 
 1. Transcript publication MUST remain unavailable to a derived per-task principal and require the fleet master principal plus the identifier of the runner that owns the task.
 2. Runner-side pane capture MUST remove ANSI escape sequences before publication while control-plane transcript publication rejects escape-bearing text.

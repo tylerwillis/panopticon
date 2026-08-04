@@ -78,13 +78,13 @@ def _live_task(service: TaskService, http: TestClient) -> str:
 def test_client_validates_decoded_transcript_before_replacing_snapshot(
     tmp_path: Path, valid_text: str, invalid_text: str
 ) -> None:
-    # 2119: REQ-046.1.1
-    # 2119: REQ-046.1.2
-    # 2119: REQ-046.1.3
-    # 2119: REQ-046.1.4
-    # 2119: REQ-046.2.1
-    # 2119: REQ-046.2.2
-    # 2119: REQ-046.3.2
+    # 2119: REQ-047.1.1
+    # 2119: REQ-047.1.2
+    # 2119: REQ-047.1.3
+    # 2119: REQ-047.1.4
+    # 2119: REQ-047.2.1
+    # 2119: REQ-047.2.2
+    # 2119: REQ-047.3.2
     service, client = _app(tmp_path)
     with client as http:
         task_id = _live_task(service, http)
@@ -139,8 +139,8 @@ def test_client_validates_decoded_transcript_before_replacing_snapshot(
 
 
 def test_transcript_publication_keeps_auth_and_runner_ansi_layers(tmp_path: Path) -> None:
-    # 2119: REQ-046.3.1
-    # 2119: REQ-046.3.2
+    # 2119: REQ-047.3.1
+    # 2119: REQ-047.3.2
     service, client = _app(tmp_path)
     with client as http:
         task_id = _live_task(service, http)
