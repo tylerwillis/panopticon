@@ -62,7 +62,7 @@ reasonable.
 
 ### REQ-048.5: Self-mutation surface
 
-1. A task capability MUST persist the requested effect when its subject invokes a declared workflow operation or transition, resolves a current responsibility, or sets its state, slug, URL, token reports, turn, blocked marker, attention marker, or dependencies.
+1. A task capability MUST persist the requested effect when its subject invokes a declared workflow operation or transition, resolves a current responsibility, or sets its state, slug, URL, token reports, turn, blocked marker, attention marker, or an in-scope dependency list (`mcp-credential-uri-normalization.3` defines which proposed dependency ids are in scope).
 2. A task capability MUST allow its subject to create, list, read, and replace its own artifacts.
 3. A task capability MUST allow its subject to open and close its own container registration and hold its own task-liveness stream.
 
