@@ -135,8 +135,8 @@ class OutfitterHarness(Harness):
             '      *) echo "unsupported architecture: $arch" >&2; exit 1 ;; \\\n'
             "    esac; \\\n"
             "    curl --fail --silent --show-error --location \\\n"
-            f'      "https://nodejs.org/dist/v{NODE_VERSION}/node-v{NODE_VERSION}-linux-$node_arch.tar.xz" \\\n'
-            "      | tar --extract --xz --directory /usr/local --strip-components=1; \\\n"
+            f'      "https://nodejs.org/dist/v{NODE_VERSION}/node-v{NODE_VERSION}-linux-$node_arch.tar.gz" \\\n'
+            "      | tar --extract --gzip --directory /usr/local --strip-components=1; \\\n"
             "    npm install --global --ignore-scripts "
             f"@earendil-works/pi-coding-agent@{PI_VERSION} "
             f"@ai-outfitter/outfitter@{OUTFITTER_VERSION}"

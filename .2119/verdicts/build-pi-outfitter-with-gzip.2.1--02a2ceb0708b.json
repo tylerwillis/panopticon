@@ -1,0 +1,8 @@
+{
+  "reviewId": "build-pi-outfitter-with-gzip.2.1--02a2ceb0708b",
+  "requirementId": "build-pi-outfitter-with-gzip.2.1",
+  "hash": "02a2ceb0708b",
+  "verdict": "pass",
+  "summary": "Both real locally built images require gzip and explicitly reject xz on PATH.",
+  "timestamp": "2026-08-04T23:32:18.702Z"
+}

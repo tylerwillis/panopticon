@@ -439,12 +439,22 @@ def test_argv_appends_system_prompt_on_resume_too(tmp_path: Path) -> None:
 
 def test_image_layer_installs_pinned_node_and_pi_for_both_architectures() -> None:
     layer = HARNESS.image_layer()
-    assert f"v{NODE_VERSION}/node-v{NODE_VERSION}-linux-$node_arch.tar.xz" in layer
-    assert 'x86_64) node_arch="x64"' in layer and 'aarch64) node_arch="arm64"' in layer
-    assert f"@earendil-works/pi-coding-agent@{PI_VERSION}" in layer  # pinned, not `latest`
     assert PI_VERSION == "0.80.3"  # the version verified against a real local install
-    assert "--extract --xz --directory" in layer  # long options (repo convention)
-    assert "npm install --global --ignore-scripts" in layer
+    assert layer == (
+        "RUN set -eux; \\\n"
+        '    arch="$(uname -m)"; \\\n'
+        '    case "$arch" in \\\n'
+        '      x86_64) node_arch="x64" ;; \\\n'
+        '      aarch64) node_arch="arm64" ;; \\\n'
+        '      *) echo "unsupported architecture: $arch" >&2; exit 1 ;; \\\n'
+        "    esac; \\\n"
+        "    curl --fail --silent --show-error --location \\\n"
+        f'      "https://nodejs.org/dist/v{NODE_VERSION}/node-v{NODE_VERSION}-linux-$node_arch.tar.gz" \\\n'
+        "      | tar --extract --gzip --directory /usr/local --strip-components=1; \\\n"
+        "    npm install --global --ignore-scripts "
+        f"@earendil-works/pi-coding-agent@{PI_VERSION}"
+    )
+    assert ".tar.xz" not in layer and "--xz" not in layer and "xz-utils" not in layer
 
 
 def test_env_points_pi_at_the_per_task_config_dir(tmp_path: Path) -> None:
