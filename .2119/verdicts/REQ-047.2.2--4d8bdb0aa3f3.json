@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.2.2--4d8bdb0aa3f3",
+  "requirementId": "REQ-047.2.2",
+  "hash": "4d8bdb0aa3f3",
+  "verdict": "pass",
+  "summary": "Enforced-auth client coverage rejects ESC plus ASCII, multibyte, and logical-line nearest violations while accepting exact limits.",
+  "timestamp": "2026-08-04T05:32:00.000Z"
+}

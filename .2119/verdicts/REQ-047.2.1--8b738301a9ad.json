@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.2.1--8b738301a9ad",
+  "requirementId": "REQ-047.2.1",
+  "hash": "8b738301a9ad",
+  "verdict": "pass",
+  "summary": "Captured TaskServiceClient requests contain text_b64 and omit plain text while round-tripping supplied snapshots.",
+  "timestamp": "2026-08-04T05:32:00.000Z"
+}

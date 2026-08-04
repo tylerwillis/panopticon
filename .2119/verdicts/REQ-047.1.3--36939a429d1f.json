@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.1.3--36939a429d1f",
+  "requirementId": "REQ-047.1.3",
+  "hash": "36939a429d1f",
+  "verdict": "pass",
+  "summary": "ASCII and multibyte cases accept 65,536 UTF-8 bytes and reject nearest oversized values without storage mutation.",
+  "timestamp": "2026-08-04T05:32:00.000Z"
+}
