@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.8.1--24bb8ec91e3a",
+  "requirementId": "REQ-028.8.1",
+  "hash": "24bb8ec91e3a",
+  "verdict": "pass",
+  "summary": "Tests reject non-Sol honesty review for every discovered built-in and incorrect final-review pairings, including Fable omission/substitution for human/auto and any non-Sol reviewer in auto-sol.",
+  "timestamp": "2026-08-04T23:21:07.044Z"
+}

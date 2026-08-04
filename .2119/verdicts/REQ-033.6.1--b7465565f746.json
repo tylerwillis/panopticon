@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.6.1--b7465565f746",
+  "requirementId": "REQ-033.6.1",
+  "hash": "b7465565f746",
+  "verdict": "pass",
+  "summary": "The test covers every built-in 2119 workflow and rejects instructions that omit either re-reading the named triage section or user PR reactions, place that direction after merge steps, or add/substitute near-matching text.",
+  "timestamp": "2026-08-04T23:20:07.779Z"
+}

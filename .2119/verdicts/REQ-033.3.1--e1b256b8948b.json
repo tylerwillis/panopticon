@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.3.1--e1b256b8948b",
+  "requirementId": "REQ-033.3.1",
+  "hash": "e1b256b8948b",
+  "verdict": "pass",
+  "summary": "The exact-equality assertion checks every review skill of every built-in 2119 workflow and rejects instructions that fail to explicitly omit simply-wrong findings from the named section.",
+  "timestamp": "2026-08-04T23:20:06.511Z"
+}

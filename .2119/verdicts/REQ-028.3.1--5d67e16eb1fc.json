@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.3.1--5d67e16eb1fc",
+  "requirementId": "REQ-028.3.1",
+  "hash": "5d67e16eb1fc",
+  "verdict": "pass",
+  "summary": "The test retrieves the actual core artifact skill through TaskService and exact-matches independently declared instructions that require publishing reviewer-readable artifacts, enumerate every required example category, distinguish them from the pull request, and name the dashboard `a` hotkey, so each nearest omission or substitution fails.",
+  "timestamp": "2026-08-04T23:20:01.365Z"
+}

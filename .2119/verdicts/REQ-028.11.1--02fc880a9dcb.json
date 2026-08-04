@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.11.1--02fc880a9dcb",
+  "requirementId": "REQ-028.11.1",
+  "hash": "02fc880a9dcb",
+  "verdict": "pass",
+  "summary": "The service-level test retrieves the actual core skill and exact-matches instructions covering durable review documents, all reviewable document types via non-exhaustive examples, and GitHub URLs routed to the external URL/`p` surface instead of artifacts/`a`, so omission or narrowing of any conjunct fails.",
+  "timestamp": "2026-08-04T23:19:59.426Z"
+}

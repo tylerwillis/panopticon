@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.10.1--78f0bd2074f3",
+  "requirementId": "REQ-028.10.1",
+  "hash": "78f0bd2074f3",
+  "verdict": "pass",
+  "summary": "Exact-equality testing of the retrieved artifact guidance rejects omission of either the pull request or dedicated task URL and rejects saying artifacts replace either instead of complementing both.",
+  "timestamp": "2026-08-04T23:19:58.800Z"
+}

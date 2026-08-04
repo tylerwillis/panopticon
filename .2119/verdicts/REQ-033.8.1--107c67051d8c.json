@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.8.1--107c67051d8c",
+  "requirementId": "REQ-033.8.1",
+  "hash": "107c67051d8c",
+  "verdict": "pass",
+  "summary": "The exact-prefix assertion rejects instructions that omit or weaken the directive to skip any user-explicitly-rejected suggested issue.",
+  "timestamp": "2026-08-04T23:20:09.027Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-041.3.1--d223f595ce6f",
+  "requirementId": "REQ-041.3.1",
+  "hash": "d223f595ce6f",
+  "verdict": "pass",
+  "summary": "The exact instruction contract and universal task-skill exposure reject omission of the system-prompt standing expectation, publish-when-produced direction, `put_artifact` MCP path, or REST artifact endpoint.",
+  "timestamp": "2026-08-04T23:20:10.431Z"
+}

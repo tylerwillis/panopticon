@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-041.4.1--e247cb46c81b",
+  "requirementId": "REQ-041.4.1",
+  "hash": "e247cb46c81b",
+  "verdict": "pass",
+  "summary": "The exact full guidance assertion rejects wrong hotkeys, artifacts replacing either the PR or task URL, and GitHub URLs being published as artifacts instead of assigned to the external URL field.",
+  "timestamp": "2026-08-04T23:20:11.056Z"
+}

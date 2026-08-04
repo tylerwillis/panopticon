@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.7.1--d6fb1105b7be",
+  "requirementId": "REQ-028.7.1",
+  "hash": "d6fb1105b7be",
+  "verdict": "pass",
+  "summary": "The test supplies a nonexistent external-workflow path and requires all three exact built-in names to resolve to their respective workflow classes, so omitting or misregistering any required workflow fails.",
+  "timestamp": "2026-08-04T23:20:03.887Z"
+}

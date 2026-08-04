@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.5.1--5c0b6daef088",
+  "requirementId": "REQ-033.5.1",
+  "hash": "5c0b6daef088",
+  "verdict": "pass",
+  "summary": "The test discovers every built-in 2119 workflow, rejects missing or unexpected built-ins, and requires each MERGING responsibility sequence to be exactly deferred-issues-filed followed by pr-merged, catching omission and reversed/nonpreceding order.",
+  "timestamp": "2026-08-04T23:20:07.164Z"
+}
