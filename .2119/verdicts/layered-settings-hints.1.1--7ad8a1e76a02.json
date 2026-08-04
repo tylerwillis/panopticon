@@ -1,0 +1,8 @@
+{
+  "reviewId": "layered-settings-hints.1.1--7ad8a1e76a02",
+  "requirementId": "layered-settings-hints.1.1",
+  "hash": "7ad8a1e76a02",
+  "verdict": "pass",
+  "summary": "Registry tests reject missing, extra, misclassified, or non-bidirectionally named layered-setting declarations.",
+  "timestamp": "2026-08-04T05:59:06.020Z"
+}

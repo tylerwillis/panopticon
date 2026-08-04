@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-018.12.1--62d29891af84",
-  "requirementId": "REQ-018.12.1",
-  "hash": "62d29891af84",
-  "verdict": "pass",
-  "summary": "Sol: Exact rendered-summary assertions cover overrides of each launch field and every winning default source, rejecting wrong or additional source labels.",
-  "timestamp": "2026-07-31T23:18:17.461Z"
-}

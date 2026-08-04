@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.7.1--ad8df7adfa06",
+  "requirementId": "REQ-018.7.1",
+  "hash": "ad8df7adfa06",
+  "verdict": "pass",
+  "summary": "Real API mutation plus UI tests prove untouched launch fields track updated repo defaults and effective workflow/app defaults.",
+  "timestamp": "2026-08-04T05:59:04.566Z"
+}

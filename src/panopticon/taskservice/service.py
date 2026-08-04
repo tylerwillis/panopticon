@@ -499,7 +499,9 @@ class TaskService:
             for name, workflow in sorted(self._workflows.items())
         ]
 
-    async def list_workflow_infos_for_repo(self, repo_id: str) -> list[dict[str, str | bool]]:
+    async def list_workflow_infos_for_repo(
+        self, repo_id: str
+    ) -> list[dict[str, str | bool | None]]:
         """Workflows visible for a repo, filtered by opt_in and the repo's workflow preferences.
         ``hidden`` workflows are omitted — this drives the task-creation picker (a hidden workflow
         stays creatable via the API / a dedicated hotkey; ``hidden`` is display-only, not a gate)."""
@@ -509,6 +511,8 @@ class TaskService:
                 "name": name,
                 "when_to_use": self._workflows[name].when_to_use,
                 "opt_in": self._workflows[name].opt_in,
+                "default_harness": self._workflows[name].default_harness,
+                "default_model": self._workflows[name].default_model,
             }
             for name in sorted(self._workflows)
             if self._workflow_visible(self._workflows[name], repo)

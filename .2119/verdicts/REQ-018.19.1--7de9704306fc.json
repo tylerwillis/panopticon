@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.19.1--7de9704306fc",
+  "requirementId": "REQ-018.19.1",
+  "hash": "7de9704306fc",
+  "verdict": "pass",
+  "summary": "The mounted selector contains and cycles exactly the production harness registry names.",
+  "timestamp": "2026-08-04T05:59:05.654Z"
+}
