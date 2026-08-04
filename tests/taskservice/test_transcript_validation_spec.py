@@ -138,6 +138,32 @@ def test_client_validates_decoded_transcript_before_replacing_snapshot(
     assert stored.json()["text"] == valid_text
 
 
+@pytest.mark.parametrize(
+    "invalid_text", ["\x1bvisible", "visible\x1b"], ids=["leading", "trailing"]
+)
+def test_client_rejects_escape_at_transcript_boundaries(tmp_path: Path, invalid_text: str) -> None:
+    # 2119: REQ-047.1.2
+    # 2119: REQ-047.3.2
+    service, client = _app(tmp_path)
+    with client as http:
+        task_id = _live_task(service, http)
+        publisher = TaskServiceClient(http, token=WRITE)
+        snapshot = {"text": "safe", "columns": 80, "rows": 24, "truncated": False}
+        publisher.publish_session_transcript(task_id, snapshot, runner_id="host-1")
+
+        with pytest.raises(httpx.HTTPStatusError) as rejected:
+            publisher.publish_session_transcript(
+                task_id,
+                {**snapshot, "text": invalid_text},
+                runner_id="host-1",
+            )
+
+        stored = http.get(f"/tasks/{task_id}/session/transcript", headers=_auth(READ))
+
+    assert rejected.value.response.status_code == 422
+    assert stored.json()["text"] == "safe"
+
+
 def test_transcript_publication_keeps_auth_and_runner_ansi_layers(tmp_path: Path) -> None:
     # 2119: REQ-047.3.1
     # 2119: REQ-047.3.2
@@ -154,14 +180,18 @@ def test_transcript_publication_keeps_auth_and_runner_ansi_layers(tmp_path: Path
             "\x1b_x\x1b\\",
             "\x1b7",
         ]
-        ansi = "".join(ansi_sequences)
-        pane_values = iter([f"visible{ansi}plain", "80\t24"])
-        snapshot = capture_pane_snapshot(
-            task_id,
-            run=lambda *_args, **_kwargs: next(pane_values),
-        )
-        assert snapshot is not None
-        assert snapshot["text"] == "visibleplain"
+        snapshots: list[dict[str, object]] = []
+        for sequence in ansi_sequences:
+            for captured in (f"{sequence}visible", f"visible{sequence}"):
+                pane_values = iter([captured, "80\t24"])
+                snapshot = capture_pane_snapshot(
+                    task_id,
+                    run=lambda *_args, _values=pane_values, **_kwargs: next(_values),
+                )
+                assert snapshot is not None
+                assert snapshot["text"] == "visible"
+                snapshots.append(snapshot)
+        snapshot = snapshots[-1]
 
         with pytest.raises(httpx.HTTPStatusError) as forbidden:
             scoped.publish_session_transcript(task_id, snapshot, runner_id="host-1")
