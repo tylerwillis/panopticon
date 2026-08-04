@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.21.1--009209ea1b54",
+  "requirementId": "REQ-035.21.1",
+  "hash": "009209ea1b54",
+  "verdict": "pass",
+  "summary": "The rendered Pi operation is executed with a captured curl shim, proving the token is supplied through curl configuration on stdin and never appears in process arguments.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

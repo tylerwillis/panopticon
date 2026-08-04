@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.10.3--c38589fb93b5",
+  "requirementId": "REQ-047.10.3",
+  "hash": "c38589fb93b5",
+  "verdict": "pass",
+  "summary": "Unauthenticated preflights across protected routes are constrained to fixed empty/OK bodies, transport-only headers, and absent-or-600 max age, with real protected values explicitly checked against both bodies and headers.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

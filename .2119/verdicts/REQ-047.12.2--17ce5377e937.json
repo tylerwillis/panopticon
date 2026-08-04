@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.12.2--17ce5377e937",
+  "requirementId": "REQ-047.12.2",
+  "hash": "17ce5377e937",
+  "verdict": "pass",
+  "summary": "A fresh Python subprocess tracks direct and dynamic imports while exercising derivation and the complete authorization matrix, proving no container, Anthropic, or OpenAI module is loaded; static import checks add defense in depth.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.7.4--597769555058",
+  "requirementId": "REQ-047.7.4",
+  "hash": "597769555058",
+  "verdict": "pass",
+  "summary": "A non-orchestrator is denied child creation and every delegated read/preplanning action over REST and MCP for both direct and deeper descendants.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

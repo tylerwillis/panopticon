@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.7.1--df8368c32736",
+  "requirementId": "REQ-035.7.1",
+  "hash": "df8368c32736",
+  "verdict": "pass",
+  "summary": "Parameterized tests cover missing, malformed, unknown, truncated, extended, non-ASCII, and insufficient tokens across protected REST and MCP methods, asserting identical 401 body and Bearer challenge.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

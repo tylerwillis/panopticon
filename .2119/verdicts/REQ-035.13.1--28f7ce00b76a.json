@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.13.1--28f7ce00b76a",
+  "requirementId": "REQ-035.13.1",
+  "hash": "28f7ce00b76a",
+  "verdict": "pass",
+  "summary": "Tests cover legacy headerless and sufficiently authenticated callers across REST, liveness, and MCP in permissive mode, while retaining rejection for insufficient read credentials.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.6.3--edec6e555b6a",
+  "requirementId": "REQ-047.6.3",
+  "hash": "edec6e555b6a",
+  "verdict": "pass",
+  "summary": "Every task-targeted action and REST route is checked against both an existing unrelated target and a missing target, requiring the same 403 status and generic scope-denial body.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

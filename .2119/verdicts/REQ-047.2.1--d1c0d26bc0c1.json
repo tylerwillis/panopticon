@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.2.1--d1c0d26bc0c1",
+  "requirementId": "REQ-047.2.1",
+  "hash": "d1c0d26bc0c1",
+  "verdict": "pass",
+  "summary": "The derivation test independently decodes and verifies every token component, unpadded base64url encoding, the domain-separated message, and HMAC-SHA256 output.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

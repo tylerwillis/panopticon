@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.3.1--55008154b7bc",
+  "requirementId": "REQ-035.3.1",
+  "hash": "55008154b7bc",
+  "verdict": "pass",
+  "summary": "Tests derive and traverse the non-mutating OpenAPI surface, including framework documentation and HEAD routes, and prove both read and write tokens avoid generic authentication rejection.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

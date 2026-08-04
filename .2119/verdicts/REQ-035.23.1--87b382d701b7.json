@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.23.1--87b382d701b7",
+  "requirementId": "REQ-035.23.1",
+  "hash": "87b382d701b7",
+  "verdict": "pass",
+  "summary": "Tests prove a protected HEAD-capable route rejects no token but admits both read and write tokens without the generic authentication failure.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

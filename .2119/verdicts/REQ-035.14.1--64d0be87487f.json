@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.14.1--64d0be87487f",
+  "requirementId": "REQ-035.14.1",
+  "hash": "64d0be87487f",
+  "verdict": "pass",
+  "summary": "Tests cover absent, escaping, symlinked, missing, unreadable, malformed, non-object, structurally invalid, empty-write, overlapping-token, and invalid-token files before application service use.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

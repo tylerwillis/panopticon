@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.40.1--6be23805ce05",
+  "requirementId": "REQ-035.40.1",
+  "hash": "6be23805ce05",
+  "verdict": "pass",
+  "summary": "Tests derive all grammar-valid substrings of minimum token length from the generic response body and headers and prove startup rejects each collision in either privilege.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

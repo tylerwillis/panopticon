@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.7.3--7c81576a944b",
+  "requirementId": "REQ-047.7.3",
+  "hash": "7c81576a944b",
+  "verdict": "pass",
+  "summary": "Orchestrator tests explicitly reject child operations, transitions/state, drop, claims, provisioning, migration, lifecycle, and governor reassignment, with the action matrix reinforcing the boundary.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

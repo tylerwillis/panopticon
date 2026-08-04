@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.30.1--69219a8d1f50",
+  "requirementId": "REQ-035.30.1",
+  "hash": "69219a8d1f50",
+  "verdict": "pass",
+  "summary": "Root-path tests exercise task and runner liveness plus all MCP transport methods, proving read tokens remain rejected and write tokens remain authorized beneath an ASGI root path.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

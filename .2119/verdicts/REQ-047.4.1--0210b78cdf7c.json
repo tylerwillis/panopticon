@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.4.1--0210b78cdf7c",
+  "requirementId": "REQ-047.4.1",
+  "hash": "0210b78cdf7c",
+  "verdict": "pass",
+  "summary": "Tests cover every listed self-readable task surface, artifact names and bytes, registration records, initial and keepalive liveness bytes, and reject substituted sibling targets.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.7.1--b99cab4c25f6",
+  "requirementId": "REQ-047.7.1",
+  "hash": "b99cab4c25f6",
+  "verdict": "pass",
+  "summary": "Tests prove child creation succeeds only for a stored orchestrating workflow with governor equal to the capability subject, rejects null, unrelated, and child governors, and uses the workflow flag rather than a hard-coded name.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

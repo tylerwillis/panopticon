@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.9.2--3bdcb6f1307e",
+  "requirementId": "REQ-047.9.2",
+  "hash": "3bdcb6f1307e",
+  "verdict": "pass",
+  "summary": "Runtime route inventory checks occur with deliberately malformed paths and arguments, proving read credentials bypass auth/scope rejection before validation on protected non-liveness reads and receive 401 on mutations, liveness, all MCP tools, and all MCP resources.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

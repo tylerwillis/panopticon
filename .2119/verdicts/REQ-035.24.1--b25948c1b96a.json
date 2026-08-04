@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.24.1--b25948c1b96a",
+  "requirementId": "REQ-035.24.1",
+  "hash": "b25948c1b96a",
+  "verdict": "pass",
+  "summary": "Parameterized startup tests reject characters and padding placements outside the documented ASCII token grammar for both privilege arrays.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

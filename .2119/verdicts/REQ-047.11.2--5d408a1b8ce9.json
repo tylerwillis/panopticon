@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.11.2--5d408a1b8ce9",
+  "requirementId": "REQ-047.11.2",
+  "hash": "5d408a1b8ce9",
+  "verdict": "pass",
+  "summary": "Startup validation rejects wildcard, path, query, fragment, credentials, opaque, malformed, and mixed-invalid entries, while accepting exact valid origins including explicit ports and IPv6.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

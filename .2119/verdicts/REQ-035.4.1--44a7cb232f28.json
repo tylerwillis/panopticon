@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.4.1--44a7cb232f28",
+  "requirementId": "REQ-035.4.1",
+  "hash": "44a7cb232f28",
+  "verdict": "pass",
+  "summary": "Tests enumerate the OpenAPI operation surface, classify mutations including GET liveness endpoints, and require uniform generic 401 rejection for every read-token mutation without state change.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

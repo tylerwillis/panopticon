@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.1.1--c70225bf7b01",
+  "requirementId": "REQ-035.1.1",
+  "hash": "c70225bf7b01",
+  "verdict": "pass",
+  "summary": "Tests load credentials from a secrets-directory file, reject escaping/raw/symlink references, exercise service state, and scan serialized and durable outputs to prove tokens are not copied.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

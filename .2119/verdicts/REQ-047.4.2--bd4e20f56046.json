@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.4.2--bd4e20f56046",
+  "requirementId": "REQ-047.4.2",
+  "hash": "bd4e20f56046",
+  "verdict": "pass",
+  "summary": "Collection tests prove ordinary capabilities see only self, while orchestrators see self and governed descendants but exclude ancestors, peers, siblings, and unrelated tasks.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

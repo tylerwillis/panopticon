@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.18.1--304a1a551c47",
+  "requirementId": "REQ-035.18.1",
+  "hash": "304a1a551c47",
+  "verdict": "pass",
+  "summary": "Broad negative tests inspect failure and validation bodies, logs, command arguments, serialization, SQLite data, artifacts, MCP responses, and runtime spawning for configured-token disclosure.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

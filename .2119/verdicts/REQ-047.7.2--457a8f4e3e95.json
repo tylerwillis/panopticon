@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.7.2--457a8f4e3e95",
+  "requirementId": "REQ-047.7.2",
+  "hash": "457a8f4e3e95",
+  "verdict": "pass",
+  "summary": "Direct and deep governed descendants are read successfully and each fixed preplanning mutation is exercised and verified, while the exhaustive action table admits exactly that child subset.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

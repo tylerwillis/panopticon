@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.8.3--c87c5a2c2d23",
+  "requirementId": "REQ-047.8.3",
+  "hash": "c87c5a2c2d23",
+  "verdict": "pass",
+  "summary": "The test derives registered FastAPI routes, MCP tools, resources, and templates at runtime, requires exact inventory equality, and verifies every assignment belongs to the specified closed authorization-class enum.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

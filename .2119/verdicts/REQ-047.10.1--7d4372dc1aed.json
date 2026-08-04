@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.10.1--7d4372dc1aed",
+  "requirementId": "REQ-047.10.1",
+  "hash": "7d4372dc1aed",
+  "verdict": "pass",
+  "summary": "Parameterized tests cover every prohibited query, cookie, JSON, and header alias both alone and alongside a valid bearer header, while separate cases enforce the exact Authorization Bearer shape.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

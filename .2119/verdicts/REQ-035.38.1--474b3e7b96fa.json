@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.38.1--474b3e7b96fa",
+  "requirementId": "REQ-035.38.1",
+  "hash": "474b3e7b96fa",
+  "verdict": "pass",
+  "summary": "The actual shell library is executed under shell xtrace with captured stderr and curl arguments, proving the configured token is absent from the trace and argv.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}
