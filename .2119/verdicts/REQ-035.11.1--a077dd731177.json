@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.11.1--a077dd731177",
+  "requirementId": "REQ-035.11.1",
+  "hash": "a077dd731177",
+  "verdict": "pass",
+  "summary": "Tests compare missing-, read-, and write-token outcomes across loopback, tailnet, private, IPv6, and public source addresses over REST, liveness, and MCP surfaces.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

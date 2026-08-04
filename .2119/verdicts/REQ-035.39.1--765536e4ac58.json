@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.39.1--765536e4ac58",
+  "requirementId": "REQ-035.39.1",
+  "hash": "765536e4ac58",
+  "verdict": "pass",
+  "summary": "Runner evidence independently derives the capability from the selected active writer and proves the Docker snapshot contains only that task capability, with no read or fleet-write token.",
+  "timestamp": "2026-08-04T07:33:02.587Z"
+}

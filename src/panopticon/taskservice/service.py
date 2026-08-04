@@ -554,6 +554,14 @@ class TaskService:
         except KeyError:
             raise UnknownWorkflow(f"unknown workflow {name!r}") from None
 
+    def task_orchestrates(self, task: Task | None) -> bool:
+        """Return a persisted task's orchestration capability, failing closed if unavailable."""
+
+        if task is None:
+            return False
+        workflow = self._workflows.get(task.workflow)
+        return bool(workflow is not None and workflow.orchestrates)
+
     def _task_is_terminal(self, task: Task) -> bool:
         """Classify a task through its workflow, with built-in labels as a legacy fallback."""
         workflow = self._workflows.get(task.workflow)

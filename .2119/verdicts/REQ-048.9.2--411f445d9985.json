@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.9.2--411f445d9985",
+  "requirementId": "REQ-048.9.2",
+  "hash": "411f445d9985",
+  "verdict": "pass",
+  "summary": "The registered-route inventory checks read-token treatment before malformed endpoint inputs for all GET/HEAD, mutation, polling, liveness, MCP tool, and MCP resource boundaries.",
+  "timestamp": "2026-08-04T07:33:29.596Z"
+}

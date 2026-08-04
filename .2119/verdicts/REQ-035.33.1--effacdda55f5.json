@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.33.1--effacdda55f5",
+  "requirementId": "REQ-035.33.1",
+  "hash": "effacdda55f5",
+  "verdict": "pass",
+  "summary": "Tests reject lengths 1 through 11 across both privileges, modes, and overlap positions, and accept the exact twelve-character boundary.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

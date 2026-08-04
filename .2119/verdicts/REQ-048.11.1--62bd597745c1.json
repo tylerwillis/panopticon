@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.11.1--62bd597745c1",
+  "requirementId": "REQ-048.11.1",
+  "hash": "62bd597745c1",
+  "verdict": "pass",
+  "summary": "Tests verify that no configured allowlist yields no CORS authorization on actual or preflight responses across the registered route surface.",
+  "timestamp": "2026-08-04T06:51:03.367Z"
+}

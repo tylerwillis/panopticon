@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.10.3--eb189bbd95a8",
+  "requirementId": "REQ-048.10.3",
+  "hash": "eb189bbd95a8",
+  "verdict": "pass",
+  "summary": "Preflights across protected paths require a fixed empty/OK body, a tightly closed transport-header set, absent-or-600 max age, identical wire responses, and no real protected values.",
+  "timestamp": "2026-08-04T07:33:30.605Z"
+}

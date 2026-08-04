@@ -136,15 +136,15 @@ def test_session_io_authority_is_bound_to_task_scoped_or_master_principal(
             },
         )
     assert created.status_code == 202
-    assert cross_task.status_code == 401
+    assert cross_task.status_code == 403
     assert forged_scope.status_code == 401
-    assert spoofed_poll.status_code == 401
+    assert spoofed_poll.status_code == 403
     assert anonymous_poll.status_code == 401
     assert read_poll.status_code == 401
     assert omitted_runner.status_code == 422
-    assert spoofed_settle.status_code == 401
+    assert spoofed_settle.status_code == 403
     assert omitted_settle.status_code == 422
-    assert spoofed_publish.status_code == 401
+    assert spoofed_publish.status_code == 403
     assert omitted_publish.status_code == 422
     assert master_poll.status_code == 200
     assert master_poll.json()[0]["id"] == delivery_id

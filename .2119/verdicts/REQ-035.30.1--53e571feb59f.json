@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.30.1--53e571feb59f",
+  "requirementId": "REQ-035.30.1",
+  "hash": "53e571feb59f",
+  "verdict": "pass",
+  "summary": "The annotated tests deploy applications under several ASGI root paths and verify read tokens are rejected while write tokens pass authentication for task liveness, runner liveness, and GET, POST, and DELETE MCP transport requests.",
+  "timestamp": "2026-08-04T06:50:50.454Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.2.2--4a3534f1440a",
+  "requirementId": "REQ-048.2.2",
+  "hash": "4a3534f1440a",
+  "verdict": "pass",
+  "summary": "Capabilities derived from each of three simultaneously active write-token generations are accepted, including read and mutation use, before rotation tests remove generations.",
+  "timestamp": "2026-08-04T06:50:54.206Z"
+}

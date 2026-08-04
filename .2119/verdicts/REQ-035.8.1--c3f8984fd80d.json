@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.8.1--c3f8984fd80d",
+  "requirementId": "REQ-035.8.1",
+  "hash": "c3f8984fd80d",
+  "verdict": "pass",
+  "summary": "Tests cross all five requested HTTP verbs with existing and missing routes and resources, including tasks, repos, runners, registrations, artifacts, workflows, and MCP methods, asserting identical authentication responses.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

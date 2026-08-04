@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.32.1--4cea409f544e",
+  "requirementId": "REQ-035.32.1",
+  "hash": "4cea409f544e",
+  "verdict": "pass",
+  "summary": "Tests append overlap tokens and verify restarted Python client factories and shell callers select the final read/write generation.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

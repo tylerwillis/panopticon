@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.8.2--46c5847ae6bd",
+  "requirementId": "REQ-048.8.2",
+  "hash": "46c5847ae6bd",
+  "verdict": "pass",
+  "summary": "Every task-targeted MCP tool and the artifact resource are exercised with token subject distinct from decoded target; conflicting actor arguments cannot replace the authenticated subject.",
+  "timestamp": "2026-08-04T07:33:28.660Z"
+}

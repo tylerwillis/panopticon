@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.19.1--2108e79118c7",
+  "requirementId": "REQ-035.19.1",
+  "hash": "2108e79118c7",
+  "verdict": "pass",
+  "summary": "Tests model initial, overlapping, and post-removal restarts, proving both generations work during overlap and old credentials cease working only after removal and restart.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

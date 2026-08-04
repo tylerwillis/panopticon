@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.17.1--402977880ee4",
+  "requirementId": "REQ-035.17.1",
+  "hash": "402977880ee4",
+  "verdict": "pass",
+  "summary": "Docker and shell tests exercise separate runtime snapshots and verify shared-client, container liveness, shell-library, and setup-repo requests use the injected credential when env_file is absent.",
+  "timestamp": "2026-08-04T07:33:02.220Z"
+}

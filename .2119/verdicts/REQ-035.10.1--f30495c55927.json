@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.10.1--f30495c55927",
+  "requirementId": "REQ-035.10.1",
+  "hash": "f30495c55927",
+  "verdict": "pass",
+  "summary": "Tests prove unauthenticated GET /healthz remains available and assert the exact existing readiness JSON payload, including root-path deployment.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

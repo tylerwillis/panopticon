@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.9.1--9ba4c52cbae3",
+  "requirementId": "REQ-035.9.1",
+  "hash": "9ba4c52cbae3",
+  "verdict": "pass",
+  "summary": "Tests accept the exact Bearer header and exhaust the named query, cookie, JSON-body, alternate-header, scheme, whitespace, and extra-field credential variants across REST and MCP, requiring rejection.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

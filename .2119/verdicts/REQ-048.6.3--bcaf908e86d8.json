@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.6.3--bcaf908e86d8",
+  "requirementId": "REQ-048.6.3",
+  "hash": "bcaf908e86d8",
+  "verdict": "pass",
+  "summary": "Every task-targeted REST surface plus representative MCP paths compares existing unrelated and missing targets and requires the same 403 generic body.",
+  "timestamp": "2026-08-04T07:33:26.682Z"
+}

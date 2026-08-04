@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.6.2--025562a37e73",
+  "requirementId": "REQ-048.6.2",
+  "hash": "025562a37e73",
+  "verdict": "pass",
+  "summary": "Complete independently derived fleet-administration route coverage rejects repo, claim, provisioning, migration, lifecycle, runner, workflow-file, and operator-migration access.",
+  "timestamp": "2026-08-04T07:33:26.332Z"
+}

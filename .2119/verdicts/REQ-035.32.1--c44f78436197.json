@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.32.1--c44f78436197",
+  "requirementId": "REQ-035.32.1",
+  "hash": "c44f78436197",
+  "verdict": "pass",
+  "summary": "The test appends new overlap tokens, proves restarted Python and shell clients select the final write token, then removes the old generation and verifies the converged clients continue authenticating.",
+  "timestamp": "2026-08-04T06:50:51.124Z"
+}

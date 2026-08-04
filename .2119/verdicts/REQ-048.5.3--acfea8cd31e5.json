@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.5.3--acfea8cd31e5",
+  "requirementId": "REQ-048.5.3",
+  "hash": "acfea8cd31e5",
+  "verdict": "pass",
+  "summary": "Tests prove self registration creation and closure, denial of sibling registration operations, and an authenticated self liveness stream that remains open and emits keepalive bytes.",
+  "timestamp": "2026-08-04T06:50:57.894Z"
+}

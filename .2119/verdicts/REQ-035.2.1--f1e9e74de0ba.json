@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.2.1--f1e9e74de0ba",
+  "requirementId": "REQ-035.2.1",
+  "hash": "f1e9e74de0ba",
+  "verdict": "pass",
+  "summary": "Tests configure multiple opaque read and write tokens, prove their distinct privileges, and verify every overlap token remains usable at its assigned privilege.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

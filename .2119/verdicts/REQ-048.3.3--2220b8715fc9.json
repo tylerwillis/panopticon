@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.3.3--2220b8715fc9",
+  "requirementId": "REQ-048.3.3",
+  "hash": "2220b8715fc9",
+  "verdict": "pass",
+  "summary": "Two restart-and-rotation steps prove removed generations become unauthorized across the route inventory while capabilities from every retained generation continue to work.",
+  "timestamp": "2026-08-04T06:50:55.867Z"
+}

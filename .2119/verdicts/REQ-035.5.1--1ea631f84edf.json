@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.5.1--1ea631f84edf",
+  "requirementId": "REQ-035.5.1",
+  "hash": "1ea631f84edf",
+  "verdict": "pass",
+  "summary": "Tests traverse every authenticated OpenAPI operation plus liveness, MCP, and documentation routes with all configured write-token generations, distinguishing authentication from existing validation failures.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

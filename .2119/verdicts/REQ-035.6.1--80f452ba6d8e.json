@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.6.1--80f452ba6d8e",
+  "requirementId": "REQ-035.6.1",
+  "hash": "80f452ba6d8e",
+  "verdict": "pass",
+  "summary": "Tests submit read-token MCP tool-call and resource-read requests and require authentication rejection while equivalent write-token requests cross the authentication boundary.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

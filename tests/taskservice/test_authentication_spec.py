@@ -32,6 +32,7 @@ from panopticon.core.models import Repo
 from panopticon.core.workflow import ResponsibilitiesNotMet
 from panopticon.taskservice.api import MAX_AUTH_INSPECTION_BODY_BYTES, create_app
 from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
+from panopticon.taskservice.auth import derive_task_capability
 from panopticon.taskservice.service import TaskService
 from panopticon.taskservice.store_sqlalchemy import SqlAlchemyStore
 from panopticon.workflows import Spike
@@ -130,6 +131,7 @@ def _asgi_status(
     method: str = "GET",
     token: str | None = None,
     client_host: str = "testclient",
+    root_path: str = "",
 ) -> tuple[int, dict[str, str], bytes]:
     """Call a streaming route until response start, then disconnect without buffering forever."""
     sent: list[dict[str, object]] = []
@@ -158,7 +160,7 @@ def _asgi_status(
         "headers": headers,
         "client": (client_host, 12345),
         "server": ("testserver", 80),
-        "root_path": "",
+        "root_path": root_path,
     }
     asyncio.run(app(scope, receive, send))  # type: ignore[operator]
     start = next(message for message in sent if message["type"] == "http.response.start")
@@ -579,12 +581,26 @@ def test_authenticated_domain_error_redacts_configured_token(tmp_path: Path) -> 
 
 
 def test_configured_tokens_are_rejected_before_persistence_or_success(
-    tmp_path: Path,
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     # 2119: REQ-035.18.1
     # 2119: REQ-035.44.1
     service_root = tmp_path / "service"
     service = _service(service_root)
+    dispatched: list[str] = []
+    original_create_task = service.create_task
+    original_put_artifact = service.put_artifact
+
+    async def observed_create_task(*args: object, **kwargs: object) -> object:
+        dispatched.append("create_task")
+        return await original_create_task(*args, **kwargs)  # type: ignore[arg-type]
+
+    async def observed_put_artifact(*args: object, **kwargs: object) -> object:
+        dispatched.append("put_artifact")
+        return await original_put_artifact(*args, **kwargs)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(service, "create_task", observed_create_task)
+    monkeypatch.setattr(service, "put_artifact", observed_put_artifact)
     with TestClient(
         create_app(
             service,
@@ -642,6 +658,7 @@ def test_configured_tokens_are_rejected_before_persistence_or_success(
         assert path_response.json() == {"detail": "request rejected"}
         assert artifact_response.json() == {"detail": "request rejected"}
         assert encoded_query_response.json() == {"detail": "request rejected"}
+        assert dispatched == []
 
     durable = (service_root / "task.db").read_bytes()
     artifact_files = list((service_root / "artifacts").glob("**/*"))
@@ -666,6 +683,60 @@ def test_authentication_inspection_rejects_oversized_body_before_dispatch(
     assert response.json() == {"detail": "request too large"}
     if mode == "permissive":
         assert health.headers["x-panopticon-permissive-unauthenticated-total"] == "0"
+
+
+def test_authentication_inspection_stops_reading_at_the_limit_and_skips_endpoint(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # 2119: REQ-035.46.1
+    service = _service(tmp_path / "service")
+    dispatched = False
+
+    async def observed_list_tasks(*_args: object, **_kwargs: object) -> list[object]:
+        nonlocal dispatched
+        dispatched = True
+        return []
+
+    monkeypatch.setattr(service, "list_tasks", observed_list_tasks)
+    app = create_app(
+        service,
+        auth_file=_credential_file(tmp_path),
+        auth_mode="enforced",
+        secrets_dir=tmp_path / "secrets",
+    )
+    chunks_read = 0
+    chunks = [b"x" * (1024 * 1024) for _ in range(32)]
+    sent: list[dict[str, object]] = []
+
+    async def receive() -> dict[str, object]:
+        nonlocal chunks_read
+        chunk = chunks[chunks_read]
+        chunks_read += 1
+        return {"type": "http.request", "body": chunk, "more_body": chunks_read < len(chunks)}
+
+    async def send(message: dict[str, object]) -> None:
+        sent.append(message)
+
+    scope = {
+        "type": "http",
+        "asgi": {"version": "3.0"},
+        "http_version": "1.1",
+        "method": "GET",
+        "scheme": "http",
+        "path": "/tasks",
+        "raw_path": b"/tasks",
+        "query_string": b"",
+        "headers": [(b"authorization", f"Bearer {READ_TOKEN}".encode())],
+        "client": ("testclient", 12345),
+        "server": ("testserver", 80),
+        "root_path": "",
+    }
+    asyncio.run(app(scope, receive, send))  # type: ignore[operator]
+    start = next(message for message in sent if message["type"] == "http.response.start")
+    assert start["status"] == 413
+    assert chunks_read == MAX_AUTH_INSPECTION_BODY_BYTES // len(chunks[0]) + 1
+    assert chunks_read < len(chunks)
+    assert dispatched is False
 
 
 def test_read_and_write_tokens_can_read_but_only_write_token_can_mutate(tmp_path: Path) -> None:
@@ -721,11 +792,14 @@ def test_read_and_write_tokens_can_read_but_only_write_token_can_mutate(tmp_path
                 )
                 for write_token in [WRITE_TOKEN, NEXT_WRITE_TOKEN, OPAQUE_WRITE_TOKEN]:
                     status, _, _ = _asgi_status(client.app, path, token=write_token)
-                    assert status != 401
+                    assert status not in {401, 403}
                 continue
             for write_token in [WRITE_TOKEN, NEXT_WRITE_TOKEN, OPAQUE_WRITE_TOKEN]:
                 write_response = client.request(method, path, headers=_bearer(write_token))
-                assert write_response.status_code != 401, (method, path, write_response.text)
+                assert not (
+                    write_response.status_code in {401, 403}
+                    and write_response.json() == GENERIC_FAILURE
+                ), (method, path, write_response.text)
             if _is_mutating(method, path):
                 assert all(
                     response.status_code == 401
@@ -1048,7 +1122,11 @@ def test_source_address_never_exempts_authentication(tmp_path: Path) -> None:
             "100.64.1.2",
             "100.127.255.255",
             "fd7a:115c:a1e0::2",
+            "10.0.0.7",
+            "172.16.0.7",
+            "192.168.1.7",
             "203.0.113.9",
+            "8.8.8.8",
         ]
     ):
         case_dir = tmp_path / str(index)
@@ -1283,6 +1361,11 @@ def test_permissive_mode_reports_headerless_callers(
         if "permissive authentication accepted headerless request" in record.getMessage()
     ]
     assert len(warnings) == 2  # powers-of-two reporting is visible without retry-log flooding
+    assert all(
+        record.levelno == logging.WARNING
+        for record in caplog.records
+        if "permissive authentication accepted headerless request" in record.getMessage()
+    )
     assert "method=GET route=/tasks client=testclient count=1" in warnings[0]
     assert "method=GET route=/tasks client=testclient count=2" in warnings[1]
 
@@ -1326,8 +1409,23 @@ def test_permissive_warning_redacts_tokens_and_keeps_a_monotonic_bounded_signal(
     assert WRITE_TOKEN not in "\n".join(warnings)
     assert "method=POST route=/legacy-post client=legacy-phone count=1" in warnings[0]
     assert "method=DELETE route=/legacy-delete client=legacy-runner count=2" in warnings[1]
-    counts = [int(message.rsplit("count=", 1)[1]) for message in warnings]
-    assert counts == [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
+    expected_warnings = [
+        "permissive authentication accepted headerless request: "
+        "method=POST route=/legacy-post client=legacy-phone count=1",
+        "permissive authentication accepted headerless request: "
+        "method=DELETE route=/legacy-delete client=legacy-runner count=2",
+        *[
+            "permissive authentication accepted headerless request: "
+            f"method=GET route=/missing-{count - 3} client=testclient count={count}"
+            for count in [4, 8, 16, 32, 64, 128, 256, 512, 1024]
+        ],
+    ]
+    assert warnings == expected_warnings
+    assert all(
+        record.levelno == logging.WARNING
+        for record in caplog.records
+        if "permissive authentication accepted headerless request" in record.getMessage()
+    )
     assert health.headers["x-panopticon-permissive-unauthenticated-total"] == "1024"
     health_wire = health.text + str(health.headers)
     assert READ_TOKEN not in health_wire
@@ -1344,11 +1442,10 @@ def test_permissive_warning_redacts_tokens_and_keeps_a_monotonic_bounded_signal(
         json.dumps({"read": [READ_TOKEN], "write": WRITE_TOKEN}),
         json.dumps({"read": [READ_TOKEN], "write": [1]}),
         json.dumps({"read": [READ_TOKEN], "write": [WRITE_TOKEN], "extra": []}),
-        json.dumps({"read": [], "write": [WRITE_TOKEN]}),
         json.dumps({"read": [READ_TOKEN]}),
-        json.dumps({"write": [WRITE_TOKEN]}),
         json.dumps({"read": [READ_TOKEN], "write": []}),
         json.dumps({"read": [READ_TOKEN], "write": [READ_TOKEN]}),
+        json.dumps({"read": [READ_TOKEN], "write": ["=valid-padding-token"]}),
         *[json.dumps({"read": [READ_TOKEN], "write": [token]}) for token in INVALID_TOKEN_VALUES],
         *[json.dumps({"read": [token], "write": [WRITE_TOKEN]}) for token in INVALID_TOKEN_VALUES],
         json.dumps(
@@ -1377,36 +1474,10 @@ def test_enforced_mode_rejects_invalid_credential_files(tmp_path: Path, contents
         )
 
 
-@pytest.mark.parametrize(
-    "token",
-    [
-        "Bearer",
-        "authentication",
-        "application/json",
-        "content-length",
-        "content-type",
-        "detail",
-        "required",
-        "www-authenticate",
-        "authenticatio",
-    ],
-)
 def test_startup_rejects_tokens_colliding_with_fixed_failure_response(
-    tmp_path: Path, token: str
+    tmp_path: Path,
 ) -> None:
     # 2119: REQ-035.40.1
-    secrets = tmp_path / "secrets"
-    secrets.mkdir()
-    credential = secrets / "auth.json"
-    credential.write_text(json.dumps({"read": [READ_TOKEN], "write": [token]}))
-    credential.chmod(0o600)
-    with pytest.raises(ValueError, match="authentication credential"):
-        create_app(
-            _service(tmp_path),
-            auth_file=credential.name,
-            auth_mode="enforced",
-            secrets_dir=secrets,
-        )
     with _client(tmp_path / "control") as client:
         rejected = client.get("/tasks")
     wire = (
@@ -1414,7 +1485,34 @@ def test_startup_rejects_tokens_colliding_with_fixed_failure_response(
         + "\n"
         + "\n".join(f"{name}: {value}" for name, value in rejected.headers.items())
     )
-    assert token.lower() in wire.lower()
+    words = re.findall(r"[A-Za-z0-9._~+/-]{12,}", wire)
+    tokens = sorted(
+        {
+            word[start:end]
+            for word in words
+            for start in range(len(word))
+            for end in range(start + 12, len(word) + 1)
+        }
+    )
+    assert "uthentication" in tokens
+    assert tokens
+
+    secrets = tmp_path / "secrets"
+    secrets.mkdir()
+    credential = secrets / "auth.json"
+    for privilege in ["read", "write"]:
+        for index, token in enumerate(tokens):
+            credentials = {"read": [READ_TOKEN], "write": [WRITE_TOKEN]}
+            credentials[privilege] = [token]
+            credential.write_text(json.dumps(credentials))
+            credential.chmod(0o600)
+            with pytest.raises(ValueError, match="authentication credential"):
+                create_app(
+                    _service(tmp_path / f"{privilege}-{index}"),
+                    auth_file=credential.name,
+                    auth_mode="enforced",
+                    secrets_dir=secrets,
+                )
 
 
 @pytest.mark.parametrize("privilege", ["read", "write"])
@@ -1436,6 +1534,35 @@ def test_enforced_mode_rejects_short_tokens(
             _service(tmp_path),
             auth_file="bad.json",
             auth_mode="enforced",
+            secrets_dir=secrets,
+        )
+
+
+@pytest.mark.parametrize("mode", ["enforced", "permissive"])
+@pytest.mark.parametrize("privilege", ["read", "write"])
+@pytest.mark.parametrize("position", ["only", "first", "middle", "last"])
+def test_every_overlap_generation_enforces_minimum_token_length(
+    tmp_path: Path, mode: str, privilege: str, position: str
+) -> None:
+    # 2119: REQ-035.33.1
+    secrets = tmp_path / "secrets"
+    secrets.mkdir()
+    credentials = {"read": [READ_TOKEN], "write": [WRITE_TOKEN]}
+    valid = credentials[privilege][0]
+    credentials[privilege] = {
+        "only": ["x" * 11],
+        "first": ["x" * 11, valid],
+        "middle": [valid, "x" * 11, valid],
+        "last": [valid, "x" * 11],
+    }[position]
+    credential = secrets / "bad.json"
+    credential.write_text(json.dumps(credentials))
+    credential.chmod(0o600)
+    with pytest.raises(ValueError, match="authentication credential"):
+        create_app(
+            _service(tmp_path),
+            auth_file=credential.name,
+            auth_mode=mode,
             secrets_dir=secrets,
         )
 
@@ -1724,8 +1851,7 @@ def test_runner_injects_write_token_into_docker_and_shell_tasks_without_command_
     assert str((tmp_path / "secrets" / reference).resolve()) not in auth_mount
     mounted_snapshot = Path(auth_mount.split(":", 1)[0])
     assert json.loads(docker_recorder.mounted_auth or "") == {
-        "read": [],
-        "write": [scoped_task_token(WRITE_TOKEN, "t1")],
+        "task": derive_task_capability(WRITE_TOKEN, "t1")
     }
     assert not mounted_snapshot.exists()
     docker_runner.stop("panopticon-t1")

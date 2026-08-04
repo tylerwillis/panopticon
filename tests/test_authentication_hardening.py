@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import os
@@ -26,12 +27,56 @@ from panopticon.sessionservice.spawner import Spawner
 from panopticon.taskservice import __main__ as taskservice_main
 from panopticon.taskservice.__main__ import build_app
 from panopticon.taskservice.api import _redact_stream_chunk
-from panopticon.taskservice.auth import load_client_token, load_tokens
+from panopticon.taskservice.auth import derive_task_capability, load_client_token, load_tokens
 from panopticon.terminal import __main__ as terminal_cli
 
 
 class _Completed:
     returncode = 1
+
+
+def _asgi_status(
+    app: object, path: str, *, token: str, root_path: str = ""
+) -> tuple[int, dict[str, str], bytes]:
+    sent: list[dict[str, object]] = []
+    first = True
+
+    async def receive() -> dict[str, object]:
+        nonlocal first
+        if first:
+            first = False
+            return {"type": "http.request", "body": b"", "more_body": False}
+        return {"type": "http.disconnect"}
+
+    async def send(message: dict[str, object]) -> None:
+        sent.append(message)
+
+    scope = {
+        "type": "http",
+        "asgi": {"version": "3.0"},
+        "http_version": "1.1",
+        "method": "GET",
+        "scheme": "http",
+        "path": path,
+        "raw_path": path.encode(),
+        "query_string": b"",
+        "headers": [(b"authorization", f"Bearer {token}".encode())],
+        "client": ("testclient", 12345),
+        "server": ("testserver", 80),
+        "root_path": root_path,
+    }
+    asyncio.run(app(scope, receive, send))  # type: ignore[operator]
+    start = next(message for message in sent if message["type"] == "http.response.start")
+    headers = {
+        key.decode().lower(): value.decode()
+        for key, value in start.get("headers", [])  # type: ignore[union-attr]
+    }
+    body = b"".join(
+        message.get("body", b"")  # type: ignore[arg-type]
+        for message in sent
+        if message["type"] == "http.response.body"
+    )
+    return int(start["status"]), headers, body
 
 
 def test_mcp_redaction_masks_tokens_across_every_chunk_boundary() -> None:
@@ -53,7 +98,8 @@ def test_shell_library_hides_token_from_xtrace(tmp_path: Path) -> None:
     credential.write_text(json.dumps({"read": ["private-reader"], "write": ["trace-secret"]}))
     credential.chmod(0o600)
     argv = tmp_path / "argv"
-    shell = f"""curl() {{ cat >/dev/null; printf '%s\\n' "$@" > {argv}; }}
+    config = tmp_path / "curl-config"
+    shell = f"""curl() {{ cat > {config}; printf '%s\\n' "$@" > {argv}; }}
 {_TASK_LIB}
 set -x
 panopticon_advance
@@ -74,6 +120,7 @@ panopticon_advance
     assert "trace-secret" not in completed.stderr
     assert "trace-secret" not in argv.read_text()
     assert argv.read_text().splitlines()[:4] == ["--disable", "--noproxy", "*", "--config"]
+    assert config.read_text() == 'header = "Authorization: Bearer trace-secret"\n'
 
 
 def test_host_validates_auth_before_docker_preflight(
@@ -448,14 +495,13 @@ def test_docker_runner_mounts_a_stable_snapshot_if_source_is_replaced(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     import panopticon.sessionservice.local_runner as runner_module
-    from panopticon.taskservice.auth import scoped_task_token
 
     source = tmp_path / "auth.json"
     source.write_text(
         json.dumps({"read": ["stable-reader-token"], "write": ["stable-writer-token"]})
     )
     source.chmod(0o600)
-    original_snapshot = runner_module.snapshot_service_tokens
+    original_snapshot = runner_module.snapshot_task_capability
     snapshots: list[Path] = []
 
     def snapshot_then_replace(*args: object, **kwargs: object) -> Path:
@@ -476,15 +522,19 @@ def test_docker_runner_mounts_a_stable_snapshot_if_source_is_replaced(
             docker_observations.append((mounted.is_file(), mounted.read_text()))
         return ""
 
-    monkeypatch.setattr(runner_module, "snapshot_service_tokens", snapshot_then_replace)
+    monkeypatch.setattr(runner_module, "snapshot_task_capability", snapshot_then_replace)
     runner = runner_module.LocalRunner(
         "http://service", auth_file=source.name, secrets_dir=tmp_path, run=record
     )
     runner.spawn("task")
 
     assert stat.S_ISFIFO(source.stat().st_mode)
-    expected = json.dumps({"read": [], "write": [scoped_task_token("stable-writer-token", "task")]})
-    assert docker_observations == [(True, expected)]
+    assert docker_observations == [
+        (
+            True,
+            json.dumps({"task": derive_task_capability("stable-writer-token", "task")}),
+        )
+    ]
     assert snapshots and not snapshots[0].exists()
     runner.stop("panopticon-task")
     assert not snapshots[0].exists()
@@ -949,6 +999,13 @@ def test_root_path_does_not_downgrade_write_only_routes(tmp_path: Path) -> None:
             )
             assert reader.status_code == 401
             if "/runners/" in path:
+                status, _, body = _asgi_status(
+                    client.app,
+                    path,
+                    token="write-token-long",
+                    root_path="/proxy",
+                )
+                assert status not in {401, 403}, body
                 continue
             writer = client.request(
                 method, path, headers={"Authorization": "Bearer write-token-long"}

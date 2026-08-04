@@ -52,6 +52,43 @@ def test_build_app_honors_production_auth_environment(
     assert "task-service authentication mode: enforced" in caplog.text
 
 
+def test_build_app_honors_browser_origin_environment(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    config = tmp_path / "config"
+    secrets = config / "secrets"
+    secrets.mkdir(parents=True)
+    (secrets / "task-service-auth.json").write_text(
+        json.dumps(
+            {"read": ["production-read-token-long"], "write": ["production-write-token-long"]}
+        )
+    )
+    (secrets / "task-service-auth.json").chmod(0o600)
+    monkeypatch.setenv("PANOPTICON_CONFIG", str(config))
+    monkeypatch.setenv("PANOPTICON_SERVICE_AUTH_FILE", "task-service-auth.json")
+    monkeypatch.setenv(
+        "PANOPTICON_BROWSER_ORIGINS",
+        "https://phone.example, https://phone-alt.example:8443",
+    )
+
+    app = build_app(
+        db="sqlite://",
+        artifacts_root=str(tmp_path / "artifacts"),
+        _home_workflows=tmp_path / "empty-home-workflows",
+    )
+    with TestClient(app) as client:
+        response = client.get(
+            "/tasks",
+            headers={
+                "Authorization": "Bearer production-read-token-long",
+                "Origin": "https://phone-alt.example:8443",
+            },
+        )
+
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "https://phone-alt.example:8443"
+
+
 def test_main_defaults_to_loopback_and_disables_raw_access_log(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

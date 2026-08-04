@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.31.1--9233b6b1f698",
+  "requirementId": "REQ-035.31.1",
+  "hash": "9233b6b1f698",
+  "verdict": "pass",
+  "summary": "Unit and real-tmux tests prove service, runner, and dashboard sessions receive current auth reference, mode, and config root while stale absent values are cleared.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

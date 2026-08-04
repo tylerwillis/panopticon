@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.2.3--95656a4a6a9e",
+  "requirementId": "REQ-048.2.3",
+  "hash": "95656a4a6a9e",
+  "verdict": "pass",
+  "summary": "Broad malformed, forged, wrong-version, wrong-profile, wrong-binding, and invalid-encoding cases are rejected across REST and MCP, with wire-equivalent responses for existing and nonexistent asserted subjects or targets.",
+  "timestamp": "2026-08-04T06:50:54.522Z"
+}

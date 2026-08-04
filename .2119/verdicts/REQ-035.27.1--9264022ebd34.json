@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.27.1--9264022ebd34",
+  "requirementId": "REQ-035.27.1",
+  "hash": "9264022ebd34",
+  "verdict": "pass",
+  "summary": "The tests verify production startup reports enforced mode, disabled and permissive modes log warnings at warning level, and the authentication documentation identifies enforced mode as the required steady state.",
+  "timestamp": "2026-08-04T06:50:49.433Z"
+}

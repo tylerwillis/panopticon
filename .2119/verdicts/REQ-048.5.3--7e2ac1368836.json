@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.5.3--7e2ac1368836",
+  "requirementId": "REQ-048.5.3",
+  "hash": "7e2ac1368836",
+  "verdict": "pass",
+  "summary": "The subject capability opens, lists, and closes its registration and proves its liveness stream remains open through keepalive bytes; sibling operations are denied.",
+  "timestamp": "2026-08-04T07:33:25.675Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.2.2--890fedce3945",
+  "requirementId": "REQ-048.2.2",
+  "hash": "890fedce3945",
+  "verdict": "pass",
+  "summary": "Capabilities derived independently from old, middle, and current active fleet writers are each accepted during overlap.",
+  "timestamp": "2026-08-04T07:33:04.231Z"
+}

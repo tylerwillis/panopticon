@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import hmac
 import json
@@ -43,6 +44,50 @@ class AuthTokens:
     write: tuple[str, ...]
 
 
+TASK_CAPABILITY_PREFIX = "ptc1"
+TASK_CAPABILITY_PROFILE = "self"
+TASK_CAPABILITY_DOMAIN = b"panopticon-task-capability-v1\0"
+
+
+def _base64url(value: bytes) -> str:
+    return base64.urlsafe_b64encode(value).decode("ascii").rstrip("=")
+
+
+def derive_task_capability(write_token: str, task_id: str) -> str:
+    """Derive the deterministic, task-bound control-plane capability for ``task_id``."""
+    subject = task_id.encode("utf-8")
+    message = TASK_CAPABILITY_DOMAIN + subject + b"\0" + TASK_CAPABILITY_PROFILE.encode()
+    mac = hmac.new(write_token.encode(), message, hashlib.sha256).digest()
+    return f"{TASK_CAPABILITY_PREFIX}.{_base64url(subject)}.{TASK_CAPABILITY_PROFILE}.{_base64url(mac)}"
+
+
+def decode_task_capability(token: str, write_tokens: tuple[str, ...]) -> str | None:
+    """Return the authenticated subject, or ``None`` for every malformed/forged token."""
+    try:
+        version, encoded_subject, profile, encoded_mac = token.split(".")
+        if version != TASK_CAPABILITY_PREFIX or profile != TASK_CAPABILITY_PROFILE:
+            return None
+        if not encoded_subject or "=" in encoded_subject or not encoded_mac or "=" in encoded_mac:
+            return None
+        subject_bytes = base64.urlsafe_b64decode(
+            encoded_subject + "=" * (-len(encoded_subject) % 4)
+        )
+        mac = base64.urlsafe_b64decode(encoded_mac + "=" * (-len(encoded_mac) % 4))
+        subject = subject_bytes.decode("utf-8")
+        if _base64url(subject_bytes) != encoded_subject or len(mac) != hashlib.sha256().digest_size:
+            return None
+    except (ValueError, UnicodeDecodeError):
+        return None
+    return (
+        subject
+        if any(
+            hmac.compare_digest(token, derive_task_capability(root, subject))
+            for root in write_tokens
+        )
+        else None
+    )
+
+
 @dataclass(frozen=True)
 class AuthPrincipal:
     privilege: Literal["read", "write"]
@@ -50,8 +95,9 @@ class AuthPrincipal:
 
 
 def scoped_task_token(master: str, task_id: str) -> str:
-    digest = hmac.new(master.encode(), f"task:{task_id}".encode(), hashlib.sha256).hexdigest()
-    return f"pt1.task.{task_id}.{digest}"
+    """Compatibility name for the canonical profile-bound task capability."""
+
+    return derive_task_capability(master, task_id)
 
 
 def authenticate_token(tokens: AuthTokens, presented: str) -> AuthPrincipal | None:
@@ -60,15 +106,8 @@ def authenticate_token(tokens: AuthTokens, presented: str) -> AuthPrincipal | No
         return AuthPrincipal("write")
     if any(hmac.compare_digest(value, token.encode()) for token in tokens.read):
         return AuthPrincipal("read")
-    parts = presented.split(".", 3)
-    if len(parts) == 4 and parts[:2] == ["pt1", "task"] and parts[2]:
-        task_id = parts[2]
-        if any(
-            hmac.compare_digest(presented, scoped_task_token(master, task_id))
-            for master in tokens.write
-        ):
-            return AuthPrincipal("write", task_id)
-    return None
+    task_id = decode_task_capability(presented, tokens.write)
+    return AuthPrincipal("write", task_id) if task_id is not None else None
 
 
 def _credential_error() -> ValueError:
@@ -90,12 +129,10 @@ def credential_path(reference: str, *, secrets_dir: str | Path | None = None) ->
 def _parse_tokens(contents: str, *, allow_runtime_snapshot: bool = False) -> AuthTokens:
     try:
         raw = json.loads(contents)
-        if not isinstance(raw, dict) or set(raw) != {"read", "write"}:
+        if not isinstance(raw, dict) or not set(raw) <= {"read", "write"} or "write" not in raw:
             raise _credential_error()
-        read, write = raw["read"], raw["write"]
+        read, write = raw.get("read", []), raw["write"]
         if not isinstance(read, list) or not isinstance(write, list) or not write:
-            raise _credential_error()
-        if not allow_runtime_snapshot and not read:
             raise _credential_error()
         if not all(
             isinstance(token, str)
@@ -144,6 +181,8 @@ def load_client_token(
 ) -> str:
     tokens = load_tokens(reference, secrets_dir=secrets_dir)
     values = tokens.read if privilege == "read" else tokens.write
+    if not values:
+        raise ValueError(f"authentication credential has no configured {privilege} token")
     return values[-1]
 
 
@@ -169,13 +208,45 @@ def snapshot_tokens(
         raise
 
 
+def snapshot_task_capability(
+    reference: str,
+    task_id: str,
+    *,
+    directory: str | Path | None = None,
+    secrets_dir: str | Path | None = None,
+    prefix: str = "panopticon-service-auth-",
+) -> Path:
+    """Create a private runtime snapshot containing only ``task_id``'s capability."""
+    tokens = load_tokens(reference, secrets_dir=secrets_dir)
+    capability = derive_task_capability(tokens.write[-1], task_id)
+    fd, raw_path = tempfile.mkstemp(prefix=prefix, suffix=".json", dir=directory)
+    path = Path(raw_path)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            json.dump({"task": capability}, handle)
+        return path
+    except BaseException:
+        path.unlink(missing_ok=True)
+        raise
+
+
 def environment_token(*, privilege: Literal["read", "write"] = "write") -> str | None:
     reference = os.environ.get("PANOPTICON_SERVICE_AUTH_FILE")
     if not reference:
         return None
     path = Path(reference)
     if path.is_absolute():
-        tokens = _parse_tokens(_read_regular_file(path), allow_runtime_snapshot=True)
+        contents = _read_regular_file(path)
+        try:
+            runtime = json.loads(contents)
+        except json.JSONDecodeError as exc:
+            raise _credential_error() from exc
+        if isinstance(runtime, dict) and set(runtime) == {"task"}:
+            task_token = runtime["task"]
+            if privilege != "write" or not isinstance(task_token, str) or not task_token:
+                raise _credential_error()
+            return task_token
+        tokens = _parse_tokens(contents, allow_runtime_snapshot=True)
         values = tokens.read if privilege == "read" else tokens.write
         if not values:
             raise _credential_error()

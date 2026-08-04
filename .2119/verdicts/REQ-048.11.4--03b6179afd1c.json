@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.11.4--03b6179afd1c",
+  "requirementId": "REQ-048.11.4",
+  "hash": "03b6179afd1c",
+  "verdict": "pass",
+  "summary": "Tests prove allowed actual responses echo the exact origin with Vary: Origin and that disallowed origins receive no cross-origin authorization.",
+  "timestamp": "2026-08-04T06:51:04.377Z"
+}

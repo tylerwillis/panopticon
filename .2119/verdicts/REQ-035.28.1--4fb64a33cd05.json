@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.28.1--4fb64a33cd05",
+  "requirementId": "REQ-035.28.1",
+  "hash": "4fb64a33cd05",
+  "verdict": "pass",
+  "summary": "Tests cover missing, directory, FIFO, socket, symlink, and malformed references for Docker and shell runners, assert failure precedes Docker/tmux, and verify filesystem entries remain unchanged.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

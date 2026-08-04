@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.15.1--47098248504e",
+  "requirementId": "REQ-035.15.1",
+  "hash": "47098248504e",
+  "verdict": "pass",
+  "summary": "Shared-client transport tests verify bearer propagation on ordinary GET and PUT plus task and runner liveness requests, and verify the credential is absent from URLs.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

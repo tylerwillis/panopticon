@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.2.1--ba2dcde67b5b",
+  "requirementId": "REQ-048.2.1",
+  "hash": "ba2dcde67b5b",
+  "verdict": "pass",
+  "summary": "The test independently reconstructs every token segment, unpadded base64url boundaries, fixed version/profile, exact domain-separated message, and HMAC-SHA256 value.",
+  "timestamp": "2026-08-04T07:33:03.921Z"
+}

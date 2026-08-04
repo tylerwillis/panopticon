@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.16.1--9ccf9c71c322",
+  "requirementId": "REQ-035.16.1",
+  "hash": "9ccf9c71c322",
+  "verdict": "pass",
+  "summary": "Tests exercise host-runner, dashboard/console, and CLI client factories resolving the local credential reference and returning authenticated shared clients.",
+  "timestamp": "2026-08-04T06:19:44.324Z"
+}

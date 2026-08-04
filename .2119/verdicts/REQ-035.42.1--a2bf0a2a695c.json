@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.42.1--a2bf0a2a695c",
+  "requirementId": "REQ-035.42.1",
+  "hash": "a2bf0a2a695c",
+  "verdict": "pass",
+  "summary": "The test sends every configured token through caller-controlled MCP tool arguments and resource URIs, captures pinned MCP SDK logger records, exception and stack data, late-installed handlers, and responses, and asserts all configured tokens are redacted throughout.",
+  "timestamp": "2026-08-04T06:50:52.498Z"
+}

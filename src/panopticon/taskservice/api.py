@@ -22,8 +22,8 @@ from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager, suppress
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Literal
-from urllib.parse import unquote_plus
+from typing import Any, Literal, cast
+from urllib.parse import unquote_plus, urlsplit
 
 from fastapi import FastAPI, Header, HTTPException, Query, Request, Response
 from fastapi.encoders import jsonable_encoder
@@ -31,7 +31,8 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from starlette._utils import get_route_path
-from starlette.types import Message, Receive, Scope, Send
+from starlette.middleware.cors import CORSMiddleware
+from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from panopticon.core.artifacts import ArtifactError
 from panopticon.core.liveness import LIVENESS_KEEPALIVE_SECONDS
@@ -61,6 +62,15 @@ _log = logging.getLogger(__name__)
 _STANDARD_LOG_RECORD_KEYS = frozenset(
     logging.LogRecord("", logging.INFO, "", 0, "", (), None).__dict__
 )
+
+
+class _StrictCORSMiddleware(CORSMiddleware):
+    """CORS transport whose header allowlist excludes browser-safelisted extras."""
+
+    def __init__(self, app: ASGIApp, **kwargs: Any) -> None:
+        super().__init__(app, **kwargs)
+        self.allow_headers = ["authorization", "content-type"]
+        self.preflight_headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type"
 
 
 def _redact_log_value(value: Any, tokens: tuple[str, ...]) -> Any:
@@ -704,6 +714,7 @@ def create_app(
     auth_file: str | None = None,
     auth_mode: str | None = None,
     secrets_dir: str | Path | None = None,
+    browser_origins: list[str] | None = None,
 ) -> FastAPI:
     operator_token = os.environ.get("PANOPTICON_OPERATOR_TOKEN")
     # MCP over streamable HTTP, mounted at /mcp on the same control plane (operations=tools,
@@ -712,6 +723,7 @@ def create_app(
     # parent FastAPI lifespan (a mounted sub-app's own lifespan isn't run by the parent).
     # Imported here, not at module scope: mcp.py imports our ``*Out`` schemas (would cycle).
     from panopticon.taskservice.auth import authenticate_token, load_tokens
+    from panopticon.taskservice.auth_scope import Action, CredentialScopePolicy
     from panopticon.taskservice.mcp import build_mcp_server
 
     mode = auth_mode or ("enforced" if auth_file else "disabled")
@@ -738,6 +750,31 @@ def create_app(
                 _remove_log_redaction(installed)
 
     app = FastAPI(title="panopticon task service", version="0.0.3", lifespan=lifespan)
+    policy = CredentialScopePolicy(service, tokens.write if tokens else (), app, mcp)
+    app.state.credential_scope_policy = policy
+    app.state.panopticon_mcp = mcp
+
+    origins = list(browser_origins or [])
+    for origin in origins:
+        try:
+            parsed = urlsplit(origin)
+            port = parsed.port
+        except ValueError as exc:
+            raise ValueError("browser origin configuration is invalid") from exc
+        if (
+            parsed.scheme not in {"http", "https"}
+            or not parsed.hostname
+            or parsed.username is not None
+            or parsed.password is not None
+            or parsed.path
+            or parsed.query
+            or parsed.fragment
+            or origin.endswith("/")
+            or "*" in origin
+            or origin == "null"
+            or (":" in parsed.netloc and port is None and not parsed.netloc.endswith("]"))
+        ):
+            raise ValueError("browser origin configuration is invalid")
 
     generic_auth_failure = {"detail": "authentication required"}
     permissive_unauthenticated_total = 0
@@ -884,8 +921,11 @@ def create_app(
             if candidate and " " not in candidate:
                 presented = candidate
         principal = authenticate_token(tokens, presented)
-        write = principal is not None and principal.privilege == "write"
+        write = (
+            principal is not None and principal.privilege == "write" and principal.task_id is None
+        )
         read = principal is not None and principal.privilege == "read"
+        task_subject = principal.task_id if principal is not None else None
         path_parts = route_path.strip("/").split("/")
         liveness = (
             len(path_parts) == 3
@@ -912,25 +952,152 @@ def create_app(
                 (request.method == "GET" and path_parts[3:] == ["input"]) or request.method == "PUT"
             )
         )
-        if (
-            session_input_create
-            and principal is not None
-            and principal.task_id not in (None, task_id)
-        ):
-            write = False
-        if runner_session_io and principal is not None and principal.task_id is not None:
-            write = False
-        if not write and (mutating or not read):
+        if session_input_create and task_subject not in (None, task_id):
+            return JSONResponse(
+                status_code=403,
+                content={"detail": "credential scope forbids operation"},
+            )
+        if runner_session_io and task_subject is not None:
+            return JSONResponse(
+                status_code=403,
+                content={"detail": "credential scope forbids operation"},
+            )
+        if not write and task_subject is None and (mutating or not read):
             return JSONResponse(
                 status_code=401,
                 content=generic_auth_failure,
                 headers={"WWW-Authenticate": "Bearer"},
             )
+        origin = request.headers.get("origin")
         inspection = await request_contains_configured_token(request)
         if inspection is None:
             return JSONResponse(status_code=413, content={"detail": "request too large"})
         if inspection:
+            if origin is not None:
+                return JSONResponse(
+                    status_code=401,
+                    content=generic_auth_failure,
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
             return JSONResponse(status_code=400, content={"detail": "request rejected"})
+        alternate_names = {
+            "token",
+            "access_token",
+            "access-token",
+            "accessToken",
+            "auth_token",
+            "auth-token",
+            "authToken",
+            "api_key",
+            "api-key",
+            "apiKey",
+            "authorization",
+        }
+        alternate_headers = {
+            "x-api-key",
+            "x-auth-token",
+            "x-access-token",
+            "authentication",
+            "proxy-authorization",
+        }
+        if origin is not None and (
+            any(name in request.cookies for name in alternate_names)
+            or any(name in request.headers for name in alternate_headers)
+        ):
+            return JSONResponse(
+                status_code=401,
+                content=generic_auth_failure,
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        if origin is not None and request.method not in {"GET", "HEAD", "OPTIONS"}:
+            return JSONResponse(
+                status_code=403, content={"detail": "credential scope forbids operation"}
+            )
+        if (
+            origin is not None
+            and request.method in {"GET", "HEAD"}
+            and route_path == "/tasks"
+            and not read
+        ):
+            return JSONResponse(
+                status_code=403, content={"detail": "credential scope forbids operation"}
+            )
+        if task_subject is not None:
+            request.state.principal_task_id = task_subject
+            if request.method == "GET" and route_path == "/tasks":
+                return await call_next(request)
+            if request.method == "GET" and route_path.startswith("/repos/"):
+                repo_id = route_path.removeprefix("/repos/")
+                if "/" not in repo_id:
+                    try:
+                        subject_task = await service.get_task(task_subject)
+                    except NotFound:
+                        subject_task = None
+                    if subject_task is not None and subject_task.repo_id == repo_id:
+                        return await call_next(request)
+                return JSONResponse(
+                    status_code=403, content={"detail": "credential scope forbids operation"}
+                )
+            if request.method == "POST" and route_path == "/tasks":
+                try:
+                    parsed_body = json.loads(await request.body())
+                    body = parsed_body if isinstance(parsed_body, dict) else {}
+                    subject_task = await service.get_task(task_subject)
+                except (json.JSONDecodeError, NotFound):
+                    body = {}
+                    subject_task = None
+                allowed = bool(
+                    subject_task is not None
+                    and service.task_orchestrates(subject_task)
+                    and body.get("governor_task_id") == task_subject
+                    and body.get("repo_id") == subject_task.repo_id
+                )
+                if allowed:
+                    return await call_next(request)
+                return JSONResponse(
+                    status_code=403, content={"detail": "credential scope forbids operation"}
+                )
+            if route_path.startswith("/mcp"):
+                if request.method in {"GET", "DELETE", "OPTIONS"}:
+                    return await call_next(request)
+                try:
+                    parsed_body = json.loads(await request.body())
+                    body = parsed_body if isinstance(parsed_body, dict) else {}
+                except json.JSONDecodeError:
+                    body = {}
+                if policy.is_mcp_protocol_request(body):
+                    return await call_next(request)
+                decision = await policy.authorize_mcp_async(presented, body)
+                if decision.allowed:
+                    return await call_next(request)
+                return JSONResponse(status_code=403, content=decision.body)
+            if request.method == "DELETE" and route_path.startswith("/registrations/"):
+                registration_id = route_path.rsplit("/", 1)[-1]
+                registration = next(
+                    (item for item in service.registrations() if item.id == registration_id), None
+                )
+                target_id = registration.task_id if registration is not None else ""
+                decision = await policy.decide(task_subject, Action.DEREGISTER_CONTAINER, target_id)
+            else:
+                action, matched_target_id = policy._match_rest(request.method, route_path)
+                if action is None or matched_target_id is None:
+                    return JSONResponse(
+                        status_code=403, content={"detail": "credential scope forbids operation"}
+                    )
+                target_id = matched_target_id
+                if action is Action.RESOLVE_RESPONSIBILITY:
+                    try:
+                        parsed_body = json.loads(await request.body())
+                        body = parsed_body if isinstance(parsed_body, dict) else {}
+                    except json.JSONDecodeError:
+                        body = {}
+                    decision = await policy.decide_responsibility(
+                        task_subject, target_id, str(body.get("key", ""))
+                    )
+                else:
+                    decision = await policy.decide(task_subject, action, target_id)
+            if not decision.allowed:
+                return JSONResponse(status_code=403, content=decision.body)
         return await call_next(request)
 
     # The block-until-change feed: a store mutation bumps the version + wakes parked GET /tasks
@@ -1119,6 +1286,7 @@ def create_app(
 
     @app.get("/tasks")
     async def list_tasks(
+        request: Request,
         response: Response,
         wait: float | None = Query(
             default=None,
@@ -1148,6 +1316,20 @@ def create_app(
             # interleave a mutation between them — preserving the original atomicity invariant.
             version, all_tasks = await service._tasks_snapshot()
         tasks_by_id = {task.id: task for task in all_tasks}
+        principal_task_id = getattr(request.state, "principal_task_id", None)
+        if principal_task_id is not None:
+            principal = tasks_by_id.get(principal_task_id)
+            visible_ids = {principal_task_id} if principal is not None else set()
+            if service.task_orchestrates(principal):
+                changed = True
+                while changed:
+                    before = len(visible_ids)
+                    visible_ids.update(
+                        task.id for task in all_tasks if task.governor_task_id in visible_ids
+                    )
+                    changed = len(visible_ids) != before
+            all_tasks = [task for task in all_tasks if task.id in visible_ids]
+            tasks_by_id = {task.id: task for task in all_tasks}
         tasks_raw = (
             all_tasks
             if terminal is None
@@ -1566,4 +1748,13 @@ def create_app(
     # In-container agents connect here for task operations + artifacts. The mounted app does not
     # inherit the parent's exception handlers, so keep its response redactor at this boundary.
     app.mount("/mcp", redacted_mcp_app)
+    if origins:
+        app.add_middleware(
+            cast(Any, _StrictCORSMiddleware),
+            allow_origins=origins,
+            allow_credentials=False,
+            allow_methods=["GET", "HEAD", "OPTIONS"],
+            allow_headers=["Authorization", "Content-Type"],
+            max_age=600,
+        )
     return app
