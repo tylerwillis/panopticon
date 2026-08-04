@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.3.1--e652a45cba50",
+  "requirementId": "REQ-047.3.1",
+  "hash": "e652a45cba50",
+  "verdict": "pass",
+  "summary": "Tests reject factory or Logger.makeRecord identity changes at import, app creation, active lifespan, and shutdown, and verify exact preexisting Handler.handle restoration after single, repeated, and both overlap-close orders.",
+  "timestamp": "2026-08-04T00:24:29.594Z"
+}

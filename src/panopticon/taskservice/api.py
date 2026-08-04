@@ -123,47 +123,47 @@ class _ConfiguredTokenLogFilter(logging.Filter):
 _REDACTED_LOGGER_NAMESPACES = ("panopticon.taskservice", "fastapi", "uvicorn", "mcp")
 _log_redaction_lock = threading.RLock()
 _active_log_redaction_filters: list[_ConfiguredTokenLogFilter] = []
-_pristine_handler_handle = logging.Handler.handle
-_original_handler_handle: Callable[[logging.Handler, logging.LogRecord], bool] | None = None
+_pristine_logger_handle = logging.Logger.handle
+_original_logger_handle: Callable[[logging.Logger, logging.LogRecord], None] | None = None
 
 
-def _redacting_handler_handle(handler: logging.Handler, record: logging.LogRecord) -> bool:
+def _redacting_logger_handle(logger: logging.Logger, record: logging.LogRecord) -> None:
     with _log_redaction_lock:
         filters = tuple(_active_log_redaction_filters)
-        original_handle = _original_handler_handle
+        original_handle = _original_logger_handle
     if original_handle is None:
         # A logging thread can resolve the patched method immediately before the final active
-        # lifespan restores Handler.handle. Never turn that shutdown race into a caller failure.
-        return _pristine_handler_handle(handler, record)
+        # lifespan restores Logger.handle. Never turn that shutdown race into a caller failure.
+        return _pristine_logger_handle(logger, record)
     if any(
         record.name == namespace or record.name.startswith(f"{namespace}.")
         for namespace in _REDACTED_LOGGER_NAMESPACES
     ):
         for redaction_filter in filters:
             redaction_filter.filter(record)
-    return original_handle(handler, record)
+    return original_handle(logger, record)
 
 
 def _install_log_redaction(tokens: tuple[str, ...]) -> _ConfiguredTokenLogFilter:
     """Install a lifespan-owned redactor that also covers handlers added later."""
-    global _original_handler_handle
+    global _original_logger_handle
     redaction_filter = _ConfiguredTokenLogFilter(tokens)
     with _log_redaction_lock:
         if not _active_log_redaction_filters:
-            _original_handler_handle = logging.Handler.handle
-            type.__setattr__(logging.Handler, "handle", _redacting_handler_handle)
+            _original_logger_handle = logging.Logger.handle
+            type.__setattr__(logging.Logger, "handle", _redacting_logger_handle)
         _active_log_redaction_filters.append(redaction_filter)
     return redaction_filter
 
 
 def _remove_log_redaction(redaction_filter: _ConfiguredTokenLogFilter) -> None:
-    global _original_handler_handle
+    global _original_logger_handle
     with _log_redaction_lock:
         _active_log_redaction_filters.remove(redaction_filter)
         if not _active_log_redaction_filters:
-            assert _original_handler_handle is not None
-            type.__setattr__(logging.Handler, "handle", _original_handler_handle)
-            _original_handler_handle = None
+            assert _original_logger_handle is not None
+            type.__setattr__(logging.Logger, "handle", _original_logger_handle)
+            _original_logger_handle = None
 
 
 def _redact_stream_chunk(

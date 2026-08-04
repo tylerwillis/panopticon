@@ -518,7 +518,12 @@ import logging
 from pathlib import Path
 factory = logging.getLogRecordFactory()
 make_record = logging.Logger.makeRecord
-handle = logging.Handler.handle
+original_handler_handle = logging.Handler.handle
+def custom_handler_handle(self, record):
+    return original_handler_handle(self, record)
+logging.Handler.handle = custom_handler_handle
+handler_handle = logging.Handler.handle
+logger_handle = logging.Logger.handle
 from fastapi.testclient import TestClient
 from panopticon.taskservice.api import create_app
 from panopticon.taskservice.artifacts_fs import FilesystemArtifactStore
@@ -531,40 +536,52 @@ credential.write_text(json.dumps({{"read": ["{READ_TOKEN}"], "write": ["{WRITE_T
 credential.chmod(0o600)
 assert logging.getLogRecordFactory() is factory
 assert logging.Logger.makeRecord is make_record
-assert logging.Handler.handle is handle
+assert logging.Handler.handle is handler_handle
+assert logging.Logger.handle is logger_handle
 service = TaskService(SqlAlchemyStore(), {{"spike": Spike()}}, FilesystemArtifactStore(root / "artifacts"))
 app = create_app(service, auth_file=credential.name, auth_mode="enforced", secrets_dir=root)
 assert logging.getLogRecordFactory() is factory
 assert logging.Logger.makeRecord is make_record
-assert logging.Handler.handle is handle
-def custom_handle(self, record):
-    return handle(self, record)
-logging.Handler.handle = custom_handle
-pre_lifespan_handle = logging.Handler.handle
+assert logging.Handler.handle is handler_handle
+assert logging.Logger.handle is logger_handle
+def custom_logger_handle(self, record):
+    return logger_handle(self, record)
+logging.Logger.handle = custom_logger_handle
+pre_lifespan_logger_handle = logging.Logger.handle
 with TestClient(app):
     assert logging.getLogRecordFactory() is factory
     assert logging.Logger.makeRecord is make_record
-    assert logging.Handler.handle is not pre_lifespan_handle
-    stale_handle = logging.Handler.handle
+    assert logging.Handler.handle is handler_handle
+    assert logging.Logger.handle is not pre_lifespan_logger_handle
+    stale_logger_handle = logging.Logger.handle
 assert logging.getLogRecordFactory() is factory
 assert logging.Logger.makeRecord is make_record
-assert logging.Handler.handle is pre_lifespan_handle
+assert logging.Handler.handle is handler_handle
+assert logging.Logger.handle is pre_lifespan_logger_handle
 stream = __import__("io").StringIO()
 handler = logging.StreamHandler(stream)
-stale_handle(handler, logging.LogRecord("mcp.race", logging.INFO, "<race>", 0, "after", (), None))
+race_logger = logging.getLogger("mcp.race")
+race_logger.addHandler(handler)
+race_logger.propagate = False
+stale_logger_handle(race_logger, logging.LogRecord("mcp.race", logging.INFO, "<race>", 0, "after", (), None))
 assert stream.getvalue() == "after\\n"
+race_logger.removeHandler(handler)
 second_app = create_app(service, auth_file=credential.name, auth_mode="enforced", secrets_dir=root)
 assert logging.getLogRecordFactory() is factory
 assert logging.Logger.makeRecord is make_record
-assert logging.Handler.handle is pre_lifespan_handle
+assert logging.Handler.handle is handler_handle
+assert logging.Logger.handle is pre_lifespan_logger_handle
 with TestClient(second_app):
     assert logging.getLogRecordFactory() is factory
     assert logging.Logger.makeRecord is make_record
-    assert logging.Handler.handle is not pre_lifespan_handle
+    assert logging.Handler.handle is handler_handle
+    assert logging.Logger.handle is not pre_lifespan_logger_handle
 assert logging.getLogRecordFactory() is factory
 assert logging.Logger.makeRecord is make_record
-assert logging.Handler.handle is pre_lifespan_handle
-logging.Handler.handle = handle
+assert logging.Handler.handle is handler_handle
+assert logging.Logger.handle is pre_lifespan_logger_handle
+logging.Logger.handle = logger_handle
+logging.Handler.handle = original_handler_handle
 """
     completed = subprocess.run(
         [sys.executable, "-c", script], text=True, capture_output=True, check=False
@@ -579,8 +596,9 @@ def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> 
             super().__init__()
             self._records = records
 
-        def emit(self, record: logging.LogRecord) -> None:
+        def handle(self, record: logging.LogRecord) -> bool:
             self._records.append(dict(record.__dict__))
+            return True
 
     names = [
         "panopticon.taskservice",
@@ -730,7 +748,8 @@ def test_overlapping_app_lifespans_retain_only_active_tokens(
     logger.setLevel(logging.INFO)
     first_client = TestClient(first_app)
     second_client = TestClient(second_app)
-    handle = logging.Handler.handle
+    handler_handle = logging.Handler.handle
+    logger_handle = logging.Logger.handle
     factory = logging.getLogRecordFactory()
     make_record = logging.Logger.makeRecord
     first_active = False
@@ -740,7 +759,8 @@ def test_overlapping_app_lifespans_retain_only_active_tokens(
         first_active = True
         second_client.__enter__()
         second_active = True
-        assert logging.Handler.handle is not handle
+        assert logging.Handler.handle is handler_handle
+        assert logging.Logger.handle is not logger_handle
         assert logging.getLogRecordFactory() is factory
         assert logging.Logger.makeRecord is make_record
         logger.info("both %s %s %s %s", first_read, WRITE_TOKEN, second_read, second_token)
@@ -750,7 +770,8 @@ def test_overlapping_app_lifespans_retain_only_active_tokens(
         else:
             second_client.__exit__(None, None, None)
             second_active = False
-        assert logging.Handler.handle is not handle
+        assert logging.Handler.handle is handler_handle
+        assert logging.Logger.handle is not logger_handle
         assert logging.getLogRecordFactory() is factory
         assert logging.Logger.makeRecord is make_record
         logger.info("remaining %s %s %s %s", first_read, WRITE_TOKEN, second_read, second_token)
@@ -760,7 +781,8 @@ def test_overlapping_app_lifespans_retain_only_active_tokens(
         if second_active:
             second_client.__exit__(None, None, None)
             second_active = False
-        assert logging.Handler.handle is handle
+        assert logging.Handler.handle is handler_handle
+        assert logging.Logger.handle is logger_handle
         assert logging.getLogRecordFactory() is factory
         assert logging.Logger.makeRecord is make_record
         logger.info("neither %s %s %s %s", first_read, WRITE_TOKEN, second_read, second_token)
@@ -772,7 +794,8 @@ def test_overlapping_app_lifespans_retain_only_active_tokens(
         logger.removeHandler(handler)
         logger.disabled = previous_disabled
 
-    assert logging.Handler.handle is handle
+    assert logging.Handler.handle is handler_handle
+    assert logging.Logger.handle is logger_handle
     assert logging.getLogRecordFactory() is factory
     assert logging.Logger.makeRecord is make_record
 
