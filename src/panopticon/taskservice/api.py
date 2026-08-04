@@ -1094,6 +1094,17 @@ def create_app(
                     decision = await policy.decide_responsibility(
                         task_subject, target_id, str(body.get("key", ""))
                     )
+                elif action is Action.SET_DEPENDENCIES:
+                    try:
+                        parsed_body = json.loads(await request.body())
+                        body = parsed_body if isinstance(parsed_body, dict) else {}
+                    except json.JSONDecodeError:
+                        body = {}
+                    raw_dep_ids = body.get("dep_ids")
+                    dep_ids = (
+                        [str(item) for item in raw_dep_ids] if isinstance(raw_dep_ids, list) else []
+                    )
+                    decision = await policy.decide_dependencies(task_subject, target_id, dep_ids)
                 else:
                     decision = await policy.decide(task_subject, action, target_id)
             if not decision.allowed:

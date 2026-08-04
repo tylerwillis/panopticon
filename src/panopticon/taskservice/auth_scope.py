@@ -8,10 +8,38 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
+from mcp.types import ReadResourceRequestParams
+from pydantic import ValidationError
+
 from panopticon.taskservice.auth import decode_task_capability
 from panopticon.taskservice.service import TaskService
 
 SCOPE_FAILURE = {"detail": "credential scope forbids operation"}
+
+#: Matches a canonical artifact resource URI *after* it has been normalized through the same
+#: Pydantic ``AnyUrl`` parsing FastMCP applies before dispatch (``ReadResourceRequestParams``).
+#: Each capture is constrained to one nonempty path segment, mirroring FastMCP's own
+#: single-segment resource-template matching (``{task_id}``/``{name}``) and the REST route
+#: matcher's ``[^/]+`` template substitution — deriving a target from a more permissive pattern
+#: than what actually gets dispatched is the class of bug this guards against.
+_ARTIFACT_URI_PATTERN = re.compile(r"(?:panopticon://tasks/|task://)([^/]+)/artifacts/([^/]+)")
+
+
+def _normalized_artifact_target(raw_uri: Any) -> tuple[str, str]:
+    """Derive ``(task_id, name)`` from an MCP artifact URI via the SDK's own normalization.
+
+    Returns ``("", "")`` when the URI fails to parse or does not match the single-segment
+    artifact template — never falling back to any part of the unnormalized input.
+    """
+    try:
+        normalized = str(ReadResourceRequestParams(uri=raw_uri).uri)
+    except ValidationError:
+        return "", ""
+    match = _ARTIFACT_URI_PATTERN.fullmatch(normalized)
+    if match is None:
+        return "", ""
+    return match.group(1), match.group(2)
+
 
 # Streamable HTTP protocol/session messages carry no task authority themselves. Task-capability
 # authorization is applied only when a request names a Panopticon tool or artifact resource.
@@ -303,6 +331,27 @@ class CredentialScopePolicy:
         )
         return ScopeDecision(allowed, subject, target_id)
 
+    async def decide_dependencies(
+        self, subject: str, target_id: str, dep_ids: list[str]
+    ) -> ScopeDecision:
+        """Authorize a dependency-list replacement, treating each proposed id as a target too.
+
+        Every nonempty ``dep_ids`` entry must pass the same self-or-governed-descendant scope
+        check as the primary ``target_id``, evaluated before the service layer's existence or
+        cycle validation runs — otherwise an out-of-scope id (existing or not) could be
+        distinguished by the differing error it produces downstream.
+        """
+        primary = await self.decide(subject, Action.SET_DEPENDENCIES, target_id)
+        if not primary.allowed:
+            return primary
+        for dep_id in dep_ids:
+            if not dep_id:
+                continue
+            secondary = await self.decide(subject, Action.SET_DEPENDENCIES, dep_id)
+            if not secondary.allowed:
+                return ScopeDecision(False, subject, target_id)
+        return primary
+
     async def authorize_mcp_async(self, token: str, request: dict[str, Any]) -> ScopeDecision:
         subject = decode_task_capability(token, self._write_tokens) or ""
         action: Action | None
@@ -311,11 +360,7 @@ class CredentialScopePolicy:
         raw_arguments = params.get("arguments")
         arguments = raw_arguments if isinstance(raw_arguments, dict) else {}
         if request.get("method") == "resources/read":
-            match = re.fullmatch(
-                r"(?:panopticon://tasks/|task://)([^/]+)/artifacts/(.+)",
-                str(params.get("uri", "")),
-            )
-            target_id = match.group(1) if match else ""
+            target_id, _name = _normalized_artifact_target(params.get("uri", ""))
             action = Action.READ_ARTIFACT
         else:
             name = str(params.get("name", ""))
@@ -337,6 +382,10 @@ class CredentialScopePolicy:
             return await self.decide_responsibility(
                 subject, target_id, str(arguments.get("key", ""))
             )
+        if action is Action.SET_DEPENDENCIES:
+            raw_dep_ids = arguments.get("dep_ids")
+            dep_ids = [str(item) for item in raw_dep_ids] if isinstance(raw_dep_ids, list) else []
+            return await self.decide_dependencies(subject, target_id, dep_ids)
         return await self.decide(subject, action, target_id)
 
     @staticmethod
