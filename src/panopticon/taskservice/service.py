@@ -1005,11 +1005,7 @@ class TaskService:
         """Record the cumulative tokens the container's claude has used (its Stop hook reports the
         recomputed session total). Reports are monotonic because detached Stop-hook workers can
         finish out of order. A plain recorded fact, like the slug — no transition, no git."""
-        async with self._transition_lock(task_id):
-            task = await self.get_task(task_id)
-            task.tokens_used = max(task.tokens_used or 0, tokens_used)
-            await self._save_task(task)
-            return task
+        return await self._store.set_tokens_used_max(task_id, tokens_used, self._clock())
 
     async def set_token_estimate(self, task_id: str, token_estimate: int) -> Task:
         """Record the agent's forecast of the total tokens this task will consume (set once during

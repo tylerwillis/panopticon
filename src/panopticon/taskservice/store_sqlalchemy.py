@@ -27,7 +27,15 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Any
 
-from sqlalchemy import JSON, ForeignKey, ForeignKeyConstraint, UniqueConstraint, select
+from sqlalchemy import (
+    JSON,
+    ForeignKey,
+    ForeignKeyConstraint,
+    UniqueConstraint,
+    case,
+    select,
+    update,
+)
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -555,6 +563,27 @@ class SqlAlchemyStore(Store):
             # Append any new entries; the relationship cascade inserts them and their children.
             for seq in range(len(stored), len(task.history)):
                 row.history.append(_HistoryRow.from_domain(task.history[seq], seq))
+
+    async def _set_tokens_used_max(self, task_id: str, tokens_used: int, updated_at: str) -> Task:
+        async with self._session.begin() as s:
+            await s.execute(
+                update(_TaskRow)
+                .where(_TaskRow.id == task_id)
+                .values(
+                    tokens_used=case(
+                        (
+                            (_TaskRow.tokens_used.is_(None)) | (_TaskRow.tokens_used < tokens_used),
+                            tokens_used,
+                        ),
+                        else_=_TaskRow.tokens_used,
+                    ),
+                    updated_at=updated_at,
+                )
+            )
+            row = await s.get(_TaskRow, task_id, populate_existing=True)
+            if row is None:
+                raise NotFound(f"task {task_id!r} does not exist")
+            return row.to_domain()
 
     async def _create_session_input(self, delivery: SessionInput) -> SessionInput:
         async with self._session.begin() as s:
