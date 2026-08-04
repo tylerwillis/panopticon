@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.7.3--3442a431356c",
+  "requirementId": "enforced-mode-cutover-runbook.7.3",
+  "hash": "3442a431356c",
+  "verdict": "pass",
+  "summary": "The replacement runner is launched with NEW_RUNNER_ID, inequality is checked, and old-runner reclaim is excluded until post-canary S08.",
+  "timestamp": "2026-08-04T22:55:45.211Z"
+}

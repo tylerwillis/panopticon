@@ -23,6 +23,8 @@ export AUTH_PATH="$PANOPTICON_CONFIG/secrets/$AUTH_FILE_NAME"
 export PANOPTICON_SERVICE_AUTH_FILE="$AUTH_FILE_NAME"
 export PWA_ORIGIN=https://phone.example:443
 export PHONE_BOARD_URL=https://phone.example:443
+export CANARY_TASK_ID=replace-with-nonterminal-task-id
+export KNOWN_TASK_NAME=replace-with-task-name-visible-on-phone-board
 export ISSUE_202_COMMIT=replace-with-closing-commit
 export DEPLOY_REV="$(git -C "$APP_ROOT" rev-parse HEAD)"
 export OLD_RUNNER_ID=local
@@ -38,6 +40,8 @@ uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook inspect
 
 ```sh
 test "$ISSUE_202_COMMIT" != replace-with-closing-commit
+test "$CANARY_TASK_ID" != replace-with-nonterminal-task-id
+test "$KNOWN_TASK_NAME" != replace-with-task-name-visible-on-phone-board
 test -d "$EVIDENCE_DIR"
 test "$NEW_RUNNER_ID" != "$OLD_RUNNER_ID"
 test "$AUTH_FILE_NAME" = "$(basename "$AUTH_FILE_NAME")"
@@ -78,8 +82,10 @@ export TASK_CONTAINERS_BEFORE="$(docker ps --quiet --filter label=panopticon.tas
 test -z "$TASK_CONTAINERS_BEFORE" || docker inspect --format '{{.Id}} {{.Name}} {{.State.StartedAt}}' $TASK_CONTAINERS_BEFORE | tee "$EVIDENCE_DIR/S01-containers-before.txt"
 test -n "$TASK_CONTAINERS_BEFORE" || : > "$EVIDENCE_DIR/S01-containers-before.txt"
 tmux -L panopticon list-panes -a -F '#{session_name} #{pane_pid}' | tee "$EVIDENCE_DIR/S01-panes-before.txt"
-export OLD_RUNNER_PID="$(awk '$1 == "runner" {print $2}' "$EVIDENCE_DIR/S01-panes-before.txt")"
-export OLD_DASHBOARD_PID="$(awk '$1 == "dashboard" {print $2}' "$EVIDENCE_DIR/S01-panes-before.txt")"
+export OLD_RUNNER_PID="$(tmux -L panopticon list-panes -t runner -F '#{pane_pid}' | sed -n '1p')"
+export OLD_DASHBOARD_PID="$(tmux -L panopticon list-panes -t dashboard -F '#{pane_pid}' | sed -n '1p')"
+test -n "$OLD_RUNNER_PID"
+test -n "$OLD_DASHBOARD_PID"
 export OLD_RUNNER_START="$(ps -o lstart= -p "$OLD_RUNNER_PID" | sed 's/^ *//')"
 export OLD_DASHBOARD_START="$(ps -o lstart= -p "$OLD_DASHBOARD_PID" | sed 's/^ *//')"
 ps -o pid= -o lstart= -p "$OLD_RUNNER_PID,$OLD_DASHBOARD_PID" | tee "$EVIDENCE_DIR/S01-client-identities-before.txt"
@@ -206,13 +212,14 @@ ps -o pid= -o lstart= -p "$NEW_RUNNER_PID,$NEW_DASHBOARD_PID" | tee "$EVIDENCE_D
 
 ```sh
 test "$NEW_RUNNER_PID" != "$OLD_RUNNER_PID"
-test "$NEW_RUNNER_START" != "$OLD_RUNNER_START" || test "$NEW_RUNNER_PID" != "$OLD_RUNNER_PID"
 test "$NEW_DASHBOARD_PID" != "$OLD_DASHBOARD_PID"
-test "$NEW_DASHBOARD_START" != "$OLD_DASHBOARD_START" || test "$NEW_DASHBOARD_PID" != "$OLD_DASHBOARD_PID"
+! cmp --silent "$EVIDENCE_DIR/S01-client-identities-before.txt" "$EVIDENCE_DIR/S04-client-identities-after.txt"
 test -n "$NEW_RUNNER_START"
 test -n "$NEW_DASHBOARD_START"
 kill -0 "$NEW_RUNNER_PID"
 kill -0 "$NEW_DASHBOARD_PID"
+printf 'G10: PASS\n' >> "$EVIDENCE_DIR/gates.txt"
+printf 'G11: PASS\n' >> "$EVIDENCE_DIR/gates.txt"
 docker ps --quiet --filter label=panopticon.task | tee "$EVIDENCE_DIR/G08-running.txt"
 test ! -s "$EVIDENCE_DIR/G08-running.txt"
 printf 'G08: PASS\n' >> "$EVIDENCE_DIR/gates.txt"
@@ -293,6 +300,10 @@ ROLL BACK on the first failed gate.
 
 Production-only: the gates exercise the deployed service, runner, browser origin, and phone board.
 
+After loading and checking the tokens, execute the Command and Check for G01 through G07 below in
+numeric order. Stop on the first failure. After G07 records `G07: PASS`, return here and continue
+with S07.
+
 ## S07 — Release and verify exactly one real canary
 
 ### Action
@@ -317,6 +328,7 @@ uv --directory "$APP_ROOT" run python - "$EVIDENCE_DIR/S07-live-initial.json" "$
 import json, sys
 assert all(json.load(open(path))["container_status"] == "live" for path in sys.argv[1:])
 PY
+printf 'G09: PASS\n' >> "$EVIDENCE_DIR/gates.txt"
 ```
 
 ### Expected
@@ -516,6 +528,7 @@ curl --silent --show-error --dump-header "$EVIDENCE_DIR/G04-headers.txt" --outpu
 ```sh
 test "$(cat "$EVIDENCE_DIR/G04-status.txt")" != 401
 test "$(cat "$EVIDENCE_DIR/G04-status.txt")" != 403
+test "$(cat "$EVIDENCE_DIR/G04-status.txt")" = 200
 grep --ignore-case --fixed-strings "access-control-allow-origin: $PWA_ORIGIN" "$EVIDENCE_DIR/G04-headers.txt"
 printf 'G04: PASS\n' >> "$EVIDENCE_DIR/gates.txt"
 ```
@@ -537,7 +550,7 @@ Production-only: deployed read/CORS behavior.
 #### Command
 
 ```sh
-test "$(curl --silent --output /dev/null --write-out '%{http_code}' --request PUT --header 'Content-Type: application/json' --header "Authorization: Bearer $READ_TOKEN" --data '{"turn":"agent"}' "$SERVICE_URL/tasks/$CANARY_TASK_ID/turn")" = 401
+test "$(curl --silent --output /dev/null --write-out '%{http_code}' --request PUT --header 'Content-Type: application/json' --header "Authorization: Bearer $READ_TOKEN" --data '{"turn":"agent"}' "$SERVICE_URL/tasks/$CANARY_TASK_ID/turn")" = 403
 ```
 
 #### Check
@@ -549,7 +562,7 @@ printf 'G05: PASS\n' >> "$EVIDENCE_DIR/gates.txt"
 
 #### Expected
 
-Read-token `PUT /tasks/<canary>/turn` returns 401.
+Read-token `PUT /tasks/<canary>/turn` returns 403: it is authenticated but lacks write scope.
 
 #### Failure action
 
@@ -702,7 +715,7 @@ Production-only: real container and open liveness registration.
 
 ```sh
 test "$NEW_RUNNER_PID" != "$OLD_RUNNER_PID"
-test "$NEW_RUNNER_START" != "$OLD_RUNNER_START" || test "$NEW_RUNNER_PID" != "$OLD_RUNNER_PID"
+! cmp --silent "$EVIDENCE_DIR/S01-client-identities-before.txt" "$EVIDENCE_DIR/S04-client-identities-after.txt"
 ```
 
 #### Check

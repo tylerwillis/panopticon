@@ -60,7 +60,7 @@ back without guessing which evidence has already been established.
 2. Gate G02 MUST define an unauthenticated `GET /tasks` check whose expected status is 401.
 3. Gate G03 MUST define an authenticated runner-liveness check bound to the recorded new runner PID and start time that expects the same runner to appear live.
 4. Gate G04 MUST define a read-token `GET /tasks` check with the exact PWA origin that rejects either a 401 or 403 result.
-5. Gate G05 MUST define a read-token `PUT /tasks/<canary-task-id>/turn` check whose expected status is 401.
+5. Gate G05 MUST define a read-token `PUT /tasks/<canary-task-id>/turn` check whose expected status is 403.
 6. Gate G06 MUST define independent preflight and actual-response checks for the exact allowed browser origin.
 7. Gate G07 MUST require the installed phone board and authenticated fleet API response to display the same named task.
 8. Gate G08 MUST define a direct zero-running-task-container check immediately before the enforced restart.

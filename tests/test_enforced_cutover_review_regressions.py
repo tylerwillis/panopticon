@@ -17,6 +17,26 @@ def test_both_new_work_clients_stop_before_the_quiescence_wait() -> None:
     assert action.index("kill-session -t dashboard") < wait
 
 
+# 2119: enforced-mode-cutover-runbook.1.2, enforced-mode-cutover-runbook.4.5
+# 2119: enforced-mode-cutover-runbook.5.4
+def test_canary_inputs_and_all_gate_pass_records_are_scheduled() -> None:
+    plan = _plan()
+    s00 = plan.steps[0]
+    assert "export CANARY_TASK_ID=replace-with-nonterminal-task-id" in s00.action
+    assert "export KNOWN_TASK_NAME=replace-with-task-name-visible-on-phone-board" in s00.action
+    assert 'test "$CANARY_TASK_ID" != replace-with-nonterminal-task-id' in s00.check
+    assert 'test "$KNOWN_TASK_NAME" != replace-with-task-name-visible-on-phone-board' in s00.check
+    scheduled = "\n".join(step.check for step in plan.steps)
+    assert (
+        "execute the Command and Check for G01 through G07 below in\nnumeric order"
+        in RUNBOOK_PATH.read_text()
+    )
+    for gate in range(1, 12):
+        marker = f"G{gate:02d}: PASS"
+        assert marker in scheduled or marker in "\n".join(item.check for item in plan.gates[:7])
+    assert "= 403" in plan.gates[4].action
+
+
 # 2119: enforced-mode-cutover-runbook.3.5, enforced-mode-cutover-runbook.3.8
 # 2119: enforced-mode-cutover-runbook.3.9
 def test_all_enforced_exports_precede_the_service_child_launch() -> None:

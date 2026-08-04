@@ -169,7 +169,7 @@ def test_parser_reads_actual_operator_shell_blocks_and_every_block_parses() -> N
         "G02": "returns 401",
         "G03": "recorded new PID/start-time pair",
         "G04": "authorized and echoes",
-        "G05": "returns 401",
+        "G05": "returns 403",
         "G06": "Both responses echo",
         "G07": "same chosen task name",
         "G08": "empty immediately before S05",
@@ -286,7 +286,8 @@ def test_clients_are_replaced_before_exported_enforced_service_launch() -> None:
     assert "NEW_RUNNER_ID" in s04 and 'test "$NEW_RUNNER_ID" != "$OLD_RUNNER_ID"' in _item("S00")
     for process in ("RUNNER", "DASHBOARD"):
         assert f"NEW_{process}_PID" in s04 and f"OLD_{process}_PID" in s04
-        assert f"NEW_{process}_START" in s04 and f"OLD_{process}_START" in s04
+        assert f"NEW_{process}_START" in s04
+    assert "S01-client-identities-before.txt" in s04
     assert "freshly launched CLI proves nothing" in _item("S02")
     for name in (
         "PANOPTICON_SERVICE_AUTH_MODE",
@@ -331,8 +332,9 @@ def test_all_eleven_gates_assert_the_real_boundary() -> None:
         and "Origin: $PWA_ORIGIN" in gates["G04"]
     )
     assert "!= 401" in gates["G04"] and "!= 403" in gates["G04"]
+    assert '"$EVIDENCE_DIR/G04-status.txt")" = 200' in gates["G04"]
     assert '"$SERVICE_URL/tasks"' in gates["G04"]
-    assert "--request PUT" in gates["G05"] and "= 401" in gates["G05"]
+    assert "--request PUT" in gates["G05"] and "= 403" in gates["G05"]
     assert "Authorization: Bearer $READ_TOKEN" in gates["G05"]
     assert '"$SERVICE_URL/tasks/$CANARY_TASK_ID/turn"' in gates["G05"]
     assert "--request OPTIONS" in gates["G06"] and "G06-actual.txt" in gates["G06"]
@@ -352,7 +354,7 @@ def test_all_eleven_gates_assert_the_real_boundary() -> None:
     assert "NEW_RUNNER_PID" in gates["G10"] and "OLD_RUNNER_PID" in gates["G10"]
     assert "NEW_RUNNER_START" in gates["G10"] and "OLD_RUNNER_START" in gates["G10"]
     assert 'test "$NEW_RUNNER_PID" != "$OLD_RUNNER_PID"' in gates["G10"]
-    assert 'test "$NEW_RUNNER_START" != "$OLD_RUNNER_START"' in gates["G10"]
+    assert "cmp --silent" in gates["G10"]
     assert "OLD_DASHBOARD_PID" in gates["G11"] and "NEW_DASHBOARD_PID" in gates["G11"]
     assert "NEW_DASHBOARD_START" in gates["G11"]
     assert "OLD_RUNNER_START" in gates["G11"] and "OLD_DASHBOARD_START" in gates["G11"]
