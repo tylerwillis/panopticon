@@ -144,6 +144,12 @@ class Store(ABC):
         await self._update_task(task, stored)
         self._bump_version()
 
+    async def set_tokens_used_max(self, task_id: str, tokens_used: int, updated_at: str) -> Task:
+        """Atomically raise cumulative token usage without rewriting any other task field."""
+        task = await self._set_tokens_used_max(task_id, tokens_used, updated_at)
+        self._bump_version()
+        return task
+
     async def create_session_input(self, delivery: SessionInput) -> SessionInput:
         result = await self._create_session_input(delivery)
         self._bump_version()
@@ -209,6 +215,10 @@ class Store(ABC):
     async def _update_task(self, task: Task, stored: Sequence[HistoryEntry]) -> None:
         """Persist scalar changes, fulfil the current entry's promises, and append new entries
         (``stored`` is the already-validated persisted history)."""
+
+    @abstractmethod
+    async def _set_tokens_used_max(self, task_id: str, tokens_used: int, updated_at: str) -> Task:
+        """Atomically raise token usage and return the task, preserving all unrelated fields."""
 
     @abstractmethod
     async def _create_session_input(self, delivery: SessionInput) -> SessionInput: ...
