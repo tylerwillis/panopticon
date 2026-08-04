@@ -320,7 +320,7 @@ def test_argv_resume_picks_interactive_over_a_newer_exec_rollout(tmp_path: Path)
     assert HARNESS.argv(_ctx(tmp_path)) == ["codex", "resume", "interactive-1", *_SESSION_FLAGS]
 
 
-# 2119: REQ-032.1.2
+# 2119: REQ-032.1.2, enforced-mode-cutover-runbook.5.7
 def test_argv_resume_picks_the_newest_of_several_interactive_sessions(tmp_path: Path) -> None:
     # Filename order, on-disk creation order, AND mtime order are deliberately all different, so
     # selecting by name/glob order or creation order rather than genuine recency (the recorded

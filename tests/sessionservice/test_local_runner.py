@@ -43,6 +43,41 @@ class _Recorder:
         return ""
 
 
+def _volume_sources_for(argv: list[str], destination: str) -> list[str]:
+    sources: list[str] = []
+    for index, value in enumerate(argv):
+        if value == "--volume" and index + 1 < len(argv):
+            source, _, target = argv[index + 1].partition(":")
+            if target == destination:
+                sources.append(source)
+        if value == "--mount" and index + 1 < len(argv):
+            fields = dict(
+                field.split("=", 1)
+                for field in argv[index + 1].split(",")
+                if "=" in field
+            )
+            if fields.get("target", fields.get("destination")) == destination:
+                sources.append(fields.get("source", ""))
+    return sources
+
+
+# 2119: enforced-mode-cutover-runbook.5.1, enforced-mode-cutover-runbook.5.2
+def test_config_volume_inspection_counts_both_docker_mount_syntaxes() -> None:
+    destination = "/home/panopticon/.codex"
+    command = [
+        "docker",
+        "run",
+        "--volume",
+        f"panopticon-config-t1:{destination}",
+        "--mount",
+        f"type=volume,source=shadow-config,target={destination}",
+    ]
+    assert _volume_sources_for(command, destination) == [
+        "panopticon-config-t1",
+        "shadow-config",
+    ]
+
+
 def test_local_runner_is_a_runner() -> None:
     assert issubclass(LocalRunner, Runner)
 
@@ -323,23 +358,35 @@ def test_spawn_mounts_the_per_task_clone_as_the_workspace() -> None:
     assert docker_run[docker_run.index("--workdir") + 1] == "/workspace"  # the agent's working dir
 
 
-def test_spawn_mounts_a_per_task_config_volume_for_claude_history() -> None:
+# 2119: enforced-mode-cutover-runbook.5.1
+def test_stop_and_respawn_preserve_the_config_volume_for_claude_history() -> None:
     rec = _Recorder()
-    LocalRunner("http://svc", run=rec).spawn("t1")
-    docker_run = rec.calls[2][0]
-    # a task-scoped named volume at the config dir → claude's transcripts survive respawn/recreate
-    assert "panopticon-config-t1:/home/panopticon/.claude" in docker_run
+    runner = LocalRunner("http://svc", run=rec)
+    runner.spawn("t1")
+    first_run = rec.calls[2][0]
+    runner.stop("panopticon-t1")
+    runner.spawn("t1")
+    second_run = [call[0] for call in rec.calls if call[0][:2] == ["docker", "run"]][-1]
+    assert _volume_sources_for(first_run, "/home/panopticon/.claude") == ["panopticon-config-t1"]
+    assert _volume_sources_for(second_run, "/home/panopticon/.claude") == ["panopticon-config-t1"]
+    assert not any(call[0][:2] == ["docker", "volume"] for call in rec.calls)
 
 
-def test_spawn_mounts_the_config_volume_at_the_harness_config_dir() -> None:
+# 2119: enforced-mode-cutover-runbook.5.2
+def test_stop_and_respawn_preserve_the_config_volume_for_codex_history() -> None:
     rec = _Recorder()
-    LocalRunner("http://svc", run=rec).spawn(
+    runner = LocalRunner("http://svc", run=rec)
+    runner.spawn(
         "t1", harness="codex", config_mount="/home/panopticon/.codex"
     )
-    docker_run = rec.calls[2][0]
-    # the same per-task volume lands wherever the task's harness keeps its session state
-    assert "panopticon-config-t1:/home/panopticon/.codex" in docker_run
-    assert "PANOPTICON_HARNESS=codex" in docker_run  # the launcher dispatches on this
+    first_run = rec.calls[2][0]
+    runner.stop("panopticon-t1")
+    runner.spawn("t1", harness="codex", config_mount="/home/panopticon/.codex")
+    second_run = [call[0] for call in rec.calls if call[0][:2] == ["docker", "run"]][-1]
+    assert _volume_sources_for(first_run, "/home/panopticon/.codex") == ["panopticon-config-t1"]
+    assert _volume_sources_for(second_run, "/home/panopticon/.codex") == ["panopticon-config-t1"]
+    assert "PANOPTICON_HARNESS=codex" in second_run
+    assert not any(call[0][:2] == ["docker", "volume"] for call in rec.calls)
 
 
 def test_spawn_clears_the_harness_env_var_by_default() -> None:
