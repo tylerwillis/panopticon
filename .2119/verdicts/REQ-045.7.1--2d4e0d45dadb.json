@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.7.1--2d4e0d45dadb",
-  "requirementId": "REQ-045.7.1",
-  "hash": "2d4e0d45dadb",
-  "verdict": "pass",
-  "summary": "Behavioral tests allow creation for workflows declaring orchestrates=True only when governor_task_id equals the capability subject, and reject absent, unrelated, and child governor IDs.",
-  "timestamp": "2026-08-03T23:14:34.840Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.32.1--4cea409f544e",
-  "requirementId": "REQ-035.32.1",
-  "hash": "4cea409f544e",
-  "verdict": "pass",
-  "summary": "Covers appended-final selection by fresh Python and shell clients, rejects penultimate-token selection, and proves both callers remain authorized after old-token removal.",
-  "timestamp": "2026-08-03T22:00:33.514Z"
-}

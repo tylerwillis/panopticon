@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.7.4--4ea8f529c3ec",
-  "requirementId": "REQ-045.7.4",
-  "hash": "4ea8f529c3ec",
-  "verdict": "pass",
-  "summary": "Tests reject child creation and exhaustively deny every task-targeted delegation action for a non-orchestrating capability against direct and deep governed children, including REST and MCP surfaces.",
-  "timestamp": "2026-08-03T23:15:07.303Z"
-}

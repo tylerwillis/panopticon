@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.11.2--fd7c8957ad16",
-  "requirementId": "REQ-045.11.2",
-  "hash": "fd7c8957ad16",
-  "verdict": "pass",
-  "summary": "Tests reject at startup wildcard, missing/malformed scheme-host-port, path, query, fragment, credentials, opaque origins, and mixed invalid entries, while accepting exact HTTP(S) origins with valid explicit ports including IPv6.",
-  "timestamp": "2026-08-03T21:47:04.361Z"
-}

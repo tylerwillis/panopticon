@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.4.2--df90b31703dc",
-  "requirementId": "REQ-045.4.2",
-  "hash": "df90b31703dc",
-  "verdict": "pass",
-  "summary": "Collection tests require the subject itself, include orchestrator-authorized child and deep descendants, and reject siblings, peers, ancestors, unrelated tasks, and all descendants for non-orchestrators.",
-  "timestamp": "2026-08-03T21:48:55.698Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.5.1--8e8a9c3a249c",
-  "requirementId": "REQ-045.5.1",
-  "hash": "8e8a9c3a249c",
-  "verdict": "pass",
-  "summary": "Task-capability REST tests exercise every listed effect and reject lost persistence by reloading the database, including operations, transitions, responsibility outcomes, alternate scalar values, both boolean directions, and dependency clearing.",
-  "timestamp": "2026-08-03T21:48:58.130Z"
-}

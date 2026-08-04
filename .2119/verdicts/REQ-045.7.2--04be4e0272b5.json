@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.7.2--04be4e0272b5",
-  "requirementId": "REQ-045.7.2",
-  "hash": "04be4e0272b5",
-  "verdict": "pass",
-  "summary": "Tests verify reads across governed descendant depths, exercise and persist every listed preplanning action, and reject all neighboring non-fixed mutations via an exact action-table boundary.",
-  "timestamp": "2026-08-03T23:14:36.349Z"
-}

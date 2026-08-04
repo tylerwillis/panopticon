@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.6.1--e260fbd7b7bd",
-  "requirementId": "REQ-045.6.1",
-  "hash": "e260fbd7b7bd",
-  "verdict": "pass",
-  "summary": "Exhaustive action-table and REST-route tests reject every classified task-targeted action for an unrelated sibling with 403, including an explicit drop attempt, while verifying no sibling mutation.",
-  "timestamp": "2026-08-03T21:49:15.648Z"
-}

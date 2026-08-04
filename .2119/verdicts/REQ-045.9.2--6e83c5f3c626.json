@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.9.2--6e83c5f3c626",
-  "requirementId": "REQ-045.9.2",
-  "hash": "6e83c5f3c626",
-  "verdict": "pass",
-  "summary": "Dynamic surface enumeration verifies every protected REST GET/HEAD avoids 401/403, every mutation and both liveness routes return the exact authentication 401, and all registered plus malformed MCP calls are rejected before argument validation.",
-  "timestamp": "2026-08-03T23:15:43.186Z"
-}

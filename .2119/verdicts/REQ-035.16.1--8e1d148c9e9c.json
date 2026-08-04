@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.16.1--8e1d148c9e9c",
-  "requirementId": "REQ-035.16.1",
-  "hash": "8e1d148c9e9c",
-  "verdict": "pass",
-  "summary": "All three factories resolve the credential-file write token into TaskServiceClient, and exact-header protected-call checks reject missing, read, reference, or wrong-token authentication.",
-  "timestamp": "2026-08-03T21:58:51.234Z"
-}

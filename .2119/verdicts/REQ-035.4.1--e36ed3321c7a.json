@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.4.1--e36ed3321c7a",
-  "requirementId": "REQ-035.4.1",
-  "hash": "e36ed3321c7a",
-  "verdict": "pass",
-  "summary": "Dynamic route enumeration verifies every non-read REST operation and exactly both liveness GETs reject multiple read tokens with the generic 401 response and Bearer challenge.",
-  "timestamp": "2026-08-03T21:57:14.045Z"
-}

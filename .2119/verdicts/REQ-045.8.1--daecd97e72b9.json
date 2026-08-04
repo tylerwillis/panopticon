@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.8.1--daecd97e72b9",
-  "requirementId": "REQ-045.8.1",
-  "hash": "daecd97e72b9",
-  "verdict": "pass",
-  "summary": "All named REST/MCP pairs are exhaustively matched and reject nearest scope counterexamples across self, governed descendants, unrelated, and missing targets.",
-  "timestamp": "2026-08-03T23:15:05.154Z"
-}

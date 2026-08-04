@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.40.1--93055af042a1",
-  "requirementId": "REQ-035.40.1",
-  "hash": "93055af042a1",
-  "verdict": "pass",
-  "summary": "Genuine: both read and write startup paths reject every valid 12+-character verbatim substring of the observed generic failure body and headers, including the 12-character boundary counterexample 'uthentication'.",
-  "timestamp": "2026-08-03T22:05:52.857Z"
-}

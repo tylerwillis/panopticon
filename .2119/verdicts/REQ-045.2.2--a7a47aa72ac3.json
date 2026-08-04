@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.2.2--a7a47aa72ac3",
-  "requirementId": "REQ-045.2.2",
-  "hash": "a7a47aa72ac3",
-  "verdict": "pass",
-  "summary": "Accepting only a preferred overlap generation fails: the test derives task capabilities from first, middle, and last active write tokens and requires each to authorize task reads and writes, including retained generations after rotation.",
-  "timestamp": "2026-08-03T23:12:49.172Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.6.3--c91518477923",
-  "requirementId": "REQ-045.6.3",
-  "hash": "c91518477923",
-  "verdict": "pass",
-  "summary": "Exhaustive action and REST-route tests compare existing unrelated and missing targets against the same exact 403 SCOPE_FAILURE status/body, rejecting existence leaks or non-generic denial details.",
-  "timestamp": "2026-08-03T23:14:28.796Z"
-}

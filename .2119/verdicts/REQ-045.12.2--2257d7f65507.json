@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.12.2--2257d7f65507",
-  "requirementId": "REQ-045.12.2",
-  "hash": "2257d7f65507",
-  "verdict": "pass",
-  "summary": "Fresh-process test rejects loading panopticon.container or descendants and anthropic/openai roots or descendants, including indirect and dynamic imports.",
-  "timestamp": "2026-08-03T21:47:26.494Z"
-}

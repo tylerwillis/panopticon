@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.4.2--bfec0714ea41",
-  "requirementId": "REQ-045.4.2",
-  "hash": "bfec0714ea41",
-  "verdict": "pass",
-  "summary": "Integration tests prove collection scope includes self and authorized descendants, while rejecting ancestor, peer, unrelated sibling, and descendants of non-orchestrators.",
-  "timestamp": "2026-08-03T23:13:44.413Z"
-}

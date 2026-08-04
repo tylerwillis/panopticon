@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.43.1--5864098c0d61",
-  "requirementId": "REQ-035.43.1",
-  "hash": "5864098c0d61",
-  "verdict": "pass",
-  "summary": "Health tests verify a token-redacted exposed counter starts and restarts at zero, increments exactly for header-less admissions through 1,024, and ignores authenticated requests.",
-  "timestamp": "2026-08-03T22:06:40.638Z"
-}

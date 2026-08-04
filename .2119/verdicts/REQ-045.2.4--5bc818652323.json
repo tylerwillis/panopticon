@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.2.4--5bc818652323",
-  "requirementId": "REQ-045.2.4",
-  "hash": "5bc818652323",
-  "verdict": "pass",
-  "summary": "Direct repeated and fresh-process derivations reject output changes for identical fleet token and subject, while the fixed ptc1 version and self profile are explicitly asserted.",
-  "timestamp": "2026-08-03T23:34:52.028Z"
-}

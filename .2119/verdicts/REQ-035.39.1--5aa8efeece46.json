@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.39.1--5aa8efeece46",
-  "requirementId": "REQ-035.39.1",
-  "hash": "5aa8efeece46",
-  "verdict": "pass",
-  "summary": "Tests require the sole mounted credential object to be the subject-task capability derived independently from the write token active at spawn, rejecting stale/raw/extra credentials and sibling-task access.",
-  "timestamp": "2026-08-03T23:12:20.182Z"
-}

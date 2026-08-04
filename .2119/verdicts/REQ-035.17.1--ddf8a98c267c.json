@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.17.1--ddf8a98c267c",
-  "requirementId": "REQ-035.17.1",
-  "hash": "ddf8a98c267c",
-  "verdict": "pass",
-  "summary": "Tests cover both no-env-file Docker and shell spawning, reject missing/non-separate credential injection, and verify the injected credential reaches shared-client, liveness, and shell-library Authorization requests.",
-  "timestamp": "2026-08-03T21:59:08.299Z"
-}

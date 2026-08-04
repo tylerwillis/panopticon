@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.9.1--a71047d55a41",
-  "requirementId": "REQ-045.9.1",
-  "hash": "a71047d55a41",
-  "verdict": "pass",
-  "summary": "Tests accept enforced credentials with read omitted or empty, while rejecting write omitted, empty, or non-array and exercising the configured write token.",
-  "timestamp": "2026-08-03T21:50:28.862Z"
-}

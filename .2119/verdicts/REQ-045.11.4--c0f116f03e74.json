@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.11.4--c0f116f03e74",
-  "requirementId": "REQ-045.11.4",
-  "hash": "c0f116f03e74",
-  "verdict": "pass",
-  "summary": "Behavioral tests reject wildcard/non-exact echo, missing Vary: Origin, and authorization of near-match origins differing by slash, scheme, host, port, or null.",
-  "timestamp": "2026-08-03T23:16:18.091Z"
-}

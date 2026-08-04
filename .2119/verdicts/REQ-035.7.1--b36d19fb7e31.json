@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.7.1--b36d19fb7e31",
-  "requirementId": "REQ-035.7.1",
-  "hash": "b36d19fb7e31",
-  "verdict": "pass",
-  "summary": "Tests reject missing, near-valid malformed, unknown/prefix/suffix, non-ASCII, and insufficient tokens across protected routes while asserting exact 401, Bearer challenge, and identical generic JSON.",
-  "timestamp": "2026-08-03T21:57:37.069Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.9.2--42dbeb20f9db",
-  "requirementId": "REQ-045.9.2",
-  "hash": "42dbeb20f9db",
-  "verdict": "pass",
-  "summary": "Tests enumerate every registered REST mutation/read and MCP tool/resource, reject read-token access with generic Bearer 401s, and use malformed route, query, tool, and resource inputs to prove auth precedes validation.",
-  "timestamp": "2026-08-03T21:50:45.363Z"
-}

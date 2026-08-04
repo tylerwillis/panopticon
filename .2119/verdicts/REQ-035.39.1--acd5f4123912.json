@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.39.1--acd5f4123912",
-  "requirementId": "REQ-035.39.1",
-  "hash": "acd5f4123912",
-  "verdict": "pass",
-  "summary": "Docker-spawn tests independently derive the subject capability from the active write token, require an exact capability-only snapshot, exclude stale/read credentials, and reject sibling-task use.",
-  "timestamp": "2026-08-03T22:01:12.584Z"
-}

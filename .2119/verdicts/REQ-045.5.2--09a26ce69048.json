@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.5.2--09a26ce69048",
-  "requirementId": "REQ-045.5.2",
-  "hash": "09a26ce69048",
-  "verdict": "pass",
-  "summary": "Own-artifact create, list, read, and replacement are behaviorally verified; sibling create/list/read/replace are rejected and forbidden replacement preserves original content.",
-  "timestamp": "2026-08-03T23:14:07.313Z"
-}

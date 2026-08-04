@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.1.1--555ea4e9b2d8",
-  "requirementId": "REQ-035.1.1",
-  "hash": "555ea4e9b2d8",
-  "verdict": "pass",
-  "summary": "Tests prove startup snapshots file-only tokens, reject raw/absolute/traversal/symlink escapes, and find no token copies in repo/task serialization, database, artifacts, or logs.",
-  "timestamp": "2026-08-03T21:57:11.540Z"
-}

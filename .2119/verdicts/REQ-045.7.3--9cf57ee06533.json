@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.7.3--9cf57ee06533",
-  "requirementId": "REQ-045.7.3",
-  "hash": "9cf57ee06533",
-  "verdict": "pass",
-  "summary": "Behavioral 403 tests reject governed-child operations (including drop), transition/state changes, claim/release, provisioning, migration, lifecycle set/clear, and governor removal/reassignment; the exhaustive governed-action table reinforces every category.",
-  "timestamp": "2026-08-03T21:50:00.527Z"
-}

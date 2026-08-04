@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.35.1--15407f0dfeba",
-  "requirementId": "REQ-035.35.1",
-  "hash": "15407f0dfeba",
-  "verdict": "pass",
-  "summary": "Exact warning-list assertions reject non-power-of-two emissions and verify WARNING level plus method, route, caller address, and cumulative counts 1 through 1024 for admitted headerless requests.",
-  "timestamp": "2026-08-03T22:05:28.881Z"
-}

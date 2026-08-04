@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.12.2--2384d6012b44",
-  "requirementId": "REQ-045.12.2",
-  "hash": "2384d6012b44",
-  "verdict": "pass",
-  "summary": "Fresh subprocess imports and exercises both modules while tracking import attempts and sys.modules; it rejects exact panopticon.container plus its submodules and anthropic/openai roots including submodules.",
-  "timestamp": "2026-08-03T23:16:36.962Z"
-}

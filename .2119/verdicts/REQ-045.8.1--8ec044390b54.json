@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.8.1--8ec044390b54",
-  "requirementId": "REQ-045.8.1",
-  "hash": "8ec044390b54",
-  "verdict": "pass",
-  "summary": "Tests exhaustively pair every named REST/MCP surface and reject mismatched actions or decisions for self, governed descendants at multiple depths, unrelated, and missing targets.",
-  "timestamp": "2026-08-03T22:02:26.872Z"
-}

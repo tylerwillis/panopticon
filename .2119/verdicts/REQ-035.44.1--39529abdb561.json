@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.44.1--39529abdb561",
-  "requirementId": "REQ-035.44.1",
-  "hash": "39529abdb561",
-  "verdict": "pass",
-  "summary": "Behavioral tests reject configured-token substrings in decoded path/query and semantic JSON or raw bodies before dispatch, verify generic 400 responses, and prove no token reaches database or artifact bytes.",
-  "timestamp": "2026-08-03T22:01:43.170Z"
-}

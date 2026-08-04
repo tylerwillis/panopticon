@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.2.1--bbc0f80cf74d",
-  "requirementId": "REQ-045.2.1",
-  "hash": "bbc0f80cf74d",
-  "verdict": "pass",
-  "summary": "Independent field parsing and HMAC reconstruction verify the exact ptc1/base64url/self format, fleet-token key, domain-separated message, URL-safe alphabet, and omitted padding.",
-  "timestamp": "2026-08-03T23:12:49.713Z"
-}

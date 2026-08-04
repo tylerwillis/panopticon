@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.2.3--df8691e85952",
-  "requirementId": "REQ-045.2.3",
-  "hash": "df8691e85952",
-  "verdict": "pass",
-  "summary": "Tests reject malformed structure/profile/encoding, forged MACs, and valid capabilities bound to another task, while asserting identical full wire responses for existing versus nonexistent asserted and target tasks.",
-  "timestamp": "2026-08-03T21:47:53.732Z"
-}

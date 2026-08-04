@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.15.1--c747d264c40f",
-  "requirementId": "REQ-035.15.1",
-  "hash": "c747d264c40f",
-  "verdict": "pass",
-  "summary": "Captured outgoing GET, PUT, task-liveness, and runner-liveness requests all require the Bearer header and reject token leakage in every request URL.",
-  "timestamp": "2026-08-03T21:58:42.246Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.27.1--3fc014869eb7",
-  "requirementId": "REQ-035.27.1",
-  "hash": "3fc014869eb7",
-  "verdict": "pass",
-  "summary": "Tests reject missing or incorrect resolved-mode reports, require WARNING-level disabled/permissive startup logs, exercise enforced production startup, and require docs to name enforced as steady state while limiting permissive to migration.",
-  "timestamp": "2026-08-03T21:59:36.869Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.8.1--92e18a436e85",
-  "requirementId": "REQ-045.8.1",
-  "hash": "92e18a436e85",
-  "verdict": "pass",
-  "summary": "All 15 named REST/MCP pairs are inventory-bound and compared for identical authorization decisions across self, governed descendants, unrelated, and missing targets.",
-  "timestamp": "2026-08-03T23:35:55.108Z"
-}

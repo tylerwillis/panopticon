@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.7.3--e0caa6e1887d",
-  "requirementId": "REQ-045.7.3",
-  "hash": "e0caa6e1887d",
-  "verdict": "pass",
-  "summary": "Real REST tests reject governed-child operations/drop, transition/state changes, claim/release, provisioning, migration, lifecycle set/clear, and both governor reassignment forms; the exhaustive action table also denies each for any governed target.",
-  "timestamp": "2026-08-03T23:14:56.076Z"
-}

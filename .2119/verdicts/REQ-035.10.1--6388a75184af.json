@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.10.1--6388a75184af",
-  "requirementId": "REQ-035.10.1",
-  "hash": "6388a75184af",
-  "verdict": "pass",
-  "summary": "Enforced-auth tests prove credential-free 200 availability and exact {'status':'ok'} equality rejects missing, changed, or extra readiness payload fields, including a root-path deployment boundary.",
-  "timestamp": "2026-08-03T21:58:03.832Z"
-}

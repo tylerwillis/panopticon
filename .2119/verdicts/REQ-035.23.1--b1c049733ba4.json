@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.23.1--b1c049733ba4",
-  "requirementId": "REQ-035.23.1",
-  "hash": "b1c049733ba4",
-  "verdict": "pass",
-  "summary": "The test proves the route is protected via anonymous HEAD rejection and that a read-token HEAD reaches the HEAD-capable route with 200, rejecting generic auth failure, route non-reachability, and unsupported-HEAD counterexamples.",
-  "timestamp": "2026-08-03T21:59:43.069Z"
-}

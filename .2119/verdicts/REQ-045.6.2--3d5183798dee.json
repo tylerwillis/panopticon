@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.6.2--3d5183798dee",
-  "requirementId": "REQ-045.6.2",
-  "hash": "3d5183798dee",
-  "verdict": "pass",
-  "summary": "Behavioral REST tests reject task capabilities across all eight forbidden administration classes; route-inventory equality catches newly registered admin surfaces, action-table checks deny self-targeted admin actions, and capability-plus-operator-token migration is explicitly rejected.",
-  "timestamp": "2026-08-03T22:02:39.394Z"
-}

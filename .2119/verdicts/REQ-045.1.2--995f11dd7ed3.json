@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.1.2--995f11dd7ed3",
-  "requirementId": "REQ-045.1.2",
-  "hash": "995f11dd7ed3",
-  "verdict": "pass",
-  "summary": "Fleet write is behaviorally exercised across two task claims, two lifecycle reports and slug mutations, runner listing/reclaim, and repo create/update; any denied conjunct fails its asserted success status.",
-  "timestamp": "2026-08-03T23:12:42.060Z"
-}

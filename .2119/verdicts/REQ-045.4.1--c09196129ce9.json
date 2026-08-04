@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.4.1--c09196129ce9",
-  "requirementId": "REQ-045.4.1",
-  "hash": "c09196129ce9",
-  "verdict": "pass",
-  "summary": "Tests verify every listed own-task read surface, reject sibling substitution/access, and assert exact artifact and liveness stream bytes.",
-  "timestamp": "2026-08-03T21:48:25.143Z"
-}

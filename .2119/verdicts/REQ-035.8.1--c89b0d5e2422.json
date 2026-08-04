@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.8.1--c89b0d5e2422",
-  "requirementId": "REQ-035.8.1",
-  "hash": "c89b0d5e2422",
-  "verdict": "pass",
-  "summary": "Covers all five verbs with exact 401/body/Bearer assertions across existing and missing routes, every named resource class, and existing versus missing MCP methods.",
-  "timestamp": "2026-08-03T21:57:46.215Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.8.2--f485ba3d465f",
-  "requirementId": "REQ-045.8.2",
-  "hash": "f485ba3d465f",
-  "verdict": "pass",
-  "summary": "Tests reject sibling targets across every task-scoped MCP tool and artifact URI, preserve the capability task as subject, and ignore a conflicting actor_task_id rather than deriving authority from arguments.",
-  "timestamp": "2026-08-03T23:15:10.885Z"
-}

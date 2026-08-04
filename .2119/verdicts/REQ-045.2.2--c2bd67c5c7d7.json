@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.2.2--c2bd67c5c7d7",
-  "requirementId": "REQ-045.2.2",
-  "hash": "c2bd67c5c7d7",
-  "verdict": "pass",
-  "summary": "Public REST tests accept task capabilities derived from each of three simultaneously active write tokens, including the middle generation, and reject each generation once removed.",
-  "timestamp": "2026-08-03T21:48:03.419Z"
-}
