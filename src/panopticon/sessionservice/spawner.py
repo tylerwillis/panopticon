@@ -572,7 +572,16 @@ class Spawner:
                 continue  # preserve launcher/budget diagnostics until explicit claim release
             if self._executions.is_shell(task.get("workflow")):
                 continue  # never auto-respawn a shell task — leave it claimed (reconciles to `down`)
-            if self._runner_for(task).is_running(task["id"]):
+            try:
+                is_running = self._runner_for(task).is_running(task["id"])
+            except Exception:
+                _log.warning(
+                    "startup reclaim probe failed for task %s; preserving claim",
+                    task["id"],
+                    exc_info=True,
+                )
+                continue
+            if is_running:
                 continue  # container survived (runner-only crash) — keep claim, heal handles it
             # best-effort — heal() picks up unclaimed tasks that failed to release
             with contextlib.suppress(httpx.HTTPError):

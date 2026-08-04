@@ -1409,6 +1409,31 @@ def test_startup_reclaim_keeps_claims_when_container_is_still_running() -> None:
     assert client.releases == []
 
 
+def test_startup_reclaim_preserves_failed_probe_claim_and_continues() -> None:
+    class _ProbeRunner(_FakeRunner):
+        def is_running(self, task_id: str) -> bool:
+            if task_id == "t1":
+                raise subprocess.CalledProcessError(1, ["docker", "ps"])
+            return False
+
+    client = _FakeClient(repo=_REPO)
+    runner = _ProbeRunner(running=False, session=False)
+    tasks = [
+        {
+            "id": task_id,
+            "repo_id": "r1",
+            "workflow": "spike",
+            "state": "ITERATING",
+            "claimed_by": "host-1",
+        }
+        for task_id in ("t1", "t2")
+    ]
+
+    _spawner(client, runner).startup_reclaim(tasks)
+
+    assert client.releases == ["t2"]
+
+
 # 2119: REQ-043.2.1
 # 2119: REQ-043.4.2
 def test_startup_reclaim_preserves_failed_latches_until_explicit_release() -> None:
