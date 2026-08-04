@@ -728,14 +728,16 @@ def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> 
         assert any(record.get("stack_info") == f"stack {redacted_payload}" for record in records)
 
 
+@pytest.mark.parametrize("reverse_entry", [False, True])
 @pytest.mark.parametrize("ended_first", [False, True])
 def test_overlapping_app_lifespans_retain_only_active_tokens(
-    tmp_path: Path, ended_first: bool
+    tmp_path: Path, ended_first: bool, reverse_entry: bool
 ) -> None:
     # 2119: REQ-047.3.1
+    # 2119: REQ-047.3.2
     # 2119: REQ-047.3.3
     first_read = READ_TOKEN
-    second_token = "second-writer-token"
+    second_token = f"{WRITE_TOKEN}-extended"
     second_read = "second-reader-token"
     first_app = _authenticated_app(tmp_path / "first")
     second_app = _authenticated_app(tmp_path / "second", read=second_read, write=second_token)
@@ -755,10 +757,16 @@ def test_overlapping_app_lifespans_retain_only_active_tokens(
     first_active = False
     second_active = False
     try:
-        first_client.__enter__()
-        first_active = True
-        second_client.__enter__()
-        second_active = True
+        if reverse_entry:
+            second_client.__enter__()
+            second_active = True
+            first_client.__enter__()
+            first_active = True
+        else:
+            first_client.__enter__()
+            first_active = True
+            second_client.__enter__()
+            second_active = True
         assert logging.Handler.handle is handler_handle
         assert logging.Logger.handle is not logger_handle
         assert logging.getLogRecordFactory() is factory
@@ -801,10 +809,16 @@ def test_overlapping_app_lifespans_retain_only_active_tokens(
 
     both, remaining, neither = stream.getvalue().splitlines()
     assert all(token not in both for token in (first_read, WRITE_TOKEN, second_read, second_token))
-    discarded = (first_read, WRITE_TOKEN) if ended_first else (second_read, second_token)
-    retained = (second_read, second_token) if ended_first else (first_read, WRITE_TOKEN)
-    assert all(token in remaining for token in discarded)
-    assert all(token not in remaining for token in retained)
+    if ended_first:
+        assert first_read in remaining
+        assert WRITE_TOKEN in remaining
+        assert second_read not in remaining
+        assert second_token not in remaining
+    else:
+        assert second_read in remaining
+        assert "[redacted]-extended" in remaining
+        assert first_read not in remaining
+        assert WRITE_TOKEN not in remaining
     assert all(token in neither for token in (first_read, WRITE_TOKEN, second_read, second_token))
 
 

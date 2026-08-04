@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.3.2--dbf068deb37e",
+  "requirementId": "REQ-047.3.2",
+  "hash": "dbf068deb37e",
+  "verdict": "pass",
+  "summary": "Tests reject leaked or non-literal masking of both configured tokens across messages, positional and mapping arguments, nested caller extras, exception text, and stack data for task-service, FastAPI, uvicorn, and MCP logger roots and descendants during active lifespans.",
+  "timestamp": "2026-08-04T00:47:51.044Z"
+}

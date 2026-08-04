@@ -129,7 +129,17 @@ _original_logger_handle: Callable[[logging.Logger, logging.LogRecord], None] | N
 
 def _redacting_logger_handle(logger: logging.Logger, record: logging.LogRecord) -> None:
     with _log_redaction_lock:
-        filters = tuple(_active_log_redaction_filters)
+        tokens = tuple(
+            sorted(
+                {
+                    token
+                    for redaction_filter in _active_log_redaction_filters
+                    for token in redaction_filter._tokens
+                },
+                key=len,
+                reverse=True,
+            )
+        )
         original_handle = _original_logger_handle
     if original_handle is None:
         # A logging thread can resolve the patched method immediately before the final active
@@ -139,8 +149,7 @@ def _redacting_logger_handle(logger: logging.Logger, record: logging.LogRecord) 
         record.name == namespace or record.name.startswith(f"{namespace}.")
         for namespace in _REDACTED_LOGGER_NAMESPACES
     ):
-        for redaction_filter in filters:
-            redaction_filter.filter(record)
+        _ConfiguredTokenLogFilter(tokens).filter(record)
     return original_handle(logger, record)
 
 

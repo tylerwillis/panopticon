@@ -47,9 +47,9 @@ every affected code path; that follow-up must preserve the enforced-mode rejecti
 ### REQ-047.3: Application-scoped log redaction
 
 1. Importing the task service and creating, running, or closing authenticated application
-   lifespans MUST leave the process-wide log-record factory and `logging.Logger.makeRecord` class
-   method identities unchanged and restore the pre-lifespan `logging.Handler.handle` identity
-   whenever no authenticated lifespan remains active.
+   lifespans MUST leave the process-wide log-record factory, `logging.Logger.makeRecord`, and
+   `logging.Handler.handle` identities unchanged and restore the pre-lifespan
+   `logging.Logger.handle` identity whenever no authenticated lifespan remains active.
 2. During an authenticated task-service application's lifespan, each configured token MUST be
    replaced by the exact literal marker `[redacted]` in messages, arguments, caller-supplied extra
    fields, exception text, and stack information in log records handled by task-service, FastAPI,
