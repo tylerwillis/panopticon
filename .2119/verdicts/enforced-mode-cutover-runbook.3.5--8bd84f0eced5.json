@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.3.5--8bd84f0eced5",
+  "requirementId": "enforced-mode-cutover-runbook.3.5",
+  "hash": "8bd84f0eced5",
+  "verdict": "pass",
+  "summary": "The S05 action environment is asserted to set PANOPTICON_SERVICE_AUTH_MODE exactly to enforced.",
+  "timestamp": "2026-08-04T21:23:56.126Z"
+}

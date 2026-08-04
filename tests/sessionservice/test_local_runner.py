@@ -52,9 +52,7 @@ def _volume_sources_for(argv: list[str], destination: str) -> list[str]:
                 sources.append(source)
         if value == "--mount" and index + 1 < len(argv):
             fields = dict(
-                field.split("=", 1)
-                for field in argv[index + 1].split(",")
-                if "=" in field
+                field.split("=", 1) for field in argv[index + 1].split(",") if "=" in field
             )
             if fields.get("target", fields.get("destination")) == destination:
                 sources.append(fields.get("source", ""))
@@ -376,9 +374,7 @@ def test_stop_and_respawn_preserve_the_config_volume_for_claude_history() -> Non
 def test_stop_and_respawn_preserve_the_config_volume_for_codex_history() -> None:
     rec = _Recorder()
     runner = LocalRunner("http://svc", run=rec)
-    runner.spawn(
-        "t1", harness="codex", config_mount="/home/panopticon/.codex"
-    )
+    runner.spawn("t1", harness="codex", config_mount="/home/panopticon/.codex")
     first_run = rec.calls[2][0]
     runner.stop("panopticon-t1")
     runner.spawn("t1", harness="codex", config_mount="/home/panopticon/.codex")

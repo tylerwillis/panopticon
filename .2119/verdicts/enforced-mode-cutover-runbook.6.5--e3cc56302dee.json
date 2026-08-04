@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.6.5--e3cc56302dee",
+  "requirementId": "enforced-mode-cutover-runbook.6.5",
+  "hash": "e3cc56302dee",
+  "verdict": "pass",
+  "summary": "Evidence destination and executable gh issue comment command both target issue 203; local-only substitutions fail.",
+  "timestamp": "2026-08-04T21:24:13.045Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.3.1--5fdf29e7f9d0",
+  "requirementId": "enforced-mode-cutover-runbook.3.1",
+  "hash": "5fdf29e7f9d0",
+  "verdict": "pass",
+  "summary": "Execution-order assertions independently place both runner and dashboard restart before enforced authentication.",
+  "timestamp": "2026-08-04T21:23:53.741Z"
+}

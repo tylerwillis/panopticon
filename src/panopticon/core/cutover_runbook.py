@@ -6,12 +6,12 @@ import argparse
 import json
 import os
 import stat
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, Mapping, Sequence
+from typing import Any
 from urllib.parse import urlsplit
-
 
 RUNBOOK_PATH = Path(__file__).parents[3] / "docs" / "runbooks" / "enforced-mode-cutover.md"
 
@@ -481,7 +481,9 @@ def named_tasks_match(source_a: str, name_a: str, source_b: str, name_b: str) ->
     return name_a == name_b
 
 
-def is_fresh_post_enforcement_spawn(*, enforcement_started: float, container_created: float) -> bool:
+def is_fresh_post_enforcement_spawn(
+    *, enforcement_started: float, container_created: float
+) -> bool:
     return container_created > enforcement_started
 
 
@@ -504,9 +506,7 @@ def cors_response_passes(kind: str, headers: Mapping[str, str], expected_origin:
     )
 
 
-def capability_inspection_reads_mount(
-    *, command: Sequence[str], required_mount_path: str
-) -> bool:
+def capability_inspection_reads_mount(*, command: Sequence[str], required_mount_path: str) -> bool:
     return (
         len(command) >= 5
         and tuple(command[:3]) == ("docker", "exec", "canary")

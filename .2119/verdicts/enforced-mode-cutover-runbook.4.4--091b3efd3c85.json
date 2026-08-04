@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.4--091b3efd3c85",
+  "requirementId": "enforced-mode-cutover-runbook.4.4",
+  "hash": "091b3efd3c85",
+  "verdict": "pass",
+  "summary": "G04 requires read-token GET /tasks, exact origin, and rejection of both 401 and 403; scheme, host, port, and formatting near misses fail.",
+  "timestamp": "2026-08-04T21:24:04.501Z"
+}

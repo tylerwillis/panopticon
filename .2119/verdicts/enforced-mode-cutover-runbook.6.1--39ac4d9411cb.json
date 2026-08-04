@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.6.1--39ac4d9411cb",
+  "requirementId": "enforced-mode-cutover-runbook.6.1",
+  "hash": "39ac4d9411cb",
+  "verdict": "pass",
+  "summary": "All six named rollback-trigger classes plus canary failure are asserted, and individual trigger omissions fail validation.",
+  "timestamp": "2026-08-04T21:24:10.392Z"
+}

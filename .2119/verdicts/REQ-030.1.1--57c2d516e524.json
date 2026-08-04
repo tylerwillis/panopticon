@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.1.1--57c2d516e524",
+  "requirementId": "REQ-030.1.1",
+  "hash": "57c2d516e524",
+  "verdict": "pass",
+  "summary": "Config, every dedicated-socket creation path, and real-tmux tests verify mouse is on; omission would fail.",
+  "timestamp": "2026-08-04T21:23:43.602Z"
+}

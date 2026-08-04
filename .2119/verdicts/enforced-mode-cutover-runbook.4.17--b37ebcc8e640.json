@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.17--b37ebcc8e640",
+  "requirementId": "enforced-mode-cutover-runbook.4.17",
+  "hash": "b37ebcc8e640",
+  "verdict": "pass",
+  "summary": "G09’s inspection target must be a docker container, and the host-process near violation is rejected.",
+  "timestamp": "2026-08-04T21:24:02.540Z"
+}

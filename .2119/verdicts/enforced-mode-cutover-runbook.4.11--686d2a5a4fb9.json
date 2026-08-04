@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.11--686d2a5a4fb9",
+  "requirementId": "enforced-mode-cutover-runbook.4.11",
+  "hash": "686d2a5a4fb9",
+  "verdict": "pass",
+  "summary": "G11’s complete inventory scope, original identity, two allowed dispositions, and disposition-specific identity rules are mutation-tested.",
+  "timestamp": "2026-08-04T21:23:59.630Z"
+}

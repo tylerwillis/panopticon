@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.2.5--ad22336c64aa",
+  "requirementId": "enforced-mode-cutover-runbook.2.5",
+  "hash": "ad22336c64aa",
+  "verdict": "pass",
+  "summary": "The drain check must directly list labeled running containers, assert empty stdout and count zero, and precede restart.",
+  "timestamp": "2026-08-04T21:23:51.357Z"
+}

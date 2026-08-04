@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.10--5326c85e7bec",
+  "requirementId": "enforced-mode-cutover-runbook.4.10",
+  "hash": "5326c85e7bec",
+  "verdict": "pass",
+  "summary": "G10 requires before/restart/after ordering, the same active runner, both identity fields, and a changed pair.",
+  "timestamp": "2026-08-04T21:23:59.159Z"
+}

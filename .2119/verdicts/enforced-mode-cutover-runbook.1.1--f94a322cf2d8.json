@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.1.1--f94a322cf2d8",
+  "requirementId": "enforced-mode-cutover-runbook.1.1",
+  "hash": "f94a322cf2d8",
+  "verdict": "pass",
+  "summary": "The parser requires the runbook and rejects task-service invocation in every action or check after S03, with targeted mutation coverage.",
+  "timestamp": "2026-08-04T21:23:46.567Z"
+}

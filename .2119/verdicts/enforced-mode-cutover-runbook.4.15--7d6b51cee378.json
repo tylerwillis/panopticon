@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.15--7d6b51cee378",
+  "requirementId": "enforced-mode-cutover-runbook.4.15",
+  "hash": "7d6b51cee378",
+  "verdict": "pass",
+  "summary": "G09 requires initial-then-keepalive ordering, at least five seconds elapsed, and a real canary stream; all nearest violations fail.",
+  "timestamp": "2026-08-04T21:24:01.580Z"
+}

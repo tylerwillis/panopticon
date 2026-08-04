@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.1.6--19c6c97f8ab0",
+  "requirementId": "enforced-mode-cutover-runbook.1.6",
+  "hash": "19c6c97f8ab0",
+  "verdict": "pass",
+  "summary": "The suite proves fixture coverage equals the declared requirement set and every individual nearest mutation returns its governing ID.",
+  "timestamp": "2026-08-04T21:23:48.916Z"
+}

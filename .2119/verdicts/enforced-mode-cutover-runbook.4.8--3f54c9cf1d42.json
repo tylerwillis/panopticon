@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.8--3f54c9cf1d42",
+  "requirementId": "enforced-mode-cutover-runbook.4.8",
+  "hash": "3f54c9cf1d42",
+  "verdict": "pass",
+  "summary": "G08 must directly observe an empty docker container list immediately before restart; indirect and misplaced checks fail.",
+  "timestamp": "2026-08-04T21:24:06.474Z"
+}

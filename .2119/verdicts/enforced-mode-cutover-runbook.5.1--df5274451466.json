@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.5.1--df5274451466",
+  "requirementId": "enforced-mode-cutover-runbook.5.1",
+  "hash": "df5274451466",
+  "verdict": "pass",
+  "summary": "Both Claude docker runs are inspected for exactly one identical config-volume source, and the entire sequence forbids standalone volume commands.",
+  "timestamp": "2026-08-04T21:24:07.428Z"
+}

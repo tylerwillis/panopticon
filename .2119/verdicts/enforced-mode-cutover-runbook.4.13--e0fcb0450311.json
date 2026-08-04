@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.13--e0fcb0450311",
+  "requirementId": "enforced-mode-cutover-runbook.4.13",
+  "hash": "e0fcb0450311",
+  "verdict": "pass",
+  "summary": "The actual response must echo the exact PWA origin; wrong-origin and merely-nonempty comparisons fail.",
+  "timestamp": "2026-08-04T21:24:00.566Z"
+}

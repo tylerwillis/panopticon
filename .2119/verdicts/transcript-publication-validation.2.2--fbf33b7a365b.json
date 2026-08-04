@@ -1,0 +1,8 @@
+{
+  "reviewId": "transcript-publication-validation.2.2--fbf33b7a365b",
+  "requirementId": "transcript-publication-validation.2.2",
+  "hash": "fbf33b7a365b",
+  "verdict": "pass",
+  "summary": "An enforced-auth application is exercised through publish_session_transcript for ESC, 64-KiB ASCII/multibyte, and 200-line boundaries.",
+  "timestamp": "2026-08-04T21:24:17.993Z"
+}

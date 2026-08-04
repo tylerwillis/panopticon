@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.6.9--8053d7388533",
+  "requirementId": "enforced-mode-cutover-runbook.6.9",
+  "hash": "8053d7388533",
+  "verdict": "pass",
+  "summary": "The rollback model explicitly disallows dependence on killed PIDs, and the opposite declaration fails validation.",
+  "timestamp": "2026-08-04T21:24:15.003Z"
+}

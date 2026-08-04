@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.9--e57ab844edd5",
+  "requirementId": "enforced-mode-cutover-runbook.4.9",
+  "hash": "e57ab844edd5",
+  "verdict": "pass",
+  "summary": "The expected capability prefix is asserted exactly as ptc1., with the missing-dot near violation rejected.",
+  "timestamp": "2026-08-04T21:24:06.947Z"
+}

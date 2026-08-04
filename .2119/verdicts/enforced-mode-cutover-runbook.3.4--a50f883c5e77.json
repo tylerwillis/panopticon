@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.3.4--a50f883c5e77",
+  "requirementId": "enforced-mode-cutover-runbook.3.4",
+  "hash": "a50f883c5e77",
+  "verdict": "pass",
+  "summary": "The semantic contract disallows post-change probes as survivor evidence and rejects the nearest contrary declaration.",
+  "timestamp": "2026-08-04T21:23:55.661Z"
+}

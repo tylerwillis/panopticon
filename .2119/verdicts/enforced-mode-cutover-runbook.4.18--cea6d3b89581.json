@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.18--cea6d3b89581",
+  "requirementId": "enforced-mode-cutover-runbook.4.18",
+  "hash": "cea6d3b89581",
+  "verdict": "pass",
+  "summary": "Tests require container creation strictly after enforcement and reject equal, earlier, and merely-declared-fresh cases.",
+  "timestamp": "2026-08-04T21:24:03.022Z"
+}

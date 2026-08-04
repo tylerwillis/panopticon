@@ -186,7 +186,9 @@ def test_runbook_blocks_on_security_fix_quiesces_and_uses_direct_drain_evidence(
     assert plan.allow_live_remint is False
     assert plan.allow_scoping_revert is False
     prerequisite = _step(text, "S00")
-    _ordered(prerequisite, "ISSUE_202_COMMIT=", "DEPLOY_REV=", "merge-base --is-ancestor", "gh run view")
+    _ordered(
+        prerequisite, "ISSUE_202_COMMIT=", "DEPLOY_REV=", "merge-base --is-ancestor", "gh run view"
+    )
     assert 'git merge-base --is-ancestor "$ISSUE_202_COMMIT" "$DEPLOY_REV"' in prerequisite
     assert "--exit-status" in prerequisite
     assert "issue #202 closing commit is an ancestor" in prerequisite
@@ -333,6 +335,7 @@ def test_credential_metadata_inspection_accepts_disjoint_arrays_without_values(
 ) -> None:
     path = tmp_path / "service-auth.json"
     path.write_text(json.dumps({"write": ["secret-write"], "read": ["secret-read"]}))
+    path.chmod(0o600)
     result = inspect_cutover_credential_file(path)
     assert result.write_count == 1 and result.read_count == 1
     output = capsys.readouterr()
@@ -382,9 +385,7 @@ def test_g07_compares_independently_observed_names_exactly() -> None:
 # 2119: enforced-mode-cutover-runbook.4.18
 def test_g09_spawn_timestamp_must_be_strictly_after_enforcement() -> None:
     assert is_fresh_post_enforcement_spawn(enforcement_started=100.0, container_created=100.1)
-    assert not is_fresh_post_enforcement_spawn(
-        enforcement_started=100.0, container_created=100.0
-    )
+    assert not is_fresh_post_enforcement_spawn(enforcement_started=100.0, container_created=100.0)
     assert not is_fresh_post_enforcement_spawn(enforcement_started=100.0, container_created=99.9)
 
 
@@ -437,7 +438,10 @@ def test_runbook_contains_executable_original_and_adversarial_cutover_gates() ->
         "credentials_header": "absent-both",
     }
     assert plan.gates["G07"].compares_named_task is True
-    assert plan.gates["G07"].comparison_sources == ("installed-phone-board", "authenticated-fleet-api")
+    assert plan.gates["G07"].comparison_sources == (
+        "installed-phone-board",
+        "authenticated-fleet-api",
+    )
     assert plan.gates["G07"].command.inputs == (
         "installed-phone-board-task-name",
         "authenticated-fleet-api-task-name",
@@ -519,22 +523,24 @@ def test_runbook_scopes_resume_evidence_and_canaries_before_bulk_respawn() -> No
         "explicit-session-selection",
         "real-cli-transcript-acceptance",
     }
-    assert {
-        name: claim.level for name, claim in plan.resume_evidence["claude"].claims.items()
-    } == {
+    assert {name: claim.level for name, claim in plan.resume_evidence["claude"].claims.items()} == {
         "configuration-volume-persistence": "unit",
         "launcher-continuation-selection": "unit",
         "real-cli-transcript-acceptance": "live-cutover",
     }
-    assert {
-        name: claim.level for name, claim in plan.resume_evidence["codex"].claims.items()
-    } == {
+    assert {name: claim.level for name, claim in plan.resume_evidence["codex"].claims.items()} == {
         "configuration-volume-persistence": "unit",
         "explicit-session-selection": "unit",
         "real-cli-transcript-acceptance": "live-cutover",
     }
-    assert all(claim.level in {"unit", "integration", "dry-run", "live-cutover"} for claim in plan.resume_evidence["claude"].claims.values())
-    assert all(claim.level in {"unit", "integration", "dry-run", "live-cutover"} for claim in plan.resume_evidence["codex"].claims.values())
+    assert all(
+        claim.level in {"unit", "integration", "dry-run", "live-cutover"}
+        for claim in plan.resume_evidence["claude"].claims.values()
+    )
+    assert all(
+        claim.level in {"unit", "integration", "dry-run", "live-cutover"}
+        for claim in plan.resume_evidence["codex"].claims.values()
+    )
     assert plan.gates["G09"].capability_source == "mounted-container-credential"
     assert plan.gates["G09"].capability_prefix == "ptc1."
     assert plan.gates["G09"].real_container is True
@@ -594,7 +600,10 @@ def test_runbook_has_safe_rollback_honest_unknowns_and_single_followup_home() ->
     )
     assert "--body-file" in plan.steps["S09"].action.argv
     assert set(plan.production_only_items) == {
-        item for item, _ in re.findall(r"^- (S\d{2}|G\d{2}): production-only — (.+)$", text, re.MULTILINE)
+        item
+        for item, _ in re.findall(
+            r"^- (S\d{2}|G\d{2}): production-only — (.+)$", text, re.MULTILINE
+        )
     }
     executable_cutover_only = {
         step_id
@@ -641,38 +650,88 @@ def test_runbook_has_safe_rollback_honest_unknowns_and_single_followup_home() ->
     assert "already described in #202 or #203" in record
 
     exercise = _section(text, "Authoring exercise record")
-    production_only = re.findall(r"^- (S\d{2}|G\d{2}): production-only — (.+)$", exercise, re.MULTILINE)
+    production_only = re.findall(
+        r"^- (S\d{2}|G\d{2}): production-only — (.+)$", exercise, re.MULTILINE
+    )
     assert production_only
     assert {item for item, _ in production_only} >= {"S03", "S04", "S05", "G07", "G09"}
     assert all(reason.strip() for _, reason in production_only)
 
 
 INVALIDATING_MUTATIONS = {
-    "enforced-mode-cutover-runbook.1.1": ("S05_CHECK_EXEC='tmux -L panopticon list-sessions'", "S05_CHECK_EXEC='curl $PANOPTICON_SERVICE_URL/tasks'"),
+    "enforced-mode-cutover-runbook.1.1": (
+        "S05_CHECK_EXEC='tmux -L panopticon list-sessions'",
+        "S05_CHECK_EXEC='curl $PANOPTICON_SERVICE_URL/tasks'",
+    ),
     "enforced-mode-cutover-runbook.1.2": ("## S09 —", "## S08 — duplicate"),
-    "enforced-mode-cutover-runbook.1.3": ("STEP_BLOCKS_HAVE_DISTINCT_ACTION_CHECK=1", "STEP_BLOCKS_HAVE_DISTINCT_ACTION_CHECK=0"),
+    "enforced-mode-cutover-runbook.1.3": (
+        "STEP_BLOCKS_HAVE_DISTINCT_ACTION_CHECK=1",
+        "STEP_BLOCKS_HAVE_DISTINCT_ACTION_CHECK=0",
+    ),
     "enforced-mode-cutover-runbook.1.4": ("### G11 —", "### G10 — duplicate"),
-    "enforced-mode-cutover-runbook.1.5": ("EVIDENCE_CLASSIFICATION_PARTITION=complete", "EVIDENCE_CLASSIFICATION_PARTITION=incomplete"),
-    "enforced-mode-cutover-runbook.1.6": ("VALIDATOR_REPORTS_GOVERNING_REQUIREMENT=1", "VALIDATOR_REPORTS_GOVERNING_REQUIREMENT=0"),
+    "enforced-mode-cutover-runbook.1.5": (
+        "EVIDENCE_CLASSIFICATION_PARTITION=complete",
+        "EVIDENCE_CLASSIFICATION_PARTITION=incomplete",
+    ),
+    "enforced-mode-cutover-runbook.1.6": (
+        "VALIDATOR_REPORTS_GOVERNING_REQUIREMENT=1",
+        "VALIDATOR_REPORTS_GOVERNING_REQUIREMENT=0",
+    ),
     "enforced-mode-cutover-runbook.2.1": ("git merge-base --is-ancestor", "git merge-base"),
-    "enforced-mode-cutover-runbook.2.2": ("creation, respawn, and resume are frozen", "new tasks may still start"),
-    "enforced-mode-cutover-runbook.2.3": ("INVENTORY_IDENTITY_FIELDS='pid start_time'", "INVENTORY_IDENTITY_FIELDS='pid'"),
+    "enforced-mode-cutover-runbook.2.2": (
+        "creation, respawn, and resume are frozen",
+        "new tasks may still start",
+    ),
+    "enforced-mode-cutover-runbook.2.3": (
+        "INVENTORY_IDENTITY_FIELDS='pid start_time'",
+        "INVENTORY_IDENTITY_FIELDS='pid'",
+    ),
     "enforced-mode-cutover-runbook.2.4": ("docker stop", "docker restart"),
     "enforced-mode-cutover-runbook.2.5": ("DRAIN_EXPECTED_EMPTY=1", "DRAIN_EXPECTED_EMPTY=0"),
     "enforced-mode-cutover-runbook.2.6": ("never a gate", "the enforcement gate"),
-    "enforced-mode-cutover-runbook.2.7": ("Do not add a `pt1` compatibility window", "Temporarily accept `pt1`"),
-    "enforced-mode-cutover-runbook.2.8": ("Do not re-mint or replace credentials inside running containers", "Replace live credentials"),
+    "enforced-mode-cutover-runbook.2.7": (
+        "Do not add a `pt1` compatibility window",
+        "Temporarily accept `pt1`",
+    ),
+    "enforced-mode-cutover-runbook.2.8": (
+        "Do not re-mint or replace credentials inside running containers",
+        "Replace live credentials",
+    ),
     "enforced-mode-cutover-runbook.2.9": ("Do not revert or weaken PR #163", "Revert PR #163"),
-    "enforced-mode-cutover-runbook.3.1": ("kill-session -t runner", "leave the runner session alive"),
-    "enforced-mode-cutover-runbook.3.2": ("new PID/start-time pair differs", "new PID may equal the old PID"),
-    "enforced-mode-cutover-runbook.3.3": ("SURVIVOR_DISPOSITION_REQUIRED=1", "SURVIVOR_DISPOSITION_REQUIRED=0"),
-    "enforced-mode-cutover-runbook.3.4": ("freshly launched CLI proves nothing about a survivor", "a fresh CLI proves the survivor works"),
-    "enforced-mode-cutover-runbook.3.5": ("PANOPTICON_SERVICE_AUTH_MODE=enforced", "PANOPTICON_SERVICE_AUTH_MODE=permissive"),
+    "enforced-mode-cutover-runbook.3.1": (
+        "kill-session -t runner",
+        "leave the runner session alive",
+    ),
+    "enforced-mode-cutover-runbook.3.2": (
+        "new PID/start-time pair differs",
+        "new PID may equal the old PID",
+    ),
+    "enforced-mode-cutover-runbook.3.3": (
+        "SURVIVOR_DISPOSITION_REQUIRED=1",
+        "SURVIVOR_DISPOSITION_REQUIRED=0",
+    ),
+    "enforced-mode-cutover-runbook.3.4": (
+        "freshly launched CLI proves nothing about a survivor",
+        "a fresh CLI proves the survivor works",
+    ),
+    "enforced-mode-cutover-runbook.3.5": (
+        "PANOPTICON_SERVICE_AUTH_MODE=enforced",
+        "PANOPTICON_SERVICE_AUTH_MODE=permissive",
+    ),
     "enforced-mode-cutover-runbook.3.6": ("mode 0600", "mode 0644"),
-    "enforced-mode-cutover-runbook.3.7": ("tmux -L panopticon set-environment -g PANOPTICON_BROWSER_ORIGINS", "export PANOPTICON_BROWSER_ORIGINS"),
-    "enforced-mode-cutover-runbook.3.8": ("AUTH_FILE_ENV_ASSIGNMENT=filename-only", "AUTH_FILE_ENV_ASSIGNMENT=missing"),
+    "enforced-mode-cutover-runbook.3.7": (
+        "tmux -L panopticon set-environment -g PANOPTICON_BROWSER_ORIGINS",
+        "export PANOPTICON_BROWSER_ORIGINS",
+    ),
+    "enforced-mode-cutover-runbook.3.8": (
+        "AUTH_FILE_ENV_ASSIGNMENT=filename-only",
+        "AUTH_FILE_ENV_ASSIGNMENT=missing",
+    ),
     "enforced-mode-cutover-runbook.3.9": ("scheme, host, and port only", "include the board path"),
-    "enforced-mode-cutover-runbook.3.10": ("distinct nonempty `read` array", "reuse the write token as read"),
+    "enforced-mode-cutover-runbook.3.10": (
+        "distinct nonempty `read` array",
+        "reuse the write token as read",
+    ),
     "enforced-mode-cutover-runbook.4.1": ("G01_EXPECTED_STATUS=200", "G01_EXPECTED_STATUS=401"),
     "enforced-mode-cutover-runbook.4.2": ("G02_EXPECTED_STATUS=401", "G02_EXPECTED_STATUS=200"),
     "enforced-mode-cutover-runbook.4.3": ("G03_REQUIRE_SAME_RUNNER=1", "G03_REQUIRE_SAME_RUNNER=0"),
@@ -681,30 +740,78 @@ INVALIDATING_MUTATIONS = {
     "enforced-mode-cutover-runbook.4.6": ("G06_CHECK_PREFLIGHT=1", "G06_CHECK_PREFLIGHT=0"),
     "enforced-mode-cutover-runbook.4.7": ("G07_COMPARE_NAMED_TASK=1", "G07_COMPARE_NAMED_TASK=0"),
     "enforced-mode-cutover-runbook.4.8": ("G08_EXPECTED_CONTAINERS=0", "G08_EXPECTED_CONTAINERS=1"),
-    "enforced-mode-cutover-runbook.4.9": ("G09_CAPABILITY_PREFIX='ptc1.'", "G09_CAPABILITY_PREFIX='pt1.'"),
-    "enforced-mode-cutover-runbook.4.10": ("G10_REQUIRE_PID_AND_START=1", "G10_REQUIRE_PID_AND_START=0"),
-    "enforced-mode-cutover-runbook.4.11": ("G11_REQUIRE_ALL_SURVIVORS=1", "G11_REQUIRE_ALL_SURVIVORS=0"),
-    "enforced-mode-cutover-runbook.4.12": ("G06_PREFLIGHT_ECHO_ORIGIN=1", "G06_PREFLIGHT_ECHO_ORIGIN=0"),
+    "enforced-mode-cutover-runbook.4.9": (
+        "G09_CAPABILITY_PREFIX='ptc1.'",
+        "G09_CAPABILITY_PREFIX='pt1.'",
+    ),
+    "enforced-mode-cutover-runbook.4.10": (
+        "G10_REQUIRE_PID_AND_START=1",
+        "G10_REQUIRE_PID_AND_START=0",
+    ),
+    "enforced-mode-cutover-runbook.4.11": (
+        "G11_REQUIRE_ALL_SURVIVORS=1",
+        "G11_REQUIRE_ALL_SURVIVORS=0",
+    ),
+    "enforced-mode-cutover-runbook.4.12": (
+        "G06_PREFLIGHT_ECHO_ORIGIN=1",
+        "G06_PREFLIGHT_ECHO_ORIGIN=0",
+    ),
     "enforced-mode-cutover-runbook.4.13": ("G06_ACTUAL_ECHO_ORIGIN=1", "G06_ACTUAL_ECHO_ORIGIN=0"),
-    "enforced-mode-cutover-runbook.4.14": ("G06_FORBID_CREDENTIALS_BOTH=1", "G06_FORBID_CREDENTIALS_BOTH=0"),
+    "enforced-mode-cutover-runbook.4.14": (
+        "G06_FORBID_CREDENTIALS_BOTH=1",
+        "G06_FORBID_CREDENTIALS_BOTH=0",
+    ),
     "enforced-mode-cutover-runbook.4.15": ("G09_MIN_KEEPALIVES=1", "G09_MIN_KEEPALIVES=0"),
-    "enforced-mode-cutover-runbook.4.16": ("G09_CAPABILITY_SOURCE='mounted-container-credential'", "G09_CAPABILITY_SOURCE='generated-value'"),
+    "enforced-mode-cutover-runbook.4.16": (
+        "G09_CAPABILITY_SOURCE='mounted-container-credential'",
+        "G09_CAPABILITY_SOURCE='generated-value'",
+    ),
     "enforced-mode-cutover-runbook.4.17": ("G09_REAL_CONTAINER=1", "G09_REAL_CONTAINER=0"),
     "enforced-mode-cutover-runbook.4.18": ("G09_FRESH_SPAWN=1", "G09_FRESH_SPAWN=0"),
-    "enforced-mode-cutover-runbook.5.3": ("Claude evidence level: unit", "Claude evidence level: missing"),
+    "enforced-mode-cutover-runbook.5.3": (
+        "Claude evidence level: unit",
+        "Claude evidence level: missing",
+    ),
     "enforced-mode-cutover-runbook.5.4": ("CANARY_BEFORE_BULK=1", "CANARY_BEFORE_BULK=0"),
-    "enforced-mode-cutover-runbook.5.5": ("REQUIRE_TASK_DISPOSITION=1", "REQUIRE_TASK_DISPOSITION=0"),
-    "enforced-mode-cutover-runbook.5.8": ("Codex evidence level: unit", "Codex evidence level: missing"),
-    "enforced-mode-cutover-runbook.6.1": ("ROLLBACK_TRIGGER_CANARY_FAILURE=1", "ROLLBACK_TRIGGER_CANARY_FAILURE=0"),
-    "enforced-mode-cutover-runbook.6.2": ("ROLLBACK_KEEP_CONTAINERS_STOPPED=1", "ROLLBACK_KEEP_CONTAINERS_STOPPED=0"),
+    "enforced-mode-cutover-runbook.5.5": (
+        "REQUIRE_TASK_DISPOSITION=1",
+        "REQUIRE_TASK_DISPOSITION=0",
+    ),
+    "enforced-mode-cutover-runbook.5.8": (
+        "Codex evidence level: unit",
+        "Codex evidence level: missing",
+    ),
+    "enforced-mode-cutover-runbook.6.1": (
+        "ROLLBACK_TRIGGER_CANARY_FAILURE=1",
+        "ROLLBACK_TRIGGER_CANARY_FAILURE=0",
+    ),
+    "enforced-mode-cutover-runbook.6.2": (
+        "ROLLBACK_KEEP_CONTAINERS_STOPPED=1",
+        "ROLLBACK_KEEP_CONTAINERS_STOPPED=0",
+    ),
     "enforced-mode-cutover-runbook.6.3": ("ROLLBACK_ALLOW_LEGACY=0", "ROLLBACK_ALLOW_LEGACY=1"),
-    "enforced-mode-cutover-runbook.6.4": ("production process identity remains unproven", "production process identity is proven"),
-    "enforced-mode-cutover-runbook.6.5": ("APPEND_CUTOVER_EVIDENCE_TO_203=1", "APPEND_CUTOVER_EVIDENCE_TO_203=0"),
-    "enforced-mode-cutover-runbook.6.6": ("PRODUCTION_ONLY_REASON_COVERAGE=complete", "PRODUCTION_ONLY_REASON_COVERAGE=incomplete"),
+    "enforced-mode-cutover-runbook.6.4": (
+        "production process identity remains unproven",
+        "production process identity is proven",
+    ),
+    "enforced-mode-cutover-runbook.6.5": (
+        "APPEND_CUTOVER_EVIDENCE_TO_203=1",
+        "APPEND_CUTOVER_EVIDENCE_TO_203=0",
+    ),
+    "enforced-mode-cutover-runbook.6.6": (
+        "PRODUCTION_ONLY_REASON_COVERAGE=complete",
+        "PRODUCTION_ONLY_REASON_COVERAGE=incomplete",
+    ),
     "enforced-mode-cutover-runbook.6.7": ("NEW_FOLLOWUP_ISSUE=203", "NEW_FOLLOWUP_ISSUE=204"),
     "enforced-mode-cutover-runbook.6.8": ("OPEN_DUPLICATE_ISSUES=0", "OPEN_DUPLICATE_ISSUES=1"),
-    "enforced-mode-cutover-runbook.6.9": ("ROLLBACK_EXPECT_KILLED_PROCESS=0", "ROLLBACK_EXPECT_KILLED_PROCESS=1"),
-    "enforced-mode-cutover-runbook.6.10": ("ROLLBACK_KEEP_CLIENTS_STOPPED_UNTIL_RESTORED=1", "ROLLBACK_KEEP_CLIENTS_STOPPED_UNTIL_RESTORED=0"),
+    "enforced-mode-cutover-runbook.6.9": (
+        "ROLLBACK_EXPECT_KILLED_PROCESS=0",
+        "ROLLBACK_EXPECT_KILLED_PROCESS=1",
+    ),
+    "enforced-mode-cutover-runbook.6.10": (
+        "ROLLBACK_KEEP_CLIENTS_STOPPED_UNTIL_RESTORED=1",
+        "ROLLBACK_KEEP_CLIENTS_STOPPED_UNTIL_RESTORED=0",
+    ),
 }
 
 # Each tuple is an almost-conforming document that preserves the surrounding step or gate while
@@ -713,7 +820,10 @@ INVALIDATING_MUTATIONS = {
 # command or another instruction elsewhere in the runbook.
 ADDITIONAL_INVALIDATING_MUTATIONS = {
     "enforced-mode-cutover-runbook.1.1": (
-        ("S05_ACTION_EXEC='tmux -L panopticon kill-session -t service'", "S05_ACTION_EXEC='curl $PANOPTICON_SERVICE_URL/tasks'"),
+        (
+            "S05_ACTION_EXEC='tmux -L panopticon kill-session -t service'",
+            "S05_ACTION_EXEC='curl $PANOPTICON_SERVICE_URL/tasks'",
+        ),
     ),
     "enforced-mode-cutover-runbook.1.2": (
         ("S00_EFFECT=verify-prerequisite", "S00_EFFECT=bulk-respawn"),
@@ -735,7 +845,10 @@ ADDITIONAL_INVALIDATING_MUTATIONS = {
         ("FAILURE_ON=unexpected-check-result", "FAILURE_ON=operator-discretion"),
         ("S06_ACTION_EXEC='run-gates G01 G02 G03 G04 G05 G06'", "S06_ACTION_EXEC=''"),
         ("S06_CHECK_EXEC='test all-gates-passed'", "S06_CHECK_EXEC=''"),
-        ("S06_CHECK_EXEC='test all-gates-passed'", "S06_CHECK_EXEC='run-gates G01 G02 G03 G04 G05 G06'"),
+        (
+            "S06_CHECK_EXEC='test all-gates-passed'",
+            "S06_CHECK_EXEC='run-gates G01 G02 G03 G04 G05 G06'",
+        ),
         ("S06_EXPECTED='all six gates pass'", "S06_EXPECTED='one gate may fail'"),
         ("S06_FAILURE='STOP and roll back'", "S06_FAILURE='Investigate; STOP later'"),
         ("S06_FAILURE='STOP and roll back'", "S06_FAILURE='STOPPED'"),
@@ -772,8 +885,14 @@ ADDITIONAL_INVALIDATING_MUTATIONS = {
         ("DRAIN_SCOPE=all-running-task-containers", "DRAIN_SCOPE=all-inventoried-task-containers"),
     ),
     "enforced-mode-cutover-runbook.2.5": (
-        ("DRAIN_OBSERVATION_SOURCE=direct-docker-running-list", "DRAIN_OBSERVATION_SOURCE=permissive-counter"),
-        ("S03_CHECK_EXEC='docker ps --quiet --filter label=panopticon.task'", "S03_CHECK_EXEC='printf 0'"),
+        (
+            "DRAIN_OBSERVATION_SOURCE=direct-docker-running-list",
+            "DRAIN_OBSERVATION_SOURCE=permissive-counter",
+        ),
+        (
+            "S03_CHECK_EXEC='docker ps --quiet --filter label=panopticon.task'",
+            "S03_CHECK_EXEC='printf 0'",
+        ),
     ),
     "enforced-mode-cutover-runbook.2.6": (
         ("COUNTER_ROLE=corroboration-only", "COUNTER_ROLE=enforcement-gate"),
@@ -782,38 +901,68 @@ ADDITIONAL_INVALIDATING_MUTATIONS = {
     "enforced-mode-cutover-runbook.2.7": (
         ("ALLOW_LEGACY_PT1=0", "ALLOW_LEGACY_PT1=1"),
         ("CONTRADICTORY_LEGACY_INSTRUCTIONS=0", "CONTRADICTORY_LEGACY_INSTRUCTIONS=1"),
-        ("Do not add a `pt1` compatibility window", "Do not add a `pt1` compatibility window. Temporarily accept legacy `pt1` during cutover"),
+        (
+            "Do not add a `pt1` compatibility window",
+            "Do not add a `pt1` compatibility window. Temporarily accept legacy `pt1` during cutover",
+        ),
     ),
     "enforced-mode-cutover-runbook.2.8": (
         ("ALLOW_LIVE_REMINT=0", "ALLOW_LIVE_REMINT=1"),
         ("CONTRADICTORY_LIVE_REMINT_INSTRUCTIONS=0", "CONTRADICTORY_LIVE_REMINT_INSTRUCTIONS=1"),
-        ("Do not re-mint or replace credentials inside running containers", "Do not re-mint or replace credentials inside running containers. Replace credentials inside running containers before drain"),
-        ("LIVE_CONTAINER_CREDENTIAL_UPDATE_INSTRUCTIONS=none", "LIVE_CONTAINER_CREDENTIAL_UPDATE_INSTRUCTIONS='Update credentials in each active container'"),
+        (
+            "Do not re-mint or replace credentials inside running containers",
+            "Do not re-mint or replace credentials inside running containers. Replace credentials inside running containers before drain",
+        ),
+        (
+            "LIVE_CONTAINER_CREDENTIAL_UPDATE_INSTRUCTIONS=none",
+            "LIVE_CONTAINER_CREDENTIAL_UPDATE_INSTRUCTIONS='Update credentials in each active container'",
+        ),
     ),
     "enforced-mode-cutover-runbook.2.9": (
         ("ALLOW_SCOPING_REVERT=0", "ALLOW_SCOPING_REVERT=1"),
         ("CONTRADICTORY_SCOPING_INSTRUCTIONS=0", "CONTRADICTORY_SCOPING_INSTRUCTIONS=1"),
-        ("Do not revert or weaken PR #163", "Do not revert or weaken PR #163. Disable scoped task capabilities for the restart"),
+        (
+            "Do not revert or weaken PR #163",
+            "Do not revert or weaken PR #163. Disable scoped task capabilities for the restart",
+        ),
     ),
     "enforced-mode-cutover-runbook.3.1": (
         ("CLIENT_RESTART_BEFORE_ENFORCEMENT=1", "CLIENT_RESTART_BEFORE_ENFORCEMENT=0"),
         ("DASHBOARD_RESTART_BEFORE_ENFORCEMENT=1", "DASHBOARD_RESTART_BEFORE_ENFORCEMENT=0"),
-        ("EXECUTION_ORDER='restart-runner restart-dashboard enable-enforced-authentication'", "EXECUTION_ORDER='enable-enforced-authentication restart-runner restart-dashboard'"),
+        (
+            "EXECUTION_ORDER='restart-runner restart-dashboard enable-enforced-authentication'",
+            "EXECUTION_ORDER='enable-enforced-authentication restart-runner restart-dashboard'",
+        ),
     ),
     "enforced-mode-cutover-runbook.3.2": (
         ("RUNNER_COMPARE_FIELDS='pid start_time'", "RUNNER_COMPARE_FIELDS='pid'"),
         ("RUNNER_COMPARE_SUBJECT=active-recorded-runner", "RUNNER_COMPARE_SUBJECT=fresh-cli"),
-        ("RUNNER_IDENTITY_ORDER='capture-before restart capture-after compare'", "RUNNER_IDENTITY_ORDER='restart capture-before capture-after compare'"),
+        (
+            "RUNNER_IDENTITY_ORDER='capture-before restart capture-after compare'",
+            "RUNNER_IDENTITY_ORDER='restart capture-before capture-after compare'",
+        ),
     ),
     "enforced-mode-cutover-runbook.3.4": (
         ("POST_CHANGE_PROBE_SURVIVOR_EVIDENCE=0", "POST_CHANGE_PROBE_SURVIVOR_EVIDENCE=1"),
-        ("freshly launched CLI proves nothing about a survivor", "freshly launched CLI proves nothing about a survivor. Use a freshly launched CLI as survivor evidence"),
-        ("SURVIVOR_EVIDENCE_COMMAND=compare-original-pid-and-start", "SURVIVOR_EVIDENCE_COMMAND='launch-cli-after-credential-change'"),
+        (
+            "freshly launched CLI proves nothing about a survivor",
+            "freshly launched CLI proves nothing about a survivor. Use a freshly launched CLI as survivor evidence",
+        ),
+        (
+            "SURVIVOR_EVIDENCE_COMMAND=compare-original-pid-and-start",
+            "SURVIVOR_EVIDENCE_COMMAND='launch-cli-after-credential-change'",
+        ),
     ),
     "enforced-mode-cutover-runbook.3.3": (
         ("SURVIVOR_SCOPE=every-inventoried-credential-client", "SURVIVOR_SCOPE=runner-only"),
-        ("SURVIVOR_IDENTITY_FIELDS='original_pid original_start_time'", "SURVIVOR_IDENTITY_FIELDS='current_pid'"),
-        ("SURVIVOR_DISPOSITIONS='restarted confirmed-dead'", "SURVIVOR_DISPOSITIONS='restarted assumed-dead'"),
+        (
+            "SURVIVOR_IDENTITY_FIELDS='original_pid original_start_time'",
+            "SURVIVOR_IDENTITY_FIELDS='current_pid'",
+        ),
+        (
+            "SURVIVOR_DISPOSITIONS='restarted confirmed-dead'",
+            "SURVIVOR_DISPOSITIONS='restarted assumed-dead'",
+        ),
     ),
     "enforced-mode-cutover-runbook.3.6": (
         ("AUTH_FILE_TYPE=regular", "AUTH_FILE_TYPE=directory"),
@@ -823,22 +972,40 @@ ADDITIONAL_INVALIDATING_MUTATIONS = {
     ),
     "enforced-mode-cutover-runbook.3.7": (
         ("STALE_SUPERVISORS='runner dashboard'", "STALE_SUPERVISORS='dashboard'"),
-        ("SUPERVISOR_ORIGIN_VALUE='$PWA_ORIGIN'", "SUPERVISOR_ORIGIN_VALUE='https://wrong.example'"),
-        ("SUPERVISOR_ENV_SCOPE=all-inventoried-stale-supervisors", "SUPERVISOR_ENV_SCOPE=one-supervisor"),
+        (
+            "SUPERVISOR_ORIGIN_VALUE='$PWA_ORIGIN'",
+            "SUPERVISOR_ORIGIN_VALUE='https://wrong.example'",
+        ),
+        (
+            "SUPERVISOR_ENV_SCOPE=all-inventoried-stale-supervisors",
+            "SUPERVISOR_ENV_SCOPE=one-supervisor",
+        ),
     ),
     "enforced-mode-cutover-runbook.3.8": (
-        ("AUTH_FILE_PATH='$PANOPTICON_CONFIG/secrets/$AUTH_FILE_NAME'", "AUTH_FILE_PATH='/tmp/$AUTH_FILE_NAME'"),
+        (
+            "AUTH_FILE_PATH='$PANOPTICON_CONFIG/secrets/$AUTH_FILE_NAME'",
+            "AUTH_FILE_PATH='/tmp/$AUTH_FILE_NAME'",
+        ),
         ("AUTH_FILE_REFERENCE=filename-only", "AUTH_FILE_REFERENCE=absolute-path"),
-        ("RESOLVED_PANOPTICON_SERVICE_AUTH_FILE='$PANOPTICON_CONFIG/secrets/$AUTH_FILE_NAME'", "RESOLVED_PANOPTICON_SERVICE_AUTH_FILE='$AUTH_FILE_NAME'"),
+        (
+            "RESOLVED_PANOPTICON_SERVICE_AUTH_FILE='$PANOPTICON_CONFIG/secrets/$AUTH_FILE_NAME'",
+            "RESOLVED_PANOPTICON_SERVICE_AUTH_FILE='$AUTH_FILE_NAME'",
+        ),
     ),
     "enforced-mode-cutover-runbook.3.9": (
         ("PWA_ORIGIN_SCHEME_REQUIRED=1", "PWA_ORIGIN_SCHEME_REQUIRED=0"),
         ("PWA_ORIGIN_HOST_REQUIRED=1", "PWA_ORIGIN_HOST_REQUIRED=0"),
         ("PWA_ORIGIN_PORT_REQUIRED=1", "PWA_ORIGIN_PORT_REQUIRED=0"),
-        ("PWA_ORIGIN_FORBIDS_SUFFIX=path,query,fragment,credentials,trailing-slash", "PWA_ORIGIN_FORBIDS_SUFFIX=none"),
+        (
+            "PWA_ORIGIN_FORBIDS_SUFFIX=path,query,fragment,credentials,trailing-slash",
+            "PWA_ORIGIN_FORBIDS_SUFFIX=none",
+        ),
         ("PANOPTICON_BROWSER_ORIGINS=$PWA_ORIGIN", "PANOPTICON_BROWSER_ORIGINS=$PWA_ORIGIN/board"),
         ("PWA_ORIGIN_EXPECTED_SCHEME=https", "PWA_ORIGIN_EXPECTED_SCHEME=http"),
-        ("PWA_ORIGIN_EXPECTED_HOST='$PHONE_BOARD_HOST'", "PWA_ORIGIN_EXPECTED_HOST='wrong.example'"),
+        (
+            "PWA_ORIGIN_EXPECTED_HOST='$PHONE_BOARD_HOST'",
+            "PWA_ORIGIN_EXPECTED_HOST='wrong.example'",
+        ),
         ("PWA_ORIGIN_EXPECTED_PORT='$PHONE_BOARD_PORT'", "PWA_ORIGIN_EXPECTED_PORT=9999"),
     ),
     "enforced-mode-cutover-runbook.3.10": (
@@ -848,8 +1015,14 @@ ADDITIONAL_INVALIDATING_MUTATIONS = {
         ("TOKEN_ARRAY_TYPES=arrays", "TOKEN_ARRAY_TYPES=strings"),
         ("TOKEN_VALIDATION_PRINTS_VALUES=0", "TOKEN_VALIDATION_PRINTS_VALUES=1"),
         ("READ_TOKEN_PURPOSE=phone-board", "READ_TOKEN_PURPOSE=unrelated-client"),
-        ("CREDENTIAL_VALIDATION_EXEC='python -m panopticon.core.cutover_runbook inspect-credential-file $PANOPTICON_CONFIG/secrets/$AUTH_FILE_NAME'", "CREDENTIAL_VALIDATION_EXEC='true'"),
-        ("PHONE_BOARD_TOKEN_SOURCE=credential-read-array", "PHONE_BOARD_TOKEN_SOURCE=unrelated-token"),
+        (
+            "CREDENTIAL_VALIDATION_EXEC='python -m panopticon.core.cutover_runbook inspect-credential-file $PANOPTICON_CONFIG/secrets/$AUTH_FILE_NAME'",
+            "CREDENTIAL_VALIDATION_EXEC='true'",
+        ),
+        (
+            "PHONE_BOARD_TOKEN_SOURCE=credential-read-array",
+            "PHONE_BOARD_TOKEN_SOURCE=unrelated-token",
+        ),
     ),
     "enforced-mode-cutover-runbook.4.3": (
         ("G03_COMPARE_FIELDS='pid start_time'", "G03_COMPARE_FIELDS='pid'"),
@@ -875,7 +1048,10 @@ ADDITIONAL_INVALIDATING_MUTATIONS = {
         ("G02_AUTH=none", "G02_AUTH=write-token"),
         ("G02_METHOD=GET", "G02_METHOD=POST"),
         ("G02_PATH=/tasks", "G02_PATH=/healthz"),
-        ("G02_HEADERS='Accept: application/json'", "G02_HEADERS='Authorization: Bearer $WRITE_TOKEN'"),
+        (
+            "G02_HEADERS='Accept: application/json'",
+            "G02_HEADERS='Authorization: Bearer $WRITE_TOKEN'",
+        ),
     ),
     "enforced-mode-cutover-runbook.4.5": (
         ("G05_METHOD=PUT", "G05_METHOD=GET"),
@@ -884,12 +1060,21 @@ ADDITIONAL_INVALIDATING_MUTATIONS = {
     ),
     "enforced-mode-cutover-runbook.4.6": (
         ("G06_CHECK_ACTUAL=1", "G06_CHECK_ACTUAL=0"),
-        ("G06_PREFLIGHT_ACTUAL_ORIGIN='$PWA_ORIGIN'", "G06_PREFLIGHT_ACTUAL_ORIGIN='$PWA_ORIGIN.evil'"),
-        ("G06_RESPONSE_ACTUAL_ORIGIN='$PWA_ORIGIN'", "G06_RESPONSE_ACTUAL_ORIGIN='$PWA_ORIGIN.evil'"),
+        (
+            "G06_PREFLIGHT_ACTUAL_ORIGIN='$PWA_ORIGIN'",
+            "G06_PREFLIGHT_ACTUAL_ORIGIN='$PWA_ORIGIN.evil'",
+        ),
+        (
+            "G06_RESPONSE_ACTUAL_ORIGIN='$PWA_ORIGIN'",
+            "G06_RESPONSE_ACTUAL_ORIGIN='$PWA_ORIGIN.evil'",
+        ),
     ),
     "enforced-mode-cutover-runbook.4.7": (
         ("G07_BOARD_TASK_NAME='$G07_API_TASK_NAME'", "G07_BOARD_TASK_NAME='different-task'"),
-        ("G07_EXEC_INPUTS='installed-phone-board authenticated-fleet-api'", "G07_EXEC_INPUTS='fixture fixture'"),
+        (
+            "G07_EXEC_INPUTS='installed-phone-board authenticated-fleet-api'",
+            "G07_EXEC_INPUTS='fixture fixture'",
+        ),
         ("G07_EXEC_COMPARE=exact-equality", "G07_EXEC_COMPARE=nonempty"),
     ),
     "enforced-mode-cutover-runbook.4.8": (
@@ -900,22 +1085,43 @@ ADDITIONAL_INVALIDATING_MUTATIONS = {
         ("G09_CAPABILITY_PREFIX='ptc1.'", "G09_CAPABILITY_PREFIX='ptc1'"),
     ),
     "enforced-mode-cutover-runbook.4.11": (
-        ("G11_IDENTITY_FIELDS='original_pid original_start_time'", "G11_IDENTITY_FIELDS='current_pid'"),
-        ("G11_ALLOWED_DISPOSITIONS='restarted confirmed-dead'", "G11_ALLOWED_DISPOSITIONS='restarted'"),
+        (
+            "G11_IDENTITY_FIELDS='original_pid original_start_time'",
+            "G11_IDENTITY_FIELDS='current_pid'",
+        ),
+        (
+            "G11_ALLOWED_DISPOSITIONS='restarted confirmed-dead'",
+            "G11_ALLOWED_DISPOSITIONS='restarted'",
+        ),
         ("G11_MATCHES_EVERY_INVENTORY_ROW=1", "G11_MATCHES_EVERY_INVENTORY_ROW=0"),
         ("G11_RESTART_REQUIRES_NEW_IDENTITY=1", "G11_RESTART_REQUIRES_NEW_IDENTITY=0"),
-        ("G11_DEAD_REQUIRES_ORIGINAL_IDENTITY_ABSENT=1", "G11_DEAD_REQUIRES_ORIGINAL_IDENTITY_ABSENT=0"),
+        (
+            "G11_DEAD_REQUIRES_ORIGINAL_IDENTITY_ABSENT=1",
+            "G11_DEAD_REQUIRES_ORIGINAL_IDENTITY_ABSENT=0",
+        ),
     ),
     "enforced-mode-cutover-runbook.4.12": (
-        ("G06_PREFLIGHT_ACTUAL_ORIGIN='$PWA_ORIGIN'", "G06_PREFLIGHT_ACTUAL_ORIGIN='$PWA_ORIGIN.evil'"),
+        (
+            "G06_PREFLIGHT_ACTUAL_ORIGIN='$PWA_ORIGIN'",
+            "G06_PREFLIGHT_ACTUAL_ORIGIN='$PWA_ORIGIN.evil'",
+        ),
         ("G06_PREFLIGHT_COMPARE=exact-string-equality", "G06_PREFLIGHT_COMPARE=prefix"),
     ),
     "enforced-mode-cutover-runbook.4.13": (
-        ("G06_RESPONSE_ACTUAL_ORIGIN='$PWA_ORIGIN'", "G06_RESPONSE_ACTUAL_ORIGIN='https://wrong.example'"),
-        ("G06_ACTUAL_COMPARE='test returned-acao = $PWA_ORIGIN'", "G06_ACTUAL_COMPARE='test -n returned-acao'"),
+        (
+            "G06_RESPONSE_ACTUAL_ORIGIN='$PWA_ORIGIN'",
+            "G06_RESPONSE_ACTUAL_ORIGIN='https://wrong.example'",
+        ),
+        (
+            "G06_ACTUAL_COMPARE='test returned-acao = $PWA_ORIGIN'",
+            "G06_ACTUAL_COMPARE='test -n returned-acao'",
+        ),
     ),
     "enforced-mode-cutover-runbook.4.10": (
-        ("G10_ORDER='capture-before restart capture-after compare'", "G10_ORDER='restart capture-before capture-after compare'"),
+        (
+            "G10_ORDER='capture-before restart capture-after compare'",
+            "G10_ORDER='restart capture-before capture-after compare'",
+        ),
         ("G10_RUNNER_SUBJECT=same-active-runner", "G10_RUNNER_SUBJECT=different-runners"),
         ("G10_EXEC_COMPARE='pid start_time'", "G10_EXEC_COMPARE='pid'"),
         ("G10_REQUIRE_CHANGED_PAIR=1", "G10_REQUIRE_CHANGED_PAIR=0"),
@@ -930,22 +1136,34 @@ ADDITIONAL_INVALIDATING_MUTATIONS = {
         ("G09_LIVENESS_SOURCE=real-canary-stream", "G09_LIVENESS_SOURCE=fixture-file"),
     ),
     "enforced-mode-cutover-runbook.4.16": (
-        ("G09_INSPECTION_COMMAND_SOURCE=mounted-credential-file", "G09_INSPECTION_COMMAND_SOURCE=generated-token"),
+        (
+            "G09_INSPECTION_COMMAND_SOURCE=mounted-credential-file",
+            "G09_INSPECTION_COMMAND_SOURCE=generated-token",
+        ),
     ),
     "enforced-mode-cutover-runbook.4.17": (
         ("G09_INSPECTION_TARGET=docker-container", "G09_INSPECTION_TARGET=host-process"),
     ),
     "enforced-mode-cutover-runbook.4.18": (
         ("G09_SPAWN_EPOCH=after-enforcement", "G09_SPAWN_EPOCH=before-enforcement"),
-        ("G09_SPAWN_COMPARE=container-created-after-enforcement-start", "G09_SPAWN_COMPARE=declared-fresh"),
+        (
+            "G09_SPAWN_COMPARE=container-created-after-enforcement-start",
+            "G09_SPAWN_COMPARE=declared-fresh",
+        ),
     ),
     "enforced-mode-cutover-runbook.5.3": (
         ("CLAUDE_CONFIG_VOLUME_EVIDENCE=unit", "CLAUDE_CONFIG_VOLUME_EVIDENCE=missing"),
         ("CLAUDE_CONTINUATION_EVIDENCE=unit", "CLAUDE_CONTINUATION_EVIDENCE=missing"),
-        ("CLAUDE_TRANSCRIPT_ACCEPTANCE_EVIDENCE=live-cutover", "CLAUDE_TRANSCRIPT_ACCEPTANCE_EVIDENCE=missing"),
+        (
+            "CLAUDE_TRANSCRIPT_ACCEPTANCE_EVIDENCE=live-cutover",
+            "CLAUDE_TRANSCRIPT_ACCEPTANCE_EVIDENCE=missing",
+        ),
         ("CLAUDE_CONFIG_VOLUME_EVIDENCE=unit", "CLAUDE_CONFIG_VOLUME_EVIDENCE=live-cutover"),
         ("CLAUDE_CONTINUATION_EVIDENCE=unit", "CLAUDE_CONTINUATION_EVIDENCE=dry-run"),
-        ("CLAUDE_TRANSCRIPT_ACCEPTANCE_EVIDENCE=live-cutover", "CLAUDE_TRANSCRIPT_ACCEPTANCE_EVIDENCE=unit"),
+        (
+            "CLAUDE_TRANSCRIPT_ACCEPTANCE_EVIDENCE=live-cutover",
+            "CLAUDE_TRANSCRIPT_ACCEPTANCE_EVIDENCE=unit",
+        ),
     ),
     "enforced-mode-cutover-runbook.5.4": (
         ("CANARY_GATE=G09", "CANARY_GATE=G01"),
@@ -954,27 +1172,45 @@ ADDITIONAL_INVALIDATING_MUTATIONS = {
     "enforced-mode-cutover-runbook.5.5": (
         ("TASK_FAILURE_DISPOSITION=recorded", "TASK_FAILURE_DISPOSITION=transient"),
         ("BULK_TASK_SCOPE=every-intended-nonterminal-task", "BULK_TASK_SCOPE=selected-tasks"),
-        ("BULK_ALLOWED_DISPOSITIONS='live task-specific-failure'", "BULK_ALLOWED_DISPOSITIONS='live unknown'"),
+        (
+            "BULK_ALLOWED_DISPOSITIONS='live task-specific-failure'",
+            "BULK_ALLOWED_DISPOSITIONS='live unknown'",
+        ),
         ("BULK_FAILURE_SCOPE=task-specific", "BULK_FAILURE_SCOPE=fleet-wide"),
     ),
     "enforced-mode-cutover-runbook.5.8": (
         ("CODEX_CONFIG_VOLUME_EVIDENCE=unit", "CODEX_CONFIG_VOLUME_EVIDENCE=missing"),
         ("CODEX_EXPLICIT_SESSION_EVIDENCE=unit", "CODEX_EXPLICIT_SESSION_EVIDENCE=missing"),
-        ("CODEX_TRANSCRIPT_ACCEPTANCE_EVIDENCE=live-cutover", "CODEX_TRANSCRIPT_ACCEPTANCE_EVIDENCE=missing"),
+        (
+            "CODEX_TRANSCRIPT_ACCEPTANCE_EVIDENCE=live-cutover",
+            "CODEX_TRANSCRIPT_ACCEPTANCE_EVIDENCE=missing",
+        ),
     ),
     "enforced-mode-cutover-runbook.6.3": (
         ("ROLLBACK_CONTRADICTORY_LEGACY_ACTIONS=0", "ROLLBACK_CONTRADICTORY_LEGACY_ACTIONS=1"),
     ),
     "enforced-mode-cutover-runbook.6.4": (
-        ("production credential-file acceptance remains unproven", "production credential-file acceptance is proven"),
+        (
+            "production credential-file acceptance remains unproven",
+            "production credential-file acceptance is proven",
+        ),
         ("production network behavior remains unproven", "production network behavior is proven"),
-        ("production phone-origin behavior remains unproven", "production phone-origin behavior is proven"),
-        ("production real-container capability liveness remains unproven", "production real-container capability liveness is proven"),
+        (
+            "production phone-origin behavior remains unproven",
+            "production phone-origin behavior is proven",
+        ),
+        (
+            "production real-container capability liveness remains unproven",
+            "production real-container capability liveness is proven",
+        ),
         ("until recorded during cutover", "until inferred from unit tests"),
     ),
     "enforced-mode-cutover-runbook.6.5": (
         ("CUTOVER_EVIDENCE_DESTINATION=issue-203", "CUTOVER_EVIDENCE_DESTINATION=local-file-only"),
-        ("CUTOVER_EVIDENCE_COMMAND='gh issue comment 203 --body-file $EVIDENCE_FILE'", "CUTOVER_EVIDENCE_COMMAND='printf local-only'"),
+        (
+            "CUTOVER_EVIDENCE_COMMAND='gh issue comment 203 --body-file $EVIDENCE_FILE'",
+            "CUTOVER_EVIDENCE_COMMAND='printf local-only'",
+        ),
     ),
     "enforced-mode-cutover-runbook.6.1": (
         ("ROLLBACK_TRIGGER_PREREQUISITE_FAILURE=1", "ROLLBACK_TRIGGER_PREREQUISITE_FAILURE=0"),
@@ -985,26 +1221,41 @@ ADDITIONAL_INVALIDATING_MUTATIONS = {
         ("ROLLBACK_TRIGGER_BROWSER_GATE=1", "ROLLBACK_TRIGGER_BROWSER_GATE=0"),
     ),
     "enforced-mode-cutover-runbook.6.2": (
-        ("ROLLBACK_ORDER='keep-containers-stopped restore-service release-containers'", "ROLLBACK_ORDER='release-containers restore-service'"),
+        (
+            "ROLLBACK_ORDER='keep-containers-stopped restore-service release-containers'",
+            "ROLLBACK_ORDER='release-containers restore-service'",
+        ),
     ),
     "enforced-mode-cutover-runbook.6.6": (
-        ("PRODUCTION_ONLY_COVERAGE=all-production-only-executable-items", "PRODUCTION_ONLY_COVERAGE=selected-items"),
+        (
+            "PRODUCTION_ONLY_COVERAGE=all-production-only-executable-items",
+            "PRODUCTION_ONLY_COVERAGE=selected-items",
+        ),
     ),
     "enforced-mode-cutover-runbook.6.8": (
         ("DUPLICATE_ISSUE_202=forbidden", "DUPLICATE_ISSUE_202=allowed"),
         ("DUPLICATE_ISSUE_203=forbidden", "DUPLICATE_ISSUE_203=allowed"),
     ),
     "enforced-mode-cutover-runbook.6.7": (
-        ("FOLLOWUP_APPEND_COMMAND='gh issue comment 203 --body-file $FOLLOWUP_FILE'", "FOLLOWUP_APPEND_COMMAND='printf local-only'"),
+        (
+            "FOLLOWUP_APPEND_COMMAND='gh issue comment 203 --body-file $FOLLOWUP_FILE'",
+            "FOLLOWUP_APPEND_COMMAND='printf local-only'",
+        ),
     ),
     "enforced-mode-cutover-runbook.6.9": (
         ("ROLLBACK_DEPENDS_ON_KILLED_PID=0", "ROLLBACK_DEPENDS_ON_KILLED_PID=1"),
     ),
     "enforced-mode-cutover-runbook.6.10": (
-        ("ROLLBACK_RESTORE_CLIENT_CONFIG_BEFORE_RESTART=1", "ROLLBACK_RESTORE_CLIENT_CONFIG_BEFORE_RESTART=0"),
+        (
+            "ROLLBACK_RESTORE_CLIENT_CONFIG_BEFORE_RESTART=1",
+            "ROLLBACK_RESTORE_CLIENT_CONFIG_BEFORE_RESTART=0",
+        ),
         ("ROLLBACK_CLIENT_SCOPE=all-long-lived-clients", "ROLLBACK_CLIENT_SCOPE=runner-only"),
         ("ROLLBACK_CLIENT_CONFIG=last-known-good", "ROLLBACK_CLIENT_CONFIG=new-unverified"),
-        ("ROLLBACK_RELEASE_CONTAINERS_AFTER_CLIENTS=1", "ROLLBACK_RELEASE_CONTAINERS_AFTER_CLIENTS=0"),
+        (
+            "ROLLBACK_RELEASE_CONTAINERS_AFTER_CLIENTS=1",
+            "ROLLBACK_RELEASE_CONTAINERS_AFTER_CLIENTS=0",
+        ),
     ),
 }
 
@@ -1024,10 +1275,7 @@ def test_semantic_runbook_validator_accepts_the_complete_contract() -> None:
 
 @pytest.mark.parametrize(
     ("requirement_id", "valid", "invalid"),
-    [
-        (requirement_id, *mutation)
-        for requirement_id, mutation in INVALIDATING_MUTATIONS.items()
-    ]
+    [(requirement_id, *mutation) for requirement_id, mutation in INVALIDATING_MUTATIONS.items()]
     + [
         (requirement_id, *mutation)
         for requirement_id, mutations in ADDITIONAL_INVALIDATING_MUTATIONS.items()
@@ -1062,8 +1310,7 @@ def test_every_declared_nearest_violation_reports_its_requirement_id() -> None:
     assert covered == expected
     text = _runbook()
     cases = [
-        (requirement_id, *mutation)
-        for requirement_id, mutation in INVALIDATING_MUTATIONS.items()
+        (requirement_id, *mutation) for requirement_id, mutation in INVALIDATING_MUTATIONS.items()
     ] + [
         (requirement_id, *mutation)
         for requirement_id, mutations in ADDITIONAL_INVALIDATING_MUTATIONS.items()

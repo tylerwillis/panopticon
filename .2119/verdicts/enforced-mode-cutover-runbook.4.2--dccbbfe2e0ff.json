@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.2--dccbbfe2e0ff",
+  "requirementId": "enforced-mode-cutover-runbook.4.2",
+  "hash": "dccbbfe2e0ff",
+  "verdict": "pass",
+  "summary": "G02’s unauthenticated GET /tasks, absent Authorization header, and expected 401 are independently asserted and mutated.",
+  "timestamp": "2026-08-04T21:24:03.531Z"
+}

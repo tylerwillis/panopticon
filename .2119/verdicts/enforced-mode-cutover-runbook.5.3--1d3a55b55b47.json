@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.5.3--1d3a55b55b47",
+  "requirementId": "enforced-mode-cutover-runbook.5.3",
+  "hash": "1d3a55b55b47",
+  "verdict": "pass",
+  "summary": "Each Claude persistence, continuation-selection, and real-CLI acceptance claim has an independently asserted allowed evidence level.",
+  "timestamp": "2026-08-04T21:24:08.416Z"
+}

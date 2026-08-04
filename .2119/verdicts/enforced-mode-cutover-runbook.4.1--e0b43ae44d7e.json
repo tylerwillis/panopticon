@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.1--e0b43ae44d7e",
+  "requirementId": "enforced-mode-cutover-runbook.4.1",
+  "hash": "e0b43ae44d7e",
+  "verdict": "pass",
+  "summary": "G01’s unauthenticated GET /healthz and expected 200 are asserted, with auth, method, path, and status violations rejected.",
+  "timestamp": "2026-08-04T21:23:58.688Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.6.2--bb454ce0f5b8",
+  "requirementId": "enforced-mode-cutover-runbook.6.2",
+  "hash": "bb454ce0f5b8",
+  "verdict": "pass",
+  "summary": "Rollback action order requires containers stopped through service restoration, and premature release is explicitly rejected.",
+  "timestamp": "2026-08-04T21:24:11.409Z"
+}

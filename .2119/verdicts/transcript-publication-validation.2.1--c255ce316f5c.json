@@ -1,0 +1,8 @@
+{
+  "reviewId": "transcript-publication-validation.2.1--c255ce316f5c",
+  "requirementId": "transcript-publication-validation.2.1",
+  "hash": "c255ce316f5c",
+  "verdict": "pass",
+  "summary": "Captured client request bodies must contain text_b64 and omit text for both accepted and rejected publication attempts.",
+  "timestamp": "2026-08-04T21:24:17.493Z"
+}

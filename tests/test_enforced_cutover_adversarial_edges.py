@@ -6,9 +6,9 @@ import pytest
 
 from panopticon.core.cutover_runbook import (
     assert_complete_inventory,
+    capability_inspection_reads_mount,
     cors_response_passes,
     counter_is_corroboration_only,
-    capability_inspection_reads_mount,
     origins_match_exactly,
     parse_enforced_mode_cutover_runbook,
     repository_gate_run_matches,
@@ -58,9 +58,7 @@ def test_permissive_counter_rejects_every_noncorroborating_role(contradiction: s
     plan = parse_enforced_mode_cutover_runbook(RUNBOOK.read_text())
     assert plan.permissive_counter_labels == frozenset({"weak", "corroboration-only"})
     assert counter_is_corroboration_only(["weak", "corroboration-only"])
-    assert not counter_is_corroboration_only(
-        ["weak", "corroboration-only", contradiction]
-    )
+    assert not counter_is_corroboration_only(["weak", "corroboration-only", contradiction])
 
 
 # 2119: enforced-mode-cutover-runbook.4.14
@@ -139,9 +137,7 @@ def test_g04_origin_comparison_rejects_near_miss_scheme_host_and_port() -> None:
 def test_codex_resume_claims_have_their_exact_honest_evidence_levels() -> None:
     text = RUNBOOK.read_text()
     plan = parse_enforced_mode_cutover_runbook(text)
-    assert {
-        name: claim.level for name, claim in plan.resume_evidence["codex"].claims.items()
-    } == {
+    assert {name: claim.level for name, claim in plan.resume_evidence["codex"].claims.items()} == {
         "configuration-volume-persistence": "unit",
         "explicit-session-selection": "unit",
         "real-cli-transcript-acceptance": "live-cutover",

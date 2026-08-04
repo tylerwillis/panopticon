@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.3.1--de557e76744e",
+  "requirementId": "REQ-030.3.1",
+  "hash": "de557e76744e",
+  "verdict": "pass",
+  "summary": "All four creation paths assert the complete generated config precedes new-session, with AST and real-tmux coverage rejecting bypasses.",
+  "timestamp": "2026-08-04T21:23:44.103Z"
+}
