@@ -1,0 +1,8 @@
+{
+  "reviewId": "stop-hook-turn-before-telemetry.3.2--482ded2ac6d6",
+  "requirementId": "stop-hook-turn-before-telemetry.3.2",
+  "hash": "482ded2ac6d6",
+  "verdict": "pass",
+  "summary": "Exact Codex Stop entry assertion rejects a missing or wrong callback and any absent or non-three-second timeout.",
+  "timestamp": "2026-08-04T02:53:57.679Z"
+}

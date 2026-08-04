@@ -1,0 +1,8 @@
+{
+  "reviewId": "stop-hook-turn-before-telemetry.2.3--d3dcadbada58",
+  "requirementId": "stop-hook-turn-before-telemetry.2.3",
+  "hash": "d3dcadbada58",
+  "verdict": "pass",
+  "summary": "The process-level test supplies no harness timeout/error signal yet requires deferred accounting to start and report, rejecting signal-dependent designs.",
+  "timestamp": "2026-08-04T02:53:08.857Z"
+}

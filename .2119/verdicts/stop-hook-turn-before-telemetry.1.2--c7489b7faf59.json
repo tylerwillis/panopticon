@@ -1,0 +1,8 @@
+{
+  "reviewId": "stop-hook-turn-before-telemetry.1.2--c7489b7faf59",
+  "requirementId": "stop-hook-turn-before-telemetry.1.2",
+  "hash": "c7489b7faf59",
+  "verdict": "pass",
+  "summary": "FIFO-held accounting exceeds the three-second deadline while the test requires a correctly ordered user-turn request and callback exit within it.",
+  "timestamp": "2026-08-04T02:46:50.555Z"
+}

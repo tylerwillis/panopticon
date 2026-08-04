@@ -1,0 +1,8 @@
+{
+  "reviewId": "stop-hook-turn-before-telemetry.1.1--9478f59c4cd9",
+  "requirementId": "stop-hook-turn-before-telemetry.1.1",
+  "hash": "9478f59c4cd9",
+  "verdict": "pass",
+  "summary": "FIFO acceptance rejects turn failure, token delivery before turn, and transcript opening before the successful user-turn response.",
+  "timestamp": "2026-08-04T02:46:19.760Z"
+}

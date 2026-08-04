@@ -1,0 +1,8 @@
+{
+  "reviewId": "stop-hook-turn-before-telemetry.2.1--6c68056fe36e",
+  "requirementId": "stop-hook-turn-before-telemetry.2.1",
+  "hash": "6c68056fe36e",
+  "verdict": "pass",
+  "summary": "FIFO acceptance proves the readable transcript remains incomplete when the bounded hook exits yet its exact total is reported afterward.",
+  "timestamp": "2026-08-04T02:47:54.834Z"
+}
