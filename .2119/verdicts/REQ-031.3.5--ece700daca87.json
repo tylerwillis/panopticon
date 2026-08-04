@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.3.5--ece700daca87",
+  "requirementId": "REQ-031.3.5",
+  "hash": "ece700daca87",
+  "verdict": "pass",
+  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. The test holds a pre-outage count of 1 across ten deferrals beyond the reset window, then requires recovery to respawn and advance exactly to 2.",
+  "timestamp": "2026-08-03T18:58:40.054Z"
+}

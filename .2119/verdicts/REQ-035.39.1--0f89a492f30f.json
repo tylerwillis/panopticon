@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.39.1--0f89a492f30f",
+  "requirementId": "REQ-035.39.1",
+  "hash": "0f89a492f30f",
+  "verdict": "pass",
+  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. A runtime snapshot from multiple read/write generations is parsed and required to contain no read tokens and exactly the final write token.",
+  "timestamp": "2026-08-03T18:58:48.799Z"
+}

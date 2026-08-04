@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.32.1--98bc3de76d86",
+  "requirementId": "REQ-035.32.1",
+  "hash": "98bc3de76d86",
+  "verdict": "pass",
+  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. PASS: after append, restarted loader, Python client, and shell curl path select the final token and remain authorized after old generations are removed.",
+  "timestamp": "2026-08-03T18:58:46.819Z"
+}

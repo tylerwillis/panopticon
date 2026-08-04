@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.3.1--435f8b2180a3",
+  "requirementId": "REQ-047.3.1",
+  "hash": "435f8b2180a3",
+  "verdict": "fail",
+  "summary": "Tests never replace logging.Handler.handle before lifespan entry, so code that resets it to the stdlib method instead of restoring the actual pre-lifespan identity would pass.",
+  "timestamp": "2026-08-04T00:23:05.727Z"
+}

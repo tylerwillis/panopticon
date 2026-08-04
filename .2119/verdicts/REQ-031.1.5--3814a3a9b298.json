@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.1.5--3814a3a9b298",
+  "requirementId": "REQ-031.1.5",
+  "hash": "3814a3a9b298",
+  "verdict": "pass",
+  "summary": "Both start and host traverse the real successful docker-info preflight and must emit exactly the detached task-service and runner tmux commands; omitting either session, using a wrong command, or foregrounding it fails.",
+  "timestamp": "2026-08-03T23:34:16.051Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.4.3--4d7d0112aad8",
+  "requirementId": "REQ-047.4.3",
+  "hash": "4d7d0112aad8",
+  "verdict": "pass",
+  "summary": "Both service and runner startup commands are exercised through tmux; tests reject pane-only, log-only, delayed, non-private, or non-identical stdout/stderr output.",
+  "timestamp": "2026-08-03T23:34:58.893Z"
+}

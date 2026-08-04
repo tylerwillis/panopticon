@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-043.1.2--fd0605298852",
+  "requirementId": "REQ-043.1.2",
+  "hash": "fd0605298852",
+  "verdict": "pass",
+  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. Real LocalRunner test rejects claim release or tmux-session creation after non-zero docker run and proves a claimed non-terminal task heals on the next within-budget attempt.",
+  "timestamp": "2026-08-03T18:58:49.984Z"
+}

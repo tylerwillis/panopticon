@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-043.3.2--e96490e6a797",
+  "requirementId": "REQ-043.3.2",
+  "hash": "e96490e6a797",
+  "verdict": "pass",
+  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. Hook failure before Docker/tmux exercises the real spawner handler and proves lifecycle is not cleared and ends failed with the exact diagnostic.",
+  "timestamp": "2026-08-03T18:58:52.907Z"
+}

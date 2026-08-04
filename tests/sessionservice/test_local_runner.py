@@ -34,6 +34,8 @@ class _Recorder:
         interactive: bool = False,
         verbose: bool = False,
     ) -> str:
+        if "list-sessions" in args or list(args[:3]) == ["docker", "ps", "--all"]:
+            return ""
         self.calls.append((list(args), check))
         self.interactive.append(interactive)
         if "display-message" in args:
@@ -163,7 +165,8 @@ class _ReturningRecorder(_Recorder):
         interactive: bool = False,
         verbose: bool = False,
     ) -> str:
-        super().__call__(args, check=check, interactive=interactive)
+        self.calls.append((list(args), check))
+        self.interactive.append(interactive)
         return self._output
 
 
@@ -173,7 +176,7 @@ def test_is_running_queries_docker_ps_by_container_name() -> None:
     assert runner.is_running("t1") is True
     ((ps, check),) = rec.calls
     assert ps == ["docker", "ps", "--filter", "name=^panopticon-t1$", "--format", "{{.Names}}"]
-    assert check is False  # tolerate a daemon hiccup rather than raise
+    assert check is True  # a failed probe must not be mistaken for a stopped container
 
 
 def test_is_running_is_false_when_no_container_is_listed() -> None:
@@ -278,12 +281,15 @@ def test_spawn_forces_native_mcp_off_ambient_proxy_and_preserves_bypasses(
     LocalRunner(
         "http://host.docker.internal:8000",
         secrets_dir=tmp_path,
-        extra_env={"NO_PROXY": "extra.internal"},
+        extra_env={"NO_PROXY": "extra.internal", "no_proxy": "lower-extra.internal"},
         run=rec,
     ).spawn("t1", env_file=env_file.name)
 
     docker_run = rec.calls[2][0]
-    expected = "registry.internal,localhost,metadata.internal,extra.internal,host.docker.internal"
+    expected = (
+        "registry.internal,localhost,metadata.internal,extra.internal,"
+        "lower-extra.internal,host.docker.internal"
+    )
     env_file_index = docker_run.index("--env-file")
     upper_index = docker_run.index(f"NO_PROXY={expected}")
     lower_index = docker_run.index(f"no_proxy={expected}")
@@ -469,7 +475,9 @@ def test_spawn_places_dash_f_before_new_session_so_it_applies_at_server_startup(
     first_tmux = next(c for c, _ in rec.calls if c[0] == "tmux")
     tmux_new = next(c for c, _ in rec.calls if "new-session" in c)
     assert first_tmux[:4] == ["tmux", "-L", "panopticon", "-f"]
-    assert Path(first_tmux[4]).read_text() == server_default_config_text(clipboard=None)
+    config = Path(first_tmux[4]).read_text()
+    assert config == server_default_config_text(clipboard=None)
+    assert "set-option -g history-limit 50000\n" in config
     assert tmux_new.index("-f") < tmux_new.index("new-session")
 
 

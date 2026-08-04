@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.29.1--45519a3cf02d",
+  "requirementId": "REQ-035.29.1",
+  "hash": "45519a3cf02d",
+  "verdict": "pass",
+  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. The integrated-stack test parses the generated task-service argv and requires exactly one explicit --host 0.0.0.0, while standalone CLI startup with PANOPTICON_HOST absent must pass 127.0.0.1 to uvicorn; missing, duplicate, wrong, or swapped binds fail.",
+  "timestamp": "2026-08-03T18:58:44.142Z"
+}

@@ -464,33 +464,37 @@ def test_mcp_tool_arguments_never_log_or_return_configured_tokens(
     late_stream = StringIO()
     late_handler = logging.StreamHandler(late_stream)
     late_handler.setFormatter(logging.Formatter("%(message)s %(payload)s"))
-    late_logger = logging.getLogger("late.configured.handler")
+    late_logger = logging.getLogger("mcp.late.configured.handler")
     late_logger.addHandler(late_handler)
     late_logger.setLevel(logging.INFO)
-    late_logger.info("late payload", extra={"payload": WRITE_TOKEN.encode()})
-    try:
-        raise RuntimeError(f"traceback carried {WRITE_TOKEN}")
-    except RuntimeError:
-        logging.getLogger("mcp.server.fastmcp.server").exception(
-            "SDK failure for %s", READ_TOKEN, extra={"credential": WRITE_TOKEN}
+
+    def emit_sensitive_logs() -> None:
+        late_logger.info("late payload", extra={"payload": WRITE_TOKEN.encode()})
+        try:
+            raise RuntimeError(f"traceback carried {WRITE_TOKEN}")
+        except RuntimeError:
+            logging.getLogger("mcp.server.fastmcp.server").exception(
+                "SDK failure for %s", READ_TOKEN, extra={"credential": WRITE_TOKEN}
+            )
+        stack_record = logging.LogRecord(
+            "mcp.server.lowlevel.server",
+            logging.ERROR,
+            __file__,
+            0,
+            "SDK stack failure",
+            (),
+            None,
         )
-    stack_record = logging.LogRecord(
-        "mcp.server.lowlevel.server",
-        logging.ERROR,
-        __file__,
-        0,
-        "SDK stack failure",
-        (),
-        None,
-    )
-    stack_record.stack_info = f"stack carried {WRITE_TOKEN}"
-    logging.getLogger(stack_record.name).handle(stack_record)
+        stack_record.stack_info = f"stack carried {WRITE_TOKEN}"
+        logging.getLogger(stack_record.name).handle(stack_record)
+
     headers = {
         **_bearer(WRITE_TOKEN),
         "Content-Type": "application/json",
         "Accept": "application/json, text/event-stream",
     }
     with TestClient(app) as client:
+        emit_sensitive_logs()
         initialized = client.post(
             "/mcp/",
             headers=headers,

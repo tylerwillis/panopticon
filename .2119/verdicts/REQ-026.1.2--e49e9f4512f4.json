@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.1.2--e49e9f4512f4",
+  "requirementId": "REQ-026.1.2",
+  "hash": "e49e9f4512f4",
+  "verdict": "pass",
+  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. Tests exclude unclaimed non-terminal tasks with sole and mixed DROPPED dependencies from both candidate filtering and host spawning, and reject stale claims after a dependency becomes DROPPED.",
+  "timestamp": "2026-08-03T18:58:34.547Z"
+}

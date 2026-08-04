@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.1.4--64f0cf889b5a",
+  "requirementId": "REQ-031.1.4",
+  "hash": "64f0cf889b5a",
+  "verdict": "pass",
+  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. Real subprocess tests force Docker-preflight refusal for both start and host and reject the nearest violation—OS exit status 0—by asserting each process return code is non-zero.",
+  "timestamp": "2026-08-03T18:58:37.144Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.3.1--7e31d81469b1",
+  "requirementId": "REQ-030.3.1",
+  "hash": "7e31d81469b1",
+  "verdict": "pass",
+  "summary": "All four creation paths assert -f with the complete generated config before new-session; generator tests reject omission or alteration of every REQ-030.1/.2 default, real tmux proves the config is effective, and the AST guard rejects additional direct session creators.",
+  "timestamp": "2026-08-03T22:47:23.602Z"
+}

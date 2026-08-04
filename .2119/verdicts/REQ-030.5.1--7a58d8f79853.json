@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.5.1--7a58d8f79853",
+  "requirementId": "REQ-030.5.1",
+  "hash": "7a58d8f79853",
+  "verdict": "pass",
+  "summary": "Both runner tests exercise tmux_socket=None and pin the complete emitted tmux command stream: adding -L/-f, any set-option/bind-key call, or embedded shell default setup would fail.",
+  "timestamp": "2026-08-03T22:48:31.428Z"
+}

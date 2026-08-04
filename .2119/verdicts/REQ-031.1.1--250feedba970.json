@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.1.1--250feedba970",
+  "requirementId": "REQ-031.1.1",
+  "hash": "250feedba970",
+  "verdict": "pass",
+  "summary": "Real failed-docker-info coverage rejects either background session starting: only the probe may run and the session starter is not called.",
+  "timestamp": "2026-08-03T21:24:34.433Z"
+}

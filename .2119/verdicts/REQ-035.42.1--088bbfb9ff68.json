@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.42.1--088bbfb9ff68",
+  "requirementId": "REQ-035.42.1",
+  "hash": "088bbfb9ff68",
+  "verdict": "pass",
+  "summary": "Fresh reviewer PASS: real mounted MCP and logging paths exercise every leakage vector and reject any configured token in records, formatted output, or responses.",
+  "timestamp": "2026-08-03T19:01:00.159Z"
+}

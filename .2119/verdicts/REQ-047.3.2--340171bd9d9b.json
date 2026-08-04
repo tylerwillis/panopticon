@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.3.2--340171bd9d9b",
+  "requirementId": "REQ-047.3.2",
+  "hash": "340171bd9d9b",
+  "verdict": "pass",
+  "summary": "Covers both configured tokens during active lifespan across task-service, FastAPI, uvicorn, and MCP root/child loggers; exact [redacted] assertions and leak checks verify messages, tuple/mapping args, nested extras, exception text, and stack info.",
+  "timestamp": "2026-08-03T23:31:13.194Z"
+}

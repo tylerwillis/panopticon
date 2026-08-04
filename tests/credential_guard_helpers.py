@@ -15,7 +15,7 @@ from starlette.routing import BaseRoute, Mount
 from panopticon.core.artifact_skills import ARTIFACT_SKILL
 from panopticon.harnesses import HARNESSES, BootstrapContext, LaunchContext
 
-PUBLIC_UNAUTHENTICATED_ROUTES = frozenset({("GET", "/healthz")})
+PUBLIC_UNAUTHENTICATED_ROUTES = frozenset({("GET", "/healthz"), ("HEAD", "/healthz")})
 
 
 @dataclass(frozen=True)

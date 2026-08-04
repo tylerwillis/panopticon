@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.47.1--f04a648086e0",
+  "requirementId": "REQ-035.47.1",
+  "hash": "f04a648086e0",
+  "verdict": "fail",
+  "summary": "Claude-only transport evidence leaves Codex native MCP unverified, and preservation does not reject dropping lowercase extra_env no_proxy entries.",
+  "timestamp": "2026-08-03T22:49:53.475Z"
+}

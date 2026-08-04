@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.4.2--75546ee81e55",
+  "requirementId": "REQ-047.4.2",
+  "hash": "75546ee81e55",
+  "verdict": "pass",
+  "summary": "Behavioral tests reject 0755 directory or 0644 service/runner files via exact mode assertions, and reject directory, service-file, runner-file, intermediate, and post-validation symlinks without modifying targets or launching sessions.",
+  "timestamp": "2026-08-04T01:32:41.426Z"
+}

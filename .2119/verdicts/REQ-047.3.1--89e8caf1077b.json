@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.3.1--89e8caf1077b",
+  "requirementId": "REQ-047.3.1",
+  "hash": "89e8caf1077b",
+  "verdict": "pass",
+  "summary": "Tests verify exact factory and makeRecord identities across import, creation, active, and closed authenticated lifespans, and exact Handler.handle restoration only after zero remain in both overlap closure orders.",
+  "timestamp": "2026-08-03T23:31:12.010Z"
+}

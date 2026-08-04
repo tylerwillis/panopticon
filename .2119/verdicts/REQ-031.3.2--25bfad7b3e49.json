@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.3.2--25bfad7b3e49",
+  "requirementId": "REQ-031.3.2",
+  "hash": "25bfad7b3e49",
+  "verdict": "pass",
+  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. A Docker-backed orphan with an unreachable daemon is not spawned and its crash-loop counter remains zero, rejecting both respawn and budget-increment violations.",
+  "timestamp": "2026-08-03T18:58:38.285Z"
+}

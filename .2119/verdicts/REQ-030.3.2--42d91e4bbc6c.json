@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.3.2--42d91e4bbc6c",
+  "requirementId": "REQ-030.3.2",
+  "hash": "42d91e4bbc6c",
+  "verdict": "pass",
+  "summary": "All first-touch paths load the exact history-limit config via -f, and pane-creating commands assert -f precedes new-session, rejecting omission and post-pane application.",
+  "timestamp": "2026-08-03T22:48:11.965Z"
+}

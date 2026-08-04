@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-043.4.2--9e2a98c345ed",
+  "requirementId": "REQ-043.4.2",
+  "hash": "9e2a98c345ed",
+  "verdict": "pass",
+  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. Tests reject early or excess latching, verify the third pre-session failure records failed status and diagnostic, preserve both beyond the reset window, and permit spawning only after claim release.",
+  "timestamp": "2026-08-03T18:58:54.375Z"
+}
