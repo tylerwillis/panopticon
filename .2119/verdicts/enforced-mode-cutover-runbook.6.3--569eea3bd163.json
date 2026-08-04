@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.6.3--569eea3bd163",
+  "requirementId": "enforced-mode-cutover-runbook.6.3",
+  "hash": "569eea3bd163",
+  "verdict": "pass",
+  "summary": "The isolated rollback procedure explicitly forbids restoring legacy capability acceptance and executable blocks reject legacy acceptance mechanics.",
+  "timestamp": "2026-08-04T22:36:45.020Z"
+}

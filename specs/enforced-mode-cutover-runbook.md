@@ -22,18 +22,18 @@ back without guessing which evidence has already been established.
 
 ### 1: Executable document
 
-1. The repository MUST contain `docs/runbooks/enforced-mode-cutover.md` with no action or check after S03 that invokes the task-service API.
-2. The runbook MUST map its single ordered S00–S09 procedure to prerequisite verification, quiescence, inventory, container drain, long-lived-client restart, enforced-service restart, post-restart gates, canary verification, bulk respawn, and evidence recording in that order.
+1. The repository MUST contain `docs/runbooks/enforced-mode-cutover.md` as an offline-readable operator document.
+2. The runbook MUST map its single ordered S00–S09 procedure to prerequisite verification, inventory-and-quiescence, survivor reconciliation, container drain, long-lived-client restart, enforced-service restart, post-restart gates, canary verification, bulk respawn, and evidence recording in that order.
 3. Every procedure step MUST contain distinct bash-parseable Action and Check commands, a nonempty Expected section derived from the Check, and a Failure action beginning with `STOP` or `ROLL BACK`.
 4. The runbook MUST identify its ordered steps as S00 through S09, PR 163's gates as G01 through G07, and issue 203's additions as G08 through G11.
 5. The runbook MUST distinguish evidence exercised while authoring from evidence obtainable only during the production cutover.
-6. The runbook validator MUST return the governing requirement ID for every nearest-violation fixture enumerated by the test suite.
+6. The runbook validator MUST parse the supplied document's actual step and gate shell blocks and report specific structural requirement IDs without relying on byte equality with the repository copy.
 
 ### 2: Prerequisite and drain
 
 1. The runbook MUST define a pre-quiescence block unless the commit closing GitHub issue 202 is an ancestor of the deployed revision and the repository gate is green for that closing commit.
 2. The runbook MUST instruct the operator to prevent acceptance of new task work before waiting for in-flight turns to reach recorded stopping points.
-3. The runbook MUST define a pre-stop inventory of running task containers and credential-bearing long-lived processes that records both PID and process start time for every entry.
+3. The runbook MUST define a pre-stop inventory recording ID, name, and start time for every task container and PID plus process start time for the credential-bearing runner and dashboard.
 4. The runbook MUST instruct the operator to stop every task container before the enforced task-service restart.
 5. The runbook MUST define a pre-restart drain gate whose expected result is directly observed zero running task containers.
 6. The runbook MUST label the permissive unauthenticated-request counter only as weak corroborating evidence.
@@ -45,7 +45,7 @@ back without guessing which evidence has already been established.
 
 1. The runbook MUST order restart of the pre-existing runner and dashboard before enabling enforced authentication.
 2. The runbook MUST define a runner restart gate that compares recorded PID and process start time before and after restart for the active runner.
-3. The runbook MUST require every inventoried surviving credential-bearing long-lived client to be restarted or positively confirmed dead by its original PID and process start time.
+3. The runbook MUST require the inventoried credential-bearing runner and dashboard to be restarted or positively confirmed dead by original PID and process start time.
 4. The runbook MUST NOT identify a command launched after the credential change as evidence that a pre-existing process survived safely.
 5. The runbook's task-service restart action MUST set `PANOPTICON_SERVICE_AUTH_MODE=enforced`.
 6. The runbook MUST define a credential-file check for a regular non-symlink file owned by the service user with mode `0600` that does not print credential values.
@@ -66,11 +66,11 @@ back without guessing which evidence has already been established.
 8. Gate G08 MUST define a direct zero-running-task-container check immediately before the enforced restart.
 9. Gate G09 MUST set the expected mounted-capability prefix to `ptc1.`.
 10. Gate G10 MUST compare PID and process start time for the active runner before and after restart.
-11. Gate G11 MUST require a restarted-or-dead disposition, using original PID and process start time, for every inventoried long-lived client survivor.
+11. Gate G11 MUST require a restarted-or-dead disposition, using original PID and process start time, for the inventoried runner and dashboard.
 12. The G06 preflight check MUST expect the exact allowed origin to be echoed.
 13. The G06 actual-response check MUST expect the exact allowed origin to be echoed.
 14. Both G06 checks MUST expect `Access-Control-Allow-Credentials: true` to be absent.
-15. Gate G09 MUST require the real canary's liveness stream to emit both the initial event and a later keepalive at least five seconds afterward.
+15. Gate G09 MUST require the real canary to remain registered on its open liveness stream across the five-second keepalive interval.
 16. Gate G09 MUST require capability inspection to read the container's mounted credential.
 17. Gate G09 MUST require the inspected container to be a real container.
 18. Gate G09 MUST require the inspected container to have been freshly spawned after enforcement.
@@ -93,8 +93,15 @@ back without guessing which evidence has already been established.
 3. The runbook's rollback procedure MUST NOT restore legacy capability acceptance.
 4. The runbook MUST state that production process identity, real credential-file acceptance, real network behavior, real phone-origin behavior, and real-container capability liveness remain unproven until recorded during cutover.
 5. The runbook MUST instruct appending its cutover evidence to GitHub issue 203.
-6. The runbook MUST list every production-only executable step by stable identifier with a reason it was not dry-run during authoring.
+6. Every executable step and gate MUST carry an evidence-status reason distinguishing authoring evidence from production-only evidence.
 7. The runbook MUST instruct appending newly discovered follow-up work to GitHub issue 203.
 8. The runbook MUST NOT instruct opening duplicate issues for findings already described by GitHub issue 202 or 203.
 9. The runbook's rollback procedure MUST NOT rely on killed processes reappearing.
 10. The runbook MUST order task containers to remain stopped until the long-lived clients return to the last known-good configuration.
+
+### 7: Executable production mechanics
+
+1. Every runbook command MUST use a standard host command or an entry point installed by this repository rather than an undefined placeholder helper.
+2. The enforced service launch MUST pass `PANOPTICON_SERVICE_AUTH_MODE`, `PANOPTICON_SERVICE_AUTH_FILE`, and `PANOPTICON_BROWSER_ORIGINS` into the service child process.
+3. The replacement runner MUST use an ID distinct from the stopped runner so old-runner claims remain drained through the canary gate.
+4. The runbook MUST release only the canary task claim before G09 and defer reclaim of the old runner's remaining claims until bulk respawn.

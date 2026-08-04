@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.11--8593fdb3dc0d",
+  "requirementId": "enforced-mode-cutover-runbook.4.11",
+  "hash": "8593fdb3dc0d",
+  "verdict": "pass",
+  "summary": "Combined gate tests require both original PID/start-time death checks and live replacement identities for runner and dashboard.",
+  "timestamp": "2026-08-04T22:36:39.334Z"
+}

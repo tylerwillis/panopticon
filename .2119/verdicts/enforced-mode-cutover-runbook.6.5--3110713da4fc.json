@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.6.5--3110713da4fc",
+  "requirementId": "enforced-mode-cutover-runbook.6.5",
+  "hash": "3110713da4fc",
+  "verdict": "pass",
+  "summary": "The parsed S09 action must assemble gate evidence and invoke gh issue comment 203, rejecting a wrong issue or non-append command.",
+  "timestamp": "2026-08-04T22:34:12.232Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.12--9efd5664bc0a",
+  "requirementId": "enforced-mode-cutover-runbook.4.12",
+  "hash": "9efd5664bc0a",
+  "verdict": "pass",
+  "summary": "The parsed G06 loop checks each response file, including preflight, for exactly one header equal to the configured origin.",
+  "timestamp": "2026-08-04T22:36:39.888Z"
+}

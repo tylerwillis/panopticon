@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.3.6--9173aae1149e",
+  "requirementId": "enforced-mode-cutover-runbook.3.6",
+  "hash": "9173aae1149e",
+  "verdict": "pass",
+  "summary": "The runbook invokes the tested nonprinting inspector from the same operator account that launches the service, and helper tests reject symlinks, non-files, wrong mode, and ownership mismatch.",
+  "timestamp": "2026-08-04T22:37:14.348Z"
+}

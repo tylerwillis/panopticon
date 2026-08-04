@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.5.4--d83f5d7eeeb0",
+  "requirementId": "enforced-mode-cutover-runbook.5.4",
+  "hash": "d83f5d7eeeb0",
+  "verdict": "pass",
+  "summary": "Tests require exactly one canary claim release, its ptc1/live gate, no earlier claim release, and bulk reclaim only afterward.",
+  "timestamp": "2026-08-04T22:34:10.259Z"
+}

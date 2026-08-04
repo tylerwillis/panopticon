@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.5--edb368c75643",
+  "requirementId": "enforced-mode-cutover-runbook.4.5",
+  "hash": "edb368c75643",
+  "verdict": "pass",
+  "summary": "The parsed G05 command is pinned to PUT, the canary turn path, read-token authorization, and exact 401 expectation.",
+  "timestamp": "2026-08-04T22:34:16.688Z"
+}

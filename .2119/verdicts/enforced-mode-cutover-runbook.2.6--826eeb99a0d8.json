@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.2.6--826eeb99a0d8",
+  "requirementId": "enforced-mode-cutover-runbook.2.6",
+  "hash": "826eeb99a0d8",
+  "verdict": "pass",
+  "summary": "Asserts the permissive counter is only weak corroboration and never appears in executable gate commands.",
+  "timestamp": "2026-08-04T22:33:48.806Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.3.9--891c51e74430",
+  "requirementId": "enforced-mode-cutover-runbook.3.9",
+  "hash": "891c51e74430",
+  "verdict": "pass",
+  "summary": "Tests validate a pathless exact scheme-host-port origin and require its exact export and child propagation before launch.",
+  "timestamp": "2026-08-04T22:39:10.338Z"
+}

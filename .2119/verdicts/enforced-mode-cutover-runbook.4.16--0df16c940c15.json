@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.16--0df16c940c15",
+  "requirementId": "enforced-mode-cutover-runbook.4.16",
+  "hash": "0df16c940c15",
+  "verdict": "pass",
+  "summary": "The parsed G09 command is pinned to docker exec reading the mounted credential path and checking its ptc1 prefix.",
+  "timestamp": "2026-08-04T22:36:41.941Z"
+}

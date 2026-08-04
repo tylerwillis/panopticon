@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.1.5--dc7cbd5ef133",
+  "requirementId": "enforced-mode-cutover-runbook.1.5",
+  "hash": "dc7cbd5ef133",
+  "verdict": "pass",
+  "summary": "Asserts nonempty evidence classifications, both categories, exact step classifications, and production-only gates.",
+  "timestamp": "2026-08-04T22:33:45.148Z"
+}

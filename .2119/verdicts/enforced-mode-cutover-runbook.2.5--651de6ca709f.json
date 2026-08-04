@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.2.5--651de6ca709f",
+  "requirementId": "enforced-mode-cutover-runbook.2.5",
+  "hash": "651de6ca709f",
+  "verdict": "pass",
+  "summary": "Asserts the pre-restart docker-ps observation is recorded, required empty, and described as zero running containers.",
+  "timestamp": "2026-08-04T22:33:48.264Z"
+}

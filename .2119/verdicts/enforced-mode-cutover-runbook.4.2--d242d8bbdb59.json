@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.2--d242d8bbdb59",
+  "requirementId": "enforced-mode-cutover-runbook.4.2",
+  "hash": "d242d8bbdb59",
+  "verdict": "pass",
+  "summary": "G02 is constrained to default unauthenticated GET on /tasks with exact 401, rejecting method, credential, endpoint, and status variants.",
+  "timestamp": "2026-08-04T22:39:11.410Z"
+}

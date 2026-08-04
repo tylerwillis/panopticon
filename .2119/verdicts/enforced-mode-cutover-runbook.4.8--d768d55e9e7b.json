@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.8--d768d55e9e7b",
+  "requirementId": "enforced-mode-cutover-runbook.4.8",
+  "hash": "d768d55e9e7b",
+  "verdict": "pass",
+  "summary": "G08 directly records and rejects any labeled running task container and is asserted as the final S04 check immediately before S05.",
+  "timestamp": "2026-08-04T22:39:13.562Z"
+}

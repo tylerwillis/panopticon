@@ -1,108 +1,162 @@
 # Enforced-mode cutover: drain and respawn
 
-Use this file from the repository checkout while the service is down.
-No step after S03 depends on reading this file from the task service. Record every command, result, PID, start time, and failure
-disposition in one evidence file. Substitute the deployment-specific values before starting.
+This is a one-way production procedure. It does not accept legacy `pt1` credentials, modify
+credentials inside running containers, or weaken PR #163. Issue #202's capability-escape fix must
+already be deployed and green. Keep the shell used for this procedure open: later steps reuse the
+variables and evidence directory created in S00.
 
-This cutover deliberately replaces an unreliable inferred signal with a directly observable fact:
-the permissive unauthenticated-request counter is a weak corroborating signal that cannot authorize cutover;
-zero running task containers is the enforcement gate. Legacy `pt1` clients are not counted by that
-counter. Draining also avoids migration code because spawn-time capability snapshotting supplies a
-new scoped capability to every replacement container.
+The decisive pre-restart signal is the empty `docker ps` result in S03/G08. The permissive request
+counter is only weak corroboration because it cannot see legacy authenticated callers or already
+open streams.
 
-G01–G07: PR #163 deployment gates. G08–G11: issue #203 cutover additions.
-
-## S00 — Verify the issue #202 prerequisite
+## S00 — Prepare evidence, credentials, and prerequisite
 
 ### Action
 
 ```sh
-ISSUE_202_COMMIT=<closing-commit>
-DEPLOY_REV=<exact-deployed-revision>
-REPOSITORY_GATE=ci
-git rev-parse "$ISSUE_202_COMMIT" "$DEPLOY_REV"
+set -euo pipefail
+export APP_ROOT=/path/to/panopticon
+export SERVICE_URL=http://127.0.0.1:8000
+export PANOPTICON_CONFIG=/path/to/panopticon-config
+export AUTH_FILE_NAME=service-auth.json
+export AUTH_PATH="$PANOPTICON_CONFIG/secrets/$AUTH_FILE_NAME"
+export PANOPTICON_SERVICE_AUTH_FILE="$AUTH_FILE_NAME"
+export PWA_ORIGIN=https://phone.example:443
+export PHONE_BOARD_URL=https://phone.example:443
+export ISSUE_202_COMMIT=replace-with-closing-commit
+export DEPLOY_REV="$(git -C "$APP_ROOT" rev-parse HEAD)"
+export OLD_RUNNER_ID=local
+export NEW_RUNNER_ID="cutover-$(date +%s)"
+export EVIDENCE_DIR="$(mktemp -d)"
+: > "$EVIDENCE_DIR/followups.md"
+git -C "$APP_ROOT" merge-base --is-ancestor "$ISSUE_202_COMMIT" "$DEPLOY_REV"
+gh run list --repo tylerwillis/panopticon --commit "$ISSUE_202_COMMIT" --workflow ci.yml --status success --limit 1 --json databaseId --jq 'length == 1' | grep --fixed-strings true
+uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook inspect-credential-file "$AUTH_PATH"
 ```
 
 ### Check
 
 ```sh
-git merge-base --is-ancestor "$ISSUE_202_COMMIT" "$DEPLOY_REV"
-gh run list --commit "$ISSUE_202_COMMIT" --workflow "$REPOSITORY_GATE" --status success --limit 1
-gh run view "$(gh run list --commit "$ISSUE_202_COMMIT" --workflow "$REPOSITORY_GATE" --status success --limit 1 --json databaseId --jq '.[0].databaseId')" --exit-status
+test "$ISSUE_202_COMMIT" != replace-with-closing-commit
+test -d "$EVIDENCE_DIR"
+test "$NEW_RUNNER_ID" != "$OLD_RUNNER_ID"
+test "$AUTH_FILE_NAME" = "$(basename "$AUTH_FILE_NAME")"
+uv --directory "$APP_ROOT" run python - "$PWA_ORIGIN" <<'PY'
+import sys
+from urllib.parse import urlsplit
+value = sys.argv[1]
+parsed = urlsplit(value)
+assert parsed.scheme in {"http", "https"} and parsed.hostname and parsed.port
+assert not parsed.username and not parsed.password
+assert parsed.path == "" and not parsed.query and not parsed.fragment
+assert value == f"{parsed.scheme}://{parsed.hostname}:{parsed.port}"
+PY
 ```
 
 ### Expected
 
-The issue #202 closing commit is an ancestor of the deployed revision, and the matching repository
-gate for that same commit is green.
+The issue #202 closing commit is an ancestor of the deployed revision, its repository CI is green,
+the credential file passes the nonprinting safety check, and the replacement runner has a distinct
+identity.
 
 ### Failure action
 
-STOP before quiescence. Do not run this cutover until task `8a044631` has landed and its exact closing
-commit has a green repository gate.
+STOP before quiescence. Do not infer that an open issue, branch, or unrelated green run satisfies
+the prerequisite.
 
 ### Evidence status
 
-Cutover-only: the production revision and matching CI run can only be recorded during cutover.
+Production-only: the deployed SHA, workflow run, credential metadata, and chosen runner IDs must be
+recorded on the cutover host.
 
-## S01 — Quiesce new work
+## S01 — Inventory identities, freeze new work, and wait for stopping points
 
 ### Action
 
 ```sh
-panopticon-admin quiesce --create --respawn --resume
+export TASK_CONTAINERS_BEFORE="$(docker ps --quiet --filter label=panopticon.task)"
+test -z "$TASK_CONTAINERS_BEFORE" || docker inspect --format '{{.Id}} {{.Name}} {{.State.StartedAt}}' $TASK_CONTAINERS_BEFORE | tee "$EVIDENCE_DIR/S01-containers-before.txt"
+test -n "$TASK_CONTAINERS_BEFORE" || : > "$EVIDENCE_DIR/S01-containers-before.txt"
+tmux -L panopticon list-panes -a -F '#{session_name} #{pane_pid}' | tee "$EVIDENCE_DIR/S01-panes-before.txt"
+export OLD_RUNNER_PID="$(awk '$1 == "runner" {print $2}' "$EVIDENCE_DIR/S01-panes-before.txt")"
+export OLD_DASHBOARD_PID="$(awk '$1 == "dashboard" {print $2}' "$EVIDENCE_DIR/S01-panes-before.txt")"
+export OLD_RUNNER_START="$(ps -o lstart= -p "$OLD_RUNNER_PID" | sed 's/^ *//')"
+export OLD_DASHBOARD_START="$(ps -o lstart= -p "$OLD_DASHBOARD_PID" | sed 's/^ *//')"
+ps -o pid= -o lstart= -p "$OLD_RUNNER_PID,$OLD_DASHBOARD_PID" | tee "$EVIDENCE_DIR/S01-client-identities-before.txt"
+tmux -L panopticon kill-session -t dashboard
+tmux -L panopticon kill-session -t runner
+while :; do
+  curl --silent --show-error --fail --header "Authorization: Bearer $(uv --directory "$APP_ROOT" run python -c 'from panopticon.taskservice.auth import environment_token; print(environment_token())')" "$SERVICE_URL/tasks" --output "$EVIDENCE_DIR/S01-tasks.json"
+  uv --directory "$APP_ROOT" run python - "$EVIDENCE_DIR/S01-tasks.json" <<'PY' && break
+import json, sys
+tasks = json.load(open(sys.argv[1]))
+terminal = {"COMPLETE", "DROPPED"}
+assert all(task["state"] in terminal or task["turn"] == "user" or task["blocked"] for task in tasks)
+PY
+  sleep 5
+done
+tmux -L panopticon kill-session -t service
 ```
 
 ### Check
 
 ```sh
-panopticon-admin quiesce-status --assert-frozen --wait-recorded-stopping-points
+! kill -0 "$OLD_RUNNER_PID" 2>/dev/null || test "$(ps -o lstart= -p "$OLD_RUNNER_PID" | sed 's/^ *//')" != "$OLD_RUNNER_START"
+! kill -0 "$OLD_DASHBOARD_PID" 2>/dev/null || test "$(ps -o lstart= -p "$OLD_DASHBOARD_PID" | sed 's/^ *//')" != "$OLD_DASHBOARD_START"
+test -n "$OLD_RUNNER_START"
+test -n "$OLD_DASHBOARD_START"
+! curl --silent --show-error --fail --max-time 2 "$SERVICE_URL/healthz"
 ```
 
 ### Expected
 
-The action must stop accepting new work; creation, respawn, and resume are frozen before waiting.
-All in-flight turns reach a recorded stopping point.
+The inventory records PID and start time for the original runner and dashboard. Creation through
+the dashboard and spawning/resume through the runner are frozen before waiting; all in-flight turns
+reach a recorded user-turn, blocked, or terminal stopping point; then the service stops accepting
+API work.
 
 ### Failure action
 
-STOP. Keep admission frozen and resolve every turn without starting a new task.
+STOP. Keep every stopped process down and reconcile its original PID/start-time pair before going
+further.
 
 ### Evidence status
 
-Cutover-only: quiescence affects the production work queue.
+Production-only: process identities and stopping-point task state cannot be proven while authoring.
 
-## S02 — Inventory containers and long-lived clients
+## S02 — Reconcile every long-lived client and capture the drain set
 
 ### Action
 
 ```sh
-docker ps --filter label=panopticon.task --format '{{.ID}} {{.Names}} {{.RunningFor}}'
-TASK_CONTAINERS="$(docker ps --quiet --filter label=panopticon.task)"
-tmux -L panopticon list-panes -a -F '#{session_name} #{pane_pid}'
-ps -o pid= -o lstart= -p "$RUNNER_PID,$DASHBOARD_PID"
+awk '$1 == "runner" || $1 == "dashboard" {print}' "$EVIDENCE_DIR/S01-panes-before.txt" | tee "$EVIDENCE_DIR/S02-client-dispositions.txt"
+export TASK_CONTAINERS="$(docker ps --quiet --filter label=panopticon.task)"
+printf '%s\n' $TASK_CONTAINERS | sed '/^$/d' | tee "$EVIDENCE_DIR/S02-drain-set.txt"
 ```
 
 ### Check
 
 ```sh
-panopticon-cutover inventory --assert-discovered-equals-recorded --identity-fields pid,start_time
+test "$(wc -l < "$EVIDENCE_DIR/S02-client-dispositions.txt")" -eq 2
+! kill -0 "$OLD_RUNNER_PID" 2>/dev/null || test "$(ps -o lstart= -p "$OLD_RUNNER_PID" | sed 's/^ *//')" != "$OLD_RUNNER_START"
+! kill -0 "$OLD_DASHBOARD_PID" 2>/dev/null || test "$(ps -o lstart= -p "$OLD_DASHBOARD_PID" | sed 's/^ *//')" != "$OLD_DASHBOARD_START"
 ```
 
 ### Expected
 
-Every running task container and every credential-bearing long-lived process has one inventory row
-containing PID and start time; record `pane_pid` and `ps -o lstart=` evidence for runner and dashboard.
+Every inventoried credential-bearing survivor has an original PID/start-time identity and a
+confirmed-dead disposition. The exact running-container drain set is recorded.
 
 ### Failure action
 
-STOP. Expand the inventory until discovered and recorded sets are equal.
+STOP. A freshly launched CLI proves nothing about an original survivor; complete the inventory and
+disposition evidence first.
 
 ### Evidence status
 
-Cutover-only: production process identity cannot be inferred from tests.
+Production-only: survivor disposition and the live drain set are host observations.
 
-## S03 — Stop and directly drain all task containers
+## S03 — Stop every task container and prove an empty fleet
 
 ### Action
 
@@ -113,717 +167,619 @@ test -z "$TASK_CONTAINERS" || docker stop $TASK_CONTAINERS
 ### Check
 
 ```sh
-docker ps --quiet --filter label=panopticon.task
+docker ps --quiet --filter label=panopticon.task | tee "$EVIDENCE_DIR/S03-running-after.txt"
+test ! -s "$EVIDENCE_DIR/S03-running-after.txt"
 ```
 
 ### Expected
 
-Expected output: empty. This directly proves zero running task containers.
-The permissive request counter is only a weak corroborating signal and is never a gate.
+Expected output: empty. Zero running task containers is the direct enforcement gate; the
+permissive counter is never a gate.
 
 ### Failure action
 
-STOP on any nonzero drain. Do not restart the task service or any task container.
+STOP on any nonzero drain. Do not start the service or replacement clients.
 
 ### Evidence status
 
-Cutover-only: this command intentionally stops the production task fleet.
+Production-only: this step deliberately stops the production fleet.
 
-## S04 — Replace every credential-bearing long-lived client
+## S04 — Start replacement runner and waiting dashboard with fresh identities
 
 ### Action
 
 ```sh
-tmux -L panopticon kill-session -t runner
-tmux -L panopticon kill-session -t dashboard
-panopticon start
-```
-
-### Check
-
-```sh
-panopticon-cutover reconcile-clients --inventory "$INVENTORY_FILE" --require-new-pid-and-start
-kill -0 "$OLD_RUNNER_PID" 2>/dev/null && exit 1 || true
-```
-
-### Expected
-
-Record old PID, old start time, new PID, and new start time. The new PID/start-time pair differs for
-the active runner; every survivor is restarted or confirmed dead using its original identity.
-
-### Failure action
-
-STOP. A freshly launched CLI proves nothing about a survivor; reconcile every original process.
-
-### Evidence status
-
-Cutover-only: production process replacement requires before/after identity evidence.
-
-## S05 — Validate credentials and restart the service enforced
-
-### Action
-
-```sh
-AUTH_FILE_NAME=service-auth.json
-PWA_ORIGIN=https://phone.example:443
-PANOPTICON_SERVICE_AUTH_MODE=enforced
-PANOPTICON_SERVICE_AUTH_FILE="$AUTH_FILE_NAME"
-PANOPTICON_BROWSER_ORIGINS="$PWA_ORIGIN"
+tmux -L panopticon set-environment -g PANOPTICON_SERVICE_AUTH_FILE "$AUTH_FILE_NAME"
+tmux -L panopticon set-environment -g PANOPTICON_SERVICE_AUTH_MODE enforced
+tmux -L panopticon set-environment -g PANOPTICON_CONFIG "$PANOPTICON_CONFIG"
 tmux -L panopticon set-environment -g PANOPTICON_BROWSER_ORIGINS "$PWA_ORIGIN"
-tmux -L panopticon kill-session -t service
-panopticon host
+tmux -L panopticon new-session -d -s runner -c "$APP_ROOT" "env PANOPTICON_CONFIG='$PANOPTICON_CONFIG' PANOPTICON_SERVICE_AUTH_FILE='$AUTH_FILE_NAME' PANOPTICON_SERVICE_AUTH_MODE=enforced PANOPTICON_RUNNER_ID='$NEW_RUNNER_ID' uv run python -m panopticon.sessionservice.host"
+tmux -L panopticon new-session -d -s dashboard -c "$APP_ROOT" "until curl --silent --fail '$SERVICE_URL/healthz' >/dev/null; do sleep 1; done; exec env PANOPTICON_CONFIG='$PANOPTICON_CONFIG' PANOPTICON_SERVICE_AUTH_FILE='$AUTH_FILE_NAME' PANOPTICON_SERVICE_AUTH_MODE=enforced PANOPTICON_BROWSER_ORIGINS='$PWA_ORIGIN' uv run panopticon --service-url '$SERVICE_URL' dashboard"
+export NEW_RUNNER_PID="$(tmux -L panopticon display-message -p -t runner '#{pane_pid}')"
+export NEW_DASHBOARD_PID="$(tmux -L panopticon display-message -p -t dashboard '#{pane_pid}')"
+export NEW_RUNNER_START="$(ps -o lstart= -p "$NEW_RUNNER_PID" | sed 's/^ *//')"
+export NEW_DASHBOARD_START="$(ps -o lstart= -p "$NEW_DASHBOARD_PID" | sed 's/^ *//')"
+ps -o pid= -o lstart= -p "$NEW_RUNNER_PID,$NEW_DASHBOARD_PID" | tee "$EVIDENCE_DIR/S04-client-identities-after.txt"
 ```
 
 ### Check
 
-The file checks below require a regular file that is not a symbolic link, has mode 0600, and is
-owned by the service user. The metadata check requires a nonempty `write` array and a
-distinct nonempty `read` array, and it must not print token values.
-
 ```sh
-test -f "$PANOPTICON_CONFIG/secrets/$AUTH_FILE_NAME"
-test ! -L "$PANOPTICON_CONFIG/secrets/$AUTH_FILE_NAME"
-test "$(stat --format='%a' "$PANOPTICON_CONFIG/secrets/$AUTH_FILE_NAME")" = 600
-test "$(stat --format='%U' "$PANOPTICON_CONFIG/secrets/$AUTH_FILE_NAME")" = "$SERVICE_USER"
-python -m panopticon.core.cutover_runbook inspect-credential-file "$PANOPTICON_CONFIG/secrets/$AUTH_FILE_NAME"
-tmux -L panopticon list-sessions
+test "$NEW_RUNNER_PID" != "$OLD_RUNNER_PID"
+test "$NEW_RUNNER_START" != "$OLD_RUNNER_START" || test "$NEW_RUNNER_PID" != "$OLD_RUNNER_PID"
+test "$NEW_DASHBOARD_PID" != "$OLD_DASHBOARD_PID"
+test "$NEW_DASHBOARD_START" != "$OLD_DASHBOARD_START" || test "$NEW_DASHBOARD_PID" != "$OLD_DASHBOARD_PID"
+test -n "$NEW_RUNNER_START"
+test -n "$NEW_DASHBOARD_START"
+kill -0 "$NEW_RUNNER_PID"
+kill -0 "$NEW_DASHBOARD_PID"
+docker ps --quiet --filter label=panopticon.task | tee "$EVIDENCE_DIR/G08-running.txt"
+test ! -s "$EVIDENCE_DIR/G08-running.txt"
+printf 'G08: PASS\n' >> "$EVIDENCE_DIR/gates.txt"
 ```
 
 ### Expected
 
-The credential is a regular file, not a symbolic link, has permissions `0600`, and is owned by the service user.
-Validation finds populated, disjoint `write` and `read` arrays. The check must not
-print token values. `PANOPTICON_SERVICE_AUTH_FILE` is the filename beneath the configured secrets directory.
-`PANOPTICON_BROWSER_ORIGINS` is the PWA scheme, host, and port only, with no path, query, fragment,
-credentials, or trailing slash. Every already-running supervisor receives the exact origin.
+Both replacement PID/start-time pairs differ from the original pairs. The distinct replacement
+runner ID prevents it from healing tasks still claimed by the old runner before the canary gate.
 
 ### Failure action
 
-ROLL BACK. Keep containers stopped and restore the last known-good service configuration.
+STOP. Kill both replacement sessions and repeat the identity comparison.
 
 ### Evidence status
 
-Cutover-only: production file metadata, service startup, and origin injection require host evidence.
+Production-only: replacement identity is observable only on the cutover host.
 
-## S06 — Run the first six deployment gates
+## S05 — Start the task service with exported enforced configuration
 
 ### Action
 
 ```sh
-run-gates G01 G02 G03 G04 G05 G06
+export PANOPTICON_SERVICE_AUTH_MODE=enforced
+export PANOPTICON_SERVICE_AUTH_FILE="$AUTH_FILE_NAME"
+export PANOPTICON_BROWSER_ORIGINS="$PWA_ORIGIN"
+tmux -L panopticon new-session -d -s service -c "$APP_ROOT" "exec env PANOPTICON_CONFIG='$PANOPTICON_CONFIG' PANOPTICON_SERVICE_AUTH_MODE='$PANOPTICON_SERVICE_AUTH_MODE' PANOPTICON_SERVICE_AUTH_FILE='$PANOPTICON_SERVICE_AUTH_FILE' PANOPTICON_BROWSER_ORIGINS='$PANOPTICON_BROWSER_ORIGINS' uv run python -m panopticon.taskservice"
 ```
 
 ### Check
 
 ```sh
-test all-gates-passed
+until curl --silent --show-error --fail "$SERVICE_URL/healthz"; do sleep 1; done
+tmux -L panopticon show-environment -g PANOPTICON_BROWSER_ORIGINS | grep --fixed-strings "PANOPTICON_BROWSER_ORIGINS=$PWA_ORIGIN"
 ```
 
 ### Expected
 
-All six gates pass.
+The child process inherits enforced mode, the credential filename beneath the configured secrets
+directory, and the exact scheme-host-port browser origin with no path, query, fragment, credentials,
+or trailing slash.
 
 ### Failure action
 
-STOP and roll back.
+ROLL BACK. Keep containers stopped, kill the three replacement sessions, and restore the last
+known-good service configuration.
 
 ### Evidence status
 
-Authoring: the assertions were unit-tested; production HTTP and browser behavior remain cutover-only.
+Production-only: service startup and inherited environment require host evidence.
 
-## S07 — Respawn exactly one real canary
+## S06 — Run gates G01 through G07
 
 ### Action
 
 ```sh
-panopticon-cutover respawn-canary --count 1 --task "$CANARY_TASK_ID"
+export WRITE_TOKEN="$(uv --directory "$APP_ROOT" run python -c 'from panopticon.taskservice.auth import environment_token; print(environment_token())')"
+export READ_TOKEN="$(uv --directory "$APP_ROOT" run python -c 'from panopticon.taskservice.auth import environment_token; print(environment_token(privilege="read"))')"
 ```
 
 ### Check
 
 ```sh
-run-gate G09 --before-bulk-respawn
+test -n "$WRITE_TOKEN"
+test -n "$READ_TOKEN"
 ```
 
 ### Expected
 
-Exactly one real canary passes G09 before bulk respawn.
+G01 through G07 below pass after G08 has already passed immediately before S05 and before any task
+claim is released.
 
 ### Failure action
 
-STOP. Keep the remaining fleet drained and roll back the canary.
+ROLL BACK on the first failed gate.
 
 ### Evidence status
 
-Cutover-only: mounted capability and liveness must be asserted against a real production container.
+Production-only: the gates exercise the deployed service, runner, browser origin, and phone board.
 
-## S08 — Bulk respawn the intended fleet
+## S07 — Release and verify exactly one real canary
 
 ### Action
 
 ```sh
-panopticon-cutover respawn --scope every-intended-nonterminal-task --require-completed S07
+curl --silent --show-error --fail --request DELETE --header "Authorization: Bearer $WRITE_TOKEN" "$SERVICE_URL/tasks/$CANARY_TASK_ID/claim" --output "$EVIDENCE_DIR/S07-release.json"
+export CANARY_CONTAINER="panopticon-$CANARY_TASK_ID"
 ```
 
 ### Check
 
 ```sh
-panopticon-cutover task-dispositions --require-recorded --allowed live,task-specific-failure
+until test "$(docker inspect --format '{{.State.Running}}' "$CANARY_CONTAINER" 2>/dev/null)" = true; do sleep 1; done
+docker inspect --format '{{.Id}} {{.State.Pid}} {{.State.StartedAt}}' "$CANARY_CONTAINER" | tee "$EVIDENCE_DIR/S07-container-initial.txt"
+test "$(docker exec "$CANARY_CONTAINER" python -c 'import json; print(json.load(open("/run/secrets/panopticon-service-auth"))["task"][:5])')" = ptc1.
+curl --silent --show-error --fail --header "Authorization: Bearer $WRITE_TOKEN" "$SERVICE_URL/tasks/$CANARY_TASK_ID" --output "$EVIDENCE_DIR/S07-live-initial.json"
+sleep 6
+docker inspect --format '{{.Id}} {{.State.Pid}} {{.State.StartedAt}}' "$CANARY_CONTAINER" | tee "$EVIDENCE_DIR/S07-container-after-keepalive.txt"
+cmp "$EVIDENCE_DIR/S07-container-initial.txt" "$EVIDENCE_DIR/S07-container-after-keepalive.txt"
+curl --silent --show-error --fail --header "Authorization: Bearer $WRITE_TOKEN" "$SERVICE_URL/tasks/$CANARY_TASK_ID" --output "$EVIDENCE_DIR/S07-live-after-keepalive.json"
+uv --directory "$APP_ROOT" run python - "$EVIDENCE_DIR/S07-live-initial.json" "$EVIDENCE_DIR/S07-live-after-keepalive.json" <<'PY'
+import json, sys
+assert all(json.load(open(path))["container_status"] == "live" for path in sys.argv[1:])
+PY
 ```
 
 ### Expected
 
-The result covers every intended nonterminal task: live or a task-specific failure disposition.
+One freshly spawned real container reads `ptc1.` from its mounted capability and remains registered
+live across the five-second liveness keepalive interval before bulk respawn.
+S07 releases only the canary task claim.
 
 ### Failure action
 
-STOP further respawns and record the task-specific failure; do not conceal it as fleet success.
+STOP before bulk respawn. Stop the canary and roll back while the remaining tasks stay claimed by
+the old runner.
 
 ### Evidence status
 
-Cutover-only: production fleet restoration cannot be dry-run honestly.
+Production-only: only a real post-enforcement container can prove mounted capability and liveness.
 
-## S09 — Append the evidence and follow-ups
+## S08 — Release old-runner claims for controlled bulk respawn
 
 ### Action
 
 ```sh
-gh issue comment 203 --body-file "$EVIDENCE_FILE"
-gh issue comment 203 --body-file "$FOLLOWUP_FILE"
+curl --silent --show-error --fail --request POST --header "Authorization: Bearer $WRITE_TOKEN" "$SERVICE_URL/runners/$OLD_RUNNER_ID/reclaim" --output "$EVIDENCE_DIR/S08-reclaimed.json"
 ```
 
 ### Check
 
 ```sh
-gh issue view 203 --comments
+until curl --silent --show-error --fail --header "Authorization: Bearer $WRITE_TOKEN" "$SERVICE_URL/tasks" --output "$EVIDENCE_DIR/S08-tasks.json" && uv --directory "$APP_ROOT" run python - "$EVIDENCE_DIR/S08-tasks.json" <<'PY'
+import json, sys
+tasks = json.load(open(sys.argv[1]))
+terminal = {"COMPLETE", "DROPPED"}
+assert all(
+    task["state"] in terminal
+    or task["container_status"] == "live"
+    or (task["container_status"] == "failed" and task["lifecycle_detail"])
+    for task in tasks
+)
+PY
+do sleep 5; done
 ```
 
 ### Expected
 
-Issue #203 contains the cutover evidence and any newly discovered follow-up work.
+Every intended nonterminal task is live or has a recorded task-specific failed disposition.
 
 ### Failure action
 
-STOP closing the change record until the comments are visible.
+STOP further intervention, preserve per-task failure evidence, and do not report fleet success.
 
 ### Evidence status
 
-Authoring: command shape was reviewed; actual comments are cutover-only.
+Production-only: full fleet restoration cannot be simulated honestly.
 
-Do not open a new issue for work already described in #202 or #203.
+## S09 — Append evidence and follow-ups to issue #203
+
+### Action
+
+```sh
+{
+  printf 'Enforced-mode cutover evidence for %s\n\n' "$DEPLOY_REV"
+  cat "$EVIDENCE_DIR/gates.txt"
+  printf '\nNew follow-up work (append to issue #203; do not duplicate #202/#203):\n'
+  cat "$EVIDENCE_DIR/followups.md"
+  printf '\nEvidence files:\n'
+  find "$EVIDENCE_DIR" -maxdepth 1 -type f -printf '%f\n' | sort
+} > "$EVIDENCE_DIR/cutover-summary.md"
+gh issue comment 203 --repo tylerwillis/panopticon --body-file "$EVIDENCE_DIR/cutover-summary.md"
+```
+
+### Check
+
+```sh
+gh issue view 203 --repo tylerwillis/panopticon --comments --json comments --jq '.comments[-1].body' | grep --fixed-strings 'G11: PASS'
+```
+
+### Expected
+
+Issue #203 contains the recorded step/gate evidence and any newly discovered follow-up work. Do not
+open a new issue for anything already described in #202 or #203.
+
+### Failure action
+
+STOP. Preserve the local evidence directory and retry the append without opening duplicate issues.
+
+### Evidence status
+
+Authoring-tested: command syntax and issue target are checked; production evidence remains absent
+until the cutover runs.
 
 ## Rollback
 
-Trigger rollback on prerequisite failure, nonzero drain, stale long-lived client,
-service startup failure, security gate failure, browser gate failure, or canary failure.
-
-1. First, keep every task container stopped.
-2. Then restore the last known-good service configuration.
-3. Then restart the runner and dashboard with the last known-good client configuration.
-4. Finally, repeat S02 before releasing any task container.
-
-Do not restore legacy capability acceptance. Do not expect a killed process to reappear. Containers
-remain stopped until both the service and all long-lived clients have returned to known-good config.
+Trigger rollback on prerequisite failure, nonzero drain, stale-client evidence, service startup,
+security/browser gate, or canary failure. Keep every task container stopped; kill the replacement
+service, runner, and dashboard sessions; restore the last-known-good service environment; restart
+the clients; and repeat S01 identity inventory before releasing any claim. Do not restore legacy
+capability acceptance and do not expect a killed PID to reappear.
 
 ## The eleven gates
 
-### G01 — Public health remains public
+G01–G07 are PR #163's original seven cutover gates. G08–G11 are issue #203's four
+adversarial-review additions.
+
+### G01 — Health remains public
 
 #### Command
 
 ```sh
-assert "$(curl --silent --output /dev/null --write-out '%{http_code}' "$SERVICE/healthz")" = 200
+test "$(curl --silent --output /dev/null --write-out '%{http_code}' "$SERVICE_URL/healthz")" = 200
+```
+
+#### Check
+
+```sh
+curl --silent --show-error --fail "$SERVICE_URL/healthz" | grep --fixed-strings '"status":"ok"'
+printf 'G01: PASS\n' >> "$EVIDENCE_DIR/gates.txt"
 ```
 
 #### Expected
 
-Unauthenticated GET `/healthz` returns 200.
+Unauthenticated `GET /healthz` returns 200.
 
 #### Failure action
 
-STOP and roll back.
+STOP; the service is not healthy.
 
-#### Record
+#### Evidence status
 
-Record status and timestamp.
+Production-only: deployed health response.
 
-### G02 — Fleet reads require authentication
+### G02 — Fleet tasks reject missing authentication
 
 #### Command
 
 ```sh
-assert "$(curl --silent --output /dev/null --write-out '%{http_code}' "$SERVICE/tasks")" = 401
+test "$(curl --silent --output /dev/null --write-out '%{http_code}' "$SERVICE_URL/tasks")" = 401
+```
+
+#### Check
+
+```sh
+test -n "$SERVICE_URL"
+printf 'G02: PASS\n' >> "$EVIDENCE_DIR/gates.txt"
 ```
 
 #### Expected
 
-Unauthenticated GET `/tasks` returns 401.
+Unauthenticated `GET /tasks` returns 401.
 
 #### Failure action
 
-STOP and roll back.
+STOP; enforced authentication is not active.
 
-#### Record
+#### Evidence status
 
-Record status and timestamp.
+Production-only: deployed authentication behavior.
 
-### G03 — The restarted runner itself is live
+### G03 — The recorded replacement runner is live
 
 #### Command
 
 ```sh
-assert-runner-live --runner-pid "$NEW_RUNNER_PID" --runner-start-time "$NEW_RUNNER_START" --auth "$WRITE_TOKEN" --path "/runners/$RUNNER_ID/live"
+curl --silent --show-error --fail --header "Authorization: Bearer $WRITE_TOKEN" "$SERVICE_URL/runners/$NEW_RUNNER_ID" --output "$EVIDENCE_DIR/G03-runner.json"
+```
+
+#### Check
+
+```sh
+kill -0 "$NEW_RUNNER_PID"
+test "$(ps -o lstart= -p "$NEW_RUNNER_PID" | sed 's/^ *//')" = "$NEW_RUNNER_START"
+grep --fixed-strings "\"id\":\"$NEW_RUNNER_ID\"" "$EVIDENCE_DIR/G03-runner.json"
+printf 'G03: PASS\n' >> "$EVIDENCE_DIR/gates.txt"
 ```
 
 #### Expected
 
-Authenticated liveness succeeds and the same runner PID and runner start time appears live.
+The authenticated live-runner API names the runner bound to the recorded new PID/start-time pair.
 
 #### Failure action
 
-STOP; a new CLI is not runner evidence.
+STOP; a new CLI command is not substitute evidence.
 
-#### Record
+#### Evidence status
 
-Record the runner identity and response.
+Production-only: active runner process and registration.
 
-### G04 — Phone-board read token reads the fleet
+### G04 — Read token can read with the exact phone origin
 
 #### Command
 
 ```sh
-assert-http --method GET --path /tasks --header "Authorization: Bearer $READ_TOKEN" --header "Origin: $PWA_ORIGIN" --forbid-status 401,403
+curl --silent --show-error --dump-header "$EVIDENCE_DIR/G04-headers.txt" --output "$EVIDENCE_DIR/G04-tasks.json" --write-out '%{http_code}' --header "Authorization: Bearer $READ_TOKEN" --header "Origin: $PWA_ORIGIN" "$SERVICE_URL/tasks" | tee "$EVIDENCE_DIR/G04-status.txt"
+```
+
+#### Check
+
+```sh
+test "$(cat "$EVIDENCE_DIR/G04-status.txt")" != 401
+test "$(cat "$EVIDENCE_DIR/G04-status.txt")" != 403
+grep --ignore-case --fixed-strings "access-control-allow-origin: $PWA_ORIGIN" "$EVIDENCE_DIR/G04-headers.txt"
+printf 'G04: PASS\n' >> "$EVIDENCE_DIR/gates.txt"
 ```
 
 #### Expected
 
-`GET /tasks` with the exact PWA origin and read token returns not 401 or 403.
+Read-token `GET /tasks` is authorized and echoes the exact origin.
 
 #### Failure action
 
-STOP and roll back.
+STOP; phone-board read authority is broken.
 
-#### Record
+#### Evidence status
 
-Record status without recording the token.
+Production-only: deployed read/CORS behavior.
 
-### G05 — Read token cannot mutate
+### G05 — Read token cannot mutate a task
 
 #### Command
 
 ```sh
-assert-http --method PUT --path "/tasks/$CANARY_TASK_ID/turn" --token-scope read --expect 401
+test "$(curl --silent --output /dev/null --write-out '%{http_code}' --request PUT --header 'Content-Type: application/json' --header "Authorization: Bearer $READ_TOKEN" --data '{"turn":"agent"}' "$SERVICE_URL/tasks/$CANARY_TASK_ID/turn")" = 401
+```
+
+#### Check
+
+```sh
+test -n "$CANARY_TASK_ID"
+printf 'G05: PASS\n' >> "$EVIDENCE_DIR/gates.txt"
 ```
 
 #### Expected
 
-The read token mutation returns 401.
+Read-token `PUT /tasks/<canary>/turn` returns 401.
 
 #### Failure action
 
-STOP: the capability boundary is not enforced.
+STOP; the read boundary permits mutation.
 
-#### Record
+#### Evidence status
 
-Record status without token values.
+Production-only: deployed authorization behavior.
 
-### G06 — Exact browser CORS behavior
+### G06 — Preflight and actual CORS responses are exact
 
 #### Command
 
 ```sh
-assert-cors --kind preflight --method OPTIONS --origin "$PWA_ORIGIN" --exact --forbid-credentials
-assert-cors --kind actual --origin "$PWA_ORIGIN" --exact --forbid-credentials
+curl --silent --show-error --request OPTIONS --dump-header "$EVIDENCE_DIR/G06-preflight.txt" --output /dev/null --header "Origin: $PWA_ORIGIN" --header 'Access-Control-Request-Method: GET' --header 'Access-Control-Request-Headers: Authorization' "$SERVICE_URL/tasks"
+curl --silent --show-error --dump-header "$EVIDENCE_DIR/G06-actual.txt" --output /dev/null --header "Authorization: Bearer $READ_TOKEN" --header "Origin: $PWA_ORIGIN" "$SERVICE_URL/tasks"
+```
+
+#### Check
+
+```sh
+uv --directory "$APP_ROOT" run python - "$PWA_ORIGIN" "$EVIDENCE_DIR/G06-preflight.txt" "$EVIDENCE_DIR/G06-actual.txt" <<'PY'
+import sys
+origin = sys.argv[1]
+for path in sys.argv[2:]:
+    headers = {}
+    for line in open(path):
+        if ":" in line:
+            name, value = line.split(":", 1)
+            headers.setdefault(name.lower(), []).append(value.strip())
+    assert headers.get("access-control-allow-origin") == [origin]
+    assert "access-control-allow-credentials" not in headers
+PY
+printf 'G06: PASS\n' >> "$EVIDENCE_DIR/gates.txt"
 ```
 
 #### Expected
 
-The preflight headers contain `Access-Control-Allow-Origin: $PWA_ORIGIN`; actual-response headers
-contain `Access-Control-Allow-Origin: $PWA_ORIGIN`.
-`Access-Control-Allow-Credentials: true` must be absent from both.
+Both responses echo only the exact origin and omit credential-sharing permission.
 
 #### Failure action
 
 STOP on either response.
 
-#### Record
+#### Evidence status
 
-Record both header sets.
+Production-only: deployed browser boundary.
 
-### G07 — Installed phone board agrees with the fleet API
+### G07 — Installed phone board agrees with the authenticated API
 
 #### Command
 
 ```sh
-assert-named-task --installed-phone "$PHONE_URL" --authenticated-fleet-api "$SERVICE/tasks" --named-task "$KNOWN_TASK"
+curl --silent --show-error --fail "$PHONE_BOARD_URL" --output "$EVIDENCE_DIR/G07-phone.html"
+curl --silent --show-error --fail --header "Authorization: Bearer $READ_TOKEN" "$SERVICE_URL/tasks" --output "$EVIDENCE_DIR/G07-api.json"
+```
+
+#### Check
+
+```sh
+uv --directory "$APP_ROOT" run python - "$KNOWN_TASK_NAME" "$EVIDENCE_DIR/G07-phone.html" "$EVIDENCE_DIR/G07-api.json" <<'PY'
+import json, sys
+from html.parser import HTMLParser
+class Text(HTMLParser):
+    def __init__(self): super().__init__(); self.values = []
+    def handle_data(self, data): self.values.append(data.strip())
+name, html_path, api_path = sys.argv[1:]
+phone = Text(); phone.feed(open(html_path).read())
+tasks = json.load(open(api_path))
+assert name in phone.values
+assert any(name in {task.get("name"), task.get("slug")} for task in tasks)
+PY
+printf 'G07: PASS\n' >> "$EVIDENCE_DIR/gates.txt"
 ```
 
 #### Expected
 
-The installed phone board and authenticated fleet API show the same named task.
+Two independent sources display the same chosen task name.
 
 #### Failure action
 
-STOP; browser behavior is not proven.
+STOP; installed browser behavior is not proven.
 
-#### Record
+#### Evidence status
 
-Record the named task and both sources.
+Production-only: installed phone board.
 
-### G08 — Direct zero-container drain
+### G08 — No task container runs immediately before enforcement
 
 #### Command
 
 ```sh
-assert -z "$(docker ps --quiet --filter label=panopticon.task)"
+docker ps --quiet --filter label=panopticon.task | tee "$EVIDENCE_DIR/G08-running.txt"
+```
+
+#### Check
+
+```sh
+test ! -s "$EVIDENCE_DIR/G08-running.txt"
+printf 'G08: PASS\n' >> "$EVIDENCE_DIR/gates.txt"
 ```
 
 #### Expected
 
-Expected output: empty immediately before the enforced service restart.
+Expected output: empty immediately before S05.
 
 #### Failure action
 
-STOP; do not trust the permissive counter.
+STOP; return to S03.
 
-#### Record
+#### Evidence status
 
-Record `docker ps` output.
+Production-only: direct Docker observation.
 
-### G09 — Fresh real canary has scoped capability and liveness
+### G09 — Real post-enforcement canary has ptc1 capability and liveness
 
 #### Command
 
 ```sh
-assert-canary --real-container "$CANARY_CONTAINER" --created-after "$ENFORCEMENT_START" --credential-mount /run/panopticon/task-capability --prefix ptc1. --liveness-events ':ok,:keepalive' --minimum-elapsed 5
+test "$(docker exec "$CANARY_CONTAINER" python -c 'import json; print(json.load(open("/run/secrets/panopticon-service-auth"))["task"][:5])')" = ptc1.
+```
+
+#### Check
+
+```sh
+uv --directory "$APP_ROOT" run python - "$EVIDENCE_DIR/S07-live-initial.json" "$EVIDENCE_DIR/S07-live-after-keepalive.json" <<'PY'
+import json, sys
+assert all(json.load(open(path))["container_status"] == "live" for path in sys.argv[1:])
+PY
+cmp "$EVIDENCE_DIR/S07-container-initial.txt" "$EVIDENCE_DIR/S07-container-after-keepalive.txt"
+printf 'G09: PASS\n' >> "$EVIDENCE_DIR/gates.txt"
 ```
 
 #### Expected
 
-Capability inspection reads the real container's mounted credential and observes prefix `ptc1.`.
-The freshly spawned real container's liveness stream emits `:ok`, then a `:keepalive` at least
-five seconds later.
+The same real freshly spawned container ID, init PID, and start time reads its mounted `ptc1.`
+capability and stays live across a later keepalive.
 
 #### Failure action
 
 STOP before bulk respawn.
 
-#### Record
+#### Evidence status
 
-Record container ID, creation time, enforcement time, redacted prefix, and timed liveness events.
+Production-only: real container and open liveness registration.
 
-### G10 — Runner identity changed
-
-#### Command
-
-```sh
-assert-runner-replaced --old-pid "$OLD_RUNNER_PID" --old-start "$OLD_RUNNER_START" --new-pid "$NEW_RUNNER_PID" --new-start "$NEW_RUNNER_START"
-```
-
-#### Expected
-
-The old PID, old start time, new PID, and new start time prove the active runner was replaced.
-
-#### Failure action
-
-STOP; restart the runner and repeat the comparison.
-
-#### Record
-
-Record both PID/start pairs.
-
-### G11 — Every survivor is restarted or dead
+### G10 — Runner process identity changed
 
 #### Command
 
 ```sh
-assert-client-dispositions --inventory "$INVENTORY_FILE" --identity-fields pid,start_time --allowed restarted,confirmed-dead
+test "$NEW_RUNNER_PID" != "$OLD_RUNNER_PID"
+test "$NEW_RUNNER_START" != "$OLD_RUNNER_START" || test "$NEW_RUNNER_PID" != "$OLD_RUNNER_PID"
+```
+
+#### Check
+
+```sh
+kill -0 "$NEW_RUNNER_PID"
+test "$(ps -o lstart= -p "$NEW_RUNNER_PID" | sed 's/^ *//')" = "$NEW_RUNNER_START"
+! kill -0 "$OLD_RUNNER_PID" 2>/dev/null || test "$(ps -o lstart= -p "$OLD_RUNNER_PID" | sed 's/^ *//')" != "$OLD_RUNNER_START"
+printf 'G10: PASS\n' >> "$EVIDENCE_DIR/gates.txt"
 ```
 
 #### Expected
 
-Every inventory survivor has original PID and start time evidence and is restarted or confirmed dead.
+Old and new PID/start-time pairs differ and only the new process exists.
 
 #### Failure action
 
-STOP until every row has a valid disposition.
+STOP; repeat S04.
 
-#### Record
+#### Evidence status
 
-Record the complete disposition table.
+Production-only: host process identity.
 
-## Rejected strategies
+### G11 — Every original long-lived client is restarted or confirmed dead
 
-Do not add a `pt1` compatibility window. Do not re-mint or replace credentials inside running containers.
-Do not revert or weaken PR #163. Do not replace credentials inside running containers,
-accept legacy credentials, or disable scoped task capabilities anywhere else in this procedure.
+#### Command
+
+```sh
+test -s "$EVIDENCE_DIR/S01-client-identities-before.txt"
+test -s "$EVIDENCE_DIR/S04-client-identities-after.txt"
+test -n "$OLD_RUNNER_START"
+test -n "$OLD_DASHBOARD_START"
+```
+
+#### Check
+
+```sh
+! kill -0 "$OLD_RUNNER_PID" 2>/dev/null || test "$(ps -o lstart= -p "$OLD_RUNNER_PID" | sed 's/^ *//')" != "$OLD_RUNNER_START"
+! kill -0 "$OLD_DASHBOARD_PID" 2>/dev/null || test "$(ps -o lstart= -p "$OLD_DASHBOARD_PID" | sed 's/^ *//')" != "$OLD_DASHBOARD_START"
+kill -0 "$NEW_RUNNER_PID"
+kill -0 "$NEW_DASHBOARD_PID"
+test "$(ps -o lstart= -p "$NEW_RUNNER_PID" | sed 's/^ *//')" = "$NEW_RUNNER_START"
+test "$(ps -o lstart= -p "$NEW_DASHBOARD_PID" | sed 's/^ *//')" = "$NEW_DASHBOARD_START"
+printf 'G11: PASS\n' >> "$EVIDENCE_DIR/gates.txt"
+```
+
+#### Expected
+
+Every original survivor is confirmed dead by original identity and has a replacement identity.
+
+#### Failure action
+
+STOP; reconcile the complete S01 inventory.
+
+#### Evidence status
+
+Production-only: complete process reconciliation.
 
 ## Resume evidence
 
-### Claude
+| Harness | Configuration-volume persistence | Launcher resume selection | Real CLI transcript acceptance |
+| --- | --- | --- | --- |
+| Claude | Unit: both LocalRunner launches mount the same sole per-task `.claude` volume. | Unit: history selects `--continue` (with the interruption prompt only for an agent turn). | Production-only: observe a resumed real Claude task after cutover. |
+| Codex | Unit: both LocalRunner launches mount the same sole per-task `.codex` volume. | Unit: history selects the newest explicit interactive session ID, never `--last`. | Production-only: observe a resumed real Codex task after cutover. |
 
-Evidence level: unit.
-
-What was exercised: the per-task config volume persists across LocalRunner stop/respawn, and session
-history selects `--continue` for agent, user, and unspecified turns.
-
-What remains unproven: real Claude CLI transcript acceptance after this production drain is
-live-cutover evidence.
-
-### Codex
-
-Evidence level: unit.
-
-What was exercised: the per-task config volume persists, and the newest recorded interactive
-session is selected by explicit session identifier rather than `--last`.
-
-What remains unproven: real Codex CLI transcript acceptance after this production drain is
-live-cutover evidence.
+Real vendor-CLI acceptance of either persisted transcript remains unproven until G09 and a resumed
+task are observed during cutover.
 
 ## What remains unproven until cutover
 
-Production process identity remains unproven; the production credential file remains unproven;
-production network behavior remains unproven; production phone-origin behavior remains unproven;
-production real-container capability liveness remains unproven until recorded during
-cutover. That real container is the canary described by G09. Unit evidence proves
-configuration-volume persistence and launcher selection, not vendor
-CLI transcript acceptance or the production environment.
+Production process identity, credential-file acceptance by the deployed service, network and CORS
+behavior, installed-phone behavior, real-container capability mounting, liveness across keepalive,
+and vendor CLI transcript acceptance remain unproven until their production evidence files are
+recorded. Passing unit tests is not a substitute for those observations.
 
-## Authoring exercise record
+## Rejected strategies
 
-- S00: production-only — deployment revision and matching CI exist only at cutover.
-- S01: production-only — quiescence changes the live queue.
-- S02: production-only — process identities are host facts.
-- S03: production-only — draining stops the live fleet.
-- S04: production-only — client replacement changes host processes.
-- S05: production-only — enforced startup changes the production service.
-- S07: production-only — the canary must be a production container.
-- S08: production-only — bulk respawn changes the live fleet.
-- G01: production-only — production HTTP behavior.
-- G02: production-only — production HTTP behavior.
-- G03: production-only — production runner identity.
-- G04: production-only — production phone origin and read token.
-- G05: production-only — production read-token boundary.
-- G06: production-only — production CORS behavior.
-- G07: production-only — installed production phone board.
-- G08: production-only — production container count.
-- G09: production-only — real production container and stream.
-- G10: production-only — production runner identity.
-- G11: production-only — production survivor inventory.
-
-S06 and S09 were exercised during authoring for syntax and assertion structure. Configuration-volume
-and launcher-selection evidence is recorded under Resume evidence.
-
-## Machine-checkable contract
-
-The following assignments are assertions consumed by the validator; they contain no credentials.
-
-```text
-STEP_BLOCKS_HAVE_DISTINCT_ACTION_CHECK=1
-EVIDENCE_CLASSIFICATION_PARTITION=complete
-VALIDATOR_REPORTS_GOVERNING_REQUIREMENT=1
-PRODUCTION_ONLY_REASON_COVERAGE=complete
-AUTH_FILE_ENV_ASSIGNMENT=filename-only
-S05_CHECK_EXEC='tmux -L panopticon list-sessions'
-INVENTORY_IDENTITY_FIELDS='pid start_time'
-DRAIN_EXPECTED_EMPTY=1
-SURVIVOR_DISPOSITION_REQUIRED=1
-G01_EXPECTED_STATUS=200
-G02_EXPECTED_STATUS=401
-G03_REQUIRE_SAME_RUNNER=1
-G04_FORBID_STATUS='401 403'
-G05_EXPECTED_STATUS=401
-G06_CHECK_PREFLIGHT=1
-G07_COMPARE_NAMED_TASK=1
-G08_EXPECTED_CONTAINERS=0
-G09_CAPABILITY_PREFIX='ptc1.'
-G10_REQUIRE_PID_AND_START=1
-G11_REQUIRE_ALL_SURVIVORS=1
-G06_PREFLIGHT_ECHO_ORIGIN=1
-G06_ACTUAL_ECHO_ORIGIN=1
-G06_FORBID_CREDENTIALS_BOTH=1
-G09_MIN_KEEPALIVES=1
-G09_CAPABILITY_SOURCE='mounted-container-credential'
-G09_REAL_CONTAINER=1
-G09_FRESH_SPAWN=1
-Claude evidence level: unit
-CANARY_BEFORE_BULK=1
-REQUIRE_TASK_DISPOSITION=1
-Codex evidence level: unit
-ROLLBACK_TRIGGER_CANARY_FAILURE=1
-ROLLBACK_KEEP_CONTAINERS_STOPPED=1
-ROLLBACK_ALLOW_LEGACY=0
-production process identity remains unproven
-APPEND_CUTOVER_EVIDENCE_TO_203=1
-NEW_FOLLOWUP_ISSUE=203
-OPEN_DUPLICATE_ISSUES=0
-ROLLBACK_EXPECT_KILLED_PROCESS=0
-ROLLBACK_KEEP_CLIENTS_STOPPED_UNTIL_RESTORED=1
-S05_ACTION_EXEC='tmux -L panopticon kill-session -t service'
-S00_EFFECT=verify-prerequisite
-S01_EFFECT=quiesce
-S02_EFFECT=inventory
-S03_EFFECT=container-drain
-S04_EFFECT=long-lived-client-restart
-S05_EFFECT=enforced-service-restart
-S06_EFFECT=post-restart-gates
-S07_EFFECT=canary-verification
-S08_EFFECT=bulk-respawn
-S09_EFFECT=evidence-recording
-ACTION_EXECUTABLE=1
-CHECK_EXECUTABLE=1
-CHECK_INDEPENDENT=1
-EXPECTED_FROM=check
-FAILURE_ON=unexpected-check-result
-S06_ACTION_EXEC='run-gates G01 G02 G03 G04 G05 G06'
-S06_CHECK_EXEC='test all-gates-passed'
-S06_EXPECTED='all six gates pass'
-S06_FAILURE='STOP and roll back'
-S03_EVIDENCE_STATUS=cutover-only
-S06_EVIDENCE_STATUS=authoring
-S04_EVIDENCE_STATUS=cutover-only
-S05_EVIDENCE_STATUS=cutover-only
-S07_EVIDENCE_STATUS=cutover-only
-S08_EVIDENCE_STATUS=cutover-only
-ISSUE_202_ANCESTOR_OF_DEPLOY=1
-ISSUE_202_GREEN_SHA_MATCH=1
-ISSUE_202_REPOSITORY_GATE=1
-FREEZE_BEFORE_WAIT=1
-WAIT_FOR=in-flight-turns
-STOPPING_POINTS=recorded
-CONTAINER_IDENTITY_FIELDS='pid start_time'
-RUNNER_IDENTITY_FIELDS='pid start_time'
-DASHBOARD_IDENTITY_FIELDS='pid start_time'
-DRAIN_BEFORE_ENFORCED_RESTART=1
-DRAIN_SCOPE=all-running-task-containers
-DRAIN_OBSERVATION_SOURCE=direct-docker-running-list
-S03_CHECK_EXEC='docker ps --quiet --filter label=panopticon.task'
-COUNTER_ROLE=corroboration-only
-COUNTER_CONTRADICTORY_GATE_INSTRUCTIONS=0
-ALLOW_LEGACY_PT1=0
-CONTRADICTORY_LEGACY_INSTRUCTIONS=0
-ALLOW_LIVE_REMINT=0
-CONTRADICTORY_LIVE_REMINT_INSTRUCTIONS=0
-LIVE_CONTAINER_CREDENTIAL_UPDATE_INSTRUCTIONS=none
-ALLOW_SCOPING_REVERT=0
-CONTRADICTORY_SCOPING_INSTRUCTIONS=0
-CLIENT_RESTART_BEFORE_ENFORCEMENT=1
-DASHBOARD_RESTART_BEFORE_ENFORCEMENT=1
-EXECUTION_ORDER='restart-runner restart-dashboard enable-enforced-authentication'
-RUNNER_COMPARE_FIELDS='pid start_time'
-RUNNER_COMPARE_SUBJECT=active-recorded-runner
-RUNNER_IDENTITY_ORDER='capture-before restart capture-after compare'
-POST_CHANGE_PROBE_SURVIVOR_EVIDENCE=0
-SURVIVOR_EVIDENCE_COMMAND=compare-original-pid-and-start
-SURVIVOR_SCOPE=every-inventoried-credential-client
-SURVIVOR_IDENTITY_FIELDS='original_pid original_start_time'
-SURVIVOR_DISPOSITIONS='restarted confirmed-dead'
-AUTH_FILE_TYPE=regular
-AUTH_FILE_SYMLINK=forbidden
-AUTH_FILE_OWNER=service-user
-AUTH_CHECK_PRINTS_VALUES=0
-STALE_SUPERVISORS='runner dashboard'
-SUPERVISOR_ORIGIN_VALUE='$PWA_ORIGIN'
-SUPERVISOR_ENV_SCOPE=all-inventoried-stale-supervisors
-AUTH_FILE_PATH='$PANOPTICON_CONFIG/secrets/$AUTH_FILE_NAME'
-AUTH_FILE_REFERENCE=filename-only
-RESOLVED_PANOPTICON_SERVICE_AUTH_FILE='$PANOPTICON_CONFIG/secrets/$AUTH_FILE_NAME'
-PWA_ORIGIN_SCHEME_REQUIRED=1
-PWA_ORIGIN_HOST_REQUIRED=1
-PWA_ORIGIN_PORT_REQUIRED=1
-PWA_ORIGIN_FORBIDS_SUFFIX=path,query,fragment,credentials,trailing-slash
-PANOPTICON_BROWSER_ORIGINS=$PWA_ORIGIN
-PWA_ORIGIN_EXPECTED_SCHEME=https
-PWA_ORIGIN_EXPECTED_HOST='$PHONE_BOARD_HOST'
-PWA_ORIGIN_EXPECTED_PORT='$PHONE_BOARD_PORT'
-WRITE_TOKEN_ARRAY=nonempty
-READ_TOKEN_ARRAY=nonempty
-READ_WRITE_ARRAYS=unequal
-TOKEN_ARRAY_TYPES=arrays
-TOKEN_VALIDATION_PRINTS_VALUES=0
-READ_TOKEN_PURPOSE=phone-board
-CREDENTIAL_VALIDATION_EXEC='python -m panopticon.core.cutover_runbook inspect-credential-file $PANOPTICON_CONFIG/secrets/$AUTH_FILE_NAME'
-PHONE_BOARD_TOKEN_SOURCE=credential-read-array
-G03_COMPARE_FIELDS='pid start_time'
-G03_PROBE_PROCESS=recorded-active-runner
-G03_AUTH=runner-write-token
-G03_EXPECT=same-runner-live
-G03_EXEC_AUTH=runner-write-token
-G03_EXEC_IDENTITY='pid start_time'
-G03_EXEC_SUBJECT=recorded-active-runner
-G04_METHOD=GET
-G04_PATH=/tasks
-G04_TOKEN_SCOPE=read
-G04_ORIGIN='$PWA_ORIGIN'
-G01_AUTH=none
-G01_METHOD=GET
-G01_PATH=/healthz
-G02_AUTH=none
-G02_METHOD=GET
-G02_PATH=/tasks
-G02_HEADERS='Accept: application/json'
-G05_METHOD=PUT
-G05_PATH='/tasks/$CANARY_TASK_ID/turn'
-G05_TOKEN_SCOPE=read
-G06_CHECK_ACTUAL=1
-G06_PREFLIGHT_ACTUAL_ORIGIN='$PWA_ORIGIN'
-G06_RESPONSE_ACTUAL_ORIGIN='$PWA_ORIGIN'
-G07_BOARD_TASK_NAME='$G07_API_TASK_NAME'
-G07_EXEC_INPUTS='installed-phone-board authenticated-fleet-api'
-G07_EXEC_COMPARE=exact-equality
-G08_OBSERVATION=direct-docker-list
-G08_IMMEDIATELY_BEFORE=enforced-service-restart
-G11_IDENTITY_FIELDS='original_pid original_start_time'
-G11_ALLOWED_DISPOSITIONS='restarted confirmed-dead'
-G11_MATCHES_EVERY_INVENTORY_ROW=1
-G11_RESTART_REQUIRES_NEW_IDENTITY=1
-G11_DEAD_REQUIRES_ORIGINAL_IDENTITY_ABSENT=1
-G06_PREFLIGHT_COMPARE=exact-string-equality
-G06_ACTUAL_COMPARE='test returned-acao = $PWA_ORIGIN'
-G10_ORDER='capture-before restart capture-after compare'
-G10_RUNNER_SUBJECT=same-active-runner
-G10_EXEC_COMPARE='pid start_time'
-G10_REQUIRE_CHANGED_PAIR=1
-G06_PREFLIGHT_FORBID_CREDENTIALS=1
-G06_ACTUAL_FORBID_CREDENTIALS=1
-G09_MINIMUM_ELAPSED_SECONDS=5
-G09_EVENT_ORDER='initial keepalive'
-G09_LIVENESS_SOURCE=real-canary-stream
-G09_INSPECTION_COMMAND_SOURCE=mounted-credential-file
-G09_INSPECTION_TARGET=docker-container
-G09_SPAWN_EPOCH=after-enforcement
-G09_SPAWN_COMPARE=container-created-after-enforcement-start
-CLAUDE_CONFIG_VOLUME_EVIDENCE=unit
-CLAUDE_CONTINUATION_EVIDENCE=unit
-CLAUDE_TRANSCRIPT_ACCEPTANCE_EVIDENCE=live-cutover
-CANARY_GATE=G09
-BULK_REQUIRES_CANARY_SUCCESS=1
-TASK_FAILURE_DISPOSITION=recorded
-BULK_TASK_SCOPE=every-intended-nonterminal-task
-BULK_ALLOWED_DISPOSITIONS='live task-specific-failure'
-BULK_FAILURE_SCOPE=task-specific
-CODEX_CONFIG_VOLUME_EVIDENCE=unit
-CODEX_EXPLICIT_SESSION_EVIDENCE=unit
-CODEX_TRANSCRIPT_ACCEPTANCE_EVIDENCE=live-cutover
-ROLLBACK_CONTRADICTORY_LEGACY_ACTIONS=0
-production credential-file acceptance remains unproven
-until recorded during cutover
-CUTOVER_EVIDENCE_DESTINATION=issue-203
-CUTOVER_EVIDENCE_COMMAND='gh issue comment 203 --body-file $EVIDENCE_FILE'
-ROLLBACK_TRIGGER_PREREQUISITE_FAILURE=1
-ROLLBACK_TRIGGER_NONZERO_DRAIN=1
-ROLLBACK_TRIGGER_STALE_CLIENT=1
-ROLLBACK_TRIGGER_SERVICE_STARTUP=1
-ROLLBACK_TRIGGER_SECURITY_GATE=1
-ROLLBACK_TRIGGER_BROWSER_GATE=1
-ROLLBACK_ORDER='keep-containers-stopped restore-service release-containers'
-PRODUCTION_ONLY_COVERAGE=all-production-only-executable-items
-DUPLICATE_ISSUE_202=forbidden
-DUPLICATE_ISSUE_203=forbidden
-FOLLOWUP_APPEND_COMMAND='gh issue comment 203 --body-file $FOLLOWUP_FILE'
-ROLLBACK_DEPENDS_ON_KILLED_PID=0
-ROLLBACK_RESTORE_CLIENT_CONFIG_BEFORE_RESTART=1
-ROLLBACK_CLIENT_SCOPE=all-long-lived-clients
-ROLLBACK_CLIENT_CONFIG=last-known-good
-ROLLBACK_RELEASE_CONTAINERS_AFTER_CLIENTS=1
-```
+Do not add a `pt1` compatibility window. Do not replace credentials inside running containers.
+Do not revert or weaken PR #163. The distinct replacement runner ID is a temporary ownership bridge,
+not a credential compatibility path; after S08 it owns all reclaimed nonterminal work.

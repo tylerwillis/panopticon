@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.3.3--9ad0a2703654",
+  "requirementId": "enforced-mode-cutover-runbook.3.3",
+  "hash": "9ad0a2703654",
+  "verdict": "pass",
+  "summary": "Combined S01/S04/G11 checks inventory both clients, require original PID/start-time death checks for runner and dashboard, and verify both replacement identities.",
+  "timestamp": "2026-08-04T22:37:13.322Z"
+}

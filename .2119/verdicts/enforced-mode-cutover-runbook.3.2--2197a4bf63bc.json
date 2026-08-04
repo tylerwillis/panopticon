@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.3.2--2197a4bf63bc",
+  "requirementId": "enforced-mode-cutover-runbook.3.2",
+  "hash": "2197a4bf63bc",
+  "verdict": "pass",
+  "summary": "Combined S04 and G10 assertions require recorded old/new runner PID and start-time variables, identity comparison, and verification that the recorded new active process still exists.",
+  "timestamp": "2026-08-04T22:37:12.783Z"
+}

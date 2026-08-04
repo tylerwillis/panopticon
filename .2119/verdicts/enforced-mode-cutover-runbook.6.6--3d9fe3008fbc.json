@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.6.6--3d9fe3008fbc",
+  "requirementId": "enforced-mode-cutover-runbook.6.6",
+  "hash": "3d9fe3008fbc",
+  "verdict": "pass",
+  "summary": "Every parsed step and gate must have a nonempty allowed evidence-status reason, with exact authoring-versus-production classifications enforced.",
+  "timestamp": "2026-08-04T22:34:12.773Z"
+}

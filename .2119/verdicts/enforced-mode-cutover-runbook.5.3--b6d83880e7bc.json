@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.5.3--b6d83880e7bc",
+  "requirementId": "enforced-mode-cutover-runbook.5.3",
+  "hash": "b6d83880e7bc",
+  "verdict": "pass",
+  "summary": "The Claude table row separately labels volume persistence and continuation as Unit and real-CLI acceptance as Production-only.",
+  "timestamp": "2026-08-04T22:36:42.991Z"
+}

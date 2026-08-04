@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.6.4--895a5da0a4b7",
+  "requirementId": "enforced-mode-cutover-runbook.6.4",
+  "hash": "895a5da0a4b7",
+  "verdict": "pass",
+  "summary": "The dedicated unproven section is checked for every required production fact and for remaining unproven until evidence is recorded.",
+  "timestamp": "2026-08-04T22:36:45.535Z"
+}

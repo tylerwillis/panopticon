@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.7--5e1397a6dd2c",
+  "requirementId": "enforced-mode-cutover-runbook.4.7",
+  "hash": "5e1397a6dd2c",
+  "verdict": "pass",
+  "summary": "G07 fetches the configured installed phone board and authenticated fleet API, then requires one chosen task name in both sources.",
+  "timestamp": "2026-08-04T22:39:13.052Z"
+}

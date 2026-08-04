@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.3.4--6978438aa325",
+  "requirementId": "enforced-mode-cutover-runbook.3.4",
+  "hash": "6978438aa325",
+  "verdict": "pass",
+  "summary": "The operator document explicitly says a freshly launched CLI proves nothing about an original survivor, while the actual disposition checks use original PID/start-time identity; hypothetical added contradictory prose is out of scope.",
+  "timestamp": "2026-08-04T22:37:13.835Z"
+}

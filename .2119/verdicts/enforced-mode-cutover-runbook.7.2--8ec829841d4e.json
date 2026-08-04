@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.7.2--8ec829841d4e",
+  "requirementId": "enforced-mode-cutover-runbook.7.2",
+  "hash": "8ec829841d4e",
+  "verdict": "pass",
+  "summary": "S05 must export all three exact variables and pass each same-named value in the service child env command.",
+  "timestamp": "2026-08-04T22:34:16.087Z"
+}

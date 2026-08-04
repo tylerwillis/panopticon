@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.17--ac0479fd863a",
+  "requirementId": "enforced-mode-cutover-runbook.4.17",
+  "hash": "ac0479fd863a",
+  "verdict": "pass",
+  "summary": "G09 is required to execute the capability check through docker exec, rejecting a host-only or simulated inspection.",
+  "timestamp": "2026-08-04T22:34:08.669Z"
+}

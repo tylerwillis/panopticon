@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.3--d3229caf87cd",
+  "requirementId": "enforced-mode-cutover-runbook.4.3",
+  "hash": "d3229caf87cd",
+  "verdict": "pass",
+  "summary": "G03 queries the authenticated live-runner endpoint for the recorded runner ID, checks that ID in the successful response, and binds it to the still-running recorded PID/start-time pair.",
+  "timestamp": "2026-08-04T22:37:14.881Z"
+}
