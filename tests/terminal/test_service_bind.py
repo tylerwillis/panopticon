@@ -109,6 +109,7 @@ def test_default_host_selector_is_a_pure_function_of_platform_identity() -> None
         "127.0.0.2",
         "::1",
         "2001:0DB8:0000:0000:0000:0000:0000:0001",
+        "a",
         "control.example.test",
         "Control.Example.TEST",
     ],

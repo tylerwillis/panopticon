@@ -3,6 +3,6 @@
   "requirementId": "REQ-046.5.1",
   "hash": "ac0cfd01171a",
   "verdict": "pass",
-  "summary": "Exact normalized-paragraph equality rejects every omitted, added, substituted, or reordered word while permitting only Markdown source line wrapping.",
-  "timestamp": "2026-08-03T23:29:42.206Z"
+  "summary": "The annotated test reads docs/auth.md, selects the bind-policy paragraph by its required opening, normalizes source line wrapping, and compares the entire paragraph to the exact required text; any missing, added, reordered, or altered content fails.",
+  "timestamp": "2026-08-03T23:22:05.557Z"
 }

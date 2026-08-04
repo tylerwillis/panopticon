@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-046.3.1--41ab354c8b73",
+  "requirementId": "REQ-046.3.1",
+  "hash": "41ab354c8b73",
+  "verdict": "pass",
+  "summary": "The parameterized test covers Darwin, Linux, and Windows with nonempty IPv4, compressed and expanded IPv6, and hostname values including case preservation, and rejects substitution or normalization by asserting the sole --host argument equals the exact configured value.",
+  "timestamp": "2026-08-03T23:22:03.818Z"
+}

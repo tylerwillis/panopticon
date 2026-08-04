@@ -3,6 +3,6 @@
   "requirementId": "REQ-046.1.1",
   "hash": "cd040c698807",
   "verdict": "pass",
-  "summary": "The integrated-startup test rejects omitted, duplicated, or non-127.0.0.1 host options on Darwin for both unset and empty PANOPTICON_HOST.",
-  "timestamp": "2026-08-03T23:28:56.527Z"
+  "summary": "The annotated integration-command test covers Darwin with PANOPTICON_HOST both unset and empty, invokes session startup, and requires exactly one --host value equal to 127.0.0.1, rejecting omitted, duplicated, or alternative host options.",
+  "timestamp": "2026-08-03T23:22:02.200Z"
 }
