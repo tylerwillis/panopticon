@@ -273,12 +273,13 @@ def test_image_layer_installs_all_runtime_components_at_pinned_versions() -> Non
         '      *) echo "unsupported architecture: $arch" >&2; exit 1 ;; \\\n'
         "    esac; \\\n"
         "    curl --fail --silent --show-error --location \\\n"
-        f'      "https://nodejs.org/dist/v{NODE_VERSION}/node-v{NODE_VERSION}-linux-$node_arch.tar.xz" \\\n'
-        "      | tar --extract --xz --directory /usr/local --strip-components=1; \\\n"
+        f'      "https://nodejs.org/dist/v{NODE_VERSION}/node-v{NODE_VERSION}-linux-$node_arch.tar.gz" \\\n'
+        "      | tar --extract --gzip --directory /usr/local --strip-components=1; \\\n"
         "    npm install --global --ignore-scripts "
         f"@earendil-works/pi-coding-agent@{PI_VERSION} "
         f"@ai-outfitter/outfitter@{OUTFITTER_VERSION}"
     )
+    assert ".tar.xz" not in layer and "--xz" not in layer and "xz-utils" not in layer
 
 
 def test_config_dir_is_the_outfitter_home_and_env_needs_no_override(tmp_path: Path) -> None:
