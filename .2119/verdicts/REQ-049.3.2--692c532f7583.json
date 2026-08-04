@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-049.3.2--692c532f7583",
+  "requirementId": "REQ-049.3.2",
+  "hash": "692c532f7583",
+  "verdict": "pass",
+  "summary": "Tests cover every supported ANSI grammar branch with BEL/ST and parameter variants at leading, embedded, and trailing positions, plus control-plane rejection.",
+  "timestamp": "2026-08-04T21:18:45.423Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-049.2.1--86c72037ebf7",
+  "requirementId": "REQ-049.2.1",
+  "hash": "86c72037ebf7",
+  "verdict": "pass",
+  "summary": "The integration test captures real TaskServiceClient PUT bodies, requires text_b64 without text, and verifies exact server-decoded snapshot text.",
+  "timestamp": "2026-08-04T21:18:43.589Z"
+}

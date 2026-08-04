@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-049.1.1--76bcce87f9f1",
+  "requirementId": "REQ-049.1.1",
+  "hash": "76bcce87f9f1",
+  "verdict": "pass",
+  "summary": "Valid and nearest-invalid escape, byte-limit, multibyte-byte-limit, and line-limit cases exercise plain text and text_b64 paths with matching decoded outcomes.",
+  "timestamp": "2026-08-04T21:18:41.013Z"
+}
