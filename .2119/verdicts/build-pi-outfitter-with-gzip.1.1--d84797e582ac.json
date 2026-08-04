@@ -1,8 +1,0 @@
-{
-  "reviewId": "build-pi-outfitter-with-gzip.1.1--d84797e582ac",
-  "requirementId": "build-pi-outfitter-with-gzip.1.1",
-  "hash": "d84797e582ac",
-  "verdict": "pass",
-  "summary": "Real Pi image build and exact pinned Node execution reject build, runtime, or version violations.",
-  "timestamp": "2026-08-04T23:12:09.441Z"
-}

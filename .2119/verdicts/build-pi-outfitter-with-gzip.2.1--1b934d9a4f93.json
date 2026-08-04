@@ -1,8 +1,0 @@
-{
-  "reviewId": "build-pi-outfitter-with-gzip.2.1--1b934d9a4f93",
-  "requirementId": "build-pi-outfitter-with-gzip.2.1",
-  "hash": "1b934d9a4f93",
-  "verdict": "pass",
-  "summary": "Both real images require gzip and explicitly reject any xz executable.",
-  "timestamp": "2026-08-04T23:12:10.637Z"
-}

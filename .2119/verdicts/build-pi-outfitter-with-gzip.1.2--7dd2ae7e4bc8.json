@@ -1,0 +1,8 @@
+{
+  "reviewId": "build-pi-outfitter-with-gzip.1.2--7dd2ae7e4bc8",
+  "requirementId": "build-pi-outfitter-with-gzip.1.2",
+  "hash": "7dd2ae7e4bc8",
+  "verdict": "pass",
+  "summary": "Dedicated local-wheel base plus real Outfitter image build rejects build, runtime, and pinned-version violations.",
+  "timestamp": "2026-08-04T23:32:18.102Z"
+}
