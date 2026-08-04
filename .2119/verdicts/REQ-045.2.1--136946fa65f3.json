@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.2.1--136946fa65f3",
-  "requirementId": "REQ-045.2.1",
-  "hash": "136946fa65f3",
-  "verdict": "pass",
-  "summary": "Fresh-context reviewer confirmed Linux and Windows absent/empty overrides require exactly one broad host and reject omission, duplication, loopback, or alternatives.",
-  "timestamp": "2026-08-03T20:02:58.017Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.5.1--fcbff47f3c2d",
-  "requirementId": "REQ-045.5.1",
-  "hash": "fcbff47f3c2d",
-  "verdict": "pass",
-  "summary": "Fresh-context reviewer confirmed the paragraph assertion rejects missing, altered, reordered, or additional policy text while ignoring only source wrapping.",
-  "timestamp": "2026-08-03T19:58:35.840Z"
-}
