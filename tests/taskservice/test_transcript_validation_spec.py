@@ -177,16 +177,34 @@ def test_transcript_publication_keeps_auth_and_runner_ansi_layers(tmp_path: Path
     with client as http:
         task_id = _live_task(service, http)
         scoped = TaskServiceClient(http, token=scoped_task_token(WRITE, task_id))
-        ansi_sequences = [
-            "\x1b[31m",
-            "\x1b[?25l",
+        csi_sequences = [
+            f"\x1b[{parameters}{chr(final)}"
+            for parameters in ("", "2", "?25", "1;2", "38;5;196")
+            for final in range(ord("@"), ord("~") + 1)
+        ]
+        csi_sequences.extend(
+            f"\x1b[31{chr(intermediate)}m" for intermediate in range(ord(" "), ord("/") + 1)
+        )
+        csi_sequences.append("\x1b[31 !m")
+        osc_sequences = [
+            "\x1b]\x07",
+            "\x1b]\x1b\\",
             "\x1b]0;title\x07",
             "\x1b]0;title\x1b\\",
-            "\x1bPdata\x1b\\",
-            "\x1bXx\x1b\\",
-            "\x1b^x\x1b\\",
-            "\x1b_x\x1b\\",
-            "\x1b7",
+        ]
+        string_sequences = [
+            f"\x1b{introducer}{payload}\x1b\\" for introducer in "PX^_" for payload in ("", "data")
+        ]
+        single_sequences = [
+            f"\x1b{chr(final)}"
+            for final in (*range(ord("0"), ord("?") + 1), *range(ord("@"), ord("_") + 1))
+            if chr(final) not in "[P]X^_"
+        ]
+        ansi_sequences = [
+            *csi_sequences,
+            *osc_sequences,
+            *string_sequences,
+            *single_sequences,
         ]
         snapshots: list[dict[str, object]] = []
         for sequence in ansi_sequences:
@@ -217,6 +235,12 @@ def test_transcript_publication_keeps_auth_and_runner_ansi_layers(tmp_path: Path
             headers=_auth(WRITE),
             json=snapshot,
         )
+        publication_sequences = [
+            "\x1b[38;5;196m",
+            *osc_sequences,
+            *string_sequences,
+            "\x1b7",
+        ]
         unstripped = [
             http.put(
                 f"/tasks/{task_id}/session/transcript",
@@ -227,10 +251,10 @@ def test_transcript_publication_keeps_auth_and_runner_ansi_layers(tmp_path: Path
                     "runner_id": "host-1",
                 },
             )
-            for sequence in ansi_sequences
+            for sequence in publication_sequences
         ]
 
-    assert forbidden.value.response.status_code == 401
+    assert forbidden.value.response.status_code == 403
     assert wrong_runner.value.response.status_code == 409
     assert missing_runner.status_code == 422
     assert all(response.status_code == 422 for response in unstripped)
