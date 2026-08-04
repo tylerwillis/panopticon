@@ -123,7 +123,6 @@ class _ConfiguredTokenLogFilter(logging.Filter):
         return True
 
 
-_REDACTED_LOGGER_NAMESPACES = ("panopticon.taskservice", "fastapi", "uvicorn", "mcp")
 _log_redaction_lock = threading.RLock()
 _active_log_redaction_filters: list[_ConfiguredTokenLogFilter] = []
 _pristine_logger_handle = logging.Logger.handle
@@ -148,11 +147,7 @@ def _redacting_logger_handle(logger: logging.Logger, record: logging.LogRecord) 
         # A logging thread can resolve the patched method immediately before the final active
         # lifespan restores Logger.handle. Never turn that shutdown race into a caller failure.
         return _pristine_logger_handle(logger, record)
-    if any(
-        record.name == namespace or record.name.startswith(f"{namespace}.")
-        for namespace in _REDACTED_LOGGER_NAMESPACES
-    ):
-        _ConfiguredTokenLogFilter(tokens).filter(record)
+    _ConfiguredTokenLogFilter(tokens).filter(record)
     return original_handle(logger, record)
 
 

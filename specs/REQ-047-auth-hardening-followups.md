@@ -52,8 +52,8 @@ every affected code path; that follow-up must preserve the enforced-mode rejecti
    `logging.Logger.handle` identity whenever no authenticated lifespan remains active.
 2. During an authenticated task-service application's lifespan, each configured token MUST be
    replaced by the exact literal marker `[redacted]` in messages, arguments, caller-supplied extra
-   fields, exception text, and stack information in log records handled by task-service, FastAPI,
-   uvicorn, or MCP logger namespaces.
+   fields, exception text, and stack information in every log record handled in the process,
+   regardless of logger namespace.
 3. Ending an authenticated application's lifespan MUST discard its redaction tokens without
    disabling redaction for another application whose lifespan overlaps it.
 

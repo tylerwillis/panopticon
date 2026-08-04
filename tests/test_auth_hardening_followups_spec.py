@@ -601,6 +601,7 @@ def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> 
             return True
 
     names = [
+        "",  # logging.getLogger("") is the process root logger.
         "panopticon.taskservice",
         "panopticon.taskservice.api",
         "panopticon.taskservice.api.child",
@@ -620,6 +621,10 @@ def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> 
         "mcp.client.child",
         "mcp.server.fastmcp.server",
         "mcp.server.fastmcp.server.child",
+        "httpx",
+        "sqlalchemy.engine",
+        "panopticon.workflows.discovery",
+        "unrelated.third_party",
     ]
     streams = {name: StringIO() for name in names}
     handlers = {name: logging.StreamHandler(streams[name]) for name in names}

@@ -421,21 +421,39 @@ def test_query_credential_is_absent_from_production_composition_logs(
 ) -> None:
     # 2119: REQ-044.6.1
     caplog.set_level(logging.INFO)
+    # The former process-global implementation attached a redaction filter to pytest's shared
+    # capture handler and never removed it. Do not let a filter leaked by an earlier test mask a
+    # narrower replacement implementation: this guard must observe records after application
+    # redaction but before any pre-existing capture-handler filter can mutate them.
+    capture_filters = caplog.handler.filters[:]
+    caplog.handler.filters.clear()
+    httpx_logger = logging.getLogger("httpx")
+    monkeypatch.setattr(httpx_logger, "disabled", False)
+    monkeypatch.setattr(httpx_logger, "propagate", True)
+    caplog.set_level(logging.INFO, logger="httpx")
     app = _production_app(tmp_path, monkeypatch)
-    with TestClient(app) as client:
-        response = client.get("/tasks", params={"access_token": WRITE_TOKEN})
-    assert response.status_code == 401
-    messages = [record.getMessage() for record in caplog.records]
-    assert messages, "log secrecy guard captured no service logs; repair capture before trusting it"
-    assert any(
-        record.name == "root"
-        and "panopticon: task-service authentication mode" in record.getMessage()
-        for record in caplog.records
-    )
-    assert all(WRITE_TOKEN not in message for message in messages), (
-        "production-composed request logging persisted a query-string credential; redact query "
-        "values or keep raw access logging disabled"
-    )
+    try:
+        with TestClient(app) as client:
+            response = client.get("/tasks", params={"access_token": WRITE_TOKEN})
+        assert response.status_code == 401
+        messages = [record.getMessage() for record in caplog.records]
+        assert messages, (
+            "log secrecy guard captured no service logs; repair capture before trusting it"
+        )
+        assert any(
+            record.name == "root"
+            and "panopticon: task-service authentication mode" in record.getMessage()
+            for record in caplog.records
+        )
+        assert any(record.name == "httpx" for record in caplog.records), (
+            "log secrecy guard captured no httpx request record; repair capture before trusting it"
+        )
+        assert all(WRITE_TOKEN not in message for message in messages), (
+            "production-composed request logging persisted a query-string credential; redact query "
+            "values or keep raw access logging disabled"
+        )
+    finally:
+        caplog.handler.filters[:] = capture_filters
 
 
 def test_python_caller_limitation_and_compensating_check_are_documented() -> None:
