@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-049.3.2--df8984697c3e",
+  "requirementId": "REQ-049.3.2",
+  "hash": "df8984697c3e",
+  "verdict": "pass",
+  "summary": "Defined ANSI grammar and boundary tests cover CSI, OSC, string, single-character/fallback introducers, split-line handling, and independent control-plane ESC rejection.",
+  "timestamp": "2026-08-04T22:14:26.428Z"
+}

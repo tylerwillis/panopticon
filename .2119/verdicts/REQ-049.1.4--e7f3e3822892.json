@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-049.1.4--e7f3e3822892",
+  "requirementId": "REQ-049.1.4",
+  "hash": "e7f3e3822892",
+  "verdict": "pass",
+  "summary": "The test accepts exactly 200 logical lines, rejects 201 with HTTP 422 through decoded client and plain JSON paths, and preserves the stored snapshot.",
+  "timestamp": "2026-08-04T21:18:42.937Z"
+}
