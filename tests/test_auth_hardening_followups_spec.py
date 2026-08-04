@@ -728,6 +728,30 @@ def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> 
         assert any(record.get("stack_info") == f"stack {redacted_payload}" for record in records)
 
 
+def test_log_redaction_preserves_standard_field_names_that_equal_tokens(tmp_path: Path) -> None:
+    # 2119: REQ-047.3.2
+    token = "relativeCreated"
+    stream = StringIO()
+    handler = logging.StreamHandler(stream)
+    handler.setFormatter(logging.Formatter("%(relativeCreated)d %(message)s"))
+    logger = logging.getLogger("uvicorn.error")
+    previous_state = (logger.disabled, logger.level, logger.propagate)
+    logger.disabled = False
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
+    logger.addHandler(handler)
+    try:
+        with TestClient(_authenticated_app(tmp_path, read=token)):
+            logger.info("credential %s", token)
+    finally:
+        logger.removeHandler(handler)
+        logger.disabled, logger.level, logger.propagate = previous_state
+
+    milliseconds, message = stream.getvalue().split(" ", 1)
+    assert milliseconds.isdigit()
+    assert message == "credential [redacted]\n"
+
+
 @pytest.mark.parametrize("reverse_entry", [False, True])
 @pytest.mark.parametrize("ended_first", [False, True])
 def test_overlapping_app_lifespans_retain_only_active_tokens(

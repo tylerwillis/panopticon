@@ -58,6 +58,9 @@ from panopticon.taskservice.service import (
 
 MAX_AUTH_INSPECTION_BODY_BYTES = 8 * 1024 * 1024
 _log = logging.getLogger(__name__)
+_STANDARD_LOG_RECORD_KEYS = frozenset(
+    logging.LogRecord("", logging.INFO, "", 0, "", (), None).__dict__
+)
 
 
 def _redact_log_value(value: Any, tokens: tuple[str, ...]) -> Any:
@@ -108,7 +111,7 @@ class _ConfiguredTokenLogFilter(logging.Filter):
         if record.stack_info is not None:
             record.stack_info = _redact_log_value(record.stack_info, self._tokens)
         record_fields = {
-            _redact_log_value(key, self._tokens): (
+            (key if key in _STANDARD_LOG_RECORD_KEYS else _redact_log_value(key, self._tokens)): (
                 value
                 if key in {"msg", "args", "exc_info", "stack_info"}
                 else _redact_log_value(value, self._tokens)
