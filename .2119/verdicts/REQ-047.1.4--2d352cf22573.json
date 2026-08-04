@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.1.4--2d352cf22573",
-  "requirementId": "REQ-047.1.4",
-  "hash": "2d352cf22573",
-  "verdict": "pass",
-  "summary": "Exactly 200 logical lines are accepted and 201 are rejected on both representations without storage mutation.",
-  "timestamp": "2026-08-04T05:32:00.000Z"
-}

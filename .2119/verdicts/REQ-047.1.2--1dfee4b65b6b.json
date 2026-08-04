@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.1.2--1dfee4b65b6b",
-  "requirementId": "REQ-047.1.2",
-  "hash": "1dfee4b65b6b",
-  "verdict": "pass",
-  "summary": "Decoded ESC is rejected at leading, interior, and trailing positions through base64 and plain representations without storage mutation.",
-  "timestamp": "2026-08-04T05:32:00.000Z"
-}

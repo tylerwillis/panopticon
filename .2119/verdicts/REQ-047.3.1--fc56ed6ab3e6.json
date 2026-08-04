@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.3.1--fc56ed6ab3e6",
-  "requirementId": "REQ-047.3.1",
-  "hash": "fc56ed6ab3e6",
-  "verdict": "pass",
-  "summary": "Tests distinguish derived-token, missing-runner, wrong-runner, and master-plus-owner publication outcomes.",
-  "timestamp": "2026-08-04T05:32:00.000Z"
-}
