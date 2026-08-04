@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.1.2--6ccdd5363092",
+  "requirementId": "REQ-047.1.2",
+  "hash": "6ccdd5363092",
+  "verdict": "pass",
+  "summary": "Tests reject retention of a complete SSE frame whose final payload bytes are a proper prefix of a configured secret, at both helper and transport boundaries.",
+  "timestamp": "2026-08-03T23:30:09.457Z"
+}

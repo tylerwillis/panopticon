@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.10.1--7828da6b2a61",
+  "requirementId": "REQ-035.10.1",
+  "hash": "7828da6b2a61",
+  "verdict": "pass",
+  "summary": "Enforced-auth tests issue credential-free GET /healthz, require 200, and exactly match the existing {status: ok} JSON, rejecting auth denial, unavailability, altered values, missing fields, and extra payload fields.",
+  "timestamp": "2026-08-03T23:27:37.359Z"
+}

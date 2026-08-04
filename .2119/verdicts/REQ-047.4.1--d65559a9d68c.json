@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.4.1--d65559a9d68c",
+  "requirementId": "REQ-047.4.1",
+  "hash": "d65559a9d68c",
+  "verdict": "pass",
+  "summary": "Tests reject wrong precedence or roots for PANOPTICON_STATE, XDG state, and HOME fallback, require distinct service/runner logs under the resolved root, and verify generated startup commands persist real output.",
+  "timestamp": "2026-08-03T23:36:18.724Z"
+}

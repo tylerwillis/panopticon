@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.2.3--aaeb4850bcda",
-  "requirementId": "REQ-047.2.3",
-  "hash": "aaeb4850bcda",
-  "verdict": "pass",
-  "summary": "Extensive malformed, forged, wrong-profile, wrong-version, differently bound, and nonexistent-subject cases are rejected, with wire-equivalent responses preventing task-existence disclosure.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

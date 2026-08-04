@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.10.2--bc2c207a2d02",
-  "requirementId": "REQ-047.10.2",
-  "hash": "bc2c207a2d02",
-  "verdict": "pass",
-  "summary": "Preflight and actual responses across allowed/disallowed origins, successful reads, rejected mutations, errors, and registered routes are checked never to emit Access-Control-Allow-Credentials true.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

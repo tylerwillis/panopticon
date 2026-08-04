@@ -1,0 +1,8 @@
+{
+  "reviewId": "layered-settings-hints.5.1--c9b0959fb4a5",
+  "requirementId": "layered-settings-hints.5.1",
+  "hash": "c9b0959fb4a5",
+  "verdict": "pass",
+  "summary": "ReposScreen rendering rejects any missing or incorrect source and override signpost.",
+  "timestamp": "2026-08-04T05:59:07.488Z"
+}

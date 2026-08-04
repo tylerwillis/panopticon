@@ -28,6 +28,7 @@ from pathlib import Path
 import httpx
 
 from panopticon.client import TaskServiceClient
+from panopticon.terminal.log_tee import open_private_directory
 from panopticon.terminal.session_environment import (
     session_environment_command as _session_command,
 )
@@ -38,6 +39,36 @@ def _make_client(service_url: str) -> TaskServiceClient:
 
 
 DEFAULT_SERVICE_URL = "http://localhost:8000"
+
+
+def _private_log_paths() -> dict[str, Path]:
+    """Create private integrated-stack logs without following path-level symlinks."""
+    if configured := os.environ.get("PANOPTICON_STATE"):
+        root = Path(configured)
+    elif xdg_state := os.environ.get("XDG_STATE_HOME"):
+        root = Path(xdg_state) / "panopticon"
+    else:
+        root = Path.home() / ".local" / "state" / "panopticon"
+    directory_fd = open_private_directory(root, create=True)
+    try:
+        os.fchmod(directory_fd, 0o700)
+        paths: dict[str, Path] = {}
+        for name in ("service", "runner"):
+            filename = f"{name}.log"
+            log_fd = os.open(
+                filename,
+                os.O_WRONLY | os.O_APPEND | os.O_CREAT | os.O_NOFOLLOW | os.O_CLOEXEC,
+                0o600,
+                dir_fd=directory_fd,
+            )
+            try:
+                os.fchmod(log_fd, 0o600)
+            finally:
+                os.close(log_fd)
+            paths[name] = root / filename
+        return paths
+    finally:
+        os.close(directory_fd)
 
 
 def _default_service_host(platform: str) -> str:
@@ -63,16 +94,21 @@ def _start_sessions(
 
     do_run = run or subprocess.run
     python = sys.executable
+    log_paths = _private_log_paths()
     service_host = os.environ.get("PANOPTICON_HOST") or _default_service_host(sys.platform)
     for name, cmd in [
         (
             "service",
-            f"{python} -m panopticon.taskservice --host {shlex.quote(service_host)} "
-            "2>&1 | tee /tmp/panopticon-service.log",
+            f"{shlex.quote(python)} -m panopticon.taskservice "
+            f"--host {shlex.quote(service_host)} "
+            f"2>&1 | {shlex.quote(python)} -m panopticon.terminal.log_tee "
+            f"{shlex.quote(str(log_paths['service']))}",
         ),
         (
             "runner",
-            f"{python} -m panopticon.sessionservice.host 2>&1 | tee /tmp/panopticon-runner.log",
+            f"{shlex.quote(python)} -m panopticon.sessionservice.host "
+            f"2>&1 | {shlex.quote(python)} -m panopticon.terminal.log_tee "
+            f"{shlex.quote(str(log_paths['runner']))}",
         ),
     ]:
         # Don't bounce an already-running session. Restarting the task service wipes its in-memory

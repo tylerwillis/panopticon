@@ -8,9 +8,12 @@ import shutil
 import socketserver
 import subprocess
 import threading
+import tomllib
 from pathlib import Path
 
 import pytest
+
+from panopticon.harnesses.codex import render_config
 
 
 class _CaptureHandler(http.server.BaseHTTPRequestHandler):
@@ -33,6 +36,23 @@ class _TargetHandler(_CaptureHandler):
     hits: list[tuple[str, str | None]] = []
 
 
+# 2119: REQ-035.47
+def test_codex_native_mcp_uses_the_proxy_bypassed_service_url() -> None:
+    cfg = tomllib.loads(
+        render_config(
+            "http://host.docker.internal:8000",
+            "",
+            Path("/workspace"),
+            authenticated=True,
+        )
+    )
+
+    assert cfg["mcp_servers"]["panopticon"] == {
+        "url": "http://host.docker.internal:8000/mcp",
+        "bearer_token_env_var": "PANOPTICON_SERVICE_AUTH_TOKEN",
+    }
+
+
 @pytest.mark.skipif(not shutil.which("claude"), reason="needs the real Claude CLI")
 # 2119: REQ-035.47
 def test_real_claude_mcp_transport_bypasses_ambient_proxy(
@@ -52,8 +72,8 @@ def test_real_claude_mcp_transport_bypasses_ambient_proxy(
     home = tmp_path / "home"
     home.mkdir()
     env = {
-        **os.environ,
         "HOME": str(home),
+        "PATH": os.environ.get("PATH", os.defpath),
         "PANOPTICON_SERVICE_AUTH_TOKEN": token,
         "HTTP_PROXY": f"http://127.0.0.1:{proxy.server_address[1]}",
         "http_proxy": f"http://127.0.0.1:{proxy.server_address[1]}",

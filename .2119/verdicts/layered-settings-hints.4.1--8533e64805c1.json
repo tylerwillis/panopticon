@@ -1,0 +1,8 @@
+{
+  "reviewId": "layered-settings-hints.4.1--8533e64805c1",
+  "requirementId": "layered-settings-hints.4.1",
+  "hash": "8533e64805c1",
+  "verdict": "pass",
+  "summary": "WorkflowsScreen rendering covers reviewer overrides, task overrides, and workflow filtering without inheritance language.",
+  "timestamp": "2026-08-04T05:59:07.093Z"
+}

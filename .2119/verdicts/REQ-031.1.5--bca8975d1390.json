@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.1.5--bca8975d1390",
+  "requirementId": "REQ-031.1.5",
+  "hash": "bca8975d1390",
+  "verdict": "pass",
+  "summary": "Reachable-daemon tests exercise both start and host through real CLI wiring and require exactly the detached task-service and runner tmux commands.",
+  "timestamp": "2026-08-03T21:26:15.753Z"
+}

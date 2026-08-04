@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.11.1--61d6184cb691",
-  "requirementId": "REQ-047.11.1",
-  "hash": "61d6184cb691",
-  "verdict": "pass",
-  "summary": "With no allowlist, exhaustive preflight and actual requests over registered routes and methods receive no Access-Control-Allow-Origin authorization.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

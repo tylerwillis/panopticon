@@ -1,0 +1,8 @@
+{
+  "reviewId": "layered-settings-hints.6.1--e91135d41d83",
+  "requirementId": "layered-settings-hints.6.1",
+  "hash": "e91135d41d83",
+  "verdict": "pass",
+  "summary": "Real API serialization and untouched modal tests prove app, repo, and workflow defaults and provenance reach task creation.",
+  "timestamp": "2026-08-04T05:59:07.863Z"
+}

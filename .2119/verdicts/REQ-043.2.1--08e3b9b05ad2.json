@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-043.2.1--08e3b9b05ad2",
+  "requirementId": "REQ-043.2.1",
+  "hash": "08e3b9b05ad2",
+  "verdict": "pass",
+  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. Tests cross the tmux-session boundary, retain failed status and exact actionable detail through heal/restart paths without mutation, and clear the latch only on explicit claim release.",
+  "timestamp": "2026-08-03T18:58:51.163Z"
+}

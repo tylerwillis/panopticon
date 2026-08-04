@@ -352,7 +352,9 @@ class Spawner:
                 **reviewer_kwargs,
             )
         except subprocess.CalledProcessError as exc:
-            raise _SpawnInfrastructureFailure(str(exc)) from exc
+            output = exc.stderr or exc.output
+            detail = str(output) if output else str(exc)
+            raise _SpawnInfrastructureFailure(detail) from exc
 
     def _spawn_shell(self, task: JsonObj, repo: JsonObj) -> str:
         """The shell path: run the workflow's ``shell_script`` in a host tmux session — no image, no
@@ -576,7 +578,16 @@ class Spawner:
                 continue  # preserve launcher/budget diagnostics until explicit claim release
             if self._executions.is_shell(task.get("workflow")):
                 continue  # never auto-respawn a shell task — leave it claimed (reconciles to `down`)
-            if self._runner_for(task).is_running(task["id"]):
+            try:
+                is_running = self._runner_for(task).is_running(task["id"])
+            except Exception:
+                _log.warning(
+                    "startup reclaim probe failed for task %s; preserving claim",
+                    task["id"],
+                    exc_info=True,
+                )
+                continue
+            if is_running:
                 continue  # container survived (runner-only crash) — keep claim, heal handles it
             # best-effort — heal() picks up unclaimed tasks that failed to release
             with contextlib.suppress(httpx.HTTPError):
@@ -595,9 +606,21 @@ class Spawner:
         container could clean up)."""
         if task["state"] not in TERMINAL_LABELS:
             return
-        # The backend owns runtime credential snapshots as well as the process/session. Its stop is
-        # idempotent, so this handles both a still-running terminal task and one that exited itself.
-        self._runner_for(task).stop(f"panopticon-{task['id']}")
+        backend = self._runner_for(task)
+        try:
+            exited_container = backend is self._runner and not backend.is_running(task["id"])
+        except Exception:
+            if backend is self._runner:
+                self._runner.cleanup_runtime_credentials(task["id"])
+            raise
+        if exited_container:
+            # The container has already exited. Credentials cannot remain on disk, but preserve the
+            # stopped container and pane until the next spawn so operators retain post-mortem output.
+            self._runner.cleanup_runtime_credentials(task["id"])
+        else:
+            # A live container (or a shell task) must be stopped before its workspace disappears;
+            # LocalRunner.stop removes every credential snapshot in its finally path.
+            backend.stop(f"panopticon-{task['id']}")
         if task.get("claimed_by") == self._runner_id:
             with contextlib.suppress(httpx.HTTPError):
                 self._client.release(task["id"])

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.29.1--cb45c92878e7",
+  "requirementId": "REQ-035.29.1",
+  "hash": "cb45c92878e7",
+  "verdict": "pass",
+  "summary": "The tests prove integrated native-Linux startup explicitly passes 0.0.0.0 when PANOPTICON_HOST is absent or empty, exercise the real start and host entry-point wiring, and separately verify standalone service startup retains 127.0.0.1.",
+  "timestamp": "2026-08-04T06:50:50.118Z"
+}

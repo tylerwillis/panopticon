@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.11.2--aba622486255",
+  "requirementId": "REQ-048.11.2",
+  "hash": "aba622486255",
+  "verdict": "pass",
+  "summary": "Parameterized startup tests reject wildcard, path, query, fragment, credential, opaque, and malformed entries, including invalid entries mixed with valid ones, while accepting valid exact origins and ports.",
+  "timestamp": "2026-08-04T06:51:03.707Z"
+}

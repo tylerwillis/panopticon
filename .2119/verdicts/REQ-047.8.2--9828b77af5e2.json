@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.8.2--9828b77af5e2",
-  "requirementId": "REQ-047.8.2",
-  "hash": "9828b77af5e2",
-  "verdict": "pass",
-  "summary": "Every task-targeted MCP tool and the artifact resource are exercised with self and sibling target arguments, while decision inspection proves the capability remains the subject and decoded arguments/URI remain only the target.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

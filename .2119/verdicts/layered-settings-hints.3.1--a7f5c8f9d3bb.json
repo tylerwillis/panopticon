@@ -1,0 +1,8 @@
+{
+  "reviewId": "layered-settings-hints.3.1--a7f5c8f9d3bb",
+  "requirementId": "layered-settings-hints.3.1",
+  "hash": "a7f5c8f9d3bb",
+  "verdict": "pass",
+  "summary": "Rendered surfaces reject missing, split, unmuted, newline-containing, or clipped hints at supported widths.",
+  "timestamp": "2026-08-04T05:59:06.741Z"
+}

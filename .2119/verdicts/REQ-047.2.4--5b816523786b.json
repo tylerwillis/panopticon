@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.2.4--5b816523786b",
-  "requirementId": "REQ-047.2.4",
-  "hash": "5b816523786b",
-  "verdict": "pass",
-  "summary": "Repeated and fresh-process derivations across multiple subjects and write tokens prove stable deterministic output for identical inputs.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

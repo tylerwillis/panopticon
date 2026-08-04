@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-043.3.1--8a57f173d8e3",
+  "requirementId": "REQ-043.3.1",
+  "hash": "8a57f173d8e3",
+  "verdict": "pass",
+  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. Tests force identical exit status 17 to classify differently solely by tmux-session existence, and arbitrary Docker exits 1/125 remain pre-session recoverable.",
+  "timestamp": "2026-08-03T18:58:52.281Z"
+}

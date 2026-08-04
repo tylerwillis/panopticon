@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.3.2--3401e7098de2",
-  "requirementId": "REQ-047.3.2",
-  "hash": "3401e7098de2",
-  "verdict": "pass",
-  "summary": "Tests search task/repo serialization, database bytes, artifact bytes, Docker arguments, mounted files, and captured logs and prove capability plaintext is absent from all prohibited surfaces.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

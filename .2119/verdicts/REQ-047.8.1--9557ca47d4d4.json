@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.8.1--9557ca47d4d4",
-  "requirementId": "REQ-047.8.1",
-  "hash": "9557ca47d4d4",
-  "verdict": "pass",
-  "summary": "The exact required REST/MCP pairs are inventoried and mapped to identical actions, then compared for self, multiple governed depths, unrelated, and missing targets; live MCP integration also verifies the boundary.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

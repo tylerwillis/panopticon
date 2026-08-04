@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.9.1--4d0d5aece4ba",
-  "requirementId": "REQ-047.9.1",
-  "hash": "4d0d5aece4ba",
-  "verdict": "pass",
-  "summary": "Both absent and empty read fields are accepted with nonempty write credentials, while empty, missing, and incorrectly typed write fields are rejected at startup.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

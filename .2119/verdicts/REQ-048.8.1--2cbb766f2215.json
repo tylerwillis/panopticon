@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.8.1--2cbb766f2215",
+  "requirementId": "REQ-048.8.1",
+  "hash": "2cbb766f2215",
+  "verdict": "pass",
+  "summary": "The test derives the complete REST/MCP equivalent-surface inventory and compares full authorization decisions for every required pair across self, multiple descendant depths, unrelated, and missing targets.",
+  "timestamp": "2026-08-04T06:51:00.651Z"
+}

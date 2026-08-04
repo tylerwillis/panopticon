@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.3.1--f4badf969c1f",
+  "requirementId": "REQ-031.3.1",
+  "hash": "f4badf969c1f",
+  "verdict": "pass",
+  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. Unreachable non-shell tasks are proven deferred with no spawn, claim, or lifecycle mutation; restored reachability retries normally, and host wiring is covered.",
+  "timestamp": "2026-08-03T18:58:37.728Z"
+}

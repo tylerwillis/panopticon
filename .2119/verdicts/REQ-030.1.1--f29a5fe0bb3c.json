@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.1.1--f29a5fe0bb3c",
+  "requirementId": "REQ-030.1.1",
+  "hash": "f29a5fe0bb3c",
+  "verdict": "pass",
+  "summary": "Tests reject missing/off mouse defaults and verify dedicated-socket creation plus the created session's effective mouse-on value on a fresh real tmux server.",
+  "timestamp": "2026-08-03T20:46:29.031Z"
+}

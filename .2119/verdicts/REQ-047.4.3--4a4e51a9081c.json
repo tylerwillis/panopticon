@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.4.3--4a4e51a9081c",
-  "requirementId": "REQ-047.4.3",
-  "hash": "4a4e51a9081c",
-  "verdict": "pass",
-  "summary": "Capabilities for tasks in two repositories each receive their own repository id, name, and git URL and receive 403 for the other repository.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

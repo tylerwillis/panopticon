@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.1.2--32bce1bf69ed",
-  "requirementId": "REQ-047.1.2",
-  "hash": "32bce1bf69ed",
-  "verdict": "pass",
-  "summary": "Tests exercise one fleet-write credential across multiple claims and lifecycle reports, runner listing and reclaim, repository creation/update, and task slug mutation.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

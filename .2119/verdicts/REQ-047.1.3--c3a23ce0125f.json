@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.1.3--c3a23ce0125f",
-  "requirementId": "REQ-047.1.3",
-  "hash": "c3a23ce0125f",
-  "verdict": "pass",
-  "summary": "The configured cross-origin GET /tasks test accepts fleet read and explicitly rejects both fleet write and task-capability credentials.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

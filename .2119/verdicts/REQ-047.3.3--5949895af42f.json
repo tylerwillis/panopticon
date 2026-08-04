@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.3.3--5949895af42f",
+  "requirementId": "REQ-047.3.3",
+  "hash": "5949895af42f",
+  "verdict": "pass",
+  "summary": "Real overlapping lifespans in both entry and exit orders prove ended-app tokens are discarded while the surviving app's tokens remain redacted, including prefix-overlap counterexamples.",
+  "timestamp": "2026-08-04T00:47:35.069Z"
+}

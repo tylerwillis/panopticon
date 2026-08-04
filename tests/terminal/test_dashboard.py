@@ -1840,6 +1840,9 @@ async def test_pressing_n_shows_the_repos_configured_default_harness() -> None:
         assert fake.created == [("r1", "spike", None, None, None, None)]
 
 
+# 2119: layered-settings-hints.2.1
+# 2119: layered-settings-hints.3.1
+# 2119: layered-settings-hints.6.1
 async def test_memo_launch_summary_re_resolves_after_repo_data_loads(tmp_path: Path) -> None:
     """Exercise the real modal path when repo detail arrives after the picker snapshot."""
     fake = _FakeClient(
@@ -1871,7 +1874,33 @@ async def test_memo_launch_summary_re_resolves_after_repo_data_loads(tmp_path: P
         screenshot = app.save_screenshot("memo-repo-default.svg", str(tmp_path))
         summary = app.screen.query_one("#launch-summary", Static)
         assert Path(screenshot).exists()
-        assert str(summary.render()) == "codex · (codex default) — set by repo default"
+        rendered = str(summary.render())
+        assert rendered.startswith("codex · (codex default) — set by repo default")
+        task_hint = (
+            "Harness/model precedence: workflow config; repo config > app default; change here "
+            "to override this task."
+        )
+        assert dashboard.layered_settings_hint("task-creation") == task_hint
+        assert rendered == f"codex · (codex default) — set by repo default · {task_hint}"
+        assert len(app.screen.query(".layered-settings-hint")) == 1
+        label_texts = [
+            "enter: submit",
+            "ctrl+s: set without submitting",
+            "ctrl+g: edit in $EDITOR",
+            "harness",
+            "model",
+            "no matches",
+            "effort",
+            "no matches",
+        ]
+        assert [str(label.render()) for label in app.screen.query(Label)] == label_texts
+        assert [str(static.render()) for static in app.screen.query(Static)] == [
+            *label_texts[:4],
+            "codex",
+            *label_texts[4:],
+            rendered,
+        ]
+        assert summary.styles.color.a == pytest.approx(0.6)
 
 
 def _option_prompts(option_list: OptionList) -> list[str]:
@@ -2230,6 +2259,7 @@ async def test_candidate_vocabulary_is_cached_while_typing(monkeypatch: Any) -> 
 
 # 2119: REQ-018.7.1
 # 2119: REQ-018.12.1
+# 2119: layered-settings-hints.6.1
 async def test_focus_only_keeps_launch_fields_tracking_changed_repo_defaults(
     tmp_path: Path,
 ) -> None:
@@ -2257,10 +2287,14 @@ async def test_focus_only_keeps_launch_fields_tracking_changed_repo_defaults(
         assert app.screen.query_one("#launch-model", Input).value == "luna"
         assert app.screen.query_one("#launch-effort", Input).value == "low"
         summary = app.screen.query_one("#launch-summary", Static)
-        assert str(summary.render()) == "outfitter · luna:low — set by repo default"
+        assert str(summary.render()) == (
+            "outfitter · luna:low — set by repo default · "
+            f"{dashboard.layered_settings_hint('task-creation')}"
+        )
 
 
 # 2119: REQ-018.7.1
+# 2119: layered-settings-hints.6.1
 async def test_focus_only_keeps_launch_fields_tracking_changed_workflow_defaults(
     tmp_path: Path,
 ) -> None:
@@ -2290,10 +2324,15 @@ async def test_focus_only_keeps_launch_fields_tracking_changed_workflow_defaults
         effort = app.screen.query_one("#launch-effort", Input)
         assert (harness.value, model.value, effort.value) == ("outfitter", "luna", "low")
         summary = app.screen.query_one("#launch-summary", Static)
-        assert str(summary.render()) == "outfitter · luna:low — set by workflow default"
+        assert str(summary.render()) == (
+            "outfitter · luna:low — set by workflow default · "
+            "Harness/model precedence: workflow config; repo config > app default; change here "
+            "to override this task."
+        )
 
 
 # 2119: REQ-018.7.1
+# 2119: layered-settings-hints.6.1
 async def test_focus_only_keeps_launch_fields_tracking_changed_app_default(
     monkeypatch: Any, tmp_path: Path
 ) -> None:
@@ -2316,7 +2355,11 @@ async def test_focus_only_keeps_launch_fields_tracking_changed_app_default(
         effort = app.screen.query_one("#launch-effort", Input)
         assert (harness.value, model.value, effort.value) == ("codex", "", "")
         summary = app.screen.query_one("#launch-summary", Static)
-        assert str(summary.render()) == "codex · (codex default) — set by app default"
+        assert str(summary.render()) == (
+            "codex · (codex default) — set by app default · "
+            "Harness/model precedence: workflow config; repo config > app default; change here "
+            "to override this task."
+        )
 
 
 # 2119: REQ-018.12.1
@@ -2338,11 +2381,41 @@ async def test_each_launch_override_updates_the_rendered_summary_source(
         await pilot.press("n", "enter", "enter", *("tab" for _ in range(tabs)), *keys)
         await pilot.pause()
         summary = app.screen.query_one("#launch-summary", Static)
-        assert str(summary.render()) == expected
+        assert str(summary.render()) == (
+            f"{expected} · {dashboard.layered_settings_hint('task-creation')}"
+        )
+
+
+# 2119: REQ-018.12.1
+@pytest.mark.parametrize(
+    ("repo", "workflow", "override"),
+    [
+        ({"default_harness": "codex", "default_model": "terra:high"}, {}, "terra"),
+        (
+            {"default_harness": "codex", "default_model": "terra:high"},
+            {"default_harness": "claude", "default_model": "opus:high"},
+            "opus",
+        ),
+    ],
+)
+def test_operator_override_replaces_repo_or_workflow_provenance_with_this_task(
+    repo: dict[str, str], workflow: dict[str, str], override: str
+) -> None:
+    selection = dashboard.resolve_launch_selection(
+        repo,
+        workflow,
+        overrides={"model": override},
+        touched={"model"},
+    )
+
+    assert selection.model == override
+    assert selection.source == "this task"
+    assert selection.summary.endswith("set by this task")
 
 
 # 2119: REQ-018.12.1
 # 2119: REQ-018.7.1
+# 2119: layered-settings-hints.6.1
 @pytest.mark.parametrize(
     ("repo", "workflow", "expected_values", "expected_summary"),
     [
@@ -2389,7 +2462,9 @@ async def test_rendered_launch_summary_names_app_and_workflow_default_sources(
         effort = app.screen.query_one("#launch-effort", Input)
         assert (harness.value, model.value, effort.value) == expected_values
         summary = app.screen.query_one("#launch-summary", Static)
-        assert str(summary.render()) == expected_summary
+        assert str(summary.render()) == (
+            f"{expected_summary} · {dashboard.layered_settings_hint('task-creation')}"
+        )
 
 
 # 2119: REQ-018.11.1
@@ -4426,6 +4501,42 @@ async def test_pressing_g_opens_the_repos_screen_listing_repos() -> None:
         assert table.row_count == 1
 
 
+# 2119: layered-settings-hints.2.1
+# 2119: layered-settings-hints.3.1
+# 2119: layered-settings-hints.5.1
+async def test_repos_screen_signposts_both_neighbouring_settings_layers_in_one_muted_line() -> None:
+    fake = _FakeClient(
+        [],
+        repos=[
+            {
+                "id": "r1",
+                "name": "acme/widgets",
+                "git_url": "https://x/r1.git",
+                "default_base": "main",
+            }
+        ],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("g")
+        await pilot.pause()
+
+        hint = app.screen.query_one("#repos-layered-settings-hint", Label)
+        rendered = str(hint.render())
+        assert rendered == (
+            "Reviewer defaults: workflow config; Workflow availability: workflow config; "
+            "Harness/model defaults: override at per-task creation."
+        )
+        assert rendered == dashboard.layered_settings_hint("repos")
+        assert len(app.screen.query(".layered-settings-hint")) == 1
+        assert [str(label.render()) for label in app.screen.query(Label)] == [
+            dashboard.ReposScreen.TITLE,
+            rendered,
+        ]
+        assert hint.styles.color.a == pytest.approx(0.6)
+
+
 async def test_pressing_w_lists_registered_workflows_and_marks_built_ins() -> None:
     fake = _FakeClient(
         [],
@@ -4454,6 +4565,137 @@ async def test_pressing_w_lists_registered_workflows_and_marks_built_ins() -> No
         assert table.row_count == 2
         assert "built-in (edit with care)" in str(table.get_row_at(0))
         assert "Ship a release." in str(table.get_row_at(1))
+
+
+# 2119: layered-settings-hints.2.1
+# 2119: layered-settings-hints.3.1
+# 2119: layered-settings-hints.4.1
+async def test_workflows_screen_signposts_repo_overrides_and_filtering_in_one_muted_line() -> None:
+    fake = _FakeClient(
+        [],
+        workflows=[
+            {
+                "name": "spike",
+                "when_to_use": "Open-ended work.",
+                "path": "/site-packages/panopticon/workflows/spike.py",
+                "built_in": True,
+            }
+        ],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("w")
+        await pilot.pause()
+
+        hint = app.screen.query_one("#workflows-layered-settings-hint", Label)
+        rendered = str(hint.render())
+        assert rendered == (
+            "Reviewer defaults: repo config can override; Workflow availability: repo config "
+            "filters; Harness/model defaults: override at per-task creation."
+        )
+        assert rendered == dashboard.layered_settings_hint("workflows")
+        assert len(app.screen.query(".layered-settings-hint")) == 1
+        assert [str(label.render()) for label in app.screen.query(Label)] == [
+            dashboard.WorkflowsScreen.TITLE,
+            rendered,
+        ]
+        assert hint.styles.color.a == pytest.approx(0.6)
+
+
+# 2119: layered-settings-hints.1.1
+# 2119: layered-settings-hints.2.1
+def test_layered_setting_registry_declares_every_current_relationship_bidirectionally(
+    monkeypatch: Any,
+) -> None:
+    declared = list(dashboard.LAYERED_SETTINGS)
+    relationships = {relationship.key: relationship for relationship in declared}
+    assert len(relationships) == len(declared)
+    assert {
+        key: (
+            item.default_surface,
+            item.default_layer_name,
+            item.override_surface,
+            item.override_layer_name,
+            item.relationship,
+            item.setting_names,
+        )
+        for key, item in relationships.items()
+    } == {
+        "reviewer-models": (
+            "workflows",
+            "workflow config",
+            "repos",
+            "repo config",
+            "override",
+            ("honesty_reviewer", "reviewer_1", "reviewer_2"),
+        ),
+        "workflow-task-launch": (
+            "workflows",
+            "workflow config",
+            "task-creation",
+            "per-task creation",
+            "override",
+            ("default_harness", "default_model"),
+        ),
+        "task-launch": (
+            "repos",
+            "repo config",
+            "task-creation",
+            "per-task creation",
+            "override",
+            ("default_harness", "default_model"),
+        ),
+        "workflow-availability": (
+            "workflows",
+            "workflow config",
+            "repos",
+            "repo config",
+            "filter",
+            ("opt_in", "enabled_workflows", "disabled_workflows"),
+        ),
+    }
+
+    for relationship in declared:
+        monkeypatch.setattr(dashboard, "LAYERED_SETTINGS", (relationship,))
+        default_hint = dashboard.layered_settings_hint(relationship.default_surface)
+        override_hint = dashboard.layered_settings_hint(relationship.override_surface)
+        assert relationship.override_layer_name in default_hint
+        assert relationship.default_layer_name in override_hint
+
+
+# 2119: layered-settings-hints.3.1
+async def test_each_layered_settings_surface_calls_the_shared_hint_renderer(
+    monkeypatch: Any,
+) -> None:
+    monkeypatch.setattr(dashboard, "layered_settings_hint", lambda surface: f"renderer:{surface}")
+    fake = _FakeClient(
+        [],
+        repos=[{"id": "r1", "name": "r1", "git_url": "", "default_base": "main"}],
+        workflows=[
+            {
+                "name": "spike",
+                "when_to_use": "",
+                "path": "/workflows/spike.py",
+                "built_in": True,
+            }
+        ],
+    )
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("w")
+        assert str(app.screen.query_one("#workflows-layered-settings-hint", Label).render()) == (
+            "renderer:workflows"
+        )
+        await pilot.press("escape", "g")
+        assert str(app.screen.query_one("#repos-layered-settings-hint", Label).render()) == (
+            "renderer:repos"
+        )
+        await pilot.press("escape", "n", "enter", "enter")
+        assert str(app.screen.query_one("#launch-summary", Static).render()).endswith(
+            "renderer:task-creation"
+        )
 
 
 def test_create_workflow_file_writes_discoverable_minimal_template(

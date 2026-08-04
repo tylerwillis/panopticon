@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.4.2--d22ef494822f",
+  "requirementId": "REQ-048.4.2",
+  "hash": "d22ef494822f",
+  "verdict": "pass",
+  "summary": "Collection tests prove ordinary capabilities see only self, orchestrators see self plus recursively governed descendants, and ancestors, peers, siblings, and unrelated tasks remain excluded based on the workflow flag.",
+  "timestamp": "2026-08-04T06:50:56.584Z"
+}

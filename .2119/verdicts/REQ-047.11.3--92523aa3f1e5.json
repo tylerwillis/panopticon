@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.11.3--92523aa3f1e5",
-  "requirementId": "REQ-047.11.3",
-  "hash": "92523aa3f1e5",
-  "verdict": "pass",
-  "summary": "Preflight tests admit GET, HEAD, and OPTIONS with Authorization and Content-Type, while systematically rejecting additional methods and headers across multiple allowed origins and routes.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.9.2--777a76d9959f",
+  "requirementId": "REQ-048.9.2",
+  "hash": "777a76d9959f",
+  "verdict": "pass",
+  "summary": "The annotated tests dynamically inventory every currently registered REST route, MCP tool, and MCP resource; they prove fleet-read access reaches validation for all protected non-liveness GET/HEAD surfaces, while the registered runner-only GET session-input poll, mutations, task and runner liveness requests, MCP tool calls, and MCP resource reads receive authentication-layer 401 before argument validation.",
+  "timestamp": "2026-08-04T06:51:01.976Z"
+}

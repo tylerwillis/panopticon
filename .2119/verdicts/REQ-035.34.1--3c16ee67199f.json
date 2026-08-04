@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.34.1--3c16ee67199f",
+  "requirementId": "REQ-035.34.1",
+  "hash": "3c16ee67199f",
+  "verdict": "pass",
+  "summary": "The annotated tests verify authentication startup and both Docker and shell runner preflight reject foreign ownership and every group/other permission class, while accepting private owner-only read and read-write modes.",
+  "timestamp": "2026-08-04T06:50:51.459Z"
+}

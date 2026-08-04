@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.31.1--b9f27f103cc4",
+  "requirementId": "REQ-035.31.1",
+  "hash": "b9f27f103cc4",
+  "verdict": "pass",
+  "summary": "The tests cover newly created service, runner, and dashboard sessions, asserting current authentication reference, mode, and config root are pinned and absent invoking-process values explicitly clear stale tmux environment values, including a real-tmux check.",
+  "timestamp": "2026-08-04T06:50:50.786Z"
+}

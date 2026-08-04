@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.5.1--9f20d728e652",
+  "requirementId": "REQ-047.5.1",
+  "hash": "9f20d728e652",
+  "verdict": "pass",
+  "summary": "Direct unauthenticated ASGI exchanges cover all three auth modes, require GET 200, exact HEAD/GET status and raw-header equality, and reject any non-empty HEAD body bytes.",
+  "timestamp": "2026-08-03T23:32:20.581Z"
+}

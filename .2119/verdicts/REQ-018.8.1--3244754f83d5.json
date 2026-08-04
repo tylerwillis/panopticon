@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.8.1--3244754f83d5",
+  "requirementId": "REQ-018.8.1",
+  "hash": "3244754f83d5",
+  "verdict": "pass",
+  "summary": "Pilot tests prove Escape cancels from every launch control, including open candidate lists, without task creation.",
+  "timestamp": "2026-08-04T05:59:04.957Z"
+}

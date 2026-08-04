@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.1.2--b3f794bee523",
+  "requirementId": "REQ-031.1.2",
+  "hash": "b3f794bee523",
+  "verdict": "pass",
+  "summary": "A failing real docker-info probe on panopticon host is rejected before _start_sessions, so neither background task-service nor runner session can be started.",
+  "timestamp": "2026-08-03T21:24:34.687Z"
+}

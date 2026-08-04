@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.6.1--3cc723828011",
-  "requirementId": "REQ-047.6.1",
-  "hash": "3cc723828011",
-  "verdict": "pass",
-  "summary": "An independently checked complete task-targeted action inventory and complete REST route inventory prove unrelated-target denial for every classified action, explicitly including drop.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

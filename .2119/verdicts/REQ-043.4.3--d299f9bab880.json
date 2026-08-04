@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-043.4.3--d299f9bab880",
+  "requirementId": "REQ-043.4.3",
+  "hash": "d299f9bab880",
+  "verdict": "pass",
+  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. Annotated test proves daemon-down deferrals attempt neither image build nor docker run, preserve count across an outage beyond the reset window, and resume from the prior budget.",
+  "timestamp": "2026-08-03T18:58:54.983Z"
+}

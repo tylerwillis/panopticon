@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.3.3--67791dfd2de4",
-  "requirementId": "REQ-047.3.3",
-  "hash": "67791dfd2de4",
-  "verdict": "pass",
-  "summary": "Two successive credential-file rotations followed by service restarts prove removed-generation capabilities are revoked while remaining-generation capabilities continue to read and mutate.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

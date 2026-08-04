@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.1.1--680e95f2945e",
+  "requirementId": "REQ-047.1.1",
+  "hash": "680e95f2945e",
+  "verdict": "pass",
+  "summary": "Tests verify both configured unequal-length tokens and repeated occurrences become exact [redacted] bytes, across every two-chunk split and byte-at-a-time fragmentation, including the MCP transport wrapper.",
+  "timestamp": "2026-08-03T23:29:42.700Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.2.4--e22d12932988",
+  "requirementId": "REQ-048.2.4",
+  "hash": "e22d12932988",
+  "verdict": "pass",
+  "summary": "Repeated derivations for multiple fleet-token and subject pairs are identical both in-process and in fresh Python processes; version and profile are fixed and separately asserted.",
+  "timestamp": "2026-08-04T06:50:54.856Z"
+}

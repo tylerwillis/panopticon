@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.2.2--21fe64ab776f",
-  "requirementId": "REQ-047.2.2",
-  "hash": "21fe64ab776f",
-  "verdict": "pass",
-  "summary": "Overlap-rotation tests derive capabilities from each active write-token generation and prove that all are accepted before removal.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

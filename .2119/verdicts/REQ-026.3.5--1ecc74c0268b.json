@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.3.5--1ecc74c0268b",
+  "requirementId": "REQ-026.3.5",
+  "hash": "1ecc74c0268b",
+  "verdict": "pass",
+  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. Tests reject omission before spawn and after refresh: a gated dependent stays unclaimed, is excluded from spawn, remains listed, and renders as a dashboard row.",
+  "timestamp": "2026-08-03T18:58:36.565Z"
+}

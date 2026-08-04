@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.3.2--966f3753c4b1",
+  "requirementId": "REQ-047.3.2",
+  "hash": "966f3753c4b1",
+  "verdict": "pass",
+  "summary": "Behavioral test rejects partial, missing, or nonliteral redaction for both configured tokens across messages, arguments, nested caller extras, exception text, stack information, and task-service/FastAPI/uvicorn/MCP logger roots and children during lifespan.",
+  "timestamp": "2026-08-04T00:23:04.350Z"
+}

@@ -274,6 +274,15 @@ class LocalRunner(Runner):
         for path in self._snapshot_dir.glob(f"panopticon-service-auth-{task_id}-*.json"):
             path.unlink(missing_ok=True)
 
+    def cleanup_runtime_credentials(self, task_id: str) -> None:
+        """Remove only a task's host-side authentication snapshots.
+
+        Terminal cleanup uses this after a container has already exited so its container and tmux
+        session remain available for post-mortem inspection. Replacement spawn still removes those
+        stale runtime resources before starting a new container.
+        """
+        self._remove_auth_snapshots(task_id)
+
     def spawn(
         self,
         task_id: str,
@@ -435,11 +444,21 @@ class LocalRunner(Runner):
         # live force-respawn (dashboard `R` kills and restarts). Both are no-ops when nothing
         # exists, so spawn is fully idempotent. (`stop()` does the same pair.)
         try:
-            self._run(
+            tmux_cleanup = self._run(
                 self._tmux(*defaults_argv(self._tmux_socket), "kill-session", "-t", container),
                 check=False,
             )
-            self._run(["docker", "rm", "--force", container], check=False)
+            docker_cleanup = self._run(["docker", "rm", "--force", container], check=False)
+            if self.has_session(task_id) or self._container_exists(task_id):
+                detail = (
+                    f"failed to remove stale runtime resources for {container}; "
+                    f"tmux output={tmux_cleanup!r}; docker output={docker_cleanup!r}"
+                )
+                raise subprocess.CalledProcessError(
+                    1,
+                    ["stale-runtime-cleanup", container],
+                    output=detail,
+                )
             _report(LifecyclePhase.STARTING)  # docker run + the tmux session coming up
             self._run(docker_run)
             # Docker has opened the bind source by the time detached ``docker run`` returns. The
@@ -518,9 +537,25 @@ class LocalRunner(Runner):
         container = session_name(task_id)
         names = self._run(
             ["docker", "ps", "--filter", f"name=^{container}$", "--format", "{{.Names}}"],
-            check=False,
         )
         return bool(names.strip())
+
+    def _container_exists(self, task_id: str) -> bool:
+        """Whether Docker still retains the task's running or exited container."""
+        container = session_name(task_id)
+        names = self._run(
+            [
+                "docker",
+                "ps",
+                "--all",
+                "--filter",
+                f"name=^{container}$",
+                "--format",
+                "{{.Names}}",
+            ],
+            check=False,
+        )
+        return container in names.splitlines()
 
     def has_session(self, task_id: str) -> bool:
         """Whether the task's host tmux session exists on this runner's tmux server.

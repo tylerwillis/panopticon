@@ -1,0 +1,8 @@
+{
+  "reviewId": "layered-settings-hints.2.1--e70f5cbbf72a",
+  "requirementId": "layered-settings-hints.2.1",
+  "hash": "e70f5cbbf72a",
+  "verdict": "pass",
+  "summary": "Registry and UI tests reject missing, reversed, or misdirected signposts for every declared relationship.",
+  "timestamp": "2026-08-04T05:59:06.386Z"
+}

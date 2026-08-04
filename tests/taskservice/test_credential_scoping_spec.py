@@ -1,4 +1,4 @@
-"""Executable contract for REQ-047's unified credential-scoping model.
+"""Executable contract for REQ-048's unified credential-scoping model.
 
 The tests describe the public authorization seam before implementation. They deliberately use the
 same credential file, REST application, MCP mount, and runner command surface used in production.
@@ -321,9 +321,9 @@ def _assert_capability_generation_revoked_everywhere(
 
 
 def test_task_capability_is_deterministic_bound_and_forgery_resistant(tmp_path: Path) -> None:
-    # 2119: REQ-047.2.1
-    # 2119: REQ-047.2.3
-    # 2119: REQ-047.2.4
+    # 2119: REQ-048.2.1
+    # 2119: REQ-048.2.3
+    # 2119: REQ-048.2.4
     with _client(tmp_path) as client:
         first = _create_task(client)
         second = _create_task(client)
@@ -431,7 +431,7 @@ def test_task_capability_is_deterministic_bound_and_forgery_resistant(tmp_path: 
 def test_malformed_or_differently_bound_task_capabilities_are_rejected(
     tmp_path: Path, mutate: object
 ) -> None:
-    # 2119: REQ-047.2.3
+    # 2119: REQ-048.2.3
     with _client(tmp_path) as client:
         own = _create_task(client)
         token = _task_token(own["id"])
@@ -486,7 +486,7 @@ def test_malformed_or_differently_bound_task_capabilities_are_rejected(
 def test_capability_derivation_is_deterministic_for_each_input_pair(
     root: str, task_id: str
 ) -> None:
-    # 2119: REQ-047.2.4
+    # 2119: REQ-048.2.4
     values = {derive_task_capability(root, task_id) for _ in range(20)}
     assert values == {derive_task_capability(root, task_id)}
     script = (
@@ -502,8 +502,8 @@ def test_capability_derivation_is_deterministic_for_each_input_pair(
 def test_overlap_rotation_accepts_each_generation_then_revokes_removed_generation(
     tmp_path: Path,
 ) -> None:
-    # 2119: REQ-047.2.2
-    # 2119: REQ-047.3.3
+    # 2119: REQ-048.2.2
+    # 2119: REQ-048.3.3
     middle_token = "middle-fleet-writer-token"
     with _client(tmp_path, write=[OLD_WRITE_TOKEN, middle_token, WRITE_TOKEN]) as client:
         task = _create_task(client)
@@ -592,9 +592,9 @@ def test_overlap_rotation_accepts_each_generation_then_revokes_removed_generatio
 
 
 def test_task_token_reads_only_its_task_repo_and_collection_view(tmp_path: Path) -> None:
-    # 2119: REQ-047.4.1
-    # 2119: REQ-047.4.2
-    # 2119: REQ-047.4.3
+    # 2119: REQ-048.4.1
+    # 2119: REQ-048.4.2
+    # 2119: REQ-048.4.3
     with _client(tmp_path) as client:
         own = _create_task(client)
         sibling = _create_task(client, repo_id="r2")
@@ -663,7 +663,7 @@ def test_task_token_reads_only_its_task_repo_and_collection_view(tmp_path: Path)
 def test_orchestrator_collection_includes_governed_descendants_but_not_siblings(
     tmp_path: Path,
 ) -> None:
-    # 2119: REQ-047.4.2
+    # 2119: REQ-048.4.2
     with _client(tmp_path) as client:
         ancestor = _create_task(client)
         governor = _create_task(
@@ -686,7 +686,7 @@ def test_orchestrator_collection_includes_governed_descendants_but_not_siblings(
 
 
 def test_collection_scope_uses_orchestrates_flag_not_workflow_name(tmp_path: Path) -> None:
-    # 2119: REQ-047.4.2
+    # 2119: REQ-048.4.2
     with _client(tmp_path) as client:
         governor = _create_task(client, workflow="alternate-orchestrator")
         child = _create_task(client, governor_task_id=str(governor["id"]))
@@ -695,8 +695,8 @@ def test_collection_scope_uses_orchestrates_flag_not_workflow_name(tmp_path: Pat
 
 
 def test_non_orchestrator_collection_excludes_its_governed_descendants(tmp_path: Path) -> None:
-    # 2119: REQ-047.4.2
-    # 2119: REQ-047.7.4
+    # 2119: REQ-048.4.2
+    # 2119: REQ-048.7.4
     with _client(tmp_path) as client:
         ordinary = _create_task(client)
         _create_task(client, governor_task_id=str(ordinary["id"]))
@@ -706,7 +706,7 @@ def test_non_orchestrator_collection_excludes_its_governed_descendants(tmp_path:
 
 
 def test_each_task_capability_resolves_its_own_repository(tmp_path: Path) -> None:
-    # 2119: REQ-047.4.3
+    # 2119: REQ-048.4.3
     with _client(tmp_path) as client:
         task_r1 = _create_task(client, repo_id="r1")
         task_r2 = _create_task(client, repo_id="r2")
@@ -730,7 +730,7 @@ def test_each_task_capability_resolves_its_own_repository(tmp_path: Path) -> Non
 
 
 def test_own_workflow_reads_cannot_be_substituted_from_a_sibling_workflow(tmp_path: Path) -> None:
-    # 2119: REQ-047.4.1
+    # 2119: REQ-048.4.1
     with _client(tmp_path) as client:
         own = _create_task(client, workflow="scoped")
         sibling = _create_task(client, workflow="spike")
@@ -781,8 +781,8 @@ def test_own_workflow_reads_cannot_be_substituted_from_a_sibling_workflow(tmp_pa
 def test_task_token_reaches_its_agent_mutation_surface(
     tmp_path: Path, method: str, path: str, body: dict[str, object]
 ) -> None:
-    # 2119: REQ-047.5.1
-    # 2119: REQ-047.8.1
+    # 2119: REQ-048.5.1
+    # 2119: REQ-048.8.1
     with _client(tmp_path) as client:
         task = _create_task(client)
         if path.endswith("/dependencies"):
@@ -819,7 +819,7 @@ def test_task_token_reaches_its_agent_mutation_surface(
 
 
 def test_task_capability_resolves_a_real_responsibility_and_then_advances(tmp_path: Path) -> None:
-    # 2119: REQ-047.5.1
+    # 2119: REQ-048.5.1
     with _client(tmp_path) as client:
         task = _create_task(client, workflow="scoped")
         headers = _bearer(_task_token(task["id"]))
@@ -844,7 +844,7 @@ def test_task_capability_resolves_a_real_responsibility_and_then_advances(tmp_pa
 def test_task_capability_durably_persists_alternate_responsibility_effects(
     tmp_path: Path,
 ) -> None:
-    # 2119: REQ-047.5.1
+    # 2119: REQ-048.5.1
     with _client(tmp_path) as client:
         task = _create_task(client, workflow="scoped")
         task_id = str(task["id"])
@@ -865,7 +865,7 @@ def test_task_capability_durably_persists_alternate_responsibility_effects(
 def test_task_capability_persists_both_directions_of_boolean_and_turn_setters(
     tmp_path: Path,
 ) -> None:
-    # 2119: REQ-047.5.1
+    # 2119: REQ-048.5.1
     with _client(tmp_path) as client:
         task = _create_task(client)
         task_id = str(task["id"])
@@ -888,7 +888,7 @@ def test_task_capability_persists_both_directions_of_boolean_and_turn_setters(
 
 
 def test_task_capability_durably_clears_dependencies(tmp_path: Path) -> None:
-    # 2119: REQ-047.5.1
+    # 2119: REQ-048.5.1
     with _client(tmp_path) as client:
         task = _create_task(client)
         dependency = _create_task(client)
@@ -914,7 +914,7 @@ def test_task_capability_durably_clears_dependencies(tmp_path: Path) -> None:
 
 
 def test_task_capability_persists_distinct_scalar_and_state_effects(tmp_path: Path) -> None:
-    # 2119: REQ-047.5.1
+    # 2119: REQ-048.5.1
     with _client(tmp_path) as client:
         task = _create_task(client, workflow="scoped")
         task_id = str(task["id"])
@@ -972,9 +972,9 @@ def test_task_capability_persists_distinct_scalar_and_state_effects(tmp_path: Pa
 
 
 def test_task_token_can_publish_and_read_only_its_artifacts(tmp_path: Path) -> None:
-    # 2119: REQ-047.4.1
-    # 2119: REQ-047.5.2
-    # 2119: REQ-047.8.1
+    # 2119: REQ-048.4.1
+    # 2119: REQ-048.5.2
+    # 2119: REQ-048.8.1
     with _client(tmp_path) as client:
         own = _create_task(client)
         sibling = _create_task(client)
@@ -1005,8 +1005,8 @@ def test_task_token_can_publish_and_read_only_its_artifacts(tmp_path: Path) -> N
 
 
 def test_task_token_can_hold_only_its_registration_and_liveness(tmp_path: Path) -> None:
-    # 2119: REQ-047.4.1
-    # 2119: REQ-047.5.3
+    # 2119: REQ-048.4.1
+    # 2119: REQ-048.5.3
     with _client(tmp_path) as client:
         own = _create_task(client)
         sibling = _create_task(client)
@@ -1059,8 +1059,8 @@ def test_task_token_can_hold_only_its_registration_and_liveness(tmp_path: Path) 
 def test_task_capability_liveness_stream_remains_open_for_keepalives(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # 2119: REQ-047.4.1
-    # 2119: REQ-047.5.3
+    # 2119: REQ-048.4.1
+    # 2119: REQ-048.5.3
     import panopticon.taskservice.api as api_module
 
     async def immediate_keepalive() -> None:
@@ -1127,8 +1127,8 @@ def test_task_capability_liveness_stream_remains_open_for_keepalives(
 def test_sibling_and_missing_targets_have_identical_scope_denials(
     tmp_path: Path, method: str, path: str, body: dict[str, object] | None
 ) -> None:
-    # 2119: REQ-047.6.1
-    # 2119: REQ-047.6.3
+    # 2119: REQ-048.6.1
+    # 2119: REQ-048.6.3
     with _client(tmp_path) as client:
         own = _create_task(client)
         sibling = _create_task(client)
@@ -1187,7 +1187,7 @@ def test_sibling_and_missing_targets_have_identical_scope_denials(
 def test_task_token_cannot_reach_fleet_control_plane(
     tmp_path: Path, method: str, path: str, body: dict[str, object] | None
 ) -> None:
-    # 2119: REQ-047.6.2
+    # 2119: REQ-048.6.2
     with _client(tmp_path) as client:
         own = _create_task(client)
         response = client.request(
@@ -1200,7 +1200,7 @@ def test_task_token_cannot_reach_fleet_control_plane(
 
 
 def test_fleet_administration_route_inventory_is_complete_and_task_denied(tmp_path: Path) -> None:
-    # 2119: REQ-047.6.2
+    # 2119: REQ-048.6.2
     expected = {
         ("POST", "/repos"),
         ("PATCH", "/repos/{repo_id}"),
@@ -1271,7 +1271,7 @@ def test_fleet_administration_route_inventory_is_complete_and_task_denied(tmp_pa
 def test_task_capability_cannot_combine_with_operator_token_for_migration(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # 2119: REQ-047.6.2
+    # 2119: REQ-048.6.2
     operator_token = "operator-migration-token"
     monkeypatch.setenv("PANOPTICON_OPERATOR_TOKEN", operator_token)
     with _client(tmp_path) as client:
@@ -1296,13 +1296,13 @@ def test_task_capability_cannot_combine_with_operator_token_for_migration(
 
 
 def test_task_scope_action_table_is_exhaustive_and_relationship_sensitive() -> None:
-    # 2119: REQ-047.5.1
-    # 2119: REQ-047.6.1
-    # 2119: REQ-047.6.2
-    # 2119: REQ-047.6.3
-    # 2119: REQ-047.7.2
-    # 2119: REQ-047.7.3
-    # 2119: REQ-047.7.4
+    # 2119: REQ-048.5.1
+    # 2119: REQ-048.6.1
+    # 2119: REQ-048.6.2
+    # 2119: REQ-048.6.3
+    # 2119: REQ-048.7.2
+    # 2119: REQ-048.7.3
+    # 2119: REQ-048.7.4
     from panopticon.taskservice.auth_scope import (
         Action,
         Principal,
@@ -1421,10 +1421,10 @@ def test_task_scope_action_table_is_exhaustive_and_relationship_sensitive() -> N
 def test_every_task_targeted_rest_route_rejects_sibling_and_missing_targets_identically(
     tmp_path: Path,
 ) -> None:
-    # 2119: REQ-047.4.1
-    # 2119: REQ-047.6.1
-    # 2119: REQ-047.6.3
-    # 2119: REQ-047.8.1
+    # 2119: REQ-048.4.1
+    # 2119: REQ-048.6.1
+    # 2119: REQ-048.6.3
+    # 2119: REQ-048.8.1
     with _client(tmp_path) as client:
         own = _create_task(client)
         sibling = _create_task(client)
@@ -1480,9 +1480,9 @@ def test_every_task_targeted_rest_route_rejects_sibling_and_missing_targets_iden
 
 
 def test_orchestrator_can_create_and_preplan_only_its_governed_child(tmp_path: Path) -> None:
-    # 2119: REQ-047.7.1
-    # 2119: REQ-047.7.2
-    # 2119: REQ-047.7.3
+    # 2119: REQ-048.7.1
+    # 2119: REQ-048.7.2
+    # 2119: REQ-048.7.3
     with _client(tmp_path) as client:
         governor = _create_task(client, workflow="orchestrator")
         unrelated = _create_task(client)
@@ -1740,7 +1740,7 @@ def test_orchestrator_can_create_and_preplan_only_its_governed_child(tmp_path: P
 
 
 def test_non_orchestrator_cannot_create_a_governed_child(tmp_path: Path) -> None:
-    # 2119: REQ-047.7.4
+    # 2119: REQ-048.7.4
     with _client(tmp_path) as client:
         ordinary = _create_task(client)
         response = client.post(
@@ -1845,7 +1845,7 @@ def test_non_orchestrator_cannot_create_a_governed_child(tmp_path: Path) -> None
 
 
 def test_orchestrator_authority_uses_workflow_flag_not_a_hard_coded_name(tmp_path: Path) -> None:
-    # 2119: REQ-047.7.1
+    # 2119: REQ-048.7.1
     with _client(tmp_path) as client:
         governor = _create_task(client, workflow="alternate-orchestrator")
         response = client.post(
@@ -1862,8 +1862,8 @@ def test_orchestrator_authority_uses_workflow_flag_not_a_hard_coded_name(tmp_pat
 
 
 def test_mcp_uses_the_same_scope_for_tool_arguments_and_artifact_resources(tmp_path: Path) -> None:
-    # 2119: REQ-047.8.1
-    # 2119: REQ-047.8.2
+    # 2119: REQ-048.8.1
+    # 2119: REQ-048.8.2
     with _client(tmp_path) as client:
         own = _create_task(client)
         sibling = _create_task(client)
@@ -1907,9 +1907,9 @@ def test_mcp_uses_the_same_scope_for_tool_arguments_and_artifact_resources(tmp_p
 def test_task_capability_drives_a_real_mcp_session_and_keeps_cross_task_denied(
     tmp_path: Path,
 ) -> None:
-    # 2119: REQ-047.5.1
-    # 2119: REQ-047.6.3
-    # 2119: REQ-047.8.1
+    # 2119: REQ-048.5.1
+    # 2119: REQ-048.6.3
+    # 2119: REQ-048.8.1
     with _client(tmp_path) as client:
         own = _create_task(client)
         sibling = _create_task(client)
@@ -1950,8 +1950,8 @@ def test_task_capability_drives_a_real_mcp_session_and_keeps_cross_task_denied(
 
 
 def test_task_capability_rejects_non_object_json_without_crashing(tmp_path: Path) -> None:
-    # 2119: REQ-047.2.2
-    # 2119: REQ-047.2.4
+    # 2119: REQ-048.2.2
+    # 2119: REQ-048.2.4
     with _client(tmp_path) as client:
         orchestrator = _create_task(client, workflow="orchestrator")
         headers = _bearer(_task_token(orchestrator["id"]))
@@ -1965,7 +1965,7 @@ def test_task_capability_rejects_non_object_json_without_crashing(tmp_path: Path
 def test_rest_and_mcp_resolve_equivalent_actions_to_identical_scope_decisions(
     tmp_path: Path,
 ) -> None:
-    # 2119: REQ-047.8.1
+    # 2119: REQ-048.8.1
     with _client(tmp_path) as client:
         own = _create_task(client)
         sibling = _create_task(client)
@@ -2046,8 +2046,8 @@ def test_rest_and_mcp_resolve_equivalent_actions_to_identical_scope_decisions(
 def test_every_task_targeted_mcp_surface_uses_capability_subject_and_decoded_target(
     tmp_path: Path,
 ) -> None:
-    # 2119: REQ-047.8.1
-    # 2119: REQ-047.8.2
+    # 2119: REQ-048.8.1
+    # 2119: REQ-048.8.2
     with _client(tmp_path) as client:
         own = _create_task(client)
         sibling = _create_task(client)
@@ -2096,7 +2096,7 @@ def test_every_task_targeted_mcp_surface_uses_capability_subject_and_decoded_tar
 
 
 def test_every_rest_and_mcp_surface_has_a_scope_classification(tmp_path: Path) -> None:
-    # 2119: REQ-047.8.3
+    # 2119: REQ-048.8.3
     from panopticon.taskservice.auth_scope import AuthorizationClass
 
     with _client(tmp_path) as client:
@@ -2143,8 +2143,8 @@ def test_every_rest_and_mcp_surface_has_a_scope_classification(tmp_path: Path) -
 
 def test_read_array_is_optional_but_configured_read_token_stays_read_only(tmp_path: Path) -> None:
     # 2119: REQ-035.14.1
-    # 2119: REQ-047.9.1
-    # 2119: REQ-047.9.2
+    # 2119: REQ-048.9.1
+    # 2119: REQ-048.9.2
     with _client(tmp_path) as no_reader:
         assert no_reader.get("/tasks", headers=_bearer(WRITE_TOKEN)).status_code == 200
     empty = tmp_path / "empty"
@@ -2193,7 +2193,7 @@ def test_read_array_is_optional_but_configured_read_token_stays_read_only(tmp_pa
 
 
 def test_read_token_classification_covers_the_complete_registered_surface(tmp_path: Path) -> None:
-    # 2119: REQ-047.9.2
+    # 2119: REQ-048.9.2
     with _client(tmp_path, read=[READ_TOKEN]) as client:
         headers = _bearer(READ_TOKEN)
         for route in client.app.routes:
@@ -2288,9 +2288,9 @@ def test_read_token_classification_covers_the_complete_registered_surface(tmp_pa
 
 
 def test_browser_read_uses_bearer_header_without_cookie_credentials(tmp_path: Path) -> None:
-    # 2119: REQ-047.1.3
-    # 2119: REQ-047.10.1
-    # 2119: REQ-047.10.2
+    # 2119: REQ-048.1.3
+    # 2119: REQ-048.10.1
+    # 2119: REQ-048.10.2
     with _client(tmp_path, read=[READ_TOKEN], browser_origins=[PHONE_ORIGIN]) as client:
         response = client.get("/tasks", headers={**_bearer(READ_TOKEN), "Origin": PHONE_ORIGIN})
         assert response.status_code == 200
@@ -2325,7 +2325,7 @@ def test_browser_read_uses_bearer_header_without_cookie_credentials(tmp_path: Pa
 
 
 def test_cors_preflight_accepts_each_allowed_header_individually(tmp_path: Path) -> None:
-    # 2119: REQ-047.11.3
+    # 2119: REQ-048.11.3
     with _client(tmp_path, read=[READ_TOKEN], browser_origins=[PHONE_ORIGIN]) as client:
         for allowed_header in ("Authorization", "Content-Type"):
             response = client.options(
@@ -2410,7 +2410,7 @@ def test_cors_preflight_accepts_each_allowed_header_individually(tmp_path: Path)
 def test_cross_origin_rejects_every_alternate_credential_channel_even_with_valid_header(
     tmp_path: Path, channel: str, name: str, alongside_valid_header: bool
 ) -> None:
-    # 2119: REQ-047.10.1
+    # 2119: REQ-048.10.1
     with _client(tmp_path, read=[READ_TOKEN], browser_origins=[PHONE_ORIGIN]) as client:
         base_headers = {"Origin": PHONE_ORIGIN}
         if alongside_valid_header:
@@ -2445,7 +2445,7 @@ def test_cross_origin_rejects_every_alternate_credential_channel_even_with_valid
 def test_cross_origin_requires_the_exact_bearer_header_shape(
     tmp_path: Path, authorization: str
 ) -> None:
-    # 2119: REQ-047.10.1
+    # 2119: REQ-048.10.1
     with _client(tmp_path, read=[READ_TOKEN], browser_origins=[PHONE_ORIGIN]) as client:
         response = client.get(
             "/tasks", headers={"Authorization": authorization, "Origin": PHONE_ORIGIN}
@@ -2454,9 +2454,9 @@ def test_cross_origin_requires_the_exact_bearer_header_shape(
 
 
 def test_cors_preflight_is_data_free_and_read_only(tmp_path: Path) -> None:
-    # 2119: REQ-047.10.2
-    # 2119: REQ-047.10.3
-    # 2119: REQ-047.11.3
+    # 2119: REQ-048.10.2
+    # 2119: REQ-048.10.3
+    # 2119: REQ-048.11.3
     with _client(tmp_path, read=[READ_TOKEN], browser_origins=[PHONE_ORIGIN]) as client:
         response = client.options(
             "/tasks",
@@ -2520,7 +2520,7 @@ def test_cors_preflight_is_data_free_and_read_only(tmp_path: Path) -> None:
     ],
 )
 def test_preflight_never_contains_protected_resource_data(tmp_path: Path, path: str) -> None:
-    # 2119: REQ-047.10.3
+    # 2119: REQ-048.10.3
     with _client(tmp_path, read=[READ_TOKEN], browser_origins=[PHONE_ORIGIN]) as client:
         response = client.options(
             path,
@@ -2555,7 +2555,7 @@ def test_preflight_never_contains_protected_resource_data(tmp_path: Path, path: 
 
 
 def test_preflight_headers_and_body_never_echo_real_protected_values(tmp_path: Path) -> None:
-    # 2119: REQ-047.10.3
+    # 2119: REQ-048.10.3
     with _client(tmp_path, read=[READ_TOKEN], browser_origins=[PHONE_ORIGIN]) as client:
         task = _create_task(client)
         task_id = str(task["id"])
@@ -2615,8 +2615,8 @@ def test_preflight_headers_and_body_never_echo_real_protected_values(tmp_path: P
 
 
 def test_cors_is_off_by_default_and_echoes_only_an_allowed_exact_origin(tmp_path: Path) -> None:
-    # 2119: REQ-047.11.1
-    # 2119: REQ-047.11.4
+    # 2119: REQ-048.11.1
+    # 2119: REQ-048.11.4
     with _client(tmp_path, read=[READ_TOKEN]) as disabled:
         live_task = _create_task(disabled)
         for origin in (PHONE_ORIGIN, "https://evil.example", "null"):
@@ -2680,7 +2680,7 @@ def test_cors_is_off_by_default_and_echoes_only_an_allowed_exact_origin(tmp_path
 
 
 def test_disabled_cors_emits_no_allow_origin_on_any_registered_route(tmp_path: Path) -> None:
-    # 2119: REQ-047.11.1
+    # 2119: REQ-048.11.1
     with _client(tmp_path, read=[READ_TOKEN]) as client:
         paths: set[str] = set()
         for route in client.app.routes:
@@ -2745,7 +2745,7 @@ def test_disabled_cors_emits_no_allow_origin_on_any_registered_route(tmp_path: P
     ],
 )
 def test_cors_rejects_non_origin_allowlist_entries(tmp_path: Path, origin: str) -> None:
-    # 2119: REQ-047.11.2
+    # 2119: REQ-048.11.2
     with pytest.raises(ValueError, match="browser origin configuration is invalid"):
         _client(tmp_path, read=[READ_TOKEN], browser_origins=[origin])
 
@@ -2757,7 +2757,7 @@ def test_cors_rejects_non_origin_allowlist_entries(tmp_path: Path, origin: str) 
 def test_cors_rejects_a_forbidden_entry_mixed_with_a_valid_origin(
     tmp_path: Path, invalid_origin: str
 ) -> None:
-    # 2119: REQ-047.11.2
+    # 2119: REQ-048.11.2
     with pytest.raises(ValueError, match="browser origin configuration is invalid"):
         _client(
             tmp_path,
@@ -2767,7 +2767,7 @@ def test_cors_rejects_a_forbidden_entry_mixed_with_a_valid_origin(
 
 
 def test_cors_accepts_an_exact_origin_with_an_explicit_valid_port(tmp_path: Path) -> None:
-    # 2119: REQ-047.11.2
+    # 2119: REQ-048.11.2
     origin = "https://phone.example:8443"
     with _client(tmp_path, read=[READ_TOKEN], browser_origins=[origin]) as client:
         response = client.get("/tasks", headers={**_bearer(READ_TOKEN), "Origin": origin})
@@ -2777,7 +2777,7 @@ def test_cors_accepts_an_exact_origin_with_an_explicit_valid_port(tmp_path: Path
 
 @pytest.mark.parametrize("origin", ["http://localhost:3000", "https://[::1]:8443"])
 def test_cors_accepts_other_valid_exact_origin_forms(tmp_path: Path, origin: str) -> None:
-    # 2119: REQ-047.11.2
+    # 2119: REQ-048.11.2
     with _client(tmp_path, read=[READ_TOKEN], browser_origins=[origin]) as client:
         response = client.get("/tasks", headers={**_bearer(READ_TOKEN), "Origin": origin})
         assert response.status_code == 200
@@ -2785,7 +2785,7 @@ def test_cors_accepts_other_valid_exact_origin_forms(tmp_path: Path, origin: str
 
 
 def test_cors_policy_is_identical_for_each_allowed_origin_and_route(tmp_path: Path) -> None:
-    # 2119: REQ-047.11.3
+    # 2119: REQ-048.11.3
     origins = [PHONE_ORIGIN, "https://tablet.example:8443"]
     with _client(tmp_path, read=[READ_TOKEN], browser_origins=origins) as client:
         for origin in origins:
@@ -2857,7 +2857,7 @@ def test_cors_policy_is_identical_for_each_allowed_origin_and_route(tmp_path: Pa
 
 
 def test_cors_never_allows_browser_credentials_on_any_response(tmp_path: Path) -> None:
-    # 2119: REQ-047.10.2
+    # 2119: REQ-048.10.2
     with _client(tmp_path, read=[READ_TOKEN], browser_origins=[PHONE_ORIGIN]) as client:
         task = _create_task(client)
         successful_if_not_browser_blocked = (
@@ -2961,7 +2961,7 @@ def test_cors_never_allows_browser_credentials_on_any_response(tmp_path: Path) -
 def test_task_scope_policy_is_clock_free_and_each_declared_input_changes_decisions(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    # 2119: REQ-047.12.1
+    # 2119: REQ-048.12.1
     import time
 
     from panopticon.taskservice.auth_scope import Action, Principal, Relation, Target, authorize
@@ -3095,7 +3095,7 @@ def test_task_scope_policy_is_clock_free_and_each_declared_input_changes_decisio
 
 
 def test_credential_scoping_packages_have_no_container_or_llm_sdk_imports() -> None:
-    # 2119: REQ-047.12.2
+    # 2119: REQ-048.12.2
     script = """
 import builtins, importlib, json, sys
 attempts = []
@@ -3131,7 +3131,7 @@ print(json.dumps(forbidden))
 
 
 def test_scoping_packages_contain_no_literal_forbidden_imports() -> None:
-    # 2119: REQ-047.12.2
+    # 2119: REQ-048.12.2
     source_root = Path(__file__).parents[2] / "src/panopticon"
     forbidden = {"anthropic", "openai"}
     violations: list[tuple[str, str]] = []
@@ -3187,7 +3187,7 @@ def test_scoping_packages_contain_no_literal_forbidden_imports() -> None:
 
 
 def test_fleet_write_retains_host_duties_while_task_token_cannot_claim(tmp_path: Path) -> None:
-    # 2119: REQ-047.1.2
+    # 2119: REQ-048.1.2
     with _client(tmp_path) as client:
         task = _create_task(client)
         second = _create_task(client)
@@ -3242,9 +3242,9 @@ def test_runner_injects_only_the_subject_task_capability(
 ) -> None:
     # 2119: REQ-035.17.1
     # 2119: REQ-035.39.1
-    # 2119: REQ-047.1.1
-    # 2119: REQ-047.3.1
-    # 2119: REQ-047.3.2
+    # 2119: REQ-048.1.1
+    # 2119: REQ-048.3.1
+    # 2119: REQ-048.3.2
     from panopticon.sessionservice.local_runner import LocalRunner
 
     calls: list[list[str]] = []
@@ -3411,7 +3411,7 @@ def test_runner_injects_only_the_subject_task_capability(
 def test_capability_plaintext_is_absent_from_persistent_and_diagnostic_surfaces(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
-    # 2119: REQ-047.3.2
+    # 2119: REQ-048.3.2
     with _client(tmp_path, read=[READ_TOKEN]) as client:
         task = _create_task(client)
         capability = _task_token(task["id"])

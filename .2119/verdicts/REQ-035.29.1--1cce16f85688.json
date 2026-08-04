@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.29.1--1cce16f85688",
+  "requirementId": "REQ-035.29.1",
+  "hash": "1cce16f85688",
+  "verdict": "fail",
+  "summary": "Integrated tests call _start_sessions directly, so start/host could stop launching the explicitly bound service while every annotated test still passes.",
+  "timestamp": "2026-08-03T23:28:33.225Z"
+}

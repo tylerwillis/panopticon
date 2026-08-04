@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.5.3--dcfd3d276a91",
-  "requirementId": "REQ-047.5.3",
-  "hash": "dcfd3d276a91",
-  "verdict": "pass",
-  "summary": "Tests prove a capability can open and close its own registration and hold its own liveness stream through initial and keepalive bytes, while sibling registration and liveness access are denied.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

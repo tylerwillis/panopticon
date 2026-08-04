@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.6.2--decb8b2b70ef",
-  "requirementId": "REQ-047.6.2",
-  "hash": "decb8b2b70ef",
-  "verdict": "pass",
-  "summary": "The exhaustive administration inventory tests repo, claim, provisioning, migration, lifecycle, runner, workflow-file, governor, session-host, and related control-plane surfaces, including operator-token combination attempts.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

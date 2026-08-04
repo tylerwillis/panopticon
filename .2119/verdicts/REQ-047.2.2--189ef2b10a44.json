@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.2.2--189ef2b10a44",
+  "requirementId": "REQ-047.2.2",
+  "hash": "189ef2b10a44",
+  "verdict": "pass",
+  "summary": "Tests reject omitted backend stop, any retained task snapshot, premature workspace deletion, and workspace deletion after probe or stop failure for both terminal states.",
+  "timestamp": "2026-08-03T23:30:30.786Z"
+}

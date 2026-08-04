@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.5.1--02bfd2451f2e",
-  "requirementId": "REQ-047.5.1",
-  "hash": "02bfd2451f2e",
-  "verdict": "pass",
-  "summary": "The tests exercise every enumerated self-mutation, verify the concrete effect, and reload the service to prove persistence, including declared operations, transitions, responsibility outcomes, state, scalar fields, markers, turn, and dependencies.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

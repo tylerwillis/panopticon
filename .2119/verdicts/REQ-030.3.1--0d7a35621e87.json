@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.3.1--0d7a35621e87",
+  "requirementId": "REQ-030.3.1",
+  "hash": "0d7a35621e87",
+  "verdict": "pass",
+  "summary": "All four session-creation paths require the dedicated socket and the complete independently tested defaults config before new-session; the scope guard catches additional direct creators.",
+  "timestamp": "2026-08-03T20:46:27.960Z"
+}

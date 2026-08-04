@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.5.2--824fb2e24340",
-  "requirementId": "REQ-047.5.2",
-  "hash": "824fb2e24340",
-  "verdict": "pass",
-  "summary": "A task capability creates, lists, reads, and replaces its own artifact while sibling artifact creation, replacement, listing, and reading are denied without altering data.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

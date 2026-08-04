@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.3.1--e3b9936fbc04",
-  "requirementId": "REQ-047.3.1",
-  "hash": "e3b9936fbc04",
-  "verdict": "pass",
-  "summary": "The runner test proves the runtime snapshot contains only the spawned task's derived capability and that the container is configured to read the single read-only mounted snapshot.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}
