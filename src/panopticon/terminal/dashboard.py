@@ -1859,6 +1859,7 @@ class RepoFormScreen(ModalScreen["dict[str, Any] | None"]):
     # and these, separately, since it's editable only in create mode. ``env_file`` is rendered
     # as an EnvFileField (dropdown + custom-path input) rather than a plain Input.
     FIELDS = ("git_url", "name", "default_base")
+    REVIEWER_FIELDS = ("honesty_reviewer", "reviewer_1", "reviewer_2")
     # Fields auto-derived from git_url → how to derive each (create mode only; see
     # _autofill_from_git_url). id and name are the bare repo name.
     _DERIVED: dict[str, Callable[[str], str]] = {
@@ -1934,6 +1935,12 @@ class RepoFormScreen(ModalScreen["dict[str, Any] | None"]):
                             f"model: {self._launch.starting_model or 'harness default'} "
                             f"({self._launch.source})",
                             id="default-model-effective",
+                        )
+                    for name in self.REVIEWER_FIELDS:
+                        yield Input(
+                            value=self._initial(name),
+                            placeholder=f"{name} (<harness>:<model>)",
+                            id=f"field-{name}",
                         )
                     yield EnvFileField(initial=self._initial("env_file"), id="field-env_file")
                     yield ImageLayerField(
@@ -2022,6 +2029,10 @@ class RepoFormScreen(ModalScreen["dict[str, Any] | None"]):
             values["default_model"] = (
                 self.query_one("#field-default_model", Input).value.strip() or None
             )
+        for name in self.REVIEWER_FIELDS:
+            value = self.query_one(f"#field-{name}", Input).value.strip() or None
+            if not self._editing or name in self._repo or value is not None:
+                values[name] = value
         values["env_file"] = self.query_one("#field-env_file", EnvFileField).env_file_value or None
         values["image_layer_file"] = (
             self.query_one("#field-image_layer_file", ImageLayerField).image_layer_value or None
@@ -2265,6 +2276,11 @@ class ReposScreen(_TableScreen):
         def create(values: dict[str, Any]) -> str | None:
             if not (values["id"] and values["name"] and values["git_url"]):
                 return "id, name and git_url are required."
+            reviewer_values = {
+                name: values[name]
+                for name in RepoFormScreen.REVIEWER_FIELDS
+                if values[name] is not None
+            }
             try:
                 self._client.create_repo(
                     values["id"],
@@ -2277,6 +2293,7 @@ class ReposScreen(_TableScreen):
                     capabilities={"docker_in_docker": values["docker_in_docker"]},
                     enabled_workflows=values["enabled_workflows"],
                     disabled_workflows=values["disabled_workflows"],
+                    **reviewer_values,
                 )
             except httpx.HTTPStatusError as exc:
                 return f"Can't create: {_detail(exc)}"
@@ -2299,6 +2316,9 @@ class ReposScreen(_TableScreen):
                 **self._repos[repo_id].get("capabilities", {}),
                 "docker_in_docker": values["docker_in_docker"],
             }
+            reviewer_changes = {
+                name: values[name] for name in RepoFormScreen.REVIEWER_FIELDS if name in values
+            }
             try:
                 self._client.update_repo(
                     repo_id,
@@ -2313,6 +2333,7 @@ class ReposScreen(_TableScreen):
                     capabilities=capabilities,
                     enabled_workflows=values["enabled_workflows"],
                     disabled_workflows=values["disabled_workflows"],
+                    **reviewer_changes,
                 )
             except httpx.HTTPStatusError as exc:
                 return f"Can't update: {_detail(exc)}"

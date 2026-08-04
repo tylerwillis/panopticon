@@ -352,6 +352,9 @@ class RepoIn(BaseModel):
     default_harness: str | None = None  # the harness this repo's tasks run by default
     default_model: str | None = None  # opaque model[:effort] for that harness
     credential_dir: str | None = None  # name of a shared credential dir under the secrets dir
+    honesty_reviewer: str | None = None
+    reviewer_1: str | None = None
+    reviewer_2: str | None = None
 
 
 class RepoOut(BaseModel):
@@ -370,6 +373,9 @@ class RepoOut(BaseModel):
     default_harness: str | None = None
     default_model: str | None = None
     credential_dir: str | None = None
+    honesty_reviewer: str | None = None
+    reviewer_1: str | None = None
+    reviewer_2: str | None = None
 
 
 class RepoPatchIn(BaseModel):
@@ -390,6 +396,9 @@ class RepoPatchIn(BaseModel):
     default_harness: str | None = None
     default_model: str | None = None
     credential_dir: str | None = None
+    honesty_reviewer: str | None = None
+    reviewer_1: str | None = None
+    reviewer_2: str | None = None
 
 
 class WorkflowInfo(BaseModel):

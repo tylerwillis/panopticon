@@ -6,6 +6,7 @@ move into the deterministic control plane.
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import re
@@ -15,9 +16,16 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, TypeAlias
 
-from panopticon.harnesses.base import ReviewerConfig
+from panopticon.harnesses.base import (
+    HONESTY_REVIEWER_ENV,
+    REVIEWER_ENV_VARS,
+    ReviewerConfig,
+    ReviewerDispatchError,
+    parse_reviewer_config,
+    render_reviewer_command,
+    validate_reviewer_config,
+)
 
-SUPPORTED_HARNESSES = frozenset({"claude", "codex"})
 CLAUDE_SOURCE = "claude-json:modelUsage"
 CODEX_SOURCE = "codex-rollout:turn_context.payload.model"
 SUPPORTED_VERIFICATION_SOURCES = frozenset({CLAUDE_SOURCE, CODEX_SOURCE})
@@ -29,6 +37,20 @@ Publish: TypeAlias = Callable[[str], None]
 GitStatus: TypeAlias = Callable[[], str]
 GitHead: TypeAlias = Callable[[], str]
 VerifiedIdentity: TypeAlias = tuple[str, str]
+
+
+def resolve_honesty_reviewer(default: ReviewerConfig, environ: Mapping[str, str]) -> ReviewerConfig:
+    """Resolve the repo-transported honesty reviewer over its workflow default."""
+
+    validate_reviewer_config(default, label="default honesty reviewer")
+    override = environ.get(HONESTY_REVIEWER_ENV)
+    return parse_reviewer_config(override) if override and override.strip() else default
+
+
+def honesty_reviewer_command(default: ReviewerConfig, environ: Mapping[str, str]) -> str:
+    """Render the executable reviewer command selected inside the task container."""
+
+    return render_reviewer_command(resolve_honesty_reviewer(default, environ))
 
 
 @dataclass(frozen=True)
@@ -55,39 +77,12 @@ class ReviewEvidence:
         return cls(config.harness, config.model, model, source, commit, round_number)
 
 
-class ReviewerDispatchError(RuntimeError):
-    """Typed, actionable reviewer failure safe to surface to an operator."""
-
-    def __init__(
-        self,
-        detail: str,
-        *,
-        kind: str = "configuration",
-        requested_model: str = "unknown",
-        remediation: str = "Correct the reviewer configuration or choose an available model.",
-    ) -> None:
-        self.kind = kind
-        self.requested_model = requested_model
-        self.detail = detail
-        self.remediation = remediation
-        super().__init__(f"{detail} Remediation: {remediation}")
-
-
 def _invalid_config(detail: str, model: str = "unknown") -> ReviewerDispatchError:
     return ReviewerDispatchError(detail, requested_model=model)
 
 
 def _parse_reviewer(value: str) -> ReviewerConfig:
-    if ":" not in value:
-        raise _invalid_config(f"malformed reviewer pair {value!r}; expected <harness>:<model>")
-    harness, model = value.split(":", 1)
-    if not harness:
-        raise _invalid_config("reviewer pair has a missing harness", model)
-    if not model:
-        raise _invalid_config("reviewer pair has a missing model")
-    if harness not in SUPPORTED_HARNESSES:
-        raise _invalid_config(f"unsupported harness {harness!r}; choose claude or codex", model)
-    return ReviewerConfig(harness, model)
+    return parse_reviewer_config(value)
 
 
 def resolve_reviewers(
@@ -99,10 +94,9 @@ def resolve_reviewers(
         raise _invalid_config("reviewer configuration requires exactly two defaults")
     resolved = []
     for index, default in enumerate(defaults, 1):
-        if default.harness not in SUPPORTED_HARNESSES or not default.model:
-            raise _invalid_config(f"invalid default reviewer {index}", default.model)
-        override = environ.get(f"PANOPTICON_2119_REVIEWER_{index}")
-        resolved.append(_parse_reviewer(override) if override is not None else default)
+        validate_reviewer_config(default, label=f"default reviewer {index}")
+        override = environ.get(REVIEWER_ENV_VARS[index - 1])
+        resolved.append(_parse_reviewer(override) if override and override.strip() else default)
     return resolved[0], resolved[1]
 
 
@@ -545,3 +539,20 @@ def complete_review_stage(
     validate_review_gate(comments, reviewers=reviewers, commit=commit, round_number=round_number)
     triage()
     resolve_responsibility()
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Resolve task-container reviewer configuration")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+    honesty = subparsers.add_parser(
+        "honesty-command", help="print the configured test-honesty reviewer command"
+    )
+    honesty.add_argument("--default", required=True, help="workflow <harness>:<model> default")
+    args = parser.parse_args(argv)
+    if args.command == "honesty-command":
+        print(honesty_reviewer_command(parse_reviewer_config(args.default), os.environ))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

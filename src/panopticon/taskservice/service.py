@@ -46,6 +46,7 @@ from panopticon.core.state import TERMINAL_LABELS, Dropped
 from panopticon.core.store import NotFound, Store
 from panopticon.core.workflow import InvalidWorkflow, Workflow
 from panopticon.harnesses import HARNESSES, get_harness
+from panopticon.harnesses.base import ReviewerDispatchError, parse_reviewer_config
 
 _log = logging.getLogger(__name__)
 
@@ -61,7 +62,7 @@ def _uuid_hex() -> str:
 def _validate_agent_surface(workflow: Workflow) -> None:
     workflow.validate_registration(HARNESSES)
     surface_names = {PROVISION_SKILL.name, ARTIFACT_SKILL.name}
-    for skill in workflow.skills():
+    for skill in workflow.container_skills():
         if skill.name in surface_names:
             raise InvalidWorkflow(f"{workflow.name!r}: duplicate agent surface name {skill.name!r}")
         surface_names.add(skill.name)
@@ -312,12 +313,32 @@ class TaskService:
     # -- repos --------------------------------------------------------------------
 
     async def create_repo(self, repo: Repo) -> Repo:
+        repo = replace(
+            repo,
+            honesty_reviewer=self._normalize_reviewer_override(
+                "honesty_reviewer", repo.honesty_reviewer
+            ),
+            reviewer_1=self._normalize_reviewer_override("reviewer_1", repo.reviewer_1),
+            reviewer_2=self._normalize_reviewer_override("reviewer_2", repo.reviewer_2),
+        )
         await self._validate_env_file(repo.env_file)
         self._validate_harness_name(repo.default_harness)
         self._validate_repo_harness_model(repo)
         await self._validate_credential_dir(repo.credential_dir)
         await self._store.create_repo(repo)
         return repo
+
+    @staticmethod
+    def _normalize_reviewer_override(field: str, value: str | None) -> str | None:
+        """Normalize blank repo overrides and reject invalid atomic reviewer pairs."""
+        if value is None or not value.strip():
+            return None
+        value = value.strip()
+        try:
+            parse_reviewer_config(value)
+        except ReviewerDispatchError as exc:
+            raise ValueError(f"{field}: {exc}") from exc
+        return value
 
     async def _validate_credential_dir(self, credential_dir: str | None) -> None:
         """Reject a repo whose credential-dir reference points at a missing directory.
@@ -396,7 +417,11 @@ class TaskService:
         existing = await self.get_repo(repo_id)  # raises NotFound
         if "id" in changes and changes["id"] != repo_id:
             raise ValueError("a repo's id cannot be changed")
-        updated = replace(existing, **{k: v for k, v in changes.items() if k != "id"})
+        normalized = {k: v for k, v in changes.items() if k != "id"}
+        for field in ("honesty_reviewer", "reviewer_1", "reviewer_2"):
+            if field in normalized:
+                normalized[field] = self._normalize_reviewer_override(field, normalized[field])
+        updated = replace(existing, **normalized)
         if "env_file" in changes:  # validate only when the caller is actually setting the field,
             await self._validate_env_file(
                 updated.env_file
@@ -730,7 +755,7 @@ class TaskService:
     async def skills(self, task_id: str) -> list[Skill]:
         """The universal core skills followed by the active workflow's own skills."""
         task = await self.get_task(task_id)
-        return [PROVISION_SKILL, ARTIFACT_SKILL, *self._workflow(task.workflow).skills()]
+        return [PROVISION_SKILL, ARTIFACT_SKILL, *self._workflow(task.workflow).container_skills()]
 
     async def briefing(self, task_id: str) -> str:
         """A short briefing on the task's current phase (state + responsibilities + how it advances),

@@ -15,6 +15,7 @@ session service look the name up here when they need the CLI's mechanics.
 
 from __future__ import annotations
 
+import shlex
 from abc import ABC, abstractmethod
 from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
@@ -48,6 +49,73 @@ class ReviewerConfig:
 
     harness: str
     model: str
+
+
+SUPPORTED_REVIEWER_HARNESSES = frozenset({"claude", "codex"})
+HONESTY_REVIEWER_ENV = "PANOPTICON_2119_HONESTY_REVIEWER"
+REVIEWER_ENV_VARS = (
+    "PANOPTICON_2119_REVIEWER_1",
+    "PANOPTICON_2119_REVIEWER_2",
+)
+
+
+class ReviewerDispatchError(RuntimeError):
+    """Typed, actionable reviewer failure safe to surface to an operator."""
+
+    def __init__(
+        self,
+        detail: str,
+        *,
+        kind: str = "configuration",
+        requested_model: str = "unknown",
+        remediation: str = "Correct the reviewer configuration or choose an available model.",
+    ) -> None:
+        self.kind = kind
+        self.requested_model = requested_model
+        self.detail = detail
+        self.remediation = remediation
+        super().__init__(f"{detail} Remediation: {remediation}")
+
+
+def parse_reviewer_config(value: str) -> ReviewerConfig:
+    """Parse one ``<harness>:<model>`` pair, preserving the opaque model suffix."""
+    if ":" not in value:
+        raise ReviewerDispatchError(
+            f"malformed reviewer pair {value!r}; expected <harness>:<model>"
+        )
+    harness, model = value.split(":", 1)
+    if not harness.strip():
+        raise ReviewerDispatchError("reviewer pair has a missing harness", requested_model=model)
+    if not model.strip():
+        raise ReviewerDispatchError("reviewer pair has a missing model")
+    if harness not in SUPPORTED_REVIEWER_HARNESSES:
+        raise ReviewerDispatchError(
+            f"unsupported harness {harness!r}; choose claude or codex",
+            requested_model=model,
+        )
+    return ReviewerConfig(harness, model)
+
+
+def validate_reviewer_config(config: ReviewerConfig, *, label: str = "reviewer") -> None:
+    """Reject a malformed programmatic default before any reviewer command can run."""
+    if config.harness not in SUPPORTED_REVIEWER_HARNESSES or not config.model.strip():
+        raise ReviewerDispatchError(
+            f"invalid {label}",
+            requested_model=config.model,
+        )
+
+
+def render_reviewer_command(config: ReviewerConfig) -> str:
+    """Render one validated reviewer pair as a shell-safe task-container command."""
+
+    validate_reviewer_config(config)
+    model = shlex.quote(config.model)
+    if config.harness == "claude":
+        return (
+            "claude --print --output-format json --safe-mode "
+            f"--dangerously-skip-permissions --model {model}"
+        )
+    return f"codex exec --dangerously-bypass-approvals-and-sandbox -m {model}"
 
 
 def task_id_note(task_id: str) -> str:

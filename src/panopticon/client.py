@@ -161,6 +161,9 @@ class TaskServiceClient:
         enabled_workflows: list[str] | None = None,
         disabled_workflows: list[str] | None = None,
         default_harness: str | None = None,
+        honesty_reviewer: str | None = None,
+        reviewer_1: str | None = None,
+        reviewer_2: str | None = None,
     ) -> JsonObj:
         body: dict[str, Any] = {
             "id": repo_id,
@@ -174,6 +177,13 @@ class TaskServiceClient:
             "disabled_workflows": disabled_workflows or [],
             "default_harness": default_harness,
         }
+        for field, value in (
+            ("honesty_reviewer", honesty_reviewer),
+            ("reviewer_1", reviewer_1),
+            ("reviewer_2", reviewer_2),
+        ):
+            if value is not None:
+                body[field] = value
         if capabilities is not None:
             body["capabilities"] = capabilities
         return cast(JsonObj, self._json(self._http.post("/repos", json=body)))

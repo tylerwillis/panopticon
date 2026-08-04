@@ -1,0 +1,8 @@
+{
+  "reviewId": "reviewer-config-surfaces.3.2--027655e3bb8b",
+  "requirementId": "reviewer-config-surfaces.3.2",
+  "hash": "027655e3bb8b",
+  "verdict": "pass",
+  "summary": "Tests verify precedence, first-colon splitting, blank fallback, and pre-command rejection of invalid defaults and overrides.",
+  "timestamp": "2026-08-03T23:37:13.649Z"
+}

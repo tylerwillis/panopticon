@@ -1,0 +1,8 @@
+{
+  "reviewId": "reviewer-config-surfaces.2.1--1455b05cd8cb",
+  "requirementId": "reviewer-config-surfaces.2.1",
+  "hash": "1455b05cd8cb",
+  "verdict": "pass",
+  "summary": "Tests cover all nullable fields through domain, API, durable store, migration, and create/edit forms.",
+  "timestamp": "2026-08-03T23:37:10.920Z"
+}
