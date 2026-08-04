@@ -33,14 +33,21 @@ REVIEWS_RECORDED = Responsibility(
     key="reviews-recorded",
     description=(
         "Both configured reviewer dispatches are machine-verified against the final diff and "
-        "posted as evidence-bearing PR comments."
+        "posted as evidence-bearing PR comments; each reviewer independently chooses every "
+        "mutation it attempts, attempts at least one targeted mutation of a specific claimed "
+        "property, and reports whether it was killed or survived, with a survivor treated as "
+        "an evidence defect."
     ),
 )
 REVIEWS_RECORDED_SOL = Responsibility(
     key="reviews-recorded-sol",
     description=(
-        "Both configured reviewer dispatches are machine-verified against the final diff and "
-        "posted as evidence-bearing PR comments."
+        "Two independently dispatched fresh-context Sol reviewer attempts are machine-verified "
+        "against the final diff and posted as evidence-bearing PR comments. The shared model "
+        "provides no cross-model diversity; each reviewer independently chooses every mutation "
+        "it attempts, attempts at least one targeted mutation of a specific claimed property, "
+        "and reports whether it was killed or survived, with a survivor treated as an evidence "
+        "defect."
     ),
 )
 FINDINGS_TRIAGED = Responsibility(
@@ -229,6 +236,21 @@ reviewed commit. Fetch exactly the two final evidence comments in configured slo
 callbacks run. If one dispatch publishes before the other fails, exclude or delete that orphan
 before retrying so the gate receives exactly the final pair. Apply these same dispatch,
 verification, comment, and failure rules to re-review rounds.
+
+## Targeted mutation evidence
+
+Each reviewer independently chooses every mutation it attempts and must attempt at least one
+targeted mutation; the author must not choose or supply any mutation. Break a specific property on
+which a review claim depends. Apply mutation writes only in a throwaway copy outside the working
+tree, never in the task checkout. Run the affected tests and report the property broken and which
+tests failed, or state plainly that the mutation survived. A surviving mutation is a defect in the
+evidence even when the reviewed code is correct.
+
+A kill shows only that a test can fail under the mutation; an unrelated assertion may have failed,
+so a kill does not certify the test's reason or the claim. As the final action of every reviewer
+attempt, verify the working tree is unchanged from the snapshot taken immediately before the
+reviewer ran. Keep this targeted: do not introduce a mutation-testing framework or attempt
+exhaustive mutations.
 
 Triage every finding against the code. Accept or reject each finding with a reason, implement every
 accepted fix, and re-run the TESTING gates. If a MUST-FIX was accepted, run one fresh review round;

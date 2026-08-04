@@ -77,8 +77,12 @@ EXPECTED_DEFERRED_ISSUES_FILED_RESPONSIBILITY = (
 EXPECTED_SOL_REVIEWING_RESPONSIBILITIES = (
     (
         "reviews-recorded-sol",
-        "Both configured reviewer dispatches are machine-verified against the final diff and "
-        "posted as evidence-bearing PR comments.",
+        "Two independently dispatched fresh-context Sol reviewer attempts are machine-verified "
+        "against the final diff and posted as evidence-bearing PR comments. The shared model "
+        "provides no cross-model diversity; each reviewer independently chooses every mutation "
+        "it attempts, attempts at least one targeted mutation of a specific claimed property, "
+        "and reports whether it was killed or survived, with a survivor treated as an evidence "
+        "defect.",
     ),
     (
         "findings-triaged",

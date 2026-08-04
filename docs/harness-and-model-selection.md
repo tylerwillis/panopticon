@@ -140,3 +140,13 @@ profile controls and suppresses its interactive runtime extension for those mode
 operator smoke that appended `-p` hung with no Pi output, but that flag is not part of the
 Panopticon argv. The normal launch inherits the tmux TTY, contains no headless flag, and was
 verified through Outfitter's “launching pi” boundary.
+
+## Targeted mutation review
+
+Killing a targeted mutation shows that an affected test can fail under that change; it does not
+prove that the test failed for the intended reason, because an unrelated assertion can also kill
+the mutation.
+
+The Sol-only workflow makes two independent fresh-context dispatches of the same model. That
+preserves independence from the author and between review contexts, but it does not provide
+cross-model diversity; each dispatched reviewer chooses its own mutation.
