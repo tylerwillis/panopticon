@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.3.2--8da44bc2f7ac",
+  "requirementId": "REQ-048.3.2",
+  "hash": "8da44bc2f7ac",
+  "verdict": "pass",
+  "summary": "Complete supported ANSI families within one captured line are stripped, while control-plane escape rejection is independently covered without a multiline claim.",
+  "timestamp": "2026-08-04T06:33:52.095Z"
+}

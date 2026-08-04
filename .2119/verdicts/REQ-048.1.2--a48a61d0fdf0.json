@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.1.2--a48a61d0fdf0",
+  "requirementId": "REQ-048.1.2",
+  "hash": "a48a61d0fdf0",
+  "verdict": "pass",
+  "summary": "Interior, leading, and trailing ESC are rejected through both representations without replacing the stored snapshot.",
+  "timestamp": "2026-08-04T06:33:49.517Z"
+}

@@ -521,23 +521,19 @@ class SessionTranscriptIn(BaseModel):
     def decode_text(self) -> SessionTranscriptIn:
         if (self.text is None) == (self.text_b64 is None):
             raise ValueError("exactly one of text or text_b64 is required")
+        text = self.text
         if self.text_b64 is not None:
             try:
-                self.text = base64.b64decode(self.text_b64, validate=True).decode("utf-8")
+                text = base64.b64decode(self.text_b64, validate=True).decode("utf-8")
             except (ValueError, UnicodeDecodeError) as error:
                 raise ValueError("text_b64 must be valid base64-encoded UTF-8") from error
-        return self
-
-    @field_validator("text")
-    @classmethod
-    def reject_terminal_escape_sequences(cls, value: str | None) -> str | None:
-        if value is None:
-            return value
-        if "\x1b" in value:
+        assert text is not None
+        if "\x1b" in text:
             raise ValueError("transcript text must not contain terminal escape sequences")
-        if len(value.encode("utf-8")) > 65536 or len(value.splitlines()) > 200:
+        if len(text.encode("utf-8")) > 65536 or len(text.splitlines()) > 200:
             raise ValueError("transcript text exceeds the pane snapshot bounds")
-        return value
+        self.text = text
+        return self
 
 
 class SessionTranscriptOut(BaseModel):
