@@ -641,7 +641,8 @@ def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> 
                         extra={
                             "credential": payload,
                             "other_credential": payload,
-                            "arbitrary_key": {"nested": [payload]},
+                            "arbitrary_key": {f"nested-{token}": [payload]},
+                            f"field-{token}": payload,
                         },
                     )
                     try:
@@ -673,7 +674,7 @@ def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> 
         assert f"mapping {redacted_payload} safe also-safe arbitrary-safe" in observed
         assert "split [redacted] safe also-safe arbitrary-safe" in observed
         assert f"extra {redacted_payload} {redacted_payload}" in observed
-        assert f"'nested': ['{redacted_payload}']" in observed
+        assert f"'nested-[redacted]': ['{redacted_payload}']" in observed
         assert f"exception {redacted_payload}" in observed
         assert f"stack {redacted_payload}" in observed
         assert READ_TOKEN not in observed
@@ -699,7 +700,8 @@ def test_active_app_redacts_every_supported_log_record_field(tmp_path: Path) -> 
         assert any(
             record.get("credential") == redacted_payload
             and record.get("other_credential") == redacted_payload
-            and record.get("arbitrary_key") == {"nested": [redacted_payload]}
+            and record.get("arbitrary_key") == {"nested-[redacted]": [redacted_payload]}
+            and record.get("field-[redacted]") == redacted_payload
             for record in records
         )
         assert any(

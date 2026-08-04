@@ -74,7 +74,10 @@ def _redact_log_value(value: Any, tokens: tuple[str, ...]) -> Any:
     if isinstance(value, list):
         return [_redact_log_value(item, tokens) for item in value]
     if isinstance(value, dict):
-        return {key: _redact_log_value(item, tokens) for key, item in value.items()}
+        return {
+            _redact_log_value(key, tokens): _redact_log_value(item, tokens)
+            for key, item in value.items()
+        }
     if isinstance(value, set):
         return {_redact_log_value(item, tokens) for item in value}
     if isinstance(value, frozenset):
@@ -104,9 +107,16 @@ class _ConfiguredTokenLogFilter(logging.Filter):
             record.exc_info = None
         if record.stack_info is not None:
             record.stack_info = _redact_log_value(record.stack_info, self._tokens)
-        for key, value in tuple(record.__dict__.items()):
-            if key not in {"msg", "args", "exc_info", "stack_info"}:
-                record.__dict__[key] = _redact_log_value(value, self._tokens)
+        record_fields = {
+            _redact_log_value(key, self._tokens): (
+                value
+                if key in {"msg", "args", "exc_info", "stack_info"}
+                else _redact_log_value(value, self._tokens)
+            )
+            for key, value in record.__dict__.items()
+        }
+        record.__dict__.clear()
+        record.__dict__.update(record_fields)
         return True
 
 
