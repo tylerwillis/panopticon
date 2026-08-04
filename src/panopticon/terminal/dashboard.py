@@ -1016,6 +1016,80 @@ class LaunchSelection:
 
 
 @dataclass(frozen=True)
+class LayeredSetting:
+    """One declared default/override-or-filter relationship and its two UI signposts."""
+
+    key: str
+    setting_names: tuple[str, ...]
+    default_surface: str
+    default_layer_name: str
+    override_surface: str
+    override_layer_name: str
+    relationship: str
+    default_signpost: str
+    override_signpost: str
+
+
+LAYERED_SETTINGS: tuple[LayeredSetting, ...] = (
+    LayeredSetting(
+        key="reviewer-models",
+        setting_names=("honesty_reviewer", "reviewer_1", "reviewer_2"),
+        default_surface="workflows",
+        default_layer_name="workflow config",
+        override_surface="repos",
+        override_layer_name="repo config",
+        relationship="override",
+        default_signpost="Reviewer defaults: repo config can override",
+        override_signpost="Reviewer defaults: workflow config",
+    ),
+    LayeredSetting(
+        key="workflow-availability",
+        setting_names=("opt_in", "enabled_workflows", "disabled_workflows"),
+        default_surface="workflows",
+        default_layer_name="workflow config",
+        override_surface="repos",
+        override_layer_name="repo config",
+        relationship="filter",
+        default_signpost="Workflow availability: repo config filters",
+        override_signpost="Workflow availability: workflow config",
+    ),
+    LayeredSetting(
+        key="workflow-task-launch",
+        setting_names=("default_harness", "default_model"),
+        default_surface="workflows",
+        default_layer_name="workflow config",
+        override_surface="task-creation",
+        override_layer_name="per-task creation",
+        relationship="override",
+        default_signpost="Harness/model defaults: override at per-task creation",
+        override_signpost="Harness/model precedence: workflow config",
+    ),
+    LayeredSetting(
+        key="task-launch",
+        setting_names=("default_harness", "default_model"),
+        default_surface="repos",
+        default_layer_name="repo config",
+        override_surface="task-creation",
+        override_layer_name="per-task creation",
+        relationship="override",
+        default_signpost="Harness/model defaults: override at per-task creation",
+        override_signpost="repo config > app default; change here to override this task",
+    ),
+)
+
+
+def layered_settings_hint(surface: str) -> str:
+    """Combine every declared signpost for ``surface`` into its single concise hint line."""
+    fragments: list[str] = []
+    for setting in LAYERED_SETTINGS:
+        if setting.default_surface == surface:
+            fragments.append(setting.default_signpost)
+        if setting.override_surface == surface:
+            fragments.append(setting.override_signpost)
+    return f"{'; '.join(fragments)}." if fragments else ""
+
+
+@dataclass(frozen=True)
 class _HarnessSuggestions:
     models: tuple[tuple[str, str], ...]
     efforts: tuple[tuple[str, str], ...]
@@ -1177,7 +1251,7 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
     #memo-box HarnessSelector { color: $text-muted; }
     #memo-box HarnessSelector:focus { color: $text; text-style: bold; }
     #launch-line { height: auto; margin-top: 1; }
-    #launch-summary { width: 1fr; height: 1; color: $text-muted; }
+    #launch-summary { width: 1fr; height: auto; color: $text-muted; }
     .launch-field { height: 1; }
     .launch-field-label { width: 9; color: $text-muted; }
     .launch-field HarnessSelector, .launch-field Input {
@@ -1325,7 +1399,13 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
                     )
                     yield effort_options
                     yield Label("no matches", classes="launch-empty")
-                yield Static(self._selection.summary, id="launch-summary")
+                yield Static(
+                    self._launch_summary, id="launch-summary", classes="layered-settings-hint"
+                )
+
+    @property
+    def _launch_summary(self) -> str:
+        return f"{self._selection.summary} · {layered_settings_hint('task-creation')}"
 
     def on_mount(self) -> None:
         self.query_one(MemoTextArea).focus()
@@ -1423,7 +1503,7 @@ class MemoScreen(ModalScreen["tuple[str, bool | None, dict[str, str], list[str]]
         self._selection = resolve_launch_selection(
             self._repo, self._workflow, overrides=self._overrides, touched=self._touched
         )
-        self.query_one("#launch-summary", Static).update(self._selection.summary)
+        self.query_one("#launch-summary", Static).update(self._launch_summary)
         if field == "harness":
             harness = HARNESSES[value]
             self._suggestions_for(value)
@@ -2130,10 +2210,12 @@ class _TableScreen(ModalScreen[None]):
     CSS = """
     WorkflowsScreen, ReposScreen { align: center middle; }
     .table-box { width: 90%; height: 80%; padding: 1 2; border: round $accent; background: $surface; }
+    .layered-settings-hint { width: 100%; height: auto; color: $text-muted; text-wrap: wrap; }
     """
     TABLE_ID = ""
     TITLE = ""
     COLUMNS: tuple[str, ...] = ()
+    LAYERED_SETTINGS_SURFACE = ""
 
     def __init__(self, client: TaskServiceClient) -> None:
         super().__init__()
@@ -2142,6 +2224,13 @@ class _TableScreen(ModalScreen[None]):
     def compose(self) -> ComposeResult:
         with Vertical(classes="table-box"):
             yield Label(self.TITLE)
+            if self.LAYERED_SETTINGS_SURFACE:
+                surface = self.LAYERED_SETTINGS_SURFACE
+                yield Label(
+                    layered_settings_hint(surface),
+                    id=f"{surface}-layered-settings-hint",
+                    classes="layered-settings-hint",
+                )
             yield _VimDataTable(id=self.TABLE_ID, cursor_type="row")
 
     def on_mount(self) -> None:
@@ -2172,6 +2261,7 @@ class WorkflowsScreen(_TableScreen):
     TABLE_ID = "workflows"
     TITLE = "workflows — enter: open in $EDITOR   n: new   x: delete   esc: close"
     COLUMNS = ("name", "kind", "when to use")
+    LAYERED_SETTINGS_SURFACE = "workflows"
 
     def _refresh(self) -> None:
         table = self.query_one("#workflows", DataTable)
@@ -2254,6 +2344,7 @@ class ReposScreen(_TableScreen):
     TABLE_ID = "repos"
     TITLE = "repos — n: new   e: edit   s: setup   esc: close"
     COLUMNS = ("id", "name", "git_url", "default_base", "priv")
+    LAYERED_SETTINGS_SURFACE = "repos"
 
     def _refresh(self) -> None:
         table = self.query_one("#repos", DataTable)

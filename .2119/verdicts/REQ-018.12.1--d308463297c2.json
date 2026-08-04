@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.12.1--d308463297c2",
+  "requirementId": "REQ-018.12.1",
+  "hash": "d308463297c2",
+  "verdict": "pass",
+  "summary": "Real serialized defaults and exact UI summaries prove a single correct source label before and after task overrides.",
+  "timestamp": "2026-08-04T05:59:05.313Z"
+}
