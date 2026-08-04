@@ -3,7 +3,9 @@
 This is a one-way production procedure. It does not accept legacy `pt1` credentials, modify
 credentials inside running containers, or weaken PR #163. Issue #202's capability-escape fix must
 already be deployed and green. Keep the shell used for this procedure open: later steps reuse the
-variables and evidence directory created in S00.
+variables and evidence directory created in S00. Execute commands in order and stop immediately on
+the first nonzero status; the coordinator shell deliberately omits `errexit`, so it remains
+available for the stated failure action.
 
 The decisive pre-restart signal is the empty `docker ps` result in S03/G08. The permissive request
 counter is only weak corroboration because it cannot see legacy authenticated callers or already
@@ -14,7 +16,7 @@ open streams.
 ### Action
 
 ```sh
-set -euo pipefail
+set -uo pipefail
 export APP_ROOT=/path/to/panopticon
 export SERVICE_URL=http://127.0.0.1:8000
 export PANOPTICON_CONFIG=/path/to/panopticon-config
@@ -31,6 +33,7 @@ export OLD_RUNNER_ID=local
 export NEW_RUNNER_ID="cutover-$(date +%s)"
 export EVIDENCE_DIR="$(mktemp -d)"
 : > "$EVIDENCE_DIR/followups.md"
+: > "$EVIDENCE_DIR/gates.txt"
 git -C "$APP_ROOT" merge-base --is-ancestor "$ISSUE_202_COMMIT" "$DEPLOY_REV"
 gh run list --repo tylerwillis/panopticon --commit "$ISSUE_202_COMMIT" --workflow ci.yml --status success --limit 1 --json databaseId --jq 'length == 1' | grep --fixed-strings true
 uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook inspect-credential-file "$AUTH_PATH"
@@ -50,10 +53,12 @@ import sys
 from urllib.parse import urlsplit
 value = sys.argv[1]
 parsed = urlsplit(value)
-assert parsed.scheme in {"http", "https"} and parsed.hostname and parsed.port
+assert parsed.scheme in {"http", "https"} and parsed.hostname
 assert not parsed.username and not parsed.password
 assert parsed.path == "" and not parsed.query and not parsed.fragment
-assert value == f"{parsed.scheme}://{parsed.hostname}:{parsed.port}"
+default = 80 if parsed.scheme == "http" else 443
+authority = parsed.hostname if parsed.port in {None, default} else f"{parsed.hostname}:{parsed.port}"
+assert value == f"{parsed.scheme}://{authority}"
 PY
 ```
 
@@ -79,6 +84,7 @@ recorded on the cutover host.
 
 ```sh
 export TASK_CONTAINERS_BEFORE="$(docker ps --quiet --filter label=panopticon.task)"
+docker ps --all --quiet --filter label=panopticon.task | tee "$EVIDENCE_DIR/S01-all-container-ids-before.txt"
 test -z "$TASK_CONTAINERS_BEFORE" || docker inspect --format '{{.Id}} {{.Name}} {{.State.StartedAt}}' $TASK_CONTAINERS_BEFORE | tee "$EVIDENCE_DIR/S01-containers-before.txt"
 test -n "$TASK_CONTAINERS_BEFORE" || : > "$EVIDENCE_DIR/S01-containers-before.txt"
 tmux -L panopticon list-panes -a -F '#{session_name} #{pane_pid}' | tee "$EVIDENCE_DIR/S01-panes-before.txt"
@@ -93,11 +99,16 @@ tmux -L panopticon kill-session -t dashboard
 tmux -L panopticon kill-session -t runner
 while :; do
   curl --silent --show-error --fail --header "Authorization: Bearer $(uv --directory "$APP_ROOT" run python -c 'from panopticon.taskservice.auth import environment_token; print(environment_token())')" "$SERVICE_URL/tasks" --output "$EVIDENCE_DIR/S01-tasks.json"
-  uv --directory "$APP_ROOT" run python - "$EVIDENCE_DIR/S01-tasks.json" <<'PY' && break
+  uv --directory "$APP_ROOT" run python - "$EVIDENCE_DIR/S01-tasks.json" "$OLD_RUNNER_ID" <<'PY' && break
 import json, sys
 tasks = json.load(open(sys.argv[1]))
-terminal = {"COMPLETE", "DROPPED"}
-assert all(task["state"] in terminal or task["turn"] == "user" or task["blocked"] for task in tasks)
+assert all(task["terminal"] or task["turn"] == "user" or task["blocked"] for task in tasks)
+assert all(
+    task["terminal"]
+    or task["container_status"] == "gated"
+    or task["claimed_by"] == sys.argv[2]
+    for task in tasks
+)
 PY
   sleep 5
 done
@@ -317,6 +328,8 @@ export CANARY_CONTAINER="panopticon-$CANARY_TASK_ID"
 
 ```sh
 until test "$(docker inspect --format '{{.State.Running}}' "$CANARY_CONTAINER" 2>/dev/null)" = true; do sleep 1; done
+export CANARY_CONTAINER_ID="$(docker inspect --format '{{.Id}}' "$CANARY_CONTAINER")"
+! grep --fixed-strings --line-regexp "$CANARY_CONTAINER_ID" "$EVIDENCE_DIR/S01-all-container-ids-before.txt"
 docker inspect --format '{{.Id}} {{.State.Pid}} {{.State.StartedAt}}' "$CANARY_CONTAINER" | tee "$EVIDENCE_DIR/S07-container-initial.txt"
 test "$(docker exec "$CANARY_CONTAINER" python -c 'import json; print(json.load(open("/run/secrets/panopticon-service-auth"))["task"][:5])')" = ptc1.
 curl --silent --show-error --fail --header "Authorization: Bearer $WRITE_TOKEN" "$SERVICE_URL/tasks/$CANARY_TASK_ID" --output "$EVIDENCE_DIR/S07-live-initial.json"
@@ -360,10 +373,10 @@ curl --silent --show-error --fail --request POST --header "Authorization: Bearer
 until curl --silent --show-error --fail --header "Authorization: Bearer $WRITE_TOKEN" "$SERVICE_URL/tasks" --output "$EVIDENCE_DIR/S08-tasks.json" && uv --directory "$APP_ROOT" run python - "$EVIDENCE_DIR/S08-tasks.json" <<'PY'
 import json, sys
 tasks = json.load(open(sys.argv[1]))
-terminal = {"COMPLETE", "DROPPED"}
 assert all(
-    task["state"] in terminal
+    task["terminal"]
     or task["container_status"] == "live"
+    or task["container_status"] == "gated"
     or (task["container_status"] == "failed" and task["lifecycle_detail"])
     for task in tasks
 )
@@ -373,7 +386,8 @@ do sleep 5; done
 
 ### Expected
 
-Every intended nonterminal task is live or has a recorded task-specific failed disposition.
+Every intended dependency-clear nonterminal task is live or has a recorded task-specific failed
+disposition; terminal and dependency-gated tasks are explicitly accounted for.
 
 ### Failure action
 
@@ -616,23 +630,20 @@ Production-only: deployed browser boundary.
 #### Command
 
 ```sh
-curl --silent --show-error --fail "$PHONE_BOARD_URL" --output "$EVIDENCE_DIR/G07-phone.html"
+printf 'On the installed phone board at %s, open the fleet and enter the exact displayed task name: ' "$PHONE_BOARD_URL"
+read -r OBSERVED_PHONE_TASK
+printf '%s\n' "$OBSERVED_PHONE_TASK" > "$EVIDENCE_DIR/G07-phone-observation.txt"
 curl --silent --show-error --fail --header "Authorization: Bearer $READ_TOKEN" "$SERVICE_URL/tasks" --output "$EVIDENCE_DIR/G07-api.json"
 ```
 
 #### Check
 
 ```sh
-uv --directory "$APP_ROOT" run python - "$KNOWN_TASK_NAME" "$EVIDENCE_DIR/G07-phone.html" "$EVIDENCE_DIR/G07-api.json" <<'PY'
+uv --directory "$APP_ROOT" run python - "$KNOWN_TASK_NAME" "$EVIDENCE_DIR/G07-phone-observation.txt" "$EVIDENCE_DIR/G07-api.json" <<'PY'
 import json, sys
-from html.parser import HTMLParser
-class Text(HTMLParser):
-    def __init__(self): super().__init__(); self.values = []
-    def handle_data(self, data): self.values.append(data.strip())
-name, html_path, api_path = sys.argv[1:]
-phone = Text(); phone.feed(open(html_path).read())
+name, phone_path, api_path = sys.argv[1:]
 tasks = json.load(open(api_path))
-assert name in phone.values
+assert open(phone_path).read().strip() == name
 assert any(name in {task.get("name"), task.get("slug")} for task in tasks)
 PY
 printf 'G07: PASS\n' >> "$EVIDENCE_DIR/gates.txt"
@@ -648,7 +659,7 @@ STOP; installed browser behavior is not proven.
 
 #### Evidence status
 
-Production-only: installed phone board.
+Production-only: the operator records a direct observation from the installed phone board.
 
 ### G08 — No task container runs immediately before enforcement
 

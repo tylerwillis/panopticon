@@ -81,7 +81,7 @@ back without guessing which evidence has already been established.
 2. Across a Codex LocalRunner stop-and-respawn sequence, both `docker run` commands MUST mount `panopticon-config-<task-id>` as the sole source for `/home/panopticon/.codex`, with no intervening standalone `docker volume` command.
 3. The runbook MUST separately classify Claude configuration-volume persistence, launcher continuation selection, and real-CLI transcript acceptance as unit, integration, dry-run, or live-cutover evidence.
 4. The runbook MUST order one real canary and its capability-and-liveness gate before bulk respawn.
-5. The runbook MUST define a post-bulk-respawn check requiring every intended nonterminal task to be live or have a recorded task-specific failure disposition.
+5. The runbook MUST define a post-bulk-respawn check requiring every intended dependency-clear nonterminal task to be live or have a recorded task-specific failure disposition while explicitly accounting for terminal and dependency-gated tasks.
 6. The Claude harness with session history MUST select Claude's continuation path.
 7. The Codex harness with session history MUST resume the newest recorded interactive session by explicit identifier.
 8. The runbook MUST separately classify Codex configuration-volume persistence, explicit-session selection, and real-CLI transcript acceptance as unit, integration, dry-run, or live-cutover evidence.

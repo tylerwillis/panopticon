@@ -35,6 +35,9 @@ def test_canary_inputs_and_all_gate_pass_records_are_scheduled() -> None:
         marker = f"G{gate:02d}: PASS"
         assert marker in scheduled or marker in "\n".join(item.check for item in plan.gates[:7])
     assert "= 403" in plan.gates[4].action
+    assert 'task["claimed_by"] == sys.argv[2]' in plan.steps[1].action
+    assert ': > "$EVIDENCE_DIR/gates.txt"' in s00.action
+    assert "set -uo pipefail" in s00.action and "set -euo pipefail" not in s00.action
 
 
 # 2119: enforced-mode-cutover-runbook.3.5, enforced-mode-cutover-runbook.3.8
@@ -70,7 +73,9 @@ def test_g06_binds_the_exact_origin_to_both_independent_requests() -> None:
 # 2119: enforced-mode-cutover-runbook.4.7
 def test_g07_fetches_the_installed_phone_board_source() -> None:
     action = _plan().gates[6].action
-    assert 'curl --silent --show-error --fail "$PHONE_BOARD_URL"' in action
+    assert "On the installed phone board at %s" in action
+    assert "read -r OBSERVED_PHONE_TASK" in action
+    assert '"$EVIDENCE_DIR/G07-phone-observation.txt"' in action
 
 
 # 2119: enforced-mode-cutover-runbook.4.8
@@ -81,3 +86,19 @@ def test_g08_is_the_last_s04_check_before_s05() -> None:
         "printf 'G08: PASS\\n' >> \"$EVIDENCE_DIR/gates.txt\"",
     ]
     assert plan.steps[5].title == "Start the task service with exported enforced configuration"
+
+
+# 2119: enforced-mode-cutover-runbook.4.18, enforced-mode-cutover-runbook.7.4
+def test_g09_consumes_fresh_canary_evidence_without_other_claim_release() -> None:
+    plan = _plan()
+    s07 = plan.steps[7]
+    g09 = plan.gates[8]
+    assert "S01-all-container-ids-before.txt" in s07.check
+    assert "CANARY_CONTAINER_ID" in s07.check
+    assert "S07-container-initial.txt" in g09.check
+    assert "S07-container-after-keepalive.txt" in g09.check
+    before_g09 = (*plan.steps[:8], *plan.gates[:9])
+    claim_releases = [
+        item.item_id for item in before_g09 if "/claim" in item.action or "/claim" in item.check
+    ]
+    assert claim_releases == ["S07"]

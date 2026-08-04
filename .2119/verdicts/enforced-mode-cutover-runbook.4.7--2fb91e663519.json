@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.7--2fb91e663519",
+  "requirementId": "enforced-mode-cutover-runbook.4.7",
+  "hash": "2fb91e663519",
+  "verdict": "pass",
+  "summary": "G07 records an installed-phone observation and independently fetches the authenticated fleet API, then rejects either a phone-name mismatch or absence of that same name from the API.",
+  "timestamp": "2026-08-04T23:33:36.780Z"
+}

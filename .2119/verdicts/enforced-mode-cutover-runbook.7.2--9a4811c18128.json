@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.7.2--9a4811c18128",
+  "requirementId": "enforced-mode-cutover-runbook.7.2",
+  "hash": "9a4811c18128",
+  "verdict": "pass",
+  "summary": "The S05 test requires all three enforced variables to be exported before launch and interpolated into the service child environment.",
+  "timestamp": "2026-08-04T23:33:40.496Z"
+}

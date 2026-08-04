@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.7.3--642739350895",
+  "requirementId": "enforced-mode-cutover-runbook.7.3",
+  "hash": "642739350895",
+  "verdict": "pass",
+  "summary": "The tests reject reuse of the stopped runner ID and reject reclaiming old-runner claims during the canary step, covering both distinct identity and drained-claim boundaries.",
+  "timestamp": "2026-08-04T23:35:23.100Z"
+}

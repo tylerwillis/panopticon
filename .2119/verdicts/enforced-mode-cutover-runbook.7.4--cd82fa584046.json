@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.7.4--cd82fa584046",
+  "requirementId": "enforced-mode-cutover-runbook.7.4",
+  "hash": "cd82fa584046",
+  "verdict": "pass",
+  "summary": "Tests permit exactly S07's single canary claim deletion before G09 and place old-runner bulk reclaim only in S08.",
+  "timestamp": "2026-08-04T23:36:47.120Z"
+}

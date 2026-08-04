@@ -124,6 +124,7 @@ def test_parser_reads_actual_operator_shell_blocks_and_every_block_parses() -> N
         "mktemp",
         "printf",
         "ps",
+        "read",
         "sed",
         "set",
         "sleep",
@@ -163,7 +164,7 @@ def test_parser_reads_actual_operator_shell_blocks_and_every_block_parses() -> N
         "S05": "inherits enforced mode",
         "S06": "G01 through G07",
         "S07": "ptc1.",
-        "S08": "nonterminal task is live",
+        "S08": "dependency-clear nonterminal task is live",
         "S09": "Issue #203 contains",
         "G01": "returns 200",
         "G02": "returns 401",
@@ -206,7 +207,7 @@ def test_validator_is_structural_and_does_not_reject_unrelated_valid_edits() -> 
     assert validate_enforced_mode_cutover_runbook(missing_step) == [
         "enforced-mode-cutover-runbook.1.2"
     ]
-    missing_shell = text.replace("```sh\nset -euo pipefail", "set -euo pipefail", 1)
+    missing_shell = text.replace("```sh\nset -uo pipefail", "set -uo pipefail", 1)
     assert validate_enforced_mode_cutover_runbook(missing_shell) == [
         "enforced-mode-cutover-runbook.1.3"
     ]
@@ -237,6 +238,7 @@ def test_prerequisite_quiescence_inventory_and_direct_drain_are_executable() -> 
         and 'ps -o pid= -o lstart= -p "$OLD_RUNNER_PID,$OLD_DASHBOARD_PID"' in s01
     )
     assert "docker inspect --format '{{.Id}} {{.Name}} {{.State.StartedAt}}'" in s01
+    assert "S01-all-container-ids-before.txt" in s01
     assert 'OLD_RUNNER_START="$(ps -o lstart=' in s01
     assert 'OLD_DASHBOARD_START="$(ps -o lstart=' in s01
     assert s01.index("kill-session -t runner") < s01.index("while :; do")
@@ -299,7 +301,7 @@ def test_clients_are_replaced_before_exported_enforced_service_launch() -> None:
     assert "export PANOPTICON_SERVICE_AUTH_MODE=enforced" in s05
     assert "inspect-credential-file" in _item("S00")
     assert 'test "$AUTH_FILE_NAME" = "$(basename "$AUTH_FILE_NAME")"' in _item("S00")
-    assert 'assert value == f"{parsed.scheme}://{parsed.hostname}:{parsed.port}"' in _item("S00")
+    assert 'assert value == f"{parsed.scheme}://{authority}"' in _item("S00")
     assert "set-environment -g PANOPTICON_BROWSER_ORIGINS" in s04
     assert 'set-environment -g PANOPTICON_BROWSER_ORIGINS "$PWA_ORIGIN"' in s04
     assert 'ps -o pid= -o lstart= -p "$NEW_RUNNER_PID,$NEW_DASHBOARD_PID"' in s04
@@ -341,7 +343,7 @@ def test_all_eleven_gates_assert_the_real_boundary() -> None:
     assert 'headers.get("access-control-allow-origin") == [origin]' in gates["G06"]
     assert '"access-control-allow-credentials" not in headers' in gates["G06"]
     assert '"Origin: $PWA_ORIGIN"' in gates["G06"]
-    assert "assert name in phone.values" in gates["G07"]
+    assert "assert open(phone_path).read().strip() == name" in gates["G07"]
     assert 'name in {task.get("name"), task.get("slug")}' in gates["G07"]
     assert "Authorization: Bearer $READ_TOKEN" in gates["G07"]
     assert "docker ps --quiet" in gates["G08"] and "test ! -s" in gates["G08"]
@@ -370,7 +372,7 @@ def test_resume_evidence_canary_release_and_bulk_reclaim_are_ordered() -> None:
     assert text.index("DELETE") < text.index("/runners/$OLD_RUNNER_ID/reclaim")
     assert "only the canary task claim" in _item("S07")
     assert "five-second liveness keepalive interval" in _item("S07")
-    assert "task-specific failed disposition" in _item("S08")
+    assert "recorded task-specific failed\ndisposition" in _item("S08")
     assert 'task["container_status"] == "live"' in _item("S08")
     assert 'task["container_status"] == "failed" and task["lifecycle_detail"]' in _item("S08")
     assert _item("S07").count("--request DELETE") == 1
@@ -378,6 +380,8 @@ def test_resume_evidence_canary_release_and_bulk_reclaim_are_ordered() -> None:
     assert "/runners/$OLD_RUNNER_ID/reclaim" not in _item("S07")
     assert "/runners/$OLD_RUNNER_ID/reclaim" in _item("S08")
     assert "ptc1." in _item("S07") and 'container_status"] == "live"' in _item("S07")
+    assert "CANARY_CONTAINER_ID" in _item("S07")
+    assert "S01-all-container-ids-before.txt" in _item("S07")
     before_canary = "\n".join(_item(f"S{i:02d}") for i in range(7))
     assert "/claim" not in before_canary
     resume = text.split("## Resume evidence", 1)[1].split("## What remains", 1)[0]
