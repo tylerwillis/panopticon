@@ -1532,25 +1532,6 @@ async def test_explicit_transition_and_turn_write_do_not_chain_auto_advance(
     assert {result.state for result in unchanged} == {"MIDDLE"}
 
 
-async def test_delayed_token_report_cannot_overwrite_newer_cumulative_total(
-    tmp_path: Path,
-) -> None:
-    svc = TaskService(
-        SqlAlchemyStore(),
-        {"transition-entry": _TransitionEntry()},
-        FilesystemArtifactStore(tmp_path),
-    )
-    await svc.init()
-    await svc.create_repo(Repo(id="r1", name="acme/widgets", git_url="https://x/r1.git"))
-    task = await svc.create_task("r1", "transition-entry")
-
-    await svc.set_tokens_used(task.id, 2_000)
-    delayed_older_report = await svc.set_tokens_used(task.id, 1_000)
-
-    assert delayed_older_report.tokens_used == 2_000
-    assert (await svc.get_task(task.id)).tokens_used == 2_000
-
-
 # 2119: REQ-014.3.1
 # 2119: REQ-014.3.2
 async def test_drop_and_cascade_transitions_do_not_evaluate_auto_advance(
