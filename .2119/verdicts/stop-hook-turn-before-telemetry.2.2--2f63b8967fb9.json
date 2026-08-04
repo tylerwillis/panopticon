@@ -1,0 +1,8 @@
+{
+  "reviewId": "stop-hook-turn-before-telemetry.2.2--2f63b8967fb9",
+  "requirementId": "stop-hook-turn-before-telemetry.2.2",
+  "hash": "2f63b8967fb9",
+  "verdict": "pass",
+  "summary": "The delayed readable transcript and accepting service require the exact cumulative cost-weighted total 693 across entries and token tiers.",
+  "timestamp": "2026-08-04T02:50:42.975Z"
+}

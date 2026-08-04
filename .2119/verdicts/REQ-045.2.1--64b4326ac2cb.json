@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.2.1--64b4326ac2cb",
+  "requirementId": "REQ-045.2.1",
+  "hash": "64b4326ac2cb",
+  "verdict": "pass",
+  "summary": "Tests cover every eligibility conjunct and nearest rejection case, assert 202/id/pending, verify the pending row independently in SQLite, and make process/socket delivery fail if attempted.",
+  "timestamp": "2026-08-03T20:42:04.694Z"
+}

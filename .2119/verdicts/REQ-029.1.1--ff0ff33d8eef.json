@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-029.1.1--ff0ff33d8eef",
+  "requirementId": "REQ-029.1.1",
+  "hash": "ff0ff33d8eef",
+  "verdict": "pass",
+  "summary": "Tests require next-observation delivery for live owned agent-turn nonterminal entries through both declared and free-move paths, with wrong-owner and ineligible-state boundaries covered.",
+  "timestamp": "2026-08-03T17:32:33.866Z"
+}

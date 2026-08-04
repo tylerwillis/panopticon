@@ -221,6 +221,7 @@ def test_hook_fails_open_when_a_later_control_plane_request_stalls(
 ) -> None:
     request_count = 0
     release = threading.Event()
+    later_request_seen = threading.Event()
 
     class _LaterBlackhole(BaseHTTPRequestHandler):
         def log_message(self, format: str, *args: object) -> None:
@@ -230,6 +231,7 @@ def test_hook_fails_open_when_a_later_control_plane_request_stalls(
             nonlocal request_count
             request_count += 1
             if request_count > successful_requests:
+                later_request_seen.set()
                 release.wait(timeout=5)
                 return
             length = int(self.headers.get("content-length", "0"))
@@ -276,6 +278,7 @@ def test_hook_fails_open_when_a_later_control_plane_request_stalls(
             check=False,
         )
         elapsed = time.monotonic() - started
+        assert later_request_seen.wait(timeout=3)
     finally:
         release.set()
         service.shutdown()

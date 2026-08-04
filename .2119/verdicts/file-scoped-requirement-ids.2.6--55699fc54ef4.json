@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.2.6--55699fc54ef4",
+  "requirementId": "file-scoped-requirement-ids.2.6",
+  "hash": "55699fc54ef4",
+  "verdict": "pass",
+  "summary": "PASS: normalized guidance assertion requires the complete author instruction and concrete bare heading example, rejecting prefixed or omitted heading advice",
+  "timestamp": "2026-08-03T22:10:45.732Z"
+}

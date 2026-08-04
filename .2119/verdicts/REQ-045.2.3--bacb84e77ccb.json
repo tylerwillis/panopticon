@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.2.3--bacb84e77ccb",
+  "requirementId": "REQ-045.2.3",
+  "hash": "bacb84e77ccb",
+  "verdict": "pass",
+  "summary": "Real HTTP tests reject zero-length text, 65,537-byte UTF-8 text, every forbidden C0/C1 code point, invalid 7/129-character or out-of-alphabet keys, and representative non-booleans with 422, while accepting exact boundaries and newline/tab.",
+  "timestamp": "2026-08-03T20:39:48.193Z"
+}

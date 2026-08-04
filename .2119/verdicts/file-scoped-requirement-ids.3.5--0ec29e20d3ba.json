@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.3.5--0ec29e20d3ba",
+  "requirementId": "file-scoped-requirement-ids.3.5",
+  "hash": "0ec29e20d3ba",
+  "verdict": "pass",
+  "summary": "Exact guidance links spec rename to canonical-ID change, verdict invalidation, and re-review",
+  "timestamp": "2026-08-03T22:10:49.441Z"
+}

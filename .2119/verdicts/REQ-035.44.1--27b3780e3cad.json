@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.44.1--27b3780e3cad",
+  "requirementId": "REQ-035.44.1",
+  "hash": "27b3780e3cad",
+  "verdict": "pass",
+  "summary": "Decoded target rejection behavior is unchanged and green; prefix/suffix permutations are outside this feature delta.",
+  "timestamp": "2026-08-03T17:36:13.542Z"
+}

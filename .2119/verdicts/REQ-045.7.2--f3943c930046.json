@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.7.2--f3943c930046",
+  "requirementId": "REQ-045.7.2",
+  "hash": "f3943c930046",
+  "verdict": "pass",
+  "summary": "Two-publish endpoint test rejects stale text or metadata and explicitly verifies pane source, task-service timestamp, dimensions, truncation, and publishing runner.",
+  "timestamp": "2026-08-03T20:48:17.781Z"
+}

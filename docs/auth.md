@@ -31,18 +31,22 @@ export PANOPTICON_SERVICE_AUTH_FILE=task-service-auth.json
 export PANOPTICON_SERVICE_AUTH_MODE=enforced
 ```
 
-The service binds to `127.0.0.1` by default. To expose it on a tailnet, explicitly set
-`PANOPTICON_HOST` to that machine's tailnet address (preferred) or another intended interface.
-Bearer tokens are sent over HTTP, so do not bind the service to a plain LAN or other interface
-whose transport is not independently encrypted and access-controlled.
+The standalone task-service launcher defaults to `127.0.0.1`. The integrated `panopticon start`
+and `panopticon host` commands default to `127.0.0.1` on Darwin and `0.0.0.0` on Linux and Windows
+so native containers can reach the service. On native Linux this compatibility default
+intentionally listens on every host interface because bridge containers cannot reach host
+loopback; safe operation therefore depends on enforced task-service authentication plus
+independently encrypted and access-controlled transport. `PANOPTICON_HOST` overrides both launch
+paths when the operator selects another container-reachable intended interface. Bearer tokens
+travel over HTTP, so a broad bind is appropriate only where every reachable interface has those
+protections.
+
+On macOS, both OrbStack and Docker Desktop provide the `host.docker.internal` route that lets task
+containers reach the loopback-bound service. Panopticon does not probe which runtime is active;
+the conservative Darwin default is the same for both.
+
 Authentication mode is reported at startup; disabled and permissive modes produce warnings.
-The integrated `panopticon start` and `panopticon host` commands deliberately bind `0.0.0.0` so
-native Linux Docker containers can reach the service through `host.docker.internal`; run the
-documented enforced authentication configuration before using that integrated multi-container
-stack. This broad integrated bind remains an explicit compatibility exception—not a safe
-unauthenticated default—because binding it to loopback would lock Linux task containers out of the
-control plane. `PANOPTICON_HOST` configures only the standalone service launcher; it does not narrow
-this integrated bind. Disabled mode exists only for the staged live-fleet migration below.
+Disabled mode exists only for the staged live-fleet migration below.
 
 Integrated startup creates missing tmux sessions with the invoking process's current authentication
 environment, but deliberately leaves existing service, runner, dashboard, and task sessions alive.

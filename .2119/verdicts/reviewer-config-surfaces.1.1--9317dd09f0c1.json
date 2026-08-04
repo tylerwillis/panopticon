@@ -1,0 +1,8 @@
+{
+  "reviewId": "reviewer-config-surfaces.1.1--9317dd09f0c1",
+  "requirementId": "reviewer-config-surfaces.1.1",
+  "hash": "9317dd09f0c1",
+  "verdict": "pass",
+  "summary": "Tests cover all built-in workflows, the exact default, and independent subclass override behavior.",
+  "timestamp": "2026-08-03T23:37:08.969Z"
+}

@@ -88,6 +88,28 @@ def decode_task_capability(token: str, write_tokens: tuple[str, ...]) -> str | N
     )
 
 
+@dataclass(frozen=True)
+class AuthPrincipal:
+    privilege: Literal["read", "write"]
+    task_id: str | None = None
+
+
+def scoped_task_token(master: str, task_id: str) -> str:
+    """Compatibility name for the canonical profile-bound task capability."""
+
+    return derive_task_capability(master, task_id)
+
+
+def authenticate_token(tokens: AuthTokens, presented: str) -> AuthPrincipal | None:
+    value = presented.encode()
+    if any(hmac.compare_digest(value, token.encode()) for token in tokens.write):
+        return AuthPrincipal("write")
+    if any(hmac.compare_digest(value, token.encode()) for token in tokens.read):
+        return AuthPrincipal("read")
+    task_id = decode_task_capability(presented, tokens.write)
+    return AuthPrincipal("write", task_id) if task_id is not None else None
+
+
 def _credential_error() -> ValueError:
     return ValueError("authentication credential file is invalid or unavailable")
 
@@ -170,6 +192,7 @@ def snapshot_tokens(
     directory: str | Path | None = None,
     secrets_dir: str | Path | None = None,
     prefix: str = "panopticon-service-auth-",
+    task_id: str | None = None,
 ) -> Path:
     """Create a private regular-file snapshot for a process launch or bind mount."""
     tokens = load_tokens(reference, secrets_dir=secrets_dir)
@@ -177,7 +200,8 @@ def snapshot_tokens(
     path = Path(raw_path)
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as handle:
-            json.dump({"read": [], "write": [tokens.write[-1]]}, handle)
+            token = scoped_task_token(tokens.write[-1], task_id) if task_id else tokens.write[-1]
+            json.dump({"read": [], "write": [token]}, handle)
         return path
     except BaseException:
         path.unlink(missing_ok=True)

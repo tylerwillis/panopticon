@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.8.1--b973e505939c",
+  "requirementId": "REQ-045.8.1",
+  "hash": "b973e505939c",
+  "verdict": "pass",
+  "summary": "Real HTTP round-trip asserts exact latest runner-published pane text, including whitespace, CRLF, Unicode, and secret-like tokens, so trimming, normalization, substitution, or redaction fails.",
+  "timestamp": "2026-08-03T20:40:17.997Z"
+}

@@ -4,13 +4,13 @@ Install and first run are the same on macOS as anywhere else — see the
 [README](../README.md) (`pipx install panopticon-app`, then `panopticon quickstart`). This page
 covers only what's **macOS-specific**.
 
-## Use Docker Desktop, not Docker Engine
+## Use OrbStack or Docker Desktop
 
-Task containers reach the host task service via `host.docker.internal`, which **Docker Desktop for
-Mac** injects automatically. Bare Docker Engine doesn't provide it, so tasks can't call home —
-Docker Desktop is required. Install it from
-[docs.docker.com/desktop](https://docs.docker.com/desktop/install/mac-install/), start it, and
-confirm the daemon is up:
+Task containers reach the loopback-bound host task service via `host.docker.internal`. Both
+[OrbStack](https://docs.orbstack.dev/docker/network#connecting-to-servers-on-mac) and
+[Docker Desktop](https://docs.docker.com/desktop/features/networking/networking-how-tos/#connect-to-a-service-on-the-host)
+provide that route on macOS; bare Docker Engine does not. Install and start either supported
+runtime, then confirm its daemon is up:
 
 ```sh
 docker info
@@ -20,23 +20,23 @@ docker info
 CLI), and
 `panopticon quickstart` runs it for you before doing anything.
 
-Task containers run inside Docker Desktop's Linux VM rather than on your host directly — which is
-also why the container's Linux-only tooling (`groupmod`, `useradd`, `gosu`, … in `docker/Dockerfile`
-and `docker/entrypoint.sh`) works even though your host is macOS.
+Task containers run inside the selected runtime's Linux VM rather than on your host directly —
+which is also why the container's Linux-only tooling (`groupmod`, `useradd`, `gosu`, … in
+`docker/Dockerfile` and `docker/entrypoint.sh`) works even though your host is macOS.
 
 ## Known limitations on macOS
 
-- **`--network host`** isn't supported by Docker Desktop for Mac. Panopticon doesn't use it —
-  containers reach the host via `host.docker.internal`.
-- **Docker-in-Docker** (`capabilities.docker_in_docker`) uses `--privileged`, which Docker Desktop
-  supports. On Apple Silicon, if the task image is `linux/amd64`-only, disable "Use Rosetta for
-  x86/amd64 emulation" in Docker Desktop settings or rebuild for `arm64`.
+- **Host networking isn't required.** Panopticon reaches the host through
+  `host.docker.internal`, so runtime-specific `--network host` behavior does not affect it.
+- **Docker-in-Docker** (`capabilities.docker_in_docker`) uses `--privileged`. On Apple Silicon, if
+  the task image is `linux/amd64`-only and emulation causes trouble, rebuild the image for `arm64`
+  or adjust the selected runtime's x86 emulation setting.
 - **tmux must be installed** before you start Panopticon — if it's missing, session launches fail
   silently. `panopticon doctor` catches this.
 
 ## Developing from source
 
-Contributing rather than just running it? The `make` targets work on macOS with the same Docker
-Desktop + tmux requirements above — add `uv` (`brew install uv`), then `make sync`, `make build`,
-`make start`. `make stop` (or `panopticon stop`) tears everything down. See
+Contributing rather than just running it? The `make` targets work on macOS with the same OrbStack
+or Docker Desktop + tmux requirements above — add `uv` (`brew install uv`), then `make sync`,
+`make build`, `make start`. `make stop` (or `panopticon stop`) tears everything down. See
 [`docs/dev.md`](dev.md) for the full development loop (setup, checks, and CI).

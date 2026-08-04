@@ -326,6 +326,11 @@ class Spawner:
             raise _SpawnInfrastructureFailure(str(exc)) from exc
         harness = get_harness(task.get("harness"))
         image = self._compose_image(harness, task["workflow"], repo)
+        reviewer_kwargs = {
+            field: repo[field]
+            for field in ("honesty_reviewer", "reviewer_1", "reviewer_2")
+            if repo.get(field)
+        }
         try:
             return self._runner.spawn(
                 task_id,
@@ -344,6 +349,7 @@ class Spawner:
                 config_mount=f"{CONTAINER_HOME}/{harness.config_dirname}",
                 credential_dir=repo.get("credential_dir"),  # shared credential mount (ADR 0007)
                 progress=lambda phase: self._report(task_id, phase),  # STARTING then AWAITING
+                **reviewer_kwargs,
             )
         except subprocess.CalledProcessError as exc:
             raise _SpawnInfrastructureFailure(str(exc)) from exc

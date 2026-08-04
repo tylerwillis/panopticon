@@ -1213,6 +1213,9 @@ def test_fleet_administration_route_inventory_is_complete_and_task_denied(tmp_pa
         ("DELETE", "/tasks/{task_id}/lifecycle"),
         ("PUT", "/tasks/{task_id}/governor"),
         ("PUT", "/tasks/{task_id}/snooze"),
+        ("GET", "/tasks/{task_id}/session/input"),
+        ("PUT", "/tasks/{task_id}/session/input/{delivery_id}"),
+        ("PUT", "/tasks/{task_id}/session/transcript"),
         ("GET", "/runners"),
         ("GET", "/runners/{runner_id}"),
         ("GET", "/runners/{runner_id}/live"),
@@ -1235,6 +1238,15 @@ def test_fleet_administration_route_inventory_is_complete_and_task_denied(tmp_pa
                 or entry[1] == "/workflow-files"
                 or entry[1].endswith(
                     ("/claim", "/provisioning", "/migration", "/lifecycle", "/governor", "/snooze")
+                )
+                or (
+                    entry[1].startswith("/tasks/{task_id}/session/")
+                    and entry
+                    not in {
+                        ("POST", "/tasks/{task_id}/session/input"),
+                        ("GET", "/tasks/{task_id}/session/input/{delivery_id}"),
+                        ("GET", "/tasks/{task_id}/session/transcript"),
+                    }
                 )
                 or entry[1].startswith("/runners")
             )
@@ -1319,6 +1331,9 @@ def test_task_scope_action_table_is_exhaustive_and_relationship_sensitive() -> N
         "put_artifact",
         "list_artifacts",
         "read_artifact",
+        "create_session_input",
+        "read_session_input_status",
+        "read_session_transcript",
         "register_container",
         "deregister_container",
         "task_liveness",
@@ -1354,6 +1369,9 @@ def test_task_scope_action_table_is_exhaustive_and_relationship_sensitive() -> N
         "put_artifact",
         "list_artifacts",
         "read_artifact",
+        "create_session_input",
+        "read_session_input_status",
+        "read_session_transcript",
         "register_container",
         "deregister_container",
         "task_liveness",
@@ -1413,13 +1431,21 @@ def test_every_task_targeted_rest_route_rejects_sibling_and_missing_targets_iden
         token = _task_token(own["id"])
         headers = _bearer(token)
         surfaces = client.app.state.credential_scope_policy.classified_surfaces()
-        expected = {
+        task_routes = {
             (method, route.path)
             for route in client.app.routes
             if hasattr(route, "methods") and "{task_id}" in route.path
             for method in route.methods
             if method in {"GET", "HEAD", "POST", "PUT", "PATCH", "DELETE"}
-        } | {("DELETE", "/registrations/{registration_id}")}
+        }
+        runner_session_surfaces = {
+            ("GET", "/tasks/{task_id}/session/input"),
+            ("PUT", "/tasks/{task_id}/session/input/{delivery_id}"),
+            ("PUT", "/tasks/{task_id}/session/transcript"),
+        }
+        expected = (task_routes - runner_session_surfaces) | {
+            ("DELETE", "/registrations/{registration_id}")
+        }
         assert surfaces.task_targeted_rest == expected
         sibling_registration = client.post(
             f"/tasks/{sibling['id']}/registrations",
@@ -2174,13 +2200,20 @@ def test_read_token_classification_covers_the_complete_registered_surface(tmp_pa
             if not hasattr(route, "methods") or route.path.startswith(("/mcp", "/healthz")):
                 continue
             path = route.path
-            for parameter in ("task_id", "repo_id", "runner_id", "registration_id", "name"):
+            for parameter in (
+                "task_id",
+                "repo_id",
+                "runner_id",
+                "registration_id",
+                "delivery_id",
+                "name",
+            ):
                 path = path.replace("{" + parameter + "}", "missing")
             path = path.replace("{entry_index}", "not-an-integer").replace(
                 "{operation}", "not-an-operation"
             )
             for method in route.methods & {"GET", "HEAD"}:
-                if path.endswith("/live"):
+                if path.endswith(("/live", "/session/input")):
                     response = client.get(path, headers=headers)
                     assert response.status_code == 401
                     assert response.json() == GENERIC_FAILURE

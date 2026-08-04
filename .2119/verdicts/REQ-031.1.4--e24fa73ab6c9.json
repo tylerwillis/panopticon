@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.1.4--e24fa73ab6c9",
+  "requirementId": "REQ-031.1.4",
+  "hash": "e24fa73ab6c9",
+  "verdict": "pass",
+  "summary": "Real CLI subprocess tests reject exit status 0 for both Docker-unreachable start and host refusal paths.",
+  "timestamp": "2026-08-03T18:41:24.850Z"
+}

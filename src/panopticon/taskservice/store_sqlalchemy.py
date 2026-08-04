@@ -27,7 +27,15 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Any
 
-from sqlalchemy import JSON, ForeignKey, ForeignKeyConstraint, select
+from sqlalchemy import (
+    JSON,
+    ForeignKey,
+    ForeignKeyConstraint,
+    UniqueConstraint,
+    case,
+    select,
+    update,
+)
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -48,6 +56,9 @@ from panopticon.core.models import (
     MigrationRecord,
     Repo,
     Responsibility,
+    SessionInput,
+    SessionInputStatus,
+    SessionTranscript,
     Status,
     Task,
     WakeStatus,
@@ -97,6 +108,9 @@ class _RepoRow(_Base):
     default_harness: Mapped[str | None] = mapped_column(default=None)
     default_model: Mapped[str | None] = mapped_column(default=None)
     credential_dir: Mapped[str | None] = mapped_column(default=None)
+    honesty_reviewer: Mapped[str | None] = mapped_column(default=None)
+    reviewer_1: Mapped[str | None] = mapped_column(default=None)
+    reviewer_2: Mapped[str | None] = mapped_column(default=None)
 
     def to_domain(self) -> Repo:
         return Repo(
@@ -113,6 +127,9 @@ class _RepoRow(_Base):
             default_harness=self.default_harness,
             default_model=self.default_model,
             credential_dir=self.credential_dir,
+            honesty_reviewer=self.honesty_reviewer,
+            reviewer_1=self.reviewer_1,
+            reviewer_2=self.reviewer_2,
         )
 
     @classmethod
@@ -131,6 +148,9 @@ class _RepoRow(_Base):
             default_harness=repo.default_harness,
             default_model=repo.default_model,
             credential_dir=repo.credential_dir,
+            honesty_reviewer=repo.honesty_reviewer,
+            reviewer_1=repo.reviewer_1,
+            reviewer_2=repo.reviewer_2,
         )
 
 
@@ -340,6 +360,71 @@ def _fulfil_current_promises(history_row: _HistoryRow, entry: HistoryEntry) -> N
         row.comment = r.comment
 
 
+class _SessionInputRow(_Base):
+    __tablename__ = "session_input"
+    __table_args__ = (UniqueConstraint("task_id", "idempotency_key"),)
+
+    id: Mapped[str] = mapped_column(primary_key=True)
+    task_id: Mapped[str] = mapped_column(ForeignKey("task.id"), index=True)
+    idempotency_key: Mapped[str]
+    text: Mapped[str]
+    submit: Mapped[bool]
+    status: Mapped[str]
+    created_at: Mapped[str]
+    settled_at: Mapped[str | None]
+    failure_reason: Mapped[str | None]
+
+    def to_domain(self) -> SessionInput:
+        return SessionInput(
+            id=self.id,
+            task_id=self.task_id,
+            idempotency_key=self.idempotency_key,
+            text=self.text,
+            submit=self.submit,
+            status=SessionInputStatus(self.status),
+            created_at=self.created_at,
+            settled_at=self.settled_at,
+            failure_reason=self.failure_reason,
+        )
+
+    @classmethod
+    def from_domain(cls, value: SessionInput) -> _SessionInputRow:
+        return cls(
+            id=value.id,
+            task_id=value.task_id,
+            idempotency_key=value.idempotency_key,
+            text=value.text,
+            submit=value.submit,
+            status=value.status.value,
+            created_at=value.created_at,
+            settled_at=value.settled_at,
+            failure_reason=value.failure_reason,
+        )
+
+
+class _SessionTranscriptRow(_Base):
+    __tablename__ = "session_transcript"
+
+    task_id: Mapped[str] = mapped_column(ForeignKey("task.id"), primary_key=True)
+    runner_id: Mapped[str]
+    text: Mapped[str]
+    columns: Mapped[int]
+    rows: Mapped[int]
+    truncated: Mapped[bool]
+    received_at: Mapped[str]
+
+    def to_domain(self) -> SessionTranscript:
+        return SessionTranscript(
+            task_id=self.task_id,
+            runner_id=self.runner_id,
+            text=self.text,
+            columns=self.columns,
+            rows=self.rows,
+            truncated=self.truncated,
+            received_at=self.received_at,
+        )
+
+
 class SqlAlchemyStore(Store):
     """A :class:`~panopticon.core.store.Store` backed by async SQLAlchemy (aiosqlite for SQLite).
 
@@ -404,6 +489,9 @@ class SqlAlchemyStore(Store):
             row.default_harness = repo.default_harness
             row.default_model = repo.default_model
             row.credential_dir = repo.credential_dir
+            row.honesty_reviewer = repo.honesty_reviewer
+            row.reviewer_1 = repo.reviewer_1
+            row.reviewer_2 = repo.reviewer_2
 
     # -- tasks: reads + persistence primitives (the base's template methods drive these) --
 
@@ -487,3 +575,80 @@ class SqlAlchemyStore(Store):
             # Append any new entries; the relationship cascade inserts them and their children.
             for seq in range(len(stored), len(task.history)):
                 row.history.append(_HistoryRow.from_domain(task.history[seq], seq))
+
+    async def _set_tokens_used_max(self, task_id: str, tokens_used: int, updated_at: str) -> Task:
+        async with self._session.begin() as s:
+            await s.execute(
+                update(_TaskRow)
+                .where(_TaskRow.id == task_id)
+                .values(
+                    tokens_used=case(
+                        (
+                            (_TaskRow.tokens_used.is_(None)) | (_TaskRow.tokens_used < tokens_used),
+                            tokens_used,
+                        ),
+                        else_=_TaskRow.tokens_used,
+                    ),
+                    updated_at=updated_at,
+                )
+            )
+            row = await s.get(_TaskRow, task_id, populate_existing=True)
+            if row is None:
+                raise NotFound(f"task {task_id!r} does not exist")
+            return row.to_domain()
+
+    async def _create_session_input(self, delivery: SessionInput) -> SessionInput:
+        async with self._session.begin() as s:
+            existing = await s.scalar(
+                select(_SessionInputRow).where(
+                    _SessionInputRow.task_id == delivery.task_id,
+                    _SessionInputRow.idempotency_key == delivery.idempotency_key,
+                )
+            )
+            if existing is not None:
+                return existing.to_domain()
+            s.add(_SessionInputRow.from_domain(delivery))
+        return delivery
+
+    async def _list_session_inputs(self, task_id: str) -> list[SessionInput]:
+        async with self._session() as s:
+            rows = await s.scalars(
+                select(_SessionInputRow)
+                .where(_SessionInputRow.task_id == task_id)
+                .order_by(_SessionInputRow.created_at)
+            )
+            return [row.to_domain() for row in rows]
+
+    async def _get_session_input(self, task_id: str, delivery_id: str) -> SessionInput | None:
+        async with self._session() as s:
+            row = await s.get(_SessionInputRow, delivery_id)
+            return row.to_domain() if row is not None and row.task_id == task_id else None
+
+    async def _settle_session_input(self, delivery: SessionInput) -> SessionInput:
+        async with self._session.begin() as s:
+            row = await s.get(_SessionInputRow, delivery.id)
+            if row is None or row.task_id != delivery.task_id:
+                raise NotFound(f"session input {delivery.id!r} does not exist")
+            row.status = delivery.status.value
+            row.settled_at = delivery.settled_at
+            row.failure_reason = delivery.failure_reason
+        return delivery
+
+    async def _put_session_transcript(self, transcript: SessionTranscript) -> SessionTranscript:
+        async with self._session.begin() as s:
+            row = await s.get(_SessionTranscriptRow, transcript.task_id)
+            if row is None:
+                s.add(_SessionTranscriptRow(**transcript.__dict__))
+            else:
+                row.runner_id = transcript.runner_id
+                row.text = transcript.text
+                row.columns = transcript.columns
+                row.rows = transcript.rows
+                row.truncated = transcript.truncated
+                row.received_at = transcript.received_at
+        return transcript
+
+    async def _get_session_transcript(self, task_id: str) -> SessionTranscript | None:
+        async with self._session() as s:
+            row = await s.get(_SessionTranscriptRow, task_id)
+            return row.to_domain() if row is not None else None

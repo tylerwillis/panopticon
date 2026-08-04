@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.4.2--aa5db6665c00",
+  "requirementId": "REQ-045.4.2",
+  "hash": "aa5db6665c00",
+  "verdict": "pass",
+  "summary": "Task-service API tests reject blocked-only, attention-only, and combined marker retention on turn=agent, while the prompt-hook test verifies submitted input requests that turn write.",
+  "timestamp": "2026-08-03T20:41:01.126Z"
+}

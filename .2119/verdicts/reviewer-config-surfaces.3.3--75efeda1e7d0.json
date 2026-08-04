@@ -1,0 +1,8 @@
+{
+  "reviewId": "reviewer-config-surfaces.3.3--75efeda1e7d0",
+  "requirementId": "reviewer-config-surfaces.3.3",
+  "hash": "75efeda1e7d0",
+  "verdict": "pass",
+  "summary": "Tests verify first-use warning semantics, secrecy, exact key sets, suppression scope, and Docker bare-key syntax.",
+  "timestamp": "2026-08-04T00:12:55.981Z"
+}

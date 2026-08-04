@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.18.1--78518aede919",
+  "requirementId": "REQ-035.18.1",
+  "hash": "78518aede919",
+  "verdict": "pass",
+  "summary": "Tests reject exact configured-token disclosure across failure and validation bodies, logs, argv, serialization, durable database/artifact state, including encoded and prefix-overlap counterexamples.",
+  "timestamp": "2026-08-03T20:30:03.115Z"
+}

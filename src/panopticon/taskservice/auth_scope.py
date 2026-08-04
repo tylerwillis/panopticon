@@ -64,6 +64,9 @@ class Action(str, Enum):
     PUT_ARTIFACT = "put_artifact"
     LIST_ARTIFACTS = "list_artifacts"
     READ_ARTIFACT = "read_artifact"
+    CREATE_SESSION_INPUT = "create_session_input"
+    READ_SESSION_INPUT_STATUS = "read_session_input_status"
+    READ_SESSION_TRANSCRIPT = "read_session_transcript"
     REGISTER_CONTAINER = "register_container"
     DEREGISTER_CONTAINER = "deregister_container"
     TASK_LIVENESS = "task_liveness"
@@ -138,6 +141,9 @@ _SELF_ACTIONS = frozenset(
         Action.PUT_ARTIFACT,
         Action.LIST_ARTIFACTS,
         Action.READ_ARTIFACT,
+        Action.CREATE_SESSION_INPUT,
+        Action.READ_SESSION_INPUT_STATUS,
+        Action.READ_SESSION_TRANSCRIPT,
         Action.REGISTER_CONTAINER,
         Action.DEREGISTER_CONTAINER,
         Action.TASK_LIVENESS,
@@ -201,6 +207,9 @@ _REST_ACTIONS: dict[tuple[str, str], Action] = {
     ("PUT", "/tasks/{task_id}/artifacts/{name}"): Action.PUT_ARTIFACT,
     ("GET", "/tasks/{task_id}/artifacts"): Action.LIST_ARTIFACTS,
     ("GET", "/tasks/{task_id}/artifacts/{name}"): Action.READ_ARTIFACT,
+    ("POST", "/tasks/{task_id}/session/input"): Action.CREATE_SESSION_INPUT,
+    ("GET", "/tasks/{task_id}/session/input/{delivery_id}"): Action.READ_SESSION_INPUT_STATUS,
+    ("GET", "/tasks/{task_id}/session/transcript"): Action.READ_SESSION_TRANSCRIPT,
     ("POST", "/tasks/{task_id}/registrations"): Action.REGISTER_CONTAINER,
     ("GET", "/tasks/{task_id}/registrations"): Action.READ_TASK_METADATA,
     ("GET", "/tasks/{task_id}/live"): Action.TASK_LIVENESS,
@@ -455,6 +464,9 @@ class CredentialScopePolicy:
             ("DELETE", "/tasks/{task_id}/lifecycle"),
             ("PUT", "/tasks/{task_id}/governor"),
             ("PUT", "/tasks/{task_id}/snooze"),
+            ("GET", "/tasks/{task_id}/session/input"),
+            ("PUT", "/tasks/{task_id}/session/input/{delivery_id}"),
+            ("PUT", "/tasks/{task_id}/session/transcript"),
             ("GET", "/runners"),
             ("GET", "/runners/{runner_id}"),
             ("GET", "/runners/{runner_id}/live"),

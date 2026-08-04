@@ -11,9 +11,12 @@ daemon. LLM-free — the agent runs inside the container.
 
 from __future__ import annotations
 
+import logging
 import os
 import subprocess
 import tempfile
+import threading
+import time
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Protocol
@@ -22,6 +25,7 @@ from urllib.parse import urlsplit
 from panopticon.core.dirs import secrets_file_path
 from panopticon.core.models import LifecyclePhase
 from panopticon.harnesses import CREDENTIALS_MOUNT
+from panopticon.harnesses.base import HONESTY_REVIEWER_ENV, REVIEWER_ENV_VARS
 from panopticon.sessionservice.prefill import (
     DEFAULT_WAKE_TIMEOUT,
     prefill_pane,
@@ -39,12 +43,14 @@ from panopticon.taskservice.auth import snapshot_task_capability
 DEFAULT_IMAGE = "panopticon-base"
 
 #: Lets the container reach the host task service (container→host addressing, ADR 0008).
-#: ``host-gateway`` maps to the host's gateway IP; the service binds 0.0.0.0.
+#: ``host-gateway`` maps to the host's gateway IP; native Linux uses the compatibility broad bind.
 HOST_GATEWAY = "host.docker.internal:host-gateway"
 
 #: Dedicated tmux server socket for panopticon's task sessions — isolates them from the
 #: operator's own tmux and gives the terminal controller a known place to `tmux attach`.
 TMUX_SOCKET = "panopticon"
+
+logger = logging.getLogger(__name__)
 
 
 def session_name(task_id: str) -> str:
@@ -132,6 +138,23 @@ def _env_file_values(path: str | None, names: set[str]) -> list[str]:
     return values
 
 
+def _env_file_names(path: str, names: set[str]) -> set[str]:
+    """Return selected names present in a Docker env file without retaining their values."""
+
+    env_path = Path(path)
+    if not env_path.is_file():
+        return set()
+    found: set[str] = set()
+    for raw_line in env_path.read_text().splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        name = line.split("=", 1)[0]
+        if name in names:
+            found.add(name)
+    return found
+
+
 def _service_no_proxy(service_url: str, env_path: str | None, env: Mapping[str, str]) -> str:
     """Preserve configured bypasses and force the control-plane host off ambient proxies."""
 
@@ -186,10 +209,60 @@ class LocalRunner(Runner):
         self._extra_env = dict(extra_env or {})
         self._run = run
         self._snapshot_dir = Path(tempfile.gettempdir())
+        self._session_locks: dict[str, threading.Lock] = {}
+        self._session_locks_guard = threading.Lock()
+        self._warned_reviewer_env_files: set[str] = set()
+
+    def _warn_legacy_reviewer_env(self, env_path: str) -> None:
+        reviewer_names = {HONESTY_REVIEWER_ENV, *REVIEWER_ENV_VARS}
+        found = _env_file_names(env_path, reviewer_names)
+        if not found:
+            return
+        with self._session_locks_guard:
+            if env_path in self._warned_reviewer_env_files:
+                return
+            self._warned_reviewer_env_files.add(env_path)
+        logger.warning(
+            "Repo env file %s contains inert reviewer setting(s): %s. Move reviewer selection "
+            "to the repo fields honesty_reviewer, reviewer_1, and reviewer_2; env-file values "
+            "are ignored.",
+            env_path,
+            ", ".join(sorted(found)),
+        )
+
+    def _session_lock(self, task_id: str) -> threading.Lock:
+        with self._session_locks_guard:
+            return self._session_locks.setdefault(task_id, threading.Lock())
 
     def _tmux(self, *args: str) -> list[str]:
         prefix = ["tmux", *(["-L", self._tmux_socket] if self._tmux_socket else [])]
         return [*prefix, *args]
+
+    def deliver_session_input(
+        self, task_id: str, delivery_id: str, text: str, *, submit: bool
+    ) -> tuple[bool, str | None]:
+        """Deliver through the same pre-armed watcher used by startup prompt delivery."""
+        from panopticon.sessionservice.session_io import deliver_pane_input
+
+        with self._session_lock(task_id):
+            return deliver_pane_input(
+                session_name(task_id),
+                text,
+                submit=submit,
+                run=self._run,
+                raw_log=readiness_log(session_name(task_id)),
+                sleep=time.sleep,
+                prefix=tuple(self._tmux()),
+                buffer=f"panopticon-session-input-{delivery_id}",
+            )
+
+    def capture_session_transcript(self, task_id: str) -> dict[str, object] | None:
+        """Capture a bounded, terminal-control-free pane snapshot."""
+        from panopticon.sessionservice.session_io import capture_pane_snapshot
+
+        return capture_pane_snapshot(
+            session_name(task_id), run=self._run, prefix=tuple(self._tmux())
+        )
 
     def validate_configuration(self) -> None:
         """Reject an unusable control-plane credential before any spawn side effect."""
@@ -215,6 +288,9 @@ class LocalRunner(Runner):
         harness: str | None = None,
         config_mount: str = CONFIG_MOUNT,
         credential_dir: str | None = None,
+        honesty_reviewer: str | None = None,
+        reviewer_1: str | None = None,
+        reviewer_2: str | None = None,
         progress: Callable[[LifecyclePhase], None] | None = None,
     ) -> str:
         """Spawn the task container. ``env_file`` is the task's repo's secret reference (ADR
@@ -273,8 +349,16 @@ class LocalRunner(Runner):
             "PANOPTICON_HARNESS": "",
             "PANOPTICON_CREDENTIALS": "",
             "PANOPTICON_DOCKER_IN_DOCKER": "",
+            HONESTY_REVIEWER_ENV: "",
+            REVIEWER_ENV_VARS[0]: "",
+            REVIEWER_ENV_VARS[1]: "",
             **self._extra_env,
         }
+        # These are repo settings, not secrets. Render them after the env-file transport so an
+        # explicit empty value also prevents a credentials file from becoming a config surface.
+        env[HONESTY_REVIEWER_ENV] = honesty_reviewer or ""
+        env[REVIEWER_ENV_VARS[0]] = reviewer_1 or ""
+        env[REVIEWER_ENV_VARS[1]] = reviewer_2 or ""
         if initial_prompt:
             # The agent launcher reads this and passes it as a positional arg to `claude` on the
             # first run (no prior session), so the agent's first action is to process the prompt.
@@ -303,6 +387,7 @@ class LocalRunner(Runner):
             docker_run += ["--volume", f"panopticon-dind-{task_id}:/var/lib/docker"]
             env["PANOPTICON_DOCKER_IN_DOCKER"] = "1"
         if env_path := secrets_file_path(env_file, secrets_dir=self._secrets_dir):
+            self._warn_legacy_reviewer_env(env_path)
             docker_run += ["--env-file", env_path]  # per-repo secrets, resolved host-locally
         auth_snapshot: Path | None = None
         if workspace:  # the per-task clone — the agent's writable working dir (ADR 0011)
@@ -470,17 +555,19 @@ class LocalRunner(Runner):
             timeout = DEFAULT_WAKE_TIMEOUT
         prefix = ["tmux", *(["-L", self._tmux_socket] if self._tmux_socket else [])]
         session = session_name(task_id)
-        return prefill_pane(
-            session,
-            prompt_file,
-            run=self._run,
-            prefix=prefix,
-            timeout=timeout,
-            raw_log=readiness_log(session),
-            submit=True,
-            watch=False,
-            settle_delay=0,
-        )
+        with self._session_lock(task_id):
+            return prefill_pane(
+                session,
+                prompt_file,
+                run=self._run,
+                prefix=prefix,
+                timeout=timeout,
+                raw_log=readiness_log(session),
+                buffer=f"panopticon-stage-entry-{task_id}",
+                submit=True,
+                watch=False,
+                settle_delay=0,
+            )
 
     def delete_workspace_contents(self, path: str) -> None:
         """Delete all files inside ``path`` by running a throwaway root Docker container.

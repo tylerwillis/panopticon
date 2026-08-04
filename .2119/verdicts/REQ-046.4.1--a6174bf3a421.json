@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-046.4.1--a6174bf3a421",
+  "requirementId": "REQ-046.4.1",
+  "hash": "a6174bf3a421",
+  "verdict": "pass",
+  "summary": "Tests verify platform-only deterministic outputs and statically restrict the selector to a single side-effect-free return expression using only the platform argument and constants.",
+  "timestamp": "2026-08-03T23:22:04.738Z"
+}

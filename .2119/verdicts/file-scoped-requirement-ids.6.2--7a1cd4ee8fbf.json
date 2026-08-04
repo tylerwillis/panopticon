@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.6.2--7a1cd4ee8fbf",
+  "requirementId": "file-scoped-requirement-ids.6.2",
+  "hash": "7a1cd4ee8fbf",
+  "verdict": "pass",
+  "summary": "Exact lifecycle guidance records that pinned 0.7.0 declares no install-time build",
+  "timestamp": "2026-08-03T22:10:55.823Z"
+}

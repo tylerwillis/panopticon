@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.17.1--37fa618670e8",
+  "requirementId": "REQ-035.17.1",
+  "hash": "37fa618670e8",
+  "verdict": "pass",
+  "summary": "Docker and shell no-env-file tests reject absent or wrong isolated write-secret injection and exercise authenticated shared-client, liveness, and shell-library requests, including runner-only session-input GET write-auth classification.",
+  "timestamp": "2026-08-03T17:34:13.500Z"
+}

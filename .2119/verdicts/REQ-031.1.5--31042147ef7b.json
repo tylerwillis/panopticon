@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-031.1.5--31042147ef7b",
+  "requirementId": "REQ-031.1.5",
+  "hash": "31042147ef7b",
+  "verdict": "pass",
+  "summary": "Both start and host exercise the real reachable-daemon dispatch and reject missing, wrong, or foreground service/runner tmux session commands by exact argv comparison.",
+  "timestamp": "2026-08-03T18:41:30.870Z"
+}

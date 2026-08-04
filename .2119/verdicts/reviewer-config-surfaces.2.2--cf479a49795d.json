@@ -1,0 +1,8 @@
+{
+  "reviewId": "reviewer-config-surfaces.2.2--cf479a49795d",
+  "requirementId": "reviewer-config-surfaces.2.2",
+  "hash": "cf479a49795d",
+  "verdict": "pass",
+  "summary": "Tests reject malformed and unsupported pairs on create and patch with actionable errors while preserving blank-as-unset.",
+  "timestamp": "2026-08-03T23:37:11.891Z"
+}

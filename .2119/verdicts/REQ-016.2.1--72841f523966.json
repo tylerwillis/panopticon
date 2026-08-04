@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-016.2.1--72841f523966",
+  "requirementId": "REQ-016.2.1",
+  "hash": "72841f523966",
+  "verdict": "pass",
+  "summary": "Behavioral hook tests reject network, timeout, protocol, status, malformed-response, and stall failures by requiring successful silent completion.",
+  "timestamp": "2026-08-04T03:02:28.888Z"
+}

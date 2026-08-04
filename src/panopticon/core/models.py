@@ -43,6 +43,38 @@ class WakeStatus(str, Enum):
     SKIPPED = "skipped"
 
 
+class SessionInputStatus(str, Enum):
+    """Durable state of one remote session-input request."""
+
+    PENDING = "pending"
+    DELIVERED = "delivered"
+    FAILED = "failed"
+
+
+@dataclass(frozen=True)
+class SessionInput:
+    id: str
+    task_id: str
+    idempotency_key: str
+    text: str
+    submit: bool
+    status: SessionInputStatus
+    created_at: str
+    settled_at: str | None = None
+    failure_reason: str | None = None
+
+
+@dataclass(frozen=True)
+class SessionTranscript:
+    task_id: str
+    runner_id: str
+    text: str
+    columns: int
+    rows: int
+    truncated: bool
+    received_at: str
+
+
 class LifecyclePhase(str, Enum):
     """A step the **session service** reports as it brings a task's container up (ADR 0008).
 
@@ -229,6 +261,13 @@ class Repo:
     #: control plane; harness adapters own their vocabulary. A non-null model requires a
     #: non-null :attr:`default_harness`, so the vocabulary always has an explicit owner.
     default_model: str | None = None
+    #: Optional repo-owned override for the workflow's test-honesty reviewer. This is ordinary
+    #: configuration, not a credential; the runner transports it into the task container.
+    honesty_reviewer: str | None = None
+    #: Optional repo-owned overrides for the workflow's two stage-4 reviewer slots. Each value is
+    #: an atomic ``<harness>:<model>`` pair; the model suffix remains harness-owned and opaque.
+    reviewer_1: str | None = None
+    reviewer_2: str | None = None
 
 
 @dataclass(frozen=True)

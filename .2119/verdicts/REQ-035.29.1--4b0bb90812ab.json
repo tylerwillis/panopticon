@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.29.1--4b0bb90812ab",
+  "requirementId": "REQ-035.29.1",
+  "hash": "4b0bb90812ab",
+  "verdict": "pass",
+  "summary": "Tests reject missing, duplicate, or non-0.0.0.0 integrated Linux binds for unset and empty overrides, and reject loss of the standalone 127.0.0.1 default.",
+  "timestamp": "2026-08-03T18:44:04.375Z"
+}

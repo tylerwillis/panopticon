@@ -2,12 +2,19 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+import shlex
+from collections.abc import Mapping, Sequence
 from typing import ClassVar
 
 from panopticon.core.models import Actor, Responsibility, Skill
 from panopticon.core.state import Complete, InitialState, State
-from panopticon.harnesses.base import ReviewerConfig
+from panopticon.harnesses.base import (
+    HONESTY_REVIEWER_ENV,
+    ReviewerConfig,
+    parse_reviewer_config,
+    render_reviewer_command,
+    validate_reviewer_config,
+)
 from panopticon.harnesses.codex import CodexHarness
 from panopticon.workflows.github_forge import GithubForgeWorkflow
 
@@ -162,14 +169,16 @@ class _Merging(State):
     transitions = (Complete,)
 
 
-_SOL_SPEC_INSTRUCTIONS = """The spec is the contract: requirements first, tests second,
+_SOL_HONESTY_STEP = """Run fresh-context test-honesty reviews with
+   `codex exec --dangerously-bypass-approvals-and-sandbox -m gpt-5.6-sol`."""
+
+_SOL_SPEC_INSTRUCTIONS = f"""The spec is the contract: requirements first, tests second,
 code later.
 
 1. If `.2119.yml` is missing, check for an open adoption PR before running `npx rfc2119 init`.
 2. Write the next append-only `specs/REQ-NNN-<slug>.md` and run `npx rfc2119 lint`.
 3. Annotate a genuine test for every MUST/SHALL requirement.
-4. Run fresh-context test-honesty reviews with
-   `codex exec --dangerously-bypass-approvals-and-sandbox -m gpt-5.6-sol`.
+4. {_SOL_HONESTY_STEP}
    The reviewer prompt must forbid edits. After each reviewer run, you MUST verify
    `git status --porcelain` is unchanged, then record every verdict.
 5. Stop only after `npx rfc2119 check` exits 0.
@@ -191,7 +200,8 @@ each reviewer run, verify `git status --porcelain` is unchanged from the snapsho
 before that reviewer ran.
 
 Reviewer selection is two ordered atomic `<harness>:<model>` pairs. The workflow defaults are
-shown below. A repo env file may independently replace them with
+shown below. Repo configuration may independently replace them; the runner transports those
+values into the container as
 `PANOPTICON_2119_REVIEWER_1` and `PANOPTICON_2119_REVIEWER_2`; split only on the first `:` so the
 model remains opaque. Resolve and validate both pairs inside the task container before any
 reviewer LLM call. A missing harness, missing model, unsupported harness, or malformed pair is an
@@ -258,15 +268,51 @@ class _Spec2119Workflow(GithubForgeWorkflow):
         ReviewerConfig("claude", "claude-fable-5"),
         ReviewerConfig("codex", "gpt-5.6-sol"),
     )
+    honesty_reviewer: ClassVar[ReviewerConfig] = ReviewerConfig("codex", "gpt-5.6-sol")
 
-    def _honesty_reviewer_cmd(self) -> str:
-        return "codex exec --dangerously-bypass-approvals-and-sandbox -m gpt-5.6-sol"
+    def _honesty_reviewer_cmd(self, environ: Mapping[str, str] | None = None) -> str:
+        """Resolve the repo override over the workflow default and render its CLI command."""
+        validate_reviewer_config(self.honesty_reviewer, label="default honesty reviewer")
+        override = (environ or {}).get(HONESTY_REVIEWER_ENV)
+        config = (
+            parse_reviewer_config(override)
+            if override is not None and override.strip()
+            else self.honesty_reviewer
+        )
+        return render_reviewer_command(config)
 
     def _spec_skill(self) -> Skill:
         return Skill(
             "spec-2119",
             "Stage 1: write the RFC 2119 spec + annotated tests, get the tests judged.",
             _SOL_SPEC_INSTRUCTIONS,
+        )
+
+    def _container_spec_skill(self) -> Skill:
+        default = f"{self.honesty_reviewer.harness}:{self.honesty_reviewer.model}"
+        resolver_command = (
+            "python -m panopticon.container.reviewers honesty-command "
+            f"--default {shlex.quote(default)}"
+        )
+        instructions = _SOL_SPEC_INSTRUCTIONS.replace(
+            _SOL_HONESTY_STEP,
+            "Resolve the fresh-context test-honesty reviewer command inside the task container "
+            f"with\n   `{resolver_command}`, then run the command it prints for each "
+            "test-honesty review.\n"
+            f"   `{HONESTY_REVIEWER_ENV}` may replace the displayed workflow default with an "
+            "atomic\n   `<harness>:<model>` repo override; a blank value falls back to the "
+            "workflow default.",
+        )
+        return Skill(
+            "spec-2119",
+            "Stage 1: write the RFC 2119 spec + annotated tests, get the tests judged.",
+            instructions,
+        )
+
+    def container_skills(self) -> Sequence[Skill]:
+        return tuple(
+            self._container_spec_skill() if skill.name == "spec-2119" else skill
+            for skill in self.skills()
         )
 
     def _review_skill(self) -> Skill:

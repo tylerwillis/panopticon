@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.8.1--7dee3653e553",
+  "requirementId": "REQ-035.8.1",
+  "hash": "7dee3653e553",
+  "verdict": "pass",
+  "summary": "All five verbs are crossed with present and missing routes and every named entity type, while exact 401 status, generic body, and Bearer challenge assertions reject existence disclosure, including known versus unknown MCP methods.",
+  "timestamp": "2026-08-03T17:33:15.346Z"
+}

@@ -410,30 +410,59 @@ on every PR (the same commands the Makefile wraps).
 
 This repository enforces spec-driven testing with [2119](https://www.rfc-editor.org/rfc/rfc2119).
 
-**When planning a feature**, write or update a spec in `specs/` first. Every
-requirement is a numbered item under a `### REQ-NNN.M` heading with exactly one
-RFC 2119 keyword, stating an observable outcome — not an implementation
-mechanism. Run `npx rfc2119 lint` after editing specs. **Before writing tests
+**When planning a feature**, write or update a spec in `specs/` first. New specs
+use a lowercase kebab-case filename as their namespace, such as
+`specs/repo-picker.md`, and bare numbered section headings such as
+`### 3: Selection`. Allocate numbers only within that file; item 2 in that
+section has canonical ID `repo-picker.3.2`. Legacy `REQ-NNN-*` specs and new
+file-scoped specs coexist indefinitely.
+
+A branch based before this adoption may retain its already assigned legacy ID.
+A branch based on this adoption uses a file-scoped ID.
+
+Every requirement has exactly one RFC 2119 keyword and states an
+observable outcome, not an implementation mechanism. Run
+`npx --yes rfc2119@0.7.0 lint` after editing specs. **Before writing tests
 against a new spec**, dispatch a fresh-context reviewer to critique the draft
 requirements themselves: outcome-stated, individually testable, one obligation
 each. A flawed requirement steers the whole implementation wrong.
 
-**When implementing**, every MUST/SHALL requirement needs at least one test
-annotated with a comment containing its ID, e.g. `// 2119: REQ-001.2.3` (the
-marker line must start with a comment leader). Write tests that would genuinely
-fail if the requirement were violated — including its negative space: what the
-requirement forbids needs a rejection test, not just what it allows. A
-fresh-context reviewer judges each test's honesty; tautological or over-mocked
-tests will be rejected.
+**When implementing**, every MUST/SHALL requirement needs at least one test.
+A test file may import its spec with `# 2119-spec: repo-picker`; a later bare
+annotation `# 2119: 3.2` and the full annotation
+`# 2119: repo-picker.3.2` both resolve to repo-picker.3.2. Full canonical IDs
+remain available for cross-spec and legacy references, for example
+`# 2119: REQ-001.2.3`. The marker line must start with a comment leader. Write
+tests that would genuinely fail if the requirement were violated — including
+its negative space: what the requirement forbids needs a rejection test, not
+just what it allows. A fresh-context reviewer judges each test's honesty;
+tautological or over-mocked tests will be rejected. Renaming a file-scoped spec
+changes its canonical IDs, invalidates its verdicts, and requires re-review.
 
 **Reviewer diversity**: use reviewer models from different providers, routinely
-or as periodic `npx rfc2119 review --audit` sweeps — adversarial audits of
+or as periodic `npx --yes rfc2119@0.7.0 review --audit` sweeps — adversarial audits of
 passing verdicts. Audit especially the challenging or high-consequence
 requirements; a single model family shares blind spots.
 
-**Before finishing any task**, run `npx rfc2119 check`. It must exit 0. If it
-reports pending judgment reviews, run `npx rfc2119 review --dispatch` and
+**Before finishing any task**, run `npx --yes rfc2119@0.7.0 check`. It must exit
+0. If it reports pending judgment reviews, run
+`npx --yes rfc2119@0.7.0 review --dispatch` and
 dispatch each instruction file in `.2119/reviews/` to a fresh-context subagent
 (never review your own work in the same context). CI runs the same check, so
 skipping it locally only defers the failure.
+
+**Migration sequence:** REQ-035 taskservice-auth, REQ-036
+verified-reviewer-models, REQ-037 cross-host-migration, and REQ-038
+snoozed-tasks-sort-bottom merge before this adoption without renumbering.
+Thereafter the branch-base rule above applies.
+
+**CI fetch assumption:** `rfc2119@0.7.0 contains runnable compiled JavaScript`,
+`rfc2119@0.7.0 declares no install-time build`, and its
+`rfc2119@0.7.0 runtime dependency closure declares no install-time build`.
+CI therefore disables dependency lifecycle scripts while fetching the gate. An
+install-time build introduced by a future CLI or runtime dependency is a
+gate-breaking change while lifecycle scripts remain disabled; lifecycle scripts
+cannot be silently enabled to accommodate it. The workflow checks the runner's
+documented npm 10 major before installing exact npm 10.9.3, so a runner-image
+npm-major change fails visibly.
 <!-- 2119:end -->

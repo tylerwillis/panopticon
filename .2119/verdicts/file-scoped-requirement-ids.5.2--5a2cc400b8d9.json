@@ -1,0 +1,8 @@
+{
+  "reviewId": "file-scoped-requirement-ids.5.2--5a2cc400b8d9",
+  "requirementId": "file-scoped-requirement-ids.5.2",
+  "hash": "5a2cc400b8d9",
+  "verdict": "pass",
+  "summary": "Exact branch-boundary guidance permits pre-adoption assigned legacy IDs",
+  "timestamp": "2026-08-03T22:10:54.218Z"
+}

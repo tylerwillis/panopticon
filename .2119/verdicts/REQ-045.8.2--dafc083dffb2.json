@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-045.8.2--dafc083dffb2",
+  "requirementId": "REQ-045.8.2",
+  "hash": "dafc083dffb2",
+  "verdict": "pass",
+  "summary": "OpenAPI GET transcript description is asserted exactly, rejecting omission of arbitrary-output, credential/secret, or pane-origin warnings.",
+  "timestamp": "2026-08-03T20:41:16.895Z"
+}
