@@ -1,8 +1,0 @@
-{
-  "reviewId": "build-pi-outfitter-with-gzip.1.2--29c530596c17",
-  "requirementId": "build-pi-outfitter-with-gzip.1.2",
-  "hash": "29c530596c17",
-  "verdict": "pass",
-  "summary": "Real Docker acceptance builds the fingerprint-current base plus Outfitter layer, runs node --version, and rejects build/run failure or any version differing from the harness pin.",
-  "timestamp": "2026-08-04T20:58:47.671Z"
-}

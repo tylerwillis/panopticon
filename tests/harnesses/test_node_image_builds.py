@@ -26,20 +26,18 @@ def _docker_running() -> bool:
 
 
 @pytest.mark.parametrize(
-    ("harness_name", "layer", "node_version", "requirement"),
+    ("harness_name", "layer", "node_version"),
     [
         pytest.param(
             "pi",
             PiHarness().image_layer(),
             PI_NODE_VERSION,
-            "build-pi-outfitter-with-gzip.2.1",
             id="pi",
         ),
         pytest.param(
             "outfitter",
             OutfitterHarness().image_layer(),
             OUTFITTER_NODE_VERSION,
-            "build-pi-outfitter-with-gzip.2.2",
             id="outfitter",
         ),
     ],
@@ -52,10 +50,8 @@ def test_node_harness_image_builds_and_runs_pinned_node(
     harness_name: str,
     layer: str,
     node_version: str,
-    requirement: str,
 ) -> None:
     """Build each real harness layer and prove its installed Node executable is usable."""
-    del requirement  # IDs make parametrized failures self-describing and annotations auditable.
     builder = ImageBuilder()
     builder.build_base_if_missing(verbose=True)
     tag = builder.build(

@@ -1,8 +1,0 @@
-{
-  "reviewId": "build-pi-outfitter-with-gzip.1.1--870a663bab70",
-  "requirementId": "build-pi-outfitter-with-gzip.1.1",
-  "hash": "870a663bab70",
-  "verdict": "pass",
-  "summary": "Real Docker acceptance test composes the fingerprint-current panopticon-base with Pi's actual harness layer, requires the build and node invocation to succeed, and rejects a Node version differing from Pi's pinned constant.",
-  "timestamp": "2026-08-04T20:58:13.155Z"
-}

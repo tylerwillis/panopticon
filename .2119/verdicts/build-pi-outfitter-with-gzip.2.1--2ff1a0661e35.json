@@ -1,8 +1,0 @@
-{
-  "reviewId": "build-pi-outfitter-with-gzip.2.1--2ff1a0661e35",
-  "requirementId": "build-pi-outfitter-with-gzip.2.1",
-  "hash": "2ff1a0661e35",
-  "verdict": "pass",
-  "summary": "Real Docker builds for both Pi and Outfitter reject the nearest violations: missing gzip or present xz makes the shell probe fail.",
-  "timestamp": "2026-08-04T20:59:18.866Z"
-}
