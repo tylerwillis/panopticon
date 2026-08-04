@@ -25,7 +25,13 @@ independently of the production URI builder (`core/artifacts.mcp_uri`).
 
 It also closes a secondary gap in `set_dependencies`: a proposed dependency id
 is a second task target of that action, not merely a service-layer validation
-input, and today it is authorized as neither.
+input, and today it is authorized as neither. One consequence of scoping every
+dependency id: a non-orchestrating task capability's only in-scope id is its
+own, and a self-referential dependency is rejected by the existing cycle
+policy (REQ-026.4), so a plain task can no longer record a nonempty dependency
+list at all — only an orchestrator, setting one of its governed descendants,
+still can. That trade also closes the id-existence oracle this slice's
+overview describes.
 
 ## Requirements
 

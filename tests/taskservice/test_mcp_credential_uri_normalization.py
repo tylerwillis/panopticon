@@ -145,14 +145,8 @@ def _asgi_denial(app: object, path: str, token: str) -> tuple[int, dict[str, obj
     return int(start["status"]), json.loads(body)
 
 
-def _real_resources_read(client: TestClient, token: str, uri: str) -> tuple[int, dict[str, object]]:
-    """Drive a genuine MCP session handshake, then a raw ``resources/read`` for ``uri``.
-
-    Unlike the rest of the credential-scoping suite (which asserts only on HTTP status for
-    denied requests), a request that the scope policy *allows* is forwarded into the real
-    mounted FastMCP app here, so a successful read exercises actual dispatch and returns the
-    actual resource bytes — not just the authorization decision.
-    """
+def _mcp_session_headers(client: TestClient, token: str) -> dict[str, str]:
+    """Complete a genuine MCP session handshake and return headers for follow-up calls."""
     headers = _mcp_headers(token)
     init = client.post(
         "/mcp",
@@ -177,6 +171,18 @@ def _real_resources_read(client: TestClient, token: str, uri: str) -> tuple[int,
         headers=session_headers,
         json={"jsonrpc": "2.0", "method": "notifications/initialized"},
     )
+    return session_headers
+
+
+def _real_resources_read(client: TestClient, token: str, uri: str) -> tuple[int, dict[str, object]]:
+    """Drive a genuine MCP session handshake, then a raw ``resources/read`` for ``uri``.
+
+    Unlike the rest of the credential-scoping suite (which asserts only on HTTP status for
+    denied requests), a request that the scope policy *allows* is forwarded into the real
+    mounted FastMCP app here, so a successful read exercises actual dispatch and returns the
+    actual resource bytes — not just the authorization decision.
+    """
+    session_headers = _mcp_session_headers(client, token)
     read = client.post(
         "/mcp",
         headers=session_headers,
@@ -188,6 +194,30 @@ def _real_resources_read(client: TestClient, token: str, uri: str) -> tuple[int,
         },
     )
     return read.status_code, _parse_mcp_body(read)
+
+
+def _call_mcp_tool(
+    client: TestClient, token: str, name: str, arguments: dict[str, object]
+) -> tuple[int, dict[str, object]]:
+    """Drive a genuine MCP session handshake, then a raw ``tools/call`` for ``name``.
+
+    Unlike ``client.put(f"/tasks/{id}/artifacts/{name}", ...)``, this carries ``name`` as a
+    plain JSON string argument — no URL path segment is ever built from it, so it exercises how
+    a real MCP client would create an artifact whose name contains characters (like a literal
+    ``%2f`` substring) that httpx's own URL construction would otherwise percent-decode away.
+    """
+    session_headers = _mcp_session_headers(client, token)
+    call = client.post(
+        "/mcp",
+        headers=session_headers,
+        json={
+            "jsonrpc": "2.0",
+            "id": 3,
+            "method": "tools/call",
+            "params": {"name": name, "arguments": arguments},
+        },
+    )
+    return call.status_code, _parse_mcp_body(call)
 
 
 def test_uppercase_scheme_reads_via_normalized_parsing_not_raw_matching(tmp_path: Path) -> None:
@@ -305,6 +335,93 @@ def test_percent_encoded_slash_separator_traversal_denied(tmp_path: Path) -> Non
         assert body == SCOPE_FAILURE
 
 
+def test_fully_encoded_single_segment_traversal_denied(tmp_path: Path) -> None:
+    # 2119: mcp-credential-uri-normalization.2.1
+    # When every separator in a traversal payload is percent-encoded — not just the dots, but
+    # also the slashes around "artifacts" and the filename — the whole thing parses as one
+    # structurally legal path segment (AnyUrl correctly leaves "%2F" encoded per RFC 3986,
+    # unlike a real "/"). The equivalent REST request would already be multi-segment once the
+    # ASGI layer decodes "%2F" and denied there, so this must deny too even though the
+    # first-pass parse alone looks like a legal self read.
+    with _client(tmp_path) as client:
+        own = _create_task(client)
+        victim = _create_task(client)
+        token = _task_token(own["id"])
+        client.put(
+            f"/tasks/{victim['id']}/artifacts/plan.md",
+            headers=_bearer(_task_token(victim["id"])),
+            content=b"VICTIM-BYTES",
+        )
+        hostile_uri = (
+            f"panopticon://tasks/{own['id']}/artifacts/"
+            f"..%2F..%2F{victim['id']}%2Fartifacts%2Fplan.md"
+        )
+        status, body = _real_resources_read(client, token, hostile_uri)
+        assert status == 403
+        assert body == SCOPE_FAILURE
+
+
+def test_nested_encoded_separator_traversal_denied(tmp_path: Path) -> None:
+    # 2119: mcp-credential-uri-normalization.2.1
+    # A narrower fix was tried first: decode just "%2F" and re-resolve, denying only when that
+    # cleanly redirects to a *different* task id. It missed this shape — decoding
+    # "junk%2f..%2f..%2f{victim}%2fartifacts%2fplan.md" reveals real ".." segments that, once
+    # RFC-3986 dot-removal runs, no longer fit this module's two-segment template at all (it
+    # resolves to an extra, unmatched segment rather than cleanly landing on "victim"), so the
+    # narrower rule misread "doesn't cleanly resolve" as harmless content and allowed it. REST's
+    # decoded equivalent is still denied (too many segments either way), so this must deny too.
+    with _client(tmp_path) as client:
+        own = _create_task(client)
+        victim = _create_task(client)
+        token = _task_token(own["id"])
+        client.put(
+            f"/tasks/{victim['id']}/artifacts/plan.md",
+            headers=_bearer(_task_token(victim["id"])),
+            content=b"VICTIM-BYTES",
+        )
+        hostile_uri = (
+            f"panopticon://tasks/{own['id']}/artifacts/"
+            f"junk%2f..%2f..%2f{victim['id']}%2fartifacts%2fplan.md"
+        )
+        status, body = _real_resources_read(client, token, hostile_uri)
+        assert status == 403
+        assert body == SCOPE_FAILURE
+
+
+def test_literal_percent_2f_content_in_an_own_artifact_name_is_denied_not_leaked(
+    tmp_path: Path,
+) -> None:
+    # 2119: mcp-credential-uri-normalization.2.1
+    # An artifact can legitimately be named with a literal "%2f" substring (MCP names are never
+    # percent-decoded, so a client just writes it via put_artifact's plain JSON argument — see
+    # the nested-traversal case above for why a narrower rule permitting this specific shape
+    # was rejected). The accepted trade-off: such a name becomes unreachable over MCP (REST can
+    # still reach it, via double percent-encoding), a narrow availability loss preferred over
+    # any residual gap in this authorization boundary. This pins the deny — and that it denies
+    # cleanly rather than serving the wrong task's bytes — for that accepted trade-off.
+    with _client(tmp_path) as client:
+        own = _create_task(client)
+        victim = _create_task(client)
+        token = _task_token(own["id"])
+        name = "report%2fA.md"
+        put_status, put_body = _call_mcp_tool(
+            client,
+            token,
+            "put_artifact",
+            {"task_id": own["id"], "name": name, "content": "OWN-PERCENT-2F-BYTES"},
+        )
+        assert put_status == 200, put_body
+        client.put(
+            f"/tasks/{victim['id']}/artifacts/plan.md",
+            headers=_bearer(_task_token(victim["id"])),
+            content=b"VICTIM-BYTES",
+        )
+        uri = f"panopticon://tasks/{own['id']}/artifacts/{name}"
+        status, body = _real_resources_read(client, token, uri)
+        assert status == 403
+        assert body == SCOPE_FAILURE
+
+
 def test_unicode_confusable_separator_traversal_denied(tmp_path: Path) -> None:
     # 2119: mcp-credential-uri-normalization.2.1
     with _client(tmp_path) as client:
@@ -403,6 +520,10 @@ def test_own_artifact_with_punctuation_name_returns_exact_bytes_via_real_dispatc
             "trailing-special~",
             "_leading-underscore.md",
             "+leading-plus.md",
+            "-leading-dash.md",
+            "trailing-dash-",
+            "%leading-percent.md",
+            "trailing-percent%",
         )
         for name in boundary_names:
             content = f"BYTES-FOR-{name}".encode()
@@ -589,6 +710,41 @@ def test_set_dependencies_denies_when_any_id_in_a_mixed_list_is_out_of_scope(
                 json={"dep_ids": dep_ids},
             )
             assert (response.status_code, response.json()) == (403, SCOPE_FAILURE), dep_ids
+
+
+def test_set_dependencies_fetches_the_task_list_at_most_once(tmp_path: Path) -> None:
+    # 2119: mcp-credential-uri-normalization.3.1
+    # decide_dependencies scope-checks the primary target plus every dep id; each check needs
+    # the task list to resolve a relation. Re-fetching it per id would make one request's cost
+    # scale with the length of a client-controlled dep_ids list rather than a constant, so this
+    # pins the fix to a single fetch regardless of how many dependency ids are proposed.
+    with _client(tmp_path) as client:
+        orchestrator = _create_task(client, workflow="orchestrator")
+        child_a = _create_task(client, governor_task_id=str(orchestrator["id"]))
+        dep_children = [
+            _create_task(client, governor_task_id=str(orchestrator["id"])) for _ in range(5)
+        ]
+        token = _task_token(orchestrator["id"])
+
+        service = client.app.state.credential_scope_policy._service
+        original_list_tasks = service.list_tasks
+        calls: list[None] = []
+
+        async def counting_list_tasks():
+            calls.append(None)
+            return await original_list_tasks()
+
+        service.list_tasks = counting_list_tasks
+        try:
+            response = client.put(
+                f"/tasks/{child_a['id']}/dependencies",
+                headers=_bearer(token),
+                json={"dep_ids": [child["id"] for child in dep_children]},
+            )
+        finally:
+            service.list_tasks = original_list_tasks
+        assert response.status_code == 200
+        assert len(calls) == 1
 
 
 def test_set_dependencies_denies_a_short_nonempty_out_of_scope_id(tmp_path: Path) -> None:
