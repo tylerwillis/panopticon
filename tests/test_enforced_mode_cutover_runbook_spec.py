@@ -361,7 +361,8 @@ def test_all_eleven_gates_assert_the_real_boundary() -> None:
     assert "NEW_DASHBOARD_START" in gates["G11"]
     assert "OLD_RUNNER_START" in gates["G11"] and "OLD_DASHBOARD_START" in gates["G11"]
     assert 'ps -o lstart= -p "$OLD_RUNNER_PID"' in gates["G11"]
-    assert 'docker exec "$CANARY_CONTAINER"' in gates["G09"]
+    assert 'docker exec "$CANARY_CONTAINER_ID"' in gates["G09"]
+    assert 'docker exec "$CANARY_CONTAINER"' not in gates["G09"]
 
 
 # 2119: enforced-mode-cutover-runbook.5.3, enforced-mode-cutover-runbook.5.4

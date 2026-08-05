@@ -102,6 +102,41 @@ def assert_runner_process(
         raise ValueError("runner start command is not exec-bound to the expected identity")
 
 
+def assert_dashboard_process(
+    pid: int,
+    recorded_start: str,
+    command_path: str | Path,
+    auth_file: str,
+    browser_origin: str,
+    service_url: str,
+    *,
+    run: Any = subprocess.run,
+) -> None:
+    """Bind the live pane process identity to the enforced dashboard command."""
+
+    if process_start(pid, run=run) != recorded_start.strip():
+        raise ValueError("dashboard process identity changed")
+    tokens = shlex.split(Path(command_path).read_text().strip())
+    try:
+        exec_index = tokens.index("exec")
+    except ValueError as error:
+        raise ValueError(
+            "dashboard start command is not exec-bound to enforced configuration"
+        ) from error
+    required_environment = {
+        f"PANOPTICON_SERVICE_AUTH_FILE={auth_file}",
+        "PANOPTICON_SERVICE_AUTH_MODE=enforced",
+        f"PANOPTICON_BROWSER_ORIGINS={browser_origin}",
+    }
+    expected_argv = ["uv", "run", "panopticon", "--service-url", service_url, "dashboard"]
+    if (
+        tokens[exec_index : exec_index + 2] != ["exec", "env"]
+        or not required_environment.issubset(tokens[exec_index + 2 :])
+        or tokens[-len(expected_argv) :] != expected_argv
+    ):
+        raise ValueError("dashboard start command is not exec-bound to enforced configuration")
+
+
 def assert_container_started_after(container_started: str, enforcement_started: str) -> None:
     """Require Docker's start timestamp to be strictly after enforced service launch began."""
 
@@ -197,6 +232,17 @@ def validate_enforced_mode_cutover_runbook(text: str) -> list[str]:
     s01 = next((item for item in plan.steps if item.item_id == "S01"), None)
     s07 = next((item for item in plan.steps if item.item_id == "S07"), None)
     g09 = next((item for item in plan.gates if item.item_id == "G09"), None)
+    capability_read = (
+        'test "$(docker exec "$CANARY_CONTAINER_ID" python -c \'import json; '
+        'print(json.load(open("/run/secrets/panopticon-service-auth"))["task"][:5])\')" = ptc1.'
+    )
+    if (
+        g09 is None
+        or "docker inspect --format '{{.Id}} {{.State.Pid}} {{.State.StartedAt}}' \"$CANARY_CONTAINER_ID\""
+        not in g09.action
+        or capability_read not in g09.action
+    ):
+        violations.append("enforced-mode-cutover-runbook.4.17")
     if (
         s01 is None
         or s07 is None
@@ -210,7 +256,7 @@ def validate_enforced_mode_cutover_runbook(text: str) -> list[str]:
         not in s07.check
         or 'assert-container-started-after "$CANARY_CONTAINER_STARTED" "$ENFORCEMENT_STARTED_AT"'
         not in g09.check
-        or 'docker exec "$CANARY_CONTAINER"' not in g09.action
+        or capability_read not in g09.action
         or "G09-target-at-capability.txt" not in g09.action
         or 'cmp "$EVIDENCE_DIR/G09-target-at-capability.txt" "$EVIDENCE_DIR/S07-container-after-keepalive.txt"'
         not in g09.check
@@ -230,8 +276,10 @@ def validate_enforced_mode_cutover_runbook(text: str) -> list[str]:
         or 'assert-runner-set "$EVIDENCE_DIR/S01-runners-immediately-before-service-stop.json"'
         not in s01.action
         or "pane_start_command" not in s04.action
+        or "S04-dashboard-start-command.txt" not in s04.action
         or 'assert-runner-set "$EVIDENCE_DIR/G03-runners.json" "$NEW_RUNNER_ID"' not in g03.check
         or "assert-runner-process" not in g03.check
+        or "assert-dashboard-process" not in g11.check
         or 'assert-process-replaced "$OLD_RUNNER_PID" "$OLD_RUNNER_START"' not in g11.check
         or 'assert-process-replaced "$OLD_DASHBOARD_PID" "$OLD_DASHBOARD_START"' not in g11.check
     ):
@@ -292,6 +340,13 @@ def _main() -> int:
     process_parser.add_argument("recorded_start")
     process_parser.add_argument("command_path", type=Path)
     process_parser.add_argument("runner_id")
+    dashboard_parser = subparsers.add_parser("assert-dashboard-process")
+    dashboard_parser.add_argument("pid", type=int)
+    dashboard_parser.add_argument("recorded_start")
+    dashboard_parser.add_argument("command_path", type=Path)
+    dashboard_parser.add_argument("auth_file")
+    dashboard_parser.add_argument("browser_origin")
+    dashboard_parser.add_argument("service_url")
     started_parser = subparsers.add_parser("assert-container-started-after")
     started_parser.add_argument("container_started")
     started_parser.add_argument("enforcement_started")
@@ -310,6 +365,15 @@ def _main() -> int:
             arguments.recorded_start,
             arguments.command_path,
             arguments.runner_id,
+        )
+    elif arguments.command == "assert-dashboard-process":
+        assert_dashboard_process(
+            arguments.pid,
+            arguments.recorded_start,
+            arguments.command_path,
+            arguments.auth_file,
+            arguments.browser_origin,
+            arguments.service_url,
         )
     elif arguments.command == "assert-container-started-after":
         assert_container_started_after(arguments.container_started, arguments.enforcement_started)

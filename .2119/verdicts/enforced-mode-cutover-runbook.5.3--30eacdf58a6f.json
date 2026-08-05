@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.5.3--30eacdf58a6f",
+  "requirementId": "enforced-mode-cutover-runbook.5.3",
+  "hash": "30eacdf58a6f",
+  "verdict": "pass",
+  "summary": "Tests require Claude resume evidence to remain separately classified across the three named categories with explicit evidence classes and live-cutover transcript confirmation.",
+  "timestamp": "2026-08-05T01:57:56.951Z"
+}

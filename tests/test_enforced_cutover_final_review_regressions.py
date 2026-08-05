@@ -4,6 +4,7 @@ from types import SimpleNamespace
 from panopticon.core.cutover_runbook import (
     RUNBOOK_PATH,
     assert_container_started_after,
+    assert_dashboard_process,
     assert_fresh_container_id,
     assert_process_replaced,
     assert_runner_process,
@@ -135,7 +136,7 @@ def test_fresh_canary_comparison_rejects_truncated_pre_cutover_ids(tmp_path) -> 
     text = RUNBOOK_PATH.read_text()
     g09_offset = text.index("### G09 —")
     different_inspected_container = text[:g09_offset] + text[g09_offset:].replace(
-        'docker exec "$CANARY_CONTAINER"', 'docker exec "$OTHER_CONTAINER"', 1
+        'docker exec "$CANARY_CONTAINER_ID"', 'docker exec "$OTHER_CONTAINER"', 1
     )
     assert "enforced-mode-cutover-runbook.4.18" in validate_enforced_mode_cutover_runbook(
         different_inspected_container
@@ -234,6 +235,43 @@ def test_complete_runner_set_and_process_binding_fail_closed(tmp_path) -> None:
             assert "exec-bound" in str(error)
         else:
             raise AssertionError(f"unbound runner process was accepted: {invalid_command}")
+    dashboard_command = tmp_path / "dashboard-command.txt"
+    dashboard_command.write_text(
+        "until curl --silent --fail http://service/healthz; do sleep 1; done; "
+        "exec env PANOPTICON_CONFIG=/config PANOPTICON_SERVICE_AUTH_FILE=auth.json "
+        "PANOPTICON_SERVICE_AUTH_MODE=enforced PANOPTICON_BROWSER_ORIGINS=https://phone "
+        "uv run panopticon --service-url http://service dashboard\n"
+    )
+    assert_dashboard_process(
+        current_pid,
+        current_start,
+        dashboard_command,
+        "auth.json",
+        "https://phone",
+        "http://service",
+        run=running_ps,
+    )
+    for invalid_dashboard in (
+        dashboard_command.read_text().replace("exec env", "env"),
+        dashboard_command.read_text().replace("AUTH_MODE=enforced", "AUTH_MODE=permissive"),
+        dashboard_command.read_text().replace("https://phone", "https://attacker"),
+        dashboard_command.read_text().replace(" dashboard", " doctor"),
+    ):
+        dashboard_command.write_text(invalid_dashboard)
+        try:
+            assert_dashboard_process(
+                current_pid,
+                current_start,
+                dashboard_command,
+                "auth.json",
+                "https://phone",
+                "http://service",
+                run=running_ps,
+            )
+        except ValueError as error:
+            assert "exec-bound" in str(error)
+        else:
+            raise AssertionError(f"unbound dashboard process was accepted: {invalid_dashboard}")
     plan = _plan()
     assert "pane_start_command" in plan.steps[4].action
     assert "PANOPTICON_RUNNER_ID='$NEW_RUNNER_ID'" in plan.steps[4].check
@@ -242,6 +280,7 @@ def test_complete_runner_set_and_process_binding_fail_closed(tmp_path) -> None:
     )
     assert "assert-runner-process" in plan.gates[2].check
     assert "assert-process-replaced" in plan.gates[10].check
+    assert "assert-dashboard-process" in plan.gates[10].check
     assert 'assert-process-replaced "$OLD_RUNNER_PID" "$OLD_RUNNER_START"' in plan.gates[10].check
     assert (
         'assert-process-replaced "$OLD_DASHBOARD_PID" "$OLD_DASHBOARD_START"'

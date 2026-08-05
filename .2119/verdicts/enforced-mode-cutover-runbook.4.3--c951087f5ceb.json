@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.3--c951087f5ceb",
+  "requirementId": "enforced-mode-cutover-runbook.4.3",
+  "hash": "c951087f5ceb",
+  "verdict": "pass",
+  "summary": "Tests require authenticated G03 runner liveness tied to the recorded new runner ID, PID, and start time, and reject disconnected live-set or exec-bound identity checks.",
+  "timestamp": "2026-08-05T01:57:56.951Z"
+}

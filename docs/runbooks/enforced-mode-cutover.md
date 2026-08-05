@@ -269,6 +269,7 @@ export NEW_RUNNER_START="$(ps -o lstart= -p "$NEW_RUNNER_PID" | sed 's/^ *//')"
 export NEW_DASHBOARD_START="$(ps -o lstart= -p "$NEW_DASHBOARD_PID" | sed 's/^ *//')"
 ps -o pid= -o lstart= -p "$NEW_RUNNER_PID,$NEW_DASHBOARD_PID" | tee "$EVIDENCE_DIR/S04-client-identities-after.txt"
 tmux -L panopticon display-message -p -t runner '#{pane_start_command}' | tee "$EVIDENCE_DIR/S04-runner-start-command.txt"
+tmux -L panopticon display-message -p -t dashboard '#{pane_start_command}' | tee "$EVIDENCE_DIR/S04-dashboard-start-command.txt"
 ```
 
 ### Check
@@ -283,6 +284,7 @@ kill -0 "$NEW_RUNNER_PID"
 kill -0 "$NEW_DASHBOARD_PID"
 grep --fixed-strings "PANOPTICON_RUNNER_ID='$NEW_RUNNER_ID'" "$EVIDENCE_DIR/S04-runner-start-command.txt"
 grep --fixed-strings "exec env" "$EVIDENCE_DIR/S04-runner-start-command.txt"
+uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-dashboard-process "$NEW_DASHBOARD_PID" "$NEW_DASHBOARD_START" "$EVIDENCE_DIR/S04-dashboard-start-command.txt" "$AUTH_FILE_NAME" "$PWA_ORIGIN" "$SERVICE_URL"
 test "$(ps -o lstart= -p "$NEW_RUNNER_PID" | sed 's/^ *//')" = "$NEW_RUNNER_START"
 test "$(ps -o lstart= -p "$NEW_DASHBOARD_PID" | sed 's/^ *//')" = "$NEW_DASHBOARD_START"
 ! kill -0 "$OLD_RUNNER_PID" 2>/dev/null || test "$(ps -o lstart= -p "$OLD_RUNNER_PID" | sed 's/^ *//')" != "$OLD_RUNNER_START"
@@ -407,22 +409,22 @@ export CANARY_CONTAINER_STARTED="$(docker inspect --format '{{.State.StartedAt}}
 uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-fresh-container "$CANARY_CONTAINER_ID" "$EVIDENCE_DIR/S01-all-container-ids-before.txt"
 uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-fresh-container "$CANARY_CONTAINER_ID" "$EVIDENCE_DIR/S03-all-container-ids-before-enforcement.txt"
 uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-container-started-after "$CANARY_CONTAINER_STARTED" "$ENFORCEMENT_STARTED_AT"
-docker inspect --format '{{.Id}} {{.State.Pid}} {{.State.StartedAt}}' "$CANARY_CONTAINER" | tee "$EVIDENCE_DIR/S07-container-initial.txt"
-docker inspect --format '{{.Id}} {{.State.Pid}} {{.State.StartedAt}}' "$CANARY_CONTAINER" | tee "$EVIDENCE_DIR/S07-container-at-capability.txt"
+docker inspect --format '{{.Id}} {{.State.Pid}} {{.State.StartedAt}}' "$CANARY_CONTAINER_ID" | tee "$EVIDENCE_DIR/S07-container-initial.txt"
+docker inspect --format '{{.Id}} {{.State.Pid}} {{.State.StartedAt}}' "$CANARY_CONTAINER_ID" | tee "$EVIDENCE_DIR/S07-container-at-capability.txt"
 cmp "$EVIDENCE_DIR/S07-container-initial.txt" "$EVIDENCE_DIR/S07-container-at-capability.txt"
-test "$(docker exec "$CANARY_CONTAINER" python -c 'import json; print(json.load(open("/run/secrets/panopticon-service-auth"))["task"][:5])')" = ptc1.
+test "$(docker exec "$CANARY_CONTAINER_ID" python -c 'import json; print(json.load(open("/run/secrets/panopticon-service-auth"))["task"][:5])')" = ptc1.
 curl --silent --show-error --fail --header "Authorization: Bearer $WRITE_TOKEN" "$SERVICE_URL/tasks/$CANARY_TASK_ID" --output "$EVIDENCE_DIR/S07-live-initial.json"
 sleep 6
-docker inspect --format '{{.Id}} {{.State.Pid}} {{.State.StartedAt}}' "$CANARY_CONTAINER" | tee "$EVIDENCE_DIR/S07-container-after-keepalive.txt"
+docker inspect --format '{{.Id}} {{.State.Pid}} {{.State.StartedAt}}' "$CANARY_CONTAINER_ID" | tee "$EVIDENCE_DIR/S07-container-after-keepalive.txt"
 cmp "$EVIDENCE_DIR/S07-container-initial.txt" "$EVIDENCE_DIR/S07-container-after-keepalive.txt"
 curl --silent --show-error --fail --header "Authorization: Bearer $WRITE_TOKEN" "$SERVICE_URL/tasks/$CANARY_TASK_ID" --output "$EVIDENCE_DIR/S07-live-after-keepalive.json"
 uv --directory "$APP_ROOT" run python - "$EVIDENCE_DIR/S07-live-initial.json" "$EVIDENCE_DIR/S07-live-after-keepalive.json" <<'PY'
 import json, sys
 assert all(json.load(open(path))["container_status"] == "live" for path in sys.argv[1:])
 PY
-docker inspect --format '{{.Id}} {{.State.Pid}} {{.State.StartedAt}}' "$CANARY_CONTAINER" | tee "$EVIDENCE_DIR/G09-target-at-capability.txt"
+docker inspect --format '{{.Id}} {{.State.Pid}} {{.State.StartedAt}}' "$CANARY_CONTAINER_ID" | tee "$EVIDENCE_DIR/G09-target-at-capability.txt"
 cmp "$EVIDENCE_DIR/S07-container-initial.txt" "$EVIDENCE_DIR/G09-target-at-capability.txt"
-test "$(docker exec "$CANARY_CONTAINER" python -c 'import json; print(json.load(open("/run/secrets/panopticon-service-auth"))["task"][:5])')" = ptc1.
+test "$(docker exec "$CANARY_CONTAINER_ID" python -c 'import json; print(json.load(open("/run/secrets/panopticon-service-auth"))["task"][:5])')" = ptc1.
 uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-fresh-container "$CANARY_CONTAINER_ID" "$EVIDENCE_DIR/S03-all-container-ids-before-enforcement.txt"
 uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-container-started-after "$CANARY_CONTAINER_STARTED" "$ENFORCEMENT_STARTED_AT"
 uv --directory "$APP_ROOT" run python - "$EVIDENCE_DIR/S07-live-initial.json" "$EVIDENCE_DIR/S07-live-after-keepalive.json" <<'PY'
@@ -813,9 +815,9 @@ Production-only: direct Docker observation.
 #### Command
 
 ```sh
-docker inspect --format '{{.Id}} {{.State.Pid}} {{.State.StartedAt}}' "$CANARY_CONTAINER" | tee "$EVIDENCE_DIR/G09-target-at-capability.txt"
+docker inspect --format '{{.Id}} {{.State.Pid}} {{.State.StartedAt}}' "$CANARY_CONTAINER_ID" | tee "$EVIDENCE_DIR/G09-target-at-capability.txt"
 cmp "$EVIDENCE_DIR/S07-container-initial.txt" "$EVIDENCE_DIR/G09-target-at-capability.txt"
-test "$(docker exec "$CANARY_CONTAINER" python -c 'import json; print(json.load(open("/run/secrets/panopticon-service-auth"))["task"][:5])')" = ptc1.
+test "$(docker exec "$CANARY_CONTAINER_ID" python -c 'import json; print(json.load(open("/run/secrets/panopticon-service-auth"))["task"][:5])')" = ptc1.
 ```
 
 #### Check
@@ -894,6 +896,7 @@ test -n "$OLD_DASHBOARD_START"
 ! kill -0 "$OLD_DASHBOARD_PID" 2>/dev/null || test "$(ps -o lstart= -p "$OLD_DASHBOARD_PID" | sed 's/^ *//')" != "$OLD_DASHBOARD_START"
 uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-process-replaced "$OLD_RUNNER_PID" "$OLD_RUNNER_START"
 uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-process-replaced "$OLD_DASHBOARD_PID" "$OLD_DASHBOARD_START"
+uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-dashboard-process "$NEW_DASHBOARD_PID" "$NEW_DASHBOARD_START" "$EVIDENCE_DIR/S04-dashboard-start-command.txt" "$AUTH_FILE_NAME" "$PWA_ORIGIN" "$SERVICE_URL"
 kill -0 "$NEW_RUNNER_PID"
 kill -0 "$NEW_DASHBOARD_PID"
 test "$(ps -o lstart= -p "$NEW_RUNNER_PID" | sed 's/^ *//')" = "$NEW_RUNNER_START"
