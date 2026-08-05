@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.5.8--ea3c4dceb323",
+  "requirementId": "enforced-mode-cutover-runbook.5.8",
+  "hash": "ea3c4dceb323",
+  "verdict": "pass",
+  "summary": "Tests reject merged, missing, or misclassified Codex evidence categories and independently verify all three required classifications.",
+  "timestamp": "2026-08-05T00:13:58.047Z"
+}

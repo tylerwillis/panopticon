@@ -37,6 +37,19 @@ class CutoverPlan:
     gates: tuple[ProcedureItem, ...]
 
 
+def assert_fresh_container_id(container_id: str, inventory_path: str | Path) -> None:
+    """Reject a container ID that existed in the pre-enforcement inventory."""
+
+    candidate = container_id.strip()
+    if not candidate:
+        raise ValueError("canary container ID is empty")
+    existing = {
+        line.strip() for line in Path(inventory_path).read_text().splitlines() if line.strip()
+    }
+    if candidate in existing:
+        raise ValueError("canary container predates enforcement")
+
+
 _STEP = re.compile(
     r"^## (?P<id>S\d{2}) — (?P<title>[^\n]+)\n(?P<body>.*?)(?=^## S\d{2} — |^## Rollback|\Z)",
     re.MULTILINE | re.DOTALL,
@@ -103,6 +116,36 @@ def validate_enforced_mode_cutover_runbook(text: str) -> list[str]:
         violations.append("enforced-mode-cutover-runbook.1.4")
     if any(not item.evidence_status for item in (*plan.steps, *plan.gates)):
         violations.append("enforced-mode-cutover-runbook.1.5")
+    executable = "\n".join(
+        shell for item in (*plan.steps, *plan.gates) for shell in (item.action, item.check)
+    )
+    rejected = text.split("## Rejected strategies", 1)[-1]
+    weakens_capabilities = (
+        "Do not restore legacy\ncapability acceptance" not in text
+        or "Do not add a `pt1` compatibility window" not in rejected
+        or "pt1.task" in executable
+        or re.search(
+            r"(?im)^(?!do not\b).*\b(?:restore|accept|enable)\b.*\blegacy\b.*\bcapabilit",
+            text,
+        )
+        is not None
+    )
+    if weakens_capabilities:
+        violations.append("enforced-mode-cutover-runbook.2.9")
+    s01 = next((item for item in plan.steps if item.item_id == "S01"), None)
+    s07 = next((item for item in plan.steps if item.item_id == "S07"), None)
+    g09 = next((item for item in plan.gates if item.item_id == "G09"), None)
+    if (
+        s01 is None
+        or s07 is None
+        or g09 is None
+        or "docker ps --all --quiet --no-trunc --filter label=panopticon.task" not in s01.action
+        or 'assert-fresh-container "$CANARY_CONTAINER_ID" "$EVIDENCE_DIR/S03-all-container-ids-before-enforcement.txt"'
+        not in s07.check
+        or 'assert-fresh-container "$CANARY_CONTAINER_ID" "$EVIDENCE_DIR/S03-all-container-ids-before-enforcement.txt"'
+        not in g09.check
+    ):
+        violations.append("enforced-mode-cutover-runbook.4.18")
     return violations
 
 
@@ -143,9 +186,14 @@ def _main() -> int:
     subparsers = parser.add_subparsers(dest="command", required=True)
     inspect_parser = subparsers.add_parser("inspect-credential-file")
     inspect_parser.add_argument("path", type=Path)
+    fresh_parser = subparsers.add_parser("assert-fresh-container")
+    fresh_parser.add_argument("container_id")
+    fresh_parser.add_argument("inventory_path", type=Path)
     arguments = parser.parse_args()
     if arguments.command == "inspect-credential-file":
         inspect_cutover_credential_file(arguments.path)
+    elif arguments.command == "assert-fresh-container":
+        assert_fresh_container_id(arguments.container_id, arguments.inventory_path)
     return 0
 
 
