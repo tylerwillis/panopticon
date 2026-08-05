@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.4.14--18ebb520514c",
-  "requirementId": "enforced-mode-cutover-runbook.4.14",
-  "hash": "18ebb520514c",
-  "verdict": "pass",
-  "summary": "Fresh-context adversarial review confirmed the behavioral edge case is covered.",
-  "timestamp": "2026-08-04T20:49:26.067Z"
-}

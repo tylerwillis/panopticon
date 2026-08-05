@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.8--2445df286362",
+  "requirementId": "enforced-mode-cutover-runbook.4.8",
+  "hash": "2445df286362",
+  "verdict": "pass",
+  "summary": "G08 is pinned to a live labeled-container query, a nonempty-output rejection, and the final three-command sequence immediately preceding S05; stale, unconditional, and evidence-erasing near misses are rejected.",
+  "timestamp": "2026-08-05T05:17:32.815Z"
+}

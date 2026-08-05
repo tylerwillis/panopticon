@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.2.1--750ef2dc74b9",
-  "requirementId": "enforced-mode-cutover-runbook.2.1",
-  "hash": "750ef2dc74b9",
-  "verdict": "pass",
-  "summary": "Asserts set-e/pipefail prerequisite commands for exact ancestry and successful CI on the closing commit before quiescence.",
-  "timestamp": "2026-08-04T22:33:46.207Z"
-}

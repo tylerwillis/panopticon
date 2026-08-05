@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.6.10--58a1328fc811",
-  "requirementId": "enforced-mode-cutover-runbook.6.10",
-  "hash": "58a1328fc811",
-  "verdict": "pass",
-  "summary": "Tests require all long-lived clients restored to last-known-good configuration before restart and before container release.",
-  "timestamp": "2026-08-04T21:24:10.906Z"
-}

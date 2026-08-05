@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.1.6--364226be8de8",
-  "requirementId": "enforced-mode-cutover-runbook.1.6",
-  "hash": "364226be8de8",
-  "verdict": "pass",
-  "summary": "Tests reject ignored or missing step and gate shell blocks with specific IDs while accepting unrelated edits, proving supplied-content parsing without byte equality.",
-  "timestamp": "2026-08-05T00:13:57.132Z"
-}

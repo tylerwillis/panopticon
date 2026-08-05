@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.2.9--167d7f3a761e",
-  "requirementId": "enforced-mode-cutover-runbook.2.9",
-  "hash": "167d7f3a761e",
-  "verdict": "pass",
-  "summary": "The validator test injects restore, revert, disable, remove, and bypass capability instructions and requires the specific 2.9 failure, so an operator-facing capability rollback would be caught.",
-  "timestamp": "2026-08-05T02:56:43.217Z"
-}

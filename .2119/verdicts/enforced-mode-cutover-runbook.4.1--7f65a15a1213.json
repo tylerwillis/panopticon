@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.4.1--7f65a15a1213",
-  "requirementId": "enforced-mode-cutover-runbook.4.1",
-  "hash": "7f65a15a1213",
-  "verdict": "pass",
-  "summary": "G01 is constrained to default GET without authorization, exact /healthz, and exact 200 status, rejecting adjacent method/auth/status variants.",
-  "timestamp": "2026-08-04T22:39:10.870Z"
-}

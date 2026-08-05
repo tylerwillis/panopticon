@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.6.8--de3fca8df9e9",
-  "requirementId": "enforced-mode-cutover-runbook.6.8",
-  "hash": "de3fca8df9e9",
-  "verdict": "pass",
-  "summary": "S09 explicitly forbids new issues for work already in 202 or 203, and parsed executable commands contain no issue-create instruction.",
-  "timestamp": "2026-08-04T22:36:46.067Z"
-}

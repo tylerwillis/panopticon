@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.2.4--5455e0d831cf",
-  "requirementId": "enforced-mode-cutover-runbook.2.4",
-  "hash": "5455e0d831cf",
-  "verdict": "pass",
-  "summary": "S03 is required to issue docker stop over all running task containers, with semantic mutation rejection.",
-  "timestamp": "2026-08-04T21:23:50.861Z"
-}

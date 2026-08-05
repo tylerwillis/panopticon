@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.3.7--2915414d2187",
-  "requirementId": "enforced-mode-cutover-runbook.3.7",
-  "hash": "2915414d2187",
-  "verdict": "pass",
-  "summary": "The parsed S04 action is required to inject the validated exact PWA origin into the tmux supervisor environment before replacement sessions launch.",
-  "timestamp": "2026-08-04T22:34:12.337Z"
-}

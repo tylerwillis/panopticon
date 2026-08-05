@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.5.8--2c9442a4d218",
-  "requirementId": "enforced-mode-cutover-runbook.5.8",
-  "hash": "2c9442a4d218",
-  "verdict": "pass",
-  "summary": "Tests require Codex resume evidence to remain separately classified across the three named categories with explicit evidence classes and live-cutover transcript confirmation.",
-  "timestamp": "2026-08-05T01:57:56.951Z"
-}

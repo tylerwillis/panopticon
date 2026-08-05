@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.2.6--1b0216335a93",
-  "requirementId": "enforced-mode-cutover-runbook.2.6",
-  "hash": "1b0216335a93",
-  "verdict": "pass",
-  "summary": "Fresh-context review confirmed the counter role is exhaustively limited to weak corroboration.",
-  "timestamp": "2026-08-04T20:50:21.759Z"
-}

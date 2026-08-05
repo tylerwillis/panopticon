@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.2.8--4f12eb67ff55",
-  "requirementId": "enforced-mode-cutover-runbook.2.8",
-  "hash": "4f12eb67ff55",
-  "verdict": "pass",
-  "summary": "The parsed executable procedure contains no live credential replacement and explicit operator prose rejects replacing credentials inside running containers; arbitrary reworded future contradictions are out of scope.",
-  "timestamp": "2026-08-04T22:37:11.740Z"
-}

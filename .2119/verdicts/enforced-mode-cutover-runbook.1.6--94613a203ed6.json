@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.1.6--94613a203ed6",
-  "requirementId": "enforced-mode-cutover-runbook.1.6",
-  "hash": "94613a203ed6",
-  "verdict": "pass",
-  "summary": "Tests mutate supplied step and gate action/check shells, accept unrelated text edits, and reject missing structural blocks with specific IDs instead of repo-copy equality.",
-  "timestamp": "2026-08-05T01:57:56.951Z"
-}

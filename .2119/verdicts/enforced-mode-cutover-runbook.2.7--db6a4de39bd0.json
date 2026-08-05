@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.2.7--db6a4de39bd0",
-  "requirementId": "enforced-mode-cutover-runbook.2.7",
-  "hash": "db6a4de39bd0",
-  "verdict": "pass",
-  "summary": "The parsed executable blocks exclude legacy pt1 acceptance and the operator document explicitly rejects a pt1 compatibility window; demanding detection of arbitrary future contradictory prose is out of scope.",
-  "timestamp": "2026-08-04T22:37:11.228Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.2.6--1ee666fe0561",
-  "requirementId": "enforced-mode-cutover-runbook.2.6",
-  "hash": "1ee666fe0561",
-  "verdict": "pass",
-  "summary": "Only weak and corroboration-only labels pass; strong, primary, decisive, and gate roles are explicitly rejected.",
-  "timestamp": "2026-08-04T21:23:51.838Z"
-}

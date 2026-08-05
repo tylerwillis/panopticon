@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.6.6--6751ad4318b8",
-  "requirementId": "enforced-mode-cutover-runbook.6.6",
-  "hash": "6751ad4318b8",
-  "verdict": "pass",
-  "summary": "Production-only executable items are required to be exhaustively identified with stable IDs and non-dry-run reasons.",
-  "timestamp": "2026-08-04T21:24:13.544Z"
-}

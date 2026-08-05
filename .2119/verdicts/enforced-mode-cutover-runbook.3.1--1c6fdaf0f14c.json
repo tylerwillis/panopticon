@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.3.1--1c6fdaf0f14c",
-  "requirementId": "enforced-mode-cutover-runbook.3.1",
-  "hash": "1c6fdaf0f14c",
-  "verdict": "pass",
-  "summary": "Asserts replacement runner and dashboard launch in S04 before enforced task-service launch in S05.",
-  "timestamp": "2026-08-04T22:33:50.907Z"
-}

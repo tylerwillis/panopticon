@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.3.8--991c4f24a4a2",
-  "requirementId": "enforced-mode-cutover-runbook.3.8",
-  "hash": "991c4f24a4a2",
-  "verdict": "pass",
-  "summary": "The action must use a filename-only auth reference resolving beneath the secrets root; path and reference mutations fail validation.",
-  "timestamp": "2026-08-04T21:23:57.697Z"
-}

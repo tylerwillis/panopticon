@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.4.18--39e3de34bab9",
-  "requirementId": "enforced-mode-cutover-runbook.4.18",
-  "hash": "39e3de34bab9",
-  "verdict": "pass",
-  "summary": "Tests bind G09 to S07 evidence proving the canary ID was absent before enforcement and unchanged through live inspection.",
-  "timestamp": "2026-08-04T23:36:46.611Z"
-}

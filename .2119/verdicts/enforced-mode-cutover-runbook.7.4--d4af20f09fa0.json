@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.7.4--d4af20f09fa0",
-  "requirementId": "enforced-mode-cutover-runbook.7.4",
-  "hash": "d4af20f09fa0",
-  "verdict": "pass",
-  "summary": "Tests require exactly one pre-G09 claim release for the canary and place old-runner reclaim only in the later bulk-respawn step.",
-  "timestamp": "2026-08-04T22:36:48.126Z"
-}

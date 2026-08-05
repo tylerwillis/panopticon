@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.4.10--e67d69ab80bd",
-  "requirementId": "enforced-mode-cutover-runbook.4.10",
-  "hash": "e67d69ab80bd",
-  "verdict": "pass",
-  "summary": "The test requires old/new runner PID and start-time operands plus explicit PID and start-time comparisons in G10.",
-  "timestamp": "2026-08-04T22:34:05.034Z"
-}

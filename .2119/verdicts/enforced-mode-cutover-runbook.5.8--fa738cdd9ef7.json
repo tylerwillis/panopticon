@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.5.8--fa738cdd9ef7",
-  "requirementId": "enforced-mode-cutover-runbook.5.8",
-  "hash": "fa738cdd9ef7",
-  "verdict": "pass",
-  "summary": "Each Codex persistence, explicit-session, and real-CLI acceptance claim has exact independent evidence-level assertions and negative mutations.",
-  "timestamp": "2026-08-04T21:24:09.899Z"
-}

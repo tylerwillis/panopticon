@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.2.3--6a593345d270",
-  "requirementId": "enforced-mode-cutover-runbook.2.3",
-  "hash": "6a593345d270",
-  "verdict": "pass",
-  "summary": "Inventory scope, PID/start-time fields, discovered-versus-recorded completeness, and arbitrary credential-process omission are all tested.",
-  "timestamp": "2026-08-04T21:23:50.384Z"
-}

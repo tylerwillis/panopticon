@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.2.9--b490047e2643",
-  "requirementId": "enforced-mode-cutover-runbook.2.9",
-  "hash": "b490047e2643",
-  "verdict": "pass",
-  "summary": "The contract requires scoped-capability reversion false and rejects the nearest weakening mutation.",
-  "timestamp": "2026-08-04T21:23:53.245Z"
-}

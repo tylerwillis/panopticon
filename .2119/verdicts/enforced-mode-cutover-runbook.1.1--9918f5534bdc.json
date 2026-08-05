@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.1.1--9918f5534bdc",
-  "requirementId": "enforced-mode-cutover-runbook.1.1",
-  "hash": "9918f5534bdc",
-  "verdict": "pass",
-  "summary": "Fresh-context review found genuine nearest-violation coverage for enforced-mode-cutover-runbook.1.1.",
-  "timestamp": "2026-08-04T20:46:13.985Z"
-}

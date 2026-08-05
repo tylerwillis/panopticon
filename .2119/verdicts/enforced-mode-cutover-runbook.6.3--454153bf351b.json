@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.6.3--454153bf351b",
-  "requirementId": "enforced-mode-cutover-runbook.6.3",
-  "hash": "454153bf351b",
-  "verdict": "pass",
-  "summary": "The rollback contract forbids contradictory legacy-capability actions and rejects enabling one.",
-  "timestamp": "2026-08-04T21:24:11.988Z"
-}

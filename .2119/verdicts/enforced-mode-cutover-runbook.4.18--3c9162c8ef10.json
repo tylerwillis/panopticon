@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.18--3c9162c8ef10",
+  "requirementId": "enforced-mode-cutover-runbook.4.18",
+  "hash": "3c9162c8ef10",
+  "verdict": "pass",
+  "summary": "G09 rejects pre-enforcement IDs, equal/earlier start times, truncated baseline IDs, and freshness checks detached from the exact inspected container.",
+  "timestamp": "2026-08-05T05:11:45.040Z"
+}

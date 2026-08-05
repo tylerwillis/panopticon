@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.6.7--5b6de22d0062",
-  "requirementId": "enforced-mode-cutover-runbook.6.7",
-  "hash": "5b6de22d0062",
-  "verdict": "pass",
-  "summary": "S09 must append followups.md through gh issue comment 203, so omitting follow-up work or targeting another issue fails.",
-  "timestamp": "2026-08-04T22:34:13.310Z"
-}

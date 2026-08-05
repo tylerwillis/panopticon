@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.4.5--857feaf64655",
-  "requirementId": "enforced-mode-cutover-runbook.4.5",
-  "hash": "857feaf64655",
-  "verdict": "pass",
-  "summary": "G05 is pinned to read-token PUT on the canary turn endpoint with an exact 403 check.",
-  "timestamp": "2026-08-04T22:55:41.500Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.2.2--31f5b56e5c89",
-  "requirementId": "enforced-mode-cutover-runbook.2.2",
-  "hash": "31f5b56e5c89",
-  "verdict": "pass",
-  "summary": "Tests require create, respawn, and resume freezing before waiting for recorded in-flight stopping points.",
-  "timestamp": "2026-08-04T21:23:49.888Z"
-}

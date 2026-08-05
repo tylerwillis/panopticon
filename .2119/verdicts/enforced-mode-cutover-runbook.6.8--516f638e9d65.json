@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.6.8--516f638e9d65",
-  "requirementId": "enforced-mode-cutover-runbook.6.8",
-  "hash": "516f638e9d65",
-  "verdict": "pass",
-  "summary": "Duplicate issue creation for both issue 202 and 203 is independently forbidden and mutation-tested.",
-  "timestamp": "2026-08-04T21:24:14.535Z"
-}

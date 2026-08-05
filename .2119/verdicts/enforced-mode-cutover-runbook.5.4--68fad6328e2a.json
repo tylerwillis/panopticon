@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.5.4--68fad6328e2a",
-  "requirementId": "enforced-mode-cutover-runbook.5.4",
-  "hash": "68fad6328e2a",
-  "verdict": "pass",
-  "summary": "The runbook releases exactly one canary claim, verifies real-container capability and keepalive liveness, and only then invokes old-runner bulk reclaim.",
-  "timestamp": "2026-08-04T23:33:38.322Z"
-}

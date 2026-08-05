@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.5.5--ec1d0b977591",
-  "requirementId": "enforced-mode-cutover-runbook.5.5",
-  "hash": "ec1d0b977591",
-  "verdict": "pass",
-  "summary": "The test requires the post-reclaim check to classify every task as terminal, gated, live, or failed with nonempty task-specific lifecycle detail, rejecting each omitted disposition boundary.",
-  "timestamp": "2026-08-04T23:35:22.593Z"
-}

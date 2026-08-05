@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.4.17--3a0ef2c8ed7b",
-  "requirementId": "enforced-mode-cutover-runbook.4.17",
-  "hash": "3a0ef2c8ed7b",
-  "verdict": "pass",
-  "summary": "G09 uses docker exec against the selected canary container, so a non-container target fails the production command.",
-  "timestamp": "2026-08-04T22:55:42.031Z"
-}

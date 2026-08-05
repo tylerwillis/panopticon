@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.3.6--8e512643e200",
-  "requirementId": "enforced-mode-cutover-runbook.3.6",
-  "hash": "8e512643e200",
-  "verdict": "pass",
-  "summary": "Regular-file, non-symlink, owner, 0600 mode, and nonprinting behavior have positive and targeted negative tests.",
-  "timestamp": "2026-08-04T21:23:56.685Z"
-}

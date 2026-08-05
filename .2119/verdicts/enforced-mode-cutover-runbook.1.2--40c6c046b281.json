@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.1.2--40c6c046b281",
-  "requirementId": "enforced-mode-cutover-runbook.1.2",
-  "hash": "40c6c046b281",
-  "verdict": "pass",
-  "summary": "Exact S00-S09 IDs, titles, and ordering reject missing, reordered, or remapped procedure phases.",
-  "timestamp": "2026-08-04T22:55:40.985Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.4.18--9440e84c6c64",
-  "requirementId": "enforced-mode-cutover-runbook.4.18",
-  "hash": "9440e84c6c64",
-  "verdict": "pass",
-  "summary": "Ordering, sole canary claim release, post-enforcement placement, and recorded container identity jointly reject inspection of a pre-existing container.",
-  "timestamp": "2026-08-04T22:36:42.472Z"
-}

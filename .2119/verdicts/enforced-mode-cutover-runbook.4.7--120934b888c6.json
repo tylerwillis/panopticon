@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.4.7--120934b888c6",
-  "requirementId": "enforced-mode-cutover-runbook.4.7",
-  "hash": "120934b888c6",
-  "verdict": "pass",
-  "summary": "Tests require independent installed-board and authenticated-API sources with exact matching names, rejecting fixture or nonempty comparisons.",
-  "timestamp": "2026-08-04T21:24:06.000Z"
-}

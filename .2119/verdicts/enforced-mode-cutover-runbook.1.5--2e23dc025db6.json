@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.1.5--2e23dc025db6",
+  "requirementId": "enforced-mode-cutover-runbook.1.5",
+  "hash": "2e23dc025db6",
+  "verdict": "pass",
+  "summary": "Parsed every step and gate must carry a nonempty evidence classification; tests reject missing/unknown labels, require both categories, classify only S09 as authoring-tested, and require every production gate to remain production-only.",
+  "timestamp": "2026-08-05T04:56:46.844Z"
+}

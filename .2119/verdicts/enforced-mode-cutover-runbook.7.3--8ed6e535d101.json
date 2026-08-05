@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.7.3--8ed6e535d101",
+  "requirementId": "enforced-mode-cutover-runbook.7.3",
+  "hash": "8ed6e535d101",
+  "verdict": "pass",
+  "summary": "Tests reject reuse of the stopped runner ID, require NEW_RUNNER_ID in the replacement launch, and reject old-runner reclaim during the canary step.",
+  "timestamp": "2026-08-05T05:13:42.746Z"
+}

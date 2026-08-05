@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.3.9--083e3285ef2d",
-  "requirementId": "enforced-mode-cutover-runbook.3.9",
-  "hash": "083e3285ef2d",
-  "verdict": "pass",
-  "summary": "Exact scheme-host-port origin constraints and the restart environment value are asserted with near-miss origin mutations.",
-  "timestamp": "2026-08-04T21:23:58.183Z"
-}

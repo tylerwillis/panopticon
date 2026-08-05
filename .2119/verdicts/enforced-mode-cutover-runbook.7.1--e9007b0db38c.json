@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.7.1--e9007b0db38c",
-  "requirementId": "enforced-mode-cutover-runbook.7.1",
-  "hash": "e9007b0db38c",
-  "verdict": "pass",
-  "summary": "Tests reject nearest violations: undefined command heads in conditionals, substitutions, and tmux payloads, plus post-run uv options and unapproved uv targets; allowed repository entry points are also executed.",
-  "timestamp": "2026-08-05T03:46:29.415Z"
-}

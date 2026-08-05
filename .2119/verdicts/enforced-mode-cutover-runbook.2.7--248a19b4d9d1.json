@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.2.7--248a19b4d9d1",
-  "requirementId": "enforced-mode-cutover-runbook.2.7",
-  "hash": "248a19b4d9d1",
-  "verdict": "pass",
-  "summary": "The parsed contract requires legacy pt1 acceptance false and rejects the nearest compatibility-window mutation.",
-  "timestamp": "2026-08-04T21:23:52.298Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.4.12--ff66f91befd1",
-  "requirementId": "enforced-mode-cutover-runbook.4.12",
-  "hash": "ff66f91befd1",
-  "verdict": "pass",
-  "summary": "The preflight returned origin must equal the exact PWA origin; suffix and prefix-comparison near misses are rejected.",
-  "timestamp": "2026-08-04T21:24:00.087Z"
-}

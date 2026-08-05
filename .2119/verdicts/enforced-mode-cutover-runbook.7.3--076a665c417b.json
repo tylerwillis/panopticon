@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.7.3--076a665c417b",
-  "requirementId": "enforced-mode-cutover-runbook.7.3",
-  "hash": "076a665c417b",
-  "verdict": "pass",
-  "summary": "Tests require a distinct new runner ID, pass it to the replacement runner, and prevent old-runner reclaim through the canary step.",
-  "timestamp": "2026-08-04T22:34:16.608Z"
-}

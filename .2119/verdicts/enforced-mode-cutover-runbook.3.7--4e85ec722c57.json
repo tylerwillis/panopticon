@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.3.7--4e85ec722c57",
-  "requirementId": "enforced-mode-cutover-runbook.3.7",
-  "hash": "4e85ec722c57",
-  "verdict": "pass",
-  "summary": "Supervisor environment update and exact browser-origin value are asserted and nearest stale/wrong-value mutations are rejected.",
-  "timestamp": "2026-08-04T21:23:57.194Z"
-}

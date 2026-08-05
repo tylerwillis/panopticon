@@ -10,6 +10,7 @@ import re
 import shlex
 import stat
 import subprocess
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
@@ -311,8 +312,44 @@ def validate_enforced_mode_cutover_runbook(text: str) -> list[str]:
         violations.append("enforced-mode-cutover-runbook.4.18")
     s00 = next((item for item in plan.steps if item.item_id == "S00"), None)
     s04 = next((item for item in plan.steps if item.item_id == "S04"), None)
+    g08 = next((item for item in plan.gates if item.item_id == "G08"), None)
+    g10 = next((item for item in plan.gates if item.item_id == "G10"), None)
     g03 = next((item for item in plan.gates if item.item_id == "G03"), None)
     g11 = next((item for item in plan.gates if item.item_id == "G11"), None)
+    if (
+        s04 is None
+        or g08 is None
+        or "docker ps --quiet --filter label=panopticon.task" not in s04.check
+        or 'tee "$EVIDENCE_DIR/G08-running.txt"' not in s04.check
+        or 'test ! -s "$EVIDENCE_DIR/G08-running.txt"' not in s04.check
+        or s04.check.splitlines()[-3:]
+        != [
+            'docker ps --quiet --filter label=panopticon.task | tee "$EVIDENCE_DIR/G08-running.txt"',
+            'test ! -s "$EVIDENCE_DIR/G08-running.txt"',
+            "printf 'G08: PASS\\n' >> \"$EVIDENCE_DIR/gates.txt\"",
+        ]
+        or "docker ps --quiet --filter label=panopticon.task" not in g08.action
+        or 'test ! -s "$EVIDENCE_DIR/G08-running.txt"' not in g08.check
+    ):
+        violations.append("enforced-mode-cutover-runbook.4.8")
+    if (
+        g10 is None
+        or 'test "$NEW_RUNNER_PID" != "$OLD_RUNNER_PID"' not in g10.action
+        or 'cmp --silent "$EVIDENCE_DIR/S01-client-identities-before.txt"' not in g10.action
+        or 'test "$(ps -o lstart= -p "$NEW_RUNNER_PID"' not in g10.check
+        or '!= "$OLD_RUNNER_START"' not in g10.check
+        or 'assert-process-replaced "$OLD_RUNNER_PID" "$OLD_RUNNER_START"' not in g10.check
+    ):
+        violations.append("enforced-mode-cutover-runbook.4.10")
+    if (
+        g11 is None
+        or 'test -n "$OLD_RUNNER_START"' not in g11.action
+        or 'test -n "$OLD_DASHBOARD_START"' not in g11.action
+        or 'assert-process-replaced "$OLD_RUNNER_PID" "$OLD_RUNNER_START"' not in g11.check
+        or 'assert-process-replaced "$OLD_DASHBOARD_PID" "$OLD_DASHBOARD_START"' not in g11.check
+        or 'assert-dashboard-process "$NEW_DASHBOARD_PID" "$NEW_DASHBOARD_START"' not in g11.check
+    ):
+        violations.append("enforced-mode-cutover-runbook.4.11")
     if (
         s00 is None
         or s01 is None
@@ -371,6 +408,8 @@ def inspect_cutover_credential_file(
 def _main() -> int:
     parser = argparse.ArgumentParser(description="Offline enforced-mode cutover checks")
     subparsers = parser.add_subparsers(dest="command", required=True)
+    validate_parser = subparsers.add_parser("validate-runbook")
+    validate_parser.add_argument("path", type=Path)
     inspect_parser = subparsers.add_parser("inspect-credential-file")
     inspect_parser.add_argument("path", type=Path)
     fresh_parser = subparsers.add_parser("assert-fresh-container")
@@ -401,7 +440,13 @@ def _main() -> int:
     started_parser.add_argument("container_started")
     started_parser.add_argument("enforcement_started")
     arguments = parser.parse_args()
-    if arguments.command == "inspect-credential-file":
+    if arguments.command == "validate-runbook":
+        violations = validate_enforced_mode_cutover_runbook(arguments.path.read_text())
+        if violations:
+            for violation in violations:
+                print(violation, file=sys.stderr)
+            return 1
+    elif arguments.command == "inspect-credential-file":
         inspect_cutover_credential_file(arguments.path)
     elif arguments.command == "assert-fresh-container":
         assert_fresh_container_id(arguments.container_id, arguments.inventory_path)

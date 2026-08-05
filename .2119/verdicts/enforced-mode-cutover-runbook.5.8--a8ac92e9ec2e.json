@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.5.8--a8ac92e9ec2e",
-  "requirementId": "enforced-mode-cutover-runbook.5.8",
-  "hash": "a8ac92e9ec2e",
-  "verdict": "pass",
-  "summary": "The Codex table row separately labels volume persistence and explicit-session selection as Unit and real-CLI acceptance as Production-only.",
-  "timestamp": "2026-08-04T22:36:43.526Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.1.6--5aba805176f4",
-  "requirementId": "enforced-mode-cutover-runbook.1.6",
-  "hash": "5aba805176f4",
-  "verdict": "pass",
-  "summary": "Tests verify supplied step and gate action and check parsing, structural-ID failures, and acceptance of non-byte-identical valid edits.",
-  "timestamp": "2026-08-05T00:41:34.308Z"
-}

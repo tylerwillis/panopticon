@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.3.3--73afd7c5d386",
-  "requirementId": "enforced-mode-cutover-runbook.3.3",
-  "hash": "73afd7c5d386",
-  "verdict": "pass",
-  "summary": "Every inventoried survivor must receive restarted-or-confirmed-dead disposition based on original PID and start time.",
-  "timestamp": "2026-08-04T21:23:55.197Z"
-}

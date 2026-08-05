@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.4.4--31da35be39b2",
-  "requirementId": "enforced-mode-cutover-runbook.4.4",
-  "hash": "31da35be39b2",
-  "verdict": "pass",
-  "summary": "G04 requires default GET on /tasks with the read token and exact validated PWA origin, and explicitly fails on either 401 or 403.",
-  "timestamp": "2026-08-04T22:39:11.944Z"
-}

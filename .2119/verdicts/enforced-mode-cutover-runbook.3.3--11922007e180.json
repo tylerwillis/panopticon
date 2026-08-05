@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.3.3--11922007e180",
-  "requirementId": "enforced-mode-cutover-runbook.3.3",
-  "hash": "11922007e180",
-  "verdict": "pass",
-  "summary": "Coverage rejects missing pre-stop runner recheck plus runner/dashboard death checks, and helper tests fail same PID/start identities so original processes must be restarted or proven dead.",
-  "timestamp": "2026-08-05T01:57:56.951Z"
-}

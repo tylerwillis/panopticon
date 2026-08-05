@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.5.5--45f0149fd690",
-  "requirementId": "enforced-mode-cutover-runbook.5.5",
-  "hash": "45f0149fd690",
-  "verdict": "pass",
-  "summary": "The S08 parsed check requires every task to be terminal, live, or failed with nonempty lifecycle_detail, enforcing task-specific failure disposition.",
-  "timestamp": "2026-08-04T22:34:10.777Z"
-}

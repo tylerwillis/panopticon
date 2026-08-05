@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.5.5--26f9b5f7a6d6",
-  "requirementId": "enforced-mode-cutover-runbook.5.5",
-  "hash": "26f9b5f7a6d6",
-  "verdict": "pass",
-  "summary": "Every intended nonterminal task must be live or have a recorded task-specific failure; scope and disposition near misses are rejected.",
-  "timestamp": "2026-08-04T21:24:09.414Z"
-}

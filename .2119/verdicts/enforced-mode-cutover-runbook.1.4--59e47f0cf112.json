@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.1.4--59e47f0cf112",
-  "requirementId": "enforced-mode-cutover-runbook.1.4",
-  "hash": "59e47f0cf112",
-  "verdict": "pass",
-  "summary": "Asserts exact ordered S00-S09 and G01-G11 identifiers plus PR 163 and issue 203 gate classifications.",
-  "timestamp": "2026-08-04T22:33:44.612Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.1.4--72a54bdbbd04",
-  "requirementId": "enforced-mode-cutover-runbook.1.4",
-  "hash": "72a54bdbbd04",
-  "verdict": "pass",
-  "summary": "Exact ordered step and gate ranges plus the PR-163 and issue-203 partitions are asserted and mutation-rejected.",
-  "timestamp": "2026-08-04T21:23:47.979Z"
-}

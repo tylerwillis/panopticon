@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.6.9--a62a4a428253",
-  "requirementId": "enforced-mode-cutover-runbook.6.9",
-  "hash": "a62a4a428253",
-  "verdict": "pass",
-  "summary": "The isolated rollback prose says not to expect killed PIDs to return and contains no container restart command.",
-  "timestamp": "2026-08-04T22:36:46.578Z"
-}

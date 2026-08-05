@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.5.4--5afd7ef6660f",
-  "requirementId": "enforced-mode-cutover-runbook.5.4",
-  "hash": "5afd7ef6660f",
-  "verdict": "pass",
-  "summary": "S07 requires exactly one real canary and G09 completion before S08 bulk respawn; dependency-removal mutations fail.",
-  "timestamp": "2026-08-04T21:24:08.920Z"
-}

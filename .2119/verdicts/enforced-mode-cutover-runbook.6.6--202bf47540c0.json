@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.6.6--202bf47540c0",
-  "requirementId": "enforced-mode-cutover-runbook.6.6",
-  "hash": "202bf47540c0",
-  "verdict": "pass",
-  "summary": "All 10 executable steps and 11 gates require a nonempty evidence reason, an allowed Authoring-tested/Production-only prefix, and the expected per-item classification.",
-  "timestamp": "2026-08-05T03:30:21.511Z"
-}

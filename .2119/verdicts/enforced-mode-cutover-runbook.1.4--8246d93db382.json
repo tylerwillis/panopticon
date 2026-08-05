@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.1.4--8246d93db382",
+  "requirementId": "enforced-mode-cutover-runbook.1.4",
+  "hash": "8246d93db382",
+  "verdict": "pass",
+  "summary": "Exact ordered ID assertions reject missing, duplicated, mistyped, or reordered S00-S09/G01-G11 entries, and explicit provenance assertions reject altered PR #163 G01-G07 or issue #203 G08-G11 attribution.",
+  "timestamp": "2026-08-05T04:55:32.571Z"
+}

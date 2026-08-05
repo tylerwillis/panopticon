@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.6.1--d222ee54d5df",
-  "requirementId": "enforced-mode-cutover-runbook.6.1",
-  "hash": "d222ee54d5df",
-  "verdict": "pass",
-  "summary": "The rollback section is isolated and tests require all six trigger categories, including the combined security/browser gate category.",
-  "timestamp": "2026-08-04T22:36:44.026Z"
-}

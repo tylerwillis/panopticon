@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.5.8--285ba8facd71",
+  "requirementId": "enforced-mode-cutover-runbook.5.8",
+  "hash": "285ba8facd71",
+  "verdict": "pass",
+  "summary": "Codex has three distinct evidence cells; tests reject merged, omitted, misclassified, or multiply classified unit/unit/live-cutover entries.",
+  "timestamp": "2026-08-05T05:12:24.889Z"
+}

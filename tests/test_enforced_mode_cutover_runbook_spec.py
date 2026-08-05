@@ -18,6 +18,31 @@ from panopticon.core.cutover_runbook import (
 ROOT = Path(__file__).parents[1]
 
 
+# 2119: enforced-mode-cutover-runbook.1.6
+def test_validate_runbook_cli_checks_the_supplied_document(tmp_path: Path) -> None:
+    supplied = tmp_path / "operator-runbook.md"
+    supplied.write_text(RUNBOOK_PATH.read_text())
+    command = [
+        "uv",
+        "run",
+        "python",
+        "-m",
+        "panopticon.core.cutover_runbook",
+        "validate-runbook",
+        str(supplied),
+    ]
+    valid = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, check=False)
+    assert valid.returncode == 0
+    assert valid.stderr == ""
+
+    supplied.write_text(
+        RUNBOOK_PATH.read_text().replace('test ! -s "$EVIDENCE_DIR/G08-running.txt"', "true", 1)
+    )
+    invalid = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, check=False)
+    assert invalid.returncode == 1
+    assert "enforced-mode-cutover-runbook.4.8" in invalid.stderr
+
+
 def _command_heads(shell: str) -> set[str]:
     heads: set[str] = set()
     in_python = False
@@ -277,7 +302,6 @@ def test_prerequisite_quiescence_inventory_and_direct_drain_are_executable() -> 
 
 
 # 2119: enforced-mode-cutover-runbook.3.1, enforced-mode-cutover-runbook.3.2
-# 2119: enforced-mode-cutover-runbook.3.3, enforced-mode-cutover-runbook.3.4
 # 2119: enforced-mode-cutover-runbook.3.5, enforced-mode-cutover-runbook.3.6
 # 2119: enforced-mode-cutover-runbook.3.7, enforced-mode-cutover-runbook.3.8
 # 2119: enforced-mode-cutover-runbook.3.9, enforced-mode-cutover-runbook.3.10
@@ -316,10 +340,8 @@ def test_clients_are_replaced_before_exported_enforced_service_launch() -> None:
 
 # 2119: enforced-mode-cutover-runbook.4.1, enforced-mode-cutover-runbook.4.2
 # 2119: enforced-mode-cutover-runbook.4.3, enforced-mode-cutover-runbook.4.4
-# 2119: enforced-mode-cutover-runbook.4.5, enforced-mode-cutover-runbook.4.6
-# 2119: enforced-mode-cutover-runbook.4.7, enforced-mode-cutover-runbook.4.8
-# 2119: enforced-mode-cutover-runbook.4.9, enforced-mode-cutover-runbook.4.10
-# 2119: enforced-mode-cutover-runbook.4.11, enforced-mode-cutover-runbook.4.12
+# 2119: enforced-mode-cutover-runbook.4.6, enforced-mode-cutover-runbook.4.7
+# 2119: enforced-mode-cutover-runbook.4.9, enforced-mode-cutover-runbook.4.12
 # 2119: enforced-mode-cutover-runbook.4.13, enforced-mode-cutover-runbook.4.14
 # 2119: enforced-mode-cutover-runbook.4.15, enforced-mode-cutover-runbook.4.16
 # 2119: enforced-mode-cutover-runbook.4.17, enforced-mode-cutover-runbook.4.18
@@ -366,6 +388,58 @@ def test_all_eleven_gates_assert_the_real_boundary() -> None:
     assert 'ps -o lstart= -p "$OLD_RUNNER_PID"' in gates["G11"]
     assert 'docker exec "$CANARY_CONTAINER_ID"' in gates["G09"]
     assert 'docker exec "$CANARY_CONTAINER"' not in gates["G09"]
+
+
+# 2119: enforced-mode-cutover-runbook.3.3
+def test_original_long_lived_clients_have_identity_bound_dispositions() -> None:
+    g11 = _item("G11")
+    for process in ("RUNNER", "DASHBOARD"):
+        assert f'test -n "$OLD_{process}_START"' in g11
+        assert f'assert-process-replaced "$OLD_{process}_PID" "$OLD_{process}_START"' in g11
+
+
+# 2119: enforced-mode-cutover-runbook.3.4
+def test_newly_launched_commands_are_not_survivor_evidence() -> None:
+    assert "freshly launched CLI proves nothing" in _item("S02")
+    g11 = _item("G11")
+    assert 'assert-process-replaced "$OLD_RUNNER_PID" "$OLD_RUNNER_START"' in g11
+    assert 'assert-process-replaced "$OLD_DASHBOARD_PID" "$OLD_DASHBOARD_START"' in g11
+
+
+# 2119: enforced-mode-cutover-runbook.4.10
+def test_g10_compares_runner_pid_and_start_time() -> None:
+    g10 = _item("G10")
+    assert 'test "$NEW_RUNNER_PID" != "$OLD_RUNNER_PID"' in g10
+    assert 'test "$(ps -o lstart= -p "$NEW_RUNNER_PID"' in g10
+    assert '!= "$OLD_RUNNER_START"' in g10
+    assert 'assert-process-replaced "$OLD_RUNNER_PID" "$OLD_RUNNER_START"' in g10
+    text = RUNBOOK_PATH.read_text()
+    parsed_g10 = parse_enforced_mode_cutover_runbook(text).gates[9]
+    mutated = text.replace(
+        parsed_g10.check,
+        parsed_g10.check.replace(
+            'test "$(ps -o lstart= -p "$NEW_RUNNER_PID" | sed \'s/^ *//\')" = "$NEW_RUNNER_START"',
+            "true",
+            1,
+        ),
+        1,
+    )
+    assert "enforced-mode-cutover-runbook.4.10" in validate_enforced_mode_cutover_runbook(mutated)
+
+
+# 2119: enforced-mode-cutover-runbook.4.11
+def test_g11_reconciles_both_original_process_identities() -> None:
+    g11 = _item("G11")
+    for process in ("RUNNER", "DASHBOARD"):
+        assert f'test -n "$OLD_{process}_START"' in g11
+        assert f'assert-process-replaced "$OLD_{process}_PID" "$OLD_{process}_START"' in g11
+    text = RUNBOOK_PATH.read_text()
+    parsed_g11 = parse_enforced_mode_cutover_runbook(text).gates[10]
+    mutated = text.replace(
+        parsed_g11.action,
+        parsed_g11.action.replace('test -n "$OLD_DASHBOARD_START"', "true", 1),
+    )
+    assert "enforced-mode-cutover-runbook.4.11" in validate_enforced_mode_cutover_runbook(mutated)
 
 
 # 2119: enforced-mode-cutover-runbook.5.3, enforced-mode-cutover-runbook.5.4

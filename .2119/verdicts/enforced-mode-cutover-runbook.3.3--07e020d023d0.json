@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.3.3--07e020d023d0",
-  "requirementId": "enforced-mode-cutover-runbook.3.3",
-  "hash": "07e020d023d0",
-  "verdict": "pass",
-  "summary": "Tests reject missing runner and dashboard replacement checks and verify original PID/start-time identity must no longer be alive.",
-  "timestamp": "2026-08-05T00:41:34.811Z"
-}

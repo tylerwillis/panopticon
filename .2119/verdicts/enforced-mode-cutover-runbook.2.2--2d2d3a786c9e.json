@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.2.2--2d2d3a786c9e",
-  "requirementId": "enforced-mode-cutover-runbook.2.2",
-  "hash": "2d2d3a786c9e",
-  "verdict": "pass",
-  "summary": "Both runner and dashboard shutdowns are asserted before the stopping-point loop, rejecting either omitted freeze and either late freeze.",
-  "timestamp": "2026-08-04T22:39:08.801Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.2.3--2d3c58509f0d",
-  "requirementId": "enforced-mode-cutover-runbook.2.3",
-  "hash": "2d3c58509f0d",
-  "verdict": "pass",
-  "summary": "Asserts pre-stop docker ID/name/start-time inventory and runner/dashboard PID plus process-start-time evidence.",
-  "timestamp": "2026-08-04T22:33:47.239Z"
-}

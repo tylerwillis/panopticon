@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.4.18--9c18dc9f51ac",
-  "requirementId": "enforced-mode-cutover-runbook.4.18",
-  "hash": "9c18dc9f51ac",
-  "verdict": "pass",
-  "summary": "Tests reject pre-enforcement container IDs and missing or truncated freshness comparisons, while binding G09's inspected canary to that evidence.",
-  "timestamp": "2026-08-05T00:14:19.013Z"
-}

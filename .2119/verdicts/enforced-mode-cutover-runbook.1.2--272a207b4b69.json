@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.1.2--272a207b4b69",
-  "requirementId": "enforced-mode-cutover-runbook.1.2",
-  "hash": "272a207b4b69",
-  "verdict": "pass",
-  "summary": "Asserts the single exact S00-S09 sequence and each required procedure purpose in order.",
-  "timestamp": "2026-08-04T22:33:43.583Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.5.4--f5dbafb9af23",
-  "requirementId": "enforced-mode-cutover-runbook.5.4",
-  "hash": "f5dbafb9af23",
-  "verdict": "pass",
-  "summary": "Tests enforce one canary-only claim release, real-container capability and liveness checks, then bulk reclaim in S08.",
-  "timestamp": "2026-08-04T22:55:43.101Z"
-}

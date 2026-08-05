@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.6.10--e1246319aa36",
-  "requirementId": "enforced-mode-cutover-runbook.6.10",
-  "hash": "e1246319aa36",
-  "verdict": "pass",
-  "summary": "Rollback ordering requires service restoration before client restart while containers remain stopped until the whole rollback procedure completes.",
-  "timestamp": "2026-08-04T22:36:47.087Z"
-}

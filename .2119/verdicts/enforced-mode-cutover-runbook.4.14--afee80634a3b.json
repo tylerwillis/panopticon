@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.4.14--afee80634a3b",
-  "requirementId": "enforced-mode-cutover-runbook.4.14",
-  "hash": "afee80634a3b",
-  "verdict": "pass",
-  "summary": "The parsed G06 loop rejects the credentials header in each of the two response files.",
-  "timestamp": "2026-08-04T22:36:40.913Z"
-}

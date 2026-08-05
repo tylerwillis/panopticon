@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.4.15--57f548f9fca4",
-  "requirementId": "enforced-mode-cutover-runbook.4.15",
-  "hash": "57f548f9fca4",
-  "verdict": "pass",
-  "summary": "Combined S07/G09 assertions require initial and post-sleep live status plus unchanged container identity across the five-second keepalive.",
-  "timestamp": "2026-08-04T22:36:41.417Z"
-}

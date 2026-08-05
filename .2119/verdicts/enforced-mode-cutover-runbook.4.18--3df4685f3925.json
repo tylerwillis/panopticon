@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.4.18--3df4685f3925",
-  "requirementId": "enforced-mode-cutover-runbook.4.18",
-  "hash": "3df4685f3925",
-  "verdict": "pass",
-  "summary": "Tests reject pre-enforcement IDs, equal or earlier start times, truncated inventories, swapped timestamps, and inspecting a different container.",
-  "timestamp": "2026-08-05T00:56:09.022Z"
-}

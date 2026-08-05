@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.4.18--d24fe23943a1",
-  "requirementId": "enforced-mode-cutover-runbook.4.18",
-  "hash": "d24fe23943a1",
-  "verdict": "pass",
-  "summary": "G09 coverage rejects stale pre-enforcement IDs, non-post-enforcement start times, truncated inventory, and inspecting a different container than the liveness-verified canary.",
-  "timestamp": "2026-08-05T01:33:03.396Z"
-}

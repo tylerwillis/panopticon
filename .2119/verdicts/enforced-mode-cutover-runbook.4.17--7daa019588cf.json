@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.4.17--7daa019588cf",
-  "requirementId": "enforced-mode-cutover-runbook.4.17",
-  "hash": "7daa019588cf",
-  "verdict": "pass",
-  "summary": "G09 uses docker inspect and docker exec against the named canary plus live API evidence, so a non-container substitute cannot satisfy the prescribed production gate.",
-  "timestamp": "2026-08-04T23:33:37.292Z"
-}

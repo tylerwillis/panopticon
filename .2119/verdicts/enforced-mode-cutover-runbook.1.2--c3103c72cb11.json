@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.1.2--c3103c72cb11",
+  "requirementId": "enforced-mode-cutover-runbook.1.2",
+  "hash": "c3103c72cb11",
+  "verdict": "pass",
+  "summary": "Exact parsed S00-S09 IDs and purpose-bearing titles reject missing, extra, reordered, or category-swapped phases across all ten required mappings.",
+  "timestamp": "2026-08-05T05:01:07.762Z"
+}

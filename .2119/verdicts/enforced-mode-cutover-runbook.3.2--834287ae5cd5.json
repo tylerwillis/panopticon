@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.3.2--834287ae5cd5",
-  "requirementId": "enforced-mode-cutover-runbook.3.2",
-  "hash": "834287ae5cd5",
-  "verdict": "pass",
-  "summary": "Tests require active-runner PID/start-time capture and a changed pair across restart, rejecting reordered or partial comparisons.",
-  "timestamp": "2026-08-04T21:23:54.732Z"
-}

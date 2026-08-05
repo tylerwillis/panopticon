@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.4.9--2e40d563f7ae",
-  "requirementId": "enforced-mode-cutover-runbook.4.9",
-  "hash": "2e40d563f7ae",
-  "verdict": "pass",
-  "summary": "The gate test requires the executable comparison operand to be exactly ptc1., rejecting a neighboring prefix value.",
-  "timestamp": "2026-08-04T22:34:04.512Z"
-}

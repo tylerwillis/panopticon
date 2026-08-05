@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.2.4--722e8a8a52f3",
-  "requirementId": "enforced-mode-cutover-runbook.2.4",
-  "hash": "722e8a8a52f3",
-  "verdict": "pass",
-  "summary": "Asserts all captured task containers are stopped, a direct empty-fleet check follows, and both precede enforced service restart.",
-  "timestamp": "2026-08-04T22:33:47.742Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.3.5--1916776aa23d",
-  "requirementId": "enforced-mode-cutover-runbook.3.5",
-  "hash": "1916776aa23d",
-  "verdict": "pass",
-  "summary": "The exact enforced assignment is required before launch and is propagated into the service child, rejecting a wrong mode or late export.",
-  "timestamp": "2026-08-04T22:39:09.319Z"
-}

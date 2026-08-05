@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.2.8--bed227d9bc84",
-  "requirementId": "enforced-mode-cutover-runbook.2.8",
-  "hash": "bed227d9bc84",
-  "verdict": "pass",
-  "summary": "The contract requires live credential remint/replacement false and mutation coverage rejects the forbidden strategy.",
-  "timestamp": "2026-08-04T21:23:52.762Z"
-}

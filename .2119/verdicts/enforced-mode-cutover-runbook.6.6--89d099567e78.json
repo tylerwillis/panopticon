@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.6.6--89d099567e78",
-  "requirementId": "enforced-mode-cutover-runbook.6.6",
-  "hash": "89d099567e78",
-  "verdict": "pass",
-  "summary": "Parsing requires every step and gate evidence section, and tests reject absent, empty, or unclassified reasons while enforcing the production-only versus authoring-tested classification.",
-  "timestamp": "2026-08-04T23:33:39.408Z"
-}

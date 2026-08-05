@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.7.1--6c44f6b1d495",
-  "requirementId": "enforced-mode-cutover-runbook.7.1",
-  "hash": "6c44f6b1d495",
-  "verdict": "pass",
-  "summary": "All parsed command heads are allowlisted standard tools, known placeholder helpers are rejected, and every repository-owned entry point is executed with --help.",
-  "timestamp": "2026-08-04T22:36:47.597Z"
-}

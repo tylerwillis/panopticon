@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.6.7--3df357333c68",
-  "requirementId": "enforced-mode-cutover-runbook.6.7",
-  "hash": "3df357333c68",
-  "verdict": "pass",
-  "summary": "Follow-up work must use an executable gh issue comment to issue 203; a local-only action is rejected.",
-  "timestamp": "2026-08-04T21:24:14.055Z"
-}

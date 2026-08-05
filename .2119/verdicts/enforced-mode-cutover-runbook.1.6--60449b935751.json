@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.1.6--60449b935751",
-  "requirementId": "enforced-mode-cutover-runbook.1.6",
-  "hash": "60449b935751",
-  "verdict": "pass",
-  "summary": "Mutates supplied text to prove structural parsing of step and gate blocks, specific IDs, and tolerance of unrelated byte changes.",
-  "timestamp": "2026-08-04T22:33:45.673Z"
-}

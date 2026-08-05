@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.4.16--22c428a02cb6",
-  "requirementId": "enforced-mode-cutover-runbook.4.16",
-  "hash": "22c428a02cb6",
-  "verdict": "pass",
-  "summary": "Capability inspection accepts only docker-exec reading the mounted credential and rejects generated, environment, copied, fixture, and existence-only sources.",
-  "timestamp": "2026-08-04T21:24:02.069Z"
-}

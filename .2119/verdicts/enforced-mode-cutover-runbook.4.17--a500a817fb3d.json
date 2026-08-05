@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.4.17--a500a817fb3d",
-  "requirementId": "enforced-mode-cutover-runbook.4.17",
-  "hash": "a500a817fb3d",
-  "verdict": "pass",
-  "summary": "G09 coverage rejects fabricated capability reads and fabricated inspect output, so a non-real container substitute would fail review.",
-  "timestamp": "2026-08-05T02:10:00.232Z"
-}

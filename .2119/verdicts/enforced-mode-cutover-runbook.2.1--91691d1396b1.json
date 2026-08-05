@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.2.1--91691d1396b1",
-  "requirementId": "enforced-mode-cutover-runbook.2.1",
-  "hash": "91691d1396b1",
-  "verdict": "pass",
-  "summary": "Ancestor, exact closing SHA, repository workflow, green-run, and pre-quiescence failure behavior have independent positive and negative coverage.",
-  "timestamp": "2026-08-04T21:23:49.396Z"
-}

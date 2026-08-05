@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.1.6--b27b52adbb8c",
-  "requirementId": "enforced-mode-cutover-runbook.1.6",
-  "hash": "b27b52adbb8c",
-  "verdict": "pass",
-  "summary": "The validator consumes the supplied Markdown shell blocks, accepts unrelated valid edits, and rejects missing step or shell structure with the specific requirement ID.",
-  "timestamp": "2026-08-04T23:33:36.231Z"
-}

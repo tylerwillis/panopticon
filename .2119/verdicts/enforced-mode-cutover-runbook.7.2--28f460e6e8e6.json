@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.7.2--28f460e6e8e6",
-  "requirementId": "enforced-mode-cutover-runbook.7.2",
-  "hash": "28f460e6e8e6",
-  "verdict": "pass",
-  "summary": "S05 exports all three enforced settings before launch and passes each explicitly into the tmux service child.",
-  "timestamp": "2026-08-04T22:55:44.692Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.4.3--cdadbfd1b3bc",
-  "requirementId": "enforced-mode-cutover-runbook.4.3",
-  "hash": "cdadbfd1b3bc",
-  "verdict": "pass",
-  "summary": "Authenticated liveness, recorded active-runner identity, both identity fields, same-runner result, and live state each have negative controls.",
-  "timestamp": "2026-08-04T21:24:04.001Z"
-}

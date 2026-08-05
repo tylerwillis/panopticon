@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.1.2--f8c97488a2ea",
-  "requirementId": "enforced-mode-cutover-runbook.1.2",
-  "hash": "f8c97488a2ea",
-  "verdict": "pass",
-  "summary": "Tests require exactly S00–S09 and compare every step’s semantic effect against the complete ordered ten-stage sequence.",
-  "timestamp": "2026-08-04T21:23:47.055Z"
-}

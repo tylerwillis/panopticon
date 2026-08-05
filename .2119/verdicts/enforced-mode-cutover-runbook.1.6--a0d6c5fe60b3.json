@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.1.6--a0d6c5fe60b3",
-  "requirementId": "enforced-mode-cutover-runbook.1.6",
-  "hash": "a0d6c5fe60b3",
-  "verdict": "pass",
-  "summary": "Parser and validator tests reject mutated step/gate shell structure by requirement ID while allowing non-structural text edits, so byte-equality shortcuts would fail.",
-  "timestamp": "2026-08-05T02:56:36.924Z"
-}

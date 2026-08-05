@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.3.8--942bc0f567a7",
-  "requirementId": "enforced-mode-cutover-runbook.3.8",
-  "hash": "942bc0f567a7",
-  "verdict": "pass",
-  "summary": "Tests require a basename-only credential name, its secrets-directory path setup, the exact pre-launch export, and child propagation.",
-  "timestamp": "2026-08-04T22:39:09.831Z"
-}

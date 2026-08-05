@@ -2,6 +2,7 @@ from panopticon.core.cutover_runbook import (
     RUNBOOK_PATH,
     CutoverPlan,
     parse_enforced_mode_cutover_runbook,
+    validate_enforced_mode_cutover_runbook,
 )
 
 
@@ -17,7 +18,7 @@ def test_both_new_work_clients_stop_before_the_quiescence_wait() -> None:
     assert action.index("kill-session -t dashboard") < wait
 
 
-# 2119: enforced-mode-cutover-runbook.1.2, enforced-mode-cutover-runbook.4.5
+# 2119: enforced-mode-cutover-runbook.1.2
 # 2119: enforced-mode-cutover-runbook.5.4
 def test_canary_inputs_and_all_gate_pass_records_are_scheduled() -> None:
     plan = _plan()
@@ -81,11 +82,44 @@ def test_g07_fetches_the_installed_phone_board_source() -> None:
 # 2119: enforced-mode-cutover-runbook.4.8
 def test_g08_is_the_last_s04_check_before_s05() -> None:
     plan = _plan()
-    assert plan.steps[4].check.splitlines()[-2:] == [
+    assert plan.steps[4].check.splitlines()[-3:] == [
+        'docker ps --quiet --filter label=panopticon.task | tee "$EVIDENCE_DIR/G08-running.txt"',
         'test ! -s "$EVIDENCE_DIR/G08-running.txt"',
         "printf 'G08: PASS\\n' >> \"$EVIDENCE_DIR/gates.txt\"",
     ]
     assert plan.steps[5].title == "Start the task service with exported enforced configuration"
+    mutated = RUNBOOK_PATH.read_text().replace(
+        'test ! -s "$EVIDENCE_DIR/G08-running.txt"', "true", 1
+    )
+    assert "enforced-mode-cutover-runbook.4.8" in validate_enforced_mode_cutover_runbook(mutated)
+    stale_file_mutation = RUNBOOK_PATH.read_text().replace(
+        "docker ps --quiet --filter label=panopticon.task",
+        'cat "$EVIDENCE_DIR/G08-running.txt"',
+    )
+    assert "enforced-mode-cutover-runbook.4.8" in validate_enforced_mode_cutover_runbook(
+        stale_file_mutation
+    )
+    text = RUNBOOK_PATH.read_text()
+    g08 = parse_enforced_mode_cutover_runbook(text).gates[7]
+    g08_only_mutation = text.replace(
+        g08.action,
+        g08.action.replace(
+            "docker ps --quiet --filter label=panopticon.task",
+            'cat "$EVIDENCE_DIR/G08-running.txt"',
+            1,
+        ),
+    )
+    assert "enforced-mode-cutover-runbook.4.8" in validate_enforced_mode_cutover_runbook(
+        g08_only_mutation
+    )
+    hidden_running_mutation = RUNBOOK_PATH.read_text().replace(
+        'test ! -s "$EVIDENCE_DIR/G08-running.txt"',
+        ': > "$EVIDENCE_DIR/G08-running.txt"\ntest ! -s "$EVIDENCE_DIR/G08-running.txt"',
+        1,
+    )
+    assert "enforced-mode-cutover-runbook.4.8" in validate_enforced_mode_cutover_runbook(
+        hidden_running_mutation
+    )
 
 
 # 2119: enforced-mode-cutover-runbook.4.18, enforced-mode-cutover-runbook.7.4

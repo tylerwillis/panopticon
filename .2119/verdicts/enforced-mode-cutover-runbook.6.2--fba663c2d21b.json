@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.6.2--fba663c2d21b",
-  "requirementId": "enforced-mode-cutover-runbook.6.2",
-  "hash": "fba663c2d21b",
-  "verdict": "pass",
-  "summary": "The isolated rollback prose is order-checked so keeping every container stopped precedes restoration of last-known-good service configuration.",
-  "timestamp": "2026-08-04T22:36:44.525Z"
-}

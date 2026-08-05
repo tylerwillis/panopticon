@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.4.6--41884950a60e",
-  "requirementId": "enforced-mode-cutover-runbook.4.6",
-  "hash": "41884950a60e",
-  "verdict": "pass",
-  "summary": "G06 must contain exactly two independent requests, OPTIONS then actual, with the exact validated origin bound to both and exact echoed-origin checks.",
-  "timestamp": "2026-08-04T22:39:12.540Z"
-}

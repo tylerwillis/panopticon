@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.6.4--34c64abb91e5",
-  "requirementId": "enforced-mode-cutover-runbook.6.4",
-  "hash": "34c64abb91e5",
-  "verdict": "pass",
-  "summary": "Each named production behavior must remain explicitly unproven until cutover recording; claims of proof are individually rejected.",
-  "timestamp": "2026-08-04T21:24:12.515Z"
-}

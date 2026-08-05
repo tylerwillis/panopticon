@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.3.10--da3e6cb005c8",
-  "requirementId": "enforced-mode-cutover-runbook.3.10",
-  "hash": "da3e6cb005c8",
-  "verdict": "pass",
-  "summary": "Behavioral tests reject empty, non-array, and overlapping token arrays without output, while parsed phone gates derive and use the read token.",
-  "timestamp": "2026-08-04T22:34:13.933Z"
-}

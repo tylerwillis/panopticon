@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.2.9--b2169a6d8b4f",
-  "requirementId": "enforced-mode-cutover-runbook.2.9",
-  "hash": "b2169a6d8b4f",
-  "verdict": "pass",
-  "summary": "Explicit rejection plus absence of revert instructions from every parsed executable block covers the document prohibition.",
-  "timestamp": "2026-08-04T23:36:45.597Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.6.3--adb2dfa0cb98",
-  "requirementId": "enforced-mode-cutover-runbook.6.3",
-  "hash": "adb2dfa0cb98",
-  "verdict": "pass",
-  "summary": "Fresh-context review found genuine nearest-violation coverage for enforced-mode-cutover-runbook.6.3.",
-  "timestamp": "2026-08-04T20:46:35.779Z"
-}
