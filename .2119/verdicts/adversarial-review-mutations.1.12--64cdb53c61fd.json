@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.12--64cdb53c61fd",
+  "requirementId": "adversarial-review-mutations.1.12",
+  "hash": "64cdb53c61fd",
+  "verdict": "pass",
+  "summary": "Exact prompt equality rejects weakened checkout prohibitions, non-throwaway mutation writes, and any omission or alteration of the complete mutation-evidence instructions.",
+  "timestamp": "2026-08-05T02:03:54.567Z"
+}

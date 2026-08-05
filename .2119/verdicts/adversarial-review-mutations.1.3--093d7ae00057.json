@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.3--093d7ae00057",
+  "requirementId": "adversarial-review-mutations.1.3",
+  "hash": "093d7ae00057",
+  "verdict": "pass",
+  "summary": "Exact section-contract tests reject author-selected, author-supplied, partial reviewer-choice, omitted, or misplaced mutation instructions across all three workflows.",
+  "timestamp": "2026-08-05T01:52:23.249Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.13--ecae7151f589",
+  "requirementId": "adversarial-review-mutations.1.13",
+  "hash": "ecae7151f589",
+  "verdict": "fail",
+  "summary": "Test proves pre-invocation rejection for one omitted clause, but does not cover omission of every other Targeted mutation evidence instruction and does not exercise the configured Claude reviewer model.",
+  "timestamp": "2026-08-05T01:52:54.463Z"
+}

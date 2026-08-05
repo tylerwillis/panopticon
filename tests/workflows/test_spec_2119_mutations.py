@@ -36,6 +36,10 @@ outside the working tree, never in the task checkout. Run the affected tests and
 property broken and which tests failed, or state plainly that the mutation survived. A surviving
 mutation is a defect in the evidence even when the reviewed code is correct.
 
+The returned review body must contain the exact `## Targeted mutation evidence` heading and must
+classify the experiment with an exact `Outcome: killed` or `Outcome: survived` line in that
+section.
+
 Before classifying the outcome, verify with import-path or equivalent runtime evidence that the
 affected tests execute the mutated code from the throwaway copy, not the working tree or another
 installed copy.
@@ -50,6 +54,9 @@ TARGETED_MUTATION_DOCUMENTATION = """## Targeted mutation review
 Killing a targeted mutation shows that an affected test can fail under that change; it does not
 prove that the test failed for the intended reason, because an unrelated assertion can also kill
 the mutation.
+
+Every review body uses the exact `## Targeted mutation evidence` heading and records the
+classification inside that section as an exact `Outcome: killed` or `Outcome: survived` line.
 
 Before classifying a mutation as killed or survived, the reviewer verifies through an imported
 module path or equivalent runtime evidence that the affected tests execute the mutated code from
@@ -89,7 +96,7 @@ def test_review_responsibilities_require_independent_targeted_mutations() -> Non
 def test_review_skills_define_the_targeted_mutation_experiment() -> None:
     for name in WORKFLOW_NAMES:
         instructions = _review_skill(_workflow(name)).instructions
-        assert instructions.count("## Targeted mutation evidence") == 1
+        assert instructions.count("\n## Targeted mutation evidence\n") == 1
         _, marker, tail = instructions.partition("## Targeted mutation evidence")
         body, separator, _ = tail.partition("\n\nTriage every finding against the code.")
         assert marker + body == TARGETED_MUTATION_INSTRUCTIONS

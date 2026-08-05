@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.13--661503ffb9ae",
+  "requirementId": "adversarial-review-mutations.1.13",
+  "hash": "661503ffb9ae",
+  "verdict": "fail",
+  "summary": "Tests delete selected phrases but omit several contract clauses and never prove dispatch_reviews rejects before either reviewer slot runs.",
+  "timestamp": "2026-08-05T01:57:55.836Z"
+}

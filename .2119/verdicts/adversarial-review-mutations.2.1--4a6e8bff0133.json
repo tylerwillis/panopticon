@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.2.1--4a6e8bff0133",
+  "requirementId": "adversarial-review-mutations.2.1",
+  "hash": "4a6e8bff0133",
+  "verdict": "pass",
+  "summary": "Exact section snapshot rejects removal or weakening of both the affected-test-can-fail limit and intended-reason disclaimer.",
+  "timestamp": "2026-08-05T01:50:20.461Z"
+}

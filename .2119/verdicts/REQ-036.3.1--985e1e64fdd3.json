@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-036.3.1--985e1e64fdd3",
+  "requirementId": "REQ-036.3.1",
+  "hash": "985e1e64fdd3",
+  "verdict": "pass",
+  "summary": "Rejects requested/verified model confusion and verifies the heading, all six evidence fields, and untrusted reviewer body in the completed comment payload.",
+  "timestamp": "2026-08-05T02:04:36.670Z"
+}

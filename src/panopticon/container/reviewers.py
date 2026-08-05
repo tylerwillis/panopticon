@@ -242,7 +242,7 @@ evidence, and a verdict."""
 
 
 def _validate_reviewer_prompt(prompt: str, requested_model: str) -> None:
-    if TARGETED_MUTATION_EVIDENCE_INSTRUCTIONS not in prompt:
+    if prompt != reviewer_prompt():
         raise ReviewerDispatchError(
             "Reviewer prompt must carry the complete Targeted mutation evidence instructions.",
             kind="configuration",
@@ -523,9 +523,16 @@ def validate_review_gate(
         mutation_body = (
             mutation_tail[: next_heading.start()] if next_heading is not None else mutation_tail
         )
-        if re.search(r"\b(?:killed|survived)\b", mutation_body, re.IGNORECASE) is None:
+        if (
+            re.search(
+                r"^Outcome:[ \t]*(?:killed|survived)[ \t]*\.?[ \t]*$",
+                mutation_body,
+                re.IGNORECASE | re.MULTILINE,
+            )
+            is None
+        ):
             raise _identity_error(
-                "Review body does not classify a targeted mutation as killed or survived.",
+                "Review body does not contain an exact killed-or-survived Outcome line.",
                 evidence.requested_model,
             )
         if evidence.verification_source not in SUPPORTED_VERIFICATION_SOURCES:

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-036.3.3--bbc74ec552a0",
+  "requirementId": "REQ-036.3.3",
+  "hash": "bbc74ec552a0",
+  "verdict": "pass",
+  "summary": "Dispatch tests reject unequal and prefix-near-miss HEADs before execution, and capture the prompt to verify the exact selected base ref and commit binding.",
+  "timestamp": "2026-08-05T02:04:26.976Z"
+}

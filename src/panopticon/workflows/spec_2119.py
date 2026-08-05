@@ -209,6 +209,10 @@ outside the working tree, never in the task checkout. Run the affected tests and
 property broken and which tests failed, or state plainly that the mutation survived. A surviving
 mutation is a defect in the evidence even when the reviewed code is correct.
 
+The returned review body must contain the exact `## Targeted mutation evidence` heading and must
+classify the experiment with an exact `Outcome: killed` or `Outcome: survived` line in that
+section.
+
 Before classifying the outcome, verify with import-path or equivalent runtime evidence that the
 affected tests execute the mutated code from the throwaway copy, not the working tree or another
 installed copy.

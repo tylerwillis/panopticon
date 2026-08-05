@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.13--e24f2bb3b0ed",
+  "requirementId": "adversarial-review-mutations.1.13",
+  "hash": "e24f2bb3b0ed",
+  "verdict": "fail",
+  "summary": "Tests reject single-character omissions and stop both slots, but never reject an otherwise-valid prompt omitting a whole required instruction, paragraph, or the complete Targeted mutation evidence section.",
+  "timestamp": "2026-08-05T02:01:24.068Z"
+}

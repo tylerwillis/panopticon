@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.12--ac2861174a96",
+  "requirementId": "adversarial-review-mutations.1.12",
+  "hash": "ac2861174a96",
+  "verdict": "pass",
+  "summary": "Production reviewer_prompt is asserted in full: any loss of the checkout-edit ban, throwaway-copy write permission, or mutation-evidence instruction fails the test.",
+  "timestamp": "2026-08-05T01:56:42.753Z"
+}

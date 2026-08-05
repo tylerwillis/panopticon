@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.6--3a8173de84e3",
+  "requirementId": "adversarial-review-mutations.1.6",
+  "hash": "3a8173de84e3",
+  "verdict": "pass",
+  "summary": "Real-workflow exact-section tests reject omission of affected-test execution, the broken property, failed-test identification, or a plain survived outcome.",
+  "timestamp": "2026-08-05T01:54:02.851Z"
+}

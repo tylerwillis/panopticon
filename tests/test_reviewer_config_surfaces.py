@@ -545,6 +545,7 @@ class _Recorder:
 
 def test_spawn_renders_repo_reviewer_overrides_after_env_file() -> None:
     # 2119: reviewer-config-surfaces.3.1
+    # 2119: REQ-036.1.1
     recorder = _Recorder()
     LocalRunner("http://svc", secrets_dir="/host/secrets", run=recorder).spawn(
         "t1",

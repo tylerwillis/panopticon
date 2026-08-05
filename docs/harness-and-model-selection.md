@@ -147,6 +147,9 @@ Killing a targeted mutation shows that an affected test can fail under that chan
 prove that the test failed for the intended reason, because an unrelated assertion can also kill
 the mutation.
 
+Every review body uses the exact `## Targeted mutation evidence` heading and records the
+classification inside that section as an exact `Outcome: killed` or `Outcome: survived` line.
+
 Before classifying a mutation as killed or survived, the reviewer verifies through an imported
 module path or equivalent runtime evidence that the affected tests execute the mutated code from
 the throwaway copy rather than the task working tree or another installed copy.

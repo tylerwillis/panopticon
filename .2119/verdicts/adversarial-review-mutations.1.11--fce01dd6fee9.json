@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.11--fce01dd6fee9",
+  "requirementId": "adversarial-review-mutations.1.11",
+  "hash": "fce01dd6fee9",
+  "verdict": "pass",
+  "summary": "Real workflow-skill snapshot rejects omission, post-classification verification, and evidence that does not prove affected tests execute throwaway-copy mutated code.",
+  "timestamp": "2026-08-05T01:48:58.973Z"
+}

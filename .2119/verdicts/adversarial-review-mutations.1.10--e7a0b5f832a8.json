@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.10--e7a0b5f832a8",
+  "requirementId": "adversarial-review-mutations.1.10",
+  "hash": "e7a0b5f832a8",
+  "verdict": "pass",
+  "summary": "Exact hard-coded description equality across all three 2119 workflows rejects any character change or removal of tests-judged.",
+  "timestamp": "2026-08-05T01:52:57.183Z"
+}

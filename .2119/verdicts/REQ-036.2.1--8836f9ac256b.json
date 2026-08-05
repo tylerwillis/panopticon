@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-036.2.1--8836f9ac256b",
+  "requirementId": "REQ-036.2.1",
+  "hash": "8836f9ac256b",
+  "verdict": "pass",
+  "summary": "Tests enforce exact Claude argv, raw JSON parsing, unique full-counter response matching with auxiliary entries, and exact requested-model identity.",
+  "timestamp": "2026-08-05T01:51:10.770Z"
+}

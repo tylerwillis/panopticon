@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-036.2.2--94b61d58399d",
+  "requirementId": "REQ-036.2.2",
+  "hash": "94b61d58399d",
+  "verdict": "pass",
+  "summary": "Tests reject non-sole raw thread IDs, unmatched or ambiguous correlated rollouts, absent/duplicate/wrong/non-turn-context model evidence, and dispatch publication on identity failure.",
+  "timestamp": "2026-08-05T02:08:29.782Z"
+}

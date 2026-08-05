@@ -1,0 +1,8 @@
+{
+  "reviewId": "reviewer-config-surfaces.3.1--8091a7257852",
+  "requirementId": "reviewer-config-surfaces.3.1",
+  "hash": "8091a7257852",
+  "verdict": "pass",
+  "summary": "Spawn-command tests verify each repo field maps uniquely to its named environment variable after --env-file, and reject omitted, inherited, or nonempty absent overrides via all-absent and one-present boundary cases.",
+  "timestamp": "2026-08-05T02:07:49.614Z"
+}

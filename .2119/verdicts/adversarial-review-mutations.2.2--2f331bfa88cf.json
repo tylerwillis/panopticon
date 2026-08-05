@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.2.2--2f331bfa88cf",
+  "requirementId": "adversarial-review-mutations.2.2",
+  "hash": "2f331bfa88cf",
+  "verdict": "pass",
+  "summary": "Exact-section equality rejects omissions or reversals of all required Sol-only review properties: two, independent, fresh-context, same-model, author-independent, and no cross-model diversity.",
+  "timestamp": "2026-08-05T01:52:29.690Z"
+}
