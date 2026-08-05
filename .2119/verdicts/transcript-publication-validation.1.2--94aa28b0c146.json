@@ -1,8 +1,0 @@
-{
-  "reviewId": "transcript-publication-validation.1.2--94aa28b0c146",
-  "requirementId": "transcript-publication-validation.1.2",
-  "hash": "94aa28b0c146",
-  "verdict": "pass",
-  "summary": "Middle, leading, and trailing ESC inputs yield 422 through both representations while the previously stored safe snapshot remains unchanged.",
-  "timestamp": "2026-08-04T21:24:16.000Z"
-}

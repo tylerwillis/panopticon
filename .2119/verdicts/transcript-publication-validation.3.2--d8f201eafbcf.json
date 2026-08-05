@@ -1,8 +1,0 @@
-{
-  "reviewId": "transcript-publication-validation.3.2--d8f201eafbcf",
-  "requirementId": "transcript-publication-validation.3.2",
-  "hash": "d8f201eafbcf",
-  "verdict": "pass",
-  "summary": "All supported complete ANSI sequence families are stripped at captured-line boundaries, while every unstripped escape-bearing publication receives 422.",
-  "timestamp": "2026-08-04T21:24:18.946Z"
-}

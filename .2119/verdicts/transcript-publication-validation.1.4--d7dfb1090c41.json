@@ -1,8 +1,0 @@
-{
-  "reviewId": "transcript-publication-validation.1.4--d7dfb1090c41",
-  "requirementId": "transcript-publication-validation.1.4",
-  "hash": "d7dfb1090c41",
-  "verdict": "pass",
-  "summary": "Tests accept exactly 200 logical lines and reject 201 with HTTP 422 while preserving the prior snapshot.",
-  "timestamp": "2026-08-04T21:24:17.014Z"
-}

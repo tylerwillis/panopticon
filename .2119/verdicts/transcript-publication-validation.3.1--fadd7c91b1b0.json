@@ -1,8 +1,0 @@
-{
-  "reviewId": "transcript-publication-validation.3.1--fadd7c91b1b0",
-  "requirementId": "transcript-publication-validation.3.1",
-  "hash": "fadd7c91b1b0",
-  "verdict": "pass",
-  "summary": "A scoped task principal gets 403, fleet master succeeds only for the owning runner, wrong runner gets 409, and missing runner gets 422.",
-  "timestamp": "2026-08-04T21:24:18.465Z"
-}

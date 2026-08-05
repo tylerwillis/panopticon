@@ -1,8 +1,0 @@
-{
-  "reviewId": "transcript-publication-validation.1.1--76762eec767a",
-  "requirementId": "transcript-publication-validation.1.1",
-  "hash": "76762eec767a",
-  "verdict": "pass",
-  "summary": "The same ESC, byte-size, multibyte-size, and line-count cases are submitted through client base64 and direct plain-text representations.",
-  "timestamp": "2026-08-04T21:24:15.500Z"
-}
