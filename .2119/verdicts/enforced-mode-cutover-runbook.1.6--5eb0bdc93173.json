@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.1.6--5eb0bdc93173",
-  "requirementId": "enforced-mode-cutover-runbook.1.6",
-  "hash": "5eb0bdc93173",
-  "verdict": "pass",
-  "summary": "Mutated supplied step/gate action and check blocks are parsed across every item; missing step and step/gate shell structures return specific IDs, while unrelated byte edits remain valid.",
-  "timestamp": "2026-08-05T05:24:53.374Z"
-}

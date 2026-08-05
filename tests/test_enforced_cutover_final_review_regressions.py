@@ -60,6 +60,8 @@ def test_parser_reads_mutated_supplied_actions_and_requires_check_shells() -> No
             assert marker in getattr(actual, field)
             expected_by_item = {
                 ("G05", "action"): ["enforced-mode-cutover-runbook.4.5"],
+                ("G08", "action"): ["enforced-mode-cutover-runbook.4.8"],
+                ("G08", "check"): ["enforced-mode-cutover-runbook.4.8"],
                 ("S04", "check"): ["enforced-mode-cutover-runbook.4.8"],
             }
             expected = expected_by_item.get((original.item_id, field), [])

@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.1.6--68eba1328078",
+  "requirementId": "enforced-mode-cutover-runbook.1.6",
+  "hash": "68eba1328078",
+  "verdict": "pass",
+  "summary": "Tests mutate every supplied step/gate action and check, reject missing structural shells with specific IDs, report a semantic gate ID via CLI, and accept unrelated byte changes.",
+  "timestamp": "2026-08-05T06:02:17.449Z"
+}
