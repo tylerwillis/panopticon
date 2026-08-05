@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.5--947812256fac",
+  "requirementId": "enforced-mode-cutover-runbook.4.5",
+  "hash": "947812256fac",
+  "verdict": "pass",
+  "summary": "Tests bind G05's single executed curl check to the read token, PUT method, canary /turn endpoint, and exact 401 expectation, rejecting POST, write-token, wrong-endpoint, detached-method, and 403 near misses.",
+  "timestamp": "2026-08-05T04:15:56.746Z"
+}

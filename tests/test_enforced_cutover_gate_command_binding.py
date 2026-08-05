@@ -191,7 +191,8 @@ def test_g05_executes_one_read_token_put_and_requires_generic_401(tmp_path: Path
     curl = tmp_path / "curl"
     arguments = tmp_path / "curl-arguments"
     curl.write_text(
-        '#!/bin/sh\nprintf \'%s\\0\' "$@" > "$CUTOVER_CURL_ARGS"\n'
+        "#!/bin/sh\nprintf 'CALL\\0' >> \"$CUTOVER_CURL_ARGS\"\n"
+        'printf \'%s\\0\' "$@" >> "$CUTOVER_CURL_ARGS"\n'
         "printf '%s' \"$CUTOVER_CURL_STATUS\"\n"
     )
     curl.chmod(0o755)
@@ -207,11 +208,18 @@ def test_g05_executes_one_read_token_put_and_requires_generic_401(tmp_path: Path
 
     accepted = subprocess.run(["/bin/bash", "-c", action], env=environment, check=False)
     assert accepted.returncode == 0
-    argv = arguments.read_bytes().rstrip(b"\0").decode().split("\0")
+    accepted_parts = arguments.read_bytes().rstrip(b"\0").decode().split("\0")
+    assert accepted_parts.count("CALL") == 1
+    assert accepted_parts[0] == "CALL"
+    argv = accepted_parts[1:]
     assert argv[argv.index("--request") + 1] == "PUT"
     assert "Authorization: Bearer read-only-token" in argv
     assert argv[-1] == "https://service.example/tasks/canary-task/turn"
 
+    arguments.unlink()
     environment["CUTOVER_CURL_STATUS"] = "403"
     rejected = subprocess.run(["/bin/bash", "-c", action], env=environment, check=False)
     assert rejected.returncode != 0
+    rejected_parts = arguments.read_bytes().rstrip(b"\0").decode().split("\0")
+    assert rejected_parts.count("CALL") == 1
+    assert rejected_parts[0] == "CALL"
