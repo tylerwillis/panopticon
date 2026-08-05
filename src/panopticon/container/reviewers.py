@@ -512,14 +512,17 @@ def validate_review_gate(
     parsed = [parse_review_comment(comment) for comment in comments]
     expected_sources = {"claude": CLAUDE_SOURCE, "codex": CODEX_SOURCE}
     for (evidence, body), expected in zip(parsed, reviewers, strict=True):
-        mutation_heading = "## Targeted mutation evidence"
-        if mutation_heading not in body:
+        mutation_heading = re.search(r"^## Targeted mutation evidence[ \t]*$", body, re.MULTILINE)
+        if mutation_heading is None:
             raise _identity_error(
                 "Review body has no Targeted mutation evidence section.",
                 evidence.requested_model,
             )
-        mutation_tail = body.partition(mutation_heading)[2]
-        mutation_body = mutation_tail.partition("\n## ")[0]
+        mutation_tail = body[mutation_heading.end() :]
+        next_heading = re.search(r"^## ", mutation_tail, re.MULTILINE)
+        mutation_body = (
+            mutation_tail[: next_heading.start()] if next_heading is not None else mutation_tail
+        )
         if re.search(r"\b(?:killed|survived)\b", mutation_body, re.IGNORECASE) is None:
             raise _identity_error(
                 "Review body does not classify a targeted mutation as killed or survived.",

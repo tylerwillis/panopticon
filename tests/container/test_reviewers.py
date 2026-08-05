@@ -1021,6 +1021,17 @@ def test_gate_requires_two_verified_final_commit_reviews_for_every_round() -> No
             comments[1],
         ),
         (comments[0], comments[1].replace("## Targeted mutation evidence", "## Evidence")),
+        (
+            comments[0],
+            comments[1].replace(
+                "## Targeted mutation evidence",
+                "A sentence mentions ## Targeted mutation evidence",
+            ),
+        ),
+        (
+            comments[0],
+            comments[1].replace("## Targeted mutation evidence", "### Targeted mutation evidence"),
+        ),
         (comments[0], comments[1].replace("was killed", "was exercised")),
         (
             comments[0],

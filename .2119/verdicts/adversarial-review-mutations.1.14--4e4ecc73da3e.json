@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.14--4e4ecc73da3e",
+  "requirementId": "adversarial-review-mutations.1.14",
+  "hash": "4e4ecc73da3e",
+  "verdict": "pass",
+  "summary": "Final-gate tests reject a non-comment, missing or malformed Targeted mutation evidence sections, vague non-outcomes, and killed language placed outside the section through both validation and completion paths.",
+  "timestamp": "2026-08-05T01:19:37.351Z"
+}
