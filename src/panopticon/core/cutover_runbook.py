@@ -211,6 +211,9 @@ def validate_enforced_mode_cutover_runbook(text: str) -> list[str]:
         or 'assert-container-started-after "$CANARY_CONTAINER_STARTED" "$ENFORCEMENT_STARTED_AT"'
         not in g09.check
         or 'docker exec "$CANARY_CONTAINER"' not in g09.action
+        or "G09-target-at-capability.txt" not in g09.action
+        or 'cmp "$EVIDENCE_DIR/G09-target-at-capability.txt" "$EVIDENCE_DIR/S07-container-after-keepalive.txt"'
+        not in g09.check
     ):
         violations.append("enforced-mode-cutover-runbook.4.18")
     s00 = next((item for item in plan.steps if item.item_id == "S00"), None)
@@ -219,10 +222,13 @@ def validate_enforced_mode_cutover_runbook(text: str) -> list[str]:
     g11 = next((item for item in plan.gates if item.item_id == "G11"), None)
     if (
         s00 is None
+        or s01 is None
         or s04 is None
         or g03 is None
         or g11 is None
         or 'assert-runner-set "$EVIDENCE_DIR/S00-runners.json" "$OLD_RUNNER_ID"' not in s00.check
+        or 'assert-runner-set "$EVIDENCE_DIR/S01-runners-immediately-before-service-stop.json"'
+        not in s01.action
         or "pane_start_command" not in s04.action
         or 'assert-runner-set "$EVIDENCE_DIR/G03-runners.json" "$NEW_RUNNER_ID"' not in g03.check
         or "assert-runner-process" not in g03.check

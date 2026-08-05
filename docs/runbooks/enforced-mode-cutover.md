@@ -141,6 +141,8 @@ PY
   test "$(date +%s)" -lt "$QUIESCE_DEADLINE"
   sleep 5
 done
+curl --silent --show-error --fail --header "Authorization: Bearer $PRE_CUTOVER_WRITE_TOKEN" "$SERVICE_URL/runners" --output "$EVIDENCE_DIR/S01-runners-immediately-before-service-stop.json"
+uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-runner-set "$EVIDENCE_DIR/S01-runners-immediately-before-service-stop.json"
 tmux -L panopticon kill-session -t service
 ```
 
@@ -404,6 +406,8 @@ uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-
 uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-fresh-container "$CANARY_CONTAINER_ID" "$EVIDENCE_DIR/S03-all-container-ids-before-enforcement.txt"
 uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-container-started-after "$CANARY_CONTAINER_STARTED" "$ENFORCEMENT_STARTED_AT"
 docker inspect --format '{{.Id}} {{.State.Pid}} {{.State.StartedAt}}' "$CANARY_CONTAINER" | tee "$EVIDENCE_DIR/S07-container-initial.txt"
+docker inspect --format '{{.Id}} {{.State.Pid}} {{.State.StartedAt}}' "$CANARY_CONTAINER" | tee "$EVIDENCE_DIR/S07-container-at-capability.txt"
+cmp "$EVIDENCE_DIR/S07-container-initial.txt" "$EVIDENCE_DIR/S07-container-at-capability.txt"
 test "$(docker exec "$CANARY_CONTAINER" python -c 'import json; print(json.load(open("/run/secrets/panopticon-service-auth"))["task"][:5])')" = ptc1.
 curl --silent --show-error --fail --header "Authorization: Bearer $WRITE_TOKEN" "$SERVICE_URL/tasks/$CANARY_TASK_ID" --output "$EVIDENCE_DIR/S07-live-initial.json"
 sleep 6
@@ -796,6 +800,8 @@ Production-only: direct Docker observation.
 #### Command
 
 ```sh
+docker inspect --format '{{.Id}} {{.State.Pid}} {{.State.StartedAt}}' "$CANARY_CONTAINER" | tee "$EVIDENCE_DIR/G09-target-at-capability.txt"
+cmp "$EVIDENCE_DIR/S07-container-initial.txt" "$EVIDENCE_DIR/G09-target-at-capability.txt"
 test "$(docker exec "$CANARY_CONTAINER" python -c 'import json; print(json.load(open("/run/secrets/panopticon-service-auth"))["task"][:5])')" = ptc1.
 ```
 
@@ -809,6 +815,7 @@ import json, sys
 assert all(json.load(open(path))["container_status"] == "live" for path in sys.argv[1:])
 PY
 cmp "$EVIDENCE_DIR/S07-container-initial.txt" "$EVIDENCE_DIR/S07-container-after-keepalive.txt"
+cmp "$EVIDENCE_DIR/G09-target-at-capability.txt" "$EVIDENCE_DIR/S07-container-after-keepalive.txt"
 printf 'G09: PASS\n' >> "$EVIDENCE_DIR/gates.txt"
 ```
 
