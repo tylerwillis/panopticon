@@ -34,6 +34,9 @@ does not supply the mutation.
 8. The adversarial-review instructions' `Targeted mutation evidence` section MUST require each reviewer attempt to end by verifying that the working tree is unchanged from its pre-review snapshot.
 9. The adversarial-review instructions' `Targeted mutation evidence` section MUST keep the procedure targeted to at least one reviewer-chosen mutation per dispatch without introducing exhaustive mutation testing or a mutation-testing framework.
 10. The `tests-judged` responsibility description MUST remain unchanged by this feature.
+11. The adversarial-review instructions' `Targeted mutation evidence` section MUST require the
+reviewer to verify that the affected tests execute the mutated code from the throwaway copy before
+classifying the mutation as killed or survived.
 
 ### 2: Limits and reviewer independence
 

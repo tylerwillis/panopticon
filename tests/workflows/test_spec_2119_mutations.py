@@ -36,6 +36,10 @@ tree, never in the task checkout. Run the affected tests and report the property
 tests failed, or state plainly that the mutation survived. A surviving mutation is a defect in the
 evidence even when the reviewed code is correct.
 
+Before classifying the outcome, verify with import-path or equivalent runtime evidence that the
+affected tests execute the mutated code from the throwaway copy, not the working tree or another
+installed copy.
+
 A kill shows only that a test can fail under the mutation; an unrelated assertion may have failed,
 so a kill does not certify the test's reason or the claim. As the final action of every reviewer
 attempt, verify the working tree is unchanged from the snapshot taken immediately before the
@@ -46,6 +50,10 @@ TARGETED_MUTATION_DOCUMENTATION = """## Targeted mutation review
 Killing a targeted mutation shows that an affected test can fail under that change; it does not
 prove that the test failed for the intended reason, because an unrelated assertion can also kill
 the mutation.
+
+Before classifying a mutation as killed or survived, the reviewer verifies through an imported
+module path or equivalent runtime evidence that the affected tests execute the mutated code from
+the throwaway copy rather than the task working tree or another installed copy.
 
 The Sol-only workflow makes two independent fresh-context dispatches of the same model. That
 preserves independence from the author and between review contexts, but it does not provide
@@ -75,7 +83,7 @@ def test_review_responsibilities_require_independent_targeted_mutations() -> Non
     assert reviewing[0].description == SOL_MUTATION_RESPONSIBILITY
 
 
-# 2119: 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9
+# 2119: 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.11
 def test_review_skills_define_the_targeted_mutation_experiment() -> None:
     for name in WORKFLOW_NAMES:
         instructions = _review_skill(_workflow(name)).instructions
@@ -98,4 +106,6 @@ def test_mutation_review_does_not_change_test_honesty_responsibility() -> None:
 def test_workflow_documentation_states_mutation_limits_and_sol_independence() -> None:
     documentation = (ROOT / "docs" / "harness-and-model-selection.md").read_text()
     assert documentation.count("## Targeted mutation review") == 1
-    assert documentation.endswith(TARGETED_MUTATION_DOCUMENTATION + "\n")
+    _, marker, tail = documentation.partition("## Targeted mutation review")
+    body, _, _ = tail.partition("\n## ")
+    assert marker + body.rstrip() == TARGETED_MUTATION_DOCUMENTATION

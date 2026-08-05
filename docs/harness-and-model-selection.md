@@ -147,6 +147,10 @@ Killing a targeted mutation shows that an affected test can fail under that chan
 prove that the test failed for the intended reason, because an unrelated assertion can also kill
 the mutation.
 
+Before classifying a mutation as killed or survived, the reviewer verifies through an imported
+module path or equivalent runtime evidence that the affected tests execute the mutated code from
+the throwaway copy rather than the task working tree or another installed copy.
+
 The Sol-only workflow makes two independent fresh-context dispatches of the same model. That
 preserves independence from the author and between review contexts, but it does not provide
 cross-model diversity; each dispatched reviewer chooses its own mutation.

@@ -246,6 +246,10 @@ tree, never in the task checkout. Run the affected tests and report the property
 tests failed, or state plainly that the mutation survived. A surviving mutation is a defect in the
 evidence even when the reviewed code is correct.
 
+Before classifying the outcome, verify with import-path or equivalent runtime evidence that the
+affected tests execute the mutated code from the throwaway copy, not the working tree or another
+installed copy.
+
 A kill shows only that a test can fail under the mutation; an unrelated assertion may have failed,
 so a kill does not certify the test's reason or the claim. As the final action of every reviewer
 attempt, verify the working tree is unchanged from the snapshot taken immediately before the

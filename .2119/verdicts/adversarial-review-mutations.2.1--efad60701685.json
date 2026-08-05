@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.2.1--efad60701685",
+  "requirementId": "adversarial-review-mutations.2.1",
+  "hash": "efad60701685",
+  "verdict": "pass",
+  "summary": "The exact-section assertion rejects omission or weakening of both required claims: an affected test can fail under the change, yet that kill does not prove failure for the intended reason.",
+  "timestamp": "2026-08-04T23:57:26.616Z"
+}
