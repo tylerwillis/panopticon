@@ -121,7 +121,6 @@ def test_fresh_canary_comparison_rejects_truncated_pre_cutover_ids(tmp_path) -> 
     missing_negative_comparison = RUNBOOK_PATH.read_text().replace(
         'assert-fresh-container "$CANARY_CONTAINER_ID" "$EVIDENCE_DIR/S03-all-container-ids-before-enforcement.txt"',
         'test -n "$CANARY_CONTAINER_ID"',
-        1,
     )
     assert "enforced-mode-cutover-runbook.4.18" in validate_enforced_mode_cutover_runbook(
         missing_negative_comparison
@@ -129,7 +128,6 @@ def test_fresh_canary_comparison_rejects_truncated_pre_cutover_ids(tmp_path) -> 
     swapped_timestamps = RUNBOOK_PATH.read_text().replace(
         'assert-container-started-after "$CANARY_CONTAINER_STARTED" "$ENFORCEMENT_STARTED_AT"',
         'assert-container-started-after "$ENFORCEMENT_STARTED_AT" "$CANARY_CONTAINER_STARTED"',
-        1,
     )
     assert "enforced-mode-cutover-runbook.4.18" in validate_enforced_mode_cutover_runbook(
         swapped_timestamps

@@ -32,7 +32,8 @@ def test_runner_registry_is_rechecked_immediately_before_service_stop() -> None:
 # 2119: enforced-mode-cutover-runbook.4.18
 def test_g09_capability_target_matches_both_recorded_liveness_identities() -> None:
     text = RUNBOOK_PATH.read_text()
-    g09 = parse_enforced_mode_cutover_runbook(text).gates[8]
+    plan = parse_enforced_mode_cutover_runbook(text)
+    g09 = plan.gates[8]
     assert g09.action.index("G09-target-at-capability.txt") < g09.action.index(
         'docker exec "$CANARY_CONTAINER"'
     )
@@ -42,5 +43,9 @@ def test_g09_capability_target_matches_both_recorded_liveness_identities() -> No
         '"$EVIDENCE_DIR/S07-container-after-keepalive.txt"'
     )
     assert final_cmp in g09.check
-    weakened = text.replace(final_cmp, 'test -s "$EVIDENCE_DIR/G09-target-at-capability.txt"', 1)
+    assert f"{g09.action}\n{g09.check}" in plan.steps[7].check
+    g09_offset = text.index("### G09 —")
+    weakened = text[:g09_offset] + text[g09_offset:].replace(
+        final_cmp, 'test -s "$EVIDENCE_DIR/G09-target-at-capability.txt"', 1
+    )
     assert "enforced-mode-cutover-runbook.4.18" in validate_enforced_mode_cutover_runbook(weakened)

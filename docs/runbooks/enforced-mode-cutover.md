@@ -287,6 +287,8 @@ test "$(ps -o lstart= -p "$NEW_RUNNER_PID" | sed 's/^ *//')" = "$NEW_RUNNER_STAR
 test "$(ps -o lstart= -p "$NEW_DASHBOARD_PID" | sed 's/^ *//')" = "$NEW_DASHBOARD_START"
 ! kill -0 "$OLD_RUNNER_PID" 2>/dev/null || test "$(ps -o lstart= -p "$OLD_RUNNER_PID" | sed 's/^ *//')" != "$OLD_RUNNER_START"
 ! kill -0 "$OLD_DASHBOARD_PID" 2>/dev/null || test "$(ps -o lstart= -p "$OLD_DASHBOARD_PID" | sed 's/^ *//')" != "$OLD_DASHBOARD_START"
+uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-process-replaced "$OLD_RUNNER_PID" "$OLD_RUNNER_START"
+uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-process-replaced "$OLD_DASHBOARD_PID" "$OLD_DASHBOARD_START"
 test -s "$EVIDENCE_DIR/S01-client-identities-before.txt"
 test -s "$EVIDENCE_DIR/S04-client-identities-after.txt"
 test -n "$OLD_RUNNER_START"
@@ -418,6 +420,17 @@ uv --directory "$APP_ROOT" run python - "$EVIDENCE_DIR/S07-live-initial.json" "$
 import json, sys
 assert all(json.load(open(path))["container_status"] == "live" for path in sys.argv[1:])
 PY
+docker inspect --format '{{.Id}} {{.State.Pid}} {{.State.StartedAt}}' "$CANARY_CONTAINER" | tee "$EVIDENCE_DIR/G09-target-at-capability.txt"
+cmp "$EVIDENCE_DIR/S07-container-initial.txt" "$EVIDENCE_DIR/G09-target-at-capability.txt"
+test "$(docker exec "$CANARY_CONTAINER" python -c 'import json; print(json.load(open("/run/secrets/panopticon-service-auth"))["task"][:5])')" = ptc1.
+uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-fresh-container "$CANARY_CONTAINER_ID" "$EVIDENCE_DIR/S03-all-container-ids-before-enforcement.txt"
+uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-container-started-after "$CANARY_CONTAINER_STARTED" "$ENFORCEMENT_STARTED_AT"
+uv --directory "$APP_ROOT" run python - "$EVIDENCE_DIR/S07-live-initial.json" "$EVIDENCE_DIR/S07-live-after-keepalive.json" <<'PY'
+import json, sys
+assert all(json.load(open(path))["container_status"] == "live" for path in sys.argv[1:])
+PY
+cmp "$EVIDENCE_DIR/S07-container-initial.txt" "$EVIDENCE_DIR/S07-container-after-keepalive.txt"
+cmp "$EVIDENCE_DIR/G09-target-at-capability.txt" "$EVIDENCE_DIR/S07-container-after-keepalive.txt"
 printf 'G09: PASS\n' >> "$EVIDENCE_DIR/gates.txt"
 ```
 
