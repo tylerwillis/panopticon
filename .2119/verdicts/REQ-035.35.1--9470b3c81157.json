@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.35.1--9470b3c81157",
-  "requirementId": "REQ-035.35.1",
-  "hash": "9470b3c81157",
-  "verdict": "pass",
-  "summary": "End-to-end permissive-mode tests reject missing or stale method, route, caller, and cumulative count fields, exclude credentialed requests, and verify power-of-two rate limiting across suppressed header-less requests.",
-  "timestamp": "2026-08-03T17:34:47.563Z"
-}

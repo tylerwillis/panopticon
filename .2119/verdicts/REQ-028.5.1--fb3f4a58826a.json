@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.5.1--fb3f4a58826a",
-  "requirementId": "REQ-028.5.1",
-  "hash": "fb3f4a58826a",
-  "verdict": "pass",
-  "summary": "Spec skill asserted equal to test-local `EXPECTED_SOL_SPEC_INSTRUCTIONS` (\"Also publish the specification as a task artifact\"); every review skill independently asserted to `endswith(\"Also publish the final review outputs and triage summary as task artifacts.\")` — not reliant on the circular import.",
-  "timestamp": "2026-08-03T13:19:37.253Z"
-}

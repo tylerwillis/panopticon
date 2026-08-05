@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.33.1--46e23abfc503",
-  "requirementId": "REQ-035.33.1",
-  "hash": "46e23abfc503",
-  "verdict": "pass",
-  "summary": "Both read and write configurations reject the nearest 11-character boundary and accept exactly 12 characters, with additional shorter cases covered.",
-  "timestamp": "2026-08-03T01:20:45.191Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.18.1--cfc008f1f8c4",
-  "requirementId": "REQ-035.18.1",
-  "hash": "cfc008f1f8c4",
-  "verdict": "pass",
-  "summary": "Distinct configured tokens are excluded from exhaustive REST/MCP failures, validation exceptions, logs, emitted runner commands, task/repo responses, and recursively inspected database/artifact files.",
-  "timestamp": "2026-08-03T03:41:19.855Z"
-}

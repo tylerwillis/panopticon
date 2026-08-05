@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.15.1--4e441e4f8ce8",
-  "requirementId": "REQ-035.15.1",
-  "hash": "4e441e4f8ce8",
-  "verdict": "pass",
-  "summary": "Bearer token attached to all request types; verified absent from URL in production-level httpx.Request observation",
-  "timestamp": "2026-08-03T10:51:22.512Z"
-}

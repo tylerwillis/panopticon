@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.38.1--1061be7c9928",
-  "requirementId": "REQ-035.38.1",
-  "hash": "1061be7c9928",
-  "verdict": "pass",
-  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. A real sh execution enables xtrace, performs an authenticated library operation, and asserts the secret is absent from both trace stderr and captured curl argv.",
-  "timestamp": "2026-08-03T18:58:48.233Z"
-}

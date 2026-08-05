@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.11.3--255c047b3ece",
-  "requirementId": "REQ-048.11.3",
-  "hash": "255c047b3ece",
-  "verdict": "pass",
-  "summary": "Preflight tests prove the exact GET/HEAD/OPTIONS method set and Authorization/Content-Type header set, rejecting mutation methods and additional headers across origins and routes.",
-  "timestamp": "2026-08-04T06:51:04.043Z"
-}

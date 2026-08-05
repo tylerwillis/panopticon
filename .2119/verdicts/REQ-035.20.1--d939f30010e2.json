@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.20.1--d939f30010e2",
-  "requirementId": "REQ-035.20.1",
-  "hash": "d939f30010e2",
-  "verdict": "pass",
-  "summary": "Behavioral shell test requires exactly the task read, repo read, and credential-dir PATCH to carry the injected write token via curl stdin while rejecting token exposure in every recorded argv.",
-  "timestamp": "2026-08-03T05:10:16.096Z"
-}

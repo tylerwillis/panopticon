@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.10.1--2305856e3b21",
-  "requirementId": "REQ-033.10.1",
-  "hash": "2305856e3b21",
-  "verdict": "pass",
-  "summary": "Every discovered 2119 workflow's exact deferred-issues responsibility explicitly states that filing zero issues is legal.",
-  "timestamp": "2026-08-03T06:34:29.834Z"
-}

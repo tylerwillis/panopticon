@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.37.1--4bc980800b86",
-  "requirementId": "REQ-035.37.1",
-  "hash": "4bc980800b86",
-  "verdict": "pass",
-  "summary": "Executes the rendered credential-less shell command with a recording curl and proves both --config and Authorization are omitted.",
-  "timestamp": "2026-08-03T06:34:16.064Z"
-}

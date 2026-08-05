@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.6.3--5cac957a8729",
-  "requirementId": "REQ-048.6.3",
-  "hash": "5cac957a8729",
-  "verdict": "pass",
-  "summary": "Every task-targeted REST route and every task-scope action is checked to return the same generic 403 status and body for existing unrelated and missing targets.",
-  "timestamp": "2026-08-04T06:50:58.945Z"
-}

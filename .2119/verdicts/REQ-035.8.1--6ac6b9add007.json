@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.8.1--6ac6b9add007",
-  "requirementId": "REQ-035.8.1",
-  "hash": "6ac6b9add007",
-  "verdict": "pass",
-  "summary": "Test directly verifies identical responses (401, body, Bearer header) across all HTTP methods and resource types, both existing and non-existing",
-  "timestamp": "2026-08-03T11:20:47.076Z"
-}

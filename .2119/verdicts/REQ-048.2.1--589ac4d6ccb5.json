@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.2.1--589ac4d6ccb5",
-  "requirementId": "REQ-048.2.1",
-  "hash": "589ac4d6ccb5",
-  "verdict": "pass",
-  "summary": "Wire capture proves every client publication includes text_b64 and omits plain text.",
-  "timestamp": "2026-08-04T06:33:50.819Z"
-}

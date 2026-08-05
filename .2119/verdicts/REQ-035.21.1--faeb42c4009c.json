@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.21.1--faeb42c4009c",
-  "requirementId": "REQ-035.21.1",
-  "hash": "faeb42c4009c",
-  "verdict": "pass",
-  "summary": "test_pi_operation_keeps_runtime_token_out_of_curl_argv verifies credential delivery via stdin/config, not argv; test extracts production operation_instructions, captures real curl invocation boundaries, and would reject credential in process arguments",
-  "timestamp": "2026-08-03T11:17:26.596Z"
-}

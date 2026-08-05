@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.28.1--b5e42fcf787b",
-  "requirementId": "REQ-035.28.1",
-  "hash": "b5e42fcf787b",
-  "verdict": "pass",
-  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. Docker and shell runners reject missing, directory, and FIFO credential references before any Docker/tmux call, preserving absence and existing non-file entries.",
-  "timestamp": "2026-08-03T18:58:43.212Z"
-}

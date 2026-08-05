@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.17.1--bf931529d817",
-  "requirementId": "REQ-035.17.1",
-  "hash": "bf931529d817",
-  "verdict": "pass",
-  "summary": "Exercises no-env-file Docker and shell spawns plus runtime shared clients, both liveness paths, task_lib, and setup_repo_lib with captured headers and argv.",
-  "timestamp": "2026-08-03T06:34:14.108Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.19.1--f41a33e63630",
-  "requirementId": "REQ-035.19.1",
-  "hash": "f41a33e63630",
-  "verdict": "pass",
-  "summary": "Test rejects a new token before overlap, accepts both read/write token sets after overlap restart and after file removal without restart, then rejects both old tokens after the next restart.",
-  "timestamp": "2026-08-02T22:05:33.570Z"
-}

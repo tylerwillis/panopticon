@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.14.1--5ead2d66e679",
-  "requirementId": "REQ-035.14.1",
-  "hash": "5ead2d66e679",
-  "verdict": "pass",
-  "summary": "The annotated parameterized tests cover absent, escaping, symlinked, missing, unreadable, malformed, non-object, structurally invalid, empty-write, and cross-privilege duplicate credential configurations, while confirming that read is optional.",
-  "timestamp": "2026-08-04T06:50:48.680Z"
-}

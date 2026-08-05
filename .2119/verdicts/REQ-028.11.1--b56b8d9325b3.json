@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.11.1--b56b8d9325b3",
-  "requirementId": "REQ-028.11.1",
-  "hash": "b56b8d9325b3",
-  "verdict": "pass",
-  "summary": "Fresh review verified durable-document guidance and GitHub URL exception.",
-  "timestamp": "2026-08-03T11:58:53.869Z"
-}

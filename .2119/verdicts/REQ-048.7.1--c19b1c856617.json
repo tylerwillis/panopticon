@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.7.1--c19b1c856617",
-  "requirementId": "REQ-048.7.1",
-  "hash": "c19b1c856617",
-  "verdict": "pass",
-  "summary": "Creation succeeds for workflows whose stored definition declares orchestrates=True only when governor equals the capability subject, and fails for absent, unrelated, or child governors.",
-  "timestamp": "2026-08-04T06:50:59.296Z"
-}

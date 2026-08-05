@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.3.1--679243e51f2e",
-  "requirementId": "REQ-035.3.1",
-  "hash": "679243e51f2e",
-  "verdict": "pass",
-  "summary": "Tests enumerate every registered non-health REST read, including hidden and framework documentation HEAD/GET routes, and prove both read and write tokens avoid generic auth failure.",
-  "timestamp": "2026-08-03T01:17:01.330Z"
-}

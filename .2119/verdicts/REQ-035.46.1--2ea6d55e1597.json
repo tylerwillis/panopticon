@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.46.1--2ea6d55e1597",
-  "requirementId": "REQ-035.46.1",
-  "hash": "2ea6d55e1597",
-  "verdict": "pass",
-  "summary": "Oversized-body test sends limit+1 bytes through the real middleware in both auth modes and asserts 413 'request too large'; dispatch would surface as 200 from GET /tasks (enforced) or a nonzero permissive-unauthenticated counter (asserted 0), so violation fails the test.",
-  "timestamp": "2026-08-03T11:23:06.973Z"
-}

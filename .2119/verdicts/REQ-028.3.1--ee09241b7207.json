@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.3.1--ee09241b7207",
-  "requirementId": "REQ-028.3.1",
-  "hash": "ee09241b7207",
-  "verdict": "pass",
-  "summary": "Exact instruction comparison covers the dashboard a hotkey, PR-complement boundary, and every required category of reviewer-readable artifact.",
-  "timestamp": "2026-08-03T02:37:16.343Z"
-}

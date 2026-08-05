@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.13.1--a96cc8a2b6df",
-  "requirementId": "REQ-035.13.1",
-  "hash": "a96cc8a2b6df",
-  "verdict": "pass",
-  "summary": "Pass: explicit permissive mode admits legacy unauthenticated calls and privilege-sufficient read/write credentials across REST, liveness, and MCP without generic auth failures.",
-  "timestamp": "2026-08-03T01:20:51.312Z"
-}

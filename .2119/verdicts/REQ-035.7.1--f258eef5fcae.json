@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.7.1--f258eef5fcae",
-  "requirementId": "REQ-035.7.1",
-  "hash": "f258eef5fcae",
-  "verdict": "pass",
-  "summary": "Across the protected REST and MCP surface, missing, malformed, unknown, truncated, extended, non-ASCII, and insufficient credentials all assert identical 401 JSON and Bearer challenge.",
-  "timestamp": "2026-08-03T07:18:56.980Z"
-}

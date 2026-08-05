@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.11.1--c73f748a6bae",
-  "requirementId": "REQ-035.11.1",
-  "hash": "c73f748a6bae",
-  "verdict": "pass",
-  "summary": "REST and MCP outcomes for absent, read, and write credentials are compared across loopback, tailnet boundary/interior, IPv6, and public addresses.",
-  "timestamp": "2026-08-03T07:18:57.003Z"
-}

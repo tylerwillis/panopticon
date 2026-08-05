@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.19.1--f05e21c36bf3",
-  "requirementId": "REQ-035.19.1",
-  "hash": "f05e21c36bf3",
-  "verdict": "pass",
-  "summary": "Covers old-only, overlap after restart, retained loaded overlap after file removal, and old rejection/new acceptance after the second restart for both read and write privileges.",
-  "timestamp": "2026-08-03T07:19:09.421Z"
-}

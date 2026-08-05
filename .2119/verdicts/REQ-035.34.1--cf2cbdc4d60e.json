@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.34.1--cf2cbdc4d60e",
-  "requirementId": "REQ-035.34.1",
-  "hash": "cf2cbdc4d60e",
-  "verdict": "fail",
-  "summary": "Permission tests omit group/other executable-bit counterexamples, and only call the shared loader rather than independently proving runner preflight rejects insecure ownership or mode.",
-  "timestamp": "2026-08-03T02:05:31.201Z"
-}

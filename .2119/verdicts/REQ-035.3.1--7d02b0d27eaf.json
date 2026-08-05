@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.3.1--7d02b0d27eaf",
-  "requirementId": "REQ-035.3.1",
-  "hash": "7d02b0d27eaf",
-  "verdict": "pass",
-  "summary": "Dynamic route coverage rejects the nearest violation—either valid read or write credentials receiving the generic auth failure on any ordinary REST read—while separately covering HEAD docs, excluding health, and classifying runner-only pending-input GET as write-authorized.",
-  "timestamp": "2026-08-03T17:32:52.867Z"
-}

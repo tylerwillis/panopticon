@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.10.1--167583c2247e",
-  "requirementId": "REQ-035.10.1",
-  "hash": "167583c2247e",
-  "verdict": "pass",
-  "summary": "GET /healthz verified available without credentials and returning exact readiness payload across enforced auth boundary",
-  "timestamp": "2026-08-03T10:51:18.080Z"
-}

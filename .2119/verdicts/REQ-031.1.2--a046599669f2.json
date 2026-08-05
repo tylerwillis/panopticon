@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-031.1.2--a046599669f2",
-  "requirementId": "REQ-031.1.2",
-  "hash": "a046599669f2",
-  "verdict": "pass",
-  "summary": "The host test drives a failed real Docker probe and proves neither the shared service/runner session starter nor any subprocess beyond docker info is invoked.",
-  "timestamp": "2026-08-01T05:06:54.193Z"
-}

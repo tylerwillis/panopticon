@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-030.3.2--bc8fee17d317",
-  "requirementId": "REQ-030.3.2",
-  "hash": "bc8fee17d317",
-  "verdict": "pass",
-  "summary": "Positional index(-f) < index(new-session) is checked at all four call sites; since each site creates session+pane atomically in one new-session invocation, precedence over that subcommand is precedence over pane creation, and the underlying mechanism is independently proven correct by the (differently-tagged) real-tmux pane history-limit check in test_tmux_defaults.py.",
-  "timestamp": "2026-08-01T03:02:32.810Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.31.1--01fbb7a7e632",
-  "requirementId": "REQ-035.31.1",
-  "hash": "01fbb7a7e632",
-  "verdict": "pass",
-  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. Tests cover service, runner, and dashboard creation with all three invoking-process values present and absent; exact command propagation/unsetting is asserted, and a real stale tmux environment proves fresh values replace stale ones while absent values are cleared.",
-  "timestamp": "2026-08-03T18:58:45.917Z"
-}

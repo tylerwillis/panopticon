@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.29.1--1675a08788c6",
-  "requirementId": "REQ-035.29.1",
-  "hash": "1675a08788c6",
-  "verdict": "pass",
-  "summary": "Tests independently assert exactly one explicit integrated-stack --host 0.0.0.0 argument and the standalone launcher's 127.0.0.1 default.",
-  "timestamp": "2026-08-03T02:05:28.844Z"
-}

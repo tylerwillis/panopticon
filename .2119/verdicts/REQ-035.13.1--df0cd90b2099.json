@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.13.1--df0cd90b2099",
-  "requirementId": "REQ-035.13.1",
-  "hash": "df0cd90b2099",
-  "verdict": "pass",
-  "summary": "Permissive mode verifies legacy unauthenticated and sufficiently authenticated REST, liveness, and MCP callers avoid the generic authentication failure while insufficient credentials remain rejected.",
-  "timestamp": "2026-08-03T02:05:11.848Z"
-}

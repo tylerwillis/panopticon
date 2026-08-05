@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.4.1--f628c6247c36",
-  "requirementId": "REQ-028.4.1",
-  "hash": "f628c6247c36",
-  "verdict": "pass",
-  "summary": "All built-in 2119 workflows require the exact single specification artifact responsibility.",
-  "timestamp": "2026-08-03T00:13:17.536Z"
-}

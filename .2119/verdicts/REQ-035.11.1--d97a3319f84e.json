@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.11.1--d97a3319f84e",
-  "requirementId": "REQ-035.11.1",
-  "hash": "d97a3319f84e",
-  "verdict": "pass",
-  "summary": "Covers protected REST and MCP outcomes for unauthenticated, read-token, and write-token requests across loopback boundary cases, tailnet IPv4/IPv6 cases, and an external address; source-based or credential-specific authorization divergence changes the compared status tuples.",
-  "timestamp": "2026-08-02T22:05:10.001Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.17.1--c45206b06dde",
-  "requirementId": "REQ-035.17.1",
-  "hash": "c45206b06dde",
-  "verdict": "pass",
-  "summary": "Covers Docker and shell spawns without repo env files, verifies the separate runtime secret, and behaviorally authenticates shared-client, liveness, and shell-library requests.",
-  "timestamp": "2026-08-03T02:55:13.160Z"
-}

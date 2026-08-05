@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.24.1--1b363f6825ef",
-  "requirementId": "REQ-035.24.1",
-  "hash": "1b363f6825ef",
-  "verdict": "pass",
-  "summary": "Startup tests reject exhaustive disallowed ASCII characters, non-ASCII values, empty/all-padding tokens, and misplaced equals for both token privileges while valid trailing padding is exercised.",
-  "timestamp": "2026-08-03T01:17:31.512Z"
-}

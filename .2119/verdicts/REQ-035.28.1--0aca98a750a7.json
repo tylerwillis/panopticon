@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.28.1--0aca98a750a7",
-  "requirementId": "REQ-035.28.1",
-  "hash": "0aca98a750a7",
-  "verdict": "fail",
-  "summary": "Symlink cases do not prove the existing non-file entry is unchanged: unlinking/recreating the same link or mutating its target would pass the assertions.",
-  "timestamp": "2026-08-03T23:28:20.380Z"
-}

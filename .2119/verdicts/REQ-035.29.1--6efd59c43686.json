@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.29.1--6efd59c43686",
-  "requirementId": "REQ-035.29.1",
-  "hash": "6efd59c43686",
-  "verdict": "pass",
-  "summary": "Tests reject absent/empty Linux integrated binds other than exactly one explicit 0.0.0.0 and reject a standalone default other than 127.0.0.1.",
-  "timestamp": "2026-08-03T23:34:20.979Z"
-}

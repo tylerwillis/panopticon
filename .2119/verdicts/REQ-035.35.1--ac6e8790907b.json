@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.35.1--ac6e8790907b",
-  "requirementId": "REQ-035.35.1",
-  "hash": "ac6e8790907b",
-  "verdict": "pass",
-  "summary": "Permissive mode emits rate-limited warnings identifying method, route, caller address, and cumulative count via observable caplog records and x-panopticon-permissive-unauthenticated-total header; powers-of-2 rate limiting proven with 1024 requests → 11 log entries.",
-  "timestamp": "2026-08-03T10:53:24.469Z"
-}

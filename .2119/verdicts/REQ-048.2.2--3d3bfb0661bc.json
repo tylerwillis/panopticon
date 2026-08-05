@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.2.2--3d3bfb0661bc",
-  "requirementId": "REQ-048.2.2",
-  "hash": "3d3bfb0661bc",
-  "verdict": "pass",
-  "summary": "The enforced-auth app exercises client-path ESC, 64 KiB, and 200-line rejection.",
-  "timestamp": "2026-08-04T06:33:51.258Z"
-}

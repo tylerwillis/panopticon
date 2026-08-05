@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.3.1--e0cf80ac9528",
-  "requirementId": "REQ-035.3.1",
-  "hash": "e0cf80ac9528",
-  "verdict": "pass",
-  "summary": "All discovered non-mutating REST operations plus framework documentation reads are exercised with both read and write credentials and must avoid generic auth failure.",
-  "timestamp": "2026-08-03T02:05:03.309Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.7.1--7fdddcc6cadd",
-  "requirementId": "REQ-033.7.1",
-  "hash": "7fdddcc6cadd",
-  "verdict": "pass",
-  "summary": "Exact instructions require gh issue create for endorsed or unopposed suggestions with user edits.",
-  "timestamp": "2026-08-03T00:13:24.764Z"
-}

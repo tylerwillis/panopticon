@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.5.1--9edb15641370",
-  "requirementId": "REQ-048.5.1",
-  "hash": "9edb15641370",
-  "verdict": "pass",
-  "summary": "Tests cover every named self-mutation, declared operations and transitions, responsibility outcomes, state movement, scalar replacement, boolean reversal, dependency clearing, and persistence after service reload.",
-  "timestamp": "2026-08-04T06:50:57.270Z"
-}

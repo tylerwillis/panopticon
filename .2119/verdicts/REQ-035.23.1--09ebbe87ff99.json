@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.23.1--09ebbe87ff99",
-  "requirementId": "REQ-035.23.1",
-  "hash": "09ebbe87ff99",
-  "verdict": "pass",
-  "summary": "Real-app HEAD test proves the route is protected (unauthenticated 401) and rejects read-token denial by requiring the same HEAD request to return 200, so the generic authentication failure cannot substitute.",
-  "timestamp": "2026-08-02T22:06:21.353Z"
-}

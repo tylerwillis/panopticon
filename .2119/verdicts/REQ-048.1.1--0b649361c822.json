@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.1.1--0b649361c822",
-  "requirementId": "REQ-048.1.1",
-  "hash": "0b649361c822",
-  "verdict": "pass",
-  "summary": "The runner test inspects the emitted Docker command and every credential-bearing mount, proving exactly one read-only designated snapshot contains only the subject-bound task capability and that no fleet token appears in command or mounted surfaces.",
-  "timestamp": "2026-08-04T06:50:52.848Z"
-}

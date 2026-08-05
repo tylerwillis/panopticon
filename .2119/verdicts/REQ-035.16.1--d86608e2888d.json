@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.16.1--d86608e2888d",
-  "requirementId": "REQ-035.16.1",
-  "hash": "d86608e2888d",
-  "verdict": "pass",
-  "summary": "Runner, console/dashboard, and CLI factories each resolve the referenced local write token, return TaskServiceClient, and make an authenticated protected request.",
-  "timestamp": "2026-08-03T07:18:59.715Z"
-}

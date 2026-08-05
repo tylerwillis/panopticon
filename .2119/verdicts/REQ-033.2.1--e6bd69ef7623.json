@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.2.1--e6bd69ef7623",
-  "requirementId": "REQ-033.2.1",
-  "hash": "e6bd69ef7623",
-  "verdict": "pass",
-  "summary": "Fresh review verified each suggestion must include idea, reason, and implementation context.",
-  "timestamp": "2026-08-03T11:58:55.438Z"
-}

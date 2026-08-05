@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.18.1--2fd252e12cc8",
-  "requirementId": "REQ-035.18.1",
-  "hash": "2fd252e12cc8",
-  "verdict": "pass",
-  "summary": "Distinct configured tokens are rejected from REST/MCP failure and validation bodies, captured application logs, runner and curl argv, task/repo responses, and every produced SQLite/artifact/log file.",
-  "timestamp": "2026-08-03T01:13:25.371Z"
-}

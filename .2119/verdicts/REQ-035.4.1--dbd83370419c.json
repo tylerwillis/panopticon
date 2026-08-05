@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.4.1--dbd83370419c",
-  "requirementId": "REQ-035.4.1",
-  "hash": "dbd83370419c",
-  "verdict": "pass",
-  "summary": "Test dynamically verifies all mutating REST operations and /tasks/*/live, /runners/*/live reject read tokens with generic 401 auth-failure response via live-app boundary evidence across three read-token variants and state-mutation detection.",
-  "timestamp": "2026-08-03T10:53:59.868Z"
-}

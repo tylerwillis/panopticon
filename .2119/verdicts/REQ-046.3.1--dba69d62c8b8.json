@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-046.3.1--dba69d62c8b8",
-  "requirementId": "REQ-046.3.1",
-  "hash": "dba69d62c8b8",
-  "verdict": "pass",
-  "summary": "Integrated startup tests cover Darwin, Linux, and Windows with IPv4, IPv6, and mixed-case hostname values, and require exactly one --host argument preserving the configured value exactly.",
-  "timestamp": "2026-08-03T23:29:09.125Z"
-}

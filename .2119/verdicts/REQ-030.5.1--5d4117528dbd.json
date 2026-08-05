@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-030.5.1--5d4117528dbd",
-  "requirementId": "REQ-030.5.1",
-  "hash": "5d4117528dbd",
-  "verdict": "pass",
-  "summary": "Both runner tests exercise tmux_socket=None and exact command sequences reject any dedicated socket/config flag, extra defaults-setting call, or shell-command injection.",
-  "timestamp": "2026-08-03T20:47:34.114Z"
-}

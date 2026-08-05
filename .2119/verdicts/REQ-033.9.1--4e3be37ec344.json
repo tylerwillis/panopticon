@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.9.1--4e3be37ec344",
-  "requirementId": "REQ-033.9.1",
-  "hash": "4e3be37ec344",
-  "verdict": "pass",
-  "summary": "Same literal, step 3 requires self-contained issues: title stating the idea, body with PR link, review-comment reference, why deferred, and what implementing it would involve — every conjunct is inside the exactly-asserted prefix.",
-  "timestamp": "2026-08-03T13:19:47.068Z"
-}

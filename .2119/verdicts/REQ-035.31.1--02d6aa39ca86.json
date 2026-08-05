@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.31.1--02d6aa39ca86",
-  "requirementId": "REQ-035.31.1",
-  "hash": "02d6aa39ca86",
-  "verdict": "pass",
-  "summary": "Tests cover service, runner, and dashboard creation with all three invoking-process values present and absent; exact command propagation/unsetting is asserted, and a real stale tmux environment proves fresh values replace stale ones while absent values are cleared.",
-  "timestamp": "2026-08-02T23:29:42.453Z"
-}

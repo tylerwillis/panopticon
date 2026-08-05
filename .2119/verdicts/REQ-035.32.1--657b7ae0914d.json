@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.32.1--657b7ae0914d",
-  "requirementId": "REQ-035.32.1",
-  "hash": "657b7ae0914d",
-  "verdict": "pass",
-  "summary": "After distinct new read/write tokens are appended behind multiple old generations, restarted Python and shell paths must select the final write token; removing every old token then proves both captured caller credentials remain accepted.",
-  "timestamp": "2026-08-02T23:29:46.290Z"
-}

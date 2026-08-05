@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.8.3--58a0db821378",
-  "requirementId": "REQ-048.8.3",
-  "hash": "58a0db821378",
-  "verdict": "pass",
-  "summary": "The classification test inventories all non-exempt APIRoute methods, MCP tools, resources, and templates, requires exact mapping coverage without duplicates, and restricts every assignment to the closed authorization-class enum.",
-  "timestamp": "2026-08-04T06:51:01.320Z"
-}

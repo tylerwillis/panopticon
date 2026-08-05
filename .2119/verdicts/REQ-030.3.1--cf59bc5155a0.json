@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-030.3.1--cf59bc5155a0",
-  "requirementId": "REQ-030.3.1",
-  "hash": "cf59bc5155a0",
-  "verdict": "pass",
-  "summary": "Fresh review verified all socket-touching call sites put the full config on the first tmux command.",
-  "timestamp": "2026-08-03T12:14:01.133Z"
-}

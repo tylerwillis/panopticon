@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.36.1--a5e94da50560",
-  "requirementId": "REQ-035.36.1",
-  "hash": "a5e94da50560",
-  "verdict": "pass",
-  "summary": "Injected first-request 401 and 403 errors must escape immediately as permanent rejection rather than entering the reconnect loop.",
-  "timestamp": "2026-08-03T06:36:12.279Z"
-}

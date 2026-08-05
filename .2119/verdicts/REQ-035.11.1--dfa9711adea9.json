@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.11.1--dfa9711adea9",
-  "requirementId": "REQ-035.11.1",
-  "hash": "dfa9711adea9",
-  "verdict": "pass",
-  "summary": "Equivalent missing, read, and write credentials are exercised across REST and MCP from loopback, tailnet IPv4/IPv6, and public addresses with identical outcomes.",
-  "timestamp": "2026-08-03T02:05:10.908Z"
-}

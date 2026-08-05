@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.8.1--aef379425062",
-  "requirementId": "REQ-035.8.1",
-  "hash": "aef379425062",
-  "verdict": "pass",
-  "summary": "Tests cross all five required verbs with existing and missing routes/resources of every named kind and compare the exact generic 401 body and Bearer challenge, including existing and unknown MCP methods.",
-  "timestamp": "2026-08-03T01:17:03.955Z"
-}

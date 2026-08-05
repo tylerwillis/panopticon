@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.35.1--c0a878303777",
-  "requirementId": "REQ-035.35.1",
-  "hash": "c0a878303777",
-  "verdict": "pass",
-  "summary": "Real permissive requests verify method, route, caller, cumulative counts, powers-of-two rate limiting, token redaction, and bounded warning growth.",
-  "timestamp": "2026-08-03T09:22:04.910Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.9.1--ef80a3275caf",
-  "requirementId": "REQ-035.9.1",
-  "hash": "ef80a3275caf",
-  "verdict": "pass",
-  "summary": "Pass: exact Bearer syntax is positively exercised, while every named query/cookie/body/header alias and near-miss Authorization form is rejected across protected REST and MCP surfaces.",
-  "timestamp": "2026-08-03T01:20:49.379Z"
-}

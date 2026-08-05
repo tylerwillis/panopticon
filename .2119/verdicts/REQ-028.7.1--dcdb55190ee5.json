@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.7.1--dcdb55190ee5",
-  "requirementId": "REQ-028.7.1",
-  "hash": "dcdb55190ee5",
-  "verdict": "pass",
-  "summary": "Fresh review verified all built-in workflows are discovered without external files.",
-  "timestamp": "2026-08-03T11:58:51.908Z"
-}

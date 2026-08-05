@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.3.1--b48f2306c317",
-  "requirementId": "REQ-048.3.1",
-  "hash": "b48f2306c317",
-  "verdict": "pass",
-  "summary": "Derived principal, fleet master, owning runner, wrong runner, and missing runner outcomes are behaviorally covered.",
-  "timestamp": "2026-08-04T06:33:51.659Z"
-}

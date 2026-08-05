@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-031.3.4--f27d7376c28c",
-  "requirementId": "REQ-031.3.4",
-  "hash": "f27d7376c28c",
-  "verdict": "pass",
-  "summary": "Both spawn_one and heal reject the nearest violation: a shell task consulting an unreachable Docker-daemon probe; spawn still claims and starts, while heal remains a no-op with zero probe calls.",
-  "timestamp": "2026-08-03T07:24:37.319Z"
-}

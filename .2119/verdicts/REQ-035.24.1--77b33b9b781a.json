@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.24.1--77b33b9b781a",
-  "requirementId": "REQ-035.24.1",
-  "hash": "77b33b9b781a",
-  "verdict": "pass",
-  "summary": "Startup rejects tokens outside ASCII grammar [A-Za-z0-9._~+/-]+=* via parametrized invalid-value tests with equals-only-trailing boundary confirmed by opaque token acceptance",
-  "timestamp": "2026-08-03T10:53:13.218Z"
-}

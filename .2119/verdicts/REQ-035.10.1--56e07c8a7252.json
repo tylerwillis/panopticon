@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.10.1--56e07c8a7252",
-  "requirementId": "REQ-035.10.1",
-  "hash": "56e07c8a7252",
-  "verdict": "pass",
-  "summary": "An unauthenticated request proves /healthz returns 200 with exactly the existing {status: ok} payload, including under a configured root path.",
-  "timestamp": "2026-08-02T23:29:48.898Z"
-}

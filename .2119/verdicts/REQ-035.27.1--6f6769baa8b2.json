@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.27.1--6f6769baa8b2",
-  "requirementId": "REQ-035.27.1",
-  "hash": "6f6769baa8b2",
-  "verdict": "pass",
-  "summary": "PASS: tests exercise resolved enforced/disabled/permissive modes, require warning-level records for both unsafe modes, and pin enforced-only steady-state documentation.",
-  "timestamp": "2026-08-03T02:08:01.184Z"
-}

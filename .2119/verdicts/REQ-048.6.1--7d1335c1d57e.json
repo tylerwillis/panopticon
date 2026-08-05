@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.6.1--7d1335c1d57e",
-  "requirementId": "REQ-048.6.1",
-  "hash": "7d1335c1d57e",
-  "verdict": "pass",
-  "summary": "An inventory-derived test covers every task-targeted REST route against sibling and missing targets, while the exhaustive action-table test denies all unrelated actions; drop is explicitly included.",
-  "timestamp": "2026-08-04T06:50:58.252Z"
-}

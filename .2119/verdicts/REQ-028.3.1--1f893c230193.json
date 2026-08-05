@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.3.1--1f893c230193",
-  "requirementId": "REQ-028.3.1",
-  "hash": "1f893c230193",
-  "verdict": "pass",
-  "summary": "Exact built-in skill output requires the dashboard a hotkey and enumerates non-PR reviewer-readable artifact examples.",
-  "timestamp": "2026-08-03T06:34:40.315Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.41.1--04934896aa41",
-  "requirementId": "REQ-035.41.1",
-  "hash": "04934896aa41",
-  "verdict": "pass",
-  "summary": "Three tests verify with real production commands and shell xtrace: token absent from stderr/argv but present in stdin, proving secure injection via --config/stdin rather than command line.",
-  "timestamp": "2026-08-03T10:53:46.828Z"
-}

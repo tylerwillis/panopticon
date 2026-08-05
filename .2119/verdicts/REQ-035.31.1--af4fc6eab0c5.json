@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.31.1--af4fc6eab0c5",
-  "requirementId": "REQ-035.31.1",
-  "hash": "af4fc6eab0c5",
-  "verdict": "fail",
-  "summary": "Tests explicitly expect only service and runner sessions; no dashboard session is exercised, so dashboard auth propagation or stale-value leakage could violate the requirement without failure.",
-  "timestamp": "2026-08-03T02:05:29.836Z"
-}

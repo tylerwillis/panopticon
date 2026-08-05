@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.9.1--b0dd8b20bb39",
-  "requirementId": "REQ-033.9.1",
-  "hash": "b0dd8b20bb39",
-  "verdict": "pass",
-  "summary": "Exactly pins every built-in merge skill preface, covering title plus PR link, source review, deferral reason, and shipping-scope body fields.",
-  "timestamp": "2026-08-03T06:34:13.632Z"
-}

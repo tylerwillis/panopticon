@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-031.3.5--768c3f18215e",
-  "requirementId": "REQ-031.3.5",
-  "hash": "768c3f18215e",
-  "verdict": "pass",
-  "summary": "The test holds a pre-outage count of 1 across ten deferrals beyond the reset window, then requires recovery to respawn and advance exactly to 2.",
-  "timestamp": "2026-08-03T07:24:34.005Z"
-}

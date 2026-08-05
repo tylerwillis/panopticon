@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.32.1--232d0ecb8e57",
-  "requirementId": "REQ-035.32.1",
-  "hash": "232d0ecb8e57",
-  "verdict": "pass",
-  "summary": "Python and shell clients both select the appended final write token, and both remain authorized after prior tokens are removed, rejecting non-final selection.",
-  "timestamp": "2026-08-03T00:38:54.011Z"
-}

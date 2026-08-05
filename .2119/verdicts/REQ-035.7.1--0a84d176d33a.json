@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.7.1--0a84d176d33a",
-  "requirementId": "REQ-035.7.1",
-  "hash": "0a84d176d33a",
-  "verdict": "pass",
-  "summary": "Missing, malformed, unknown, truncated, extended, non-ASCII, and insufficient credentials are checked across protected REST/MCP operations for identical 401, body, and Bearer challenge.",
-  "timestamp": "2026-08-03T09:21:36.621Z"
-}

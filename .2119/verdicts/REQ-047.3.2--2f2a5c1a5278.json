@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.3.2--2f2a5c1a5278",
-  "requirementId": "REQ-047.3.2",
-  "hash": "2f2a5c1a5278",
-  "verdict": "pass",
-  "summary": "Behavioral tests reject leaks, partial masking, or nonliteral replacement for each configured token across messages, tuple/mapping arguments, nested caller extras, exception text, and stack data in task-service, FastAPI, uvicorn, and MCP root/child namespaces during active lifespans.",
-  "timestamp": "2026-08-04T01:56:04.993Z"
-}

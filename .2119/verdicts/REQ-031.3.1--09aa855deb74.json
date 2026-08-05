@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-031.3.1--09aa855deb74",
-  "requirementId": "REQ-031.3.1",
-  "hash": "09aa855deb74",
-  "verdict": "pass",
-  "summary": "Unreachable non-shell tasks are proven deferred with no spawn, claim, or lifecycle mutation; restored reachability retries normally, and host wiring is covered.",
-  "timestamp": "2026-08-03T07:24:01.742Z"
-}

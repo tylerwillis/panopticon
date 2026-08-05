@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.15.1--51af258d8fd1",
-  "requirementId": "REQ-035.15.1",
-  "hash": "51af258d8fd1",
-  "verdict": "pass",
-  "summary": "Pass: a recording transport observes Bearer authentication and URL non-disclosure on ordinary GET/PUT calls and both task and runner liveness requests.",
-  "timestamp": "2026-08-03T01:20:52.362Z"
-}

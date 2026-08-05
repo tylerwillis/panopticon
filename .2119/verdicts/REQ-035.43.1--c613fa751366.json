@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.43.1--c613fa751366",
-  "requirementId": "REQ-035.43.1",
-  "hash": "c613fa751366",
-  "verdict": "pass",
-  "summary": "Tests prove startup zero, exact monotonic increments for header-less requests, no increments for authenticated or health requests, reset on app restart, large-count behavior, and token-free health output.",
-  "timestamp": "2026-08-03T09:26:17.110Z"
-}

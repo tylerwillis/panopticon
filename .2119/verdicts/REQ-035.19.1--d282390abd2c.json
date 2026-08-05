@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.19.1--d282390abd2c",
-  "requirementId": "REQ-035.19.1",
-  "hash": "d282390abd2c",
-  "verdict": "pass",
-  "summary": "The test proves old/new read and write overlap, running-service snapshot persistence after file removal, and old-token rejection only after restart.",
-  "timestamp": "2026-08-03T06:34:43.721Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.38.1--3c601ff0ad6f",
-  "requirementId": "REQ-035.38.1",
-  "hash": "3c601ff0ad6f",
-  "verdict": "pass",
-  "summary": "A real sh execution enables xtrace, performs an authenticated library operation, and asserts the secret is absent from both trace stderr and captured curl argv.",
-  "timestamp": "2026-08-03T06:36:12.770Z"
-}

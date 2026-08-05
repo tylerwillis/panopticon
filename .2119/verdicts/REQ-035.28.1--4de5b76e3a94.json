@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.28.1--4de5b76e3a94",
-  "requirementId": "REQ-035.28.1",
-  "hash": "4de5b76e3a94",
-  "verdict": "pass",
-  "summary": "Both LocalRunner and ShellRunner now cover missing and directory references: they require failure before any injected Docker/tmux command, preserve missing-path absence, and compare the non-file directory's full stat/inode snapshot plus exact sentinel contents, rejecting replacement, metadata change, added/removed children, or content mutation; spawner/healing tests cover earlier orchestration side effects.",
-  "timestamp": "2026-08-03T00:17:31.667Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.3.1--c1f30cfac5a1",
-  "requirementId": "REQ-035.3.1",
-  "hash": "c1f30cfac5a1",
-  "verdict": "pass",
-  "summary": "Tests verify that authenticated read/write tokens reach non-mutating endpoints without GENERIC_FAILURE; covers multiple tokens and endpoints, properly excludes /healthz and /mcp",
-  "timestamp": "2026-08-03T11:19:50.637Z"
-}

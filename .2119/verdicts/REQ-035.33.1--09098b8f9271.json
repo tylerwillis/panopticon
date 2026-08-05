@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.33.1--09098b8f9271",
-  "requirementId": "REQ-035.33.1",
-  "hash": "09098b8f9271",
-  "verdict": "fail",
-  "summary": "The annotated test rejects 1-, 5-, and 11-character write tokens but never tests a short read token, so it does not prove every configured bearer token has at least twelve characters.",
-  "timestamp": "2026-08-03T01:13:12.561Z"
-}

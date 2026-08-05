@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.3.1--c94b3900739f",
-  "requirementId": "REQ-033.3.1",
-  "hash": "c94b3900739f",
-  "verdict": "pass",
-  "summary": "Pins every built-in review skill's explicit exclusion of simply-wrong findings and guards against the nearest inverted instruction.",
-  "timestamp": "2026-08-03T02:37:20.647Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.9.1--2f1bc6d43f33",
-  "requirementId": "REQ-035.9.1",
-  "hash": "2f1bc6d43f33",
-  "verdict": "pass",
-  "summary": "Tests accept valid Bearer credentials and reject every forbidden carrier/name plus near-miss scheme, spacing, casing, and suffix forms across protected REST and MCP surfaces.",
-  "timestamp": "2026-08-03T01:17:10.579Z"
-}

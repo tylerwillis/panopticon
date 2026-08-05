@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-005.4.1--5a7b1fc2b27f",
-  "requirementId": "REQ-005.4.1",
-  "hash": "5a7b1fc2b27f",
-  "verdict": "pass",
-  "summary": "Real-shell coverage verifies creation with all components missing, with each parent boundary already present, and idempotent success when profiles already exists.",
-  "timestamp": "2026-08-02T19:29:50.370Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.19.1--01b0a517089b",
-  "requirementId": "REQ-035.19.1",
-  "hash": "01b0a517089b",
-  "verdict": "pass",
-  "summary": "The rotation test proves old/new read and write tokens overlap, file removal has no live effect, and a subsequent restart rejects only the removed old tokens.",
-  "timestamp": "2026-08-03T01:17:29.965Z"
-}

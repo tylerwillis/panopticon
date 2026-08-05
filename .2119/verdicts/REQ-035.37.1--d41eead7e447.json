@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.37.1--d41eead7e447",
-  "requirementId": "REQ-035.37.1",
-  "hash": "d41eead7e447",
-  "verdict": "pass",
-  "summary": "The rendered command runs against a real permissive HTTP server without credentials; middleware proves Authorization is absent and the artifact is admitted.",
-  "timestamp": "2026-08-03T09:22:04.910Z"
-}

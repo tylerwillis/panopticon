@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.27.1--b37606da2d76",
-  "requirementId": "REQ-035.27.1",
-  "hash": "b37606da2d76",
-  "verdict": "pass",
-  "summary": "Tests resolved disabled, permissive, and enforced reporting, exact warning levels for non-enforced modes, real production-process output, and enforced steady-state documentation.",
-  "timestamp": "2026-08-03T04:00:17.515Z"
-}

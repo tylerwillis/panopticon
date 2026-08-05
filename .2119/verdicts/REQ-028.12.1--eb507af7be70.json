@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.12.1--eb507af7be70",
-  "requirementId": "REQ-028.12.1",
-  "hash": "eb507af7be70",
-  "verdict": "pass",
-  "summary": "Enumerates all built-in 2119 skills, pins exact read-only and clean-tree instructions, and verifies the isolated Codex argv plus failed identity/dispatch outcomes.",
-  "timestamp": "2026-08-03T07:08:27.879Z"
-}

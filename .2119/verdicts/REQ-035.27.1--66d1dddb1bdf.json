@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.27.1--66d1dddb1bdf",
-  "requirementId": "REQ-035.27.1",
-  "hash": "66d1dddb1bdf",
-  "verdict": "pass",
-  "summary": "Coverage verifies resolved enforced mode in a real production process, exact disabled/permissive modes at WARNING level, and documentation that explicitly declares enforced as required steady state while confining permissive mode to migration; omitted/misreported modes, INFO-only warnings, or permissive steady-state guidance fail.",
-  "timestamp": "2026-08-02T23:29:41.404Z"
-}

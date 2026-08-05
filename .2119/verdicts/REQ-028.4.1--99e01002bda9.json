@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.4.1--99e01002bda9",
-  "requirementId": "REQ-028.4.1",
-  "hash": "99e01002bda9",
-  "verdict": "pass",
-  "summary": "`test_specifying_has_one_artifact_responsibility` asserts the entire SPECIFYING responsibility tuple equals a literal with exactly one artifact responsibility (`spec-artifact`) for all three builtins — exact tuple equality proves both \"exactly one\" and the publication-for-review wording.",
-  "timestamp": "2026-08-03T13:19:36.781Z"
-}

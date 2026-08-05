@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-043.4.1--05ff667444e0",
-  "requirementId": "REQ-043.4.1",
-  "hash": "05ff667444e0",
-  "verdict": "pass",
-  "summary": "Image-build and docker-run pre-session failures each remain charged to the same task budget, with six heals capped at exactly three attempted commands and a retained count of three.",
-  "timestamp": "2026-08-03T07:25:45.993Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.14.1--611bca04d07d",
-  "requirementId": "REQ-035.14.1",
-  "hash": "611bca04d07d",
-  "verdict": "pass",
-  "summary": "Behavioral startup tests reject absent, missing, unreadable, escaping (traversal/absolute/symlink), malformed or non-exact credential objects, empty/non-string arrays, and direct or partial privilege overlap before any client serves requests.",
-  "timestamp": "2026-08-03T17:33:55.539Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.39.1--e16c3bcb93a3",
-  "requirementId": "REQ-035.39.1",
-  "hash": "e16c3bcb93a3",
-  "verdict": "pass",
-  "summary": "The tests prove a Docker runtime snapshot contains only the subject task capability derived from the currently selected final write token, excluding read tokens, prior write tokens, sibling authority, and raw credential values from the snapshot and command line.",
-  "timestamp": "2026-08-04T06:50:52.152Z"
-}

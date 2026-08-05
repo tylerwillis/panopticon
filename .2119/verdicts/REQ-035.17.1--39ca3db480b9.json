@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.17.1--39ca3db480b9",
-  "requirementId": "REQ-035.17.1",
-  "hash": "39ca3db480b9",
-  "verdict": "pass",
-  "summary": "Tests cover Docker and shell spawning without repo env files, runtime-secret injection, Python shared clients, liveness, shell-library calls, and rendered harness callers.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

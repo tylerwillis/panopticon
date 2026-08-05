@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.18.1--4069b4235cce",
-  "requirementId": "REQ-035.18.1",
-  "hash": "4069b4235cce",
-  "verdict": "pass",
-  "summary": "Tests reject exact, escaped, and prefix-overlapping configured tokens across failure/validation bodies, logs, argv, serialization, SQLite state, and artifacts.",
-  "timestamp": "2026-08-03T17:34:12.304Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.6.1--55d22cdf3999",
-  "requirementId": "REQ-033.6.1",
-  "hash": "55d22cdf3999",
-  "verdict": "pass",
-  "summary": "Every built-in merge skill exactly pins the pre-merge preface requiring reread of both the suggested-issues section and reacting user comments before unchanged merge steps.",
-  "timestamp": "2026-08-03T07:08:30.300Z"
-}

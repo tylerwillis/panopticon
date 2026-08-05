@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.10.1--56645d860c90",
-  "requirementId": "REQ-048.10.1",
-  "hash": "56645d860c90",
-  "verdict": "pass",
-  "summary": "Parameterized tests cover every named query, cookie, JSON, and alternate-header channel both alone and alongside a valid bearer header, plus malformed bearer-header shapes.",
-  "timestamp": "2026-08-04T06:51:02.306Z"
-}

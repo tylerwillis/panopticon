@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.4.1--46639a517e7e",
-  "requirementId": "REQ-033.4.1",
-  "hash": "46639a517e7e",
-  "verdict": "pass",
-  "summary": "Independent substring \"recommendations for the user to react to (endorse, reject, or edit) at the PR approval gate\" asserted in every builtin's review skill.",
-  "timestamp": "2026-08-03T13:19:44.647Z"
-}

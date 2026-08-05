@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-005.1.1--a9489a113686",
-  "requirementId": "REQ-005.1.1",
-  "hash": "a9489a113686",
-  "verdict": "pass",
-  "summary": "Real-shell tests exercise shipped dispatch: outfitter must invoke the Pi auth flow and must never emit the unsupported fallback, including the nearest profile-directory error case; only downstream Pi auth is stubbed.",
-  "timestamp": "2026-08-02T19:28:40.658Z"
-}

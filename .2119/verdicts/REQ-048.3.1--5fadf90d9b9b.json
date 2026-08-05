@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.3.1--5fadf90d9b9b",
-  "requirementId": "REQ-048.3.1",
-  "hash": "5fadf90d9b9b",
-  "verdict": "pass",
-  "summary": "The runner test derives the expected capability from the fresh credential-file contents, proves the snapshot contains only that task capability, mounts it read-only at the configured path, and verifies the container client reads it.",
-  "timestamp": "2026-08-04T06:50:55.181Z"
-}

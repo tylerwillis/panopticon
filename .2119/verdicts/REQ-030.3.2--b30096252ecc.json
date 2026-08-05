@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-030.3.2--b30096252ecc",
-  "requirementId": "REQ-030.3.2",
-  "hash": "b30096252ecc",
-  "verdict": "pass",
-  "summary": "Tests reject an unconfigured first dedicated-socket operation, -f after new-session, and a config missing history-limit 50000 across all pane-creating entry paths.",
-  "timestamp": "2026-08-03T20:46:37.175Z"
-}

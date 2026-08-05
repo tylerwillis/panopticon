@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.29.1--ee6187993621",
-  "requirementId": "REQ-035.29.1",
-  "hash": "ee6187993621",
-  "verdict": "pass",
-  "summary": "The integrated-start test parses the actual generated task-service argv and requires exactly one explicit --host 0.0.0.0, while the standalone entrypoint test removes the host environment override and verifies uvicorn receives 127.0.0.1; missing, duplicate, swapped, or wrong bind values fail.",
-  "timestamp": "2026-08-02T22:31:05.992Z"
-}

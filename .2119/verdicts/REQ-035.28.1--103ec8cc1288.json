@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.28.1--103ec8cc1288",
-  "requirementId": "REQ-035.28.1",
-  "hash": "103ec8cc1288",
-  "verdict": "pass",
-  "summary": "Both Docker and tmux runners reject missing, directory, and FIFO credential references before any command call while proving absent paths stay absent and non-files remain unchanged.",
-  "timestamp": "2026-08-03T03:41:20.384Z"
-}

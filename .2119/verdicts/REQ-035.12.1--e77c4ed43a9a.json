@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.12.1--e77c4ed43a9a",
-  "requirementId": "REQ-035.12.1",
-  "hash": "e77c4ed43a9a",
-  "verdict": "pass",
-  "summary": "Absent and empty credential configuration is exercised across every protected REST operation and MCP GET/POST/DELETE, including malformed protocol inputs, rejecting generic auth preemption.",
-  "timestamp": "2026-08-03T07:18:57.524Z"
-}

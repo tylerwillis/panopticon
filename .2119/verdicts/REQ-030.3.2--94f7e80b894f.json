@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-030.3.2--94f7e80b894f",
-  "requirementId": "REQ-030.3.2",
-  "hash": "94f7e80b894f",
-  "verdict": "pass",
-  "summary": "Fresh review verified history defaults are loaded before every new pane is created.",
-  "timestamp": "2026-08-03T12:28:54.055Z"
-}

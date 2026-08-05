@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.42.1--c49fc5f16628",
-  "requirementId": "REQ-035.42.1",
-  "hash": "c49fc5f16628",
-  "verdict": "pass",
-  "summary": "Freshness revalidation after Ruff-only formatting; the freshly reviewed annotated assertions and behavior are unchanged and still reject every configured-token logging or response leak.",
-  "timestamp": "2026-08-03T19:01:46.123Z"
-}

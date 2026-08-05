@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.14.1--e1a16cbed6bf",
-  "requirementId": "REQ-035.14.1",
-  "hash": "e1a16cbed6bf",
-  "verdict": "pass",
-  "summary": "Constructor-level tests reject absent, missing, unreadable, parent/absolute/symlink-escaping, malformed/non-object, missing/empty/non-string-array credentials, and single or multi-token privilege overlap before an app can serve.",
-  "timestamp": "2026-08-02T22:05:24.589Z"
-}

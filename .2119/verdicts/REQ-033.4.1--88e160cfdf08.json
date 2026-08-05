@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.4.1--88e160cfdf08",
-  "requirementId": "REQ-033.4.1",
-  "hash": "88e160cfdf08",
-  "verdict": "pass",
-  "summary": "All built-in review skills are discovered and exact instruction snapshots require framing suggestions as user-reactable approval-gate recommendations.",
-  "timestamp": "2026-08-03T02:37:11.124Z"
-}

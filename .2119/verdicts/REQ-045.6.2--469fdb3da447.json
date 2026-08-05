@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-045.6.2--469fdb3da447",
-  "requirementId": "REQ-045.6.2",
-  "hash": "469fdb3da447",
-  "verdict": "pass",
-  "summary": "API tests reject anonymous, read-only, task-scoped, missing-runner, and former-owner requests across poll, settle, and transcript publish while accepting the master principal with the current owner ID.",
-  "timestamp": "2026-08-03T20:50:23.899Z"
-}

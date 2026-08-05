@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.42.1--386aa71eaaba",
-  "requirementId": "REQ-035.42.1",
-  "hash": "386aa71eaaba",
-  "verdict": "pass",
-  "summary": "Genuine boundary coverage: tool arguments and resource URIs carry every configured token variant, while formatted and raw records from pinned MCP SDK logger namespaces are asserted to redact each token.",
-  "timestamp": "2026-08-03T17:35:14.972Z"
-}

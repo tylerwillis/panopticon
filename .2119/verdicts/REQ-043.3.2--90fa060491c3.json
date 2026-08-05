@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-043.3.2--90fa060491c3",
-  "requirementId": "REQ-043.3.2",
-  "hash": "90fa060491c3",
-  "verdict": "pass",
-  "summary": "Hook failure before Docker/tmux exercises the real spawner handler and proves lifecycle is not cleared and ends failed with the exact diagnostic.",
-  "timestamp": "2026-08-03T08:09:12.445Z"
-}

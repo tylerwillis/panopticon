@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.24.1--f0a8b703faaa",
-  "requirementId": "REQ-035.24.1",
-  "hash": "f0a8b703faaa",
-  "verdict": "pass",
-  "summary": "Existing full-string grammar tests remain green; extra position permutations are unrelated to the session-input classifier delta.",
-  "timestamp": "2026-08-03T17:36:11.887Z"
-}

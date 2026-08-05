@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.4.1--12d4f4f53470",
-  "requirementId": "REQ-035.4.1",
-  "hash": "12d4f4f53470",
-  "verdict": "pass",
-  "summary": "All mutating operations reject read tokens with 401 GENERIC_FAILURE; state unmodified; /live routes explicitly verified",
-  "timestamp": "2026-08-03T11:19:45.304Z"
-}

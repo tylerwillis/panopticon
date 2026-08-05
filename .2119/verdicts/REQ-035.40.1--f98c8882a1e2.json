@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.40.1--f98c8882a1e2",
-  "requirementId": "REQ-035.40.1",
-  "hash": "f98c8882a1e2",
-  "verdict": "pass",
-  "summary": "Startup rejects the eligible fixed-response collisions from the generic body and Content-Type header: authentication and application/json.",
-  "timestamp": "2026-08-03T06:36:13.727Z"
-}

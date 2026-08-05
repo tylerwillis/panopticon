@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.1.1--8143467c5ccd",
-  "requirementId": "REQ-035.1.1",
-  "hash": "8143467c5ccd",
-  "verdict": "pass",
-  "summary": "Tests prove startup loads a secrets-relative file, rejects traversal/raw-token references, and finds no token copies in API, logs, SQLite, or artifacts.",
-  "timestamp": "2026-08-03T02:05:02.395Z"
-}

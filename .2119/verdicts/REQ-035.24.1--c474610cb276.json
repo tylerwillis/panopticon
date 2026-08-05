@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.24.1--c474610cb276",
-  "requirementId": "REQ-035.24.1",
-  "hash": "c474610cb276",
-  "verdict": "pass",
-  "summary": "Invalid-character, misplaced-padding, whitespace, Unicode, and near-valid token cases are rejected across both privilege arrays while valid grammar boundaries are admitted.",
-  "timestamp": "2026-08-03T06:36:08.330Z"
-}

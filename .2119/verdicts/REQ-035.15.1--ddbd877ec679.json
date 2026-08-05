@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.15.1--ddbd877ec679",
-  "requirementId": "REQ-035.15.1",
-  "hash": "ddbd877ec679",
-  "verdict": "pass",
-  "summary": "Mock transport observes bearer authorization and absence of token URL leakage on ordinary GETs, a PUT, task liveness, and runner liveness through the shared client.",
-  "timestamp": "2026-08-03T01:17:13.669Z"
-}

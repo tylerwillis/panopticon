@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-031.3.3--4790b42adcf6",
-  "requirementId": "REQ-031.3.3",
-  "hash": "4790b42adcf6",
-  "verdict": "pass",
-  "summary": "The heal test makes Docker unreachable for an orphaned task and asserts no lifecycle report occurs, so any failed-phase report is rejected.",
-  "timestamp": "2026-08-03T07:24:08.784Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.7.3--40d1184794c2",
-  "requirementId": "REQ-048.7.3",
-  "hash": "40d1184794c2",
-  "verdict": "pass",
-  "summary": "The orchestrator test explicitly rejects child operations, transitions/state changes, drops, claims, provisioning, migration, lifecycle reports, and both forms of governor reassignment; the exhaustive action table confirms the closed allow set.",
-  "timestamp": "2026-08-04T06:50:59.994Z"
-}

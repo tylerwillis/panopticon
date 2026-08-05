@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.2.1--c835f6589530",
-  "requirementId": "REQ-033.2.1",
-  "hash": "c835f6589530",
-  "verdict": "pass",
-  "summary": "Pins every built-in review skill's per-good-rejected-or-deferred one-paragraph entry and all three required contents.",
-  "timestamp": "2026-08-03T02:37:20.129Z"
-}

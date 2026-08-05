@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.10.1--3e4f93ae27e9",
-  "requirementId": "REQ-035.10.1",
-  "hash": "3e4f93ae27e9",
-  "verdict": "pass",
-  "summary": "Test verifies GET /healthz returns 200 without credentials and payload is exactly {\"status\": \"ok\"}",
-  "timestamp": "2026-08-03T11:16:28.335Z"
-}

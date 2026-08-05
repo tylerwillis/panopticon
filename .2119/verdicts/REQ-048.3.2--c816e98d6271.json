@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.3.2--c816e98d6271",
-  "requirementId": "REQ-048.3.2",
-  "hash": "c816e98d6271",
-  "verdict": "pass",
-  "summary": "Tests check task/repo serialization, database bytes, artifact bytes, every mounted file, all spawned command arguments, and captured logs for absence of capability plaintext.",
-  "timestamp": "2026-08-04T06:50:55.512Z"
-}

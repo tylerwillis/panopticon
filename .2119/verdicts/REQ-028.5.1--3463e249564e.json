@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.5.1--3463e249564e",
-  "requirementId": "REQ-028.5.1",
-  "hash": "3463e249564e",
-  "verdict": "pass",
-  "summary": "All three discovered built-in 2119 workflows are exhaustively checked against exact spec and review instructions covering spec, final reviews, and triage artifacts.",
-  "timestamp": "2026-08-03T06:34:28.868Z"
-}

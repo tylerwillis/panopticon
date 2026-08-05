@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.29.1--fa946868f321",
-  "requirementId": "REQ-035.29.1",
-  "hash": "fa946868f321",
-  "verdict": "pass",
-  "summary": "Tests reject omitted, duplicated, or non-0.0.0.0 integrated host arguments and verify standalone startup without PANOPTICON_HOST passes 127.0.0.1 to uvicorn.",
-  "timestamp": "2026-08-03T00:32:55.770Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.5.1--25970e3a2ba6",
-  "requirementId": "REQ-033.5.1",
-  "hash": "25970e3a2ba6",
-  "verdict": "pass",
-  "summary": "All built-ins require deferred-issues-filed before pr-merged with exact ordered keys.",
-  "timestamp": "2026-08-03T00:13:23.757Z"
-}

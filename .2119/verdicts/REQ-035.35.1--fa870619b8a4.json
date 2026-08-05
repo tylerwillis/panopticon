@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.35.1--fa870619b8a4",
-  "requirementId": "REQ-035.35.1",
-  "hash": "fa870619b8a4",
-  "verdict": "pass",
-  "summary": "Tests verify rate-limited warnings emit method, route, caller address, cumulative count; reject authenticated requests and linear rate-limiting",
-  "timestamp": "2026-08-03T11:18:14.068Z"
-}

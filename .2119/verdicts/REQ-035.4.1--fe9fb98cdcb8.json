@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.4.1--fe9fb98cdcb8",
-  "requirementId": "REQ-035.4.1",
-  "hash": "fe9fb98cdcb8",
-  "verdict": "pass",
-  "summary": "Enumerates the registered REST surface, identifies both mutating liveness GETs, and proves every mutating operation rejects each configured read token generically.",
-  "timestamp": "2026-08-03T07:18:55.549Z"
-}

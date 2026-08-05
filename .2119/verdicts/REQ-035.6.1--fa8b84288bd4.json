@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.6.1--fa8b84288bd4",
-  "requirementId": "REQ-035.6.1",
-  "hash": "fa8b84288bd4",
-  "verdict": "pass",
-  "summary": "Real mounted /mcp requests prove a read token gets 401 for both tools/call and resources/read, while a write token passes the authentication boundary.",
-  "timestamp": "2026-08-03T17:32:39.908Z"
-}

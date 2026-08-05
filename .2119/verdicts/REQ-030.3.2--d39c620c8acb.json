@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-030.3.2--d39c620c8acb",
-  "requirementId": "REQ-030.3.2",
-  "hash": "d39c620c8acb",
-  "verdict": "pass",
-  "summary": "Tests reject late or missing startup configuration across every dedicated-socket probe and pane-creating path by requiring the history-limit-bearing config before new-session.",
-  "timestamp": "2026-08-03T05:13:20.831Z"
-}

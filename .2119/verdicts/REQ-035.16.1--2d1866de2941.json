@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.16.1--2d1866de2941",
-  "requirementId": "REQ-035.16.1",
-  "hash": "2d1866de2941",
-  "verdict": "pass",
-  "summary": "All three factories resolve a unique file-backed write token into the shared TaskServiceClient and protected mock calls reject missing or incorrect authentication.",
-  "timestamp": "2026-08-02T22:05:41.433Z"
-}

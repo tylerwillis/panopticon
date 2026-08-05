@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.10.1--836604be4832",
-  "requirementId": "REQ-035.10.1",
-  "hash": "836604be4832",
-  "verdict": "pass",
-  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. Enforced-auth tests reject credential-gating via unauthenticated 200 checks (including root_path), and exact JSON equality rejects missing, altered, or extra readiness payload fields.",
-  "timestamp": "2026-08-03T18:58:41.168Z"
-}

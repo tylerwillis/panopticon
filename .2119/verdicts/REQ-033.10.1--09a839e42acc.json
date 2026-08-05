@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.10.1--09a839e42acc",
-  "requirementId": "REQ-033.10.1",
-  "hash": "09a839e42acc",
-  "verdict": "pass",
-  "summary": "Exact responsibility text preserves that filing zero issues is legal.",
-  "timestamp": "2026-08-03T00:13:26.222Z"
-}

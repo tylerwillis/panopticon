@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.27.1--d3f3a55f8886",
-  "requirementId": "REQ-035.27.1",
-  "hash": "d3f3a55f8886",
-  "verdict": "pass",
-  "summary": "Tests cover resolved enforced/disabled/permissive mode reporting, warning levels for both non-enforced modes, production output, and enforced steady-state documentation.",
-  "timestamp": "2026-08-03T02:05:27.894Z"
-}

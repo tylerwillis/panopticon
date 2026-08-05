@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.1.2--580e29c70e4e",
-  "requirementId": "REQ-026.1.2",
-  "hash": "580e29c70e4e",
-  "verdict": "pass",
-  "summary": "Tests exclude unclaimed non-terminal tasks with sole and mixed DROPPED dependencies from both candidate filtering and host spawning, and reject stale claims after a dependency becomes DROPPED.",
-  "timestamp": "2026-08-03T07:23:24.646Z"
-}

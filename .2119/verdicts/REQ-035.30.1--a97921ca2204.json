@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.30.1--a97921ca2204",
-  "requirementId": "REQ-035.30.1",
-  "hash": "a97921ca2204",
-  "verdict": "pass",
-  "summary": "Under a non-root ASGI root path, both liveness and MCP reject a read token and admit a write token, catching privilege downgrade on either route.",
-  "timestamp": "2026-08-03T00:32:56.245Z"
-}

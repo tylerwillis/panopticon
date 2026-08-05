@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.18.1--c4a51a6d2834",
-  "requirementId": "REQ-035.18.1",
-  "hash": "c4a51a6d2834",
-  "verdict": "pass",
-  "summary": "Evidence injects every configured token through validation/domain/MCP failure paths and inspects bodies, logs, serialized state, DB/artifacts, and runtime command argv for leakage.",
-  "timestamp": "2026-08-03T06:36:07.820Z"
-}

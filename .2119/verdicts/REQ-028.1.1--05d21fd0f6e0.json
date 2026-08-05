@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.1.1--05d21fd0f6e0",
-  "requirementId": "REQ-028.1.1",
-  "hash": "05d21fd0f6e0",
-  "verdict": "pass",
-  "summary": "Exercises discovered and custom workflows, with and without workflow skills, and rejects both initial and rescanned artifact-name collisions.",
-  "timestamp": "2026-08-03T06:34:10.195Z"
-}

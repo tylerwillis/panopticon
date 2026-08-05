@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-044.6.1--8ce97a02da18",
-  "requirementId": "REQ-044.6.1",
-  "hash": "8ce97a02da18",
-  "verdict": "pass",
-  "summary": "Fresh review confirmed query-token log secrecy with service-owned evidence and nonempty capture.",
-  "timestamp": "2026-08-03T18:18:16.974Z"
-}

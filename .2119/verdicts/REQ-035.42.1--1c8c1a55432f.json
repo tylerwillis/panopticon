@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.42.1--1c8c1a55432f",
-  "requirementId": "REQ-035.42.1",
-  "hash": "1c8c1a55432f",
-  "verdict": "pass",
-  "summary": "Direct evidence: tokens in MCP tool arguments and resource URIs are not written to logs or responses; pinned SDK loggers redact caller-controlled token data at response and logging boundaries",
-  "timestamp": "2026-08-03T10:59:22.846Z"
-}

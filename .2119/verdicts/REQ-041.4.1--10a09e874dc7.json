@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-041.4.1--10a09e874dc7",
-  "requirementId": "REQ-041.4.1",
-  "hash": "10a09e874dc7",
-  "verdict": "pass",
-  "summary": "Exact artifact guidance pins a/p hotkeys, complementarity, and GitHub external-URL routing.",
-  "timestamp": "2026-08-03T00:13:28.104Z"
-}

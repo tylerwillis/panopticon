@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.9.1--04a158d989ea",
-  "requirementId": "REQ-035.9.1",
-  "hash": "04a158d989ea",
-  "verdict": "pass",
-  "summary": "Test directly verifies all 50+ boundary cases: exact Bearer header format required, alternative names/headers/locations in query, cookies, JSON, and headers all rejected with 401. Covers lowercase bearer, extra spaces, all specified parameter names, and all alternative headers. No tautologies or missing production wiring.",
-  "timestamp": "2026-08-03T11:00:13.599Z"
-}

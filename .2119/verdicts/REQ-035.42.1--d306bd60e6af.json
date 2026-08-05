@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.42.1--d306bd60e6af",
-  "requirementId": "REQ-035.42.1",
-  "hash": "d306bd60e6af",
-  "verdict": "pass",
-  "summary": "Tests inject configured tokens into MCP tool/resource data and pinned SDK logger messages, extras, exceptions, bytes, and stack data, then prove captured logs and responses are redacted.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.23.1--87aa9dcddb08",
-  "requirementId": "REQ-035.23.1",
-  "hash": "87aa9dcddb08",
-  "verdict": "pass",
-  "summary": "Exercises an actual HEAD-capable protected route: headerless HEAD gets generic 401 while read and write tokens both reach the route and return 200.",
-  "timestamp": "2026-08-03T07:19:09.438Z"
-}

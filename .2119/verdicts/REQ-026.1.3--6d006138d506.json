@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-026.1.3--6d006138d506",
-  "requirementId": "REQ-026.1.3",
-  "hash": "6d006138d506",
-  "verdict": "pass",
-  "summary": "Pass: tests hold the dependent through active/dropped dependencies, release it on the first snapshot after all dependencies complete, exercise a custom non-COMPLETE terminal, and verify ordinary spawn plus the configured initial prompt.",
-  "timestamp": "2026-08-03T09:26:17.845Z"
-}

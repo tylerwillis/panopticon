@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.5.1--a9cfb05b95fb",
-  "requirementId": "REQ-035.5.1",
-  "hash": "a9cfb05b95fb",
-  "verdict": "pass",
-  "summary": "Write tokens pass authentication on all enumerated REST endpoints; status != 401 ensures no GENERIC_FAILURE (only returned with 401 per auth layer design)",
-  "timestamp": "2026-08-03T10:55:13.776Z"
-}

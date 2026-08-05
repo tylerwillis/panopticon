@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.33.1--25bf271c3302",
-  "requirementId": "REQ-035.33.1",
-  "hash": "25bf271c3302",
-  "verdict": "pass",
-  "summary": "Existing every-token validation tests remain green; mixed-list permutation expansion is unrelated to this route classifier change.",
-  "timestamp": "2026-08-03T17:36:12.445Z"
-}

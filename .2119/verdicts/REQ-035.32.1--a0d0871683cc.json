@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.32.1--a0d0871683cc",
-  "requirementId": "REQ-035.32.1",
-  "hash": "a0d0871683cc",
-  "verdict": "pass",
-  "summary": "Overlap test proves restarted Python and shell clients select the appended final write token and remain authorized after all older generations are removed.",
-  "timestamp": "2026-08-03T02:05:30.292Z"
-}

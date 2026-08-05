@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.2.1--dc9926f30eb4",
-  "requirementId": "REQ-033.2.1",
-  "hash": "dc9926f30eb4",
-  "verdict": "pass",
-  "summary": "Independent literal assertion of the full sentence: one-paragraph entry per rejected-or-deferred finding judged genuinely good, covering what/why-deferred/what-an-implementer-needs — all three content conjuncts in one asserted string.",
-  "timestamp": "2026-08-03T13:19:43.637Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.32.1--0aa6e8d3369c",
-  "requirementId": "REQ-035.32.1",
-  "hash": "0aa6e8d3369c",
-  "verdict": "pass",
-  "summary": "Behavioral test rejects penultimate/read-token selection for both newly constructed Python and fresh shell clients, then removes old generations and proves both captured final write tokens remain accepted.",
-  "timestamp": "2026-08-03T05:11:57.172Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.23.1--38642fcda06c",
-  "requirementId": "REQ-035.23.1",
-  "hash": "38642fcda06c",
-  "verdict": "pass",
-  "summary": "Read tokens reach protected HEAD routes without generic auth-failure response, verified via observable 200 status",
-  "timestamp": "2026-08-03T11:17:28.759Z"
-}

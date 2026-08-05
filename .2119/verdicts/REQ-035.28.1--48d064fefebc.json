@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.28.1--48d064fefebc",
-  "requirementId": "REQ-035.28.1",
-  "hash": "48d064fefebc",
-  "verdict": "pass",
-  "summary": "Tests exercise both container and shell task runners with missing and directory-valued credential references, require an immediate validation failure, prove the command seam receives neither Docker nor tmux calls, and verify the missing path stays absent while the non-file entry remains unchanged.",
-  "timestamp": "2026-08-02T22:30:52.019Z"
-}

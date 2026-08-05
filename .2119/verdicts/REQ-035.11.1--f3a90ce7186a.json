@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.11.1--f3a90ce7186a",
-  "requirementId": "REQ-035.11.1",
-  "hash": "f3a90ce7186a",
-  "verdict": "pass",
-  "summary": "Dynamic route and MCP matrices reject source-based exemptions by requiring identical unauthenticated, read-token, and write-token status outcomes across IPv4/IPv6 loopback, tailnet boundary/interior, and external addresses.",
-  "timestamp": "2026-08-03T17:33:33.916Z"
-}

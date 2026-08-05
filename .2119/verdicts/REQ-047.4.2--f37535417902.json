@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.4.2--f37535417902",
-  "requirementId": "REQ-047.4.2",
-  "hash": "f37535417902",
-  "verdict": "pass",
-  "summary": "Behavioral tests reject incorrect 0700/0600 modes and pre-existing symlinks at the log directory, service log, and runner log, including a validation-to-open swap.",
-  "timestamp": "2026-08-03T23:31:55.836Z"
-}

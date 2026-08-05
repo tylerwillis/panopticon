@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.28.1--a1cd624b4fcf",
-  "requirementId": "REQ-035.28.1",
-  "hash": "a1cd624b4fcf",
-  "verdict": "pass",
-  "summary": "LocalRunner and ShellRunner tests reject missing, directory, FIFO, socket, and symlink credentials before any Docker/tmux command and verify missing paths stay absent and non-file entries remain unchanged.",
-  "timestamp": "2026-08-03T23:34:20.506Z"
-}

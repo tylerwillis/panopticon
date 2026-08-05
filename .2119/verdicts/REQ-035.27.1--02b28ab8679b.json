@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.27.1--02b28ab8679b",
-  "requirementId": "REQ-035.27.1",
-  "hash": "02b28ab8679b",
-  "verdict": "pass",
-  "summary": "Tests exercise production enforced-mode reporting, require WARNING-level disabled/permissive reports, and pin enforced mode as the documented required steady state.",
-  "timestamp": "2026-08-03T04:44:09.008Z"
-}

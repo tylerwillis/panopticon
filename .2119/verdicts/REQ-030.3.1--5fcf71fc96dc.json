@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-030.3.1--5fcf71fc96dc",
-  "requirementId": "REQ-030.3.1",
-  "hash": "5fcf71fc96dc",
-  "verdict": "pass",
-  "summary": "All four panopticon-owned new-session call sites (local_runner, shell_runner, dashboard console, cli _start_sessions) have dedicated tests asserting -f with content matching server_default_config_text(), plus real-tmux tests proving the mechanism actually lands mouse/history-limit/set-clipboard on a genuinely fresh socket.",
-  "timestamp": "2026-08-01T03:02:30.975Z"
-}

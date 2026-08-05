@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.15.1--504bb728b020",
-  "requirementId": "REQ-035.15.1",
-  "hash": "504bb728b020",
-  "verdict": "pass",
-  "summary": "Captured shared-client requests prove bearer headers on ordinary GETs, a PUT, task liveness, and runner liveness, with the token absent from every URL.",
-  "timestamp": "2026-08-03T07:18:58.970Z"
-}

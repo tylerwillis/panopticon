@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-030.3.1--a0fe9794ecfe",
-  "requirementId": "REQ-030.3.1",
-  "hash": "a0fe9794ecfe",
-  "verdict": "pass",
-  "summary": "All panopticon-owned first-touch/session-creation paths require the exact complete REQ-030.1/.2 config before their own new-session call.",
-  "timestamp": "2026-08-03T04:00:00.193Z"
-}

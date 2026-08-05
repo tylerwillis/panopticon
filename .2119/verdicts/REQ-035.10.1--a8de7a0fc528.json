@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.10.1--a8de7a0fc528",
-  "requirementId": "REQ-035.10.1",
-  "hash": "a8de7a0fc528",
-  "verdict": "pass",
-  "summary": "An enforced-mode headerless GET proves availability and exact equality to the sole {status: ok} payload; root-path deployment separately proves the open endpoint remains reachable.",
-  "timestamp": "2026-08-03T06:37:52.894Z"
-}

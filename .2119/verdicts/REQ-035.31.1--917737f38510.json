@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.31.1--917737f38510",
-  "requirementId": "REQ-035.31.1",
-  "hash": "917737f38510",
-  "verdict": "pass",
-  "summary": "Service, runner, and dashboard coverage now tests all three values both present and absent, while real-tmux evidence proves the shared launch wrapper replaces and clears stale server environment.",
-  "timestamp": "2026-08-02T23:03:08.074Z"
-}

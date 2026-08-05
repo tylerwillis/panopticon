@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-043.2.1--221d881ab8e7",
-  "requirementId": "REQ-043.2.1",
-  "hash": "221d881ab8e7",
-  "verdict": "pass",
-  "summary": "Tests cross the tmux-session boundary, retain failed status and exact actionable detail through heal/restart paths without mutation, and clear the latch only on explicit claim release.",
-  "timestamp": "2026-08-03T08:09:14.596Z"
-}

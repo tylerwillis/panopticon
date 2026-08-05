@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-031.1.5--f568ca8ad339",
-  "requirementId": "REQ-031.1.5",
-  "hash": "f568ca8ad339",
-  "verdict": "pass",
-  "summary": "Both reachable-daemon entry points are exercised through real CLI wiring and must emit the exact detached task-service and runner session commands.",
-  "timestamp": "2026-08-03T23:27:35.837Z"
-}

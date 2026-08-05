@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.27.1--ea849d0bbc7c",
-  "requirementId": "REQ-035.27.1",
-  "hash": "ea849d0bbc7c",
-  "verdict": "pass",
-  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. Tests verify resolved enforced startup reporting, WARNING-level disabled/permissive reporting, and documentation that uniquely names enforced mode as steady state.",
-  "timestamp": "2026-08-03T18:58:42.079Z"
-}

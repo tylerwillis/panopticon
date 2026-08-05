@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.1.1--5fa9519e6853",
-  "requirementId": "REQ-028.1.1",
-  "hash": "5fa9519e6853",
-  "verdict": "pass",
-  "summary": "`test_every_task_exposes_the_core_artifact_skill` builds a real TaskService (no mocks of the constrained path), creates tasks in every discovered plus two synthetic workflows, and asserts the `artifacts` skill appears alongside workflow skills; the two collision tests plus the rescan test reject the",
-  "timestamp": "2026-08-03T13:19:35.350Z"
-}
