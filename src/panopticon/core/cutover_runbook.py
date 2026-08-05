@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import json
 import os
 import re
+import shlex
 import stat
+import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
@@ -48,6 +51,65 @@ def assert_fresh_container_id(container_id: str, inventory_path: str | Path) -> 
     }
     if candidate in existing:
         raise ValueError("canary container predates enforcement")
+
+
+def assert_runner_set(path: str | Path, expected_runner_id: str | None = None) -> None:
+    """Require the complete live-runner registry to be empty or one expected identity."""
+
+    payload = json.loads(Path(path).read_text())
+    if not isinstance(payload, list) or not all(isinstance(item, dict) for item in payload):
+        raise ValueError("runner registry is invalid")
+    runner_ids = [item.get("id") for item in payload]
+    expected = [] if expected_runner_id is None else [expected_runner_id]
+    if runner_ids != expected:
+        raise ValueError("runner registry does not match the controlled set")
+
+
+def process_start(pid: int, *, run: Any = subprocess.run) -> str | None:
+    """Read one process start identity without exposing its environment."""
+
+    completed = run(
+        ["ps", "-o", "lstart=", "-p", str(pid)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    value = completed.stdout.strip()
+    return value or None
+
+
+def assert_process_replaced(pid: int, original_start: str, *, run: Any = subprocess.run) -> None:
+    """Require an original PID/start-time pair to be absent or reused by another process."""
+
+    if process_start(pid, run=run) == original_start.strip():
+        raise ValueError("original process identity is still alive")
+
+
+def assert_runner_process(
+    pid: int,
+    recorded_start: str,
+    command_path: str | Path,
+    runner_id: str,
+    *,
+    run: Any = subprocess.run,
+) -> None:
+    """Bind the live pane process identity to its exact exec-time runner ID."""
+
+    if process_start(pid, run=run) != recorded_start.strip():
+        raise ValueError("runner process identity changed")
+    tokens = shlex.split(Path(command_path).read_text().strip())
+    if tokens[:2] != ["exec", "env"] or f"PANOPTICON_RUNNER_ID={runner_id}" not in tokens:
+        raise ValueError("runner start command is not exec-bound to the expected identity")
+
+
+def assert_container_started_after(container_started: str, enforcement_started: str) -> None:
+    """Require Docker's start timestamp to be strictly after enforced service launch began."""
+
+    def parse(value: str) -> dt.datetime:
+        return dt.datetime.fromisoformat(value.strip().replace("Z", "+00:00"))
+
+    if parse(container_started) <= parse(enforcement_started):
+        raise ValueError("canary container did not start after enforcement began")
 
 
 _STEP = re.compile(
@@ -144,8 +206,32 @@ def validate_enforced_mode_cutover_runbook(text: str) -> list[str]:
         not in s07.check
         or 'assert-fresh-container "$CANARY_CONTAINER_ID" "$EVIDENCE_DIR/S03-all-container-ids-before-enforcement.txt"'
         not in g09.check
+        or 'assert-container-started-after "$CANARY_CONTAINER_STARTED" "$ENFORCEMENT_STARTED_AT"'
+        not in s07.check
+        or 'assert-container-started-after "$CANARY_CONTAINER_STARTED" "$ENFORCEMENT_STARTED_AT"'
+        not in g09.check
+        or 'docker exec "$CANARY_CONTAINER"' not in g09.action
     ):
         violations.append("enforced-mode-cutover-runbook.4.18")
+    s00 = next((item for item in plan.steps if item.item_id == "S00"), None)
+    s04 = next((item for item in plan.steps if item.item_id == "S04"), None)
+    g03 = next((item for item in plan.gates if item.item_id == "G03"), None)
+    g11 = next((item for item in plan.gates if item.item_id == "G11"), None)
+    if (
+        s00 is None
+        or s04 is None
+        or g03 is None
+        or g11 is None
+        or 'assert-runner-set "$EVIDENCE_DIR/S00-runners.json" "$OLD_RUNNER_ID"' not in s00.check
+        or "pane_start_command" not in s04.action
+        or 'assert-runner-set "$EVIDENCE_DIR/G03-runners.json" "$NEW_RUNNER_ID"' not in g03.check
+        or "assert-runner-process" not in g03.check
+        or 'assert-process-replaced "$OLD_RUNNER_PID" "$OLD_RUNNER_START"' not in g11.check
+        or 'assert-process-replaced "$OLD_DASHBOARD_PID" "$OLD_DASHBOARD_START"' not in g11.check
+    ):
+        violations.extend(
+            ["enforced-mode-cutover-runbook.3.3", "enforced-mode-cutover-runbook.4.3"]
+        )
     return violations
 
 
@@ -189,11 +275,38 @@ def _main() -> int:
     fresh_parser = subparsers.add_parser("assert-fresh-container")
     fresh_parser.add_argument("container_id")
     fresh_parser.add_argument("inventory_path", type=Path)
+    runner_parser = subparsers.add_parser("assert-runner-set")
+    runner_parser.add_argument("path", type=Path)
+    runner_parser.add_argument("expected_runner_id", nargs="?")
+    replaced_parser = subparsers.add_parser("assert-process-replaced")
+    replaced_parser.add_argument("pid", type=int)
+    replaced_parser.add_argument("original_start")
+    process_parser = subparsers.add_parser("assert-runner-process")
+    process_parser.add_argument("pid", type=int)
+    process_parser.add_argument("recorded_start")
+    process_parser.add_argument("command_path", type=Path)
+    process_parser.add_argument("runner_id")
+    started_parser = subparsers.add_parser("assert-container-started-after")
+    started_parser.add_argument("container_started")
+    started_parser.add_argument("enforcement_started")
     arguments = parser.parse_args()
     if arguments.command == "inspect-credential-file":
         inspect_cutover_credential_file(arguments.path)
     elif arguments.command == "assert-fresh-container":
         assert_fresh_container_id(arguments.container_id, arguments.inventory_path)
+    elif arguments.command == "assert-runner-set":
+        assert_runner_set(arguments.path, arguments.expected_runner_id)
+    elif arguments.command == "assert-process-replaced":
+        assert_process_replaced(arguments.pid, arguments.original_start)
+    elif arguments.command == "assert-runner-process":
+        assert_runner_process(
+            arguments.pid,
+            arguments.recorded_start,
+            arguments.command_path,
+            arguments.runner_id,
+        )
+    elif arguments.command == "assert-container-started-after":
+        assert_container_started_after(arguments.container_started, arguments.enforcement_started)
     return 0
 
 

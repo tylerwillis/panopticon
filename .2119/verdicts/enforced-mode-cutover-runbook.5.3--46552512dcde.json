@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.5.3--46552512dcde",
+  "requirementId": "enforced-mode-cutover-runbook.5.3",
+  "hash": "46552512dcde",
+  "verdict": "pass",
+  "summary": "Tests reject missing, merged, misordered, multiply classified, or taxonomy-invalid evidence categories for both Claude and Codex.",
+  "timestamp": "2026-08-05T00:41:36.284Z"
+}

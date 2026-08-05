@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.3--d31989e2c1fb",
+  "requirementId": "enforced-mode-cutover-runbook.4.3",
+  "hash": "d31989e2c1fb",
+  "verdict": "pass",
+  "summary": "Tests reject missing authentication, wrong runner identity, PID/start-time mismatch, and non-exec-bound runner identity.",
+  "timestamp": "2026-08-05T00:41:35.311Z"
+}

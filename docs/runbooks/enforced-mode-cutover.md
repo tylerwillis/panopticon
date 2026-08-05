@@ -40,6 +40,7 @@ gh run list --repo tylerwillis/panopticon --commit "$ISSUE_202_COMMIT" --workflo
 uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook inspect-credential-file "$AUTH_PATH"
 export PRE_CUTOVER_WRITE_TOKEN="$(uv --directory "$APP_ROOT" run python -c 'from panopticon.taskservice.auth import environment_token; print(environment_token())')"
 curl --silent --show-error --fail --header "Authorization: Bearer $PRE_CUTOVER_WRITE_TOKEN" "$SERVICE_URL/tasks/$CANARY_TASK_ID" --output "$EVIDENCE_DIR/S00-canary.json"
+curl --silent --show-error --fail --header "Authorization: Bearer $PRE_CUTOVER_WRITE_TOKEN" "$SERVICE_URL/runners" --output "$EVIDENCE_DIR/S00-runners.json"
 ```
 
 ### Check
@@ -62,6 +63,7 @@ assert not task["terminal"]
 assert task["claimed_by"] == sys.argv[3]
 assert task["container_status"] != "gated"
 PY
+uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-runner-set "$EVIDENCE_DIR/S00-runners.json" "$OLD_RUNNER_ID"
 uv --directory "$APP_ROOT" run python - "$PWA_ORIGIN" <<'PY'
 import sys
 from urllib.parse import urlsplit
@@ -80,7 +82,9 @@ PY
 
 The issue #202 closing commit is an ancestor of the deployed revision, its repository CI is green,
 the credential file passes the nonprinting safety check, and the replacement runner has a distinct
-identity. The chosen canary is nonterminal, dependency-clear, and owned by the old runner.
+identity. The chosen canary is nonterminal, dependency-clear, and owned by the old runner. The
+complete live-runner registry contains exactly that one controlled old runner; any additional or
+duplicate local, remote, or idle registration blocks the cutover.
 
 ### Failure action
 
@@ -113,6 +117,13 @@ export OLD_DASHBOARD_START="$(ps -o lstart= -p "$OLD_DASHBOARD_PID" | sed 's/^ *
 ps -o pid= -o lstart= -p "$OLD_RUNNER_PID,$OLD_DASHBOARD_PID" | tee "$EVIDENCE_DIR/S01-client-identities-before.txt"
 tmux -L panopticon kill-session -t dashboard
 tmux -L panopticon kill-session -t runner
+export RUNNER_DRAIN_DEADLINE="$(( $(date +%s) + 120 ))"
+while :; do
+  curl --silent --show-error --fail --header "Authorization: Bearer $PRE_CUTOVER_WRITE_TOKEN" "$SERVICE_URL/runners" --output "$EVIDENCE_DIR/S01-runners-after-stop.json"
+  uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-runner-set "$EVIDENCE_DIR/S01-runners-after-stop.json" && break
+  test "$(date +%s)" -lt "$RUNNER_DRAIN_DEADLINE"
+  sleep 1
+done
 export QUIESCE_DEADLINE="$(( $(date +%s) + 1800 ))"
 while :; do
   curl --silent --show-error --fail --header "Authorization: Bearer $(uv --directory "$APP_ROOT" run python -c 'from panopticon.taskservice.auth import environment_token; print(environment_token())')" "$SERVICE_URL/tasks" --output "$EVIDENCE_DIR/S01-tasks.json"
@@ -138,6 +149,8 @@ tmux -L panopticon kill-session -t service
 ```sh
 ! kill -0 "$OLD_RUNNER_PID" 2>/dev/null || test "$(ps -o lstart= -p "$OLD_RUNNER_PID" | sed 's/^ *//')" != "$OLD_RUNNER_START"
 ! kill -0 "$OLD_DASHBOARD_PID" 2>/dev/null || test "$(ps -o lstart= -p "$OLD_DASHBOARD_PID" | sed 's/^ *//')" != "$OLD_DASHBOARD_START"
+uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-process-replaced "$OLD_RUNNER_PID" "$OLD_RUNNER_START"
+uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-process-replaced "$OLD_DASHBOARD_PID" "$OLD_DASHBOARD_START"
 test -n "$OLD_RUNNER_START"
 test -n "$OLD_DASHBOARD_START"
 ! curl --silent --show-error --fail --max-time 2 "$SERVICE_URL/healthz"
@@ -149,7 +162,7 @@ The inventory records full ID, name, and start time for every existing task cont
 original runner and dashboard PID and start time. Creation through
 the dashboard and spawning/resume through the runner are frozen before waiting; all in-flight turns
 reach a recorded user-turn, blocked, or terminal stopping point; then the service stops accepting
-API work.
+API work. The authenticated live-runner registry is empty before the service is stopped.
 
 ### Failure action
 
@@ -253,6 +266,7 @@ export NEW_DASHBOARD_PID="$(tmux -L panopticon display-message -p -t dashboard '
 export NEW_RUNNER_START="$(ps -o lstart= -p "$NEW_RUNNER_PID" | sed 's/^ *//')"
 export NEW_DASHBOARD_START="$(ps -o lstart= -p "$NEW_DASHBOARD_PID" | sed 's/^ *//')"
 ps -o pid= -o lstart= -p "$NEW_RUNNER_PID,$NEW_DASHBOARD_PID" | tee "$EVIDENCE_DIR/S04-client-identities-after.txt"
+tmux -L panopticon display-message -p -t runner '#{pane_start_command}' | tee "$EVIDENCE_DIR/S04-runner-start-command.txt"
 ```
 
 ### Check
@@ -265,6 +279,8 @@ test -n "$NEW_RUNNER_START"
 test -n "$NEW_DASHBOARD_START"
 kill -0 "$NEW_RUNNER_PID"
 kill -0 "$NEW_DASHBOARD_PID"
+grep --fixed-strings "PANOPTICON_RUNNER_ID='$NEW_RUNNER_ID'" "$EVIDENCE_DIR/S04-runner-start-command.txt"
+grep --fixed-strings "exec env" "$EVIDENCE_DIR/S04-runner-start-command.txt"
 test "$(ps -o lstart= -p "$NEW_RUNNER_PID" | sed 's/^ *//')" = "$NEW_RUNNER_START"
 test "$(ps -o lstart= -p "$NEW_DASHBOARD_PID" | sed 's/^ *//')" = "$NEW_DASHBOARD_START"
 ! kill -0 "$OLD_RUNNER_PID" 2>/dev/null || test "$(ps -o lstart= -p "$OLD_RUNNER_PID" | sed 's/^ *//')" != "$OLD_RUNNER_START"
@@ -301,6 +317,8 @@ Production-only: replacement identity is observable only on the cutover host.
 export PANOPTICON_SERVICE_AUTH_MODE=enforced
 export PANOPTICON_SERVICE_AUTH_FILE="$AUTH_FILE_NAME"
 export PANOPTICON_BROWSER_ORIGINS="$PWA_ORIGIN"
+export ENFORCEMENT_STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+printf '%s\n' "$ENFORCEMENT_STARTED_AT" > "$EVIDENCE_DIR/S05-enforcement-started-at.txt"
 tmux -L panopticon new-session -d -s service -c "$APP_ROOT" "exec env PANOPTICON_CONFIG='$PANOPTICON_CONFIG' PANOPTICON_SERVICE_AUTH_MODE='$PANOPTICON_SERVICE_AUTH_MODE' PANOPTICON_SERVICE_AUTH_FILE='$PANOPTICON_SERVICE_AUTH_FILE' PANOPTICON_BROWSER_ORIGINS='$PANOPTICON_BROWSER_ORIGINS' uv run python -m panopticon.taskservice"
 ```
 
@@ -381,8 +399,10 @@ until test "$(docker inspect --format '{{.State.Running}}' "$CANARY_CONTAINER" 2
   sleep 1
 done
 export CANARY_CONTAINER_ID="$(docker inspect --format '{{.Id}}' "$CANARY_CONTAINER")"
+export CANARY_CONTAINER_STARTED="$(docker inspect --format '{{.State.StartedAt}}' "$CANARY_CONTAINER")"
 uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-fresh-container "$CANARY_CONTAINER_ID" "$EVIDENCE_DIR/S01-all-container-ids-before.txt"
 uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-fresh-container "$CANARY_CONTAINER_ID" "$EVIDENCE_DIR/S03-all-container-ids-before-enforcement.txt"
+uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-container-started-after "$CANARY_CONTAINER_STARTED" "$ENFORCEMENT_STARTED_AT"
 docker inspect --format '{{.Id}} {{.State.Pid}} {{.State.StartedAt}}' "$CANARY_CONTAINER" | tee "$EVIDENCE_DIR/S07-container-initial.txt"
 test "$(docker exec "$CANARY_CONTAINER" python -c 'import json; print(json.load(open("/run/secrets/panopticon-service-auth"))["task"][:5])')" = ptc1.
 curl --silent --show-error --fail --header "Authorization: Bearer $WRITE_TOKEN" "$SERVICE_URL/tasks/$CANARY_TASK_ID" --output "$EVIDENCE_DIR/S07-live-initial.json"
@@ -586,6 +606,7 @@ Production-only: deployed authentication behavior.
 #### Command
 
 ```sh
+curl --silent --show-error --fail --header "Authorization: Bearer $WRITE_TOKEN" "$SERVICE_URL/runners" --output "$EVIDENCE_DIR/G03-runners.json"
 curl --silent --show-error --fail --header "Authorization: Bearer $WRITE_TOKEN" "$SERVICE_URL/runners/$NEW_RUNNER_ID" --output "$EVIDENCE_DIR/G03-runner.json"
 ```
 
@@ -594,10 +615,8 @@ curl --silent --show-error --fail --header "Authorization: Bearer $WRITE_TOKEN" 
 ```sh
 kill -0 "$NEW_RUNNER_PID"
 test "$(ps -o lstart= -p "$NEW_RUNNER_PID" | sed 's/^ *//')" = "$NEW_RUNNER_START"
-uv --directory "$APP_ROOT" run python - "$EVIDENCE_DIR/G03-runner.json" "$NEW_RUNNER_ID" <<'PY'
-import json, sys
-assert json.load(open(sys.argv[1]))["id"] == sys.argv[2]
-PY
+uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-runner-set "$EVIDENCE_DIR/G03-runners.json" "$NEW_RUNNER_ID"
+uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-runner-process "$NEW_RUNNER_PID" "$NEW_RUNNER_START" "$EVIDENCE_DIR/S04-runner-start-command.txt" "$NEW_RUNNER_ID"
 printf 'G03: PASS\n' >> "$EVIDENCE_DIR/gates.txt"
 ```
 
@@ -784,6 +803,7 @@ test "$(docker exec "$CANARY_CONTAINER" python -c 'import json; print(json.load(
 
 ```sh
 uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-fresh-container "$CANARY_CONTAINER_ID" "$EVIDENCE_DIR/S03-all-container-ids-before-enforcement.txt"
+uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-container-started-after "$CANARY_CONTAINER_STARTED" "$ENFORCEMENT_STARTED_AT"
 uv --directory "$APP_ROOT" run python - "$EVIDENCE_DIR/S07-live-initial.json" "$EVIDENCE_DIR/S07-live-after-keepalive.json" <<'PY'
 import json, sys
 assert all(json.load(open(path))["container_status"] == "live" for path in sys.argv[1:])
@@ -820,6 +840,7 @@ test "$NEW_RUNNER_PID" != "$OLD_RUNNER_PID"
 kill -0 "$NEW_RUNNER_PID"
 test "$(ps -o lstart= -p "$NEW_RUNNER_PID" | sed 's/^ *//')" = "$NEW_RUNNER_START"
 ! kill -0 "$OLD_RUNNER_PID" 2>/dev/null || test "$(ps -o lstart= -p "$OLD_RUNNER_PID" | sed 's/^ *//')" != "$OLD_RUNNER_START"
+uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-process-replaced "$OLD_RUNNER_PID" "$OLD_RUNNER_START"
 printf 'G10: PASS\n' >> "$EVIDENCE_DIR/gates.txt"
 ```
 
@@ -851,6 +872,8 @@ test -n "$OLD_DASHBOARD_START"
 ```sh
 ! kill -0 "$OLD_RUNNER_PID" 2>/dev/null || test "$(ps -o lstart= -p "$OLD_RUNNER_PID" | sed 's/^ *//')" != "$OLD_RUNNER_START"
 ! kill -0 "$OLD_DASHBOARD_PID" 2>/dev/null || test "$(ps -o lstart= -p "$OLD_DASHBOARD_PID" | sed 's/^ *//')" != "$OLD_DASHBOARD_START"
+uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-process-replaced "$OLD_RUNNER_PID" "$OLD_RUNNER_START"
+uv --directory "$APP_ROOT" run python -m panopticon.core.cutover_runbook assert-process-replaced "$OLD_DASHBOARD_PID" "$OLD_DASHBOARD_START"
 kill -0 "$NEW_RUNNER_PID"
 kill -0 "$NEW_DASHBOARD_PID"
 test "$(ps -o lstart= -p "$NEW_RUNNER_PID" | sed 's/^ *//')" = "$NEW_RUNNER_START"
