@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.7.3--7018b849a564",
+  "requirementId": "REQ-048.7.3",
+  "hash": "7018b849a564",
+  "verdict": "pass",
+  "summary": "denied-list asserts real 403/SCOPE_FAILURE for advance, drop, transition, state, claim(+release), provisioning, migration, lifecycle(+clear), and governor reassignment(to None/unrelated); unaffected by the dependency-id edit since dependencies isn't in the denied set (7.2 allows it).",
+  "timestamp": "2026-08-04T21:07:45.557Z"
+}

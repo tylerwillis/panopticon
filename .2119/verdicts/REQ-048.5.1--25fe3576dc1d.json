@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.5.1--25fe3576dc1d",
+  "requirementId": "REQ-048.5.1",
+  "hash": "25fe3576dc1d",
+  "verdict": "pass",
+  "summary": "Positive persistence of an in-scope dependency list is genuinely tested (orchestrator+governed-child, clear-to-empty, durable reload); the out-of-scope boundary is correctly delegated to and covered by mcp-credential-uri-normalization.3's own tagged tests per the requirement's explicit cross-reference, and a plain task persisting an empty list is confirmed non-403 under REQ-048.8.1/8.2. Minor nit: the parametrized dependencies row's declared body {dep_ids: []} is silently overridden inside the test, which is misleading but harmless.",
+  "timestamp": "2026-08-04T23:47:11.151Z"
+}

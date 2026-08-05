@@ -802,10 +802,15 @@ def test_task_token_reaches_its_agent_mutation_surface(
     # 2119: REQ-048.5.1
     # 2119: REQ-048.8.1
     with _client(tmp_path) as client:
-        task = _create_task(client)
         if path.endswith("/dependencies"):
-            dependency = _create_task(client)
+            # A dependency id is itself a secondary authorization target
+            # (mcp-credential-uri-normalization.3.1), so it must be in ``task``'s own
+            # self-or-governed scope, not an arbitrary other task.
+            task = _create_task(client, workflow="orchestrator")
+            dependency = _create_task(client, governor_task_id=str(task["id"]))
             body = {"dep_ids": [dependency["id"]]}
+        else:
+            task = _create_task(client)
         headers = _bearer(_task_token(task["id"]))
         response = client.request(method, path.format(id=task["id"]), headers=headers, json=body)
         assert response.status_code == 200, response.text
@@ -908,8 +913,8 @@ def test_task_capability_persists_both_directions_of_boolean_and_turn_setters(
 def test_task_capability_durably_clears_dependencies(tmp_path: Path) -> None:
     # 2119: REQ-048.5.1
     with _client(tmp_path) as client:
-        task = _create_task(client)
-        dependency = _create_task(client)
+        task = _create_task(client, workflow="orchestrator")
+        dependency = _create_task(client, governor_task_id=str(task["id"]))
         task_id = str(task["id"])
         headers = _bearer(_task_token(task_id))
         assert (
@@ -1503,6 +1508,11 @@ def test_orchestrator_can_create_and_preplan_only_its_governed_child(tmp_path: P
     with _client(tmp_path) as client:
         governor = _create_task(client, workflow="orchestrator")
         unrelated = _create_task(client)
+        # A dependency id is itself a secondary authorization target (mcp-credential-uri-
+        # normalization.3.1): governor's capability is in scope for itself, so this stands in
+        # for "some existing task id" in the preplan dependency-setting assertions below without
+        # exercising the separately-tested out-of-scope rejection.
+        dependency_target = str(governor["id"])
         headers = _bearer(_task_token(governor["id"]))
         child = client.post(
             "/tasks",
@@ -1575,7 +1585,7 @@ def test_orchestrator_can_create_and_preplan_only_its_governed_child(tmp_path: P
             ("slug", "planned-grandchild"),
             ("token-estimate", 200),
             ("turn", "user"),
-            ("dependencies", [unrelated["id"]]),
+            ("dependencies", [dependency_target]),
         ):
             json_key = {
                 "token-estimate": "token_estimate",
@@ -1597,7 +1607,7 @@ def test_orchestrator_can_create_and_preplan_only_its_governed_child(tmp_path: P
         assert descendant_persisted["slug"] == "planned-grandchild"
         assert descendant_persisted["token_estimate"] == 200
         assert descendant_persisted["turn"] == "user"
-        assert descendant_persisted["depends_on_task_ids"] == [unrelated["id"]]
+        assert descendant_persisted["depends_on_task_ids"] == [dependency_target]
         assert (
             client.get(f"/tasks/{grandchild_id}/artifacts/plan.md", headers=headers).content
             == b"updated-descendant-plan"
@@ -1615,7 +1625,7 @@ def test_orchestrator_can_create_and_preplan_only_its_governed_child(tmp_path: P
             ("slug", "planned-great-grandchild"),
             ("token-estimate", 300),
             ("turn", "user"),
-            ("dependencies", [unrelated["id"]]),
+            ("dependencies", [dependency_target]),
         ):
             json_key = {
                 "token-estimate": "token_estimate",
@@ -1665,7 +1675,7 @@ def test_orchestrator_can_create_and_preplan_only_its_governed_child(tmp_path: P
             client.put(
                 f"/tasks/{child_id}/dependencies",
                 headers=headers,
-                json={"dep_ids": [unrelated["id"]]},
+                json={"dep_ids": [dependency_target]},
             ).status_code
             == 200
         )
@@ -1680,7 +1690,7 @@ def test_orchestrator_can_create_and_preplan_only_its_governed_child(tmp_path: P
         assert persisted["slug"] == "planned-child"
         assert persisted["token_estimate"] == 100
         assert persisted["turn"] == "user"
-        assert persisted["depends_on_task_ids"] == [unrelated["id"]]
+        assert persisted["depends_on_task_ids"] == [dependency_target]
         assert (
             client.get(f"/tasks/{child_id}/artifacts/plan.md", headers=headers).content == b"plan"
         )

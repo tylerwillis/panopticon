@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.8.1--e7ca8daa09d6",
+  "requirementId": "REQ-048.8.1",
+  "hash": "e7ca8daa09d6",
+  "verdict": "pass",
+  "summary": "test_rest_and_mcp_resolve_equivalent_actions_to_identical_scope_decisions asserts full ScopeDecision equality (allowed/status/body) across self/governed-descendant(3 levels)/unrelated/missing for every listed pair incl. dependencies; unaffected by the edit, which only changed a REST-only mutation test's dependency stand-in id.",
+  "timestamp": "2026-08-04T21:07:48.205Z"
+}
