@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.14--1892e5ca4796",
+  "requirementId": "adversarial-review-mutations.1.14",
+  "hash": "1892e5ca4796",
+  "verdict": "pass",
+  "summary": "The final gate behaviorally rejects comments missing the exact evidence section or an in-section killed/survived outcome, including near-boundary heading, placement, case, punctuation, and spacing violations.",
+  "timestamp": "2026-08-05T02:33:06.194Z"
+}

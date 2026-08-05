@@ -525,9 +525,9 @@ def validate_review_gate(
         )
         if (
             re.search(
-                r"^Outcome:[ \t]*(?:killed|survived)[ \t]*\.?[ \t]*$",
+                r"^Outcome: (?:killed|survived)$",
                 mutation_body,
-                re.IGNORECASE | re.MULTILINE,
+                re.MULTILINE,
             )
             is None
         ):

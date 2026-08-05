@@ -1082,6 +1082,9 @@ def test_gate_requires_two_verified_final_commit_reviews_for_every_round() -> No
         ),
         (comments[0], comments[1].replace("Outcome: survived", "Outcome: exercised")),
         (comments[0], comments[1].replace("Outcome: survived", "Outcome: not survived")),
+        (comments[0], comments[1].replace("Outcome: survived", "Outcome: SURVIVED")),
+        (comments[0], comments[1].replace("Outcome: survived", "Outcome: survived.")),
+        (comments[0], comments[1].replace("Outcome: survived", "Outcome:survived")),
         (
             comments[0],
             comments[1]
