@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.17.1--386f3c3e4e79",
-  "requirementId": "REQ-035.17.1",
-  "hash": "386f3c3e4e79",
-  "verdict": "pass",
-  "summary": "Covers repo-env-file absence for Docker and shell tasks, separate runtime credential injection, shared clients, liveness, shell-library calls, and rejects argv/URL token leakage.",
-  "timestamp": "2026-08-03T02:32:16.964Z"
-}

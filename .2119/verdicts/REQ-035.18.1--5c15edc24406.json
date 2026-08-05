@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.18.1--5c15edc24406",
-  "requirementId": "REQ-035.18.1",
-  "hash": "5c15edc24406",
-  "verdict": "fail",
-  "summary": "Configured-token coverage is not cross-product complete: tests inspect logs/database/artifacts only for primary/file-only tokens, so leaking an overlapping NEXT_* or opaque configured token into those sinks would pass.",
-  "timestamp": "2026-08-03T00:50:35.493Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.9.1--15793c0de186",
-  "requirementId": "REQ-028.9.1",
-  "hash": "15793c0de186",
-  "verdict": "pass",
-  "summary": "Every duplicate built-in name reports the external file and actionable removal guidance.",
-  "timestamp": "2026-08-03T00:13:19.960Z"
-}

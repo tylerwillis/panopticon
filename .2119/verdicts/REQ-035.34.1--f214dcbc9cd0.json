@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.34.1--f214dcbc9cd0",
-  "requirementId": "REQ-035.34.1",
-  "hash": "f214dcbc9cd0",
-  "verdict": "pass",
-  "summary": "All ownership and permission boundary terms explicitly rejected with representative/enumerated live-app evidence from startup and runner preflight paths",
-  "timestamp": "2026-08-03T10:53:50.093Z"
-}

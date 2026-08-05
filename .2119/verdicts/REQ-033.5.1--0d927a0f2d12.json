@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.5.1--0d927a0f2d12",
-  "requirementId": "REQ-033.5.1",
-  "hash": "0d927a0f2d12",
-  "verdict": "pass",
-  "summary": "All discovered built-in 2119 workflows must expose exactly deferred-issues-filed then pr-merged in MERGING.",
-  "timestamp": "2026-08-03T06:34:42.278Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.24.1--9833970decd5",
-  "requirementId": "REQ-035.24.1",
-  "hash": "9833970decd5",
-  "verdict": "pass",
-  "summary": "Startup rejection is exercised across every disallowed ASCII character, misplaced padding, empty/padding-only values, and representative non-ASCII tokens.",
-  "timestamp": "2026-08-03T09:22:04.917Z"
-}

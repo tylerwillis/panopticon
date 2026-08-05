@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.6.1--acc7bf3995ac",
-  "requirementId": "REQ-028.6.1",
-  "hash": "acc7bf3995ac",
-  "verdict": "pass",
-  "summary": "`test_building_retains_the_external_pr_url_responsibility` asserts `descriptions[\"url-recorded\"]` equals the `set_url` literal for all three builtins; removal raises KeyError, rewording fails equality.",
-  "timestamp": "2026-08-03T13:19:37.763Z"
-}

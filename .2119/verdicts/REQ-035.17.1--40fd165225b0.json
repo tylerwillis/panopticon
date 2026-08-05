@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.17.1--40fd165225b0",
-  "requirementId": "REQ-035.17.1",
-  "hash": "40fd165225b0",
-  "verdict": "pass",
-  "summary": "Spawned tasks without env_file receive and use write credential via separate runtime secret; direct liveness & shell-lib verification, shared-client inferred from component tests in scope",
-  "timestamp": "2026-08-03T10:52:40.772Z"
-}

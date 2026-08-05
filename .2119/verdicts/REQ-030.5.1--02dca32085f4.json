@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-030.5.1--02dca32085f4",
-  "requirementId": "REQ-030.5.1",
-  "hash": "02dca32085f4",
-  "verdict": "pass",
-  "summary": "Exact complete ambient-socket tmux call lists for both Docker and shell spawns reject any added defaults command, config flag, or modified session-creation argv.",
-  "timestamp": "2026-08-03T03:41:27.220Z"
-}

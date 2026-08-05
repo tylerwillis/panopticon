@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-031.1.4--86bc07615959",
-  "requirementId": "REQ-031.1.4",
-  "hash": "86bc07615959",
-  "verdict": "pass",
-  "summary": "Real-subprocess tests cover both start and host refusal paths and reject the nearest violation, OS exit status zero, by asserting returncode != 0.",
-  "timestamp": "2026-08-03T21:25:19.144Z"
-}

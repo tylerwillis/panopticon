@@ -1318,6 +1318,18 @@ def test_permissive_mode_accepts_legacy_and_authenticated_callers(tmp_path: Path
             assert status not in {401, 403}, body
 
 
+# 2119: enforced-mode-cutover-runbook.2.10
+def test_permissive_mode_rejects_legacy_bearer_on_container_liveness(tmp_path: Path) -> None:
+    with _client(tmp_path, mode="permissive") as client:
+        response = client.get(
+            "/tasks/legacy/live",
+            headers=_bearer("pt1.task.legacy.invalid-mac"),
+        )
+
+    assert response.status_code == 401
+    assert response.json() == GENERIC_FAILURE
+
+
 def test_permissive_mode_requires_a_credential_file() -> None:
     with pytest.raises(ValueError, match="credential file is required in permissive mode"):
         create_app(object(), auth_mode="permissive")  # type: ignore[arg-type]

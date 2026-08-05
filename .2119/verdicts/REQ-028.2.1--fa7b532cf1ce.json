@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.2.1--fa7b532cf1ce",
-  "requirementId": "REQ-028.2.1",
-  "hash": "fa7b532cf1ce",
-  "verdict": "pass",
-  "summary": "Instructions asserted equal to the test-local literal `EXPECTED_ARTIFACT_INSTRUCTIONS` (`test_spec_2119_artifacts.py:20-44`), which independently contains both \"Use the `put_artifact` MCP tool\" and the REST `curl --request PUT ... /tasks/$PANOPTICON_TASK_ID/artifacts/<name>` mechanism; dropping eith",
-  "timestamp": "2026-08-03T13:19:35.837Z"
-}

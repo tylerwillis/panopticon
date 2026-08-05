@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-030.3.1--79bc32c6b473",
-  "requirementId": "REQ-030.3.1",
-  "hash": "79bc32c6b473",
-  "verdict": "pass",
-  "summary": "Every panopticon new-session entry point is asserted to load the complete defaults config before its own session creation.",
-  "timestamp": "2026-08-03T02:05:00.916Z"
-}

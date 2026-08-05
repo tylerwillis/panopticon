@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.1.1--2adf385f6b7f",
-  "requirementId": "REQ-035.1.1",
-  "hash": "2adf385f6b7f",
-  "verdict": "pass",
-  "summary": "Pass: startup loads a filename beneath secrets, rejects traversal/absolute/symlink escapes and raw-token references, and scans API, SQLite, artifacts, and logs for copied values.",
-  "timestamp": "2026-08-03T01:20:36.961Z"
-}

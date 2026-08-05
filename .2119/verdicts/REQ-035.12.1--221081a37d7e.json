@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.12.1--221081a37d7e",
-  "requirementId": "REQ-035.12.1",
-  "hash": "221081a37d7e",
-  "verdict": "pass",
-  "summary": "No auth-file app is exercised across every discovered protected REST operation and MCP GET/POST/DELETE; validation/domain-error requests would detect an exact generic 401 auth response.",
-  "timestamp": "2026-08-02T22:04:58.034Z"
-}

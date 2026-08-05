@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.1.1--6b36ef6d0f6b",
+  "requirementId": "enforced-mode-cutover-runbook.1.1",
+  "hash": "6b36ef6d0f6b",
+  "verdict": "pass",
+  "summary": "The test reads the exact repository path and parses its operator Markdown; missing, unreadable, empty, or non-document content fails.",
+  "timestamp": "2026-08-05T04:54:55.653Z"
+}

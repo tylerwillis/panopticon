@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.14.1--e0945836eddc",
-  "requirementId": "REQ-035.14.1",
-  "hash": "e0945836eddc",
-  "verdict": "pass",
-  "summary": "Pass: enforced startup is directly required to raise for absent, missing, unreadable, traversal/absolute/symlink-escaping references and malformed, empty, non-string, or overlapping privilege arrays.",
-  "timestamp": "2026-08-03T01:20:51.863Z"
-}

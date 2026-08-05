@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.5--3a87db1817d4",
+  "requirementId": "enforced-mode-cutover-runbook.4.5",
+  "hash": "3a87db1817d4",
+  "verdict": "pass",
+  "summary": "Behavioral execution and mutation tests reject POST, write-token auth, wrong endpoint, decoy PUT, and 403 while requiring one read-token PUT to the canary turn endpoint that succeeds only on 401.",
+  "timestamp": "2026-08-05T05:12:20.876Z"
+}

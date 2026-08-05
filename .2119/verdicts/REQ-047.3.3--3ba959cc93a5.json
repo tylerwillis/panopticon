@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.3.3--3ba959cc93a5",
-  "requirementId": "REQ-047.3.3",
-  "hash": "3ba959cc93a5",
-  "verdict": "pass",
-  "summary": "Overlapping authenticated lifespans are exercised in both teardown orders; the test rejects retained redaction of the ended app's tokens and loss of redaction for the still-active app's tokens.",
-  "timestamp": "2026-08-03T23:31:19.082Z"
-}

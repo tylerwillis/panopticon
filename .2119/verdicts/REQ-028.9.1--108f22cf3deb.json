@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.9.1--108f22cf3deb",
-  "requirementId": "REQ-028.9.1",
-  "hash": "108f22cf3deb",
-  "verdict": "pass",
-  "summary": "Fresh review verified duplicate workflow errors name the file and remediation.",
-  "timestamp": "2026-08-03T11:58:52.920Z"
-}

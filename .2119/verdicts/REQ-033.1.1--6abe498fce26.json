@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.1.1--6abe498fce26",
-  "requirementId": "REQ-033.1.1",
-  "hash": "6abe498fce26",
-  "verdict": "pass",
-  "summary": "Enumerates every built-in review skill and pins its complete instructions, including the required ending section directive.",
-  "timestamp": "2026-08-03T06:34:12.171Z"
-}

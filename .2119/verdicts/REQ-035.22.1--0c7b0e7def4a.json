@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.22.1--0c7b0e7def4a",
-  "requirementId": "REQ-035.22.1",
-  "hash": "0c7b0e7def4a",
-  "verdict": "pass",
-  "summary": "Real launcher subprocess rejects a credential-bearing query and combined stdout/stderr capture proves the raw credential value is absent from either log stream.",
-  "timestamp": "2026-08-02T22:06:00.777Z"
-}

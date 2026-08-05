@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.18.1--b475c7ad9e52",
-  "requirementId": "REQ-035.18.1",
-  "hash": "b475c7ad9e52",
-  "verdict": "pass",
-  "summary": "Tests inject configured tokens through REST/MCP failure and validation paths, inspect logs and all produced SQLite/artifact files, and reject token-bearing runner and curl argv, covering every prohibited sink including prefix-overlap redaction.",
-  "timestamp": "2026-08-03T04:44:03.537Z"
-}

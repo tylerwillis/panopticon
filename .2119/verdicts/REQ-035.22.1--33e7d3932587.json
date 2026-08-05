@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.22.1--33e7d3932587",
-  "requirementId": "REQ-035.22.1",
-  "hash": "33e7d3932587",
-  "verdict": "pass",
-  "summary": "The real production launcher receives a rejected query credential with stdout/stderr merged and the test fails if the raw query token appears in either log stream.",
-  "timestamp": "2026-08-03T01:13:25.880Z"
-}

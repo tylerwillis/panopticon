@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.3.1--70eb21f815f0",
-  "requirementId": "REQ-035.3.1",
-  "hash": "70eb21f815f0",
-  "verdict": "pass",
-  "summary": "Enumerates registered non-mutating REST routes plus framework GET/HEAD documentation routes and proves both read and write credentials avoid the generic auth failure.",
-  "timestamp": "2026-08-03T07:18:55.075Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.12.1--41506b061f42",
-  "requirementId": "REQ-035.12.1",
-  "hash": "41506b061f42",
-  "verdict": "pass",
-  "summary": "Pass: absent and empty credential references are exercised, and all protected REST operations plus GET/POST/DELETE MCP validation cases are shown not to receive the generic auth failure first.",
-  "timestamp": "2026-08-03T01:20:50.815Z"
-}

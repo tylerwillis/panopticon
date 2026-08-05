@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-043.4.2--9262a586cfd9",
-  "requirementId": "REQ-043.4.2",
-  "hash": "9262a586cfd9",
-  "verdict": "pass",
-  "summary": "Tests reject early or excess latching, verify the third pre-session failure records failed status and diagnostic, preserve both beyond the reset window, and permit spawning only after claim release.",
-  "timestamp": "2026-08-03T08:09:10.048Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.28.1--a589984a967b",
-  "requirementId": "REQ-035.28.1",
-  "hash": "a589984a967b",
-  "verdict": "pass",
-  "summary": "LocalRunner and ShellRunner are exercised with missing and directory credential references, must raise before their injected command boundary records any Docker/tmux invocation, and must leave a missing path absent or the existing directory intact; malformed-file and spawner preflight cases add stricter boundary coverage.",
-  "timestamp": "2026-08-02T23:29:46.299Z"
-}

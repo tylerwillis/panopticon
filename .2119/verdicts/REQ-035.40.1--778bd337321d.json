@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.40.1--778bd337321d",
-  "requirementId": "REQ-035.40.1",
-  "hash": "778bd337321d",
-  "verdict": "pass",
-  "summary": "Startup rejects every token-length-eligible fixed body/header collision, including authentication text, media type, and authentication/content header names.",
-  "timestamp": "2026-08-03T09:22:04.915Z"
-}

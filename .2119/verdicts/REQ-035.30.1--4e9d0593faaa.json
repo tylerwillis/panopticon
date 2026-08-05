@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.30.1--4e9d0593faaa",
-  "requirementId": "REQ-035.30.1",
-  "hash": "4e9d0593faaa",
-  "verdict": "pass",
-  "summary": "Root-path tests reject read credentials and accept write credentials for both liveness and MCP routes, including prefix-collision paths.",
-  "timestamp": "2026-08-03T01:13:11.641Z"
-}

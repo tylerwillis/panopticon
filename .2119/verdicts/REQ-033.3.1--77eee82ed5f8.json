@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.3.1--77eee82ed5f8",
-  "requirementId": "REQ-033.3.1",
-  "hash": "77eee82ed5f8",
-  "verdict": "pass",
-  "summary": "Asserts \"Omit findings rejected as simply wrong\" present and explicitly guards the negation counterexamples (\"Do not omit findings rejected as simply wrong\" and \"Include every rejected finding\" asserted absent) — the almost-conforming inversions are rejected.",
-  "timestamp": "2026-08-03T13:19:44.134Z"
-}

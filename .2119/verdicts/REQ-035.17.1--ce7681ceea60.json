@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.17.1--ce7681ceea60",
-  "requirementId": "REQ-035.17.1",
-  "hash": "ce7681ceea60",
-  "verdict": "pass",
-  "summary": "Tests reject missing separate-secret injection for Docker and shell tasks without env_file and verify the injected write credential is consumed by shared clients, liveness, and shell-library requests.",
-  "timestamp": "2026-08-02T22:05:41.279Z"
-}

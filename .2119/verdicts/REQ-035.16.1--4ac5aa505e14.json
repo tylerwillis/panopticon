@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.16.1--4ac5aa505e14",
-  "requirementId": "REQ-035.16.1",
-  "hash": "4ac5aa505e14",
-  "verdict": "pass",
-  "summary": "All three named factories (sessionservice.host, terminal.console, terminal.__main__._make_client) are imported and invoked; token resolution runs the shared production loader (TaskServiceClient -> environment_token -> load_tokens, same loader the service uses) against a run-unique write token that exists only in the on-disk credential file referenced by env, so hardcoded or stale tokens fail; the mock transport returns 401 for any other bearer and the test asserts 200 plus exact Authorization headers, proving authenticated protected calls.",
-  "timestamp": "2026-08-03T11:23:20.638Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.14.1--cb24c8e228cb",
-  "requirementId": "REQ-035.14.1",
-  "hash": "cb24c8e228cb",
-  "verdict": "pass",
-  "summary": "Startup tests reject absent, missing, unreadable, escaping and symlink-escaping references plus malformed, empty, mistyped, incomplete, and privilege-overlapping credential objects.",
-  "timestamp": "2026-08-03T02:05:12.304Z"
-}

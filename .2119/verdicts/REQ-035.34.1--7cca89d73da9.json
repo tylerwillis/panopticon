@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.34.1--7cca89d73da9",
-  "requirementId": "REQ-035.34.1",
-  "hash": "7cca89d73da9",
-  "verdict": "pass",
-  "summary": "Tests reject every sampled group/other permission class and foreign ownership in both startup loading and Docker/shell runner preflight, while accepting private owner-only modes.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

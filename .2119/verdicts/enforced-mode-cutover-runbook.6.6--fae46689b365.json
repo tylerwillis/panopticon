@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.6.6--fae46689b365",
+  "requirementId": "enforced-mode-cutover-runbook.6.6",
+  "hash": "fae46689b365",
+  "verdict": "pass",
+  "summary": "All 10 executable steps and 11 gates are enumerated; each must parse a nonempty Authoring-tested or Production-only reason, with every item's category pinned.",
+  "timestamp": "2026-08-05T05:13:34.236Z"
+}

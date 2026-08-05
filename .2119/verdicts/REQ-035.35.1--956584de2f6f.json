@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.35.1--956584de2f6f",
-  "requirementId": "REQ-035.35.1",
-  "hash": "956584de2f6f",
-  "verdict": "pass",
-  "summary": "Runtime requests verify admitted headerless calls, method/route/caller/count fields, powers-of-two rate limiting, monotonic cumulative counts, and token-redacted routes.",
-  "timestamp": "2026-08-03T07:19:09.439Z"
-}

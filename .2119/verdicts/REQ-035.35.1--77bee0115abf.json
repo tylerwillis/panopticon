@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.35.1--77bee0115abf",
-  "requirementId": "REQ-035.35.1",
-  "hash": "77bee0115abf",
-  "verdict": "pass",
-  "summary": "Tests reject missing method, route, caller, or cumulative count fields and reject unbounded logging by requiring emissions only at powers-of-two counts across 1,026 admitted header-less requests.",
-  "timestamp": "2026-08-03T08:57:42.644Z"
-}

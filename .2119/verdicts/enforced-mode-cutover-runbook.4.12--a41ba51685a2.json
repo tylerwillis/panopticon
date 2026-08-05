@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.12--a41ba51685a2",
+  "requirementId": "enforced-mode-cutover-runbook.4.12",
+  "hash": "a41ba51685a2",
+  "verdict": "pass",
+  "summary": "G06 structurally requires list equality to the requested PWA_ORIGIN, rejecting missing, mismatched, duplicate, or additional allow-origin values.",
+  "timestamp": "2026-08-05T05:11:39.114Z"
+}

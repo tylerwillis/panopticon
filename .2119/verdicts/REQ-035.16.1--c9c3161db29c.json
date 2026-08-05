@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.16.1--c9c3161db29c",
-  "requirementId": "REQ-035.16.1",
-  "hash": "c9c3161db29c",
-  "verdict": "pass",
-  "summary": "Runner, console/dashboard, and CLI factories resolve a unique local-file write token into shared clients whose protected requests authenticate successfully.",
-  "timestamp": "2026-08-03T02:05:13.236Z"
-}

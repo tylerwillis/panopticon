@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.5.1--570ba1c28deb",
+  "requirementId": "REQ-030.5.1",
+  "hash": "570ba1c28deb",
+  "verdict": "pass",
+  "summary": "Container and shell runner tests assert exact ambient-socket tmux command sequences containing neither -L nor shipped-default configuration.",
+  "timestamp": "2026-08-04T21:23:45.037Z"
+}

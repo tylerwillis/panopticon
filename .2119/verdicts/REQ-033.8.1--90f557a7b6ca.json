@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.8.1--90f557a7b6ca",
-  "requirementId": "REQ-033.8.1",
-  "hash": "90f557a7b6ca",
-  "verdict": "pass",
-  "summary": "Every built-in merge skill must have the exact deferred-issue prefix explicitly directing user-rejected suggestions to be skipped.",
-  "timestamp": "2026-08-03T07:08:44.582Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.17.1--b536a07120c2",
-  "requirementId": "REQ-035.17.1",
-  "hash": "b536a07120c2",
-  "verdict": "pass",
-  "summary": "Docker and shell no-env-file paths use a separate runtime credential, and tests exercise shared clients, liveness, and shell-library authorization without argv leakage.",
-  "timestamp": "2026-08-03T01:17:28.982Z"
-}

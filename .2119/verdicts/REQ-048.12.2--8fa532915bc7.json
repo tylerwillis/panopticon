@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.12.2--8fa532915bc7",
-  "requirementId": "REQ-048.12.2",
-  "hash": "8fa532915bc7",
-  "verdict": "pass",
-  "summary": "A fresh subprocess tracks imports while exercising both derivation and authorization and proves no container, Anthropic, or OpenAI module is loaded; static import checks reinforce the boundary.",
-  "timestamp": "2026-08-04T06:51:05.051Z"
-}

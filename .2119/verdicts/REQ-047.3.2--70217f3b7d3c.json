@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.3.2--70217f3b7d3c",
-  "requirementId": "REQ-047.3.2",
-  "hash": "70217f3b7d3c",
-  "verdict": "pass",
-  "summary": "Rejects nearest violations for both configured tokens across message, tuple/mapping arguments, arbitrary nested extra fields, exception text, and stack info in task-service, FastAPI, uvicorn, and MCP root/child namespaces, while requiring exact [redacted] replacement during the authenticated lifespan.",
-  "timestamp": "2026-08-04T00:03:20.239Z"
-}

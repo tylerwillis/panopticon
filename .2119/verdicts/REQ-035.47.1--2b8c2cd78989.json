@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.47.1--2b8c2cd78989",
+  "requirementId": "REQ-035.47.1",
+  "hash": "2b8c2cd78989",
+  "verdict": "pass",
+  "summary": "Runner tests preserve and merge both proxy-bypass variables with the service host, while real native Claude traffic proves the proxy is not contacted.",
+  "timestamp": "2026-08-04T21:23:46.036Z"
+}

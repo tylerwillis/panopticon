@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.4.1--ee7f7b05252f",
-  "requirementId": "REQ-035.4.1",
-  "hash": "ee7f7b05252f",
-  "verdict": "pass",
-  "summary": "Dynamic route enumeration rejects read tokens with the exact generic 401 on every mutation, both live GETs, and runner-only pending session-input GET.",
-  "timestamp": "2026-08-03T17:32:32.261Z"
-}

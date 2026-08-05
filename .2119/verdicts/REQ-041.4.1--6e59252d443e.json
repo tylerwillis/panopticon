@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-041.4.1--6e59252d443e",
-  "requirementId": "REQ-041.4.1",
-  "hash": "6e59252d443e",
-  "verdict": "pass",
-  "summary": "Same exact-equality literal preserves all three surface distinctions: `a` hotkey for artifacts, \"Artifacts complement the pull request and its dedicated external task URL; they do not replace either one\", and GitHub URLs → external URL field / `p` hotkey.",
-  "timestamp": "2026-08-03T13:19:49.524Z"
-}

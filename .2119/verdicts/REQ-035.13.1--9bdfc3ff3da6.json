@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.13.1--9bdfc3ff3da6",
-  "requirementId": "REQ-035.13.1",
-  "hash": "9bdfc3ff3da6",
-  "verdict": "pass",
-  "summary": "Test verifies permissive mode accepts both legacy unauthenticated and sufficient-credential requests without generic auth failure, with boundary cases confirming insufficient credentials remain rejected",
-  "timestamp": "2026-08-03T10:52:22.682Z"
-}

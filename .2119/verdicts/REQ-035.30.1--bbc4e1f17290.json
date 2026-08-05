@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.30.1--bbc4e1f17290",
-  "requirementId": "REQ-035.30.1",
-  "hash": "bbc4e1f17290",
-  "verdict": "pass",
-  "summary": "PASS: non-root, root, and prefix-collision cases prove read credentials are rejected and write credentials accepted for both liveness and MCP routes.",
-  "timestamp": "2026-08-03T02:08:02.594Z"
-}

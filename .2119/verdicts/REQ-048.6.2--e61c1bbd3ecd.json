@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.6.2--e61c1bbd3ecd",
-  "requirementId": "REQ-048.6.2",
-  "hash": "e61c1bbd3ecd",
-  "verdict": "pass",
-  "summary": "Tests independently inventory and deny repository, claim, provisioning, migration, lifecycle, runner, workflow-file, governor, session-administration, and operator-migration surfaces, including token-combination attempts.",
-  "timestamp": "2026-08-04T06:50:58.595Z"
-}

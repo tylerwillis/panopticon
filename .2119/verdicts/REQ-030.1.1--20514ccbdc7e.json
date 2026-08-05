@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-030.1.1--20514ccbdc7e",
-  "requirementId": "REQ-030.1.1",
-  "hash": "20514ccbdc7e",
-  "verdict": "pass",
-  "summary": "Tests cover every panopticon session role with the exact generated mouse-on config, plus real fresh-socket LocalRunner, ShellRunner, and tmux checks of effective mouse state.",
-  "timestamp": "2026-08-03T03:41:09.676Z"
-}

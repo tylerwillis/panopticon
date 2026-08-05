@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-030.5.1--a9ae4c2316d4",
-  "requirementId": "REQ-030.5.1",
-  "hash": "a9ae4c2316d4",
-  "verdict": "pass",
-  "summary": "Fresh review verified socketless runners emit no shipped defaults anywhere in their command streams.",
-  "timestamp": "2026-08-03T12:14:02.119Z"
-}

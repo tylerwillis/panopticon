@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.24.1--e04b54b00fa2",
-  "requirementId": "REQ-035.24.1",
-  "hash": "e04b54b00fa2",
-  "verdict": "pass",
-  "summary": "Startup tests reject invalid ASCII characters, non-ASCII values, empty or padding-only values, and embedded equals padding in both read and write tokens.",
-  "timestamp": "2026-08-03T01:20:44.697Z"
-}

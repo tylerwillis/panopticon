@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.29.1--f6f28fbe2af8",
-  "requirementId": "REQ-035.29.1",
-  "hash": "f6f28fbe2af8",
-  "verdict": "pass",
-  "summary": "Tests reject an integrated launch with a missing, duplicate, or non-0.0.0.0 --host and reject standalone startup without PANOPTICON_HOST resolving to 127.0.0.1.",
-  "timestamp": "2026-08-03T05:10:57.163Z"
-}

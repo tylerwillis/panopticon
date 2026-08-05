@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.28.1--3a95c5261d0f",
-  "requirementId": "REQ-035.28.1",
-  "hash": "3a95c5261d0f",
-  "verdict": "pass",
-  "summary": "`test_spawn_rejects_missing_service_credential_before_docker` (LocalRunner) and `test_shell_runner_rejects_an_invalid_service_credential_before_tmux` run the real spawn path across missing/directory/fifo/socket/symlink/malformed and assert `calls == []` (nothing dispatched to Docker/tmux), `lexists`",
-  "timestamp": "2026-08-03T13:19:48.078Z"
-}

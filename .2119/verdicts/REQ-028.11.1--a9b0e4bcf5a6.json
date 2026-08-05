@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.11.1--a9b0e4bcf5a6",
-  "requirementId": "REQ-028.11.1",
-  "hash": "a9b0e4bcf5a6",
-  "verdict": "pass",
-  "summary": "Pins the complete core artifact skill contract covering durability, all reviewable document types, and the GitHub-URL external-field and p-versus-a exception.",
-  "timestamp": "2026-08-03T02:37:18.533Z"
-}

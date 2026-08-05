@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.27.1--1a5355d2ec8d",
-  "requirementId": "REQ-035.27.1",
-  "hash": "1a5355d2ec8d",
-  "verdict": "pass",
-  "summary": "Tests reject missing or incorrect mode reporting, require WARNING level for both disabled and permissive modes, verify enforced behavior in a real production process, and constrain documentation to present enforced—not permissive—as steady state.",
-  "timestamp": "2026-08-03T05:10:21.340Z"
-}

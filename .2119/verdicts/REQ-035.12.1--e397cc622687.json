@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.12.1--e397cc622687",
-  "requirementId": "REQ-035.12.1",
-  "hash": "e397cc622687",
-  "verdict": "pass",
-  "summary": "With no credential reference, tests enumerate every protected REST route plus GET/POST/DELETE MCP validation cases and reject the nearest generic-auth-failure-before-validation counterexample.",
-  "timestamp": "2026-08-03T09:21:51.245Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.1.1--ce2e8c10016c",
-  "requirementId": "REQ-028.1.1",
-  "hash": "ce2e8c10016c",
-  "verdict": "pass",
-  "summary": "All workflows and repeated tasks expose the canonical artifact skill with exact instructions, preserving workflow skills and rejecting collisions.",
-  "timestamp": "2026-08-03T00:13:16.120Z"
-}

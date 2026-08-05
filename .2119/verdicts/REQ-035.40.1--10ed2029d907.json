@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.40.1--10ed2029d907",
-  "requirementId": "REQ-035.40.1",
-  "hash": "10ed2029d907",
-  "verdict": "pass",
-  "summary": "Startup rejects tokens colliding verbatim with the fixed failure body, media value, and response header names, covering the observable generic-failure sinks.",
-  "timestamp": "2026-08-03T07:19:09.424Z"
-}

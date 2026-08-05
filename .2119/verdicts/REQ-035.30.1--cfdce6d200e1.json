@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.30.1--cfdce6d200e1",
-  "requirementId": "REQ-035.30.1",
-  "hash": "cfdce6d200e1",
-  "verdict": "pass",
-  "summary": "Root-path tests now enforce reader rejection and writer acceptance for liveness plus GET, POST, and DELETE MCP requests, with root and prefix-collision controls.",
-  "timestamp": "2026-08-03T04:02:47.213Z"
-}

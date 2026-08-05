@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.7.2--160d0b0d81a7",
-  "requirementId": "REQ-048.7.2",
-  "hash": "160d0b0d81a7",
-  "verdict": "pass",
-  "summary": "Tests cover recursive descendant reads and each fixed preplanning action—artifact publication, slug, token estimate, planning responsibility, turn, and dependencies—with persisted-effect assertions.",
-  "timestamp": "2026-08-04T06:50:59.652Z"
-}

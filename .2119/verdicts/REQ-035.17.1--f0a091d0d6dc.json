@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.17.1--f0a091d0d6dc",
-  "requirementId": "REQ-035.17.1",
-  "hash": "f0a091d0d6dc",
-  "verdict": "pass",
-  "summary": "The tests exercise Docker and shell tasks without repo env files, verify a separate runtime credential snapshot is supplied, and prove that shared Python clients, liveness calls, shell-library calls, setup-repo calls, MCP configuration, Pi wiring, and artifact fallback consume the injected credential.",
-  "timestamp": "2026-08-04T06:50:49.047Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.2.1--b2e57c58eee3",
-  "requirementId": "REQ-035.2.1",
-  "hash": "b2e57c58eee3",
-  "verdict": "pass",
-  "summary": "Exercises distinct opaque read/write privileges, rejects cross-privilege duplicates, and proves simultaneous old/new tokens for both privileges during rotation overlap.",
-  "timestamp": "2026-08-03T07:18:54.569Z"
-}

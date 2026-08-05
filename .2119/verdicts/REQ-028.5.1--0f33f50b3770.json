@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.5.1--0f33f50b3770",
-  "requirementId": "REQ-028.5.1",
-  "hash": "0f33f50b3770",
-  "verdict": "pass",
-  "summary": "All built-in spec and review skills independently require specification, review-output, and triage artifact publication.",
-  "timestamp": "2026-08-03T00:13:18.016Z"
-}

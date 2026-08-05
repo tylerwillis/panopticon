@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-016.2.1--514b058bba8b",
-  "requirementId": "REQ-016.2.1",
-  "hash": "514b058bba8b",
-  "verdict": "pass",
-  "summary": "Exit-0 + exact-empty stdout/stderr asserted on real subprocess runs under stall/slow/malformed responses, per-operation httpx error classes with a leak-detecting sentinel, and pi handlers awaited under rejected-fetch/503 with check=True — any surfaced failure fails a test.",
-  "timestamp": "2026-07-31T01:01:59.520Z"
-}

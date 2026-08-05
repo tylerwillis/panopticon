@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.30.1--b83859474d73",
-  "requirementId": "REQ-035.30.1",
-  "hash": "b83859474d73",
-  "verdict": "pass",
-  "summary": "Freshness revalidation after unrelated helper-only edits; annotated evidence is unchanged. PASS: non-root, root, and prefix-collision cases prove read credentials are rejected and write credentials accepted for both liveness and MCP routes.",
-  "timestamp": "2026-08-03T18:58:45.045Z"
-}

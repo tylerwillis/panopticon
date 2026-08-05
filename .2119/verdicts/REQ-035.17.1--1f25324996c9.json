@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.17.1--1f25324996c9",
-  "requirementId": "REQ-035.17.1",
-  "hash": "1f25324996c9",
-  "verdict": "pass",
-  "summary": "Docker and shell spawn tests use no repo env_file, verify a separate runtime credential path, and exercise shared-client, liveness, and shell-library authenticated requests.",
-  "timestamp": "2026-08-03T01:20:42.150Z"
-}

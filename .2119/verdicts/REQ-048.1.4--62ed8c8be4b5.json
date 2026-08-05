@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.1.4--62ed8c8be4b5",
-  "requirementId": "REQ-048.1.4",
-  "hash": "62ed8c8be4b5",
-  "verdict": "pass",
-  "summary": "Exactly 200 logical lines pass and the nearest 201-line input fails through both representations without mutation.",
-  "timestamp": "2026-08-04T06:33:50.377Z"
-}

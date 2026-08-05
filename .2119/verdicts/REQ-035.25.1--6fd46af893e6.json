@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.25.1--6fd46af893e6",
-  "requirementId": "REQ-035.25.1",
-  "hash": "6fd46af893e6",
-  "verdict": "pass",
-  "summary": "The production main entry point is observed passing loopback with PANOPTICON_HOST absent and the explicitly configured interface when it is set.",
-  "timestamp": "2026-08-02T23:29:49.921Z"
-}

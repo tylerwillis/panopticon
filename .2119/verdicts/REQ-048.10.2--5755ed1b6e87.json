@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.10.2--5755ed1b6e87",
-  "requirementId": "REQ-048.10.2",
-  "hash": "5755ed1b6e87",
-  "verdict": "pass",
-  "summary": "Tests inspect successful, failing, preflight, actual, and streaming responses and require Access-Control-Allow-Credentials to be absent throughout.",
-  "timestamp": "2026-08-04T06:51:02.653Z"
-}

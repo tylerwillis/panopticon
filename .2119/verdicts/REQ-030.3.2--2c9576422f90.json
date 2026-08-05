@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-030.3.2--2c9576422f90",
-  "requirementId": "REQ-030.3.2",
-  "hash": "2c9576422f90",
-  "verdict": "pass",
-  "summary": "Both runners assert the *first* tmux argv is `tmux -L panopticon -f <config>` and `-f` precedes `new-session` (test_local_runner.py:429, test_shell_runner.py:286), with terminal call sites covered identically (test_terminal.py:59, test_console.py:363,411); the mechanism itself is proven real in test",
-  "timestamp": "2026-08-03T13:46:49.348Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.39.1--5fc127479e5b",
-  "requirementId": "REQ-035.39.1",
-  "hash": "5fc127479e5b",
-  "verdict": "pass",
-  "summary": "Snapshot and runner-spawn tests verify a Docker task receives only its task-scoped capability derived from the currently selected final write token, excluding read and prior write tokens.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

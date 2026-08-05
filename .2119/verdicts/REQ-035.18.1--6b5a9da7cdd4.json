@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.18.1--6b5a9da7cdd4",
-  "requirementId": "REQ-035.18.1",
-  "hash": "6b5a9da7cdd4",
-  "verdict": "pass",
-  "summary": "Tests inject configured tokens into failure paths and inspect bodies, validation errors, logs, argv, serialization, SQLite/artifact files, plus runtime-secret cleanup and redaction boundaries.",
-  "timestamp": "2026-08-03T07:19:00.641Z"
-}

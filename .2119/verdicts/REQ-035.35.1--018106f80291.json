@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.35.1--018106f80291",
-  "requirementId": "REQ-035.35.1",
-  "hash": "018106f80291",
-  "verdict": "pass",
-  "summary": "Three admitted headerless requests verify power-of-two rate limiting and exact method, route, caller, and cumulative counts.",
-  "timestamp": "2026-08-03T06:34:33.312Z"
-}

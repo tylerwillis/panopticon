@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.28.1--d13e51386dc9",
-  "requirementId": "REQ-035.28.1",
-  "hash": "d13e51386dc9",
-  "verdict": "pass",
-  "summary": "LocalRunner and ShellRunner tests reject missing, directory, and FIFO credential references before any Docker/tmux command; they require a missing path to remain absent and verify directory/FIFO identity, type, and contents remain unchanged.",
-  "timestamp": "2026-08-03T00:38:45.846Z"
-}

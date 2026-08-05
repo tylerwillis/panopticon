@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.17.1--d298a54cb39e",
-  "requirementId": "REQ-035.17.1",
-  "hash": "d298a54cb39e",
-  "verdict": "pass",
-  "summary": "Runner tests spawn real LocalRunner/ShellRunner without env_file and reject every nearby violation: token in argv/env fails the no-leak asserts, mounting the host secrets file fails the separate-path asserts, and wrong-privilege delivery fails the write-only snapshot content check; injected-file use is proven end-to-end for shared-client (factory + wire headers), liveness (/live curl carries Bearer via stdin), and shell-library requests (_TASK_LIB and setup-repo executed against curl stubs).",
-  "timestamp": "2026-08-03T11:23:29.539Z"
-}

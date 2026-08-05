@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.10.1--da534c69cce8",
-  "requirementId": "REQ-035.10.1",
-  "hash": "da534c69cce8",
-  "verdict": "pass",
-  "summary": "Unauthenticated GET /healthz is asserted to return status 200 and exactly the existing readiness JSON payload.",
-  "timestamp": "2026-08-03T02:05:10.419Z"
-}

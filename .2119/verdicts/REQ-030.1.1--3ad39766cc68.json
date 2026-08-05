@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-030.1.1--3ad39766cc68",
-  "requirementId": "REQ-030.1.1",
-  "hash": "3ad39766cc68",
-  "verdict": "pass",
-  "summary": "Fresh review verified mouse defaults through real tmux and every session creator.",
-  "timestamp": "2026-08-03T12:45:29.779Z"
-}

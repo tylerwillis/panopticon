@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.19.1--1e9c2b6fc0be",
-  "requirementId": "REQ-035.19.1",
-  "hash": "1e9c2b6fc0be",
-  "verdict": "pass",
-  "summary": "The test proves old-only startup, overlap acceptance for old/new read and write tokens, unchanged running behavior after file replacement, and old-token rejection only after a second startup.",
-  "timestamp": "2026-08-03T09:21:54.656Z"
-}

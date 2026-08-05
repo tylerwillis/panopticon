@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-030.3.2--047b5ad6e8c7",
-  "requirementId": "REQ-030.3.2",
-  "hash": "047b5ad6e8c7",
-  "verdict": "pass",
-  "summary": "Every first-touch new-session call site asserts -f precedes new-session, rejecting the pane-created-before-history-limit counterexample.",
-  "timestamp": "2026-08-03T02:05:01.408Z"
-}

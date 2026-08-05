@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.37.1--c9a8ffe52f9a",
-  "requirementId": "REQ-035.37.1",
-  "hash": "c9a8ffe52f9a",
-  "verdict": "pass",
-  "summary": "The annotated test executes the rendered credential-less command with real curl against the actual permissive task-service app, case-folds received header names to prove Authorization is absent, and reads back the persisted artifact bytes.",
-  "timestamp": "2026-08-03T07:14:04.560Z"
-}

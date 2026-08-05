@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.3.3--ec902dfdfbf0",
+  "requirementId": "enforced-mode-cutover-runbook.3.3",
+  "hash": "ec902dfdfbf0",
+  "verdict": "pass",
+  "summary": "Tests reject omission of either runner/dashboard PID+start disposition and behaviorally reject a still-live original identity while allowing absent or PID-reused processes.",
+  "timestamp": "2026-08-05T05:10:39.252Z"
+}

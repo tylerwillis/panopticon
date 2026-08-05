@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-043.2.2--9cc4ab2a6c60",
-  "requirementId": "REQ-043.2.2",
-  "hash": "9cc4ab2a6c60",
-  "verdict": "pass",
-  "summary": "Integration test rejects lifecycle reporting or clearing, claim release or reclaim, and runner commands from both mark_healing and heal while the failed task's claim remains held.",
-  "timestamp": "2026-08-03T07:51:28.226Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.7.1--cbe2c61f97b1",
-  "requirementId": "REQ-035.7.1",
-  "hash": "cbe2c61f97b1",
-  "verdict": "pass",
-  "summary": "Missing, malformed, wrong-scheme, unknown, near-match, non-ASCII, and insufficient tokens all require the same 401 body and Bearer challenge.",
-  "timestamp": "2026-08-03T02:05:05.408Z"
-}

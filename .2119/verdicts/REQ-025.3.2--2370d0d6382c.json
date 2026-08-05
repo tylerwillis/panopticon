@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-025.3.2--2370d0d6382c",
-  "requirementId": "REQ-025.3.2",
-  "hash": "2370d0d6382c",
-  "verdict": "pass",
-  "summary": "resolve_join calls the same task_context_label formula regardless of runner_host, verified end-to-end for both the remote (ssh-wrapped) and local pipelines with matching slug/memo formatting, plus a direct local-vs-remote same-label parity test in test_attach.py.",
-  "timestamp": "2026-08-01T00:33:30.810Z"
-}

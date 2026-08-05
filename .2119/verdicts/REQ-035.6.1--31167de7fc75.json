@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.6.1--31167de7fc75",
-  "requirementId": "REQ-035.6.1",
-  "hash": "31167de7fc75",
-  "verdict": "pass",
-  "summary": "Read tokens correctly rejected on tools/call and resources/read MCP methods; test verifies observable 401 rejection on both request types, plus positive case with write token",
-  "timestamp": "2026-08-03T10:54:48.059Z"
-}

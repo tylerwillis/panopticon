@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.28.1--dac60f08c9d9",
-  "requirementId": "REQ-035.28.1",
-  "hash": "dac60f08c9d9",
-  "verdict": "pass",
-  "summary": "Runner tests reject missing, directory, FIFO, socket, and symlink credentials before any command invocation and verify missing paths remain absent and non-file entries retain identity, metadata, and contents where applicable.",
-  "timestamp": "2026-08-03T20:34:17.830Z"
-}

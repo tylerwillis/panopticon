@@ -88,6 +88,7 @@ def test_argv_omits_initial_prompt_when_continuing_a_session(tmp_path: Path) -> 
     assert "review your plan" not in argv
 
 
+# 2119: enforced-mode-cutover-runbook.5.6
 def test_argv_appends_interrupt_prompt_on_respawn_for_agent_turn(tmp_path: Path) -> None:
     _seed_session(tmp_path)
     argv = HARNESS.argv(_ctx(tmp_path, turn="agent"))
@@ -99,9 +100,17 @@ def test_argv_appends_interrupt_prompt_on_respawn_for_agent_turn(tmp_path: Path)
     ]
 
 
+# 2119: enforced-mode-cutover-runbook.5.6
 def test_argv_omits_interrupt_prompt_on_respawn_for_user_turn(tmp_path: Path) -> None:
     _seed_session(tmp_path)
     argv = HARNESS.argv(_ctx(tmp_path, turn="user"))
+    assert argv == ["claude", "--dangerously-skip-permissions", "--continue"]
+
+
+# 2119: enforced-mode-cutover-runbook.5.6
+def test_argv_continues_history_when_turn_is_unspecified(tmp_path: Path) -> None:
+    _seed_session(tmp_path)
+    argv = HARNESS.argv(_ctx(tmp_path))
     assert argv == ["claude", "--dangerously-skip-permissions", "--continue"]
 
 

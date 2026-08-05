@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.2.1--05e9aaa67b4e",
-  "requirementId": "REQ-035.2.1",
-  "hash": "05e9aaa67b4e",
-  "verdict": "pass",
-  "summary": "Pass: distinct read/write roles, multiple old/new tokens per role, opaque token characters, near-match rejection, and rotation overlap are all behaviorally exercised.",
-  "timestamp": "2026-08-03T01:20:37.423Z"
-}

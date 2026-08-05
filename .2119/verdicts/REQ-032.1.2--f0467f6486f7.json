@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-032.1.2--f0467f6486f7",
+  "requirementId": "REQ-032.1.2",
+  "hash": "f0467f6486f7",
+  "verdict": "pass",
+  "summary": "Tests reverse creation, filename, and mtime order and include nanosecond-separated equal-float mtimes, rejecting every nearby wrong recency selector.",
+  "timestamp": "2026-08-04T21:23:45.510Z"
+}

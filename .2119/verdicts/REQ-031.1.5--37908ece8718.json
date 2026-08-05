@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-031.1.5--37908ece8718",
-  "requirementId": "REQ-031.1.5",
-  "hash": "37908ece8718",
-  "verdict": "pass",
-  "summary": "Fresh evidence audit confirms both complete start and host tests assert exact detached service and runner tmux argv under reachable Docker, rejecting omission, foregrounding, and wrong commands.",
-  "timestamp": "2026-08-03T19:00:59.633Z"
-}

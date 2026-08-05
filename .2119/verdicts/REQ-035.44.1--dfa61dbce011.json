@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.44.1--dfa61dbce011",
-  "requirementId": "REQ-035.44.1",
-  "hash": "dfa61dbce011",
-  "verdict": "pass",
-  "summary": "test_configured_tokens_are_rejected_before_persistence_or_success sends real configured tokens via raw/\\u-escaped JSON body (with and without Content-Type), path, percent-encoded query, and artifact bytes against an unmocked app, asserts 400 'request rejected' for each, then byte-scans task.db and artifact files to prove neither token persisted; verified passing via python -m pytest tests/taskservice/test_authentication_spec.py::test_configured_tokens_are_rejected_before_persistence_or_success -q",
-  "timestamp": "2026-08-03T11:43:59.047Z"
-}

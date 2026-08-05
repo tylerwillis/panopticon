@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.12.1--2a343365b680",
-  "requirementId": "REQ-028.12.1",
-  "hash": "2a343365b680",
-  "verdict": "pass",
-  "summary": "Covers all built-in 2119 skills and rejects missing Codex bypass argv, edit-forbidding prompts, or unchanged-status verification, including a behavioral dirty-tree failure.",
-  "timestamp": "2026-08-03T02:37:19.066Z"
-}

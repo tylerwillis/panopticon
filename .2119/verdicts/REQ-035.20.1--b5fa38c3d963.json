@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.20.1--b5fa38c3d963",
-  "requirementId": "REQ-035.20.1",
-  "hash": "b5fa38c3d963",
-  "verdict": "pass",
-  "summary": "Per-call stdin delimiters now prove each ordered task read, repo read, and repo update receives exactly the distinct injected write-token header, while captured argv excludes the token.",
-  "timestamp": "2026-08-03T03:13:29.515Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.9.1--71e5419047bb",
-  "requirementId": "REQ-048.9.1",
-  "hash": "71e5419047bb",
-  "verdict": "pass",
-  "summary": "Tests accept absent and empty read arrays while rejecting missing, empty, or incorrectly typed write configuration under enforced authentication.",
-  "timestamp": "2026-08-04T06:51:01.647Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.8.1--93df8eb0cf78",
-  "requirementId": "REQ-033.8.1",
-  "hash": "93df8eb0cf78",
-  "verdict": "pass",
-  "summary": "Exact instructions require skipping explicitly rejected suggestions.",
-  "timestamp": "2026-08-03T00:13:25.255Z"
-}

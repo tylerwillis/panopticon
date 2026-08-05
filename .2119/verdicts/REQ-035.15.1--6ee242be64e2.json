@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.15.1--6ee242be64e2",
-  "requirementId": "REQ-035.15.1",
-  "hash": "6ee242be64e2",
-  "verdict": "pass",
-  "summary": "Observed requests prove the shared client sends the exact Bearer token on ordinary GET, ordinary PUT, task-live, and runner-live calls, while every captured URL excludes the token.",
-  "timestamp": "2026-08-03T17:33:55.614Z"
-}

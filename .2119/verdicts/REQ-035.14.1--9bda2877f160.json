@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.14.1--9bda2877f160",
-  "requirementId": "REQ-035.14.1",
-  "hash": "9bda2877f160",
-  "verdict": "pass",
-  "summary": "All startup validation conjuncts covered: missing reference, path escape, unreadable, invalid JSON structure, empty arrays, non-string values, extra keys, and shared tokens all rejected before service initialization.",
-  "timestamp": "2026-08-03T11:16:35.639Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.4.1--0bdb6696bac9",
-  "requirementId": "REQ-028.4.1",
-  "hash": "0bdb6696bac9",
-  "verdict": "pass",
-  "summary": "All and only the three built-in 2119 workflows are checked against the exact SPECIFYING responsibility sequence, including exactly one spec-artifact human-review obligation.",
-  "timestamp": "2026-08-03T02:37:16.566Z"
-}

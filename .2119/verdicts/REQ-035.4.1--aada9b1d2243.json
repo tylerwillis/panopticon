@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.4.1--aada9b1d2243",
-  "requirementId": "REQ-035.4.1",
-  "hash": "aada9b1d2243",
-  "verdict": "pass",
-  "summary": "Pass: every registered mutating REST operation is dynamically enumerated and rejects all read tokens with the generic failure, including both live GET streams.",
-  "timestamp": "2026-08-03T01:20:38.365Z"
-}

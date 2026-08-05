@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-030.5.1--74b13cfa1c05",
-  "requirementId": "REQ-030.5.1",
-  "hash": "74b13cfa1c05",
-  "verdict": "pass",
-  "summary": "Fresh review verified every socketless runner command and pane payload omit shipped defaults.",
-  "timestamp": "2026-08-03T12:35:53.849Z"
-}

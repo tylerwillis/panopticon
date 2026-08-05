@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.9.1--b66c1be52f7d",
-  "requirementId": "REQ-028.9.1",
-  "hash": "b66c1be52f7d",
-  "verdict": "pass",
-  "summary": "Each built-in-name duplicate from the configured home directory is rejected with the exact external path and remove-copy remediation.",
-  "timestamp": "2026-08-03T06:34:41.311Z"
-}

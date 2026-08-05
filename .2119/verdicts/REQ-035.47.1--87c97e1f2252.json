@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.47.1--87c97e1f2252",
-  "requirementId": "REQ-035.47.1",
-  "hash": "87c97e1f2252",
-  "verdict": "pass",
-  "summary": "Tests reject proxy routing with a real native Claude MCP request, wrong service-host targeting or env-file precedence, and loss of existing upper/lower-case proxy-bypass entries from env-file or runner overrides.",
-  "timestamp": "2026-08-03T22:52:27.002Z"
-}

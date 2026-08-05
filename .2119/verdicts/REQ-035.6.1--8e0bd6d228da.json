@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.6.1--8e0bd6d228da",
-  "requirementId": "REQ-035.6.1",
-  "hash": "8e0bd6d228da",
-  "verdict": "pass",
-  "summary": "Sends concrete tools/call and resources/read JSON-RPC requests through mounted MCP and proves read tokens are rejected while write tokens cross authentication.",
-  "timestamp": "2026-08-03T07:18:56.499Z"
-}

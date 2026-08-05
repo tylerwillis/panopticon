@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-030.5.1--635c91f3ed34",
-  "requirementId": "REQ-030.5.1",
-  "hash": "635c91f3ed34",
-  "verdict": "pass",
-  "summary": "For both container and shell runners with no dedicated socket, exact complete tmux call sequences exclude -L, -f, set-option, bindings, and every other shipped-default application.",
-  "timestamp": "2026-08-03T04:00:00.651Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.3.1--135c1423897e",
-  "requirementId": "REQ-035.3.1",
-  "hash": "135c1423897e",
-  "verdict": "pass",
-  "summary": "Both read and write tokens are exercised across dynamically enumerated safe REST operations plus framework GET/HEAD routes, and every nearest generic-auth-failure counterexample is rejected while health is explicitly excluded.",
-  "timestamp": "2026-08-02T22:04:55.736Z"
-}

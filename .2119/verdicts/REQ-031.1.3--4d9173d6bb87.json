@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-031.1.3--4d9173d6bb87",
-  "requirementId": "REQ-031.1.3",
-  "hash": "4d9173d6bb87",
-  "verdict": "pass",
-  "summary": "Exact full-message assertions cover real Docker-probe refusals for both start and host, rejecting omission or corruption of every platform remediation.",
-  "timestamp": "2026-08-01T05:09:44.533Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.1.3--e10e86b9a691",
-  "requirementId": "REQ-048.1.3",
-  "hash": "e10e86b9a691",
-  "verdict": "pass",
-  "summary": "Exact 65536-byte ASCII and multibyte boundaries pass while nearest oversized inputs fail through both representations.",
-  "timestamp": "2026-08-04T06:33:49.945Z"
-}

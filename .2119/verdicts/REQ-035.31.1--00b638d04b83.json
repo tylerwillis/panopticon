@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.31.1--00b638d04b83",
-  "requirementId": "REQ-035.31.1",
-  "hash": "00b638d04b83",
-  "verdict": "pass",
-  "summary": "PASS: combined tests cover service and runner session commands plus dashboard creation, all three auth variables, absent-value unsetting, and real-tmux stale replacement/clearing.",
-  "timestamp": "2026-08-03T02:08:03.086Z"
-}

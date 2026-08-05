@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.5.1--534305601a81",
-  "requirementId": "REQ-033.5.1",
-  "hash": "534305601a81",
-  "verdict": "pass",
-  "summary": "All built-in MERGING responsibility lists are asserted exactly as deferred-issues-filed followed by pr-merged.",
-  "timestamp": "2026-08-03T02:37:11.644Z"
-}

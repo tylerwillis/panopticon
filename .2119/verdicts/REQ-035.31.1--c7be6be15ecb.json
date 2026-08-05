@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.31.1--c7be6be15ecb",
-  "requirementId": "REQ-035.31.1",
-  "hash": "c7be6be15ecb",
-  "verdict": "pass",
-  "summary": "Service, runner, and dashboard creation all verify current file/mode/config values and explicit clearing when absent, with a real tmux stale-environment replacement check.",
-  "timestamp": "2026-08-03T04:01:41.781Z"
-}

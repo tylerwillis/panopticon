@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.5.1--b8c90c239cf5",
-  "requirementId": "REQ-035.5.1",
-  "hash": "b8c90c239cf5",
-  "verdict": "pass",
-  "summary": "Every registered REST operation, live streams, and framework documentation GET/HEAD routes are exercised with all write tokens and distinguished from domain validation failures.",
-  "timestamp": "2026-08-03T09:21:35.634Z"
-}

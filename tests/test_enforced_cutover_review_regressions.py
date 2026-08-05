@@ -1,0 +1,146 @@
+from panopticon.core.cutover_runbook import (
+    RUNBOOK_PATH,
+    CutoverPlan,
+    parse_enforced_mode_cutover_runbook,
+    validate_enforced_mode_cutover_runbook,
+)
+
+
+def _plan() -> CutoverPlan:
+    return parse_enforced_mode_cutover_runbook(RUNBOOK_PATH.read_text())
+
+
+# 2119: enforced-mode-cutover-runbook.2.2
+def test_both_new_work_clients_stop_before_the_quiescence_wait() -> None:
+    action = _plan().steps[1].action
+    wait = action.index("while :; do")
+    assert action.index("kill-session -t runner") < wait
+    assert action.index("kill-session -t dashboard") < wait
+
+
+# 2119: enforced-mode-cutover-runbook.1.2
+# 2119: enforced-mode-cutover-runbook.5.4
+def test_canary_inputs_and_all_gate_pass_records_are_scheduled() -> None:
+    plan = _plan()
+    s00 = plan.steps[0]
+    assert "export CANARY_TASK_ID=replace-with-nonterminal-task-id" in s00.action
+    assert "export KNOWN_TASK_NAME=replace-with-task-name-visible-on-phone-board" in s00.action
+    assert 'test "$CANARY_TASK_ID" != replace-with-nonterminal-task-id' in s00.check
+    assert 'test "$KNOWN_TASK_NAME" != replace-with-task-name-visible-on-phone-board' in s00.check
+    scheduled = "\n".join(step.check for step in plan.steps)
+    assert (
+        "execute the Command and Check for G01 through G07 below in\nnumeric order"
+        in RUNBOOK_PATH.read_text()
+    )
+    for gate in range(1, 12):
+        marker = f"G{gate:02d}: PASS"
+        assert marker in scheduled or marker in "\n".join(item.check for item in plan.gates[:7])
+    assert "= 401" in plan.gates[4].action
+    assert 'task["claimed_by"] == sys.argv[2]' in plan.steps[1].action
+    assert ': > "$EVIDENCE_DIR/gates.txt"' in s00.action
+    assert "set -uo pipefail" in s00.action and "set -euo pipefail" not in s00.action
+
+
+# 2119: enforced-mode-cutover-runbook.3.5, enforced-mode-cutover-runbook.3.8
+# 2119: enforced-mode-cutover-runbook.3.9
+def test_all_enforced_exports_precede_the_service_child_launch() -> None:
+    action = _plan().steps[5].action
+    launch = action.index("tmux -L panopticon new-session")
+    for assignment in (
+        "export PANOPTICON_SERVICE_AUTH_MODE=enforced",
+        'export PANOPTICON_SERVICE_AUTH_FILE="$AUTH_FILE_NAME"',
+        'export PANOPTICON_BROWSER_ORIGINS="$PWA_ORIGIN"',
+    ):
+        assert action.index(assignment) < launch
+
+
+# 2119: enforced-mode-cutover-runbook.4.1, enforced-mode-cutover-runbook.4.2
+# 2119: enforced-mode-cutover-runbook.4.4
+def test_get_gates_do_not_override_the_default_get_method() -> None:
+    gates = {gate.item_id: gate for gate in _plan().gates}
+    for gate_id in ("G01", "G02", "G04"):
+        assert "--request" not in gates[gate_id].action
+
+
+# 2119: enforced-mode-cutover-runbook.4.6
+def test_g06_binds_the_exact_origin_to_both_independent_requests() -> None:
+    lines = _plan().gates[5].action.splitlines()
+    assert len(lines) == 2
+    assert "--request OPTIONS" in lines[0]
+    assert '"Origin: $PWA_ORIGIN"' in lines[0]
+    assert '"Origin: $PWA_ORIGIN"' in lines[1]
+
+
+# 2119: enforced-mode-cutover-runbook.4.7
+def test_g07_fetches_the_installed_phone_board_source() -> None:
+    action = _plan().gates[6].action
+    assert "On the installed phone board at %s" in action
+    assert "read -r OBSERVED_PHONE_TASK" in action
+    assert '"$EVIDENCE_DIR/G07-phone-observation.txt"' in action
+
+
+# 2119: enforced-mode-cutover-runbook.4.8
+def test_g08_is_the_last_s04_check_before_s05() -> None:
+    plan = _plan()
+    assert plan.steps[4].check.splitlines()[-3:] == [
+        'docker ps --quiet --filter label=panopticon.task | tee "$EVIDENCE_DIR/G08-running.txt"',
+        'test ! -s "$EVIDENCE_DIR/G08-running.txt"',
+        "printf 'G08: PASS\\n' >> \"$EVIDENCE_DIR/gates.txt\"",
+    ]
+    assert plan.steps[5].title == "Start the task service with exported enforced configuration"
+    mutated = RUNBOOK_PATH.read_text().replace(
+        'test ! -s "$EVIDENCE_DIR/G08-running.txt"', "true", 1
+    )
+    assert "enforced-mode-cutover-runbook.4.8" in validate_enforced_mode_cutover_runbook(mutated)
+    stale_file_mutation = RUNBOOK_PATH.read_text().replace(
+        "docker ps --quiet --filter label=panopticon.task",
+        'cat "$EVIDENCE_DIR/G08-running.txt"',
+    )
+    assert "enforced-mode-cutover-runbook.4.8" in validate_enforced_mode_cutover_runbook(
+        stale_file_mutation
+    )
+    text = RUNBOOK_PATH.read_text()
+    g08 = parse_enforced_mode_cutover_runbook(text).gates[7]
+    g08_only_mutation = text.replace(
+        g08.action,
+        g08.action.replace(
+            "docker ps --quiet --filter label=panopticon.task",
+            'cat "$EVIDENCE_DIR/G08-running.txt"',
+            1,
+        ),
+    )
+    assert "enforced-mode-cutover-runbook.4.8" in validate_enforced_mode_cutover_runbook(
+        g08_only_mutation
+    )
+    decoupled_probe_mutation = text.replace(
+        g08.action,
+        "docker ps --quiet --filter label=panopticon.task >/dev/null\n"
+        'cat "$EVIDENCE_DIR/G08-running.txt" | tee "$EVIDENCE_DIR/G08-running.txt"',
+    )
+    assert "enforced-mode-cutover-runbook.4.8" in validate_enforced_mode_cutover_runbook(
+        decoupled_probe_mutation
+    )
+    hidden_running_mutation = RUNBOOK_PATH.read_text().replace(
+        'test ! -s "$EVIDENCE_DIR/G08-running.txt"',
+        ': > "$EVIDENCE_DIR/G08-running.txt"\ntest ! -s "$EVIDENCE_DIR/G08-running.txt"',
+        1,
+    )
+    assert "enforced-mode-cutover-runbook.4.8" in validate_enforced_mode_cutover_runbook(
+        hidden_running_mutation
+    )
+
+
+# 2119: enforced-mode-cutover-runbook.4.18, enforced-mode-cutover-runbook.7.4
+def test_g09_consumes_fresh_canary_evidence_without_other_claim_release() -> None:
+    plan = _plan()
+    s07 = plan.steps[7]
+    g09 = plan.gates[8]
+    assert "S01-all-container-ids-before.txt" in s07.check
+    assert "CANARY_CONTAINER_ID" in s07.check
+    assert "S07-container-initial.txt" in g09.check
+    assert "S07-container-after-keepalive.txt" in g09.check
+    before_g09 = (*plan.steps[:8], *plan.gates[:9])
+    claim_releases = [
+        item.item_id for item in before_g09 if "/claim" in item.action or "/claim" in item.check
+    ]
+    assert claim_releases == ["S07"]

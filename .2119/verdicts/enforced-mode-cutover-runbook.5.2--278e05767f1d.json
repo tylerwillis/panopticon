@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.5.2--278e05767f1d",
+  "requirementId": "enforced-mode-cutover-runbook.5.2",
+  "hash": "278e05767f1d",
+  "verdict": "pass",
+  "summary": "Both Codex docker runs are inspected for exactly one identical config-volume source, correct harness selection, and no standalone volume command.",
+  "timestamp": "2026-08-04T21:24:07.903Z"
+}

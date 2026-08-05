@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.30.1--71018d9a8567",
-  "requirementId": "REQ-035.30.1",
-  "hash": "71018d9a8567",
-  "verdict": "pass",
-  "summary": "Behavioral tests reject a read-only token and admit a write token for both liveness and all MCP methods under /proxy, root, and prefix-collision root paths.",
-  "timestamp": "2026-08-03T04:45:02.943Z"
-}

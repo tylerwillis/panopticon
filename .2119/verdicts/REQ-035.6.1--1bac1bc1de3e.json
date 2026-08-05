@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.6.1--1bac1bc1de3e",
-  "requirementId": "REQ-035.6.1",
-  "hash": "1bac1bc1de3e",
-  "verdict": "pass",
-  "summary": "Tests send read-authenticated MCP tools/call and resources/read JSON-RPC requests and require rejection while corresponding write-token requests cross the auth boundary.",
-  "timestamp": "2026-08-03T01:17:02.904Z"
-}

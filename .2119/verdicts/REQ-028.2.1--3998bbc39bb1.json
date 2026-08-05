@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.2.1--3998bbc39bb1",
-  "requirementId": "REQ-028.2.1",
-  "hash": "3998bbc39bb1",
-  "verdict": "pass",
-  "summary": "The live core skill is compared exactly and includes both put_artifact MCP and REST PUT mechanisms, so either omission fails.",
-  "timestamp": "2026-08-03T07:08:29.830Z"
-}

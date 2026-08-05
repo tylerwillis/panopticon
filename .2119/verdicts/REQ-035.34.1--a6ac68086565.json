@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.34.1--a6ac68086565",
-  "requirementId": "REQ-035.34.1",
-  "hash": "a6ac68086565",
-  "verdict": "pass",
-  "summary": "Startup and both runner preflights independently reject each isolated group/other read, write, and execute bit plus foreign ownership, while private owner modes remain accepted.",
-  "timestamp": "2026-08-03T04:01:45.194Z"
-}

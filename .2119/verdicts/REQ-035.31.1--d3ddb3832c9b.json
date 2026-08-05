@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.31.1--d3ddb3832c9b",
-  "requirementId": "REQ-035.31.1",
-  "hash": "d3ddb3832c9b",
-  "verdict": "pass",
-  "summary": "Service, runner, and dashboard session creation is captured with explicit unset-then-set handling for all three current auth variables, including absent-variable clearing.",
-  "timestamp": "2026-08-03T06:36:10.818Z"
-}

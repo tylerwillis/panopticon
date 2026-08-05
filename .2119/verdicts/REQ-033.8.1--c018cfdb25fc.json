@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.8.1--c018cfdb25fc",
-  "requirementId": "REQ-033.8.1",
-  "hash": "c018cfdb25fc",
-  "verdict": "pass",
-  "summary": "Same literal, step 4: \"Skip any suggested issue the user explicitly rejected.\"",
-  "timestamp": "2026-08-03T13:19:46.573Z"
-}

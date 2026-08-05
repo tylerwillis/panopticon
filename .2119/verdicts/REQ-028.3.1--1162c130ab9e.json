@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.3.1--1162c130ab9e",
-  "requirementId": "REQ-028.3.1",
-  "hash": "1162c130ab9e",
-  "verdict": "pass",
-  "summary": "Same independent literal contains \"operator opens published artifacts from the dashboard with the `a` hotkey\" and the full example list (spec/summary, review outputs, triage summary, stage or gate reports); exact-equality rejects omission of any conjunct.",
-  "timestamp": "2026-08-03T13:19:36.320Z"
-}

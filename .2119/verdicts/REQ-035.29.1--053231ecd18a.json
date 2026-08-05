@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.29.1--053231ecd18a",
-  "requirementId": "REQ-035.29.1",
-  "hash": "053231ecd18a",
-  "verdict": "pass",
-  "summary": "Integrated launch argv is parsed to require exactly one 0.0.0.0 host while standalone uvicorn startup without an override is required to use 127.0.0.1.",
-  "timestamp": "2026-08-03T06:36:09.783Z"
-}

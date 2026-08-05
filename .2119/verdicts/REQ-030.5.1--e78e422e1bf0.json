@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-030.5.1--e78e422e1bf0",
-  "requirementId": "REQ-030.5.1",
-  "hash": "e78e422e1bf0",
-  "verdict": "pass",
-  "summary": "Both non-dedicated runners now pin their complete tmux argv sequences, including an independent digest for the ShellRunner payload, rejecting every default-injection path.",
-  "timestamp": "2026-08-03T03:21:12.075Z"
-}

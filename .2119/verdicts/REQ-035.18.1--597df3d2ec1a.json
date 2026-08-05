@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.18.1--597df3d2ec1a",
-  "requirementId": "REQ-035.18.1",
-  "hash": "597df3d2ec1a",
-  "verdict": "fail",
-  "summary": "Tests cover all named sinks only for primary tokens; leaking a configured secondary/rotated or opaque token would pass because overlap/opaque credentials are never used in sink-redaction assertions.",
-  "timestamp": "2026-08-03T00:48:18.102Z"
-}

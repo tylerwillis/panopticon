@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.3.2--cc79d8a0e7cb",
+  "requirementId": "REQ-030.3.2",
+  "hash": "cc79d8a0e7cb",
+  "verdict": "pass",
+  "summary": "Each possible first socket operation carries -f before its command, and real tmux verifies the first pane receives history-limit 50000.",
+  "timestamp": "2026-08-04T21:23:44.568Z"
+}

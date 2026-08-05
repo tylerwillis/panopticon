@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.2.1--ccffe9e82008",
-  "requirementId": "REQ-035.2.1",
-  "hash": "ccffe9e82008",
-  "verdict": "pass",
-  "summary": "Distinct read/write privileges, opaque token values, overlap tokens for both privileges, and rejection of shared or malformed token sets are behaviorally exercised.",
-  "timestamp": "2026-08-03T09:21:34.224Z"
-}

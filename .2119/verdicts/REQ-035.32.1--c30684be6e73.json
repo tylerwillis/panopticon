@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.32.1--c30684be6e73",
-  "requirementId": "REQ-035.32.1",
-  "hash": "c30684be6e73",
-  "verdict": "pass",
-  "summary": "The test proves restarted Python and shell clients select the final appended write token and still authenticate after older tokens are removed.",
-  "timestamp": "2026-08-03T01:13:12.107Z"
-}

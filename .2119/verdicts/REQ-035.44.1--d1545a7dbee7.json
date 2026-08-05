@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.44.1--d1545a7dbee7",
-  "requirementId": "REQ-035.44.1",
-  "hash": "d1545a7dbee7",
-  "verdict": "pass",
-  "summary": "Test verifies configured tokens in body/path/query are rejected before database/artifact persistence with proper boundary checks for multiple encoding forms (JSON escaped, URL-encoded) and persistence verification.",
-  "timestamp": "2026-08-03T11:19:52.771Z"
-}

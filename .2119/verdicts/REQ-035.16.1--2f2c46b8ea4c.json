@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.16.1--2f2c46b8ea4c",
-  "requirementId": "REQ-035.16.1",
-  "hash": "2f2c46b8ea4c",
-  "verdict": "pass",
-  "summary": "Tests all three host-runner, console/dashboard, and CLI factories resolve a unique write token from the referenced local file, return the shared client, and make auth-sensitive protected requests successfully.",
-  "timestamp": "2026-08-03T01:17:14.173Z"
-}

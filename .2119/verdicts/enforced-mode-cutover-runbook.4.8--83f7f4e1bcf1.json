@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.8--83f7f4e1bcf1",
+  "requirementId": "enforced-mode-cutover-runbook.4.8",
+  "hash": "83f7f4e1bcf1",
+  "verdict": "pass",
+  "summary": "Rejected: the validator pins the live probe/assert/PASS as S04's exact final three check lines and the parsed next step is S05 enforced startup; targeted stale, indirect, truncating, and gate-only mutations fail.",
+  "timestamp": "2026-08-05T05:51:22.785Z"
+}

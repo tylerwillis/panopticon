@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.7.1--34deb4111105",
-  "requirementId": "REQ-028.7.1",
-  "hash": "34deb4111105",
-  "verdict": "pass",
-  "summary": "`test_discovers_all_three_builtin_2119_workflows` runs real `discover_workflows(_home_workflows=/nonexistent)` and pins all three names to their concrete classes; a missing registration fails on KeyError.",
-  "timestamp": "2026-08-03T13:19:38.283Z"
-}

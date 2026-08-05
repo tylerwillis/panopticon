@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-039.4.1--3a6f97736962",
-  "requirementId": "REQ-039.4.1",
-  "hash": "3a6f97736962",
-  "verdict": "pass",
-  "summary": "Tests enforce timeout closure, backoff, runner identity and host reuse, fresh runner registration, and clean termination.",
-  "timestamp": "2026-08-03T00:01:37.094Z"
-}

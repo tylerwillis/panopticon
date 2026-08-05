@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-030.1.1--173c0fa510db",
-  "requirementId": "REQ-030.1.1",
-  "hash": "173c0fa510db",
-  "verdict": "pass",
-  "summary": "Fresh-socket real-tmux tests reject mouse-off for every currently shipped panopticon session-creation role; out-of-band mutation of an already-running server is outside REQ-030's stated first-touch boundary.",
-  "timestamp": "2026-08-03T05:19:23.842Z"
-}

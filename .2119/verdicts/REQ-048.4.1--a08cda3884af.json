@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.4.1--a08cda3884af",
-  "requirementId": "REQ-048.4.1",
-  "hash": "a08cda3884af",
-  "verdict": "pass",
-  "summary": "Tests exercise every listed self-readable task surface with content assertions, including workflow-derived data, artifact names and bytes, registration records, and actual liveness stream bytes and keepalives.",
-  "timestamp": "2026-08-04T06:50:56.227Z"
-}

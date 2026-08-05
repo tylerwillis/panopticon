@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.3.5--b777a604ea26",
+  "requirementId": "enforced-mode-cutover-runbook.3.5",
+  "hash": "b777a604ea26",
+  "verdict": "pass",
+  "summary": "S05 tests require the exact enforced auth-mode export, propagate it into the task-service child command, and prove the export precedes launch.",
+  "timestamp": "2026-08-05T05:07:52.634Z"
+}

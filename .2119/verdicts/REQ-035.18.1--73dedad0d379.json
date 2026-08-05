@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.18.1--73dedad0d379",
-  "requirementId": "REQ-035.18.1",
-  "hash": "73dedad0d379",
-  "verdict": "pass",
-  "summary": "Uses configured sentinel tokens to reject disclosure across REST and MCP failures, validation errors, logs, argv, serialization, SQLite state, and artifact files.",
-  "timestamp": "2026-08-03T02:55:13.675Z"
-}

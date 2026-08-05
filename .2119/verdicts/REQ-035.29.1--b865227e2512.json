@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.29.1--b865227e2512",
-  "requirementId": "REQ-035.29.1",
-  "hash": "b865227e2512",
-  "verdict": "pass",
-  "summary": "PASS: integrated startup argv requires exactly one --host 0.0.0.0 while standalone startup without PANOPTICON_HOST is asserted to use 127.0.0.1.",
-  "timestamp": "2026-08-03T02:08:02.120Z"
-}

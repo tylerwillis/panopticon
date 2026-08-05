@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.24.1--e0432bc1ecda",
-  "requirementId": "REQ-035.24.1",
-  "hash": "e0432bc1ecda",
-  "verdict": "pass",
-  "summary": "Rejects every disallowed ASCII character, internal padding, empty/padding-only and representative Unicode tokens while valid opaque grammar tokens start successfully.",
-  "timestamp": "2026-08-03T02:32:18.561Z"
-}

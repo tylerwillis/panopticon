@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.40.1--5d9b8913c0f9",
-  "requirementId": "REQ-035.40.1",
-  "hash": "5d9b8913c0f9",
-  "verdict": "pass",
-  "summary": "Test directly verifies startup rejects tokens matching fixed failure response strings (Bearer, www-authenticate, detail, authentication, required, etc.) with observable ValueError; would fail if validation removed.",
-  "timestamp": "2026-08-03T11:19:02.273Z"
-}

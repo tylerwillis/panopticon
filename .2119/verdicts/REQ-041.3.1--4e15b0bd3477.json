@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-041.3.1--4e15b0bd3477",
-  "requirementId": "REQ-041.3.1",
-  "hash": "4e15b0bd3477",
-  "verdict": "pass",
-  "summary": "The universal skill's instructions are asserted (per task, service-level) equal to the test-local literal opening \"The system prompt establishes a standing expectation... This skill is the procedure for fulfilling that expectation\", followed by the `put_artifact` and REST/curl explanations.",
-  "timestamp": "2026-08-03T13:19:49.033Z"
-}

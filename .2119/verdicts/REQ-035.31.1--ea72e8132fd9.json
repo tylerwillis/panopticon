@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.31.1--ea72e8132fd9",
-  "requirementId": "REQ-035.31.1",
-  "hash": "ea72e8132fd9",
-  "verdict": "pass",
-  "summary": "Service, runner, and dashboard tests reject stale inheritance, verify all three current values, and clear each value when absent; a real tmux child confirms replacement behavior.",
-  "timestamp": "2026-08-03T00:38:53.534Z"
-}

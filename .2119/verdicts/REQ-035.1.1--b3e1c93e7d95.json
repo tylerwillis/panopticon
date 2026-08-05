@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.1.1--b3e1c93e7d95",
-  "requirementId": "REQ-035.1.1",
-  "hash": "b3e1c93e7d95",
-  "verdict": "pass",
-  "summary": "Covers startup loading from a filename beneath secrets, rejects raw/absolute/traversal/symlink escapes, and scans API plus durable adapter outputs for copied token values.",
-  "timestamp": "2026-08-03T07:18:54.057Z"
-}

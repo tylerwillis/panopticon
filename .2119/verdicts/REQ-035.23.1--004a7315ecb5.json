@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.23.1--004a7315ecb5",
-  "requirementId": "REQ-035.23.1",
-  "hash": "004a7315ecb5",
-  "verdict": "pass",
-  "summary": "A protected HEAD-capable route rejects no token yet admits a read token with 200, directly excluding the generic authentication-failure path.",
-  "timestamp": "2026-08-03T01:17:30.992Z"
-}

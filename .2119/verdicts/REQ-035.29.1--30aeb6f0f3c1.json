@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.29.1--30aeb6f0f3c1",
-  "requirementId": "REQ-035.29.1",
-  "hash": "30aeb6f0f3c1",
-  "verdict": "pass",
-  "summary": "Tests genuinely verify both startup modes: integrated launch emits exactly one --host 0.0.0.0, while standalone startup without PANOPTICON_HOST passes 127.0.0.1 to uvicorn.",
-  "timestamp": "2026-08-03T04:45:00.953Z"
-}

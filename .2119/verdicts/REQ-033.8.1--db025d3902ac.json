@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.8.1--db025d3902ac",
-  "requirementId": "REQ-033.8.1",
-  "hash": "db025d3902ac",
-  "verdict": "pass",
-  "summary": "Every built-in merge skill must have the exact prefix explicitly directing rejected suggestions to be skipped.",
-  "timestamp": "2026-08-03T06:34:42.740Z"
-}

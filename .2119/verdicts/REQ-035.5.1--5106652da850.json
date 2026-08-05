@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.5.1--5106652da850",
-  "requirementId": "REQ-035.5.1",
-  "hash": "5106652da850",
-  "verdict": "pass",
-  "summary": "Tests enumerate all registered authenticated REST operations plus framework documentation routes and prove multiple write tokens reach endpoint validation rather than generic auth failure.",
-  "timestamp": "2026-08-03T01:17:02.384Z"
-}

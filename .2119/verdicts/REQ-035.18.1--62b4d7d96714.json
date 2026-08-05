@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.18.1--62b4d7d96714",
-  "requirementId": "REQ-035.18.1",
-  "hash": "62b4d7d96714",
-  "verdict": "pass",
-  "summary": "Configured-token counterexamples are exercised across REST/MCP failures, validation, logs, runner commands, serialization, SQLite state, and artifacts, with absence assertions at each sink.",
-  "timestamp": "2026-08-03T00:32:49.704Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.3.3--be71c7eccb32",
-  "requirementId": "REQ-047.3.3",
-  "hash": "be71c7eccb32",
-  "verdict": "pass",
-  "summary": "Overlapping authenticated lifespans are exercised in both ending orders; the test rejects retained redaction for ended-app tokens and exposed tokens for the still-active app, then confirms cleanup after both end.",
-  "timestamp": "2026-08-04T00:23:13.560Z"
-}

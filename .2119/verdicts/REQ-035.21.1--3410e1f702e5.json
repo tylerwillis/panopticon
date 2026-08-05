@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.21.1--3410e1f702e5",
-  "requirementId": "REQ-035.21.1",
-  "hash": "3410e1f702e5",
-  "verdict": "pass",
-  "summary": "Executes the authenticated Pi curl command and proves the credential is supplied through stdin config while absent from the spawned curl argv.",
-  "timestamp": "2026-08-03T02:32:18.010Z"
-}

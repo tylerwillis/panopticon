@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.16.1--3c38e77beff1",
-  "requirementId": "REQ-035.16.1",
-  "hash": "3c38e77beff1",
-  "verdict": "pass",
-  "summary": "All three client factories (host-runner, console/dashboard, CLI) resolve unique token from credential file and return authenticated shared clients.",
-  "timestamp": "2026-08-03T10:58:44.357Z"
-}

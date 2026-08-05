@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.12.1--74483d12a5a3",
-  "requirementId": "REQ-028.12.1",
-  "hash": "74483d12a5a3",
-  "verdict": "pass",
-  "summary": "Enumerates every built-in 2119 workflow, pins exact read-only/clean-tree skill text and the isolated Codex argv, and rejects failed or unverifiable dispatches.",
-  "timestamp": "2026-08-03T06:34:10.685Z"
-}

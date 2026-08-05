@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.7.1--25da71eb4683",
-  "requirementId": "REQ-028.7.1",
-  "hash": "25da71eb4683",
-  "verdict": "pass",
-  "summary": "Runs discovery with no external directory and requires the exact three built-in names mapped to their expected workflow classes.",
-  "timestamp": "2026-08-03T07:08:28.856Z"
-}

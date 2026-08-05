@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.43.1--e1f216ae6edc",
-  "requirementId": "REQ-035.43.1",
-  "hash": "e1f216ae6edc",
-  "verdict": "pass",
-  "summary": "Monotonic total genuinely verified: headerless requests increment via observable header, authenticated requests don't, restart resets to 0, tokens never disclosed",
-  "timestamp": "2026-08-03T10:59:42.672Z"
-}

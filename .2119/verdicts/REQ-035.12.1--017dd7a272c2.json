@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.12.1--017dd7a272c2",
-  "requirementId": "REQ-035.12.1",
-  "hash": "017dd7a272c2",
-  "verdict": "pass",
-  "summary": "Absent and empty credential references are exercised; REST plus MCP GET/DELETE and valid, malformed, and structurally invalid MCP POST requests all reject pre-validation generic authentication failure.",
-  "timestamp": "2026-08-02T23:34:17.736Z"
-}

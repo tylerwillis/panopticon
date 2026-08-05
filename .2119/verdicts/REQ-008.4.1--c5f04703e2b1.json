@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.4.1--c5f04703e2b1",
+  "requirementId": "REQ-008.4.1",
+  "hash": "c5f04703e2b1",
+  "verdict": "pass",
+  "summary": "Native hook wiring is verified, and a gated turn-write test proves the command remains blocked until the write completes.",
+  "timestamp": "2026-08-04T21:23:43.121Z"
+}

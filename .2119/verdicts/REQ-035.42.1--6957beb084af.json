@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.42.1--6957beb084af",
-  "requirementId": "REQ-035.42.1",
-  "hash": "6957beb084af",
-  "verdict": "pass",
-  "summary": "Tool-call and resource-read inputs exercise every configured token, while direct pinned-SDK logger probes prove exact leakage in messages, args, extras, tracebacks, or stack text fails.",
-  "timestamp": "2026-08-03T21:00:43.871Z"
-}

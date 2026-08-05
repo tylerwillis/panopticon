@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.21.1--fa45d51497e1",
-  "requirementId": "REQ-035.21.1",
-  "hash": "fa45d51497e1",
-  "verdict": "pass",
-  "summary": "Executes an authenticated Pi write operation with a sentinel credential and rejects token exposure in curl argv or shell trace while requiring the exact credential via curl stdin config.",
-  "timestamp": "2026-08-03T17:34:34.709Z"
-}

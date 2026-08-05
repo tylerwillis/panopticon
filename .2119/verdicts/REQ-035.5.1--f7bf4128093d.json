@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.5.1--f7bf4128093d",
-  "requirementId": "REQ-035.5.1",
-  "hash": "f7bf4128093d",
-  "verdict": "pass",
-  "summary": "Dynamic OpenAPI enumeration plus explicit framework-doc routes proves configured write tokens avoid the defined generic HTTP 401 authentication failure across every authenticated REST endpoint while allowing endpoint validation errors.",
-  "timestamp": "2026-08-02T22:08:39.429Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.2.9--435c873309b9",
+  "requirementId": "enforced-mode-cutover-runbook.2.9",
+  "hash": "435c873309b9",
+  "verdict": "pass",
+  "summary": "Rejected on triage: the requirement is unchanged and the operator's independent adversarial review verified the relevant nearest-violation mutations; this theoretical objection does not override the evidence-backed MERGE WITH FIX scope.",
+  "timestamp": "2026-08-05T05:17:58.332Z"
+}

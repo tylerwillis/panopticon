@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.10.1--dbd7ceda49d7",
-  "requirementId": "REQ-033.10.1",
-  "hash": "dbd7ceda49d7",
-  "verdict": "pass",
-  "summary": "The exact deferred-issues responsibility description states that filing zero issues is a legal outcome across every built-in workflow.",
-  "timestamp": "2026-08-03T02:37:14.150Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.24.1--ddec32444dc8",
-  "requirementId": "REQ-035.24.1",
-  "hash": "ddec32444dc8",
-  "verdict": "pass",
-  "summary": "Parameterized startup tests reject every disallowed ASCII insertion, non-ASCII values, empty/padding-only values, and embedded equals in both privilege arrays.",
-  "timestamp": "2026-08-03T02:05:27.410Z"
-}

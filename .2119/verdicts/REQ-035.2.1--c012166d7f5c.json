@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.2.1--c012166d7f5c",
-  "requirementId": "REQ-035.2.1",
-  "hash": "c012166d7f5c",
-  "verdict": "pass",
-  "summary": "Tests reject missing, empty, scalar, and cross-privilege-shared assignments while proving exact opaque bearer matching and simultaneous old/new read and write tokens.",
-  "timestamp": "2026-08-02T22:04:30.500Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.18.1--db348a375021",
-  "requirementId": "REQ-035.18.1",
-  "hash": "db348a375021",
-  "verdict": "pass",
-  "summary": "Pass: configured-token probes cover failure and validation bodies, application/SDK and production-process logs, emitted runner and shell argv, task/repo serialization, raw SQLite bytes, and artifact bytes, including prefix-related tokens and injected failures.",
-  "timestamp": "2026-08-03T09:26:18.865Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.34.1--cd89d7cd7a44",
-  "requirementId": "REQ-035.34.1",
-  "hash": "cd89d7cd7a44",
-  "verdict": "pass",
-  "summary": "Tests reject foreign ownership and each individual group/other read, write, and execute bit at both authentication loading and Local/Shell runner preflight boundaries, while accepting owner-only modes.",
-  "timestamp": "2026-08-03T04:45:46.398Z"
-}

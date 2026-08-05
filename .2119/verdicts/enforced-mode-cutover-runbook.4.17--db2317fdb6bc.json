@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.17--db2317fdb6bc",
+  "requirementId": "enforced-mode-cutover-runbook.4.17",
+  "hash": "db2317fdb6bc",
+  "verdict": "pass",
+  "summary": "G09 rejects host-fabricated capability or inspection evidence and requires both real docker inspect metadata and an in-container capability read via the inspected container ID.",
+  "timestamp": "2026-08-05T05:11:36.513Z"
+}

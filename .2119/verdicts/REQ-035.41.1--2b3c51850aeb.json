@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.41.1--2b3c51850aeb",
-  "requirementId": "REQ-035.41.1",
-  "hash": "2b3c51850aeb",
-  "verdict": "pass",
-  "summary": "Executes Pi-operation and artifact commands under real shell xtrace, including harness-rendered artifacts, and proves the token is absent from stderr and curl argv while reaching config stdin.",
-  "timestamp": "2026-08-03T07:19:09.429Z"
-}

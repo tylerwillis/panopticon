@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-031.2.1--6cfc7f8a598c",
-  "requirementId": "REQ-031.2.1",
-  "hash": "6cfc7f8a598c",
-  "verdict": "pass",
-  "summary": "A failed real docker-info probe exits main before migration or run_host, while the reachable boundary enters the spawn/heal loop.",
-  "timestamp": "2026-08-01T00:31:38.978Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.28.1--a3c04595cff1",
-  "requirementId": "REQ-035.28.1",
-  "hash": "a3c04595cff1",
-  "verdict": "pass",
-  "summary": "Local and shell runner production paths reject missing, directory, FIFO, and malformed references before any Docker/tmux or healing side effect, preserving filesystem entries.",
-  "timestamp": "2026-08-03T06:36:09.286Z"
-}

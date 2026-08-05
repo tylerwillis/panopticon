@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.18.1--18cbfd8e7481",
-  "requirementId": "REQ-035.18.1",
-  "hash": "18cbfd8e7481",
-  "verdict": "pass",
-  "summary": "Tests reject configured-token leakage across failure and validation bodies, logs, runner/Pi argv, task/repo serialization, SQLite state, and artifact storage.",
-  "timestamp": "2026-08-02T22:05:42.861Z"
-}

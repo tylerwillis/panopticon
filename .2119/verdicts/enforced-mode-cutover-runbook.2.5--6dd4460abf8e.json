@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.2.5--6dd4460abf8e",
+  "requirementId": "enforced-mode-cutover-runbook.2.5",
+  "hash": "6dd4460abf8e",
+  "verdict": "pass",
+  "summary": "Tests reject a post-restart, indirect, unfiltered, or nonzero drain check by requiring S03 before S05 and an executable task-label docker ps pipeline whose directly teed running-ID evidence must be empty.",
+  "timestamp": "2026-08-05T05:03:13.370Z"
+}

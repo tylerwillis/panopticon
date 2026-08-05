@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.42.1--fd25483f1de0",
-  "requirementId": "REQ-035.42.1",
-  "hash": "fd25483f1de0",
-  "verdict": "pass",
-  "summary": "Real MCP tool and resource inputs exercise every configured token, while pinned SDK logger probes make any token leak via messages, extras, tracebacks, stack data, or late handlers fail.",
-  "timestamp": "2026-08-03T23:28:36.844Z"
-}

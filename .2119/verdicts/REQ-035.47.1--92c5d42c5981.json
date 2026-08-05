@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.47.1--92c5d42c5981",
-  "requirementId": "REQ-035.47.1",
-  "hash": "92c5d42c5981",
-  "verdict": "pass",
-  "summary": "Evidence now rejects proxy use with a real native Claude MCP request and verifies Docker env precedence plus preservation of upper/lower-case existing bypass entries and the configured host.",
-  "timestamp": "2026-08-03T14:59:27.782Z"
-}

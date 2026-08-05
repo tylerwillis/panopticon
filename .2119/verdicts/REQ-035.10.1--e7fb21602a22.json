@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.10.1--e7fb21602a22",
-  "requirementId": "REQ-035.10.1",
-  "hash": "e7fb21602a22",
-  "verdict": "pass",
-  "summary": "Enforced-auth tests issue unauthenticated GET /healthz and require 200 with exactly {status: ok}, rejecting credential gating and any changed, missing, or extra readiness field; root_path coverage also preserves availability when mounted.",
-  "timestamp": "2026-08-03T17:33:09.824Z"
-}

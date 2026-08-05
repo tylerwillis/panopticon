@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.10.1--ce42dec2c0cc",
-  "requirementId": "REQ-035.10.1",
-  "hash": "ce42dec2c0cc",
-  "verdict": "pass",
-  "summary": "Pass: unauthenticated /healthz is asserted 200 with exactly the existing {status: ok} payload, including mounted-root coverage.",
-  "timestamp": "2026-08-03T01:20:49.882Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.1.1--05b0ac4f930b",
-  "requirementId": "REQ-048.1.1",
-  "hash": "05b0ac4f930b",
-  "verdict": "pass",
-  "summary": "Both plain text and client-generated text_b64 exercise equivalent acceptance, rejection, and snapshot preservation.",
-  "timestamp": "2026-08-04T06:33:49.112Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.12.1--24fb7600a4e4",
-  "requirementId": "REQ-035.12.1",
-  "hash": "24fb7600a4e4",
-  "verdict": "pass",
-  "summary": "test_absent_configuration_preserves_legacy_callers verifies endpoint validation precedes auth check; missing routes return 404 not 401; comprehensive REST and MCP GET/POST/DELETE coverage",
-  "timestamp": "2026-08-03T11:17:45.158Z"
-}

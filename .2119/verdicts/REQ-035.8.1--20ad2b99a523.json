@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.8.1--20ad2b99a523",
-  "requirementId": "REQ-035.8.1",
-  "hash": "20ad2b99a523",
-  "verdict": "pass",
-  "summary": "All five required verbs are crossed with existing and missing routes/resources for every named resource class, plus existing and missing MCP methods, and require identical failures.",
-  "timestamp": "2026-08-03T09:21:37.091Z"
-}
