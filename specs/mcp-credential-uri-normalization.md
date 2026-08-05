@@ -30,8 +30,12 @@ dependency id: a non-orchestrating task capability's only in-scope id is its
 own, and a self-referential dependency is rejected by the existing cycle
 policy (REQ-026.4), so a plain task can no longer record a nonempty dependency
 list at all — only an orchestrator, setting one of its governed descendants,
-still can. That trade also closes the id-existence oracle this slice's
-overview describes.
+still can. That trade closes the id-existence oracle on `set_dependencies`
+specifically. The same shape of oracle survives on task creation's own
+`depends_on_task_ids` parameter (`POST /tasks`, and the MCP `create_task`
+tool), which validates existence and cycles but never authorizes the proposed
+ids the way `decide_dependencies` now does — tracked as a follow-up on
+issue #202 rather than fixed in this slice.
 
 ## Requirements
 
