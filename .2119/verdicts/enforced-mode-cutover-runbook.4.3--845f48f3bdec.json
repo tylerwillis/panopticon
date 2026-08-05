@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.3--845f48f3bdec",
+  "requirementId": "enforced-mode-cutover-runbook.4.3",
+  "hash": "845f48f3bdec",
+  "verdict": "pass",
+  "summary": "G03 is fail-closed on auth, new runner ID, and recorded PID/start-time binding; nearby decouplings are rejected.",
+  "timestamp": "2026-08-05T02:26:27.628Z"
+}

@@ -216,21 +216,41 @@ def test_complete_runner_set_and_process_binding_fail_closed(tmp_path) -> None:
         raise AssertionError("original live process was accepted as replaced")
     assert_process_replaced(2**31 - 1, current_start, run=running_ps)
     command = tmp_path / "runner-command.txt"
-    command.write_text("exec env PANOPTICON_RUNNER_ID=new uv run python -m runner\n")
-    assert_runner_process(current_pid, current_start, command, "new", run=running_ps)
+    command.write_text(
+        "exec env PANOPTICON_CONFIG=/config PANOPTICON_SERVICE_AUTH_FILE=auth.json "
+        "PANOPTICON_SERVICE_AUTH_MODE=enforced PANOPTICON_RUNNER_ID=new "
+        "uv run python -m panopticon.sessionservice.host\n"
+    )
+    assert_runner_process(
+        current_pid, current_start, command, "/config", "auth.json", "new", run=running_ps
+    )
     try:
-        assert_runner_process(current_pid, "wrong start", command, "new", run=running_ps)
+        assert_runner_process(
+            current_pid, "wrong start", command, "/config", "auth.json", "new", run=running_ps
+        )
     except ValueError as error:
         assert "identity changed" in str(error)
     else:
         raise AssertionError("mismatched runner start time was accepted")
     for invalid_command in (
-        "env PANOPTICON_RUNNER_ID=new uv run python -m runner",
-        "exec env PANOPTICON_RUNNER_ID=old uv run python -m runner",
+        command.read_text().replace("exec env", "env"),
+        command.read_text().replace("PANOPTICON_CONFIG=/config", "PANOPTICON_CONFIG=/wrong"),
+        command.read_text().replace("AUTH_FILE=auth.json", "AUTH_FILE=wrong.json"),
+        command.read_text().replace("AUTH_MODE=enforced", "AUTH_MODE=permissive"),
+        command.read_text().replace("RUNNER_ID=new", "RUNNER_ID=old"),
+        command.read_text().replace("panopticon.sessionservice.host", "attacker"),
     ):
         command.write_text(invalid_command)
         try:
-            assert_runner_process(current_pid, current_start, command, "new", run=running_ps)
+            assert_runner_process(
+                current_pid,
+                current_start,
+                command,
+                "/config",
+                "auth.json",
+                "new",
+                run=running_ps,
+            )
         except ValueError as error:
             assert "exec-bound" in str(error)
         else:
@@ -246,6 +266,7 @@ def test_complete_runner_set_and_process_binding_fail_closed(tmp_path) -> None:
         current_pid,
         current_start,
         dashboard_command,
+        "/config",
         "auth.json",
         "https://phone",
         "http://service",
@@ -253,6 +274,9 @@ def test_complete_runner_set_and_process_binding_fail_closed(tmp_path) -> None:
     )
     for invalid_dashboard in (
         dashboard_command.read_text().replace("exec env", "env"),
+        dashboard_command.read_text().replace(
+            "PANOPTICON_CONFIG=/config", "PANOPTICON_CONFIG=/wrong"
+        ),
         dashboard_command.read_text().replace("AUTH_MODE=enforced", "AUTH_MODE=permissive"),
         dashboard_command.read_text().replace("https://phone", "https://attacker"),
         dashboard_command.read_text().replace(" dashboard", " doctor"),
@@ -263,6 +287,7 @@ def test_complete_runner_set_and_process_binding_fail_closed(tmp_path) -> None:
                 current_pid,
                 current_start,
                 dashboard_command,
+                "/config",
                 "auth.json",
                 "https://phone",
                 "http://service",
@@ -296,7 +321,7 @@ def test_complete_runner_set_and_process_binding_fail_closed(tmp_path) -> None:
     )
     for required in (
         'assert-runner-set "$EVIDENCE_DIR/G03-runners.json" "$NEW_RUNNER_ID"',
-        'assert-runner-process "$NEW_RUNNER_PID" "$NEW_RUNNER_START" "$EVIDENCE_DIR/S04-runner-start-command.txt" "$NEW_RUNNER_ID"',
+        'assert-runner-process "$NEW_RUNNER_PID" "$NEW_RUNNER_START" "$EVIDENCE_DIR/S04-runner-start-command.txt" "$PANOPTICON_CONFIG" "$AUTH_FILE_NAME" "$NEW_RUNNER_ID"',
     ):
         disconnected = RUNBOOK_PATH.read_text().replace(required, 'test -n "$NEW_RUNNER_ID"', 1)
         assert "enforced-mode-cutover-runbook.4.3" in validate_enforced_mode_cutover_runbook(

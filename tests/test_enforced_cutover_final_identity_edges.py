@@ -77,6 +77,18 @@ def test_g09_capability_target_matches_both_recorded_liveness_identities() -> No
     assert final_cmp in g09.check
     assert f"{g09.action}\n{g09.check}" in plan.steps[7].check
     assert 'docker exec "$CANARY_CONTAINER"' not in plan.steps[7].check
+    after_id_capture = plan.steps[7].check.split(
+        'export CANARY_CONTAINER_ID="$(docker inspect --format \'{{.Id}}\' "$CANARY_CONTAINER")"',
+        1,
+    )[1]
+    assert (
+        "docker inspect --format '{{.State.StartedAt}}' \"$CANARY_CONTAINER_ID\""
+        in after_id_capture
+    )
+    assert (
+        "docker inspect --format '{{.State.StartedAt}}' \"$CANARY_CONTAINER\""
+        not in after_id_capture
+    )
     g09_offset = text.index("### G09 —")
     weakened = text[:g09_offset] + text[g09_offset:].replace(
         final_cmp, 'test -s "$EVIDENCE_DIR/G09-target-at-capability.txt"', 1

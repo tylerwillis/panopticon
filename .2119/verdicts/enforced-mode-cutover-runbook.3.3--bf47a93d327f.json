@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.3.3--bf47a93d327f",
+  "requirementId": "enforced-mode-cutover-runbook.3.3",
+  "hash": "bf47a93d327f",
+  "verdict": "pass",
+  "summary": "Tests reject dropping either old-process identity check and require original PID/start-time death confirmation before cutover proceeds.",
+  "timestamp": "2026-08-05T02:26:27.628Z"
+}

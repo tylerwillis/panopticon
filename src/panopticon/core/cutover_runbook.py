@@ -89,6 +89,8 @@ def assert_runner_process(
     pid: int,
     recorded_start: str,
     command_path: str | Path,
+    config_path: str,
+    auth_file: str,
     runner_id: str,
     *,
     run: Any = subprocess.run,
@@ -98,7 +100,18 @@ def assert_runner_process(
     if process_start(pid, run=run) != recorded_start.strip():
         raise ValueError("runner process identity changed")
     tokens = shlex.split(Path(command_path).read_text().strip())
-    if tokens[:2] != ["exec", "env"] or f"PANOPTICON_RUNNER_ID={runner_id}" not in tokens:
+    required_environment = {
+        f"PANOPTICON_CONFIG={config_path}",
+        f"PANOPTICON_SERVICE_AUTH_FILE={auth_file}",
+        "PANOPTICON_SERVICE_AUTH_MODE=enforced",
+        f"PANOPTICON_RUNNER_ID={runner_id}",
+    }
+    expected_argv = ["uv", "run", "python", "-m", "panopticon.sessionservice.host"]
+    if (
+        tokens[:2] != ["exec", "env"]
+        or not required_environment.issubset(tokens[2:])
+        or tokens[-len(expected_argv) :] != expected_argv
+    ):
         raise ValueError("runner start command is not exec-bound to the expected identity")
 
 
@@ -106,6 +119,7 @@ def assert_dashboard_process(
     pid: int,
     recorded_start: str,
     command_path: str | Path,
+    config_path: str,
     auth_file: str,
     browser_origin: str,
     service_url: str,
@@ -124,6 +138,7 @@ def assert_dashboard_process(
             "dashboard start command is not exec-bound to enforced configuration"
         ) from error
     required_environment = {
+        f"PANOPTICON_CONFIG={config_path}",
         f"PANOPTICON_SERVICE_AUTH_FILE={auth_file}",
         "PANOPTICON_SERVICE_AUTH_MODE=enforced",
         f"PANOPTICON_BROWSER_ORIGINS={browser_origin}",
@@ -339,11 +354,14 @@ def _main() -> int:
     process_parser.add_argument("pid", type=int)
     process_parser.add_argument("recorded_start")
     process_parser.add_argument("command_path", type=Path)
+    process_parser.add_argument("config_path")
+    process_parser.add_argument("auth_file")
     process_parser.add_argument("runner_id")
     dashboard_parser = subparsers.add_parser("assert-dashboard-process")
     dashboard_parser.add_argument("pid", type=int)
     dashboard_parser.add_argument("recorded_start")
     dashboard_parser.add_argument("command_path", type=Path)
+    dashboard_parser.add_argument("config_path")
     dashboard_parser.add_argument("auth_file")
     dashboard_parser.add_argument("browser_origin")
     dashboard_parser.add_argument("service_url")
@@ -364,6 +382,8 @@ def _main() -> int:
             arguments.pid,
             arguments.recorded_start,
             arguments.command_path,
+            arguments.config_path,
+            arguments.auth_file,
             arguments.runner_id,
         )
     elif arguments.command == "assert-dashboard-process":
@@ -371,6 +391,7 @@ def _main() -> int:
             arguments.pid,
             arguments.recorded_start,
             arguments.command_path,
+            arguments.config_path,
             arguments.auth_file,
             arguments.browser_origin,
             arguments.service_url,
