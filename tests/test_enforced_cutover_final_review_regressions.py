@@ -61,15 +61,54 @@ def test_parser_reads_mutated_supplied_actions_and_requires_check_shells() -> No
             assert validate_enforced_mode_cutover_runbook(mutated) == []
 
 
-def test_validator_rejects_instruction_to_restore_legacy_capabilities() -> None:
-    weakening = RUNBOOK_PATH.read_text().replace(
-        "Do not restore legacy\ncapability acceptance",
-        "Restore legacy\ncapability acceptance",
-        1,
-    )
-    assert validate_enforced_mode_cutover_runbook(weakening) == [
-        "enforced-mode-cutover-runbook.2.9"
-    ]
+# 2119: enforced-mode-cutover-runbook.2.9
+def test_validator_rejects_instructions_to_restore_or_revert_capabilities() -> None:
+    for safe, weakening in (
+        (
+            "Do not restore legacy\ncapability acceptance",
+            "Restore legacy\ncapability acceptance",
+        ),
+        ("Do not revert or weaken PR #163", "Revert or weaken PR #163"),
+        ("Do not revert or weaken PR #163", "Disable scoped task capabilities"),
+        ("Do not revert or weaken PR #163", "Remove scoped task capabilities"),
+        ("Do not revert or weaken PR #163", "Bypass PR #163 capability enforcement"),
+    ):
+        weakened = RUNBOOK_PATH.read_text().replace(safe, weakening, 1)
+        assert "enforced-mode-cutover-runbook.2.9" in validate_enforced_mode_cutover_runbook(
+            weakened
+        )
+
+
+# 2119: enforced-mode-cutover-runbook.2.10
+def test_validator_requires_single_stage_permissive_rejection_rationale() -> None:
+    text = RUNBOOK_PATH.read_text()
+    assert "A permissive-mode restart does not avoid this drain" in text
+    assert "fallback accepts only requests\nwithout an Authorization header" in text
+    for required, contradiction in (
+        (
+            "A permissive-mode restart does not avoid this drain",
+            "A permissive-mode restart avoids this drain",
+        ),
+        (
+            "fallback accepts only requests\nwithout an Authorization header",
+            "fallback accepts requests\nwith an Authorization header",
+        ),
+        (
+            "legacy container sends its `pt1` token as a Bearer\ncredential",
+            "legacy container sends no credential",
+        ),
+        ("classifies `/tasks/<id>/live` as mutating", "classifies liveness as public"),
+        ("and returns 401", "and returns 200"),
+        (
+            "turn this one-stage cutover into two\ndrains with no availability benefit",
+            "provide a no-drain deployment stage",
+        ),
+    ):
+        weakened = text.replace(required, contradiction, 1)
+        assert weakened != text
+        assert "enforced-mode-cutover-runbook.2.10" in validate_enforced_mode_cutover_runbook(
+            weakened
+        )
 
 
 def test_runner_pid_is_exec_bound_and_unknown_callers_fail_closed() -> None:

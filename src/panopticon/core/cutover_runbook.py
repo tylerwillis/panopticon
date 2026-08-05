@@ -235,15 +235,31 @@ def validate_enforced_mode_cutover_runbook(text: str) -> list[str]:
     weakens_capabilities = (
         "Do not restore legacy\ncapability acceptance" not in text
         or "Do not add a `pt1` compatibility window" not in rejected
+        or "Do not revert or weaken PR #163" not in rejected
         or "pt1.task" in executable
         or re.search(
             r"(?im)^(?!do not\b).*\b(?:restore|accept|enable)\b.*\blegacy\b.*\bcapabilit",
             text,
         )
         is not None
+        or re.search(
+            r"(?im)^(?:[-*]\s*)?(?:revert|weaken|remove|disable|bypass)\b.*"
+            r"(?:\bscoped\b.*\bcapabilit|PR\s*#163)",
+            text,
+        )
+        is not None
     )
     if weakens_capabilities:
         violations.append("enforced-mode-cutover-runbook.2.9")
+    if (
+        "A permissive-mode restart does not avoid this drain" not in text
+        or "fallback accepts only requests\nwithout an Authorization header" not in text
+        or "legacy container sends its `pt1` token as a Bearer\ncredential" not in text
+        or "classifies `/tasks/<id>/live` as mutating" not in text
+        or "and returns 401" not in text
+        or "turn this one-stage cutover into two\ndrains with no availability benefit" not in text
+    ):
+        violations.append("enforced-mode-cutover-runbook.2.10")
     s01 = next((item for item in plan.steps if item.item_id == "S01"), None)
     s07 = next((item for item in plan.steps if item.item_id == "S07"), None)
     g09 = next((item for item in plan.gates if item.item_id == "G09"), None)

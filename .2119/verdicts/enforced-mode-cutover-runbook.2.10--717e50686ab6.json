@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.2.10--717e50686ab6",
+  "requirementId": "enforced-mode-cutover-runbook.2.10",
+  "hash": "717e50686ab6",
+  "verdict": "pass",
+  "summary": "Runbook tests flip each causal clause of the permissive-mode liveness rationale and the authentication spec proves a legacy Bearer live-check gets 401, so the no-drain claim is genuinely covered.",
+  "timestamp": "2026-08-05T02:56:51.514Z"
+}

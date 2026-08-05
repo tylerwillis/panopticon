@@ -14,6 +14,11 @@ The counter cannot see legacy authenticated callers or already-open streams and 
 corroboration. The procedure does not introduce legacy acceptance, live credential replacement, or
 a weakening of the scoped-capability destination.
 
+Permissive mode does not provide a no-drain deployment stage: its unauthenticated fallback applies
+only when the Authorization header is absent, while legacy containers present their incompatible
+credential as a Bearer token on the mutating liveness route and receive 401. The selected procedure
+therefore remains a single drain followed by the enforced restart.
+
 The durable operator document will live in `docs/runbooks/enforced-mode-cutover.md`. Stable step and
 gate identifiers make observations recordable during the outage and let an operator stop or roll
 back without guessing which evidence has already been established.
@@ -40,6 +45,7 @@ back without guessing which evidence has already been established.
 7. The runbook MUST NOT instruct the operator to add legacy `pt1` acceptance.
 8. The runbook MUST NOT instruct the operator to replace credentials inside running containers.
 9. The runbook MUST NOT instruct the operator to revert scoped task capabilities.
+10. The runbook MUST state that permissive mode rejects a legacy Bearer credential on container liveness and therefore cannot provide a no-drain deployment stage.
 
 ### 3: Long-lived clients and service configuration
 

@@ -225,7 +225,7 @@ def test_validator_is_structural_and_does_not_reject_unrelated_valid_edits() -> 
 # 2119: enforced-mode-cutover-runbook.2.3, enforced-mode-cutover-runbook.2.4
 # 2119: enforced-mode-cutover-runbook.2.5, enforced-mode-cutover-runbook.2.6
 # 2119: enforced-mode-cutover-runbook.2.7, enforced-mode-cutover-runbook.2.8
-# 2119: enforced-mode-cutover-runbook.2.9
+# 2119: enforced-mode-cutover-runbook.2.9, enforced-mode-cutover-runbook.2.10
 def test_prerequisite_quiescence_inventory_and_direct_drain_are_executable() -> None:
     s00, s01, s02, s03 = (_item(f"S{i:02d}") for i in range(4))
     assert "merge-base --is-ancestor" in s00 and "gh run list" in s00
@@ -255,6 +255,9 @@ def test_prerequisite_quiescence_inventory_and_direct_drain_are_executable() -> 
     )
     assert "permissive counter is never a gate" in s03
     assert "permissive request\ncounter is only weak corroboration" in _text()
+    assert "permissive-mode restart does not avoid this drain" in _text()
+    assert "fallback accepts only requests\nwithout an Authorization header" in _text()
+    assert "turn this one-stage cutover into two\ndrains with no availability benefit" in _text()
     rejected = _text().split("## Rejected strategies", 1)[1]
     assert "Do not add a `pt1` compatibility window" in rejected
     assert "Do not replace credentials inside running containers" in rejected

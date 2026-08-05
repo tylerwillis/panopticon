@@ -11,6 +11,13 @@ The decisive pre-restart signal is the empty `docker ps` result in S03/G08. The 
 counter is only weak corroboration because it cannot see legacy authenticated callers or already
 open streams.
 
+A permissive-mode restart does not avoid this drain. Permissive fallback accepts only requests
+without an Authorization header. A running legacy container sends its `pt1` token as a Bearer
+credential; current code cannot authenticate that shape, classifies `/tasks/<id>/live` as mutating,
+and returns 401. The container entrypoint treats that status as fatal. A preliminary permissive
+restart would therefore require the same drain and would turn this one-stage cutover into two
+drains with no availability benefit.
+
 ## S00 — Prepare evidence, credentials, and prerequisite
 
 ### Action
