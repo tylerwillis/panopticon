@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-036.3.2--320aefee819b",
+  "requirementId": "REQ-036.3.2",
+  "hash": "320aefee819b",
+  "verdict": "pass",
+  "summary": "Tests cover both harnesses, multiple nonzero exits, case-insensitive stderr matches, zero-exit and stdout-only counterexamples, and a verified no-findings response producing the exact evidence-bearing comment while unverified responses post nothing.",
+  "timestamp": "2026-08-05T00:44:04.540Z"
+}

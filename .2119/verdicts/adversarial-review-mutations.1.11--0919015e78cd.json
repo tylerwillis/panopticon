@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.11--0919015e78cd",
+  "requirementId": "adversarial-review-mutations.1.11",
+  "hash": "0919015e78cd",
+  "verdict": "pass",
+  "summary": "The exact section-body assertion rejects omission or weakening of verification that affected tests execute throwaway-copy mutated code before either killed or survived classification.",
+  "timestamp": "2026-08-05T00:46:17.957Z"
+}

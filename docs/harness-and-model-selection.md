@@ -150,6 +150,8 @@ the mutation.
 Before classifying a mutation as killed or survived, the reviewer verifies through an imported
 module path or equivalent runtime evidence that the affected tests execute the mutated code from
 the throwaway copy rather than the task working tree or another installed copy.
+This guard exists because a copied source tree can still resolve an editable installation back to
+the original checkout, producing a confident but false survivor when the mutated file never ran.
 
 The Sol-only workflow makes two independent fresh-context dispatches of the same model. That
 preserves independence from the author and between review contexts, but it does not provide

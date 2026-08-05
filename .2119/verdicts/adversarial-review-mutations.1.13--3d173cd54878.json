@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.13--3d173cd54878",
+  "requirementId": "adversarial-review-mutations.1.13",
+  "hash": "3d173cd54878",
+  "verdict": "pass",
+  "summary": "Tests reject only a trivial prompt and one omitted sentence; a validator checking just that sentence could still invoke both reviewers when any other Targeted mutation evidence instruction is omitted.",
+  "timestamp": "2026-08-05T00:46:19.203Z"
+}

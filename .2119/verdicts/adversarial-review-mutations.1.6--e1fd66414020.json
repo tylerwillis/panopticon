@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.6--e1fd66414020",
+  "requirementId": "adversarial-review-mutations.1.6",
+  "hash": "e1fd66414020",
+  "verdict": "pass",
+  "summary": "Exact section equality across all three review skills rejects omission of running affected tests, reporting the broken property or resulting failures, and plainly stating survival.",
+  "timestamp": "2026-08-05T00:46:14.871Z"
+}

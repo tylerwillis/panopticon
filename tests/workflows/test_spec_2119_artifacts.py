@@ -351,7 +351,7 @@ def test_2119_skills_publish_spec_and_review_material() -> None:
                 "recommendations for the user to react to (endorse, reject, or edit) at the PR "
                 "approval gate"
             ) in normalized
-            assert "Reviewer prompts must forbid edits." in review_skill.instructions
+            assert "Reviewer prompts must forbid edits to the task checkout." in normalized
             assert (
                 "verify `git status --porcelain` is unchanged from the snapshot taken immediately "
                 "before that reviewer ran"

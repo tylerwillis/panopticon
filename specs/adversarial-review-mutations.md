@@ -37,6 +37,12 @@ does not supply the mutation.
 11. The adversarial-review instructions' `Targeted mutation evidence` section MUST require the
 reviewer to verify that the affected tests execute the mutated code from the throwaway copy before
 classifying the mutation as killed or survived.
+12. The container-owned reviewer prompt MUST forbid edits to the task checkout while carrying the
+complete `Targeted mutation evidence` instructions that permit mutation writes in a throwaway copy.
+13. Reviewer dispatch MUST reject a prompt that omits the complete `Targeted mutation evidence`
+instructions before invoking either configured reviewer.
+14. The final review evidence gate MUST reject a reviewer comment whose body lacks a `Targeted
+mutation evidence` section with an explicit killed-or-survived outcome.
 
 ### 2: Limits and reviewer independence
 

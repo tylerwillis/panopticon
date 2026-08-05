@@ -30,11 +30,11 @@ TESTS_JUDGED_RESPONSIBILITY = (
 TARGETED_MUTATION_INSTRUCTIONS = """## Targeted mutation evidence
 
 Each reviewer independently chooses every mutation it attempts and must attempt at least one
-targeted mutation; the author must not choose or supply any mutation. Break a specific property on
-which a review claim depends. Apply mutation writes only in a throwaway copy outside the working
-tree, never in the task checkout. Run the affected tests and report the property broken and which
-tests failed, or state plainly that the mutation survived. A surviving mutation is a defect in the
-evidence even when the reviewed code is correct.
+targeted mutation; the author must not choose or supply any mutation. Every mutation must break a
+specific property on which a review claim depends. Apply mutation writes only in a throwaway copy
+outside the working tree, never in the task checkout. Run the affected tests and report the
+property broken and which tests failed, or state plainly that the mutation survived. A surviving
+mutation is a defect in the evidence even when the reviewed code is correct.
 
 Before classifying the outcome, verify with import-path or equivalent runtime evidence that the
 affected tests execute the mutated code from the throwaway copy, not the working tree or another
@@ -54,6 +54,8 @@ the mutation.
 Before classifying a mutation as killed or survived, the reviewer verifies through an imported
 module path or equivalent runtime evidence that the affected tests execute the mutated code from
 the throwaway copy rather than the task working tree or another installed copy.
+This guard exists because a copied source tree can still resolve an editable installation back to
+the original checkout, producing a confident but false survivor when the mutated file never ran.
 
 The Sol-only workflow makes two independent fresh-context dispatches of the same model. That
 preserves independence from the author and between review contexts, but it does not provide

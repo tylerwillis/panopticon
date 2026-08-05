@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-036.2.2--b13e45f8f910",
+  "requirementId": "REQ-036.2.2",
+  "hash": "b13e45f8f910",
+  "verdict": "pass",
+  "summary": "Tests reject missing, duplicate, or extra stdout thread IDs; unmatched or duplicate rollouts; absent, misplaced, duplicate, or mismatched turn-context models; and accept only one exactly matching model from the correlated rollout.",
+  "timestamp": "2026-08-05T00:44:02.617Z"
+}
