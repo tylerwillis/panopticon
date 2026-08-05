@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.10.1--5dbdc52af4b8",
+  "requirementId": "REQ-033.10.1",
+  "hash": "5dbdc52af4b8",
+  "verdict": "pass",
+  "summary": "The exact-description assertion covers all built-in 2119 workflows and rejects omission or contradiction of “Filing zero issues is a legal outcome.”",
+  "timestamp": "2026-08-04T23:20:05.211Z"
+}

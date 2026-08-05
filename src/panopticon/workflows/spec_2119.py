@@ -33,14 +33,21 @@ REVIEWS_RECORDED = Responsibility(
     key="reviews-recorded",
     description=(
         "Both configured reviewer dispatches are machine-verified against the final diff and "
-        "posted as evidence-bearing PR comments."
+        "posted as evidence-bearing PR comments; each reviewer independently chooses every "
+        "mutation it attempts, attempts at least one targeted mutation of a specific claimed "
+        "property, and reports whether it was killed or survived, with a survivor treated as "
+        "an evidence defect."
     ),
 )
 REVIEWS_RECORDED_SOL = Responsibility(
     key="reviews-recorded-sol",
     description=(
-        "Both configured reviewer dispatches are machine-verified against the final diff and "
-        "posted as evidence-bearing PR comments."
+        "Two independently dispatched fresh-context Sol reviewer attempts are machine-verified "
+        "against the final diff and posted as evidence-bearing PR comments. The shared model "
+        "provides no cross-model diversity; each reviewer independently chooses every mutation "
+        "it attempts, attempts at least one targeted mutation of a specific claimed property, "
+        "and reports whether it was killed or survived, with a survivor treated as an evidence "
+        "defect."
     ),
 )
 FINDINGS_TRIAGED = Responsibility(
@@ -193,11 +200,34 @@ rejected as simply wrong — this section captures deferred value, not a changel
 Frame the section explicitly as recommendations for the user to react to (endorse, reject, or
 edit) at the PR approval gate; `MERGING` reads this section back before filing issues."""
 
+TARGETED_MUTATION_EVIDENCE_INSTRUCTIONS = """## Targeted mutation evidence
+
+Each reviewer independently chooses every mutation it attempts and must attempt at least one
+targeted mutation; the author must not choose or supply any mutation. Every mutation must break a
+specific property on which a review claim depends. Apply mutation writes only in a throwaway copy
+outside the working tree, never in the task checkout. Run the affected tests and report the
+property broken and which tests failed, or state plainly that the mutation survived. A surviving
+mutation is a defect in the evidence even when the reviewed code is correct.
+
+The returned review body must contain the exact `## Targeted mutation evidence` heading and must
+classify the experiment with an exact `Outcome: killed` or `Outcome: survived` line in that
+section.
+
+Before classifying the outcome, verify with import-path or equivalent runtime evidence that the
+affected tests execute the mutated code from the throwaway copy, not the working tree or another
+installed copy.
+
+A kill shows only that a test can fail under the mutation; an unrelated assertion may have failed,
+so a kill does not certify the test's reason or the claim. As the final action of every reviewer
+attempt, verify the working tree is unchanged from the snapshot taken immediately before the
+reviewer ran. Keep this targeted: do not introduce a mutation-testing framework or attempt
+exhaustive mutations."""
+
 _VERIFIED_REVIEW_INSTRUCTIONS = f"""Run two independent fresh-context reviews of the final diff
 with the container-owned `panopticon.container.reviewers` dispatch helpers. Each review covers
-correctness, simplicity, scope, and spec/test honesty. Reviewer prompts must forbid edits. After
-each reviewer run, verify `git status --porcelain` is unchanged from the snapshot taken immediately
-before that reviewer ran.
+correctness, simplicity, scope, and spec/test honesty. Reviewer prompts must forbid edits to the
+task checkout. After each reviewer run, verify `git status --porcelain` is unchanged from the
+snapshot taken immediately before that reviewer ran.
 
 Reviewer selection is two ordered atomic `<harness>:<model>` pairs. The workflow defaults are
 shown below. Repo configuration may independently replace them; the runner transports those
@@ -207,8 +237,8 @@ model remains opaque. Resolve and validate both pairs inside the task container 
 reviewer LLM call. A missing harness, missing model, unsupported harness, or malformed pair is an
 actionable configuration failure.
 
-Use `dispatch_reviews` to invoke each configured model explicitly and verify the responding
-identity before posting anything. Claude verification uses the sole responding model key in
+Use `dispatch_reviews` with the container-owned `reviewer_prompt()` to invoke each configured model
+explicitly and verify the responding identity before posting anything. Claude verification uses the sole responding model key in
 `claude --print --output-format json`'s `modelUsage`. Codex verification correlates the sole
 `thread.started` id from `codex exec --json` with the persisted rollout's sole
 `turn_context.payload.model`; this is weaker than a documented stdout identity field. In both
@@ -229,6 +259,8 @@ reviewed commit. Fetch exactly the two final evidence comments in configured slo
 callbacks run. If one dispatch publishes before the other fails, exclude or delete that orphan
 before retrying so the gate receives exactly the final pair. Apply these same dispatch,
 verification, comment, and failure rules to re-review rounds.
+
+{TARGETED_MUTATION_EVIDENCE_INSTRUCTIONS}
 
 Triage every finding against the code. Accept or reject each finding with a reason, implement every
 accepted fix, and re-run the TESTING gates. If a MUST-FIX was accepted, run one fresh review round;

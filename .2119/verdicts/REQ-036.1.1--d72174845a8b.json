@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-036.1.1--d72174845a8b",
+  "requirementId": "REQ-036.1.1",
+  "hash": "d72174845a8b",
+  "verdict": "fail",
+  "summary": "Annotated tests verify pair parsing, ordering, defaults, and pre-dispatch rejection, but inject a dict directly and never prove PANOPTICON_2119_REVIEWER_1/2 are sourced from the repo env-file; wrong-source wiring would pass.",
+  "timestamp": "2026-08-05T02:05:23.501Z"
+}

@@ -25,6 +25,7 @@ from panopticon.harnesses.base import (
     render_reviewer_command,
     validate_reviewer_config,
 )
+from panopticon.workflows.spec_2119 import TARGETED_MUTATION_EVIDENCE_INSTRUCTIONS
 
 CLAUDE_SOURCE = "claude-json:modelUsage"
 CODEX_SOURCE = "codex-rollout:turn_context.payload.model"
@@ -230,11 +231,24 @@ def verify_codex_response(
 def reviewer_prompt() -> str:
     """Return identity-neutral review instructions; the dispatcher owns the report heading."""
 
-    return (
-        "Review the supplied final diff for correctness, simplicity, scope, and spec/test honesty. "
-        "Do not edit files. Return only the substantive review body with must-fix findings, "
-        "suggestions, and a verdict."
-    )
+    return f"""Review the supplied final diff for correctness, simplicity, scope, and spec/test
+honesty. Do not edit files in the task checkout; mutation writes are permitted only as described
+below in a throwaway copy outside that checkout.
+
+{TARGETED_MUTATION_EVIDENCE_INSTRUCTIONS}
+
+Return only the substantive review body with must-fix findings, suggestions, targeted mutation
+evidence, and a verdict."""
+
+
+def _validate_reviewer_prompt(prompt: str, requested_model: str) -> None:
+    if prompt != reviewer_prompt():
+        raise ReviewerDispatchError(
+            "Reviewer prompt must carry the complete Targeted mutation evidence instructions.",
+            kind="configuration",
+            requested_model=requested_model,
+            remediation="Pass the container-owned reviewer_prompt() result and retry.",
+        )
 
 
 def _default_run(argv: list[str], prompt: str) -> CommandResult:
@@ -358,6 +372,7 @@ def dispatch_review(
         ]
     else:
         raise _invalid_config(f"unsupported harness {config.harness!r}", config.model)
+    _validate_reviewer_prompt(prompt, config.model)
     actual_head = git_head()
     if actual_head != commit:
         raise ReviewerDispatchError(
@@ -494,9 +509,32 @@ def validate_review_gate(
         )
     if len(reviewers) != 2:
         raise _identity_error("Review gate requires exactly two configured reviewers.", "unknown")
-    parsed = [parse_review_comment(comment)[0] for comment in comments]
+    parsed = [parse_review_comment(comment) for comment in comments]
     expected_sources = {"claude": CLAUDE_SOURCE, "codex": CODEX_SOURCE}
-    for evidence, expected in zip(parsed, reviewers, strict=True):
+    for (evidence, body), expected in zip(parsed, reviewers, strict=True):
+        mutation_heading = re.search(r"^## Targeted mutation evidence[ \t]*$", body, re.MULTILINE)
+        if mutation_heading is None:
+            raise _identity_error(
+                "Review body has no Targeted mutation evidence section.",
+                evidence.requested_model,
+            )
+        mutation_tail = body[mutation_heading.end() :]
+        next_heading = re.search(r"^## ", mutation_tail, re.MULTILINE)
+        mutation_body = (
+            mutation_tail[: next_heading.start()] if next_heading is not None else mutation_tail
+        )
+        if (
+            re.search(
+                r"^Outcome: (?:killed|survived)$",
+                mutation_body,
+                re.MULTILINE,
+            )
+            is None
+        ):
+            raise _identity_error(
+                "Review body does not contain an exact killed-or-survived Outcome line.",
+                evidence.requested_model,
+            )
         if evidence.verification_source not in SUPPORTED_VERIFICATION_SOURCES:
             raise _identity_error(
                 "Review uses an unsupported verification source.", evidence.requested_model

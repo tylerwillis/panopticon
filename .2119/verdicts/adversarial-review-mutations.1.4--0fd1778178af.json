@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.4--0fd1778178af",
+  "requirementId": "adversarial-review-mutations.1.4",
+  "hash": "0fd1778178af",
+  "verdict": "pass",
+  "summary": "Exact whole-section golden test rejects weakening any mutation, break, specificity, or claim-dependency term.",
+  "timestamp": "2026-08-05T01:53:31.494Z"
+}

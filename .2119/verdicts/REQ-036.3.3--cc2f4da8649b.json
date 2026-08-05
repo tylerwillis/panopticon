@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-036.3.3--cc2f4da8649b",
+  "requirementId": "REQ-036.3.3",
+  "hash": "cc2f4da8649b",
+  "verdict": "pass",
+  "summary": "Tests reject unequal and prefix-colliding HEADs before dispatch, verify the recorded commit, and require the exact custom base-ref/commit range in the reviewer prompt.",
+  "timestamp": "2026-08-05T01:49:33.287Z"
+}

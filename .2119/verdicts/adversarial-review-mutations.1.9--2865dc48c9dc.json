@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.9--2865dc48c9dc",
+  "requirementId": "adversarial-review-mutations.1.9",
+  "hash": "2865dc48c9dc",
+  "verdict": "pass",
+  "summary": "The exact-section assertion rejects each nearest violation: omitting reviewer choice, weakening at least one mutation per reviewer attempt/dispatch, or allowing exhaustive mutations or a mutation-testing framework.",
+  "timestamp": "2026-08-05T00:46:16.686Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-036.4.1--0601983e108e",
+  "requirementId": "REQ-036.4.1",
+  "hash": "0601983e108e",
+  "verdict": "pass",
+  "summary": "Gate tests reject one or three comments, malformed/missing evidence, unsupported or harness-mismatched sources, model mismatches, stale commits, wrong rounds, and prove rejection occurs before triage or responsibility resolution.",
+  "timestamp": "2026-08-05T02:03:21.546Z"
+}

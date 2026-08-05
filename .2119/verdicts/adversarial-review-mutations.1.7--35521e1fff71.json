@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.7--35521e1fff71",
+  "requirementId": "adversarial-review-mutations.1.7",
+  "hash": "35521e1fff71",
+  "verdict": "pass",
+  "summary": "Real workflow skill sections are pinned exactly, rejecting omission, weakening, relocation, or a correct-code exception to the surviving-mutation evidence defect rule.",
+  "timestamp": "2026-08-05T01:51:52.923Z"
+}

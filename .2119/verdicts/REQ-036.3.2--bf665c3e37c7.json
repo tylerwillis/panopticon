@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-036.3.2--bf665c3e37c7",
+  "requirementId": "REQ-036.3.2",
+  "hash": "bf665c3e37c7",
+  "verdict": "pass",
+  "summary": "Tests cover both case-insensitive stderr triggers on nonzero exits, reject zero-exit and stdout-only near misses, and verify the exact evidence-bearing no-findings completion comment.",
+  "timestamp": "2026-08-05T01:50:56.955Z"
+}

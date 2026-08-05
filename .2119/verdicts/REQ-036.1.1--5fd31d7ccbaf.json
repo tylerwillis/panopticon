@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-036.1.1--5fd31d7ccbaf",
+  "requirementId": "REQ-036.1.1",
+  "hash": "5fd31d7ccbaf",
+  "verdict": "pass",
+  "summary": "Tests genuinely verify two ordered independent overrides, first-colon/verbatim model handling, Sol defaults, and reject every specified malformed pair in either slot before reviewer invocation.",
+  "timestamp": "2026-08-05T02:10:17.627Z"
+}

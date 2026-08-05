@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.14--a63d5e683199",
+  "requirementId": "adversarial-review-mutations.1.14",
+  "hash": "a63d5e683199",
+  "verdict": "pass",
+  "summary": "Final gate tests reject missing or malformed mutation-evidence sections and reject absent, invalid, negated, or out-of-section outcomes while accepting explicit killed and survived outcomes.",
+  "timestamp": "2026-08-05T02:03:18.268Z"
+}

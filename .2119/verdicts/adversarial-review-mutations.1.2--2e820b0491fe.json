@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.2--2e820b0491fe",
+  "requirementId": "adversarial-review-mutations.1.2",
+  "hash": "2e820b0491fe",
+  "verdict": "pass",
+  "summary": "Exact-description assertion rejects omission or weakening of every required Sol-review, verification, comment, reviewer-chosen mutation, targeted-at-least-one, and no-cross-model-diversity conjunct.",
+  "timestamp": "2026-08-05T01:49:04.468Z"
+}

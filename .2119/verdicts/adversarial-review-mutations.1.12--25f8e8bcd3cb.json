@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.12--25f8e8bcd3cb",
+  "requirementId": "adversarial-review-mutations.1.12",
+  "hash": "25f8e8bcd3cb",
+  "verdict": "pass",
+  "summary": "The exact prompt assertion rejects checkout-edit permission, omission of any Targeted mutation evidence instruction, and mutation writes anywhere other than a throwaway copy outside the checkout.",
+  "timestamp": "2026-08-05T00:46:18.596Z"
+}

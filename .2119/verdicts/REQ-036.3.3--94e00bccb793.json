@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-036.3.3--94e00bccb793",
+  "requirementId": "REQ-036.3.3",
+  "hash": "94e00bccb793",
+  "verdict": "pass",
+  "summary": "Tests reject unequal and prefix-only HEAD matches before reviewer execution, verify the exact commit is recorded, and require both default/custom selected base refs plus that commit in the reviewer prompt.",
+  "timestamp": "2026-08-05T00:44:05.137Z"
+}

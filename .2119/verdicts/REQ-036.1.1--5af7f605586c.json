@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-036.1.1--5af7f605586c",
+  "requirementId": "REQ-036.1.1",
+  "hash": "5af7f605586c",
+  "verdict": "pass",
+  "summary": "Tests genuinely cover ordered independent slot overrides, first-colon/verbatim model handling, Sol defaults, and all specified invalid pairs before any dispatch.",
+  "timestamp": "2026-08-05T00:55:02.510Z"
+}

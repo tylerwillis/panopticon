@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.13--7e80cb62e657",
+  "requirementId": "adversarial-review-mutations.1.13",
+  "hash": "7e80cb62e657",
+  "verdict": "pass",
+  "summary": "Every single-character omission is rejected for both configured harnesses before their run callback; the paired dispatcher also proves neither reviewer is invoked.",
+  "timestamp": "2026-08-05T02:05:42.931Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-036.3.2--7b7a3e16c1c9",
+  "requirementId": "REQ-036.3.2",
+  "hash": "7b7a3e16c1c9",
+  "verdict": "pass",
+  "summary": "Tests reject nonzero mixed-case usage-limit/unavailable stderr across both harnesses, enforce nonzero and stderr boundaries, and require verified no-findings output to post exact evidence.",
+  "timestamp": "2026-08-05T02:05:06.998Z"
+}

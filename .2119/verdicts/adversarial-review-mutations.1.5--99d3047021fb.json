@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.5--99d3047021fb",
+  "requirementId": "adversarial-review-mutations.1.5",
+  "hash": "99d3047021fb",
+  "verdict": "pass",
+  "summary": "Exact-section contract rejects instructions allowing mutation writes in the checkout, inside-tree throwaways, or any location beyond an outside-tree throwaway copy.",
+  "timestamp": "2026-08-05T01:51:28.458Z"
+}

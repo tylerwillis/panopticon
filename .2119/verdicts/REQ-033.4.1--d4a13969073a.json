@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.4.1--d4a13969073a",
+  "requirementId": "REQ-033.4.1",
+  "hash": "d4a13969073a",
+  "verdict": "pass",
+  "summary": "The tests require every built-in review skill to end with explicit wording that frames the section as recommendations for the user to endorse, reject, or edit at the PR approval gate, rejecting omissions or changes to the audience, reactions, or gate.",
+  "timestamp": "2026-08-05T00:44:01.462Z"
+}

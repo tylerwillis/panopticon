@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.10--7be7bd740c9d",
+  "requirementId": "adversarial-review-mutations.1.10",
+  "hash": "7be7bd740c9d",
+  "verdict": "pass",
+  "summary": "The test snapshots the exact pre-feature `tests-judged` description for all three affected workflows, so any character-level change or removal of that keyed responsibility is rejected.",
+  "timestamp": "2026-08-05T00:46:17.307Z"
+}

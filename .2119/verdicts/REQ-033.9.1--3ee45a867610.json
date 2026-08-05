@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.9.1--3ee45a867610",
+  "requirementId": "REQ-033.9.1",
+  "hash": "3ee45a867610",
+  "verdict": "pass",
+  "summary": "Exact full-text equality rejects any omission of the title, body, PR link, review-comment reference, deferral rationale, or shipping-scope instruction across every 2119 workflow.",
+  "timestamp": "2026-08-04T23:20:09.781Z"
+}

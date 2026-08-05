@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.2--d966ab7d0c5e",
+  "requirementId": "adversarial-review-mutations.1.2",
+  "hash": "d966ab7d0c5e",
+  "verdict": "pass",
+  "summary": "Exact description equality rejects omission or weakening of every required conjunct, including the explicit absence of cross-model diversity.",
+  "timestamp": "2026-08-04T22:53:11.756Z"
+}

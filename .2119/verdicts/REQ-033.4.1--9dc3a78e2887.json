@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.4.1--9dc3a78e2887",
+  "requirementId": "REQ-033.4.1",
+  "hash": "9dc3a78e2887",
+  "verdict": "pass",
+  "summary": "The tests inspect every 2119 review skill and reject omission or alteration of the explicit framing that the “Suggested placeholder issues” section contains recommendations for user endorsement, rejection, or editing at the PR approval gate.",
+  "timestamp": "2026-08-04T23:21:08.330Z"
+}

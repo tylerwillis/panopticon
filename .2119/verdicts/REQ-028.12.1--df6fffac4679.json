@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.12.1--df6fffac4679",
+  "requirementId": "REQ-028.12.1",
+  "hash": "df6fffac4679",
+  "verdict": "pass",
+  "summary": "Tests cover every built-in 2119 workflow, pin the Codex bypass argv and read-only prompts, and behaviorally reject post-review git-status changes before publication.",
+  "timestamp": "2026-08-05T02:04:47.530Z"
+}

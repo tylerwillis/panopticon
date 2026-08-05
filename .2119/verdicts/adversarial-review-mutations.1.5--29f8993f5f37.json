@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.5--29f8993f5f37",
+  "requirementId": "adversarial-review-mutations.1.5",
+  "hash": "29f8993f5f37",
+  "verdict": "pass",
+  "summary": "The exact-section assertion rejects nearest violations such as allowing writes in the working tree, omitting “only,” or permitting a throwaway copy inside the working tree.",
+  "timestamp": "2026-08-04T23:56:55.903Z"
+}

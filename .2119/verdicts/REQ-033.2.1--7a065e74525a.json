@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.2.1--7a065e74525a",
+  "requirementId": "REQ-033.2.1",
+  "hash": "7a065e74525a",
+  "verdict": "pass",
+  "summary": "The test rejects omission or alteration of the instruction’s key boundaries—each genuinely good rejected-or-deferred finding, one paragraph, and all three required content elements—across every built-in review skill.",
+  "timestamp": "2026-08-04T23:20:05.868Z"
+}

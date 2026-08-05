@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-036.2.2--788691ce80ff",
+  "requirementId": "REQ-036.2.2",
+  "hash": "788691ce80ff",
+  "verdict": "fail",
+  "summary": "Annotated tests exercise only verify_codex_response directly, so dispatch could bypass thread/rollout model verification while all cited tests still pass.",
+  "timestamp": "2026-08-05T02:05:23.571Z"
+}

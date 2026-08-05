@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.5.1--588bf7468a26",
+  "requirementId": "REQ-028.5.1",
+  "hash": "588bf7468a26",
+  "verdict": "pass",
+  "summary": "Enumerates exactly all three built-in 2119 workflows and rejects any missing spec publication instruction, missing review skill, or review instruction omitting either final review outputs, the triage summary, or task-artifact publication.",
+  "timestamp": "2026-08-04T23:20:02.653Z"
+}

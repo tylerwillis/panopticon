@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.9.1--6f312f422bd2",
+  "requirementId": "REQ-028.9.1",
+  "hash": "6f312f422bd2",
+  "verdict": "pass",
+  "summary": "Test covers every built-in name and rejects discovery unless it raises an exact actionable error naming the duplicate external file and directing its removal.",
+  "timestamp": "2026-08-04T23:20:04.525Z"
+}

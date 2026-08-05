@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-028.1.1--3267b1f8b73d",
+  "requirementId": "REQ-028.1.1",
+  "hash": "3267b1f8b73d",
+  "verdict": "pass",
+  "summary": "The tests create multiple tasks across every discovered workflow plus skill-less and workflow-skilled custom workflows, rejecting missing or replaced `artifacts` skills and loss of workflow-specific skills while verifying the canonical publishing instructions.",
+  "timestamp": "2026-08-04T23:19:58.159Z"
+}

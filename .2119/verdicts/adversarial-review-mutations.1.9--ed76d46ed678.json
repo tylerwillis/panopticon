@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.9--ed76d46ed678",
+  "requirementId": "adversarial-review-mutations.1.9",
+  "hash": "ed76d46ed678",
+  "verdict": "pass",
+  "summary": "Exact section snapshot rejects zero-or-optional reviewer-chosen mutations per dispatch and any exhaustive/framework mutation-testing procedure.",
+  "timestamp": "2026-08-05T01:48:56.396Z"
+}

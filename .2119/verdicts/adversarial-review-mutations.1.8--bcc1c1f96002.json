@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.8--bcc1c1f96002",
+  "requirementId": "adversarial-review-mutations.1.8",
+  "hash": "bcc1c1f96002",
+  "verdict": "pass",
+  "summary": "All three rendered review skills are checked exactly: each attempt's final action must verify the working tree is unchanged against the snapshot taken immediately before review.",
+  "timestamp": "2026-08-05T01:49:38.831Z"
+}

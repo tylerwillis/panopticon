@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.14--b651552cbeaa",
+  "requirementId": "adversarial-review-mutations.1.14",
+  "hash": "b651552cbeaa",
+  "verdict": "pass",
+  "summary": "No test proves that an explicit “mutation survived” outcome is accepted, so an implementation allowing only “killed” would violate the killed-or-survived requirement while all annotated tests still pass.",
+  "timestamp": "2026-08-05T00:46:19.792Z"
+}

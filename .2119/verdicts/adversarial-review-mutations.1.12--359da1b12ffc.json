@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.12--359da1b12ffc",
+  "requirementId": "adversarial-review-mutations.1.12",
+  "hash": "359da1b12ffc",
+  "verdict": "pass",
+  "summary": "Exact golden prompt test rejects weakening the checkout-edit ban or omission of any throwaway-copy mutation-evidence instruction.",
+  "timestamp": "2026-08-05T01:59:40.385Z"
+}

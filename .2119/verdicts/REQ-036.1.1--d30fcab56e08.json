@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-036.1.1--d30fcab56e08",
+  "requirementId": "REQ-036.1.1",
+  "hash": "d30fcab56e08",
+  "verdict": "fail",
+  "summary": "Annotated tests omit whitespace-only missing harness/model counterexamples (for example '   :model' and 'claude:   '), so malformed pairs can reach dispatch without failing coverage.",
+  "timestamp": "2026-08-05T02:08:01.018Z"
+}

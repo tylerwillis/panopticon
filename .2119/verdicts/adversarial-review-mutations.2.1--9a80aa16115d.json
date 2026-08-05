@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.2.1--9a80aa16115d",
+  "requirementId": "adversarial-review-mutations.2.1",
+  "hash": "9a80aa16115d",
+  "verdict": "pass",
+  "summary": "The exact-section assertion rejects documentation that omits or weakens either limitation on what a killed mutation proves.",
+  "timestamp": "2026-08-04T22:57:46.628Z"
+}

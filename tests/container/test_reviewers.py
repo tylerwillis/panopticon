@@ -25,6 +25,17 @@ from panopticon.container.reviewers import (
     verify_codex_response,
 )
 from panopticon.workflows.discovery import discover_workflows
+from panopticon.workflows.spec_2119 import TARGETED_MUTATION_EVIDENCE_INSTRUCTIONS
+
+MUTATION_EVIDENCE_BODY = """## Targeted mutation evidence
+
+The reviewer-chosen mutation exercised the affected test after runtime provenance verification.
+
+Outcome: killed
+
+## Verdict
+
+Approve."""
 
 
 def _workflows() -> dict[str, Any]:
@@ -122,7 +133,9 @@ def test_repo_overrides_preserve_slots_and_split_only_the_first_colon() -> None:
     [
         ("claude", "malformed"),
         (":claude-opus-5", "missing harness"),
+        ("   :claude-opus-5", "missing harness"),
         ("claude:", "missing model"),
+        ("claude:   ", "missing model"),
         ("pi:anthropic/claude-opus-5", "unsupported harness"),
     ],
 )
@@ -319,6 +332,7 @@ def test_codex_dispatch_uses_isolated_command_and_never_publishes_failures(
     tmp_path: Path,
 ) -> None:
     # 2119: REQ-028.12.1
+    # 2119: REQ-036.2.2
     # 2119: REQ-036.2.3
     # 2119: REQ-036.3.2
     sessions = tmp_path / "sessions"
@@ -581,7 +595,7 @@ def test_dispatch_verifies_before_posting_and_derives_evidence_comment() -> None
 
     evidence = dispatch_review(
         ReviewerConfig("claude", "claude-opus-5"),
-        prompt="Review correctness. Do not edit files.",
+        prompt=reviewer_prompt(),
         commit="abc123",
         round_number=2,
         run=run,
@@ -696,16 +710,118 @@ def test_dispatch_binds_the_selected_base_ref_into_the_prompt() -> None:
 
 def test_generated_reviewer_prompt_contains_no_model_identity_or_heading_instruction() -> None:
     # 2119: REQ-028.12.1
+    # 2119: adversarial-review-mutations.1.12
     prompt = reviewer_prompt()
-    assert prompt == (
-        "Review the supplied final diff for correctness, simplicity, scope, and spec/test "
-        "honesty. Do not edit files. Return only the substantive review body with must-fix "
-        "findings, suggestions, and a verdict."
+    assert (
+        prompt
+        == """Review the supplied final diff for correctness, simplicity, scope, and spec/test
+honesty. Do not edit files in the task checkout; mutation writes are permitted only as described
+below in a throwaway copy outside that checkout.
+
+## Targeted mutation evidence
+
+Each reviewer independently chooses every mutation it attempts and must attempt at least one
+targeted mutation; the author must not choose or supply any mutation. Every mutation must break a
+specific property on which a review claim depends. Apply mutation writes only in a throwaway copy
+outside the working tree, never in the task checkout. Run the affected tests and report the
+property broken and which tests failed, or state plainly that the mutation survived. A surviving
+mutation is a defect in the evidence even when the reviewed code is correct.
+
+The returned review body must contain the exact `## Targeted mutation evidence` heading and must
+classify the experiment with an exact `Outcome: killed` or `Outcome: survived` line in that
+section.
+
+Before classifying the outcome, verify with import-path or equivalent runtime evidence that the
+affected tests execute the mutated code from the throwaway copy, not the working tree or another
+installed copy.
+
+A kill shows only that a test can fail under the mutation; an unrelated assertion may have failed,
+so a kill does not certify the test's reason or the claim. As the final action of every reviewer
+attempt, verify the working tree is unchanged from the snapshot taken immediately before the
+reviewer ran. Keep this targeted: do not introduce a mutation-testing framework or attempt
+exhaustive mutations.
+
+Return only the substantive review body with must-fix findings, suggestions, targeted mutation
+evidence, and a verdict."""
     )
     lowered = prompt.lower()
     for forbidden in ("fable", "opus", "sol", "gpt-", "your model", "model heading"):
         assert forbidden not in lowered
-    assert "Do not edit files" in prompt
+    assert "Do not edit files in the task checkout" in prompt
+
+
+@pytest.mark.parametrize("harness", ["claude", "codex"])
+def test_dispatch_rejects_a_prompt_without_the_mutation_contract_before_running(
+    harness: str,
+) -> None:
+    # 2119: adversarial-review-mutations.1.13
+    prompt = reviewer_prompt()
+    required_clauses = (
+        "Each reviewer independently chooses every mutation it attempts",
+        "the author must not choose or supply any mutation.",
+        "Every mutation must break a",
+        "Apply mutation writes only in a throwaway copy",
+        "Run the affected tests and report the",
+        "mutation is a defect in the evidence",
+        "must contain the exact `## Targeted mutation evidence` heading",
+        "classify the experiment with an exact",
+        "verify with import-path or equivalent runtime evidence",
+        "not the working tree or another",
+        "an unrelated assertion may have failed",
+        "verify the working tree is unchanged",
+        "do not introduce a mutation-testing framework",
+    )
+    incomplete_prompts = {
+        "Review without editing the checkout.",
+        prompt.replace(TARGETED_MUTATION_EVIDENCE_INSTRUCTIONS, "", 1),
+        *(prompt.replace(paragraph, "", 1) for paragraph in prompt.split("\n\n") if paragraph),
+        *(prompt.replace(line, "", 1) for line in prompt.splitlines() if line),
+        *(prompt.replace(clause, "", 1) for clause in required_clauses),
+        *(prompt[:index] + prompt[index + 1 :] for index in range(len(prompt))),
+    }
+    assert prompt not in incomplete_prompts
+
+    for incomplete_prompt in incomplete_prompts:
+        called = False
+
+        def forbidden_run(argv: list[str], prompt: str) -> dict[str, Any]:
+            nonlocal called
+            called = True
+            raise AssertionError("an incomplete reviewer prompt reached an LLM")
+
+        with pytest.raises(
+            ReviewerDispatchError, match="complete Targeted mutation evidence"
+        ) as raised:
+            dispatch_review(
+                ReviewerConfig(harness, "claude-opus-5" if harness == "claude" else "gpt-5.6-sol"),
+                prompt=incomplete_prompt,
+                commit="abc123",
+                round_number=1,
+                run=forbidden_run,
+                post_comment=lambda comment: None,
+                git_head=lambda: "abc123",
+            )
+        assert raised.value.kind == "configuration"
+        assert called is False
+
+
+def test_dispatch_reviews_rejects_an_incomplete_prompt_before_either_slot_runs() -> None:
+    # 2119: adversarial-review-mutations.1.13
+    calls: list[list[str]] = []
+
+    with pytest.raises(ReviewerDispatchError, match="complete Targeted mutation evidence"):
+        dispatch_reviews(
+            (ReviewerConfig("claude", "claude-opus-5"), ReviewerConfig("codex", "gpt-5.6-sol")),
+            {},
+            prompt=reviewer_prompt().replace("Outcome: survived", "Outcome: inconclusive", 1),
+            commit="abc123",
+            round_number=1,
+            run=lambda argv, prompt: calls.append(argv) or {"exit_code": 0},
+            post_comment=lambda comment: None,
+            git_head=lambda: "abc123",
+        )
+
+    assert calls == []
 
 
 @pytest.mark.parametrize("harness, model", [("claude", "claude-opus-5"), ("codex", "gpt-5.6-sol")])
@@ -841,7 +957,7 @@ def test_dispatch_failure_is_not_a_zero_findings_review(
     with pytest.raises(ReviewerDispatchError) as raised:
         dispatch_review(
             ReviewerConfig(harness, model),
-            prompt="Review without editing.",
+            prompt=reviewer_prompt(),
             commit="abc123",
             round_number=1,
             run=fail_run,
@@ -890,6 +1006,7 @@ def test_availability_classification_requires_nonzero_exit_and_stderr() -> None:
 
 def test_gate_requires_two_verified_final_commit_reviews_for_every_round() -> None:
     # 2119: REQ-036.4.1
+    # 2119: adversarial-review-mutations.1.14
     first = ReviewEvidence.from_verified_identity(
         ReviewerConfig("claude", "claude-opus-5"),
         verify_claude_response(json.dumps(_claude_payload("claude-opus-5")), "claude-opus-5"),
@@ -902,7 +1019,12 @@ def test_gate_requires_two_verified_final_commit_reviews_for_every_round() -> No
         commit="final",
         round_number=2,
     )
-    comments = (render_review_comment(first, "A"), render_review_comment(second, "B"))
+    comments = (
+        render_review_comment(first, MUTATION_EVIDENCE_BODY),
+        render_review_comment(
+            second, MUTATION_EVIDENCE_BODY.replace("Outcome: killed", "Outcome: survived")
+        ),
+    )
     reviewers = (
         ReviewerConfig("claude", "claude-opus-5"),
         ReviewerConfig("codex", "gpt-5.6-sol"),
@@ -932,8 +1054,43 @@ def test_gate_requires_two_verified_final_commit_reviews_for_every_round() -> No
             comments[1].replace("gpt-5.6-sol`\n- Verification", "other`\n- Verification", 1),
         ),
         (comments[0], comments[1].replace("codex-rollout:turn_context.payload.model", "asserted")),
-        (comments[0], render_review_comment(replace(second, commit="stale"), "B")),
-        (comments[0], render_review_comment(replace(second, round_number=1), "B")),
+        (
+            comments[0],
+            render_review_comment(replace(second, commit="stale"), MUTATION_EVIDENCE_BODY),
+        ),
+        (
+            comments[0],
+            render_review_comment(replace(second, round_number=1), MUTATION_EVIDENCE_BODY),
+        ),
+        (
+            render_review_comment(
+                replace(first, verified_model="claude-fable-5"), MUTATION_EVIDENCE_BODY
+            ),
+            comments[1],
+        ),
+        (comments[0], comments[1].replace("## Targeted mutation evidence", "## Evidence")),
+        (
+            comments[0],
+            comments[1].replace(
+                "## Targeted mutation evidence",
+                "A sentence mentions ## Targeted mutation evidence",
+            ),
+        ),
+        (
+            comments[0],
+            comments[1].replace("## Targeted mutation evidence", "### Targeted mutation evidence"),
+        ),
+        (comments[0], comments[1].replace("Outcome: survived", "Outcome: exercised")),
+        (comments[0], comments[1].replace("Outcome: survived", "Outcome: not survived")),
+        (comments[0], comments[1].replace("Outcome: survived", "Outcome: SURVIVED")),
+        (comments[0], comments[1].replace("Outcome: survived", "Outcome: survived.")),
+        (comments[0], comments[1].replace("Outcome: survived", "Outcome:survived")),
+        (
+            comments[0],
+            comments[1]
+            .replace("Outcome: survived", "The outcome was inconclusive.")
+            .replace("Approve.", "Outcome: survived\n\nApprove."),
+        ),
         (comments[0], "not an evidence-bearing review comment"),
     )
 
@@ -956,7 +1113,7 @@ def test_gate_requires_two_verified_final_commit_reviews_for_every_round() -> No
         assert_rejected(evidence)
 
     same_model = ReviewerConfig("codex", "gpt-5.6-sol")
-    identical = render_review_comment(second, "No findings.")
+    identical = render_review_comment(second, MUTATION_EVIDENCE_BODY)
     assert (
         validate_review_gate(
             (identical, identical),

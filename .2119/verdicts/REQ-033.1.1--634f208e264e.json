@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-033.1.1--634f208e264e",
+  "requirementId": "REQ-033.1.1",
+  "hash": "634f208e264e",
+  "verdict": "pass",
+  "summary": "Tests cover every built-in 2119 workflow and every review skill, rejecting omitted workflows, missing/altered “Suggested placeholder issues” language, and instructions that do not require that section to end the triage-summary PR comment.",
+  "timestamp": "2026-08-04T23:21:07.669Z"
+}

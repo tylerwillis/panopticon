@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.1--f917809c7189",
+  "requirementId": "adversarial-review-mutations.1.1",
+  "hash": "f917809c7189",
+  "verdict": "pass",
+  "summary": "Runtime workflow golden test exactly rejects omission or weakening of both dispatches, final-diff verification, evidence-bearing PR comments, reviewer-chosen every mutation, or at-least-one targeted mutation.",
+  "timestamp": "2026-08-05T01:51:37.023Z"
+}

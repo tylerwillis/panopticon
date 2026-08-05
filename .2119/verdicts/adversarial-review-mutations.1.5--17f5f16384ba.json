@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.5--17f5f16384ba",
+  "requirementId": "adversarial-review-mutations.1.5",
+  "hash": "17f5f16384ba",
+  "verdict": "pass",
+  "summary": "The test pins the entire Targeted mutation evidence section, rejecting permission for writes outside a throwaway copy beyond the working tree.",
+  "timestamp": "2026-08-04T22:55:41.735Z"
+}

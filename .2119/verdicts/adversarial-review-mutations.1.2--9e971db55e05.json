@@ -1,0 +1,8 @@
+{
+  "reviewId": "adversarial-review-mutations.1.2--9e971db55e05",
+  "requirementId": "adversarial-review-mutations.1.2",
+  "hash": "9e971db55e05",
+  "verdict": "pass",
+  "summary": "The exact full-description assertion rejects omission or weakening of every conjunct: two independent fresh-context Sol attempts, final-diff machine verification, evidence-bearing PR comments, reviewer-chosen mutations, at least one targeted mutation each, and no cross-model-diversity claim.",
+  "timestamp": "2026-08-04T23:56:54.168Z"
+}
