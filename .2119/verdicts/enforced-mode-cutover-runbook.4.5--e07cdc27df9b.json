@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.5--e07cdc27df9b",
+  "requirementId": "enforced-mode-cutover-runbook.4.5",
+  "hash": "e07cdc27df9b",
+  "verdict": "pass",
+  "summary": "Tests bind G05's read token, PUT method, canary turn endpoint, and exact 401 expectation in one executable check, rejecting POST, write-token, wrong-endpoint, detached-method, and 403 counterexamples.",
+  "timestamp": "2026-08-05T03:45:59.097Z"
+}

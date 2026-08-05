@@ -693,7 +693,7 @@ Production-only: deployed read/CORS behavior.
 #### Command
 
 ```sh
-test "$(curl --silent --output /dev/null --write-out '%{http_code}' --request PUT --header 'Content-Type: application/json' --header "Authorization: Bearer $READ_TOKEN" --data '{"turn":"agent"}' "$SERVICE_URL/tasks/$CANARY_TASK_ID/turn")" = 403
+test "$(curl --silent --output /dev/null --write-out '%{http_code}' --request PUT --header 'Content-Type: application/json' --header "Authorization: Bearer $READ_TOKEN" --data '{"turn":"agent"}' "$SERVICE_URL/tasks/$CANARY_TASK_ID/turn")" = 401
 ```
 
 #### Check
@@ -705,7 +705,7 @@ printf 'G05: PASS\n' >> "$EVIDENCE_DIR/gates.txt"
 
 #### Expected
 
-Read-token `PUT /tasks/<canary>/turn` returns 403: it is authenticated but lacks write scope.
+Read-token `PUT /tasks/<canary>/turn` returns the generic 401 authentication failure. Mutating routes deliberately do not disclose whether a supplied fleet credential merely lacks write privilege.
 
 #### Failure action
 

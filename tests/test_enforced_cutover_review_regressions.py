@@ -34,7 +34,7 @@ def test_canary_inputs_and_all_gate_pass_records_are_scheduled() -> None:
     for gate in range(1, 12):
         marker = f"G{gate:02d}: PASS"
         assert marker in scheduled or marker in "\n".join(item.check for item in plan.gates[:7])
-    assert "= 403" in plan.gates[4].action
+    assert "= 401" in plan.gates[4].action
     assert 'task["claimed_by"] == sys.argv[2]' in plan.steps[1].action
     assert ': > "$EVIDENCE_DIR/gates.txt"' in s00.action
     assert "set -uo pipefail" in s00.action and "set -euo pipefail" not in s00.action

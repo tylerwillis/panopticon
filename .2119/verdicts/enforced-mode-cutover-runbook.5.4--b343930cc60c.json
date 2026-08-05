@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.5.4--b343930cc60c",
+  "requirementId": "enforced-mode-cutover-runbook.5.4",
+  "hash": "b343930cc60c",
+  "verdict": "pass",
+  "summary": "Tests require exactly one fresh real canary to pass ptc1 capability and sustained-live checks before the old-runner bulk reclaim.",
+  "timestamp": "2026-08-05T03:30:52.670Z"
+}

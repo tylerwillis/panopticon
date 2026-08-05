@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.1.6--e0a5030cbd5b",
+  "requirementId": "enforced-mode-cutover-runbook.1.6",
+  "hash": "e0a5030cbd5b",
+  "verdict": "pass",
+  "summary": "Mutations to every supplied step/gate action and check are reparsed, missing structures yield specific IDs, and unrelated non-byte-identical edits remain valid.",
+  "timestamp": "2026-08-05T03:53:39.164Z"
+}

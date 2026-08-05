@@ -66,7 +66,7 @@ back without guessing which evidence has already been established.
 2. Gate G02 MUST define an unauthenticated `GET /tasks` check whose expected status is 401.
 3. Gate G03 MUST define an authenticated runner-liveness check bound to the recorded new runner PID and start time that expects the same runner to appear live.
 4. Gate G04 MUST define a read-token `GET /tasks` check with the exact PWA origin that rejects either a 401 or 403 result.
-5. Gate G05 MUST define a read-token `PUT /tasks/<canary-task-id>/turn` check whose expected status is 403.
+5. Gate G05 MUST define a read-token `PUT /tasks/<canary-task-id>/turn` check whose expected status is the generic 401 authentication failure.
 6. Gate G06 MUST define independent preflight and actual-response checks for the exact allowed browser origin.
 7. Gate G07 MUST require the installed phone board and authenticated fleet API response to display the same named task.
 8. Gate G08 MUST define a direct zero-running-task-container check immediately before the enforced restart.
@@ -107,7 +107,7 @@ back without guessing which evidence has already been established.
 
 ### 7: Executable production mechanics
 
-1. Every runbook command MUST use a standard host command or an entry point installed by this repository rather than an undefined placeholder helper.
+1. Every runbook command MUST have a command head in the closed host set `:`, `awk`, `basename`, `break`, `cat`, `cmp`, `curl`, `date`, `docker`, `env`, `exec`, `export`, `find`, `gh`, `git`, `grep`, `kill`, `mktemp`, `ps`, `printf`, `read`, `sed`, `set`, `sleep`, `sort`, `tee`, `test`, `tmux`, `uv`, or `wc`, with every `uv run` invocation using no post-`run` option and targeting `python`, `panopticon`, `panopticon.core.cutover_runbook`, `panopticon.sessionservice.host`, or `panopticon.taskservice`.
 2. The enforced service launch MUST pass `PANOPTICON_SERVICE_AUTH_MODE`, `PANOPTICON_SERVICE_AUTH_FILE`, and `PANOPTICON_BROWSER_ORIGINS` into the service child process.
 3. The replacement runner MUST use an ID distinct from the stopped runner so old-runner claims remain drained through the canary gate.
 4. The runbook MUST release only the canary task claim before G09 and defer reclaim of the old runner's remaining claims until bulk respawn.

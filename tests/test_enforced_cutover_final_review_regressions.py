@@ -58,7 +58,12 @@ def test_parser_reads_mutated_supplied_actions_and_requires_check_shells() -> No
             items = reparsed.steps if original.item_id.startswith("S") else reparsed.gates
             actual = next(item for item in items if item.item_id == original.item_id)
             assert marker in getattr(actual, field)
-            assert validate_enforced_mode_cutover_runbook(mutated) == []
+            expected = (
+                ["enforced-mode-cutover-runbook.4.5"]
+                if (original.item_id, field) == ("G05", "action")
+                else []
+            )
+            assert validate_enforced_mode_cutover_runbook(mutated) == expected
 
 
 # 2119: enforced-mode-cutover-runbook.2.9

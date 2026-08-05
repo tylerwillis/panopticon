@@ -262,7 +262,23 @@ def validate_enforced_mode_cutover_runbook(text: str) -> list[str]:
         violations.append("enforced-mode-cutover-runbook.2.10")
     s01 = next((item for item in plan.steps if item.item_id == "S01"), None)
     s07 = next((item for item in plan.steps if item.item_id == "S07"), None)
+    g05 = next((item for item in plan.gates if item.item_id == "G05"), None)
     g09 = next((item for item in plan.gates if item.item_id == "G09"), None)
+    g05_required = (
+        'test "$(curl ',
+        "--request PUT",
+        "Authorization: Bearer $READ_TOKEN",
+        '"$SERVICE_URL/tasks/$CANARY_TASK_ID/turn"',
+        ')" = 401',
+    )
+    if (
+        g05 is None
+        or len(g05.action.splitlines()) != 1
+        or not all(fragment in g05.action for fragment in g05_required)
+        or [g05.action.index(fragment) for fragment in g05_required]
+        != sorted(g05.action.index(fragment) for fragment in g05_required)
+    ):
+        violations.append("enforced-mode-cutover-runbook.4.5")
     capability_read = (
         'test "$(docker exec "$CANARY_CONTAINER_ID" python -c \'import json; '
         'print(json.load(open("/run/secrets/panopticon-service-auth"))["task"][:5])\')" = ptc1.'
