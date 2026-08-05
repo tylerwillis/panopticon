@@ -425,6 +425,18 @@ def test_g10_compares_runner_pid_and_start_time() -> None:
         1,
     )
     assert "enforced-mode-cutover-runbook.4.10" in validate_enforced_mode_cutover_runbook(mutated)
+    weakened_identity = text.replace(
+        parsed_g10.check,
+        parsed_g10.check.replace(
+            'test "$(ps -o lstart= -p "$NEW_RUNNER_PID" | sed \'s/^ *//\')" = "$NEW_RUNNER_START"',
+            'test "$(ps -o lstart= -p "$NEW_RUNNER_PID" | sed \'s/^ *//\')" != "$OLD_RUNNER_START"',
+            1,
+        ),
+        1,
+    )
+    assert "enforced-mode-cutover-runbook.4.10" in validate_enforced_mode_cutover_runbook(
+        weakened_identity
+    )
 
 
 # 2119: enforced-mode-cutover-runbook.4.11

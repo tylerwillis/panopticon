@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.4.10--1dbdabca3a4b",
+  "requirementId": "enforced-mode-cutover-runbook.4.10",
+  "hash": "1dbdabca3a4b",
+  "verdict": "pass",
+  "summary": "Rejected: the validator now requires G10's exact new-PID start time equality, old-start inequality, PID inequality, inventory comparison, and process-replaced assertion; the accepted weakening mutation fails.",
+  "timestamp": "2026-08-05T05:51:23.294Z"
+}

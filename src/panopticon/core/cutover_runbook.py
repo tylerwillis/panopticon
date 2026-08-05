@@ -319,24 +319,29 @@ def validate_enforced_mode_cutover_runbook(text: str) -> list[str]:
     if (
         s04 is None
         or g08 is None
-        or "docker ps --quiet --filter label=panopticon.task" not in s04.check
-        or 'tee "$EVIDENCE_DIR/G08-running.txt"' not in s04.check
-        or 'test ! -s "$EVIDENCE_DIR/G08-running.txt"' not in s04.check
         or s04.check.splitlines()[-3:]
         != [
             'docker ps --quiet --filter label=panopticon.task | tee "$EVIDENCE_DIR/G08-running.txt"',
             'test ! -s "$EVIDENCE_DIR/G08-running.txt"',
             "printf 'G08: PASS\\n' >> \"$EVIDENCE_DIR/gates.txt\"",
         ]
-        or "docker ps --quiet --filter label=panopticon.task" not in g08.action
-        or 'test ! -s "$EVIDENCE_DIR/G08-running.txt"' not in g08.check
+        or g08.action.splitlines()
+        != [
+            'docker ps --quiet --filter label=panopticon.task | tee "$EVIDENCE_DIR/G08-running.txt"'
+        ]
+        or g08.check.splitlines()
+        != [
+            'test ! -s "$EVIDENCE_DIR/G08-running.txt"',
+            "printf 'G08: PASS\\n' >> \"$EVIDENCE_DIR/gates.txt\"",
+        ]
     ):
         violations.append("enforced-mode-cutover-runbook.4.8")
     if (
         g10 is None
         or 'test "$NEW_RUNNER_PID" != "$OLD_RUNNER_PID"' not in g10.action
         or 'cmp --silent "$EVIDENCE_DIR/S01-client-identities-before.txt"' not in g10.action
-        or 'test "$(ps -o lstart= -p "$NEW_RUNNER_PID"' not in g10.check
+        or 'test "$(ps -o lstart= -p "$NEW_RUNNER_PID" | sed \'s/^ *//\')" = "$NEW_RUNNER_START"'
+        not in g10.check
         or '!= "$OLD_RUNNER_START"' not in g10.check
         or 'assert-process-replaced "$OLD_RUNNER_PID" "$OLD_RUNNER_START"' not in g10.check
     ):

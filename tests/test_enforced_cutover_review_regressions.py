@@ -112,6 +112,14 @@ def test_g08_is_the_last_s04_check_before_s05() -> None:
     assert "enforced-mode-cutover-runbook.4.8" in validate_enforced_mode_cutover_runbook(
         g08_only_mutation
     )
+    decoupled_probe_mutation = text.replace(
+        g08.action,
+        "docker ps --quiet --filter label=panopticon.task >/dev/null\n"
+        'cat "$EVIDENCE_DIR/G08-running.txt" | tee "$EVIDENCE_DIR/G08-running.txt"',
+    )
+    assert "enforced-mode-cutover-runbook.4.8" in validate_enforced_mode_cutover_runbook(
+        decoupled_probe_mutation
+    )
     hidden_running_mutation = RUNBOOK_PATH.read_text().replace(
         'test ! -s "$EVIDENCE_DIR/G08-running.txt"',
         ': > "$EVIDENCE_DIR/G08-running.txt"\ntest ! -s "$EVIDENCE_DIR/G08-running.txt"',
