@@ -1865,7 +1865,7 @@ def test_runner_injects_write_token_into_docker_and_shell_tasks_without_command_
     assert json.loads(docker_recorder.mounted_auth or "") == {
         "task": derive_task_capability(WRITE_TOKEN, "t1")
     }
-    assert not mounted_snapshot.exists()
+    assert mounted_snapshot.is_file()
     docker_runner.stop("panopticon-t1")
     assert not mounted_snapshot.exists()
 
