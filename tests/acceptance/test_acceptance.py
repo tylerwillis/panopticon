@@ -141,6 +141,21 @@ def test_runner_spawns_real_container_that_registers_and_loses_liveness(
             check=True,
             capture_output=True,
         )
+        subprocess.run(
+            [
+                "docker",
+                "run",
+                "--rm",
+                "--env",
+                "GH_TOKEN=panopticon-test-token",
+                _IMAGE,
+                "bash",
+                "-c",
+                'test "$(gh auth token)" = "$GH_TOKEN"',
+            ],
+            check=True,
+            capture_output=True,
+        )
 
         workflow_layer = "RUN touch /panopticon-workflow-layer-applied"
         composed_image = ImageBuilder(base=_IMAGE).build(

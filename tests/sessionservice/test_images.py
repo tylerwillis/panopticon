@@ -8,7 +8,10 @@ import re
 from collections.abc import Sequence
 from pathlib import Path
 
+import pytest
+
 import panopticon.docker as _docker_pkg
+import panopticon.sessionservice.images as _images
 from panopticon.sessionservice.images import (
     ImageBuilder,
     _base_fingerprint,
@@ -24,6 +27,39 @@ def _base_dockerfile() -> str:
 
 def _build_args(command: list[str]) -> list[str]:
     return [command[index + 1] for index, item in enumerate(command) if item == "--build-arg"]
+
+
+def _use_packaged_source(monkeypatch: pytest.MonkeyPatch, root: Path) -> None:
+    """Make package-resource discovery see an isolated installed-source tree."""
+    real_files = importlib.resources.files
+
+    def files(package: object) -> importlib.resources.abc.Traversable:
+        if package is __import__("panopticon"):
+            return root
+        return real_files(package)
+
+    monkeypatch.setattr(importlib.resources, "files", files)
+
+
+def _clear_source_fingerprint_cache() -> None:
+    """Simulate a fresh host process after installation of a new source revision."""
+    clear = getattr(_images, "_clear_base_fingerprint_cache", None)
+    if clear is not None:
+        clear()
+
+
+def _all_packaged_source_paths() -> tuple[str, ...]:
+    """Enumerate the requirement's complete installed-source set independently of production."""
+    package_root = Path(str(importlib.resources.files(__import__("panopticon"))))
+    excluded = {"docker/Dockerfile", "docker/entrypoint.sh"}
+    return tuple(
+        path.relative_to(package_root).as_posix()
+        for path in sorted(package_root.rglob("*"))
+        if path.is_file()
+        and "__pycache__" not in path.parts
+        and path.suffix not in {".pyc", ".pyo"}
+        and path.relative_to(package_root).as_posix() not in excluded
+    )
 
 
 # 2119: REQ-022.1
@@ -117,6 +153,69 @@ def test_build_base_if_missing_skips_build_when_fingerprint_matches() -> None:
     ]
     assert rec.calls[0][0][-1] == "panopticon-base"
     assert rec.calls[0][1] is False  # check=False so a missing or stale image does not raise
+
+
+# 2119: REQ-050.1
+@pytest.mark.parametrize("relative_path", _all_packaged_source_paths())
+def test_base_fingerprint_changes_with_any_packaged_source_file(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, relative_path: str
+) -> None:
+    source = tmp_path / "installed-panopticon"
+    changed_file = source / relative_path
+    changed_file.parent.mkdir(parents=True)
+    changed_file.write_text("first revision\n")
+    _use_packaged_source(monkeypatch, source)
+
+    _clear_source_fingerprint_cache()
+    before = _base_fingerprint()
+    changed_file.write_text("second revision\n")
+    _clear_source_fingerprint_cache()
+    after = _base_fingerprint()
+
+    assert after != before
+
+
+# 2119: REQ-050.1
+def test_base_fingerprint_changes_when_only_packaged_source_path_changes(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    source = tmp_path / "installed-panopticon"
+    original = source / "first" / "resource-without-extension"
+    renamed = source / "second" / "resource-without-extension"
+    original.parent.mkdir(parents=True)
+    original.write_bytes(b"identical packaged bytes\n")
+    _use_packaged_source(monkeypatch, source)
+
+    _clear_source_fingerprint_cache()
+    before = _base_fingerprint()
+    renamed.parent.mkdir(parents=True)
+    original.rename(renamed)
+    _clear_source_fingerprint_cache()
+    after = _base_fingerprint()
+
+    assert after != before
+
+
+# 2119: REQ-050.2
+def test_source_change_rebuilds_base_with_unchanged_version_and_docker_assets(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    source = tmp_path / "installed-panopticon"
+    changed_file = source / "harnesses" / "pi.py"
+    changed_file.parent.mkdir(parents=True)
+    changed_file.write_text("old packaged source\n")
+    _use_packaged_source(monkeypatch, source)
+
+    _clear_source_fingerprint_cache()
+    installed_image_fingerprint = _base_fingerprint()
+    changed_file.write_text("merged fix\n")
+    _clear_source_fingerprint_cache()
+    rec = _MultiRecorder(installed_image_fingerprint)
+
+    rebuilt = ImageBuilder(base="panopticon-base", run=rec).build_base_if_missing()
+
+    assert rebuilt is True
+    assert rec.calls[1][0][:4] == ["docker", "build", "--tag", "panopticon-base"]
 
 
 # 2119: REQ-022.1
