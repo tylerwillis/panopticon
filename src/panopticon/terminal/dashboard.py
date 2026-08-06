@@ -80,6 +80,8 @@ from typing import Any, TypeVar
 from urllib.parse import urlsplit
 
 import httpx
+from rich.segment import Segment
+from rich.style import Style
 from rich.text import Text
 from textual import events, work
 from textual.app import App, ComposeResult, SuspendNotSupported
@@ -87,6 +89,7 @@ from textual.binding import Binding
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.css.query import NoMatches
 from textual.screen import ModalScreen
+from textual.strip import Strip
 from textual.suggester import SuggestFromList
 from textual.timer import Timer
 from textual.widget import Widget
@@ -1597,6 +1600,28 @@ class _VimDataTable(DataTable[Any]):
         Binding("h", "cursor_left", "Left", show=False),
         Binding("l", "cursor_right", "Right", show=False),
     ]
+
+    _OVERFLOW_INDICATOR_STYLE = Style(bold=True, reverse=True)
+
+    def _overflow_indicator_line(self, message: str) -> Strip:
+        """Render a full-width centered overflow message in place of one task-content line."""
+        width = self.scrollable_content_region.width
+        text = message.center(width)
+        return Strip(
+            [Segment(text, self.rich_style + self._OVERFLOW_INDICATOR_STYLE)],
+            width,
+        )
+
+    def render_line(self, y: int) -> Strip:
+        """Overlay directional task hints only while rows exist beyond that viewport edge."""
+        task_content_top = self.header_height if self.show_header else 0
+        task_content_bottom = self.scrollable_content_region.height - 1
+        if task_content_top <= task_content_bottom:
+            if y == task_content_top and self.scroll_y > 0:
+                return self._overflow_indicator_line("↑ more tasks")
+            if y == task_content_bottom and self.scroll_y < self.max_scroll_y:
+                return self._overflow_indicator_line("↓ more tasks")
+        return super().render_line(y)
 
     def _move_skipping(self, direction: int) -> None:
         """Move the cursor one step in ``direction`` (+1 down, -1 up), stepping over any ensemble
