@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.4.4--5dd20d3d8643",
-  "requirementId": "REQ-050.4.4",
-  "hash": "5dd20d3d8643",
-  "verdict": "pass",
-  "summary": "Tests behaviorally cover all four pre-readiness pi failure stages, require a failed lifecycle detail, preserve it through 257 daemon passes, and clear it only on explicit claim release.",
-  "timestamp": "2026-08-06T08:34:01.365Z"
-}

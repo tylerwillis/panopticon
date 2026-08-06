@@ -424,8 +424,8 @@ def _native_credential_agent_dir(root: Path) -> Path:
     return agent_dir
 
 
-# 2119: REQ-050.1.1
-# 2119: REQ-050.1.2
+# 2119: REQ-051.1.1
+# 2119: REQ-051.1.2
 def test_pi_uses_the_native_agent_directory_inside_its_persistent_volume(tmp_path: Path) -> None:
     HARNESS.bootstrap(_bootstrap_ctx(tmp_path, environ={"ANTHROPIC_API_KEY": "sk-ant-test"}))
 
@@ -435,7 +435,7 @@ def test_pi_uses_the_native_agent_directory_inside_its_persistent_volume(tmp_pat
     assert HARNESS.env(_ctx(tmp_path)) == {"PI_CODING_AGENT_DIR": str(tmp_path / ".pi" / "agent")}
 
 
-# 2119: REQ-050.1.3
+# 2119: REQ-051.1.3
 def test_bootstrap_imports_native_agent_layout_without_mutating_its_source(tmp_path: Path) -> None:
     credentials = tmp_path / "credentials"
     source = _native_credential_agent_dir(credentials)
@@ -488,7 +488,7 @@ def test_bootstrap_imports_native_agent_layout_without_mutating_its_source(tmp_p
     assert {path.name: path.read_bytes() for path in source.iterdir()} == source_bytes
 
 
-# 2119: REQ-050.1.3
+# 2119: REQ-051.1.3
 @pytest.mark.parametrize(
     ("name", "contents"),
     [
@@ -513,7 +513,7 @@ def test_bootstrap_imports_each_native_agent_entry_when_it_is_the_only_file(
     assert (source / name).read_bytes() == contents
 
 
-# 2119: REQ-050.2.1
+# 2119: REQ-051.2.1
 def test_missing_auth_accepts_native_openai_codex_oauth_shape(tmp_path: Path) -> None:
     credentials = tmp_path / "credentials"
     agent_dir = _native_credential_agent_dir(credentials)
@@ -534,7 +534,7 @@ def test_missing_auth_accepts_native_openai_codex_oauth_shape(tmp_path: Path) ->
     assert HARNESS.missing_auth({"PANOPTICON_CREDENTIALS": str(credentials)}, home=tmp_path) is None
 
 
-# 2119: REQ-050.2.1
+# 2119: REQ-051.2.1
 @pytest.mark.parametrize("expires", [0, -1, 1.5, 9_999_999_999_999])
 def test_missing_auth_accepts_openai_codex_oauth_string_and_numeric_boundaries(
     tmp_path: Path, expires: int | float
@@ -558,7 +558,7 @@ def test_missing_auth_accepts_openai_codex_oauth_string_and_numeric_boundaries(
     assert HARNESS.missing_auth({}, home=tmp_path) is None
 
 
-# 2119: REQ-050.2.1
+# 2119: REQ-051.2.1
 @pytest.mark.parametrize("provider", ["openai_codex", "openai-codex ", "wrong-provider"])
 def test_missing_auth_rejects_valid_oauth_shape_under_the_wrong_provider_key(
     tmp_path: Path, provider: str
@@ -577,8 +577,8 @@ def test_missing_auth_rejects_valid_oauth_shape_under_the_wrong_provider_key(
     assert HARNESS.missing_auth({}, home=tmp_path) is not None
 
 
-# 2119: REQ-050.1.1
-# 2119: REQ-050.1.2
+# 2119: REQ-051.1.1
+# 2119: REQ-051.1.2
 def test_preflight_and_session_detection_use_only_the_native_agent_directory(
     tmp_path: Path,
 ) -> None:
@@ -616,7 +616,7 @@ def test_preflight_and_session_detection_use_only_the_native_agent_directory(
     assert HARNESS.missing_auth({}, home=tmp_path) is not None
 
 
-# 2119: REQ-050.2.2
+# 2119: REQ-051.2.2
 @pytest.mark.parametrize(
     "contents",
     [
@@ -644,7 +644,7 @@ def test_missing_auth_rejects_files_pi_cannot_use_with_an_actionable_reason(
     assert "codex-only" not in detail
 
 
-# 2119: REQ-050.2.2
+# 2119: REQ-051.2.2
 @pytest.mark.parametrize(
     "contents",
     [
@@ -670,7 +670,7 @@ def test_missing_auth_rejects_malformed_or_empty_native_auth_file(
     assert "models.json" in detail
 
 
-# 2119: REQ-050.2.2
+# 2119: REQ-051.2.2
 @pytest.mark.parametrize(
     "marker",
     [
@@ -691,7 +691,7 @@ def test_codex_marker_does_not_hide_a_usable_pi_provider_entry(
     assert HARNESS.missing_auth({}, home=tmp_path) is None
 
 
-# 2119: REQ-050.2.3
+# 2119: REQ-051.2.3
 @pytest.mark.parametrize(
     ("api_key", "extra_env"),
     [
@@ -728,7 +728,7 @@ def test_missing_auth_accepts_selected_custom_provider_models_json_key(
     assert HARNESS.missing_auth(env, home=tmp_path) is None
 
 
-# 2119: REQ-050.2.3
+# 2119: REQ-051.2.3
 @pytest.mark.parametrize(
     ("selected", "api_key", "extra_env"),
     [
@@ -771,7 +771,7 @@ def test_missing_auth_rejects_unusable_or_unselected_custom_provider_keys(
     assert HARNESS.missing_auth(env, home=tmp_path) is not None
 
 
-# 2119: REQ-050.2.3
+# 2119: REQ-051.2.3
 @pytest.mark.parametrize(
     ("provider_patch", "extra_env"),
     [({}, {}), ({"apiKey": "$EMPTY_LOCAL_MODEL_KEY"}, {"EMPTY_LOCAL_MODEL_KEY": ""})],
@@ -797,7 +797,7 @@ def test_missing_auth_rejects_missing_or_empty_resolved_custom_provider_keys(
     assert HARNESS.missing_auth(env, home=tmp_path) is not None
 
 
-# 2119: REQ-050.2.1
+# 2119: REQ-051.2.1
 @pytest.mark.parametrize(
     "patch",
     [
@@ -842,7 +842,7 @@ def test_missing_auth_rejects_near_miss_openai_codex_oauth_shapes(
     assert HARNESS.missing_auth({}, home=tmp_path) is not None
 
 
-# 2119: REQ-050.2.4
+# 2119: REQ-051.2.4
 def test_missing_auth_accepts_anthropic_api_key_env_and_native_auth_entry(tmp_path: Path) -> None:
     assert HARNESS.missing_auth({"ANTHROPIC_API_KEY": "sk-ant-api"}, home=tmp_path) is None
     assert HARNESS.missing_auth({"ANTHROPIC_API_KEY": " "}, home=tmp_path) is None
@@ -872,7 +872,7 @@ def test_missing_auth_accepts_anthropic_api_key_env_and_native_auth_entry(tmp_pa
     )
 
 
-# 2119: REQ-050.2.4
+# 2119: REQ-051.2.4
 @pytest.mark.parametrize(
     "entry",
     [
@@ -912,7 +912,7 @@ def test_missing_auth_rejects_empty_or_malformed_anthropic_api_key_entries(
     )
 
 
-# 2119: REQ-050.2.4
+# 2119: REQ-051.2.4
 def test_malformed_anthropic_entry_does_not_hide_another_valid_credential(tmp_path: Path) -> None:
     native = tmp_path / ".pi" / "agent"
     native.mkdir(parents=True)
@@ -921,7 +921,7 @@ def test_malformed_anthropic_entry_does_not_hide_another_valid_credential(tmp_pa
     assert HARNESS.missing_auth({"OPENAI_API_KEY": "sk-openai-valid"}, home=tmp_path) is None
 
 
-# 2119: REQ-050.2.4
+# 2119: REQ-051.2.4
 def test_anthropic_api_key_shape_under_another_provider_is_not_anthropic_auth(
     tmp_path: Path,
 ) -> None:
@@ -934,8 +934,8 @@ def test_anthropic_api_key_shape_under_another_provider_is_not_anthropic_auth(
     assert HARNESS.missing_auth({}, home=tmp_path) is not None
 
 
-# 2119: REQ-050.2.5
-# 2119: REQ-050.2.6
+# 2119: REQ-051.2.5
+# 2119: REQ-051.2.6
 def test_anthropic_oauth_is_warned_not_suggested_and_explicit_input_is_not_blocked(
     tmp_path: Path,
 ) -> None:
@@ -991,9 +991,9 @@ def test_anthropic_oauth_is_warned_not_suggested_and_explicit_input_is_not_block
     )
 
 
-# 2119: REQ-050.3.1
-# 2119: REQ-050.3.2
-# 2119: REQ-050.3.3
+# 2119: REQ-051.3.1
+# 2119: REQ-051.3.2
+# 2119: REQ-051.3.3
 def test_bootstrap_rewrites_only_http_loopback_model_hosts_without_mutating_source(
     tmp_path: Path,
 ) -> None:
@@ -1141,7 +1141,7 @@ def test_bootstrap_rewrites_only_http_loopback_model_hosts_without_mutating_sour
     assert source_path.read_text() == source_text
 
 
-# 2119: REQ-050.3.3
+# 2119: REQ-051.3.3
 def test_first_launch_selects_native_local_provider_and_model(tmp_path: Path) -> None:
     credentials = tmp_path / "credentials"
     agent_dir = _native_credential_agent_dir(credentials)

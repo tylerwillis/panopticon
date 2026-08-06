@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.2.5--54bbf2ba25d1",
-  "requirementId": "REQ-050.2.5",
-  "hash": "54bbf2ba25d1",
-  "verdict": "pass",
-  "summary": "The annotated test directly rejects Pi preflight acceptance and bootstrap auth creation for a sole CLAUDE_CODE_OAUTH_TOKEN, excludes ANTHROPIC_OAUTH_TOKEN from the diagnostic, and forbids CLAUDE_CODE_OAUTH_TOKEN throughout the dedicated Pi documentation section.",
-  "timestamp": "2026-08-06T08:33:55.455Z"
-}

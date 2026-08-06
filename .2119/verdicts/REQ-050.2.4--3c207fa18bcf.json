@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.2.4--3c207fa18bcf",
-  "requirementId": "REQ-050.2.4",
-  "hash": "3c207fa18bcf",
-  "verdict": "pass",
-  "summary": "Tests behaviorally verify both accepted credential forms, variable resolution, malformed/empty rejection, exact provider/type matching, and fallback to another valid credential.",
-  "timestamp": "2026-08-06T08:33:54.823Z"
-}

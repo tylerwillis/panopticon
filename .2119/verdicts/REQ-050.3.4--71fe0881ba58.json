@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.3.4--71fe0881ba58",
-  "requirementId": "REQ-050.3.4",
-  "hash": "71fe0881ba58",
-  "verdict": "pass",
-  "summary": "The opt-in gate rejects every missing/empty configuration and non-loopback URLs, while the live test verifies one real pi turn reaches the rewritten host URL and emits exactly one structured completed assistant message.",
-  "timestamp": "2026-08-06T08:33:58.722Z"
-}

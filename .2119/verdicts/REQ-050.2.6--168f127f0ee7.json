@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.2.6--168f127f0ee7",
-  "requirementId": "REQ-050.2.6",
-  "hash": "168f127f0ee7",
-  "verdict": "pass",
-  "summary": "Tests reject blocked or stripped operator-supplied ANTHROPIC_OAUTH_TOKEN values and missing/incomplete pi documentation warnings covering unsupported, not recommended, and Anthropic-account risk.",
-  "timestamp": "2026-08-06T08:50:48.970Z"
-}

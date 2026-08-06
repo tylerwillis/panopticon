@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.3.2--8f7f49c1f012",
-  "requirementId": "REQ-050.3.2",
-  "hash": "8f7f49c1f012",
-  "verdict": "pass",
-  "summary": "The bootstrap test compares the full rendered model document against an exact expected copy and explicitly rejects changes to representative LAN, public, Unix-socket, malformed, and other non-loopback endpoints.",
-  "timestamp": "2026-08-06T08:33:57.416Z"
-}

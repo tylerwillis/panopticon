@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.4.2--e7b88ca70270",
-  "requirementId": "REQ-050.4.2",
-  "hash": "e7b88ca70270",
-  "verdict": "pass",
-  "summary": "The annotated test exercises both healing methods over 257 daemon passes and rejects any claim, failed-status, detail, lifecycle-version, or runner-operation change before explicit release.",
-  "timestamp": "2026-08-06T08:34:00.085Z"
-}

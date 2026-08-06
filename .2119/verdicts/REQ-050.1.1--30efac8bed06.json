@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.1.1--30efac8bed06",
-  "requirementId": "REQ-050.1.1",
-  "hash": "30efac8bed06",
-  "verdict": "pass",
-  "summary": "Annotated tests independently verify the `.pi` volume root, `.pi/agent` runtime configuration path, and `.pi/agent/sessions` lookup while rejecting legacy `.pi` config/session paths.",
-  "timestamp": "2026-08-06T08:33:50.815Z"
-}

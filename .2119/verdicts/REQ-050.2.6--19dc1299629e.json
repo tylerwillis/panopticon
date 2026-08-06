@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.2.6--19dc1299629e",
-  "requirementId": "REQ-050.2.6",
-  "hash": "19dc1299629e",
-  "verdict": "pass",
-  "summary": "Tests verify explicit `ANTHROPIC_OAUTH_TOKEN` acceptance and preservation through launch, plus a pi-scoped warning containing every required caution.",
-  "timestamp": "2026-08-06T08:33:56.108Z"
-}

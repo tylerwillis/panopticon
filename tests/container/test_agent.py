@@ -174,9 +174,9 @@ def test_main_fail_fast_message_names_the_active_harnesss_fix(
     assert "CODEX_API_KEY" in detail and "CLAUDE_CODE_OAUTH_TOKEN" not in detail
 
 
-# 2119: REQ-050.2.2
-# 2119: REQ-050.4.3
-# 2119: REQ-050.4.4
+# 2119: REQ-051.2.2
+# 2119: REQ-051.4.3
+# 2119: REQ-051.4.4
 @pytest.mark.parametrize(
     "contents",
     [
@@ -240,7 +240,7 @@ def test_pi_preflight_failure_is_identical_in_lifecycle_and_stderr(
     assert "must-not-leak" not in detail and "must-not-leak" not in stderr
 
 
-# 2119: REQ-050.4.1
+# 2119: REQ-051.4.1
 @pytest.mark.parametrize("status", [0, 1, 2, 7, 255, -9])
 def test_pi_cli_exit_latches_and_prints_an_actionable_failure(
     tmp_path: Path,
@@ -290,7 +290,7 @@ def test_pi_cli_exit_latches_and_prints_an_actionable_failure(
     assert seen_argv[0] == "pi"
 
 
-# 2119: REQ-050.4.1
+# 2119: REQ-051.4.1
 def test_default_exit_handler_stops_the_container_with_sigterm(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -302,9 +302,9 @@ def test_default_exit_handler_stops_the_container_with_sigterm(
     assert signals == [(1, agent.signal.SIGTERM)]
 
 
-# 2119: REQ-050.1.2
-# 2119: REQ-050.2.6
-# 2119: REQ-050.3.3
+# 2119: REQ-051.1.2
+# 2119: REQ-051.2.6
+# 2119: REQ-051.3.3
 @pytest.mark.parametrize("status", [0, 7, -9])
 def test_explicit_pi_anthropic_oauth_reaches_the_child_environment(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, status: int
@@ -342,7 +342,7 @@ def test_explicit_pi_anthropic_oauth_reaches_the_child_environment(
     assert returned == status
 
 
-# 2119: REQ-050.2.6
+# 2119: REQ-051.2.6
 def test_main_accepts_and_preserves_explicit_pi_anthropic_oauth_through_launch(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

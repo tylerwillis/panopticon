@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.3.3--fa290f87354b",
-  "requirementId": "REQ-050.3.3",
-  "hash": "fa290f87354b",
-  "verdict": "pass",
-  "summary": "Annotated tests genuinely verify first-launch propagation of the exact native model identifier and provider preservation, permitting only loopback-host adaptation.",
-  "timestamp": "2026-08-06T08:33:58.078Z"
-}

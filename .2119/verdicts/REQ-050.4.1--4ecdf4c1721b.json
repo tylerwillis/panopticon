@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.4.1--4ecdf4c1721b",
-  "requirementId": "REQ-050.4.1",
-  "hash": "4ecdf4c1721b",
-  "verdict": "pass",
-  "summary": "The tests behaviorally verify zero and nonzero pi exits report a failed lifecycle containing the exact harness name and returned status before PID 1 receives SIGTERM.",
-  "timestamp": "2026-08-06T08:33:59.374Z"
-}

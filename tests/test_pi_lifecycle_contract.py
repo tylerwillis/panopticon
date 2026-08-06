@@ -24,8 +24,8 @@ from panopticon.taskservice.store_sqlalchemy import SqlAlchemyStore
 from panopticon.workflows import Spike
 
 
-# 2119: REQ-050.4.2
-# 2119: REQ-050.4.4
+# 2119: REQ-051.4.2
+# 2119: REQ-051.4.4
 @pytest.mark.parametrize("status", [0, 7])
 def test_failed_pi_exit_is_never_healed_across_repeated_daemon_passes(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, status: int
@@ -98,8 +98,8 @@ def test_failed_pi_exit_is_never_healed_across_repeated_daemon_passes(
         assert released["lifecycle_detail"] is None
 
 
-# 2119: REQ-050.4.3
-# 2119: REQ-050.4.4
+# 2119: REQ-051.4.3
+# 2119: REQ-051.4.4
 def test_real_pi_preflight_failure_is_durable_before_readiness(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
@@ -174,7 +174,7 @@ def test_real_pi_preflight_failure_is_durable_before_readiness(
         assert released["lifecycle_detail"] is None
 
 
-# 2119: REQ-050.4.4
+# 2119: REQ-051.4.4
 @pytest.mark.parametrize("failure_stage", ["workflow", "bootstrap", "launch"])
 def test_arbitrary_pi_bootstrap_failure_reaches_real_lifecycle_before_readiness(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, failure_stage: str

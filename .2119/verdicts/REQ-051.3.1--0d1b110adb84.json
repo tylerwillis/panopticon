@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-051.3.1--0d1b110adb84",
+  "requirementId": "REQ-051.3.1",
+  "hash": "0d1b110adb84",
+  "verdict": "pass",
+  "summary": "Tests cover all three exact loopback hosts, both HTTP schemes, preservation of every URL component and provider/model data, non-target near misses, and byte-for-byte source immutability.",
+  "timestamp": "2026-08-06T09:09:29.994Z"
+}

@@ -43,7 +43,7 @@ def _live_configured(environ: Mapping[str, str]) -> bool:
 _LIVE = _live_configured(os.environ)
 
 
-# 2119: REQ-050.3.4
+# 2119: REQ-051.3.4
 def test_complete_live_configuration_enables_acceptance() -> None:
     assert (
         _live_configured(
@@ -58,7 +58,7 @@ def test_complete_live_configuration_enables_acceptance() -> None:
     )
 
 
-# 2119: REQ-050.3.4
+# 2119: REQ-051.3.4
 @pytest.mark.parametrize(
     "missing",
     [
@@ -80,7 +80,7 @@ def test_live_local_turn_requires_every_explicit_configuration_value(missing: st
     assert _live_configured(configured) is False
 
 
-# 2119: REQ-050.3.4
+# 2119: REQ-051.3.4
 @pytest.mark.parametrize(
     ("key", "value"),
     [
@@ -204,14 +204,14 @@ globalThis.fetch = async function(input, init) {
     assert "".join(text_parts).strip() == "LOCAL_PI_RESPONSE_7F3A"
 
 
-# 2119: REQ-050.3.4
+# 2119: REQ-051.3.4
 def test_pi_completes_a_turn_through_rewritten_host_loopback(tmp_path: Path) -> None:
     if not _LIVE:
         pytest.skip("set the pi local acceptance flag, loopback URL, provider, and model id")
     _run_live_local_turn(tmp_path)
 
 
-# 2119: REQ-050.3.4
+# 2119: REQ-051.3.4
 def test_complete_live_configuration_enters_the_real_turn_body(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.2.3--75202c652445",
-  "requirementId": "REQ-050.2.3",
-  "hash": "75202c652445",
-  "verdict": "pass",
-  "summary": "Behavioral tests accept literal, dummy, and environment-resolved keys, while rejecting missing, empty, unresolved, and different-provider-only keys.",
-  "timestamp": "2026-08-06T08:33:54.152Z"
-}

@@ -1,4 +1,4 @@
-# REQ-050: Native pi configuration and local-model lifecycle
+# REQ-051: Native pi configuration and local-model lifecycle
 
 ## Overview
 
@@ -33,7 +33,7 @@ surfaces, and waits for explicit operator release after the underlying issue is 
 
 ## Requirements
 
-### REQ-050.1: Native pi agent directory
+### REQ-051.1: Native pi agent directory
 
 1. A pi task MUST use `<home>/.pi/agent` for its configuration and session paths while retaining
    `<home>/.pi` as the harness config-volume root.
@@ -42,7 +42,7 @@ surfaces, and waits for explicit operator release after the underlying issue is 
 3. Bootstrap MUST import `auth.json`, `models.json`, `trust.json`, and `custom.json` entries from
    the credential directory's `pi/agent` layout without changing their mounted source bytes.
 
-### REQ-050.2: Credential resolution and policy
+### REQ-051.2: Credential resolution and policy
 
 1. Pi authentication preflight MUST accept an `openai-codex` OAuth entry with `type` equal to
    `oauth`, nonempty string `access`, `refresh`, and `accountId` fields, and a numeric `expires`
@@ -62,10 +62,10 @@ surfaces, and waits for explicit operator release after the underlying issue is 
    `ANTHROPIC_OAUTH_TOKEN` as remediation, and the dedicated Pi authentication section in
    `docs/auth.md` must not name `CLAUDE_CODE_OAUTH_TOKEN` as a pi credential path.
 6. Panopticon MUST allow an explicitly operator-supplied Anthropic OAuth credential despite the
-   policy in REQ-050.2.5 while warning in its pi documentation that this path is not recommended or
+   policy in REQ-051.2.5 while warning in its pi documentation that this path is not recommended or
    supported by Panopticon and may risk the Anthropic account.
 
-### REQ-050.3: Host-local custom models
+### REQ-051.3: Host-local custom models
 
 1. When materializing native pi `models.json` for a task container, Panopticon MUST rewrite only
    `http` or `https` provider `baseUrl` hosts equal to `localhost`, `127.0.0.1`, or `::1` to
@@ -82,12 +82,12 @@ surfaces, and waits for explicit operator release after the underlying issue is 
    rewritten host-loopback URL and observe a structured completed assistant message without
    calling a model in the default test suite.
 
-### REQ-050.4: Exit lifecycle and observability
+### REQ-051.4: Exit lifecycle and observability
 
 1. When the pi CLI returns unexpectedly with either a zero or nonzero status, the launcher MUST
    report a `failed` lifecycle with the exact harness name and exit status before stopping the
    container.
-2. For a claimed pi task with the latched launcher failure from REQ-050.4.1,
+2. For a claimed pi task with the latched launcher failure from REQ-051.4.1,
    `SessionSpawner.mark_healing` and `SessionSpawner.heal` MUST leave the claim, `failed` status,
    and detail unchanged and perform no runner operation on repeated daemon passes before explicit
    claim release.

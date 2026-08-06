@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-051.3.4--5752cc090186",
+  "requirementId": "REQ-051.3.4",
+  "hash": "5752cc090186",
+  "verdict": "pass",
+  "summary": "Tests reject incomplete opt-in configurations and verify one real pi assistant completion through the rewritten host-loopback URL while the default suite skips the model call.",
+  "timestamp": "2026-08-06T09:10:56.563Z"
+}
