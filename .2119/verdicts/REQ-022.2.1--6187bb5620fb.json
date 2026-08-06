@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-022.2.1--6187bb5620fb",
+  "requirementId": "REQ-022.2.1",
+  "hash": "6187bb5620fb",
+  "verdict": "pass",
+  "summary": "Exact audited hashes cover every discovered Panopticon workflow layer, rejecting gh reinstalls even via renamed or indirect commands; the lexical test is supplemental.",
+  "timestamp": "2026-08-06T06:19:18.005Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-022.1.1--5916f7f5371a",
+  "requirementId": "REQ-022.1.1",
+  "hash": "5916f7f5371a",
+  "verdict": "pass",
+  "summary": "Real base-image acceptance runs gh and verifies injected GH_TOKEN use; absence, layer-only installation, or unusable credentials fail.",
+  "timestamp": "2026-08-06T06:18:00.970Z"
+}

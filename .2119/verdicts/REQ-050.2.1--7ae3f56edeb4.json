@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-050.2.1--7ae3f56edeb4",
+  "requirementId": "REQ-050.2.1",
+  "hash": "7ae3f56edeb4",
+  "verdict": "pass",
+  "summary": "Test supplies an actual earlier packaged-source fingerprint, changes only packaged source, and requires the very next invocation to emit a base-image build.",
+  "timestamp": "2026-08-06T06:13:15.745Z"
+}
