@@ -371,8 +371,7 @@ def test_new_host_process_rebuilds_and_stages_revised_packaged_source(tmp_path: 
     changed_file = isolated_package / "harnesses" / "pi.py"
     process_env = {**os.environ, "PYTHONPATH": str(isolated_site)}
     fingerprint_code = (
-        "from panopticon.sessionservice.images import _base_fingerprint; "
-        "print(_base_fingerprint())"
+        "from panopticon.sessionservice.images import _base_fingerprint; print(_base_fingerprint())"
     )
     installed_fingerprint = subprocess.run(
         [sys.executable, "-c", fingerprint_code],

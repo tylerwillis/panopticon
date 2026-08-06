@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-052.2.1--809b5f568eef",
+  "requirementId": "REQ-052.2.1",
+  "hash": "809b5f568eef",
+  "verdict": "pass",
+  "summary": "A fresh subprocess receives an older image fingerprint, revises packaged source, invokes build_base_if_missing(), and must report exactly one rebuild with the revised bytes both staged and installed, rejecting no-rebuild, stale-staging, and stage-only counterexamples.",
+  "timestamp": "2026-08-06T21:25:51.930Z"
+}
