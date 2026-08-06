@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-050.1.1--1d5edd7a1d38",
+  "requirementId": "REQ-050.1.1",
+  "hash": "1d5edd7a1d38",
+  "verdict": "pass",
+  "summary": "Real tmux keypress coverage on the dedicated socket invokes the shipped bridge with the originating session/pane, while unit coverage rejects Ctrl+V forwarding on the running-container path.",
+  "timestamp": "2026-08-06T06:50:28.626Z"
+}

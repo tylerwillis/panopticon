@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-050.1.2--c5f95f798ab5",
+  "requirementId": "REQ-050.1.2",
+  "hash": "c5f95f798ab5",
+  "verdict": "pass",
+  "summary": "Tests cover both non-prefix and exact-container-miss branches, including prefix boundaries, exact C-v delivery to the originating pane, and zero capture or staging side effects.",
+  "timestamp": "2026-08-06T06:50:29.326Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-050.2.2--3e30d0d737c6",
+  "requirementId": "REQ-050.2.2",
+  "hash": "3e30d0d737c6",
+  "verdict": "pass",
+  "summary": "Positive coverage requires Linux, nonempty WAYLAND_DISPLAY, available wl-paste, and exact image/png request; negative cases remove each antecedent and reject wl-paste.",
+  "timestamp": "2026-08-06T06:50:30.835Z"
+}
