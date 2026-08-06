@@ -259,6 +259,11 @@ def validate_enforced_mode_cutover_runbook(text: str) -> list[str]:
         or "classifies `/tasks/<id>/live` as mutating" not in text
         or "and returns 401" not in text
         or "turn this one-stage cutover into two\ndrains with no availability benefit" not in text
+        or re.search(
+            r"(?im)^.*permissive-mode restart.*(?:accepts legacy Bearer|no-drain stage)",
+            text,
+        )
+        is not None
     ):
         violations.append("enforced-mode-cutover-runbook.2.10")
     s01 = next((item for item in plan.steps if item.item_id == "S01"), None)

@@ -45,8 +45,11 @@ On macOS, both OrbStack and Docker Desktop provide the `host.docker.internal` ro
 containers reach the loopback-bound service. Panopticon does not probe which runtime is active;
 the conservative Darwin default is the same for both.
 
-Authentication mode is reported at startup; disabled and permissive modes produce warnings.
-Disabled mode exists only for the staged live-fleet migration below.
+Authentication mode is reported at startup; disabled mode produces a warning. Enforced mode is
+the steady state. Disabled mode is the operator's break-glass recovery path: clear an invalid
+`PANOPTICON_SERVICE_AUTH_FILE` reference and restart the service with
+`PANOPTICON_SERVICE_AUTH_MODE=disabled`, restore or replace the host-local credential file, then
+restart the fleet directly in enforced mode.
 
 Integrated startup creates missing tmux sessions with the invoking process's current authentication
 environment, but deliberately leaves existing service, runner, dashboard, and task sessions alive.
@@ -92,23 +95,12 @@ embedded credentials. The browser sends its fleet read token only as
 `Authorization: Bearer <token>` and uses `GET /tasks`; cookies, URL credentials, alternate auth
 headers, and cross-origin mutations are rejected. The CORS response does not enable credentials.
 
-Roll a live fleet out without killing existing containers:
-
-1. Put the old write token in the credential file and temporarily start the service in
-   `permissive` mode. Do not expose this grace mode to an untrusted interface: a request that omits
-   Authorization has full legacy access. Startup logs both the active mode and rate-limited
-   warnings for methods/routes/callers still making header-less requests. Every permissive
-   `GET /healthz` response also carries
-   `X-Panopticon-Permissive-Unauthenticated-Total`; poll it across a representative fleet interval
-   and do not cut over unless the monotonic total remains unchanged.
-   Restart each runner, dashboard, and CLI host so new containers receive the credential mount;
-   existing unauthenticated containers continue working.
-2. Respawn or naturally replace the in-flight containers until all callers send the token, then
-   restart the service with `PANOPTICON_SERVICE_AUTH_MODE=enforced`.
-3. To rotate, append the next read/write tokens after the old tokens in their arrays; the last
-   token is the active token selected by clients. Restart the service, then restart all hosts and
-   respawn containers so callers select the new last token while both generations work. Remove the
-   old tokens only after the fleet has converged, then restart the service again.
+Deploy authentication by creating the credential file, configuring enforced mode, and restarting
+the full stack so every task container is respawned with its per-task capability. To rotate,
+append the next read/write tokens after the old tokens in their arrays; the last token is the
+active token selected by clients. Restart the service, then restart all hosts and respawn
+containers so callers select the new last token while both generations work. Remove the old
+tokens only after the fleet has converged, then restart the service again.
 
 An enforced service refuses to start when the reference is absent or invalid. Authentication
 failures always return `401`, `WWW-Authenticate: Bearer`, and
