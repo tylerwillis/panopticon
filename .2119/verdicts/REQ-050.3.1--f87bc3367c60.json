@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-050.3.1--f87bc3367c60",
+  "requirementId": "REQ-050.3.1",
+  "hash": "f87bc3367c60",
+  "verdict": "pass",
+  "summary": "Tests reject leaked snapshots after pre-Docker validation, detached Docker, tmux, and progress failures by asserting the created path and task snapshot glob are removed.",
+  "timestamp": "2026-08-06T07:06:51.682Z"
+}

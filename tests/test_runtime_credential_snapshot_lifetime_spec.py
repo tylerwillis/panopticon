@@ -111,6 +111,38 @@ def test_replacement_removes_old_snapshots_before_creating_the_new_one(
     assert created and created[0].is_file()
 
 
+def test_pre_docker_failure_removes_its_snapshot(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # 2119: REQ-050.3.1
+    credential = _credential(tmp_path)
+    calls: list[list[str]] = []
+    created: list[Path] = []
+    original_snapshot = runner_module.snapshot_task_capability
+
+    def observe_snapshot(*args: object, **kwargs: object) -> Path:
+        snapshot = original_snapshot(*args, **kwargs)  # type: ignore[arg-type]
+        created.append(snapshot)
+        return snapshot
+
+    monkeypatch.setattr(runner_module, "snapshot_task_capability", observe_snapshot)
+    runner = LocalRunner(
+        "not-a-url",
+        auth_file=credential.name,
+        secrets_dir=tmp_path,
+        run=lambda args, **_kwargs: calls.append(args) or "",
+    )
+    runner._snapshot_dir = tmp_path
+
+    with pytest.raises(ValueError, match="task-service URL has no host"):
+        runner.spawn("task")
+
+    assert len(created) == 1
+    assert not created[0].exists()
+    assert list(tmp_path.glob("panopticon-service-auth-task-*.json")) == []
+    assert not any(call[:3] == ["docker", "run", "--detach"] for call in calls)
+
+
 @pytest.mark.parametrize("failure_stage", ["docker", "tmux", "progress"])
 def test_failed_spawn_removes_its_snapshot(
     tmp_path: Path, failure_stage: str, monkeypatch: pytest.MonkeyPatch
@@ -161,4 +193,4 @@ def test_failed_spawn_removes_its_snapshot(
     if failure_stage == "docker":
         assert not any("new-session" in call for call in calls)
     else:
-        assert ["docker", "rm", "--force", "panopticon-task"] in calls
+        assert calls.count(["docker", "rm", "--force", "panopticon-task"]) == 2
