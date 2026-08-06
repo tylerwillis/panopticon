@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-050.1.1--196a4bd9283f",
+  "requirementId": "REQ-050.1.1",
+  "hash": "196a4bd9283f",
+  "verdict": "pass",
+  "summary": "Dedicated-socket live keypress coverage plus focused call-sequence assertions reject wrong routing, wrong session or pane, and bridge-plus-forwarded-Ctrl+V counterexamples.",
+  "timestamp": "2026-08-06T06:35:54.429Z"
+}
