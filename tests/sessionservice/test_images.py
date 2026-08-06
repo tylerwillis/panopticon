@@ -218,6 +218,33 @@ def test_source_change_rebuilds_base_with_unchanged_version_and_docker_assets(
     assert rec.calls[1][0][:4] == ["docker", "build", "--tag", "panopticon-base"]
 
 
+# 2119: REQ-050.3
+def test_repeated_base_fingerprints_reuse_packaged_source_digest(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    source = tmp_path / "installed-panopticon"
+    source.mkdir()
+    (source / "module.py").write_text("packaged source\n")
+    real_files = importlib.resources.files
+    source_discoveries = 0
+
+    def files(package: object) -> importlib.resources.abc.Traversable:
+        nonlocal source_discoveries
+        if package is __import__("panopticon"):
+            source_discoveries += 1
+            return source
+        return real_files(package)
+
+    monkeypatch.setattr(importlib.resources, "files", files)
+    _clear_source_fingerprint_cache()
+
+    first = _base_fingerprint()
+    second = _base_fingerprint()
+
+    assert second == first
+    assert source_discoveries == 1
+
+
 # 2119: REQ-022.1
 def test_build_base_if_missing_rebuilds_when_fingerprint_is_stale() -> None:
     rec = _MultiRecorder("pre-gh-base-fingerprint")
