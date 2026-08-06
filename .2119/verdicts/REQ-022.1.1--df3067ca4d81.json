@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-022.1.1--df3067ca4d81",
+  "requirementId": "REQ-022.1.1",
+  "hash": "df3067ca4d81",
+  "verdict": "pass",
+  "summary": "Real layerless base-image acceptance executes gh and verifies injected GH_TOKEN use; missing, non-executable, layer-only, or credential-blind gh is rejected.",
+  "timestamp": "2026-08-06T07:53:56.514Z"
+}

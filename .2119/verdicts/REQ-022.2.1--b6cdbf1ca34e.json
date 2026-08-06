@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-022.2.1--b6cdbf1ca34e",
+  "requirementId": "REQ-022.2.1",
+  "hash": "b6cdbf1ca34e",
+  "verdict": "pass",
+  "summary": "Exact full-set layer hashes reject any workflow-layer change, including renamed or indirect gh reinstallation.",
+  "timestamp": "2026-08-06T07:56:18.535Z"
+}

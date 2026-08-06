@@ -39,7 +39,8 @@ RUN --mount=type=bind,source=.,target=/ctx \
       pip install --no-cache-dir "/ctx/${PANOPTICON_WHEEL}"; \
     else \
       pip install --no-cache-dir "panopticon-app==${PANOPTICON_VERSION}"; \
-    fi
+    fi \
+ && bash /ctx/install-packaged-source.sh
 
 COPY entrypoint.sh /usr/local/bin/panopticon-entrypoint
 RUN chmod 0755 /usr/local/bin/panopticon-entrypoint

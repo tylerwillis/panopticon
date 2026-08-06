@@ -22,8 +22,10 @@ Dockerfile and `entrypoint.sh` that the existing fingerprint already covers sepa
 
 ### REQ-050.2: Automatic delivery on the next base-image check
 
-1. When an existing base image carries the fingerprint from an earlier packaged-source revision,
-   `ImageBuilder.build_base_if_missing()` MUST rebuild the base image on its next invocation.
+1. When a newly started host process runs from a packaged-source revision whose fingerprint
+   differs from an existing base image, `ImageBuilder.build_base_if_missing()` MUST rebuild the
+   base image and install that revised packaged source into the resulting image on its next
+   invocation.
 
 ### REQ-050.3: Hot-path cost
 

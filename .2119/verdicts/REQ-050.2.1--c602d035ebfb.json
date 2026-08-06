@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-050.2.1--c602d035ebfb",
+  "requirementId": "REQ-050.2.1",
+  "hash": "c602d035ebfb",
+  "verdict": "pass",
+  "summary": "A stale existing-image fingerprint is rejected on the next call, which rebuilds and installs revised source; the Docker-backed test imports the revised value from the resulting image.",
+  "timestamp": "2026-08-06T07:55:54.426Z"
+}

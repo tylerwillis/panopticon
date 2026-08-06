@@ -4,7 +4,10 @@ command — unit-tested without a real daemon (the command-runner is faked)."""
 from __future__ import annotations
 
 import importlib.resources
+import os
 import re
+import shutil
+import subprocess
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -23,6 +26,10 @@ from panopticon.workflows.discovery import discover_workflows
 
 def _base_dockerfile() -> str:
     return (importlib.resources.files(_docker_pkg) / "Dockerfile").read_text()
+
+
+def _source_installer() -> Path:
+    return Path(str(importlib.resources.files(_docker_pkg) / "install-packaged-source.sh"))
 
 
 def _build_args(command: list[str]) -> list[str]:
@@ -59,6 +66,13 @@ def _all_packaged_source_paths() -> tuple[str, ...]:
         and "__pycache__" not in path.parts
         and path.suffix not in {".pyc", ".pyo"}
         and path.relative_to(package_root).as_posix() not in excluded
+    )
+
+
+def _docker_running() -> bool:
+    return (
+        shutil.which("docker") is not None
+        and subprocess.run(["docker", "info"], capture_output=True).returncode == 0
     )
 
 
@@ -130,12 +144,36 @@ def test_build_composes_and_runs_docker_build() -> None:
 class _MultiRecorder:
     """Records all calls and returns canned responses in order (for multi-step sequences)."""
 
-    def __init__(self, *responses: str) -> None:
+    def __init__(self, *responses: str, installed_purelib: Path | None = None) -> None:
         self._responses = list(responses)
+        self._installed_purelib = installed_purelib
         self.calls: list[tuple[list[str], bool]] = []
+        self.packaged_source: dict[str, bytes] = {}
 
     def __call__(self, args: Sequence[str], *, check: bool = True, verbose: bool = False) -> str:
         self.calls.append((list(args), check))
+        source = Path(args[-1]) / "panopticon-source" / "panopticon"
+        if args[:2] == ["docker", "build"] and source.is_dir():
+            self.packaged_source = {
+                path.relative_to(source).as_posix(): path.read_bytes()
+                for path in source.rglob("*")
+                if path.is_file()
+            }
+            dockerfile = (Path(args[-1]) / "Dockerfile").read_text()
+            installer = Path(args[-1]) / "install-packaged-source.sh"
+            if (
+                self._installed_purelib is not None
+                and "bash /ctx/install-packaged-source.sh" in dockerfile
+            ):
+                subprocess.run(
+                    ["bash", str(installer)],
+                    check=True,
+                    env={
+                        **os.environ,
+                        "PANOPTICON_SOURCE_ROOT": str(source),
+                        "PANOPTICON_PURELIB": str(self._installed_purelib),
+                    },
+                )
         return self._responses.pop(0) if self._responses else ""
 
 
@@ -163,12 +201,12 @@ def test_base_fingerprint_changes_with_any_packaged_source_file(
     source = tmp_path / "installed-panopticon"
     changed_file = source / relative_path
     changed_file.parent.mkdir(parents=True)
-    changed_file.write_text("first revision\n")
+    changed_file.write_bytes(b"packaged-source\x00")
     _use_packaged_source(monkeypatch, source)
 
     _clear_source_fingerprint_cache()
     before = _base_fingerprint()
-    changed_file.write_text("second revision\n")
+    changed_file.write_bytes(b"packaged-source\x01")
     _clear_source_fingerprint_cache()
     after = _base_fingerprint()
 
@@ -196,6 +234,69 @@ def test_base_fingerprint_changes_when_only_packaged_source_path_changes(
     assert after != before
 
 
+# 2119: REQ-050.1
+def test_base_fingerprint_ignores_packaged_source_metadata(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    source = tmp_path / "installed-panopticon"
+    packaged_file = source / "module.py"
+    packaged_file.parent.mkdir(parents=True)
+    packaged_file.write_bytes(b"identical packaged bytes\n")
+    _use_packaged_source(monkeypatch, source)
+
+    _clear_source_fingerprint_cache()
+    before = _base_fingerprint()
+    original = packaged_file.stat()
+    replacement = source / "replacement"
+    replacement.write_bytes(packaged_file.read_bytes())
+    replacement.replace(packaged_file)
+    os.utime(packaged_file, ns=(original.st_atime_ns, original.st_mtime_ns))
+    _clear_source_fingerprint_cache()
+    after = _base_fingerprint()
+
+    assert packaged_file.stat().st_ino != original.st_ino
+    assert after == before
+
+
+# 2119: REQ-050.1
+@pytest.mark.parametrize("byte_index", [0, 8, 15])
+def test_base_fingerprint_changes_for_single_binary_byte_at_file_boundaries(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, byte_index: int
+) -> None:
+    source = tmp_path / "installed-panopticon"
+    packaged_file = source / "module.py"
+    packaged_file.parent.mkdir(parents=True)
+    original = bytearray(16)
+    packaged_file.write_bytes(original)
+    _use_packaged_source(monkeypatch, source)
+
+    _clear_source_fingerprint_cache()
+    before = _base_fingerprint()
+    original[byte_index] = 1
+    packaged_file.write_bytes(original)
+    _clear_source_fingerprint_cache()
+
+    assert _base_fingerprint() != before
+
+
+# 2119: REQ-050.1
+def test_base_fingerprint_changes_when_a_byte_is_appended(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    source = tmp_path / "installed-panopticon"
+    packaged_file = source / "module.py"
+    packaged_file.parent.mkdir(parents=True)
+    packaged_file.write_bytes(b"packaged source")
+    _use_packaged_source(monkeypatch, source)
+
+    _clear_source_fingerprint_cache()
+    before = _base_fingerprint()
+    packaged_file.write_bytes(b"packaged source\x00")
+    _clear_source_fingerprint_cache()
+
+    assert _base_fingerprint() != before
+
+
 # 2119: REQ-050.2
 def test_source_change_rebuilds_base_with_unchanged_version_and_docker_assets(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
@@ -210,12 +311,94 @@ def test_source_change_rebuilds_base_with_unchanged_version_and_docker_assets(
     installed_image_fingerprint = _base_fingerprint()
     changed_file.write_text("merged fix\n")
     _clear_source_fingerprint_cache()
-    rec = _MultiRecorder(installed_image_fingerprint)
+    installed_purelib = tmp_path / "image-purelib"
+    stale_package = installed_purelib / "panopticon"
+    stale_package.mkdir(parents=True)
+    (stale_package / "harnesses").mkdir()
+    (stale_package / "harnesses" / "pi.py").write_text("old packaged source\n")
+    (stale_package / "removed.py").write_text("stale file\n")
+    rec = _MultiRecorder(installed_image_fingerprint, installed_purelib=installed_purelib)
 
     rebuilt = ImageBuilder(base="panopticon-base", run=rec).build_base_if_missing()
 
     assert rebuilt is True
     assert rec.calls[1][0][:4] == ["docker", "build", "--tag", "panopticon-base"]
+    assert rec.packaged_source["harnesses/pi.py"] == b"merged fix\n"
+    assert (stale_package / "harnesses" / "pi.py").read_bytes() == b"merged fix\n"
+    assert not (stale_package / "removed.py").exists()
+    dockerfile = _base_dockerfile()
+    install_command = "bash /ctx/install-packaged-source.sh"
+    assert dockerfile.index(install_command) > dockerfile.index("pip install")
+    assert "pip install" not in dockerfile[dockerfile.index(install_command) + 1 :]
+
+
+# 2119: REQ-050.2
+def test_source_installer_replaces_stale_installed_package(tmp_path: Path) -> None:
+    source = tmp_path / "staged" / "panopticon"
+    installed = tmp_path / "purelib" / "panopticon"
+    source.mkdir(parents=True)
+    installed.mkdir(parents=True)
+    (source / "delivery_probe.py").write_bytes(b"revised packaged source\n")
+    (installed / "delivery_probe.py").write_bytes(b"stale packaged source\n")
+    (installed / "removed.py").write_bytes(b"must not survive\n")
+
+    subprocess.run(
+        ["bash", str(_source_installer())],
+        check=True,
+        env={
+            **os.environ,
+            "PANOPTICON_SOURCE_ROOT": str(source),
+            "PANOPTICON_PURELIB": str(tmp_path / "purelib"),
+        },
+    )
+
+    assert (installed / "delivery_probe.py").read_bytes() == b"revised packaged source\n"
+    assert not (installed / "removed.py").exists()
+
+
+# 2119: REQ-050.2
+@pytest.mark.skipif(not _docker_running(), reason="needs a working docker daemon")
+def test_rebuilt_base_image_executes_revised_packaged_source(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    source = tmp_path / "installed-panopticon"
+    source.mkdir()
+    (source / "__init__.py").write_text("")
+    probe = source / "delivery_probe.py"
+    probe.write_text('VALUE = "stale source"\n')
+    _use_packaged_source(monkeypatch, source)
+    _clear_source_fingerprint_cache()
+    image = f"panopticon-source-delivery-{os.getpid()}"
+
+    def installed_value() -> str:
+        result = subprocess.run(
+            [
+                "docker",
+                "run",
+                "--rm",
+                "--entrypoint",
+                "python",
+                image,
+                "-c",
+                "from panopticon.delivery_probe import VALUE; print(VALUE)",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        return result.stdout.strip()
+
+    try:
+        builder = ImageBuilder(base=image)
+        builder.build_base()
+        assert installed_value() == "stale source"
+
+        probe.write_text('VALUE = "revised source reached image"\n')
+        _clear_source_fingerprint_cache()
+        assert builder.build_base_if_missing() is True
+        assert installed_value() == "revised source reached image"
+    finally:
+        subprocess.run(["docker", "image", "rm", "--force", image], capture_output=True)
 
 
 # 2119: REQ-050.3
@@ -269,7 +452,8 @@ def test_build_base_if_missing_builds_when_inspect_returns_empty_string() -> Non
     assert "--file" in build_cmd
     file_arg = build_cmd[build_cmd.index("--file") + 1]
     assert file_arg.endswith("Dockerfile")
-    assert Path(build_cmd[-1]).name == "docker"  # context = parent dir of Dockerfile
+    assert Path(file_arg).parent == Path(build_cmd[-1])
+    assert "sessionservice/images.py" in rec.packaged_source
     assert rec.calls[1][1] is True  # check=True so a build failure propagates
 
 
@@ -286,4 +470,5 @@ def test_build_base_unconditional() -> None:
     assert "--file" in build_cmd
     file_arg = build_cmd[build_cmd.index("--file") + 1]
     assert file_arg.endswith("Dockerfile")
-    assert Path(build_cmd[-1]).name == "docker"  # context = parent dir of Dockerfile
+    assert Path(file_arg).parent == Path(build_cmd[-1])
+    assert "sessionservice/images.py" in rec.packaged_source
