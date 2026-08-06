@@ -535,7 +535,7 @@ def test_docker_runner_mounts_a_stable_snapshot_if_source_is_replaced(
             json.dumps({"task": derive_task_capability("stable-writer-token", "task")}),
         )
     ]
-    assert snapshots and not snapshots[0].exists()
+    assert snapshots and snapshots[0].is_file()
     runner.stop("panopticon-task")
     assert not snapshots[0].exists()
 

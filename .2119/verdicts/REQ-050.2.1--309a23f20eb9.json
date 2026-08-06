@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-050.2.1--309a23f20eb9",
+  "requirementId": "REQ-050.2.1",
+  "hash": "309a23f20eb9",
+  "verdict": "pass",
+  "summary": "Fresh-instance stop and terminal cleanup remove all task-selected snapshots while preserving another task, and replacement creation asserts stale removal occurred first.",
+  "timestamp": "2026-08-06T07:06:54.765Z"
+}
