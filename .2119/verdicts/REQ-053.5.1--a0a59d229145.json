@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-053.5.1--a0a59d229145",
+  "requirementId": "REQ-053.5.1",
+  "hash": "a0a59d229145",
+  "verdict": "fail",
+  "summary": "The test iterates table.row_count without asserting all 30 task identities remain present, so silently omitted real rows could survive.",
+  "timestamp": "2026-08-06T21:12:28.254Z"
+}

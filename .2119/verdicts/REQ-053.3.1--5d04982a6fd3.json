@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-053.3.1--5d04982a6fd3",
+  "requirementId": "REQ-053.3.1",
+  "hash": "5d04982a6fd3",
+  "verdict": "fail",
+  "summary": "Overflow endpoint tests check absent arrows only on the expected boundary line, so a forbidden indicator rendered elsewhere in the table could survive.",
+  "timestamp": "2026-08-06T21:07:45.853Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "full-width-dashboard.1.2--6b8db9981d7b",
+  "requirementId": "full-width-dashboard.1.2",
+  "hash": "6b8db9981d7b",
+  "verdict": "pass",
+  "summary": "The test creates genuine vertical overflow, uses Down input to reach and visibly scroll every row, and asserts per-row visibility, positive scrolling, and exact zero scrollbar width.",
+  "timestamp": "2026-08-06T21:12:28.913Z"
+}

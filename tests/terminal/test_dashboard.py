@@ -825,6 +825,125 @@ async def test_vertically_overflowing_dashboard_uses_the_full_table_width() -> N
         assert table.scrollable_content_region.width == table.content_region.width
 
 
+# 2119: REQ-053.1.1
+# 2119: REQ-053.2.1
+# 2119: REQ-053.3.1
+async def test_vertical_task_overflow_indicators_show_only_available_directions() -> None:
+    tasks = [
+        {**_TASK, "id": f"overflow-{index:02}", "slug": f"overflow-{index:02}"}
+        for index in range(30)
+    ]
+    app = Dashboard(_FakeClient(tasks), refresh_interval=None)  # type: ignore[arg-type]
+
+    async with app.run_test(size=(80, 12)) as pilot:
+        await pilot.pause()
+        table = app.query_one("#tasks", DataTable)
+
+        def table_line(screen_y: int) -> str:
+            strips = app.screen._compositor.render_strips()
+            line = "".join(segment.text for segment in strips[screen_y])
+            return line[table.scrollable_content_region.x : table.scrollable_content_region.right]
+
+        def rendered_table() -> str:
+            strips = app.screen._compositor.render_strips()
+            return "\n".join(
+                "".join(segment.text for segment in strip)[table.region.x : table.region.right]
+                for strip in strips[table.region.y : table.region.bottom]
+            )
+
+        def assert_centered(line: str, message: str) -> None:
+            assert line.strip() == message
+            left_padding = line.index(message)
+            right_padding = len(line) - left_padding - len(message)
+            assert abs(left_padding - right_padding) <= 1
+
+        first_task_line = table.scrollable_content_region.y + table.header_height
+        last_task_line = table.scrollable_content_region.bottom - 1
+        assert table.scroll_y == 0
+        assert_centered(table_line(last_task_line), "↓ more tasks")
+        assert "↑ more tasks" not in rendered_table()
+
+        for _ in range(9):
+            await pilot.press("down")
+        await pilot.pause()
+        assert table.scroll_y == 1
+        assert_centered(table_line(first_task_line), "↑ more tasks")
+        assert_centered(table_line(last_task_line), "↓ more tasks")
+
+        for _ in range(table.row_count):
+            await pilot.press("down")
+        await pilot.pause()
+        assert table.scroll_y == table.max_scroll_y
+        assert_centered(table_line(first_task_line), "↑ more tasks")
+        assert "↓ more tasks" not in rendered_table()
+
+
+# 2119: REQ-053.3.1
+async def test_vertical_task_overflow_indicators_disappear_when_everything_fits() -> None:
+    app = Dashboard(_FakeClient([_TASK]), refresh_interval=None)  # type: ignore[arg-type]
+
+    async with app.run_test(size=(80, 12)) as pilot:
+        await pilot.pause()
+        table = app.query_one("#tasks", DataTable)
+        strips = app.screen._compositor.render_strips()
+        rendered_table = "\n".join(
+            "".join(segment.text for segment in strip)[table.region.x : table.region.right]
+            for strip in strips[table.region.y : table.region.bottom]
+        )
+
+        assert table.virtual_size.height <= table.scrollable_content_region.height
+        assert "↑ more tasks" not in rendered_table
+        assert "↓ more tasks" not in rendered_table
+
+
+# 2119: REQ-053.4.1
+async def test_vertical_task_overflow_indicator_preserves_horizontal_scrollbar_line() -> None:
+    tasks = [
+        {**_TASK, "id": f"overflow-{index:02}", "slug": f"overflow-{index:02}"}
+        for index in range(30)
+    ]
+    app = Dashboard(_FakeClient(tasks), refresh_interval=None)  # type: ignore[arg-type]
+
+    async with app.run_test(size=(35, 12)) as pilot:
+        await pilot.pause()
+        table = app.query_one("#tasks", DataTable)
+        strips = app.screen._compositor.render_strips()
+        scrollbar_y = table.scrollable_content_region.bottom
+        scrollbar = strips[scrollbar_y]
+        scrollbar_text = "".join(segment.text for segment in scrollbar)
+
+        def scrollbar_cells(strip: object) -> tuple[tuple[str, bool, object], ...]:
+            return tuple(
+                (
+                    character,
+                    bool(segment.style and segment.style.reverse),
+                    (segment.style.meta or {}).get("@mouse.down")
+                    if segment.style is not None
+                    else None,
+                )
+                for segment in strip  # type: ignore[union-attr]
+                for character in segment.text
+            )
+
+        expected_scrollbar = table.horizontal_scrollbar.render_line(0)
+        grab_segments = [
+            segment
+            for segment in scrollbar
+            if segment.style is not None
+            and segment.style.meta is not None
+            and segment.style.meta.get("@mouse.down") == "grab"
+        ]
+
+        assert table.show_horizontal_scrollbar
+        assert table.scrollbar_size_horizontal == 1
+        assert scrollbar_cells(scrollbar) == scrollbar_cells(expected_scrollbar)
+        assert grab_segments
+        assert any(segment.text.strip() or segment.style.reverse for segment in grab_segments)
+        assert "↑ more tasks" not in scrollbar_text
+        assert "↓ more tasks" not in scrollbar_text
+        assert table.scrollable_content_region.width == table.content_region.width
+
+
 # 2119: full-width-dashboard.1.2
 async def test_zero_width_vertical_scrollbar_preserves_keyboard_task_navigation() -> None:
     tasks = [
@@ -844,6 +963,48 @@ async def test_zero_width_vertical_scrollbar_preserves_keyboard_task_navigation(
 
         assert table.scrollbar_size_vertical == 0
         assert table.scroll_y > 0
+
+
+# 2119: REQ-053.5.1
+async def test_keyboard_navigation_reaches_every_row_with_overflow_indicators() -> None:
+    tasks = [
+        {**_TASK, "id": f"overflow-{index:02}", "slug": f"overflow-{index:02}"}
+        for index in range(30)
+    ]
+    app = Dashboard(_FakeClient(tasks), refresh_interval=None)  # type: ignore[arg-type]
+
+    async with app.run_test(size=(80, 12)) as pilot:
+        await pilot.pause()
+        table = app.query_one("#tasks", DataTable)
+        assert table.row_count == len(tasks)
+        assert {str(key.value) for key in table.rows} == {task["id"] for task in tasks}
+
+        def rendered_table() -> str:
+            strips = app.screen._compositor.render_strips()
+            return "\n".join(
+                "".join(segment.text for segment in strip)[table.region.x : table.region.right]
+                for strip in strips[table.region.y : table.region.bottom]
+            )
+
+        for expected_row in range(table.row_count):
+            if expected_row < table.row_count - 1:
+                assert "↓ more tasks" in rendered_table()
+            if expected_row:
+                await pilot.press("down")
+            assert table.cursor_row == expected_row
+
+        assert table.cursor_row == table.row_count - 1
+        assert table.scroll_y == table.max_scroll_y
+
+        for expected_row in reversed(range(table.row_count)):
+            if expected_row < table.row_count - 1:
+                await pilot.press("up")
+            assert table.cursor_row == expected_row
+            if expected_row:
+                assert "↑ more tasks" in rendered_table()
+
+        assert table.cursor_row == 0
+        assert table.scroll_y == 0
 
 
 async def test_detail_pane_shows_copy_key_hint_without_changing_copyable_detail() -> None:

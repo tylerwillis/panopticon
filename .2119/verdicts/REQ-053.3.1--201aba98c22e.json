@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-053.3.1--201aba98c22e",
+  "requirementId": "REQ-053.3.1",
+  "hash": "201aba98c22e",
+  "verdict": "pass",
+  "summary": "Tests reject an up indicator anywhere at the top, a down indicator anywhere at the bottom, and either indicator when all content fits.",
+  "timestamp": "2026-08-06T21:08:59.273Z"
+}
