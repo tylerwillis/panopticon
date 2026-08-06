@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.13.1--09736ce52424",
-  "requirementId": "REQ-035.13.1",
-  "hash": "09736ce52424",
-  "verdict": "pass",
-  "summary": "Permissive-mode tests exercise real REST and MCP routes and reject only insufficient credentials while forbidding the generic auth failure for legacy and sufficiently authenticated callers.",
-  "timestamp": "2026-08-05T02:52:06.286Z"
-}

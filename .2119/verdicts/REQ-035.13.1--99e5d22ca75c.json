@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.13.1--99e5d22ca75c",
+  "requirementId": "REQ-035.13.1",
+  "hash": "99e5d22ca75c",
+  "verdict": "pass",
+  "summary": "Explicit permissive mode with valid credentials must fail during app construction before a servable app exists.",
+  "timestamp": "2026-08-06T06:06:46.613Z"
+}

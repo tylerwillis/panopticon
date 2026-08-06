@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.46.1--ff9cf2d1af7b",
-  "requirementId": "REQ-035.46.1",
-  "hash": "ff9cf2d1af7b",
-  "verdict": "pass",
-  "summary": "Tests exercise enforced and permissive over-limit requests and a chunked ASGI body, proving 413 rejection, no protected dispatch, bounded chunk consumption, and no full-body buffering.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

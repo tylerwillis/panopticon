@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.33.1--012051c2e005",
+  "requirementId": "REQ-035.33.1",
+  "hash": "012051c2e005",
+  "verdict": "pass",
+  "summary": "Tests reject every configured read/write token below 12 characters across both modes and list positions, while accepting the exact 12-character boundary.",
+  "timestamp": "2026-08-06T06:07:41.676Z"
+}

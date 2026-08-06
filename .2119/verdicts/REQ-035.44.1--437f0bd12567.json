@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.44.1--437f0bd12567",
-  "requirementId": "REQ-035.44.1",
-  "hash": "437f0bd12567",
-  "verdict": "pass",
-  "summary": "Tests cover decoded paths and queries plus plain and escaped semantic JSON and artifact bodies, assert rejection before endpoint dispatch, and inspect database and artifact storage for absence.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

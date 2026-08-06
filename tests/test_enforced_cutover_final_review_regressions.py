@@ -116,6 +116,13 @@ def test_validator_requires_single_stage_permissive_rejection_rationale() -> Non
         assert "enforced-mode-cutover-runbook.2.10" in validate_enforced_mode_cutover_runbook(
             weakened
         )
+    contradictory_addition = (
+        text
+        + "\nA permissive-mode restart accepts legacy Bearer liveness and provides a no-drain stage.\n"
+    )
+    assert "enforced-mode-cutover-runbook.2.10" in validate_enforced_mode_cutover_runbook(
+        contradictory_addition
+    )
 
 
 def test_runner_pid_is_exec_bound_and_unknown_callers_fail_closed() -> None:

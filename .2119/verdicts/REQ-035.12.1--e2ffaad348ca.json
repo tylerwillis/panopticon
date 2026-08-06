@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.12.1--e2ffaad348ca",
+  "requirementId": "REQ-035.12.1",
+  "hash": "e2ffaad348ca",
+  "verdict": "pass",
+  "summary": "Absent and empty references avoid generic authentication failure across REST and MCP surfaces.",
+  "timestamp": "2026-08-06T06:06:45.985Z"
+}

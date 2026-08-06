@@ -1098,13 +1098,13 @@ def test_integrated_stack_tees_identical_output_to_tmux_pane_and_log(
             subprocess.run(["tmux", "-L", socket_name, "kill-server"], check=False)
 
 
-@pytest.mark.parametrize("mode", ["disabled", "permissive", "enforced"])
+@pytest.mark.parametrize("mode", ["disabled", "enforced"])
 def test_head_health_is_public_and_matches_get_without_a_body(tmp_path: Path, mode: str) -> None:
     # 2119: REQ-047.5.1
     root = tmp_path / mode
     kwargs: dict[str, object] = {"auth_mode": mode}
     service = _service(root)
-    if mode != "disabled":
+    if mode == "enforced":
         kwargs.update(auth_file=_credential(root), secrets_dir=root / "secrets")
     app = create_app(service, **kwargs)  # type: ignore[arg-type]
 

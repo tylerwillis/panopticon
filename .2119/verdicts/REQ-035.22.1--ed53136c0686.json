@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.22.1--ed53136c0686",
-  "requirementId": "REQ-035.22.1",
-  "hash": "ed53136c0686",
-  "verdict": "pass",
-  "summary": "Pass: a real production launcher receives a rejected request whose raw query contains a configured token and the test inspects combined stdout/stderr to ensure the credential is absent.",
-  "timestamp": "2026-08-03T09:26:19.319Z"
-}

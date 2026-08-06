@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.46.1--d1a8e615aa55",
+  "requirementId": "REQ-035.46.1",
+  "hash": "d1a8e615aa55",
+  "verdict": "pass",
+  "summary": "Limit-plus-one is rejected, streaming stops at the boundary, and endpoint dispatch is excluded.",
+  "timestamp": "2026-08-06T06:06:49.865Z"
+}

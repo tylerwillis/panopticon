@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.2.10--f9ecfdb8d964",
+  "requirementId": "enforced-mode-cutover-runbook.2.10",
+  "hash": "f9ecfdb8d964",
+  "verdict": "pass",
+  "summary": "Tests reject loss of permissive-mode Bearer liveness rejection, its 401 outcome, the causal no-drain conclusion, and an appended contradiction.",
+  "timestamp": "2026-08-06T06:10:07.527Z"
+}

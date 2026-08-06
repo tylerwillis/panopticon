@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-047.4.3--19ad83f5a27f",
-  "requirementId": "REQ-047.4.3",
-  "hash": "19ad83f5a27f",
-  "verdict": "pass",
-  "summary": "Tests reject missing service/runner startup tees, EOF buffering, pane loss on log failure, and any pane/log content or ordering mismatch.",
-  "timestamp": "2026-08-03T23:36:22.487Z"
-}

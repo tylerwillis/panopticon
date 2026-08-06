@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.41.1--d6f1c148174e",
-  "requirementId": "REQ-035.41.1",
-  "hash": "d6f1c148174e",
-  "verdict": "pass",
-  "summary": "Rendered Pi and artifact commands, including real harness rendering, are executed under xtrace and prove configured tokens do not appear in trace output or process arguments.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

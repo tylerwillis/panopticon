@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.18.1--de38f27070ca",
+  "requirementId": "REQ-035.18.1",
+  "hash": "de38f27070ca",
+  "verdict": "pass",
+  "summary": "Configured tokens are checked absent from failure, log, command, serialization, database, and artifact sinks.",
+  "timestamp": "2026-08-06T06:06:47.296Z"
+}

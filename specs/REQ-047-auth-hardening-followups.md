@@ -69,7 +69,7 @@ every affected code path; that follow-up must preserve the enforced-mode rejecti
 
 ### REQ-047.5: Public HEAD health probe
 
-1. In disabled, permissive, and enforced authentication modes, unauthenticated `HEAD /healthz` MUST
+1. In disabled and enforced authentication modes, unauthenticated `HEAD /healthz` MUST
    return the same success status and response headers as unauthenticated `GET /healthz`, with an
    empty response body.
 
