@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.10.1--f0d3e38147c0",
-  "requirementId": "REQ-035.10.1",
-  "hash": "f0d3e38147c0",
-  "verdict": "pass",
-  "summary": "The annotated tests make an unauthenticated GET /healthz request, assert HTTP 200 and the exact existing readiness payload {\"status\":\"ok\"}, and also exercise health beneath an ASGI root path.",
-  "timestamp": "2026-08-04T06:50:48.294Z"
-}

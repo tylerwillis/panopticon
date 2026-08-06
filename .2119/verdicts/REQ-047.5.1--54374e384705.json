@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.5.1--54374e384705",
+  "requirementId": "REQ-047.5.1",
+  "hash": "54374e384705",
+  "verdict": "pass",
+  "summary": "Disabled and enforced unauthenticated HEAD health matches GET status and headers with an empty body.",
+  "timestamp": "2026-08-06T06:06:51.122Z"
+}

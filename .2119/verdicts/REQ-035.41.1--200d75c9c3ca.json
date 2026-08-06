@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.41.1--200d75c9c3ca",
+  "requirementId": "REQ-035.41.1",
+  "hash": "200d75c9c3ca",
+  "verdict": "pass",
+  "summary": "Rendered Pi and artifact commands keep credentials out of argv and xtrace while delivering the header via stdin.",
+  "timestamp": "2026-08-06T06:06:48.615Z"
+}

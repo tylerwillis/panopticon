@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.27.1--a28deaec2e17",
+  "requirementId": "REQ-035.27.1",
+  "hash": "a28deaec2e17",
+  "verdict": "pass",
+  "summary": "Production-process tests reject missing or incorrect resolved-mode reporting and non-warning disabled reporting; documentation test requires enforced mode as the required steady state.",
+  "timestamp": "2026-08-06T06:07:31.026Z"
+}

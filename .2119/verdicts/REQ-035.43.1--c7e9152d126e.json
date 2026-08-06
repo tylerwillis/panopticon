@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.43.1--c7e9152d126e",
-  "requirementId": "REQ-035.43.1",
-  "hash": "c7e9152d126e",
-  "verdict": "pass",
-  "summary": "Tests prove the permissive health counter starts at zero, increases monotonically only for admitted headerless requests, resets on application restart, and discloses no configured token.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

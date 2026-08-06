@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.35.1--320c0c6896ba",
+  "requirementId": "REQ-035.35.1",
+  "hash": "320c0c6896ba",
+  "verdict": "pass",
+  "summary": "Production build_app rejects a valid permissive configuration, and any resolved-mode log emitted before rejection makes the unchanged-log assertion fail.",
+  "timestamp": "2026-08-06T06:10:08.867Z"
+}

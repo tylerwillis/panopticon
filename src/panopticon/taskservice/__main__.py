@@ -145,6 +145,8 @@ def build_app(
         auth_mode if auth_mode is not None else os.environ.get("PANOPTICON_SERVICE_AUTH_MODE")
     )
     effective_mode = resolved_auth_mode or ("enforced" if resolved_auth_file else "disabled")
+    if effective_mode not in {"disabled", "enforced"}:
+        raise ValueError("authentication mode must be disabled or enforced")
     resolved_browser_origins = (
         list(browser_origins)
         if browser_origins is not None
@@ -154,7 +156,7 @@ def build_app(
             if origin.strip()
         ]
     )
-    log = logging.warning if effective_mode in {"disabled", "permissive"} else logging.info
+    log = logging.warning if effective_mode == "disabled" else logging.info
     log("panopticon: task-service authentication mode: %s", effective_mode)
     return create_app(
         service,

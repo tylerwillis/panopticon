@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.10.1--4ef47f0f880c",
+  "requirementId": "REQ-035.10.1",
+  "hash": "4ef47f0f880c",
+  "verdict": "pass",
+  "summary": "Enforced-auth tests require unauthenticated 200 and exact readiness payload equality.",
+  "timestamp": "2026-08-06T06:06:45.349Z"
+}

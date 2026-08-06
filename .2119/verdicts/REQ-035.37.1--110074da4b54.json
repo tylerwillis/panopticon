@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.37.1--110074da4b54",
+  "requirementId": "REQ-035.37.1",
+  "hash": "110074da4b54",
+  "verdict": "pass",
+  "summary": "Rendered credential-less REST command omits Authorization and publishes exact bytes in disabled mode.",
+  "timestamp": "2026-08-06T06:06:47.949Z"
+}

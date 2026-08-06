@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.43.1--fb674428b50e",
+  "requirementId": "REQ-035.43.1",
+  "hash": "fb674428b50e",
+  "verdict": "pass",
+  "summary": "Disabled and enforced health responses are behaviorally checked for absence of the retired counter header.",
+  "timestamp": "2026-08-06T06:06:49.242Z"
+}

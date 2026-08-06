@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-047.4.3--5d8c7dcd4531",
+  "requirementId": "REQ-047.4.3",
+  "hash": "5d8c7dcd4531",
+  "verdict": "pass",
+  "summary": "Both integrated commands reject pane-only, log-only, delayed, stderr-dropped, or non-identical output.",
+  "timestamp": "2026-08-06T06:06:50.480Z"
+}

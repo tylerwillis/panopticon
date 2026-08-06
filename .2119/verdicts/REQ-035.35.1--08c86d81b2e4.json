@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.35.1--08c86d81b2e4",
-  "requirementId": "REQ-035.35.1",
-  "hash": "08c86d81b2e4",
-  "verdict": "pass",
-  "summary": "Tests drive the cumulative count through 1024 and assert warnings occur exactly at positive powers of two with method, route, caller address, and cumulative count.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

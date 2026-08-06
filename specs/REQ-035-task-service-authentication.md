@@ -4,8 +4,8 @@
 
 The task service is reachable by dashboards, command-line clients, host runners, shell tasks, and
 task containers. This contract adds bearer-token authentication without confusing it with the
-workflow-level `NotAuthorized` error, persisting credentials in control-plane data, trusting
-loopback implicitly, or forcing a flag-day restart of the live fleet.
+workflow-level `NotAuthorized` error, persisting credentials in control-plane data, or trusting
+loopback implicitly.
 
 The deployment credential is a host-local file containing one or more opaque tokens assigned to
 either `read` or `write`. The configured value is a filename reference resolved beneath the
@@ -62,9 +62,9 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 
 1. A service with no authentication credential reference MUST NOT apply the generic task-service authentication failure before endpoint validation on the protected REST route surface or GET, POST, and DELETE MCP transport surface.
 
-### REQ-035.13: Permissive migration mode
+### REQ-035.13: Retired permissive mode
 
-1. A service in explicitly configured permissive mode MUST avoid the generic task-service authentication failure for legacy unauthenticated requests and requests carrying credentials sufficient for the requested operation, so upgraded callers can be deployed without interrupting in-flight containers.
+1. An explicitly configured permissive authentication mode MUST be rejected before the task service begins serving requests.
 
 ### REQ-035.14: Enforced mode validation
 
@@ -120,7 +120,7 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 
 ### REQ-035.27: Visible secure operating mode
 
-1. Production startup MUST report the resolved authentication mode, warn when it is disabled or permissive, and document enforced mode as the required steady-state configuration.
+1. Production startup MUST report the resolved authentication mode, warn when it is disabled, and document enforced mode as the required steady-state configuration.
 
 ### REQ-035.28: Missing runner credential
 
@@ -152,17 +152,17 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 
 1. Authentication startup and runner preflight MUST reject a credential file not owned by the current effective user or readable, writable, or executable by its group or other users.
 
-### REQ-035.35: Permissive convergence signal
+### REQ-035.35: No permissive startup signal
 
-1. Permissive mode MUST emit warnings at positive-power-of-two cumulative admitted header-less request counts that identify the request method, route, caller address, and cumulative count.
+1. Production startup MUST reject permissive authentication without reporting it as the resolved operating mode.
 
 ### REQ-035.36: Permanent liveness rejection
 
 1. A task container whose liveness request receives HTTP 401 or 403 MUST terminate instead of retrying as though the rejection were a transient connection failure.
 
-### REQ-035.37: Credential-less artifact grace
+### REQ-035.37: Disabled artifact fallback
 
-1. A credential-less container following the rendered REST artifact instructions MUST omit the Authorization header so permissive migration mode admits its request.
+1. A credential-less container following the rendered REST artifact instructions in disabled mode MUST omit the Authorization header while retaining artifact publication.
 
 ### REQ-035.38: Shell trace secrecy
 
@@ -184,9 +184,9 @@ is intended for clients such as a phone dashboard and cannot mutate control-plan
 
 1. Caller-controlled MCP request or resource data containing a configured token MUST NOT write that token through the pinned MCP SDK loggers.
 
-### REQ-035.43: Migration convergence counter
+### REQ-035.43: No permissive health signal
 
-1. Permissive mode health responses MUST expose a monotonic total of header-less requests admitted since application startup without disclosing configured tokens.
+1. Health responses in disabled and enforced authentication modes MUST omit the `X-Panopticon-Permissive-Unauthenticated-Total` header.
 
 ### REQ-035.44: Persistent secret rejection
 
