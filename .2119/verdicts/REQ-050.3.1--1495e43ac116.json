@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-050.3.1--1495e43ac116",
+  "requirementId": "REQ-050.3.1",
+  "hash": "1495e43ac116",
+  "verdict": "pass",
+  "summary": "Real spawn-path tests reject retained snapshots after failures at detached Docker creation, later tmux setup, and awaiting-progress setup.",
+  "timestamp": "2026-08-06T06:21:03.341Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-050.2.1--3b5a229a65de",
+  "requirementId": "REQ-050.2.1",
+  "hash": "3b5a229a65de",
+  "verdict": "pass",
+  "summary": "Tests reject partial stop cleanup, missed terminal cleanup by a later runner, and replacement creation before every retained task snapshot is removed.",
+  "timestamp": "2026-08-06T06:20:17.181Z"
+}
