@@ -4,10 +4,12 @@ command — unit-tested without a real daemon (the command-runner is faked)."""
 from __future__ import annotations
 
 import importlib.resources
+import json
 import os
 import re
 import shutil
 import subprocess
+import sys
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -193,14 +195,17 @@ def test_build_base_if_missing_skips_build_when_fingerprint_matches() -> None:
     assert rec.calls[0][1] is False  # check=False so a missing or stale image does not raise
 
 
-# 2119: REQ-050.1
+# 2119: REQ-052.1
 @pytest.mark.parametrize("relative_path", _all_packaged_source_paths())
 def test_base_fingerprint_changes_with_any_packaged_source_file(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path, relative_path: str
 ) -> None:
     source = tmp_path / "installed-panopticon"
+    sentinel = source / "!unchanged-first-resource"
     changed_file = source / relative_path
-    changed_file.parent.mkdir(parents=True)
+    sentinel.parent.mkdir(parents=True)
+    sentinel.write_bytes(b"unchanged sentinel\n")
+    changed_file.parent.mkdir(parents=True, exist_ok=True)
     changed_file.write_bytes(b"packaged-source\x00")
     _use_packaged_source(monkeypatch, source)
 
@@ -213,7 +218,28 @@ def test_base_fingerprint_changes_with_any_packaged_source_file(
     assert after != before
 
 
-# 2119: REQ-050.1
+# 2119: REQ-052.1
+def test_base_fingerprint_does_not_stop_after_first_packaged_file(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    source = tmp_path / "installed-panopticon"
+    first = source / "a-first.py"
+    later = source / "z-later.py"
+    source.mkdir()
+    first.write_bytes(b"first remains unchanged\n")
+    later.write_bytes(b"later original\n")
+    _use_packaged_source(monkeypatch, source)
+
+    _clear_source_fingerprint_cache()
+    before = _base_fingerprint()
+    later.write_bytes(b"later revised\n")
+    _clear_source_fingerprint_cache()
+
+    assert first.read_bytes() == b"first remains unchanged\n"
+    assert _base_fingerprint() != before
+
+
+# 2119: REQ-052.1
 def test_base_fingerprint_changes_when_only_packaged_source_path_changes(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -234,7 +260,7 @@ def test_base_fingerprint_changes_when_only_packaged_source_path_changes(
     assert after != before
 
 
-# 2119: REQ-050.1
+# 2119: REQ-052.1
 def test_base_fingerprint_ignores_packaged_source_metadata(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -258,7 +284,7 @@ def test_base_fingerprint_ignores_packaged_source_metadata(
     assert after == before
 
 
-# 2119: REQ-050.1
+# 2119: REQ-052.1
 @pytest.mark.parametrize("byte_index", [0, 8, 15])
 def test_base_fingerprint_changes_for_single_binary_byte_at_file_boundaries(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path, byte_index: int
@@ -279,7 +305,7 @@ def test_base_fingerprint_changes_for_single_binary_byte_at_file_boundaries(
     assert _base_fingerprint() != before
 
 
-# 2119: REQ-050.1
+# 2119: REQ-052.1
 def test_base_fingerprint_changes_when_a_byte_is_appended(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -297,7 +323,7 @@ def test_base_fingerprint_changes_when_a_byte_is_appended(
     assert _base_fingerprint() != before
 
 
-# 2119: REQ-050.2
+# 2119: REQ-052.2
 def test_source_change_rebuilds_base_with_unchanged_version_and_docker_assets(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -332,7 +358,99 @@ def test_source_change_rebuilds_base_with_unchanged_version_and_docker_assets(
     assert "pip install" not in dockerfile[dockerfile.index(install_command) + 1 :]
 
 
-# 2119: REQ-050.2
+# 2119: REQ-052.2
+def test_new_host_process_rebuilds_and_stages_revised_packaged_source(tmp_path: Path) -> None:
+    source_package = Path(str(importlib.resources.files(__import__("panopticon"))))
+    isolated_site = tmp_path / "site"
+    isolated_package = isolated_site / "panopticon"
+    shutil.copytree(
+        source_package,
+        isolated_package,
+        ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "*.pyo"),
+    )
+    changed_file = isolated_package / "harnesses" / "pi.py"
+    process_env = {**os.environ, "PYTHONPATH": str(isolated_site)}
+    fingerprint_code = (
+        "from panopticon.sessionservice.images import _base_fingerprint; "
+        "print(_base_fingerprint())"
+    )
+    installed_fingerprint = subprocess.run(
+        [sys.executable, "-c", fingerprint_code],
+        cwd=tmp_path,
+        env=process_env,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+    revised_marker = "# revised source from later host process\n"
+    changed_file.write_text(changed_file.read_text() + revised_marker)
+    installed_purelib = tmp_path / "image-purelib"
+    stale_package = installed_purelib / "panopticon"
+    (stale_package / "harnesses").mkdir(parents=True)
+    (stale_package / "harnesses" / "pi.py").write_text("# stale installed source\n")
+    rebuild_code = """
+import json
+import os
+import subprocess
+from pathlib import Path
+from panopticon.sessionservice.images import ImageBuilder
+
+class Recorder:
+    def __init__(self):
+        self.builds = 0
+        self.revised_source_staged = False
+        self.revised_source_installed = False
+
+    def __call__(self, args, *, check=True, verbose=False):
+        if args[:3] == ["docker", "image", "inspect"]:
+            return __import__("os").environ["INSTALLED_FINGERPRINT"]
+        if args[:2] == ["docker", "build"]:
+            self.builds += 1
+            context = Path(args[-1])
+            staged_root = context / "panopticon-source" / "panopticon"
+            staged = staged_root / "harnesses" / "pi.py"
+            marker = "revised source from later host process"
+            self.revised_source_staged = marker in staged.read_text()
+            subprocess.run(
+                ["bash", str(context / "install-packaged-source.sh")],
+                check=True,
+                env={**os.environ, "PANOPTICON_SOURCE_ROOT": str(staged_root),
+                     "PANOPTICON_PURELIB": os.environ["IMAGE_PURELIB"]},
+            )
+            installed = Path(os.environ["IMAGE_PURELIB"]) / "panopticon" / "harnesses" / "pi.py"
+            self.revised_source_installed = marker in installed.read_text()
+        return ""
+
+recorder = Recorder()
+rebuilt = ImageBuilder(base="panopticon-base", run=recorder).build_base_if_missing()
+print(json.dumps({"rebuilt": rebuilt, "builds": recorder.builds,
+                  "revised_source_staged": recorder.revised_source_staged,
+                  "revised_source_installed": recorder.revised_source_installed}))
+"""
+    result = subprocess.run(
+        [sys.executable, "-c", rebuild_code],
+        cwd=tmp_path,
+        env={
+            **process_env,
+            "INSTALLED_FINGERPRINT": installed_fingerprint,
+            "IMAGE_PURELIB": str(installed_purelib),
+        },
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    evidence = json.loads(result.stdout)
+
+    assert evidence == {
+        "rebuilt": True,
+        "builds": 1,
+        "revised_source_staged": True,
+        "revised_source_installed": True,
+    }
+
+
+# 2119: REQ-052.2
 def test_source_installer_replaces_stale_installed_package(tmp_path: Path) -> None:
     source = tmp_path / "staged" / "panopticon"
     installed = tmp_path / "purelib" / "panopticon"
@@ -356,7 +474,7 @@ def test_source_installer_replaces_stale_installed_package(tmp_path: Path) -> No
     assert not (installed / "removed.py").exists()
 
 
-# 2119: REQ-050.2
+# 2119: REQ-052.2
 @pytest.mark.skipif(not _docker_running(), reason="needs a working docker daemon")
 def test_rebuilt_base_image_executes_revised_packaged_source(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
@@ -401,7 +519,7 @@ def test_rebuilt_base_image_executes_revised_packaged_source(
         subprocess.run(["docker", "image", "rm", "--force", image], capture_output=True)
 
 
-# 2119: REQ-050.3
+# 2119: REQ-052.3
 def test_repeated_base_fingerprints_reuse_packaged_source_digest(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:

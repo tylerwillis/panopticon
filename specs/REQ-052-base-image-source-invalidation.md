@@ -1,4 +1,4 @@
-# REQ-050: Base-image invalidation by packaged source
+# REQ-052: Base-image invalidation by packaged source
 
 ## Overview
 
@@ -14,20 +14,20 @@ Dockerfile and `entrypoint.sh` that the existing fingerprint already covers sepa
 
 ## Requirements
 
-### REQ-050.1: Packaged-source fingerprint coverage
+### REQ-052.1: Packaged-source fingerprint coverage
 
 1. The base-image fingerprint MUST change when the relative path or bytes of any packaged source
    file change, even when `panopticon.__version__`, the base Dockerfile, and `entrypoint.sh` remain
    unchanged.
 
-### REQ-050.2: Automatic delivery on the next base-image check
+### REQ-052.2: Automatic delivery on the next base-image check
 
 1. When a newly started host process runs from a packaged-source revision whose fingerprint
    differs from an existing base image, `ImageBuilder.build_base_if_missing()` MUST rebuild the
    base image and install that revised packaged source into the resulting image on its next
    invocation.
 
-### REQ-050.3: Hot-path cost
+### REQ-052.3: Hot-path cost
 
 1. Repeated base-image checks within one process SHOULD reuse a process-local packaged-source
    digest instead of traversing and reading the unchanged package tree for every task spawn.

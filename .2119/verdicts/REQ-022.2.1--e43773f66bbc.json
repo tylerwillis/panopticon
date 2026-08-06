@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-022.2.1--e43773f66bbc",
+  "requirementId": "REQ-022.2.1",
+  "hash": "e43773f66bbc",
+  "verdict": "pass",
+  "summary": "Exact SHA-256 snapshots cover the complete shipped workflow set and reject added, altered, renamed, or indirectly downloaded gh reinstalls.",
+  "timestamp": "2026-08-06T21:05:38.840Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-052.1.1--21b0c19b6c26",
+  "requirementId": "REQ-052.1.1",
+  "hash": "21b0c19b6c26",
+  "verdict": "fail",
+  "summary": "Every annotated mutation test isolates a single packaged file, so an implementation hashing only the first file in a real multi-file package would pass while violating any packaged source file.",
+  "timestamp": "2026-08-06T21:03:26.057Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-052.1.1--dce0ec107720",
+  "requirementId": "REQ-052.1.1",
+  "hash": "dce0ec107720",
+  "verdict": "pass",
+  "summary": "Tests vary every packaged file's bytes with an earlier sentinel fixed and rename identical-byte files, rejecting fingerprints that ignore later files, paths, boundary bytes, or appended bytes.",
+  "timestamp": "2026-08-06T21:05:39.510Z"
+}

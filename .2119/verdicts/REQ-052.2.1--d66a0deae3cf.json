@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-052.2.1--d66a0deae3cf",
+  "requirementId": "REQ-052.2.1",
+  "hash": "d66a0deae3cf",
+  "verdict": "fail",
+  "summary": "The fresh-process test proves rebuild and staging but not installation into the resulting image on that same fresh-process path.",
+  "timestamp": "2026-08-06T21:06:26.610Z"
+}
