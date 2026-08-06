@@ -2694,7 +2694,8 @@ class Dashboard(App[None]):
     running; the supervisor handles the attach/detach (ADR 0009)."""
 
     CSS = (
-        "#tasks { width: 3fr; } #detail { width: 2fr; padding: 0 1; display: none; } "
+        "#tasks { width: 3fr; scrollbar-size-vertical: 0; } "
+        "#detail { width: 2fr; padding: 0 1; display: none; } "
         "#search { display: none; } "
         "#task-counter { dock: right; width: auto; padding: 0 1; }"
     )
