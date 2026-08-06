@@ -1,0 +1,8 @@
+{
+  "reviewId": "full-width-dashboard.1.1--90b06675b65c",
+  "requirementId": "full-width-dashboard.1.1",
+  "hash": "90b06675b65c",
+  "verdict": "pass",
+  "summary": "Mounted overflow test proves vertical overflow, rejects any nonzero scrollbar allocation, and requires scrollable width to equal the full content-region width.",
+  "timestamp": "2026-08-06T06:09:49.862Z"
+}

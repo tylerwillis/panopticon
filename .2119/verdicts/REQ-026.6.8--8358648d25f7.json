@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.6.8--8358648d25f7",
+  "requirementId": "REQ-026.6.8",
+  "hash": "8358648d25f7",
+  "verdict": "pass",
+  "summary": "Rendered dashboard tests prove blocked red styling wins over dependency waits, governed-child waits, and attention.",
+  "timestamp": "2026-08-06T06:09:02.427Z"
+}
