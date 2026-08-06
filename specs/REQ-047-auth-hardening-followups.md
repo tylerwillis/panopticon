@@ -18,10 +18,10 @@ avoid response bodies.
 
 Items concerning the permissive-mode request inspection ceiling, recursive semantic JSON traversal,
 and assignment to Starlette's private `request._body` attribute are excluded. The separately tracked
-`permissive-mode-fate` task is specifying removal of permissive mode after the direct-to-enforced
-deployment succeeded. The current middleware also reuses this inspection for authenticated enforced
-requests under REQ-035.44 and REQ-035.46, so removing permissive mode will not by itself eliminate
-every affected code path; that follow-up must preserve the enforced-mode rejection contract.
+`permissive-mode-fate` task removes permissive mode after the direct-to-enforced deployment
+succeeded. The middleware continues to use this inspection for authenticated enforced requests
+under REQ-035.44 and REQ-035.46, so that removal does not eliminate every affected code path; the
+follow-up must preserve the enforced-mode rejection contract.
 
 ## Requirements
 
@@ -83,4 +83,4 @@ every affected code path; that follow-up must preserve the enforced-mode rejecti
 - Adding log rotation, retention policy, or a general logging subsystem is out of scope.
 - Changing the existing public `GET /healthz` readiness payload is out of scope.
 - Hardening request-body inspection is deferred to the separately tracked follow-ups; any redesign
-  must account for its enforced-mode use as well as the pending permissive-mode decision.
+  must account for its enforced-mode use after permissive mode's removal.

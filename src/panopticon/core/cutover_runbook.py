@@ -252,6 +252,28 @@ def validate_enforced_mode_cutover_runbook(text: str) -> list[str]:
     )
     if weakens_capabilities:
         violations.append("enforced-mode-cutover-runbook.2.9")
+    normalized_prose = re.sub(r"\s+", " ", text)
+    contradicts_single_stage = (
+        re.search(
+            r"(?i)\ba permissive(?:-mode)? restart\s+(?!does not\b).*?"
+            r"(?:accepts legacy Bearer|provides a no-drain stage)",
+            normalized_prose,
+        )
+        is not None
+        or re.search(
+            r"(?i)\blegacy Bearer liveness\b[^.]{0,120}\b(?:succeeds|works|passes)\b"
+            r"[^.]{0,120}\bpermissive mode\b",
+            normalized_prose,
+        )
+        is not None
+        or re.search(
+            r"(?i)\bpermissive(?: mode|-mode restart)\b[^.]{0,200}"
+            r"\b(?:enables|offers|provides)\b[^.]{0,40}"
+            r"\b(?:zero-downtime|no-drain)\b",
+            normalized_prose,
+        )
+        is not None
+    )
     if (
         "A permissive-mode restart does not avoid this drain" not in text
         or "fallback accepts only requests\nwithout an Authorization header" not in text
@@ -259,11 +281,7 @@ def validate_enforced_mode_cutover_runbook(text: str) -> list[str]:
         or "classifies `/tasks/<id>/live` as mutating" not in text
         or "and returns 401" not in text
         or "turn this one-stage cutover into two\ndrains with no availability benefit" not in text
-        or re.search(
-            r"(?im)^.*permissive-mode restart.*(?:accepts legacy Bearer|no-drain stage)",
-            text,
-        )
-        is not None
+        or contradicts_single_stage
     ):
         violations.append("enforced-mode-cutover-runbook.2.10")
     s01 = next((item for item in plan.steps if item.item_id == "S01"), None)
