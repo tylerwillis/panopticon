@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-051.4.2--a2b5fca2608c",
+  "requirementId": "REQ-051.4.2",
+  "hash": "a2b5fca2608c",
+  "verdict": "pass",
+  "summary": "Tests reject claim, failed-status, detail, change-feed, and runner-operation mutations across 257 pre-release daemon passes, then verify explicit release clears the latch.",
+  "timestamp": "2026-08-06T09:13:42.172Z"
+}

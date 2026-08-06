@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-016.3.1--366f87a3dbb0",
+  "requirementId": "REQ-016.3.1",
+  "hash": "366f87a3dbb0",
+  "verdict": "pass",
+  "summary": "The annotated test behaviorally covers every enumerated hook mapping, including rejecting the nearest violation where a live-background Stop writes any turn instead of leaving it unchanged.",
+  "timestamp": "2026-08-06T08:48:01.554Z"
+}

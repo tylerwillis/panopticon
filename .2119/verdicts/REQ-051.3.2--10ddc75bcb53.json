@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-051.3.2--10ddc75bcb53",
+  "requirementId": "REQ-051.3.2",
+  "hash": "10ddc75bcb53",
+  "verdict": "pass",
+  "summary": "Tests preserve representative LAN, public IPv4/IPv6, Unix-socket, malformed, missing-host, lookalike-host, non-HTTP, and other non-loopback endpoints via full-structure equality.",
+  "timestamp": "2026-08-06T09:10:15.428Z"
+}

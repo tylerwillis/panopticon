@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-016.2.1--0ffa50e06224",
+  "requirementId": "REQ-016.2.1",
+  "hash": "0ffa50e06224",
+  "verdict": "pass",
+  "summary": "Annotated tests exercise every injected hook path and reject nonzero exits, rejected/thrown handlers, surfaced return values, stdout/stderr leakage, timeouts, malformed responses, and network/status failures.",
+  "timestamp": "2026-08-06T08:33:50.157Z"
+}

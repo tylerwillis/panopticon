@@ -51,7 +51,7 @@ def readiness_log(session: str) -> str:
     """Return the stable raw-output log used to remember one task pane's readiness."""
     root = Path(os.environ.get("XDG_RUNTIME_DIR", tempfile.gettempdir()))
     directory = root / f"panopticon-prefill-{os.getuid()}"
-    directory.mkdir(mode=0o700, exist_ok=True)
+    directory.mkdir(mode=0o700, parents=True, exist_ok=True)
     details = directory.stat()
     if details.st_uid != os.getuid() or stat.S_IMODE(details.st_mode) != 0o700:
         raise OSError(f"unsafe readiness directory: {directory}")

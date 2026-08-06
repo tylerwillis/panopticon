@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-051.4.1--8dee81b2115e",
+  "requirementId": "REQ-051.4.1",
+  "hash": "8dee81b2115e",
+  "verdict": "pass",
+  "summary": "Tests reject wrong phase/detail, harness-name or status text, reversed report/stop order, and failure to SIGTERM PID 1 for zero, positive nonzero, and signal-style negative exits.",
+  "timestamp": "2026-08-06T09:10:57.200Z"
+}

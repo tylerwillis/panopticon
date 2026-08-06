@@ -11,10 +11,9 @@ and ``~/.pi/agent/mcp.json`` on that install is an empty ``{}`` — pi ships no 
   ``>=22.19.0``. :meth:`PiHarness.image_layer` installs a pinned Node.js release (the linux-x64/
   arm64 tarballs from nodejs.org) and then the pinned ``pi-coding-agent`` version globally.
 
-- **Config dir.** pi's default root, ``~/.pi/agent``, is fully relocated by
-  ``PI_CODING_AGENT_DIR``. The registry requires a flat, ``/``-free ``config_dirname`` (one
-  Docker volume mountpoint per harness), so this points the env var at ``<home>/.pi`` directly
-  rather than encoding a nested path — a full override needs no ``agent`` subdir underneath it.
+- **Config dir.** pi's native root is ``~/.pi/agent``. The registry's flat, ``/``-free
+  ``config_dirname`` keeps the Docker volume mounted at ``<home>/.pi``; bootstrap, auth, sessions,
+  and ``PI_CODING_AGENT_DIR`` consistently use its native ``agent`` child.
 
 - **Session / resume.** Sessions are JSONL under ``<config_dir>/sessions/**``. ``pi --continue``
   resumes the most recent one for the cwd and silently starts fresh when none exists (no error),
@@ -46,25 +45,31 @@ and ``~/.pi/agent/mcp.json`` on that install is an empty ``{}`` — pi ships no 
   no Node/pi runtime was available while writing this, so the source-level type-checking above
   is the strongest evidence short of that.
 
-- **Auth.** Subscription OAuth and API keys share ``<config_dir>/auth.json``. Per pi's documented
-  resolution order, a plain env var ranks above ``auth.json``'s absence — so unlike codex, this
-  harness never renders an api-key file, only checks for one of :data:`API_KEY_ENV_VARS` (every
-  single-var provider credential pi resolves, pulled from its ``env-api-keys.ts`` source — see
-  that constant's docstring), a mounted credential dir (symlinked in, same shape as codex's), or
-  one already materialized on the config volume from a prior ``/login``.
+- **Auth.** Subscription OAuth and API keys share ``<config_dir>/auth.json``. Preflight accepts
+  pi's native provider-generic OAuth/API-key shapes (including the additional ``accountId`` field
+  required by ``openai-codex``), any provider env var from :data:`API_KEY_ENV_VARS`, or the selected
+  custom model provider's resolvable ``apiKey``.
+  Merely finding a file is not sufficient. The Claude setup-token variable is intentionally not a
+  pi credential path; explicitly supplied Anthropic OAuth is passed through with a documentation
+  warning, not blocked.
 
-- **Personal config.** Entries under ``<credential_dir>/pi/`` are symlinked into the config dir
-  without clobbering anything already there. This carries host-managed files such as
-  ``models.json`` (including custom providers and local models) through the existing per-repo
-  credential mount instead of introducing another repo field and Docker mount.
+- **Personal config.** Entries under ``<credential_dir>/pi/agent/`` are imported without
+  clobbering persistent task config or mutating the mounted source. ``models.json`` is copied so
+  HTTP(S) loopback provider hosts can be adapted to ``host.docker.internal``; other regular config
+  files are copied, while rotating auth and directories remain linked. This uses the existing
+  per-repo credential mount.
 """
 
 from __future__ import annotations
 
+import copy
+import json
+import re
 import subprocess
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import ClassVar, Protocol
+from urllib.parse import urlsplit, urlunsplit
 
 from panopticon.core.models import Skill
 from panopticon.harnesses.base import INTERRUPT_PROMPT, BootstrapContext, Harness, LaunchContext
@@ -85,6 +90,13 @@ AUTH_FILE = "auth.json"
 #: Pi-only personal config lives below the shared per-repo credential mount. Keeping this in a
 #: subdirectory avoids exposing pi-specific layout as another Repo field or runner mount.
 PERSONAL_CONFIG_DIR = "pi"
+NATIVE_AGENT_DIR = "agent"
+
+NO_USABLE_CREDENTIALS = (
+    "No usable pi credentials: provide a valid ~/.pi/agent/auth.json, set "
+    "ANTHROPIC_API_KEY (or another pi provider API key), or configure the selected "
+    "provider's apiKey in models.json."
+)
 
 #: pi's JSON settings file, global scope once ``PI_CODING_AGENT_DIR`` points here.
 SETTINGS_FILE = "settings.json"
@@ -166,6 +178,46 @@ API_KEY_ENV_VARS = (
     "XIAOMI_TOKEN_PLAN_CN_API_KEY",
     "XIAOMI_TOKEN_PLAN_AMS_API_KEY",
     "XIAOMI_TOKEN_PLAN_SGP_API_KEY",
+)
+
+OAUTH_AUTH_PROVIDERS = frozenset({"openai-codex", "anthropic", "github-copilot", "xai", "radius"})
+API_KEY_AUTH_PROVIDERS = frozenset(
+    {
+        "anthropic",
+        "ant-ling",
+        "azure-openai-responses",
+        "openai",
+        "deepseek",
+        "nvidia",
+        "google",
+        "amazon-bedrock",
+        "mistral",
+        "groq",
+        "cerebras",
+        "cloudflare-ai-gateway",
+        "cloudflare-workers-ai",
+        "xai",
+        "openrouter",
+        "vercel-ai-gateway",
+        "zai",
+        "zai-coding-cn",
+        "opencode",
+        "opencode-go",
+        "radius",
+        "huggingface",
+        "fireworks",
+        "together",
+        "baseten",
+        "kimi-coding",
+        "minimax",
+        "minimax-cn",
+        "qwen-token-plan",
+        "qwen-token-plan-cn",
+        "xiaomi",
+        "xiaomi-token-plan-cn",
+        "xiaomi-token-plan-ams",
+        "xiaomi-token-plan-sgp",
+    }
 )
 
 
@@ -287,24 +339,156 @@ class PiHarness(Harness):
             f"@earendil-works/pi-coding-agent@{PI_VERSION}"
         )
 
+    def _agent_dir(self, home: Path) -> Path:
+        return self.config_dir(home) / NATIVE_AGENT_DIR
+
+    @staticmethod
+    def _mounted_agent_dir(environ: Mapping[str, str]) -> Path | None:
+        credentials = environ.get("PANOPTICON_CREDENTIALS")
+        if not credentials:
+            return None
+        return Path(credentials) / PERSONAL_CONFIG_DIR / NATIVE_AGENT_DIR
+
+    @staticmethod
+    def _load_object(path: Path) -> dict[str, object] | None:
+        try:
+            value = json.loads(path.read_text())
+        except (OSError, UnicodeError, json.JSONDecodeError):
+            return None
+        return value if isinstance(value, dict) else None
+
+    @staticmethod
+    def _resolved_key(value: object, environ: Mapping[str, str]) -> str | None:
+        if not isinstance(value, str) or not value:
+            return None
+        # Pi treats command-backed values as configured for model availability without executing
+        # them. It resolves them only when making a request.
+        if value.startswith("!"):
+            return value
+
+        resolved: list[str] = []
+        index = 0
+        while index < len(value):
+            dollar = value.find("$", index)
+            if dollar < 0:
+                resolved.append(value[index:])
+                break
+            resolved.append(value[index:dollar])
+            next_char = value[dollar + 1 : dollar + 2]
+            if next_char in {"$", "!"}:
+                resolved.append(next_char)
+                index = dollar + 2
+                continue
+            if next_char == "{":
+                end = value.find("}", dollar + 2)
+                if end < 0:
+                    resolved.append("$")
+                    index = dollar + 1
+                    continue
+                name = value[dollar + 2 : end]
+                if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name):
+                    replacement = environ.get(name)
+                    if not replacement:
+                        return None
+                    resolved.append(replacement)
+                else:
+                    resolved.append(value[dollar : end + 1])
+                index = end + 1
+                continue
+            match = re.match(r"[A-Za-z_][A-Za-z0-9_]*", value[dollar + 1 :])
+            if match is not None:
+                replacement = environ.get(match.group())
+                if not replacement:
+                    return None
+                resolved.append(replacement)
+                index = dollar + 1 + len(match.group())
+                continue
+            resolved.append("$")
+            index = dollar + 1
+        return "".join(resolved) or None
+
+    def _usable_auth(self, path: Path, environ: Mapping[str, str]) -> bool:
+        data = self._load_object(path)
+        if data is None:
+            return False
+        for provider, credential in data.items():
+            if not isinstance(credential, dict):
+                continue
+            if provider in OAUTH_AUTH_PROVIDERS and credential.get("type") == "oauth":
+                expires = credential.get("expires")
+                common_fields = all(
+                    isinstance(credential.get(field), str) and bool(credential[field])
+                    for field in ("access", "refresh")
+                )
+                codex_fields = provider != "openai-codex" or (
+                    isinstance(credential.get("accountId"), str) and bool(credential["accountId"])
+                )
+                if (
+                    common_fields
+                    and codex_fields
+                    and isinstance(expires, (int, float))
+                    and not isinstance(expires, bool)
+                ):
+                    return True
+                continue
+            if provider not in API_KEY_AUTH_PROVIDERS or credential.get("type") != "api_key":
+                continue
+            credential_environ = dict(environ)
+            scoped = credential.get("env")
+            if isinstance(scoped, dict):
+                credential_environ.update(
+                    (name, value)
+                    for name, value in scoped.items()
+                    if isinstance(name, str) and isinstance(value, str) and value
+                )
+            if self._resolved_key(credential.get("key"), credential_environ) is not None:
+                return True
+        return False
+
+    def _usable_selected_model(self, path: Path, environ: Mapping[str, str]) -> bool:
+        selected = environ.get("PANOPTICON_STARTING_MODEL")
+        if not selected or "/" not in selected:
+            return False
+        provider_name, _ = selected.split("/", 1)
+        data = self._load_object(path)
+        providers = data.get("providers") if data else None
+        if not isinstance(providers, dict):
+            return False
+        provider = providers.get(provider_name)
+        return (
+            isinstance(provider, dict)
+            and self._resolved_key(provider.get("apiKey"), environ) is not None
+        )
+
+    def _effective_config_path(self, home: Path, environ: Mapping[str, str], name: str) -> Path:
+        """Return the config entry bootstrap leaves for pi to consume.
+
+        The persistent task volume wins when an entry already exists, including a broken
+        symlink. Otherwise bootstrap imports the corresponding mounted personal-config entry.
+        Preflight must apply that same precedence so it cannot approve a credential that will be
+        shadowed at launch.
+        """
+        persisted = self._agent_dir(home) / name
+        if persisted.exists() or persisted.is_symlink():
+            return persisted
+        mounted = self._mounted_agent_dir(environ)
+        return mounted / name if mounted is not None else persisted
+
     def missing_auth(self, environ: Mapping[str, str], *, home: Path) -> str | None:
         if any(environ.get(var) for var in API_KEY_ENV_VARS):
             return None
-        if (self.config_dir(home) / AUTH_FILE).exists():  # e.g. persisted on the config volume
+        auth_path = self._effective_config_path(home, environ, AUTH_FILE)
+        if self._usable_auth(auth_path, environ):
             return None
-        credentials = environ.get("PANOPTICON_CREDENTIALS")
-        if credentials and (Path(credentials) / AUTH_FILE).exists():
+        models_path = self._effective_config_path(home, environ, "models.json")
+        if self._usable_selected_model(models_path, environ):
             return None
-        return (
-            "No pi credentials — set one of pi's provider API-key env vars (ANTHROPIC_API_KEY, "
-            "OPENAI_API_KEY, GEMINI_API_KEY, GROQ_API_KEY, … — see its own docs/providers.md for "
-            "the full list) in the repo's env_file, or give the repo a credential_dir holding a "
-            "pi auth.json from `/login` (see docs/auth.md)"
-        )
+        return NO_USABLE_CREDENTIALS
 
     def bootstrap(self, ctx: BootstrapContext) -> None:
-        config_dir = self.config_dir(ctx.home)
+        config_dir = self._agent_dir(ctx.home)
         config_dir.mkdir(parents=True, exist_ok=True)
+        self._ensure_personal_config(config_dir, ctx.environ)
         write_settings(config_dir)
         write_workflow_overview(config_dir, ctx.overview)
         (config_dir / EXTENSION_FILE).write_text(TURN_EXTENSION)
@@ -325,36 +509,63 @@ class PiHarness(Harness):
             for name, target_state in ctx.operations.items()
         ]
         write_skills(entries, ctx.home, ctx.task_id)
-        self._ensure_auth(config_dir, ctx.environ)
-        self._ensure_personal_config(config_dir, ctx.environ)
-
-    def _ensure_auth(self, config_dir: Path, environ: Mapping[str, str]) -> None:
-        """Symlink a mounted subscription ``auth.json`` in when present. Idempotent; never
-        clobbers one already there. Unlike codex, no api-key file is ever rendered here — pi
-        resolves an env-var API key itself at runtime."""
-        auth = config_dir / AUTH_FILE
-        if auth.exists() or auth.is_symlink():
-            return
-        credentials = environ.get("PANOPTICON_CREDENTIALS")
-        if credentials and (Path(credentials) / AUTH_FILE).exists():
-            auth.symlink_to(Path(credentials) / AUTH_FILE)
 
     def _ensure_personal_config(self, config_dir: Path, environ: Mapping[str, str]) -> None:
-        """Link entries from the mounted ``pi/`` directory into pi's config directory.
+        """Import entries from mounted ``pi/agent/`` into pi's native config directory.
 
         The config volume persists across respawns, so existing files and symlinks always win.
-        Linking each top-level entry also supports directory-shaped pi config without copying it.
+        Directories and rotating auth remain linked; regular files are copied, with
+        ``models.json`` receiving safe URL adaptation.
         """
-        credentials = environ.get("PANOPTICON_CREDENTIALS")
-        if not credentials:
-            return
-        personal_config = Path(credentials) / PERSONAL_CONFIG_DIR
-        if not personal_config.is_dir():
+        personal_config = self._mounted_agent_dir(environ)
+        if personal_config is None or not personal_config.is_dir():
             return
         for source in personal_config.iterdir():
             destination = config_dir / source.name
-            if not destination.exists() and not destination.is_symlink():
+            if destination.exists() or destination.is_symlink():
+                continue
+            if source.name == "models.json" and source.is_file():
+                destination.write_bytes(self._materialized_models(source))
+            elif source.is_file() and source.name != AUTH_FILE:
+                destination.write_bytes(source.read_bytes())
+            else:
                 destination.symlink_to(source)
+
+    @staticmethod
+    def _materialized_models(source: Path) -> bytes:
+        try:
+            data = json.loads(source.read_text())
+        except (OSError, UnicodeError, json.JSONDecodeError):
+            return source.read_bytes()
+        if not isinstance(data, dict) or not isinstance(data.get("providers"), dict):
+            return source.read_bytes()
+        rendered = copy.deepcopy(data)
+        for provider in rendered["providers"].values():
+            if not isinstance(provider, dict) or not isinstance(provider.get("baseUrl"), str):
+                continue
+            provider["baseUrl"] = PiHarness._container_model_url(provider["baseUrl"])
+        if rendered == data:
+            return source.read_bytes()
+        return json.dumps(rendered, ensure_ascii=False, separators=(",", ":")).encode()
+
+    @staticmethod
+    def _container_model_url(value: str) -> str:
+        try:
+            parsed = urlsplit(value)
+            if parsed.scheme not in {"http", "https"} or parsed.hostname not in {
+                "localhost",
+                "127.0.0.1",
+                "::1",
+            }:
+                return value
+            port = parsed.port
+        except ValueError:
+            return value
+        userinfo = parsed.netloc.rsplit("@", 1)[0] + "@" if "@" in parsed.netloc else ""
+        netloc = f"{userinfo}host.docker.internal"
+        if port is not None:
+            netloc += f":{port}"
+        return urlunsplit(parsed._replace(netloc=netloc))
 
     def argv(self, ctx: LaunchContext) -> list[str]:
         """``pi`` argv. pi "runs with all permissions by default" (its own containerization
@@ -362,7 +573,7 @@ class PiHarness(Harness):
         volume's most recent session when one is recorded (``--continue``, which silently starts
         fresh otherwise — see the module docstring); like claude/codex, a resume on the agent's
         turn gets :data:`INTERRUPT_PROMPT` appended so it picks back up."""
-        config_dir = self.config_dir(ctx.home)
+        config_dir = self._agent_dir(ctx.home)
         argv = ["pi"]
         overview = config_dir / WORKFLOW_OVERVIEW_FILE
         if overview.exists():
@@ -383,4 +594,4 @@ class PiHarness(Harness):
         return argv
 
     def env(self, ctx: LaunchContext) -> dict[str, str]:
-        return {"PI_CODING_AGENT_DIR": str(self.config_dir(ctx.home))}
+        return {"PI_CODING_AGENT_DIR": str(self._agent_dir(ctx.home))}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-051.2.6--3a510a29e0ba",
+  "requirementId": "REQ-051.2.6",
+  "hash": "3a510a29e0ba",
+  "verdict": "pass",
+  "summary": "Tests reject stripped or blocked explicit Anthropic OAuth in environment and native auth, while requiring documentation to state unsupported, not recommended, and account risk.",
+  "timestamp": "2026-08-06T10:00:08.796Z"
+}

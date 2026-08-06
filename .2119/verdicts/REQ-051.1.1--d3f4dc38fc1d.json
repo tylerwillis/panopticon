@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-051.1.1--d3f4dc38fc1d",
+  "requirementId": "REQ-051.1.1",
+  "hash": "d3f4dc38fc1d",
+  "verdict": "pass",
+  "summary": "Tests verify the .pi volume root, enforce .pi/agent through bootstrap and PI_CODING_AGENT_DIR, and reject legacy .pi auth/session paths.",
+  "timestamp": "2026-08-06T09:08:42.340Z"
+}

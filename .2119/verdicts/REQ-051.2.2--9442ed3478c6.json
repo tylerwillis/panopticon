@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-051.2.2--9442ed3478c6",
+  "requirementId": "REQ-051.2.2",
+  "hash": "9442ed3478c6",
+  "verdict": "pass",
+  "summary": "Tests reject malformed JSON, empty objects, and each Codex-only marker without a usable pi provider, cover usable and unusable provider boundaries, and verify actionable diagnostics.",
+  "timestamp": "2026-08-06T09:32:34.380Z"
+}

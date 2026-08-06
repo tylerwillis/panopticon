@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-051.1.2--2224f16cc698",
+  "requirementId": "REQ-051.1.2",
+  "hash": "2224f16cc698",
+  "verdict": "pass",
+  "summary": "Tests verify the child receives PI_CODING_AGENT_DIR and reject bootstrap, session-detection, or auth-preflight paths that differ from the shared native .pi/agent directory.",
+  "timestamp": "2026-08-06T09:07:53.461Z"
+}

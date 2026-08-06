@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-051.4.4--5e0c6514f3f1",
+  "requirementId": "REQ-051.4.4",
+  "hash": "5e0c6514f3f1",
+  "verdict": "pass",
+  "summary": "Tests cover all four pre-readiness failure stages, assert failed detail durability across repeated daemon passes, and verify explicit claim release clears it.",
+  "timestamp": "2026-08-06T09:13:42.816Z"
+}
