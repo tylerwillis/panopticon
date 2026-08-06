@@ -46,8 +46,9 @@ and ``~/.pi/agent/mcp.json`` on that install is an empty ``{}`` — pi ships no 
   is the strongest evidence short of that.
 
 - **Auth.** Subscription OAuth and API keys share ``<config_dir>/auth.json``. Preflight accepts
-  pi's native ``openai-codex`` OAuth shape, a native Anthropic API-key entry, any provider env var
-  from :data:`API_KEY_ENV_VARS`, or the selected custom model provider's resolvable ``apiKey``.
+  pi's native provider-generic OAuth/API-key shapes (including the additional ``accountId`` field
+  required by ``openai-codex``), any provider env var from :data:`API_KEY_ENV_VARS`, or the selected
+  custom model provider's resolvable ``apiKey``.
   Merely finding a file is not sufficient. The Claude setup-token variable is intentionally not a
   pi credential path; explicitly supplied Anthropic OAuth is passed through with a documentation
   warning, not blocked.
@@ -177,6 +178,46 @@ API_KEY_ENV_VARS = (
     "XIAOMI_TOKEN_PLAN_CN_API_KEY",
     "XIAOMI_TOKEN_PLAN_AMS_API_KEY",
     "XIAOMI_TOKEN_PLAN_SGP_API_KEY",
+)
+
+OAUTH_AUTH_PROVIDERS = frozenset({"openai-codex", "anthropic", "github-copilot", "xai", "radius"})
+API_KEY_AUTH_PROVIDERS = frozenset(
+    {
+        "anthropic",
+        "ant-ling",
+        "azure-openai-responses",
+        "openai",
+        "deepseek",
+        "nvidia",
+        "google",
+        "amazon-bedrock",
+        "mistral",
+        "groq",
+        "cerebras",
+        "cloudflare-ai-gateway",
+        "cloudflare-workers-ai",
+        "xai",
+        "openrouter",
+        "vercel-ai-gateway",
+        "zai",
+        "zai-coding-cn",
+        "opencode",
+        "opencode-go",
+        "radius",
+        "huggingface",
+        "fireworks",
+        "together",
+        "baseten",
+        "kimi-coding",
+        "minimax",
+        "minimax-cn",
+        "qwen-token-plan",
+        "qwen-token-plan-cn",
+        "xiaomi",
+        "xiaomi-token-plan-cn",
+        "xiaomi-token-plan-ams",
+        "xiaomi-token-plan-sgp",
+    }
 )
 
 
@@ -370,25 +411,39 @@ class PiHarness(Harness):
         data = self._load_object(path)
         if data is None:
             return False
-        oauth = data.get("openai-codex")
-        if isinstance(oauth, dict):
-            expires = oauth.get("expires")
-            if (
-                oauth.get("type") == "oauth"
-                and all(
-                    isinstance(oauth.get(field), str) and bool(oauth[field])
-                    for field in ("access", "refresh", "accountId")
+        for provider, credential in data.items():
+            if not isinstance(credential, dict):
+                continue
+            if provider in OAUTH_AUTH_PROVIDERS and credential.get("type") == "oauth":
+                expires = credential.get("expires")
+                common_fields = all(
+                    isinstance(credential.get(field), str) and bool(credential[field])
+                    for field in ("access", "refresh")
                 )
-                and isinstance(expires, (int, float))
-                and not isinstance(expires, bool)
-            ):
+                codex_fields = provider != "openai-codex" or (
+                    isinstance(credential.get("accountId"), str) and bool(credential["accountId"])
+                )
+                if (
+                    common_fields
+                    and codex_fields
+                    and isinstance(expires, (int, float))
+                    and not isinstance(expires, bool)
+                ):
+                    return True
+                continue
+            if provider not in API_KEY_AUTH_PROVIDERS or credential.get("type") != "api_key":
+                continue
+            credential_environ = dict(environ)
+            scoped = credential.get("env")
+            if isinstance(scoped, dict):
+                credential_environ.update(
+                    (name, value)
+                    for name, value in scoped.items()
+                    if isinstance(name, str) and isinstance(value, str) and value
+                )
+            if self._resolved_key(credential.get("key"), credential_environ) is not None:
                 return True
-        anthropic = data.get("anthropic")
-        return (
-            isinstance(anthropic, dict)
-            and anthropic.get("type") == "api_key"
-            and self._resolved_key(anthropic.get("key"), environ) is not None
-        )
+        return False
 
     def _usable_selected_model(self, path: Path, environ: Mapping[str, str]) -> bool:
         selected = environ.get("PANOPTICON_STARTING_MODEL")

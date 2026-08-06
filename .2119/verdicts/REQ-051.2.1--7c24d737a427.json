@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-051.2.1--7c24d737a427",
+  "requirementId": "REQ-051.2.1",
+  "hash": "7c24d737a427",
+  "verdict": "pass",
+  "summary": "Tests accept the exact valid openai-codex OAuth shape and reject missing, empty, wrong-type, and incorrectly valued fields, including boolean or string expires and nonexact provider/type names.",
+  "timestamp": "2026-08-06T10:00:08.150Z"
+}

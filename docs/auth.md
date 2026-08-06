@@ -272,8 +272,8 @@ variables directly, while OAuth and stored API-key credentials live in `auth.jso
    `OPENAI_API_KEY`, `GEMINI_API_KEY`, and Pi's other documented provider variables work too.
    Pi reads the variable directly at launch; the harness writes no file for this path.
 
-2. **Subscription** (Claude Pro/Max, ChatGPT Plus/Pro, GitHub Copilot, or Radius — rotating
-   tokens, needs the shared credential dir):
+2. **Subscription or OAuth-backed provider** (ChatGPT Plus/Pro, GitHub Copilot, xAI, OpenRouter,
+   or Radius — rotating tokens or an OAuth-minted key, needs the shared credential dir):
 
    ```sh
    # on the host, once per account:
@@ -287,10 +287,11 @@ variables directly, while OAuth and stored API-key credentials live in `auth.jso
    ```
 
    The runner mounts the directory **read-write and shared** into that repo's task containers; the
-   harness imports `pi/agent/auth.json` into each task's native directory. An `openai-codex` entry
-   produced by Pi's ChatGPT login is supported, as is an `anthropic` API-key entry. A codex CLI
-   `auth.json` with top-level `OPENAI_API_KEY`, `tokens`, and `last_refresh` fields is a different
-   format and is rejected with an actionable lifecycle failure.
+   harness imports `pi/agent/auth.json` into each task's native directory. Pi's provider-generic
+   OAuth and stored API-key entries are supported, including the `openai-codex` entry produced by
+   ChatGPT login. A codex CLI `auth.json` with top-level `OPENAI_API_KEY`, `tokens`, and
+   `last_refresh` fields is a different format and is rejected with an actionable lifecycle
+   failure.
 
 3. **Personal pi config** (custom providers, local models, and other host-managed config): put
    the pi files in a `pi/agent/` subdirectory of the repo's existing credential directory. For example,

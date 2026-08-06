@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-051.2.6--10e4b3347eb8",
-  "requirementId": "REQ-051.2.6",
-  "hash": "10e4b3347eb8",
-  "verdict": "pass",
-  "summary": "Tests reject stripped or blocked explicit OAuth and any pi documentation warning missing not recommended, not supported, or Anthropic-account risk.",
-  "timestamp": "2026-08-06T09:10:14.764Z"
-}

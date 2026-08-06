@@ -534,6 +534,44 @@ def test_missing_auth_accepts_native_openai_codex_oauth_shape(tmp_path: Path) ->
     assert HARNESS.missing_auth({"PANOPTICON_CREDENTIALS": str(credentials)}, home=tmp_path) is None
 
 
+@pytest.mark.parametrize("provider", ["github-copilot", "radius", "xai"])
+def test_missing_auth_accepts_native_provider_oauth_shapes(tmp_path: Path, provider: str) -> None:
+    native = tmp_path / ".pi" / "agent"
+    native.mkdir(parents=True)
+    (native / "auth.json").write_text(
+        json.dumps(
+            {
+                provider: {
+                    "type": "oauth",
+                    "access": "access-token",
+                    "refresh": "refresh-token",
+                    "expires": 2_000_000_000_000,
+                }
+            }
+        )
+    )
+
+    assert HARNESS.missing_auth({}, home=tmp_path) is None
+
+
+@pytest.mark.parametrize("missing", ["access", "refresh", "expires"])
+def test_missing_auth_rejects_incomplete_native_provider_oauth_shapes(
+    tmp_path: Path, missing: str
+) -> None:
+    credential: dict[str, object] = {
+        "type": "oauth",
+        "access": "access-token",
+        "refresh": "refresh-token",
+        "expires": 2_000_000_000_000,
+    }
+    credential.pop(missing)
+    native = tmp_path / ".pi" / "agent"
+    native.mkdir(parents=True)
+    (native / "auth.json").write_text(json.dumps({"github-copilot": credential}))
+
+    assert HARNESS.missing_auth({}, home=tmp_path) is not None
+
+
 # 2119: REQ-051.2.1
 @pytest.mark.parametrize("expires", [0, -1, 1.5, 9_999_999_999_999])
 def test_missing_auth_accepts_openai_codex_oauth_string_and_numeric_boundaries(
@@ -909,6 +947,25 @@ def test_missing_auth_accepts_anthropic_api_key_env_and_native_auth_entry(tmp_pa
     )
 
 
+@pytest.mark.parametrize("provider", ["openai", "google", "xai"])
+def test_missing_auth_accepts_native_provider_api_key_shapes(tmp_path: Path, provider: str) -> None:
+    native = tmp_path / ".pi" / "agent"
+    native.mkdir(parents=True)
+    (native / "auth.json").write_text(
+        json.dumps(
+            {
+                provider: {
+                    "type": "api_key",
+                    "key": "${STORED_KEY}",
+                    "env": {"STORED_KEY": "provider-scoped-key"},
+                }
+            }
+        )
+    )
+
+    assert HARNESS.missing_auth({}, home=tmp_path) is None
+
+
 # 2119: REQ-051.2.4
 @pytest.mark.parametrize(
     "entry",
@@ -998,6 +1055,7 @@ def test_anthropic_oauth_is_warned_not_suggested_and_explicit_input_is_not_block
         if re.search(r"(?i)\bpi\b", paragraph) and "CLAUDE_CODE_OAUTH_TOKEN" in paragraph
     ]
     assert "CLAUDE_CODE_OAUTH_TOKEN" not in pi_docs
+    assert "Claude Pro/Max" not in pi_docs
     assert all(
         "CLAUDE_CODE_OAUTH_TOKEN" not in document.read_text() for document in pi_named_documents
     )
@@ -1017,6 +1075,22 @@ def test_anthropic_oauth_is_warned_not_suggested_and_explicit_input_is_not_block
         HARNESS.missing_auth({"ANTHROPIC_OAUTH_TOKEN": "operator-chose-this"}, home=tmp_path)
         is None
     )
+    native = tmp_path / ".pi" / "agent"
+    native.mkdir(parents=True, exist_ok=True)
+    (native / "auth.json").write_text(
+        json.dumps(
+            {
+                "anthropic": {
+                    "type": "oauth",
+                    "access": "operator-access",
+                    "refresh": "operator-refresh",
+                    "expires": 2_000_000_000_000,
+                }
+            }
+        )
+    )
+    assert HARNESS.missing_auth({}, home=tmp_path) is None
+    (native / "auth.json").unlink()
     detail = HARNESS.missing_auth({"CLAUDE_CODE_OAUTH_TOKEN": "setup-token"}, home=tmp_path)
     assert detail is not None and "ANTHROPIC_OAUTH_TOKEN" not in detail
     HARNESS.bootstrap(_bootstrap_ctx(tmp_path, environ={"CLAUDE_CODE_OAUTH_TOKEN": "setup-token"}))
