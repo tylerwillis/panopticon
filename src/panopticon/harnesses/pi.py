@@ -362,18 +362,28 @@ class PiHarness(Harness):
             and self._resolved_key(provider.get("apiKey"), environ) is not None
         )
 
+    def _effective_config_path(self, home: Path, environ: Mapping[str, str], name: str) -> Path:
+        """Return the config entry bootstrap leaves for pi to consume.
+
+        The persistent task volume wins when an entry already exists, including a broken
+        symlink. Otherwise bootstrap imports the corresponding mounted personal-config entry.
+        Preflight must apply that same precedence so it cannot approve a credential that will be
+        shadowed at launch.
+        """
+        persisted = self._agent_dir(home) / name
+        if persisted.exists() or persisted.is_symlink():
+            return persisted
+        mounted = self._mounted_agent_dir(environ)
+        return mounted / name if mounted is not None else persisted
+
     def missing_auth(self, environ: Mapping[str, str], *, home: Path) -> str | None:
         if any(environ.get(var) for var in API_KEY_ENV_VARS):
             return None
-        directories = [self._agent_dir(home)]
-        if mounted := self._mounted_agent_dir(environ):
-            directories.append(mounted)
-        if any(self._usable_auth(directory / AUTH_FILE, environ) for directory in directories):
+        auth_path = self._effective_config_path(home, environ, AUTH_FILE)
+        if self._usable_auth(auth_path, environ):
             return None
-        if any(
-            self._usable_selected_model(directory / "models.json", environ)
-            for directory in directories
-        ):
+        models_path = self._effective_config_path(home, environ, "models.json")
+        if self._usable_selected_model(models_path, environ):
             return None
         return NO_USABLE_CREDENTIALS
 

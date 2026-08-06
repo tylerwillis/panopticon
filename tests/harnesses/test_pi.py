@@ -691,6 +691,27 @@ def test_codex_marker_does_not_hide_a_usable_pi_provider_entry(
     assert HARNESS.missing_auth({}, home=tmp_path) is None
 
 
+# 2119: REQ-051.2.2
+@pytest.mark.parametrize(
+    "marker",
+    [
+        {"OPENAI_API_KEY": "codex-marker"},
+        {"tokens": {"access_token": "codex-marker"}},
+        {"last_refresh": "2026-08-05T00:00:00Z"},
+    ],
+)
+def test_codex_marker_does_not_make_an_unusable_pi_provider_entry_usable(
+    tmp_path: Path, marker: dict[str, object]
+) -> None:
+    native = tmp_path / ".pi" / "agent"
+    native.mkdir(parents=True)
+    (native / "auth.json").write_text(
+        json.dumps({**marker, "anthropic": {"type": "api_key", "key": ""}})
+    )
+
+    assert HARNESS.missing_auth({}, home=tmp_path) is not None
+
+
 # 2119: REQ-051.2.3
 @pytest.mark.parametrize(
     ("api_key", "extra_env"),
@@ -1217,6 +1238,24 @@ def test_bootstrap_never_clobbers_an_existing_auth_file(tmp_path: Path) -> None:
     assert not (config_dir / "auth.json").is_symlink()
 
 
+# 2119: REQ-051.2.2
+def test_preflight_rejects_valid_mounted_auth_shadowed_by_stale_persisted_auth(
+    tmp_path: Path,
+) -> None:
+    config_dir = tmp_path / ".pi" / "agent"
+    config_dir.mkdir(parents=True)
+    stale = '{"anthropic": {"type": "oauth", "tokens": {}}}'
+    (config_dir / "auth.json").write_text(stale)
+    credentials = tmp_path / "credentials"
+    source = _native_credential_agent_dir(credentials)
+    (source / "auth.json").write_text('{"anthropic": {"type": "api_key", "key": "sk-ant-mounted"}}')
+    env = {"PANOPTICON_CREDENTIALS": str(credentials)}
+
+    assert HARNESS.missing_auth(env, home=tmp_path) is not None
+    HARNESS.bootstrap(_bootstrap_ctx(tmp_path, environ=env))
+    assert (config_dir / "auth.json").read_text() == stale
+
+
 def test_bootstrap_imports_personal_config_from_native_credential_subdirectory(
     tmp_path: Path,
 ) -> None:
@@ -1253,6 +1292,27 @@ def test_bootstrap_never_clobbers_existing_personal_config(tmp_path: Path) -> No
     models = config_dir / "models.json"
     assert not models.is_symlink()
     assert models.read_text() == '{"providers": {"persisted": {}}}'
+
+
+# 2119: REQ-051.2.3
+def test_preflight_rejects_valid_mounted_model_key_shadowed_by_stale_persisted_models(
+    tmp_path: Path,
+) -> None:
+    config_dir = tmp_path / ".pi" / "agent"
+    config_dir.mkdir(parents=True)
+    stale = '{"providers":{"sparky":{"apiKey":""}}}'
+    (config_dir / "models.json").write_text(stale)
+    credentials = tmp_path / "credentials"
+    source = _native_credential_agent_dir(credentials)
+    (source / "models.json").write_text('{"providers":{"sparky":{"apiKey":"mounted-key"}}}')
+    env = {
+        "PANOPTICON_CREDENTIALS": str(credentials),
+        "PANOPTICON_STARTING_MODEL": "sparky/model",
+    }
+
+    assert HARNESS.missing_auth(env, home=tmp_path) is not None
+    HARNESS.bootstrap(_bootstrap_ctx(tmp_path, environ=env))
+    assert (config_dir / "models.json").read_text() == stale
 
 
 def test_missing_auth_accepts_every_known_provider_env_var(tmp_path: Path) -> None:

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-051.2.3--15cc363e90c5",
-  "requirementId": "REQ-051.2.3",
-  "hash": "15cc363e90c5",
-  "verdict": "pass",
-  "summary": "Tests behaviorally verify selected-provider literal, dummy, and resolved keys while rejecting missing, empty, unresolved, absent-provider, and other-provider-only keys.",
-  "timestamp": "2026-08-06T09:08:43.003Z"
-}
