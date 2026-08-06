@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-008.6.1--9dded9c1a207",
+  "requirementId": "REQ-008.6.1",
+  "hash": "9dded9c1a207",
+  "verdict": "pass",
+  "summary": "Behavioral probes reject an input handler that returns before the turn-write promise settles, while also verifying the correct PUT payload, real service receipt, and bounded fail-open completion.",
+  "timestamp": "2026-08-06T08:33:48.785Z"
+}

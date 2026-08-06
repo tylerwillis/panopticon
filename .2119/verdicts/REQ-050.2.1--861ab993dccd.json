@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-050.2.1--861ab993dccd",
+  "requirementId": "REQ-050.2.1",
+  "hash": "861ab993dccd",
+  "verdict": "pass",
+  "summary": "Tests behaviorally accept the complete valid OAuth entry and reject missing, empty, mistyped, misnamed, and wrong-literal near misses for every required conjunct.",
+  "timestamp": "2026-08-06T08:33:52.785Z"
+}

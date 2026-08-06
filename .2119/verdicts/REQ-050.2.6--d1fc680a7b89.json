@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-050.2.6--d1fc680a7b89",
+  "requirementId": "REQ-050.2.6",
+  "hash": "d1fc680a7b89",
+  "verdict": "pass",
+  "summary": "Tests reject blocking or stripping an explicitly supplied ANTHROPIC_OAUTH_TOKEN and require pi documentation to warn that this path is not recommended, unsupported by Panopticon, and may risk the Anthropic account.",
+  "timestamp": "2026-08-06T08:44:11.631Z"
+}

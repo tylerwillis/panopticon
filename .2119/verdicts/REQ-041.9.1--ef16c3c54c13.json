@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-041.9.1--ef16c3c54c13",
+  "requirementId": "REQ-041.9.1",
+  "hash": "ef16c3c54c13",
+  "verdict": "pass",
+  "summary": "The test exercises Pi’s real overview-write/argv path, requires `--append-system-prompt` to be followed by the exact shared overview, and rejects missing orientation or standing artifact-expectation content via substantive markers.",
+  "timestamp": "2026-08-06T08:48:02.210Z"
+}

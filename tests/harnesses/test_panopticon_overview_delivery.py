@@ -52,7 +52,7 @@ def test_codex_delivers_panopticon_orientation_as_developer_instructions() -> No
 # 2119: REQ-041.9.1
 def test_pi_delivers_panopticon_orientation_in_the_system_prompt(tmp_path: Path) -> None:
     overview = GithubPeerReviewed().overview()
-    write_pi_overview(tmp_path / ".pi", overview)
+    write_pi_overview(tmp_path / ".pi" / "agent", overview)
 
     argv = PiHarness().argv(LaunchContext(home=tmp_path, cwd=Path("/workspace")))
     index = argv.index("--append-system-prompt")

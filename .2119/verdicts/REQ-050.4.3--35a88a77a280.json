@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-050.4.3--35a88a77a280",
+  "requirementId": "REQ-050.4.3",
+  "hash": "35a88a77a280",
+  "verdict": "pass",
+  "summary": "Parameterized tests reject malformed, empty, and representative codex-shaped auth files while requiring exactly one lifecycle failure and the exact credential-free reason as the sole stderr line before launch or shutdown.",
+  "timestamp": "2026-08-06T08:34:00.725Z"
+}

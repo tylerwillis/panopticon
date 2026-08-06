@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-050.1.3--e50be151eacf",
+  "requirementId": "REQ-050.1.3",
+  "hash": "e50be151eacf",
+  "verdict": "pass",
+  "summary": "Tests verify all four named entries import from `pi/agent`, including single-file cases, and byte-for-byte confirm mounted sources remain unchanged.",
+  "timestamp": "2026-08-06T08:33:52.118Z"
+}

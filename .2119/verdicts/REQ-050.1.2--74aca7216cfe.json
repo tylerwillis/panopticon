@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-050.1.2--74aca7216cfe",
+  "requirementId": "REQ-050.1.2",
+  "hash": "74aca7216cfe",
+  "verdict": "pass",
+  "summary": "Annotated tests behaviorally verify that launch sets `PI_CODING_AGENT_DIR` to `.pi/agent`, while bootstrap, authentication preflight, and session detection use that same native directory.",
+  "timestamp": "2026-08-06T08:33:51.460Z"
+}

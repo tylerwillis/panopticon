@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -12,6 +13,7 @@ from panopticon.container import agent
 from panopticon.harnesses import Harness, LaunchContext
 from panopticon.harnesses import claude as claude_harness
 from panopticon.harnesses.claude import MCP_CONFIG_FILE, WORKFLOW_OVERVIEW_FILE
+from panopticon.harnesses.pi import PiHarness
 
 # Plausible-length stand-ins for real credentials — the harnesses' shape checks reject anything
 # shorter (see tests/harnesses/test_claude.py, test_codex.py for the length-bound tests).
@@ -58,6 +60,7 @@ def _base_env(monkeypatch: pytest.MonkeyPatch, probe_status: int | None = 200) -
     for var in (
         "PANOPTICON_HARNESS",
         "CLAUDE_CODE_OAUTH_TOKEN",
+        "ANTHROPIC_OAUTH_TOKEN",
         "ANTHROPIC_API_KEY",
         "CODEX_API_KEY",
         "OPENAI_API_KEY",
@@ -169,6 +172,193 @@ def test_main_fail_fast_message_names_the_active_harnesss_fix(
     )
     detail = fake.lifecycle_calls[0]["detail"] or ""
     assert "CODEX_API_KEY" in detail and "CLAUDE_CODE_OAUTH_TOKEN" not in detail
+
+
+# 2119: REQ-050.2.2
+# 2119: REQ-050.4.3
+# 2119: REQ-050.4.4
+@pytest.mark.parametrize(
+    "contents",
+    [
+        "not-json",
+        '{"x":}',
+        "",
+        "   \n",
+        "{}",
+        "[]",
+        '"string"',
+        "42",
+        "null",
+        json.dumps(
+            {
+                "OPENAI_API_KEY": None,
+                "tokens": {"access_token": "must-not-leak"},
+                "last_refresh": "2026-08-05T00:00:00Z",
+            }
+        ),
+        json.dumps({"OPENAI_API_KEY": "must-not-leak"}),
+        json.dumps({"last_refresh": "2026-08-05T00:00:00Z"}),
+        json.dumps({"access_token": "must-not-leak", "refresh_token": "refresh"}),
+        json.dumps({"tokens": {"access_token": "must-not-leak", "refresh_token": "refresh"}}),
+        json.dumps({"tokens": {"id_token": "must-not-leak"}, "auth_mode": "chatgpt"}),
+    ],
+)
+def test_pi_preflight_failure_is_identical_in_lifecycle_and_stderr(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    contents: str,
+) -> None:
+    _base_env(monkeypatch)
+    monkeypatch.setenv("PANOPTICON_HARNESS", "pi")
+    monkeypatch.setenv("PANOPTICON_RUNNER_ID", "runner-1")
+    credentials = tmp_path / "credentials"
+    credentials.mkdir()
+    (credentials / "auth.json").write_text(contents)
+    monkeypatch.setenv("PANOPTICON_CREDENTIALS", str(credentials))
+    fake = _FakeClient()
+
+    agent.main(
+        client_factory=lambda url: fake,  # type: ignore[arg-type,return-value]
+        home=tmp_path,
+        launch=lambda harness, ctx: pytest.fail("must not launch"),
+        on_exit=lambda: None,
+    )
+
+    detail = fake.lifecycle_calls[0]["detail"] or ""
+    stderr = capsys.readouterr().err
+    expected = (
+        "No usable pi credentials: provide a valid ~/.pi/agent/auth.json, set "
+        "ANTHROPIC_API_KEY (or another pi provider API key), or configure the selected "
+        "provider's apiKey in models.json."
+    )
+    assert fake.lifecycle_calls[0]["phase"] == "failed"
+    assert len(fake.lifecycle_calls) == 1
+    assert detail == expected
+    assert stderr == f"{expected}\n"
+    assert not (tmp_path / ".pi" / "agent" / "settings.json").exists()
+    assert "must-not-leak" not in detail and "must-not-leak" not in stderr
+
+
+# 2119: REQ-050.4.1
+@pytest.mark.parametrize("status", [0, 1, 2, 7, 255, -9])
+def test_pi_cli_exit_latches_and_prints_an_actionable_failure(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    status: int,
+) -> None:
+    _base_env(monkeypatch)
+    monkeypatch.setenv("PANOPTICON_HARNESS", "pi")
+    monkeypatch.setenv("PANOPTICON_RUNNER_ID", "runner-1")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", VALID_ANTHROPIC_API_KEY)
+    order: list[str] = []
+    seen_argv: list[str] = []
+    monkeypatch.setattr(
+        agent.os,
+        "kill",
+        lambda pid, sig: order.append(f"stopped:{pid}:{sig}"),
+    )
+    monkeypatch.setattr(
+        agent.subprocess,
+        "run",
+        lambda argv, **_kwargs: seen_argv.extend(argv) or subprocess.CompletedProcess(argv, status),
+    )
+
+    class _OrderedClient(_FakeClient):
+        def report_lifecycle(
+            self, task_id: str, runner_id: str, phase: str, detail: str | None = None
+        ) -> dict[str, str | None]:
+            order.append(f"report:{phase}")
+            return super().report_lifecycle(task_id, runner_id, phase, detail)
+
+    fake = _OrderedClient()
+
+    agent.main(
+        client_factory=lambda url: fake,  # type: ignore[arg-type,return-value]
+        home=tmp_path,
+        launch=agent._run_agent,
+    )
+
+    failure = fake.lifecycle_calls[-1]
+    detail = failure["detail"] or ""
+    stderr = capsys.readouterr().err
+    assert failure["phase"] == "failed"
+    assert detail == f"pi exited unexpectedly with status {status}"
+    assert stderr.strip() == detail
+    assert order == ["report:failed", f"stopped:1:{agent.signal.SIGTERM}"]
+    assert seen_argv[0] == "pi"
+
+
+# 2119: REQ-050.4.1
+def test_default_exit_handler_stops_the_container_with_sigterm(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    signals: list[tuple[int, int]] = []
+    monkeypatch.setattr(agent.os, "kill", lambda pid, sig: signals.append((pid, sig)))
+
+    agent._stop_container()
+
+    assert signals == [(1, agent.signal.SIGTERM)]
+
+
+# 2119: REQ-050.1.2
+# 2119: REQ-050.2.6
+# 2119: REQ-050.3.3
+@pytest.mark.parametrize("status", [0, 7, -9])
+def test_explicit_pi_anthropic_oauth_reaches_the_child_environment(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, status: int
+) -> None:
+    _base_env(monkeypatch)
+    monkeypatch.setenv("ANTHROPIC_OAUTH_TOKEN", "operator-explicit-token")
+    recorded: dict[str, str] = {}
+    recorded_argv: list[str] = []
+
+    def fake_run(
+        argv: list[str], env: dict[str, str] | None = None
+    ) -> subprocess.CompletedProcess[str]:
+        assert env is not None
+        recorded.update(env)
+        recorded_argv.extend(argv)
+        return subprocess.CompletedProcess(argv, status)
+
+    monkeypatch.setattr(agent.subprocess, "run", fake_run)
+    native = tmp_path / ".pi" / "agent"
+    native.mkdir(parents=True)
+    (native / "models.json").write_text('{"providers":{"sparky2-vllm":{}}}')
+    returned = agent._run_agent(
+        PiHarness(),
+        LaunchContext(
+            home=tmp_path,
+            cwd=Path("/workspace"),
+            starting_model="sparky2-vllm/laguna-s-2.1-nvfp4",
+        ),
+    )
+
+    assert recorded["ANTHROPIC_OAUTH_TOKEN"] == "operator-explicit-token"
+    assert recorded["PI_CODING_AGENT_DIR"] == str(tmp_path / ".pi" / "agent")
+    assert Path(recorded["PI_CODING_AGENT_DIR"]) / "models.json" == native / "models.json"
+    assert recorded_argv[-2:] == ["--model", "sparky2-vllm/laguna-s-2.1-nvfp4"]
+    assert returned == status
+
+
+# 2119: REQ-050.2.6
+def test_main_accepts_and_preserves_explicit_pi_anthropic_oauth_through_launch(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _base_env(monkeypatch)
+    monkeypatch.setenv("PANOPTICON_HARNESS", "pi")
+    monkeypatch.setenv("ANTHROPIC_OAUTH_TOKEN", "operator-explicit-token")
+    seen: list[str | None] = []
+
+    agent.main(
+        client_factory=lambda url: _FakeClient(),  # type: ignore[arg-type,return-value]
+        home=tmp_path,
+        launch=lambda harness, ctx: seen.append(agent.os.environ.get("ANTHROPIC_OAUTH_TOKEN")),
+        on_exit=lambda: None,
+    )
+
+    assert seen == ["operator-explicit-token"]
 
 
 def test_main_passes_the_launch_context_through(
@@ -285,12 +475,16 @@ def test_run_agent_merges_the_harness_env(monkeypatch: pytest.MonkeyPatch) -> No
         def env(self, ctx: LaunchContext) -> dict[str, str]:
             return {"FAKE_HOME": "/f"}
 
-    def fake_run(argv: list[str], env: dict[str, str] | None = None) -> None:
+    def fake_run(
+        argv: list[str], env: dict[str, str] | None = None
+    ) -> subprocess.CompletedProcess[str]:
         recorded["argv"] = argv
         recorded["env"] = env
+        return subprocess.CompletedProcess(argv, 9)
 
     monkeypatch.setattr(agent.subprocess, "run", fake_run)
-    agent._run_agent(_FakeHarness(), LaunchContext(home=Path("/h"), cwd=Path("/w")))
+    status = agent._run_agent(_FakeHarness(), LaunchContext(home=Path("/h"), cwd=Path("/w")))
     assert recorded["argv"] == ["fake-cli", "--go"]
+    assert status == 9
     env = recorded["env"]
     assert isinstance(env, dict) and env["FAKE_HOME"] == "/f"

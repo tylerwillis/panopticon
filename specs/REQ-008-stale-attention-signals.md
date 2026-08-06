@@ -47,8 +47,9 @@ handoff. The existing Stop behavior for live background work issues no turn writ
 
 ### REQ-008.6: Pi prompt signal
 
-1. On its native `input` event, the Pi harness MUST complete the task-service turn-to-agent write
-   before that event handler finishes.
+1. On its native `input` event, the Pi harness MUST await settlement of the task-service
+   turn-to-agent write request before that event handler finishes, subject to REQ-016's bounded
+   fail-open contract.
 
 ### REQ-008.7: Dashboard feed handoff
 

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-050.3.3--c9be1b0be716",
+  "requirementId": "REQ-050.3.3",
+  "hash": "c9be1b0be716",
+  "verdict": "pass",
+  "summary": "Tests verify first-launch argv passes the exact native model ID and deep-compare the materialized provider, permitting only loopback host adaptation.",
+  "timestamp": "2026-08-06T08:44:12.295Z"
+}

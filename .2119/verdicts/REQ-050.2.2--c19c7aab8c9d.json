@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-050.2.2--c19c7aab8c9d",
+  "requirementId": "REQ-050.2.2",
+  "hash": "c19c7aab8c9d",
+  "verdict": "pass",
+  "summary": "Tests behaviorally reject malformed JSON, `{}`, and each Codex-only marker without a usable pi provider, while requiring an actionable message naming pi’s native auth file and supported alternatives.",
+  "timestamp": "2026-08-06T08:33:53.466Z"
+}
