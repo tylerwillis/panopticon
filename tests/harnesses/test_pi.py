@@ -719,6 +719,14 @@ def test_codex_marker_does_not_make_an_unusable_pi_provider_entry_usable(
         ("local", {}),
         ("ordinary-literal-provider-secret", {}),
         ("$LOCAL_MODEL_KEY", {"LOCAL_MODEL_KEY": "resolved"}),
+        ("${LOCAL_MODEL_KEY}", {"LOCAL_MODEL_KEY": "resolved"}),
+        (
+            "${KEY_PREFIX}_${KEY_SUFFIX}",
+            {"KEY_PREFIX": "resolved", "KEY_SUFFIX": "suffix"},
+        ),
+        ("prefix-${LOCAL_MODEL_KEY}-suffix", {"LOCAL_MODEL_KEY": "resolved"}),
+        ("$$literal-dollar-prefix", {}),
+        ("$!literal-bang-prefix", {}),
     ],
 )
 def test_missing_auth_accepts_selected_custom_provider_models_json_key(
@@ -755,6 +763,14 @@ def test_missing_auth_accepts_selected_custom_provider_models_json_key(
     [
         ("sparky/model", "", {}),
         ("sparky/model", "$MISSING_LOCAL_KEY", {}),
+        ("sparky/model", "${MISSING_LOCAL_KEY}", {}),
+        ("sparky/model", "prefix-$MISSING_LOCAL_KEY-suffix", {}),
+        (
+            "sparky/model",
+            "${PRESENT_LOCAL_KEY}_${MISSING_LOCAL_KEY}",
+            {"PRESENT_LOCAL_KEY": "resolved"},
+        ),
+        ("sparky/model", "${EMPTY_LOCAL_KEY}", {"EMPTY_LOCAL_KEY": ""}),
         ("absent/model", "local", {}),
     ],
 )

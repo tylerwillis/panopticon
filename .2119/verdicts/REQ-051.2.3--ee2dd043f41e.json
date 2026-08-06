@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-051.2.3--ee2dd043f41e",
-  "requirementId": "REQ-051.2.3",
-  "hash": "ee2dd043f41e",
-  "verdict": "pass",
-  "summary": "Tests accept literal, dummy local, and resolved environment keys while rejecting missing, empty, resolved-empty, unresolved, stale-shadowed, and different-provider-only keys.",
-  "timestamp": "2026-08-06T09:32:35.018Z"
-}

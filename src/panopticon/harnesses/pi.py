@@ -63,6 +63,7 @@ from __future__ import annotations
 
 import copy
 import json
+import re
 import subprocess
 from collections.abc import Mapping, Sequence
 from pathlib import Path
@@ -319,9 +320,51 @@ class PiHarness(Harness):
     def _resolved_key(value: object, environ: Mapping[str, str]) -> str | None:
         if not isinstance(value, str) or not value:
             return None
-        if value.startswith("$"):
-            return environ.get(value[1:]) or None
-        return value
+        # Pi treats command-backed values as configured for model availability without executing
+        # them. It resolves them only when making a request.
+        if value.startswith("!"):
+            return value
+
+        resolved: list[str] = []
+        index = 0
+        while index < len(value):
+            dollar = value.find("$", index)
+            if dollar < 0:
+                resolved.append(value[index:])
+                break
+            resolved.append(value[index:dollar])
+            next_char = value[dollar + 1 : dollar + 2]
+            if next_char in {"$", "!"}:
+                resolved.append(next_char)
+                index = dollar + 2
+                continue
+            if next_char == "{":
+                end = value.find("}", dollar + 2)
+                if end < 0:
+                    resolved.append("$")
+                    index = dollar + 1
+                    continue
+                name = value[dollar + 2 : end]
+                if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name):
+                    replacement = environ.get(name)
+                    if not replacement:
+                        return None
+                    resolved.append(replacement)
+                else:
+                    resolved.append(value[dollar : end + 1])
+                index = end + 1
+                continue
+            match = re.match(r"[A-Za-z_][A-Za-z0-9_]*", value[dollar + 1 :])
+            if match is not None:
+                replacement = environ.get(match.group())
+                if not replacement:
+                    return None
+                resolved.append(replacement)
+                index = dollar + 1 + len(match.group())
+                continue
+            resolved.append("$")
+            index = dollar + 1
+        return "".join(resolved) or None
 
     def _usable_auth(self, path: Path, environ: Mapping[str, str]) -> bool:
         data = self._load_object(path)

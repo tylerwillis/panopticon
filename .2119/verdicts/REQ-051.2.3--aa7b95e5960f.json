@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-051.2.3--aa7b95e5960f",
+  "requirementId": "REQ-051.2.3",
+  "hash": "aa7b95e5960f",
+  "verdict": "pass",
+  "summary": "Tests directly exercise preflight and cover selected-provider literal, dummy, escaped, braced, embedded, and resolved keys plus missing, empty, unresolved, partially unresolved, shadowed, and other-provider rejections.",
+  "timestamp": "2026-08-06T09:46:22.451Z"
+}
