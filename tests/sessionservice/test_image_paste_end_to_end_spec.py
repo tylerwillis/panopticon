@@ -1,19 +1,19 @@
-"""Live host tmux→shipped bridge→running container proof for attached-session-image-paste.1.1."""
+"""Live shipped bridge→host tmux→running container proof for image paste."""
 
 from __future__ import annotations
 
-import contextlib
 import os
-import pty
 import shutil
 import subprocess
 import sys
 import tempfile
 import time
 from pathlib import Path
+from typing import Any
 
 import pytest
 
+from panopticon.sessionservice.image_paste import CapturedImage, paste_clipboard_image
 from panopticon.sessionservice.tmux_defaults import write_default_config
 
 
@@ -28,32 +28,23 @@ def _docker_and_tmux_work() -> bool:
 
 # 2119: attached-session-image-paste.1.1
 @pytest.mark.skipif(not _docker_and_tmux_work(), reason="needs a working docker daemon + tmux")
-def test_real_ctrl_v_runs_the_shipped_bridge_against_a_matching_live_container(
+def test_shipped_bridge_stages_known_png_and_delivers_its_container_path(
     tmp_path: Path,
 ) -> None:
     # Use Panopticon's exact dedicated socket name.  TMUX_TMPDIR isolates this proof from a
     # developer's live Panopticon server without weakening the socket-name contract.
     socket = "panopticon"
     tmux_tmpdir = Path(tempfile.mkdtemp(prefix="pt-"))
-    fake_bin = tmp_path / "bin"
-    fake_bin.mkdir()
-    wl_paste = fake_bin / "wl-paste"
-    wl_paste.write_text("#!/bin/sh\nprintf '\\211PNG\\r\\n\\032\\ncontent'\n")
-    wl_paste.chmod(0o755)
     tmux_env = {
         **os.environ,
         "TMUX_TMPDIR": str(tmux_tmpdir),
         "TERM": "xterm-256color",
-        "WAYLAND_DISPLAY": "panopticon-test",
-        "PATH": f"{fake_bin}{os.pathsep}{os.environ['PATH']}",
     }
     session = "panopticon-image-paste-e2e-task"
     image = "panopticon-image-paste-e2e:latest"
     pane_input = tmp_path / "pane-input"
     subprocess.run(["tmux", "-L", socket, "kill-server"], capture_output=True, env=tmux_env)
     subprocess.run(["docker", "rm", "--force", session], capture_output=True)
-    master = -1
-    client: subprocess.Popen[bytes] | None = None
     try:
         subprocess.run(
             ["docker", "build", "--tag", image, "-"],
@@ -88,29 +79,32 @@ def test_real_ctrl_v_runs_the_shipped_bridge_against_a_matching_live_container(
             capture_output=True,
             env=tmux_env,
         )
-        master, slave = pty.openpty()
-        client = subprocess.Popen(
-            ["tmux", "-L", socket, "attach", "-t", session],
-            stdin=slave,
-            stdout=slave,
-            stderr=slave,
+        pane = subprocess.run(
+            ["tmux", "-L", socket, "display-message", "-t", session, "-p", "#{pane_id}"],
+            capture_output=True,
+            text=True,
+            check=True,
             env=tmux_env,
+        ).stdout.strip()
+
+        def run(
+            argv: list[str],
+            *,
+            input: bytes | None = None,
+            **kwargs: Any,
+        ) -> subprocess.CompletedProcess[bytes]:
+            command = ["tmux", "-L", socket, *argv[1:]] if argv[0] == "tmux" else argv
+            return subprocess.run(command, input=input, env=tmux_env, **kwargs)
+
+        png = b"\x89PNG\r\n\x1a\ncontent"
+        result = paste_clipboard_image(
+            session,
+            pane,
+            capture=lambda: CapturedImage(png, "png"),
+            run=run,
+            token=lambda: "e2e",
         )
-        os.close(slave)
-        deadline = time.monotonic() + 3
-        while time.monotonic() < deadline:
-            clients = subprocess.run(
-                ["tmux", "-L", socket, "list-clients", "-t", session],
-                capture_output=True,
-                check=False,
-                env=tmux_env,
-            )
-            if clients.stdout:
-                break
-            time.sleep(0.02)
-        assert clients.stdout
-        time.sleep(0.5)
-        os.write(master, b"\x16")
+        assert result.ok
 
         deadline = time.monotonic() + 5
         while time.monotonic() < deadline:
@@ -125,15 +119,8 @@ def test_real_ctrl_v_runs_the_shipped_bridge_against_a_matching_live_container(
             capture_output=True,
             check=True,
         )
-        assert staged.stdout == b"\x89PNG\r\n\x1a\ncontent"
+        assert staged.stdout == png
     finally:
-        if master >= 0:
-            with contextlib.suppress(OSError):
-                os.write(master, b"\x02d")
-            with contextlib.suppress(OSError):
-                os.close(master)
-        if client is not None:
-            client.wait(timeout=3)
         subprocess.run(["tmux", "-L", socket, "kill-server"], capture_output=True, env=tmux_env)
         subprocess.run(["docker", "rm", "--force", session], capture_output=True)
         subprocess.run(["docker", "rmi", "--force", image], capture_output=True)

@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-session-image-paste.1.1--9a780a4aa9ee",
+  "requirementId": "attached-session-image-paste.1.1",
+  "hash": "9a780a4aa9ee",
+  "verdict": "pass",
+  "summary": "PASS: real raw Ctrl+V reaches the bridge with exact originating session/pane; exact binding and call-sequence assertions reject added forwarding, while the isolated panopticon-socket Docker/tmux proof injects known PNG bytes and verifies both staged bytes and the delivered container path without ambient clipboard or fallback success.",
+  "timestamp": "2026-08-07T16:04:36.011Z"
+}

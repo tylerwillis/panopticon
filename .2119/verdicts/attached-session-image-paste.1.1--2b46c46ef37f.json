@@ -1,8 +1,0 @@
-{
-  "reviewId": "attached-session-image-paste.1.1--2b46c46ef37f",
-  "requirementId": "attached-session-image-paste.1.1",
-  "hash": "2b46c46ef37f",
-  "verdict": "pass",
-  "summary": "Real tmux/Docker coverage proves Ctrl+V on the dedicated socket invokes the shipped bridge with the originating session and pane for an exact running container, while focused tests reject forwarding on success.",
-  "timestamp": "2026-08-07T15:50:01.038Z"
-}
