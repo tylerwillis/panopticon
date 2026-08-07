@@ -10,6 +10,7 @@ destroys EVIDENCE_DIR when sourced from a terminal).
     ./extract-cutover-step.py S04 > s04-cutover.sh
     source ./s04-cutover.sh
 """
+
 import re
 import sys
 from pathlib import Path
@@ -34,8 +35,8 @@ def blocks_for(step: str, text: str) -> tuple[str, str]:
     start = re.search(rf"^{depth} {re.escape(step)} — ", text, re.M)
     if not start:
         sys.exit(f"no such step: {step}")
-    nxt = re.search(rf"^{depth} ", text[start.end():], re.M)
-    section = text[start.start(): start.end() + (nxt.start() if nxt else len(text))]
+    nxt = re.search(rf"^{depth} ", text[start.end() :], re.M)
+    section = text[start.start() : start.end() + (nxt.start() if nxt else len(text))]
 
     sub = "####" if step.startswith("G") else "###"
 
