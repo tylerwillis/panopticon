@@ -22,15 +22,17 @@ overflow.
 
 ### REQ-053.1: Content below
 
-1. While task content is vertically hidden below the current viewport, the task table MUST replace
-   trailing cells of its last visible task-content line with a right-aligned `↓ more` indicator
-   without replacing that row's leading content.
+1. While task content is vertically hidden below the current viewport, the task table MUST render
+   a right-aligned `↓ more` in trailing blank cells of its last visible task-content line,
+   abbreviating it to `↓` when only one trailing blank cell is available and omitting it when no
+   trailing cell can be replaced without hiding row content.
 
 ### REQ-053.2: Content above
 
-1. While task content is vertically hidden above the current viewport, the task table MUST replace
-   trailing cells of its first visible task-content line below the header with a right-aligned
-   `↑ more` indicator without replacing that row's leading content.
+1. While task content is vertically hidden above the current viewport, the task table MUST render
+   a right-aligned `↑ more` in trailing blank cells of its first visible task-content line below
+   the header, abbreviating it to `↑` when only one trailing blank cell is available and omitting
+   it when no trailing cell can be replaced without hiding row content.
 
 ### REQ-053.3: Directional absence
 

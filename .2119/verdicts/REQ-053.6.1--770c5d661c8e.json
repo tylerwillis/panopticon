@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-053.6.1--770c5d661c8e",
+  "requirementId": "REQ-053.6.1",
+  "hash": "770c5d661c8e",
+  "verdict": "pass",
+  "summary": "Every integral vertical offset and intersecting real row is checked on its exact rendered line; a targeted mutant erasing one row at one interior offset was exercised and rejected.",
+  "timestamp": "2026-08-07T16:53:09.547Z"
+}

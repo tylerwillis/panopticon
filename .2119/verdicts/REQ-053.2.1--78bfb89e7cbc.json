@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-053.2.1--78bfb89e7cbc",
+  "requirementId": "REQ-053.2.1",
+  "hash": "78bfb89e7cbc",
+  "verdict": "pass",
+  "summary": "Tests cover the hidden-above trigger, first-line/right-aligned full marker, kill suppression of the one-cell upward abbreviation, and reject overwriting row content when zero trailing cells are free.",
+  "timestamp": "2026-08-07T16:52:17.182Z"
+}

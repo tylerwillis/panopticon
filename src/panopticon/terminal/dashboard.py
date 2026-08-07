@@ -1604,21 +1604,25 @@ class _VimDataTable(DataTable[Any]):
     _OVERFLOW_INDICATOR_STYLE = Style(bold=True, reverse=True)
 
     def _with_overflow_indicator(self, line: Strip, message: str) -> Strip:
-        """Composite a short marker over trailing cells without replacing the task row."""
-        marker_width = Segment(message).cell_length
-        marker_start = line.cell_length - marker_width
-        if marker_start < 0:
-            return line
-        trailing = line.crop(marker_start)
-        trailing_style = next(
-            (segment.style for segment in trailing if segment.style is not None),
-            self.rich_style,
-        )
-        marker = Strip(
-            [Segment(message, trailing_style + self._OVERFLOW_INDICATOR_STYLE)],
-            marker_width,
-        )
-        return Strip.join((line.crop(0, marker_start), marker))
+        """Composite the longest marker that fits wholly inside trailing blank cells."""
+        for candidate in (message, message[0]):
+            marker_width = Segment(candidate).cell_length
+            marker_start = line.cell_length - marker_width
+            if marker_start <= 0:
+                continue
+            trailing = line.crop(marker_start)
+            if any(segment.text.strip() for segment in trailing):
+                continue
+            trailing_style = next(
+                (segment.style for segment in trailing if segment.style is not None),
+                self.rich_style,
+            )
+            marker = Strip(
+                [Segment(candidate, trailing_style + self._OVERFLOW_INDICATOR_STYLE)],
+                marker_width,
+            )
+            return Strip.join((line.crop(0, marker_start), marker))
+        return line
 
     def render_line(self, y: int) -> Strip:
         """Overlay directional task hints only while rows exist beyond that viewport edge."""

@@ -905,15 +905,9 @@ async def test_vertical_task_overflow_indicator_preserves_horizontal_scrollbar_l
         for index in range(30)
     ]
 
-    def scrollbar_cells(strip: object) -> tuple[tuple[str, bool, object], ...]:
+    def scrollbar_cells(strip: object) -> tuple[tuple[str, object], ...]:
         return tuple(
-            (
-                character,
-                bool(segment.style and segment.style.reverse),
-                (segment.style.meta or {}).get("@mouse.down")
-                if segment.style is not None
-                else None,
-            )
+            (character, segment.style)
             for segment in strip  # type: ignore[union-attr]
             for character in segment.text
         )
@@ -980,8 +974,83 @@ async def test_vertical_task_overflow_indicator_preserves_horizontal_scrollbar_l
                 )
                 assert "↑ more" not in scrollbar_text
                 assert "↓ more" not in scrollbar_text
-                assert ("↑ more" in rendered_table) is (scroll_y > 0)
-                assert ("↓ more" in rendered_table) is (scroll_y < table.max_scroll_y)
+
+
+# 2119: REQ-053.1.1
+# 2119: REQ-053.2.1
+# 2119: REQ-053.5.1
+# 2119: REQ-053.6.1
+async def test_narrow_overflow_indicator_never_replaces_visible_row_content() -> None:
+    tasks = [
+        {**_TASK, "id": f"overflow-{index:02}", "slug": f"overflow-{index:02}"}
+        for index in range(30)
+    ]
+    app = Dashboard(_FakeClient(tasks), refresh_interval=None)  # type: ignore[arg-type]
+
+    async with app.run_test(size=(20, 12)) as pilot:
+        await pilot.pause()
+        table = app.query_one("#tasks", DataTable)
+        table.scroll_to(x=table.max_scroll_x, animate=False, force=True)
+        await pilot.pause()
+        last_task_line = table.scrollable_content_region.bottom - 1
+        rendered = "".join(
+            segment.text for segment in app.screen._compositor.render_strips()[last_task_line]
+        )[table.scrollable_content_region.x : table.scrollable_content_region.right]
+        visible_row_offset = (
+            last_task_line - table.scrollable_content_region.y - table.header_height
+        )
+        expected_row = round(table.scroll_y) + visible_row_offset
+        expected_id = str(table.ordered_rows[expected_row].key.value)
+
+        assert expected_id in rendered
+        assert rendered.endswith("↓")
+        assert not rendered.endswith("↓ more")
+
+        table.scroll_to(y=1, animate=False, force=True)
+        await pilot.pause()
+        first_task_line = table.scrollable_content_region.y + table.header_height
+        rendered = "".join(
+            segment.text for segment in app.screen._compositor.render_strips()[first_task_line]
+        )[table.scrollable_content_region.x : table.scrollable_content_region.right]
+        expected_id = str(table.ordered_rows[round(table.scroll_y)].key.value)
+
+        assert expected_id in rendered
+        assert rendered.endswith("↑")
+        assert not rendered.endswith("↑ more")
+
+    smallest_baseline_app = Dashboard(
+        _FakeClient(tasks[:1]), refresh_interval=None  # type: ignore[arg-type]
+    )
+    async with smallest_baseline_app.run_test(size=(6, 12)) as pilot:
+        await pilot.pause()
+        table = smallest_baseline_app.query_one("#tasks", DataTable)
+        first_task_line = table.scrollable_content_region.y + table.header_height
+        baseline = "".join(
+            segment.text
+            for segment in smallest_baseline_app.screen._compositor.render_strips()[first_task_line]
+        )[table.scrollable_content_region.x : table.scrollable_content_region.right]
+
+    smallest_app = Dashboard(_FakeClient(tasks), refresh_interval=None)  # type: ignore[arg-type]
+    async with smallest_app.run_test(size=(6, 12)) as pilot:
+        await pilot.pause()
+        table = smallest_app.query_one("#tasks", DataTable)
+        last_task_line = table.scrollable_content_region.bottom - 1
+        rendered = "".join(
+            segment.text
+            for segment in smallest_app.screen._compositor.render_strips()[last_task_line]
+        )[table.scrollable_content_region.x : table.scrollable_content_region.right]
+
+        assert rendered == baseline
+
+        table.scroll_to(y=1, animate=False, force=True)
+        await pilot.pause()
+        first_task_line = table.scrollable_content_region.y + table.header_height
+        rendered = "".join(
+            segment.text
+            for segment in smallest_app.screen._compositor.render_strips()[first_task_line]
+        )[table.scrollable_content_region.x : table.scrollable_content_region.right]
+
+        assert rendered == baseline
 
 
 # 2119: full-width-dashboard.1.2
