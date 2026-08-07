@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-053.5.1--680b28eaa19f",
-  "requirementId": "REQ-053.5.1",
-  "hash": "680b28eaa19f",
-  "verdict": "pass",
-  "summary": "Capture, size, staging, and delivery failures are covered; exact post-failure command tails forbid subsequent delivery and require the precise tmux status message.",
-  "timestamp": "2026-08-07T15:33:29.250Z"
-}

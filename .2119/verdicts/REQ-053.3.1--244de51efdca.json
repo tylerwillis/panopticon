@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-053.3.1--244de51efdca",
-  "requirementId": "REQ-053.3.1",
-  "hash": "244de51efdca",
-  "verdict": "pass",
-  "summary": "Tests pin streamed bytes and exact docker exec target/user/options, distinct /tmp paths, and independently execute the staging script to verify mode 0600.",
-  "timestamp": "2026-08-07T15:33:19.320Z"
-}

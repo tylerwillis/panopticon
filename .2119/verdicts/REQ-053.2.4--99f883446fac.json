@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-053.2.4--99f883446fac",
-  "requirementId": "REQ-053.2.4",
-  "hash": "99f883446fac",
-  "verdict": "pass",
-  "summary": "Tests reject empty and 20 MiB plus one byte captures before container I/O while accepting the exact 20 MiB boundary.",
-  "timestamp": "2026-08-07T15:33:18.668Z"
-}

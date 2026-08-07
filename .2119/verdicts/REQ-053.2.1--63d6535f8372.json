@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-053.2.1--63d6535f8372",
-  "requirementId": "REQ-053.2.1",
-  "hash": "63d6535f8372",
-  "verdict": "pass",
-  "summary": "The Darwin test requires the host-resolved osascript command, native PNG pasteboard type, and decoded PNG bytes, so wrong command/type or no attempt fails.",
-  "timestamp": "2026-08-07T15:34:11.471Z"
-}

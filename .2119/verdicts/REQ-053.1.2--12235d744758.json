@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-053.1.2--12235d744758",
-  "requirementId": "REQ-053.1.2",
-  "hash": "12235d744758",
-  "verdict": "pass",
-  "summary": "Exact call-trace and capture-spy tests reject non-prefix near misses and inexact or absent container matches unless they send one C-v to the originating pane with no capture, exec, load, or paste staging.",
-  "timestamp": "2026-08-07T15:46:32.213Z"
-}

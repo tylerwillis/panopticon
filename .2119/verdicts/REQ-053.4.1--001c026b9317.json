@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-053.4.1--001c026b9317",
-  "requirementId": "REQ-053.4.1",
-  "hash": "001c026b9317",
-  "verdict": "pass",
-  "summary": "Exact ordered calls require one -p bracketed paste of the staged container path to the originating pane, with no newline, Enter, or send-keys submission.",
-  "timestamp": "2026-08-07T15:33:29.252Z"
-}

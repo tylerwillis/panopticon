@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-053.1.1--66f0ee8ca4ba",
-  "requirementId": "REQ-053.1.1",
-  "hash": "66f0ee8ca4ba",
-  "verdict": "pass",
-  "summary": "Real tmux/Docker proof sends actual C-v through the dedicated socket and shipped bridge, then requires the originating pane path plus exact staged PNG bytes; failure or direct forwarding cannot pass.",
-  "timestamp": "2026-08-07T15:34:10.137Z"
-}
