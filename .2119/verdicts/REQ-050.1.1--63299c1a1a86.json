@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.1.1--63299c1a1a86",
-  "requirementId": "REQ-050.1.1",
-  "hash": "63299c1a1a86",
-  "verdict": "pass",
-  "summary": "Real tmux Ctrl+V and live-container integration prove the shipped dedicated-socket binding invokes the bridge with the originating session and pane.",
-  "timestamp": "2026-08-06T06:29:01.768Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.2.2--43266a80ac77",
-  "requirementId": "REQ-050.2.2",
-  "hash": "43266a80ac77",
-  "verdict": "pass",
-  "summary": "Positive and negative antecedent tests verify Wayland capture only on Linux with nonempty WAYLAND_DISPLAY and wl-paste.",
-  "timestamp": "2026-08-06T06:24:51.200Z"
-}

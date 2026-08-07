@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.2.1--9300857b9633",
-  "requirementId": "REQ-050.2.1",
-  "hash": "9300857b9633",
-  "verdict": "pass",
-  "summary": "Darwin osascript invocation, PNGf pasteboard type, and decoded PNG bytes are behaviorally verified.",
-  "timestamp": "2026-08-06T06:21:46.182Z"
-}

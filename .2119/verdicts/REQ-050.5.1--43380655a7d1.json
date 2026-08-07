@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.5.1--43380655a7d1",
-  "requirementId": "REQ-050.5.1",
-  "hash": "43380655a7d1",
-  "verdict": "pass",
-  "summary": "All named failure stages forbid subsequent delivery commands and require the exact tmux status message.",
-  "timestamp": "2026-08-06T06:24:51.858Z"
-}

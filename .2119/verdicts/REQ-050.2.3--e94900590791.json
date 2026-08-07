@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.2.3--e94900590791",
-  "requirementId": "REQ-050.2.3",
-  "hash": "e94900590791",
-  "verdict": "pass",
-  "summary": "Linux X11 antecedents and exact xclip image/png request are behaviorally verified.",
-  "timestamp": "2026-08-06T06:21:46.802Z"
-}

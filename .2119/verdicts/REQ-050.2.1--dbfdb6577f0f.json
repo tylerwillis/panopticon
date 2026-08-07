@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.2.1--dbfdb6577f0f",
-  "requirementId": "REQ-050.2.1",
-  "hash": "dbfdb6577f0f",
-  "verdict": "pass",
-  "summary": "The Darwin test requires resolved host osascript invocation with the native PNGf pasteboard request and verifies decoded PNG bytes.",
-  "timestamp": "2026-08-06T06:50:30.075Z"
-}

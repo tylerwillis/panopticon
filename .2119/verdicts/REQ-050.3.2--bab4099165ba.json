@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.3.2--bab4099165ba",
-  "requirementId": "REQ-050.3.2",
-  "hash": "bab4099165ba",
-  "verdict": "pass",
-  "summary": "Exact subprocess data flow proves image bytes appear only on staging docker exec stdin, never tmux.",
-  "timestamp": "2026-08-06T06:21:48.815Z"
-}

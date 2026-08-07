@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.4.1--2750d1e9d6fb",
-  "requirementId": "REQ-050.4.1",
-  "hash": "2750d1e9d6fb",
-  "verdict": "pass",
-  "summary": "Exact ordered calls verify staging precedes one bracketed path paste to the originating pane without submission.",
-  "timestamp": "2026-08-06T06:21:49.472Z"
-}

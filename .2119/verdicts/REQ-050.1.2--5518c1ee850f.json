@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.1.2--5518c1ee850f",
-  "requirementId": "REQ-050.1.2",
-  "hash": "5518c1ee850f",
-  "verdict": "pass",
-  "summary": "Prefix boundaries, missing/exact-name container probes, and zero capture/staging are verified before one exact C-v forward to the originating pane.",
-  "timestamp": "2026-08-06T06:31:54.960Z"
-}

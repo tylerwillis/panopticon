@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.2.4--5477abe118a3",
-  "requirementId": "REQ-050.2.4",
-  "hash": "5477abe118a3",
-  "verdict": "pass",
-  "summary": "Separately rejects zero bytes and 20 MiB plus one, while accepting exactly 20 MiB and proving rejected captures never reach container I/O.",
-  "timestamp": "2026-08-06T06:50:47.714Z"
-}

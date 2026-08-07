@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.5.1--1e360861dab2",
-  "requirementId": "REQ-050.5.1",
-  "hash": "1e360861dab2",
-  "verdict": "pass",
-  "summary": "Capture, empty/oversize validation, staging, and delivery failures each forbid subsequent or alternate path delivery and require the exact tmux status message.",
-  "timestamp": "2026-08-06T06:50:49.604Z"
-}

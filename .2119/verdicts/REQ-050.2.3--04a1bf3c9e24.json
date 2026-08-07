@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.2.3--04a1bf3c9e24",
-  "requirementId": "REQ-050.2.3",
-  "hash": "04a1bf3c9e24",
-  "verdict": "pass",
-  "summary": "Covers Linux, nonempty DISPLAY, absent wl-paste, available xclip, and rejects a non-PNG-target request by pinning the exact X11 clipboard argv.",
-  "timestamp": "2026-08-06T06:50:47.062Z"
-}

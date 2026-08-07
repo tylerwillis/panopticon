@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.4.1--99171b1b6c96",
-  "requirementId": "REQ-050.4.1",
-  "hash": "99171b1b6c96",
-  "verdict": "pass",
-  "summary": "The success test requires staging before exactly one bracketed paste of the exact path to the originating pane and rejects Enter, send-keys, or extra delivery calls.",
-  "timestamp": "2026-08-06T06:50:48.963Z"
-}

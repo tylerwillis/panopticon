@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.3.2--e75160a17d93",
-  "requirementId": "REQ-050.3.2",
-  "hash": "e75160a17d93",
-  "verdict": "pass",
-  "summary": "Exact call assertions require image bytes only on staging docker exec stdin and reject bytes in tmux argv, buffer input, or any extra command.",
-  "timestamp": "2026-08-06T06:50:48.308Z"
-}
