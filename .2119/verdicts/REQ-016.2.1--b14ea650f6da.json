@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-016.2.1--b14ea650f6da",
-  "requirementId": "REQ-016.2.1",
-  "hash": "b14ea650f6da",
-  "verdict": "pass",
-  "summary": "Shared Python and Pi hook tests inject representative control-plane failures and reject nonzero exit, promise rejection, blocking, or surfaced stderr/stdout.",
-  "timestamp": "2026-08-04T20:59:58.078Z"
-}

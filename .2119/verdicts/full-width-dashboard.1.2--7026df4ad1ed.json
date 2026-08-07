@@ -1,8 +1,0 @@
-{
-  "reviewId": "full-width-dashboard.1.2--7026df4ad1ed",
-  "requirementId": "full-width-dashboard.1.2",
-  "hash": "7026df4ad1ed",
-  "verdict": "fail",
-  "summary": "The test reaches only the final row; it never proves every intermediate task row is keyboard-reachable, so a table that skips one middle row would still pass.",
-  "timestamp": "2026-08-06T06:10:31.930Z"
-}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.18.1--0d5dd590f075",
+  "requirementId": "REQ-035.18.1",
+  "hash": "0d5dd590f075",
+  "verdict": "pass",
+  "summary": "Mutation-verified against 12 annotated tests (12 green at baseline): neutering the HTTPException/validation body redactor, the log-record redactor, the reject-request-containing-a-token middleware, the runner's file-mounted token (leaking it onto docker argv), and pi's curl --config stdin header each turns 1-4 of them red; uvicorn access_log=True plus a dead log redactor also trips the launcher test, so it is not vacuous. Gap noted, not blocking: _redact_stream_chunk/redacted_mcp_app (MCP response redaction) can be made a passthrough with all 887 tests/taskservice tests still green -- it is defense-in-depth behind the covered reject-before-dispatch middleware, but it has no test of its own.",
+  "timestamp": "2026-08-07T15:56:35.441Z"
+}

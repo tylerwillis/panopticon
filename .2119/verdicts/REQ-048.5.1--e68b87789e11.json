@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.5.1--e68b87789e11",
-  "requirementId": "REQ-048.5.1",
-  "hash": "e68b87789e11",
-  "verdict": "pass",
-  "summary": "Persistence tests (incl. dependencies via reload-backed durability checks) verify exact requested-effect writes across advance/transition/responsibility/scalar setters; dependency stand-in id change (self/governed-child) preserves genuine assertions.",
-  "timestamp": "2026-08-04T21:07:43.790Z"
-}

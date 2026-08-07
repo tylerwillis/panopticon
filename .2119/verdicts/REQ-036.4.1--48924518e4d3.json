@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-036.4.1--48924518e4d3",
-  "requirementId": "REQ-036.4.1",
-  "hash": "48924518e4d3",
-  "verdict": "pass",
-  "summary": "Tests cover exact count, parsing/evidence requirements, supported per-harness sources, requested/verified equality, commit and round freshness in both slots, and prove every invalid case blocks triage and responsibility resolution.",
-  "timestamp": "2026-08-05T00:46:11.155Z"
-}

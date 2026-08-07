@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-022.1.1--fa228f7e70ce",
-  "requirementId": "REQ-022.1.1",
-  "hash": "fa228f7e70ce",
-  "verdict": "pass",
-  "summary": "Acceptance test runs gh --version in the layerless base image (behavioral) plus an install-line regex guard; gh-only-in-workflow-layer fails both",
-  "timestamp": "2026-07-30T17:06:10.900Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.8.1--86950e429f72",
-  "requirementId": "REQ-048.8.1",
-  "hash": "86950e429f72",
-  "verdict": "pass",
-  "summary": "An inventory-checked table maps every named REST/MCP pair and compares complete decision objects across self, multiple governed depths, unrelated, and missing targets.",
-  "timestamp": "2026-08-04T07:33:28.336Z"
-}

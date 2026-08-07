@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-052.1.1--21b0c19b6c26",
+  "requirementId": "REQ-052.1.1",
+  "hash": "21b0c19b6c26",
+  "verdict": "fail",
+  "summary": "The boundary term 'ANY packaged source file' has no rejected counterexample: all 129 REQ-052.1 tests build a source tree containing exactly one file, so the universal quantifier over a multi-file tree is never exercised. Mutation-proof: limiting _packaged_source_digest to itertools.islice(_packaged_files(), 1) — covering 1 of 123 real source files and leaving 122 uncovered — leaves the entire tests/sessionservice/test_images.py suite green (2 failed/142 passed, byte-identical to baseline). A mundane accumulator-reset bug (digest re-initialised inside the loop, so only the LAST file counts) is likewise missed by every REQ-052.1 test; it is caught only by test_rebuilt_base_image_executes_revised_packaged_source, which is annotated REQ-052.2 and skipif-gated on a running Docker daemon, so on a Docker-less CI runner both variants ship green — exactly the undelivered-fix class the spec exists to prevent. The other conjuncts ARE genuinely covered: dropping bytes fails 127 tests, dropping the relative path fails the dedicated path test, a '.py-only' filter fails 10, and over-excluding docker/ fails 3, while version/Dockerfile/entrypoint.sh are correctly held constant (the monkeypatch redirects only files(panopticon)). The @cache fails safe — a stale digest makes before==after, i.e. a test failure, never a false pass. Fix is one test: a multi-file tree (>=3 files across >=2 directories) that mutates a file that is neither first nor last in traversal order and asserts the fingerprint changes.",
+  "timestamp": "2026-08-07T15:33:11.944Z"
+}

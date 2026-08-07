@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.1.12--acfb53b7eb66",
-  "requirementId": "adversarial-review-mutations.1.12",
-  "hash": "acfb53b7eb66",
-  "verdict": "pass",
-  "summary": "Golden-prompt equality rejects any weakening of the checkout-edit ban or omission/change to the complete throwaway-copy mutation instructions.",
-  "timestamp": "2026-08-05T01:50:50.700Z"
-}

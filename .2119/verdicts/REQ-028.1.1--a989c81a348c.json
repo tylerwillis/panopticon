@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.1.1--a989c81a348c",
-  "requirementId": "REQ-028.1.1",
-  "hash": "a989c81a348c",
-  "verdict": "pass",
-  "summary": "Goes through the real `TaskService.skills()` path for every discovered workflow plus synthetic skill-less/skilled workflows, asserting `[provision, artifacts, *workflow skills]` (test_spec_2119_artifacts.py:152); counterexamples covered: a workflow shadowing `artifacts` via skill or operation raises",
-  "timestamp": "2026-08-03T13:46:43.174Z"
-}

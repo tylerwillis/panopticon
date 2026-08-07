@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.2.2--8cc1eebf97df",
-  "requirementId": "adversarial-review-mutations.2.2",
-  "hash": "8cc1eebf97df",
-  "verdict": "pass",
-  "summary": "The exact-section golden assertion rejects omission or alteration of “two,” independent fresh contexts, same-model use, author independence, and lack of cross-model diversity.",
-  "timestamp": "2026-08-04T23:57:27.217Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.1.10--0854b0c0128b",
-  "requirementId": "adversarial-review-mutations.1.10",
-  "hash": "0854b0c0128b",
-  "verdict": "pass",
-  "summary": "The test hard-codes the pre-feature tests-judged description and requires exact equality across all three workflows.",
-  "timestamp": "2026-08-04T22:57:46.015Z"
-}

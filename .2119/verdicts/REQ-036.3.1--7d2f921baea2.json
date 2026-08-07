@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-036.3.1--7d2f921baea2",
-  "requirementId": "REQ-036.3.1",
-  "hash": "7d2f921baea2",
-  "verdict": "pass",
-  "summary": "Annotated dispatch test rejects requested/verified heading confusion, missing evidence fields, altered body, and body-label identity spoofing while covering successful PR-comment publication.",
-  "timestamp": "2026-08-02T22:23:21.162Z"
-}

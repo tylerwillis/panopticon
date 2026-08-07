@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.2.1--6824b3ef58c3",
-  "requirementId": "REQ-028.2.1",
-  "hash": "6824b3ef58c3",
-  "verdict": "pass",
-  "summary": "Instructions fetched via `service.skills()` compared byte-for-byte to a test-local literal (not imported from `artifact_skills.py`) containing both `put_artifact` and the curl `PUT $PANOPTICON_SERVICE_URL/tasks/$PANOPTICON_TASK_ID/artifacts/<name>` REST recipe; any drop of either mechanism fails the",
-  "timestamp": "2026-08-03T13:46:43.691Z"
-}

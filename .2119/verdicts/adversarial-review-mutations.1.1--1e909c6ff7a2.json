@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.1.1--1e909c6ff7a2",
-  "requirementId": "adversarial-review-mutations.1.1",
-  "hash": "1e909c6ff7a2",
-  "verdict": "pass",
-  "summary": "The exact-description assertions cover both applicable workflows and reject omission or weakening of machine verification, final-diff scope, evidence-bearing PR comments, reviewer-chosen mutations, or the at-least-one targeted-mutation requirement.",
-  "timestamp": "2026-08-05T00:46:11.780Z"
-}
