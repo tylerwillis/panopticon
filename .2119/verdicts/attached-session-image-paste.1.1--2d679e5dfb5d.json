@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-session-image-paste.1.1--2d679e5dfb5d",
+  "requirementId": "attached-session-image-paste.1.1",
+  "hash": "2d679e5dfb5d",
+  "verdict": "pass",
+  "summary": "PASS: the raw-Ctrl+V tmux proof covers binding/arguments/no fallback, while the exact-socket live bridge proof covers a running container and path delivery; its readiness marker plus pane_current_command=cat gate closes the pre-reader delivery race.",
+  "timestamp": "2026-08-07T16:40:24.583Z"
+}

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import shlex
 import shutil
 import subprocess
 import sys
@@ -43,6 +44,7 @@ def test_shipped_bridge_stages_known_png_and_delivers_its_container_path(
     session = "panopticon-image-paste-e2e-task"
     image = "panopticon-image-paste-e2e:latest"
     pane_input = tmp_path / "pane-input"
+    pane_ready = tmp_path / "pane-ready"
     subprocess.run(["tmux", "-L", socket, "kill-server"], capture_output=True, env=tmux_env)
     subprocess.run(["docker", "rm", "--force", session], capture_output=True)
     try:
@@ -73,7 +75,7 @@ def test_shipped_bridge_stages_known_png_and_delivers_its_container_path(
                 session,
                 "sh",
                 "-c",
-                f"cat > {pane_input}",
+                f"touch {shlex.quote(str(pane_ready))}; exec cat > {shlex.quote(str(pane_input))}",
             ],
             check=True,
             capture_output=True,
@@ -86,6 +88,31 @@ def test_shipped_bridge_stages_known_png_and_delivers_its_container_path(
             check=True,
             env=tmux_env,
         ).stdout.strip()
+
+        deadline = time.monotonic() + 3
+        pane_command = ""
+        while time.monotonic() < deadline:
+            pane_command = subprocess.run(
+                [
+                    "tmux",
+                    "-L",
+                    socket,
+                    "display-message",
+                    "-t",
+                    session,
+                    "-p",
+                    "#{pane_current_command}",
+                ],
+                capture_output=True,
+                text=True,
+                check=True,
+                env=tmux_env,
+            ).stdout.strip()
+            if pane_ready.exists() and pane_command == "cat":
+                break
+            time.sleep(0.02)
+        assert pane_ready.exists()
+        assert pane_command == "cat"
 
         def run(
             argv: list[str],

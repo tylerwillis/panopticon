@@ -66,6 +66,12 @@ not dirty the repository or route clipboard bytes through the task service.
 
 ## Design assessment and alternatives
 
+Verification of `attached-session-image-paste.1.1` is deliberately split. One real-tmux test sends
+the raw shortcut and proves that the binding invokes the bridge with the originating session and
+pane without forwarding the key. A separate live Docker/tmux test supplies deterministic PNG
+bytes to the shipped bridge and proves that it stages the bytes and delivers the container path;
+it does not depend on an ambient system clipboard and cannot pass through the failure branch.
+
 The proposed bridge is intentionally local-runner scoped. When a task is attached through
 `ssh -t`, tmux and the container run on the remote runner, while the clipboard belongs to the
 operator's local machine. Neither ordinary terminal input nor OSC 52 provides a portable,
