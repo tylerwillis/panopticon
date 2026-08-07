@@ -1603,25 +1603,34 @@ class _VimDataTable(DataTable[Any]):
 
     _OVERFLOW_INDICATOR_STYLE = Style(bold=True, reverse=True)
 
-    def _overflow_indicator_line(self, message: str) -> Strip:
-        """Render a full-width centered overflow message in place of one task-content line."""
-        width = self.scrollable_content_region.width
-        text = message.center(width)
-        return Strip(
-            [Segment(text, self.rich_style + self._OVERFLOW_INDICATOR_STYLE)],
-            width,
+    def _with_overflow_indicator(self, line: Strip, message: str) -> Strip:
+        """Composite a short marker over trailing cells without replacing the task row."""
+        marker_width = Segment(message).cell_length
+        marker_start = line.cell_length - marker_width
+        if marker_start < 0:
+            return line
+        trailing = line.crop(marker_start)
+        trailing_style = next(
+            (segment.style for segment in trailing if segment.style is not None),
+            self.rich_style,
         )
+        marker = Strip(
+            [Segment(message, trailing_style + self._OVERFLOW_INDICATOR_STYLE)],
+            marker_width,
+        )
+        return Strip.join((line.crop(0, marker_start), marker))
 
     def render_line(self, y: int) -> Strip:
         """Overlay directional task hints only while rows exist beyond that viewport edge."""
+        line = super().render_line(y)
         task_content_top = self.header_height if self.show_header else 0
         task_content_bottom = self.scrollable_content_region.height - 1
         if task_content_top <= task_content_bottom:
             if y == task_content_top and self.scroll_y > 0:
-                return self._overflow_indicator_line("↑ more tasks")
+                return self._with_overflow_indicator(line, "↑ more")
             if y == task_content_bottom and self.scroll_y < self.max_scroll_y:
-                return self._overflow_indicator_line("↓ more tasks")
-        return super().render_line(y)
+                return self._with_overflow_indicator(line, "↓ more")
+        return line
 
     def _move_skipping(self, direction: int) -> None:
         """Move the cursor one step in ``direction`` (+1 down, -1 up), stepping over any ensemble
