@@ -904,6 +904,7 @@ async def test_vertical_task_overflow_indicator_preserves_horizontal_scrollbar_l
         {**_TASK, "id": f"overflow-{index:02}", "slug": f"overflow-{index:02}"}
         for index in range(30)
     ]
+
     def scrollbar_cells(strip: object) -> tuple[tuple[str, bool, object], ...]:
         return tuple(
             (
@@ -918,22 +919,28 @@ async def test_vertical_task_overflow_indicator_preserves_horizontal_scrollbar_l
         )
 
     baseline_app = Dashboard(
-        _FakeClient(tasks[:1]), refresh_interval=None  # type: ignore[arg-type]
+        _FakeClient(tasks[:1]),
+        refresh_interval=None,  # type: ignore[arg-type]
     )
     async with baseline_app.run_test(size=(35, 12)) as pilot:
         await pilot.pause()
         baseline_table = baseline_app.query_one("#tasks", DataTable)
         assert baseline_table.virtual_size.width > baseline_table.scrollable_content_region.width
         assert baseline_table.max_scroll_x > 0
-        baseline_table.scroll_to(x=baseline_table.max_scroll_x, animate=False, force=True)
-        await pilot.pause()
-        baseline_strips = baseline_app.screen._compositor.render_strips()
-        baseline_scrollbar = baseline_strips[baseline_table.scrollable_content_region.bottom]
-        baseline_cells = scrollbar_cells(baseline_scrollbar)
         assert baseline_table.show_horizontal_scrollbar
         baseline_scrollbar_size = baseline_table.scrollbar_size_horizontal
         assert baseline_scrollbar_size == 1
         assert baseline_table.virtual_size.height <= baseline_table.scrollable_content_region.height
+        horizontal_offsets = sorted(
+            {0, round(baseline_table.max_scroll_x / 2), round(baseline_table.max_scroll_x)}
+        )
+        baseline_cells: dict[int, tuple[tuple[str, bool, object], ...]] = {}
+        for scroll_x in horizontal_offsets:
+            baseline_table.scroll_to(x=scroll_x, animate=False, force=True)
+            await pilot.pause()
+            baseline_strips = baseline_app.screen._compositor.render_strips()
+            baseline_scrollbar = baseline_strips[baseline_table.scrollable_content_region.bottom]
+            baseline_cells[scroll_x] = scrollbar_cells(baseline_scrollbar)
 
     app = Dashboard(_FakeClient(tasks), refresh_interval=None)  # type: ignore[arg-type]
 
@@ -941,33 +948,40 @@ async def test_vertical_task_overflow_indicator_preserves_horizontal_scrollbar_l
         await pilot.pause()
         table = app.query_one("#tasks", DataTable)
         assert table.max_scroll_x == baseline_table.max_scroll_x
-        table.scroll_to(x=table.max_scroll_x, animate=False, force=True)
-        await pilot.pause()
-        strips = app.screen._compositor.render_strips()
-        scrollbar_y = table.scrollable_content_region.bottom
-        scrollbar = strips[scrollbar_y]
-        scrollbar_text = "".join(segment.text for segment in scrollbar)
-
-        grab_segments = [
-            segment
-            for segment in scrollbar
-            if segment.style is not None
-            and segment.style.meta is not None
-            and segment.style.meta.get("@mouse.down") == "grab"
-        ]
-
         assert table.show_horizontal_scrollbar
         assert table.scrollbar_size_horizontal == baseline_scrollbar_size
-        assert scrollbar_cells(scrollbar) == baseline_cells
-        assert grab_segments
-        assert any(segment.text.strip() or segment.style.reverse for segment in grab_segments)
-        assert "↑ more" not in scrollbar_text
-        assert "↓ more" not in scrollbar_text
-        assert "↓ more" in "\n".join(
-            "".join(segment.text for segment in strip)
-            for strip in strips[table.region.y : table.region.bottom]
-        )
         assert table.scrollable_content_region.width == table.content_region.width
+        assert table.max_scroll_y > 1
+        vertical_offsets = [0, round(table.max_scroll_y / 2), round(table.max_scroll_y)]
+
+        for scroll_y in vertical_offsets:
+            for scroll_x in horizontal_offsets:
+                table.scroll_to(x=scroll_x, y=scroll_y, animate=False, force=True)
+                await pilot.pause()
+                strips = app.screen._compositor.render_strips()
+                scrollbar = strips[table.scrollable_content_region.bottom]
+                scrollbar_text = "".join(segment.text for segment in scrollbar)
+                grab_segments = [
+                    segment
+                    for segment in scrollbar
+                    if segment.style is not None
+                    and segment.style.meta is not None
+                    and segment.style.meta.get("@mouse.down") == "grab"
+                ]
+                rendered_table = "\n".join(
+                    "".join(segment.text for segment in strip)
+                    for strip in strips[table.region.y : table.region.bottom]
+                )
+
+                assert scrollbar_cells(scrollbar) == baseline_cells[scroll_x]
+                assert grab_segments
+                assert any(
+                    segment.text.strip() or segment.style.reverse for segment in grab_segments
+                )
+                assert "↑ more" not in scrollbar_text
+                assert "↓ more" not in scrollbar_text
+                assert ("↑ more" in rendered_table) is (scroll_y > 0)
+                assert ("↓ more" in rendered_table) is (scroll_y < table.max_scroll_y)
 
 
 # 2119: full-width-dashboard.1.2
