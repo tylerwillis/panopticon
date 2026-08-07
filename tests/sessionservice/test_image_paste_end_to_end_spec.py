@@ -75,7 +75,11 @@ def test_shipped_bridge_stages_known_png_and_delivers_its_container_path(
                 session,
                 "sh",
                 "-c",
-                f"touch {shlex.quote(str(pane_ready))}; exec cat > {shlex.quote(str(pane_input))}",
+                (
+                    "printf '\\033[?2004h'; sleep 0.5; "
+                    f"touch {shlex.quote(str(pane_ready))}; "
+                    f"exec cat > {shlex.quote(str(pane_input))}"
+                ),
             ],
             check=True,
             capture_output=True,
@@ -133,14 +137,19 @@ def test_shipped_bridge_stages_known_png_and_delivers_its_container_path(
         )
         assert result.ok
 
+        bracketed_start = b"\x1b[200~"
+        bracketed_end = b"\x1b[201~"
+        pane_bytes = b""
         deadline = time.monotonic() + 5
         while time.monotonic() < deadline:
-            pane_bytes = pane_input.read_text() if pane_input.exists() else ""
-            if pane_bytes.startswith("/tmp/panopticon-clipboard-"):
+            pane_bytes = pane_input.read_bytes() if pane_input.exists() else b""
+            if pane_bytes.startswith(bracketed_start) and pane_bytes.endswith(bracketed_end):
                 break
             time.sleep(0.05)
-        assert pane_bytes.startswith("/tmp/panopticon-clipboard-")
-        container_path = pane_bytes.strip()
+        assert pane_bytes.startswith(bracketed_start)
+        assert pane_bytes.endswith(bracketed_end)
+        container_path = pane_bytes[len(bracketed_start) : -len(bracketed_end)].decode()
+        assert container_path.startswith("/tmp/panopticon-clipboard-")
         staged = subprocess.run(
             ["docker", "exec", session, "cat", container_path],
             capture_output=True,
