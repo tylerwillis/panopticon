@@ -1601,6 +1601,30 @@ class _VimDataTable(DataTable[Any]):
         Binding("l", "cursor_right", "Right", show=False),
     ]
 
+    def _move_skipping(self, direction: int) -> None:
+        """Move the cursor one step in ``direction`` (+1 down, -1 up), stepping over any ensemble
+        placeholder rows so it lands on the first real row. If only sentinels or the table edge
+        lie beyond, stay put — never land on a sentinel."""
+        rows = self.ordered_rows
+        target = self.cursor_row + direction
+        while 0 <= target < len(rows):
+            key = rows[target].key.value
+            if isinstance(key, str) and key.startswith(_ENSEMBLE_KEY_PREFIX):
+                target += direction
+                continue
+            self.move_cursor(row=target)
+            return
+
+    def action_cursor_down(self) -> None:
+        self._move_skipping(1)
+
+    def action_cursor_up(self) -> None:
+        self._move_skipping(-1)
+
+
+class _TaskDataTable(_VimDataTable):
+    """The dashboard task table, including task-specific overflow affordances."""
+
     _OVERFLOW_INDICATOR_STYLE = Style(bold=True, reverse=True)
 
     def _with_overflow_indicator(self, line: Strip, message: str) -> Strip:
@@ -1635,26 +1659,6 @@ class _VimDataTable(DataTable[Any]):
             if y == task_content_bottom and self.scroll_y < self.max_scroll_y:
                 return self._with_overflow_indicator(line, "↓ more")
         return line
-
-    def _move_skipping(self, direction: int) -> None:
-        """Move the cursor one step in ``direction`` (+1 down, -1 up), stepping over any ensemble
-        placeholder rows so it lands on the first real row. If only sentinels or the table edge
-        lie beyond, stay put — never land on a sentinel."""
-        rows = self.ordered_rows
-        target = self.cursor_row + direction
-        while 0 <= target < len(rows):
-            key = rows[target].key.value
-            if isinstance(key, str) and key.startswith(_ENSEMBLE_KEY_PREFIX):
-                target += direction
-                continue
-            self.move_cursor(row=target)
-            return
-
-    def action_cursor_down(self) -> None:
-        self._move_skipping(1)
-
-    def action_cursor_up(self) -> None:
-        self._move_skipping(-1)
 
 
 class _VimOptionList(OptionList):
@@ -2821,7 +2825,7 @@ class Dashboard(App[None]):
     def compose(self) -> ComposeResult:
         yield Header()
         with Horizontal():
-            yield _VimDataTable(id="tasks")
+            yield _TaskDataTable(id="tasks")
             yield Static(id="detail")
         yield Input(id="search", placeholder="search tasks…")  # hidden until `/` (CSS display:none)
         yield _StatusFooter()
