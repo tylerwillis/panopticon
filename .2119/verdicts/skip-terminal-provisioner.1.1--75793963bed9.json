@@ -1,0 +1,8 @@
+{
+  "reviewId": "skip-terminal-provisioner.1.1--75793963bed9",
+  "requirementId": "skip-terminal-provisioner.1.1",
+  "hash": "75793963bed9",
+  "verdict": "pass",
+  "summary": "HostDaemon.tick is exercised with both terminal states (COMPLETE and DROPPED), and a recording provisioner proves the forbidden invocation never occurs while cleanup confirms terminal tasks are still processed.",
+  "timestamp": "2026-08-07T16:05:20.149Z"
+}

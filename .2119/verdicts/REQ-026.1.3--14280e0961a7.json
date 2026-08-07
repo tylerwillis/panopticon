@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.1.3--14280e0961a7",
+  "requirementId": "REQ-026.1.3",
+  "hash": "14280e0961a7",
+  "verdict": "pass",
+  "summary": "Tests reject active and DROPPED dependencies, require every dependency to reach a generic non-DROPPED terminal state on the next pass, and verify claim, spawn, and exact initial-prompt delivery.",
+  "timestamp": "2026-08-07T16:04:04.002Z"
+}

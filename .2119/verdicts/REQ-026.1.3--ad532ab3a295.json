@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-026.1.3--ad532ab3a295",
+  "requirementId": "REQ-026.1.3",
+  "hash": "ad532ab3a295",
+  "verdict": "pass",
+  "summary": "Tests reject active and DROPPED dependencies, require all dependencies terminal on the next pass (including a custom terminal), exercise claim-and-spawn, and verify the configured initial prompt reaches the runner.",
+  "timestamp": "2026-08-07T16:36:31.695Z"
+}

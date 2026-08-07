@@ -1,0 +1,8 @@
+{
+  "reviewId": "skip-terminal-provisioner.1.2--8543c1327ec1",
+  "requirementId": "skip-terminal-provisioner.1.2",
+  "hash": "8543c1327ec1",
+  "verdict": "pass",
+  "summary": "Behavioral test covers both terminal states and rejects omitted cleanup or cleanup of the wrong task by asserting the terminal task ID is recorded.",
+  "timestamp": "2026-08-07T16:06:10.186Z"
+}
