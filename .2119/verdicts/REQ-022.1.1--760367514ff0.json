@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-022.1.1--760367514ff0",
-  "requirementId": "REQ-022.1.1",
-  "hash": "760367514ff0",
-  "verdict": "pass",
-  "summary": "The real-image acceptance test rejects missing or non-executable gh, failure to consume GH_TOKEN, and verifies Spike and composed workflow images work without layer installation.",
-  "timestamp": "2026-08-06T21:05:38.139Z"
-}

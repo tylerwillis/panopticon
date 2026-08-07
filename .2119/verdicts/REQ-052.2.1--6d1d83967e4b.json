@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-052.2.1--6d1d83967e4b",
-  "requirementId": "REQ-052.2.1",
-  "hash": "6d1d83967e4b",
-  "verdict": "pass",
-  "summary": "Fresh-process and Docker-backed tests reject no-rebuild, delayed or multiple build, unstaged source, and stale installation by requiring one next-invocation rebuild and revised installed bytes.",
-  "timestamp": "2026-08-06T21:07:44.510Z"
-}

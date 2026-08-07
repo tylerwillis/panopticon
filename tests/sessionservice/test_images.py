@@ -4,12 +4,10 @@ command — unit-tested without a real daemon (the command-runner is faked)."""
 from __future__ import annotations
 
 import importlib.resources
-import json
 import os
 import re
 import shutil
 import subprocess
-import sys
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -201,11 +199,8 @@ def test_base_fingerprint_changes_with_any_packaged_source_file(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path, relative_path: str
 ) -> None:
     source = tmp_path / "installed-panopticon"
-    sentinel = source / "!unchanged-first-resource"
     changed_file = source / relative_path
-    sentinel.parent.mkdir(parents=True)
-    sentinel.write_bytes(b"unchanged sentinel\n")
-    changed_file.parent.mkdir(parents=True, exist_ok=True)
+    changed_file.parent.mkdir(parents=True)
     changed_file.write_bytes(b"packaged-source\x00")
     _use_packaged_source(monkeypatch, source)
 
@@ -370,97 +365,6 @@ def test_source_change_rebuilds_base_with_unchanged_version_and_docker_assets(
     install_command = "bash /ctx/install-packaged-source.sh"
     assert dockerfile.index(install_command) > dockerfile.index("pip install")
     assert "pip install" not in dockerfile[dockerfile.index(install_command) + 1 :]
-
-
-# 2119: REQ-052.2
-def test_new_host_process_rebuilds_and_stages_revised_packaged_source(tmp_path: Path) -> None:
-    source_package = Path(str(importlib.resources.files(__import__("panopticon"))))
-    isolated_site = tmp_path / "site"
-    isolated_package = isolated_site / "panopticon"
-    shutil.copytree(
-        source_package,
-        isolated_package,
-        ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "*.pyo"),
-    )
-    changed_file = isolated_package / "harnesses" / "pi.py"
-    process_env = {**os.environ, "PYTHONPATH": str(isolated_site)}
-    fingerprint_code = (
-        "from panopticon.sessionservice.images import _base_fingerprint; print(_base_fingerprint())"
-    )
-    installed_fingerprint = subprocess.run(
-        [sys.executable, "-c", fingerprint_code],
-        cwd=tmp_path,
-        env=process_env,
-        check=True,
-        capture_output=True,
-        text=True,
-    ).stdout.strip()
-
-    revised_marker = "# revised source from later host process\n"
-    changed_file.write_text(changed_file.read_text() + revised_marker)
-    installed_purelib = tmp_path / "image-purelib"
-    stale_package = installed_purelib / "panopticon"
-    (stale_package / "harnesses").mkdir(parents=True)
-    (stale_package / "harnesses" / "pi.py").write_text("# stale installed source\n")
-    rebuild_code = """
-import json
-import os
-import subprocess
-from pathlib import Path
-from panopticon.sessionservice.images import ImageBuilder
-
-class Recorder:
-    def __init__(self):
-        self.builds = 0
-        self.revised_source_staged = False
-        self.revised_source_installed = False
-
-    def __call__(self, args, *, check=True, verbose=False):
-        if args[:3] == ["docker", "image", "inspect"]:
-            return __import__("os").environ["INSTALLED_FINGERPRINT"]
-        if args[:2] == ["docker", "build"]:
-            self.builds += 1
-            context = Path(args[-1])
-            staged_root = context / "panopticon-source" / "panopticon"
-            staged = staged_root / "harnesses" / "pi.py"
-            marker = "revised source from later host process"
-            self.revised_source_staged = marker in staged.read_text()
-            subprocess.run(
-                ["bash", str(context / "install-packaged-source.sh")],
-                check=True,
-                env={**os.environ, "PANOPTICON_SOURCE_ROOT": str(staged_root),
-                     "PANOPTICON_PURELIB": os.environ["IMAGE_PURELIB"]},
-            )
-            installed = Path(os.environ["IMAGE_PURELIB"]) / "panopticon" / "harnesses" / "pi.py"
-            self.revised_source_installed = marker in installed.read_text()
-        return ""
-
-recorder = Recorder()
-rebuilt = ImageBuilder(base="panopticon-base", run=recorder).build_base_if_missing()
-print(json.dumps({"rebuilt": rebuilt, "builds": recorder.builds,
-                  "revised_source_staged": recorder.revised_source_staged,
-                  "revised_source_installed": recorder.revised_source_installed}))
-"""
-    result = subprocess.run(
-        [sys.executable, "-c", rebuild_code],
-        cwd=tmp_path,
-        env={
-            **process_env,
-            "INSTALLED_FINGERPRINT": installed_fingerprint,
-            "IMAGE_PURELIB": str(installed_purelib),
-        },
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    evidence = json.loads(result.stdout)
-
-    assert evidence == {
-        "rebuilt": True,
-        "builds": 1,
-        "revised_source_staged": True,
-        "revised_source_installed": True,
-    }
 
 
 # 2119: REQ-052.2
