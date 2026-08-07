@@ -1,4 +1,4 @@
-# REQ-050: Image paste bridge for attached task sessions
+# REQ-053: Image paste bridge for attached task sessions
 
 ## Overview
 
@@ -22,7 +22,7 @@ not dirty the repository or route clipboard bytes through the task service.
 
 ## Requirements
 
-### REQ-050.1: Scoped shortcut
+### REQ-053.1: Scoped shortcut
 
 1. On Panopticon's dedicated tmux socket, `Ctrl+V` in a `panopticon-<task-id>` session backed by a
    running task container MUST invoke the host image-paste bridge with that session and originating
@@ -32,7 +32,7 @@ not dirty the repository or route clipboard bytes through the task service.
    matching running container, the bridge binding MUST send exactly `C-v` to the originating pane
    and perform no image capture or container staging.
 
-### REQ-050.2: Host clipboard capture
+### REQ-053.2: Host clipboard capture
 
 1. On Darwin, the bridge MUST attempt to capture PNG image data from the native pasteboard using a
    host-provided system command.
@@ -45,7 +45,7 @@ not dirty the repository or route clipboard bytes through the task service.
 
 4. A clipboard capture result MUST be rejected when it is empty or exceeds 20 MiB.
 
-### REQ-050.3: Private container staging
+### REQ-053.3: Private container staging
 
 1. An accepted clipboard image MUST be streamed through `docker exec --interactive --user
    panopticon` into a unique mode-0600 file below `/tmp` in the target task container.
@@ -53,12 +53,12 @@ not dirty the repository or route clipboard bytes through the task service.
 2. Clipboard image bytes MUST enter the target container only as standard input to the staging
    `docker exec` command and never appear in a tmux command argument or buffer.
 
-### REQ-050.4: Pane delivery
+### REQ-053.4: Pane delivery
 
 1. After staging succeeds, the bridge MUST deliver the container-local image path to the
    originating pane as one bracketed paste without submitting the prompt.
 
-### REQ-050.5: Safe failure
+### REQ-053.5: Safe failure
 
 1. If host capture, size validation, container staging, or pane delivery fails, the bridge MUST
    avoid any subsequent path delivery and display exactly "Image paste is unavailable; save the

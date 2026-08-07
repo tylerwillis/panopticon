@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-053.2.2--84ce5551c9bf",
+  "requirementId": "REQ-053.2.2",
+  "hash": "84ce5551c9bf",
+  "verdict": "pass",
+  "summary": "The positive test requires Linux, nonempty Wayland display, available wl-paste, and exact image/png request; negative antecedent cases reject overbroad Wayland use.",
+  "timestamp": "2026-08-07T15:34:12.127Z"
+}

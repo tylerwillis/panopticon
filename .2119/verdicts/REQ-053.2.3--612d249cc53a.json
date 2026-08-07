@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-053.2.3--612d249cc53a",
+  "requirementId": "REQ-053.2.3",
+  "hash": "612d249cc53a",
+  "verdict": "pass",
+  "summary": "Linux/DISPLAY with wl-paste absent and xclip present is exercised, and the test pins the clipboard selection plus exact image/png target invocation.",
+  "timestamp": "2026-08-07T15:33:18.075Z"
+}

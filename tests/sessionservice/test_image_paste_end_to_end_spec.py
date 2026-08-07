@@ -1,11 +1,14 @@
-"""Live host tmux→shipped bridge→running container proof for REQ-050.1.1."""
+"""Live host tmux→shipped bridge→running container proof for REQ-053.1.1."""
 
 from __future__ import annotations
 
+import contextlib
 import os
 import pty
 import shutil
 import subprocess
+import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -16,13 +19,14 @@ from panopticon.sessionservice.tmux_defaults import write_default_config
 
 def _docker_and_tmux_work() -> bool:
     return bool(
-        shutil.which("docker")
+        sys.platform == "linux"
+        and shutil.which("docker")
         and shutil.which("tmux")
         and subprocess.run(["docker", "info"], capture_output=True).returncode == 0
     )
 
 
-# 2119: REQ-050.1.1
+# 2119: REQ-053.1.1
 @pytest.mark.skipif(not _docker_and_tmux_work(), reason="needs a working docker daemon + tmux")
 def test_real_ctrl_v_runs_the_shipped_bridge_against_a_matching_live_container(
     tmp_path: Path,
@@ -30,9 +34,18 @@ def test_real_ctrl_v_runs_the_shipped_bridge_against_a_matching_live_container(
     # Use Panopticon's exact dedicated socket name.  TMUX_TMPDIR isolates this proof from a
     # developer's live Panopticon server without weakening the socket-name contract.
     socket = "panopticon"
-    tmux_tmpdir = tmp_path / "tmux"
-    tmux_tmpdir.mkdir(mode=0o700)
-    tmux_env = {**os.environ, "TMUX_TMPDIR": str(tmux_tmpdir)}
+    tmux_tmpdir = Path(tempfile.mkdtemp(prefix="pt-"))
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    wl_paste = fake_bin / "wl-paste"
+    wl_paste.write_text("#!/bin/sh\nprintf '\\211PNG\\r\\n\\032\\ncontent'\n")
+    wl_paste.chmod(0o755)
+    tmux_env = {
+        **os.environ,
+        "TMUX_TMPDIR": str(tmux_tmpdir),
+        "WAYLAND_DISPLAY": "panopticon-test",
+        "PATH": f"{fake_bin}{os.pathsep}{os.environ['PATH']}",
+    }
     session = "panopticon-image-paste-e2e-task"
     image = "panopticon-image-paste-e2e:latest"
     pane_input = tmp_path / "pane-input"
@@ -52,6 +65,7 @@ def test_real_ctrl_v_runs_the_shipped_bridge_against_a_matching_live_container(
             ["docker", "run", "--detach", "--name", session, image],
             check=True,
             capture_output=True,
+            env=tmux_env,
         )
         config = write_default_config(socket, directory=tmp_path, clipboard=None)
         subprocess.run(
@@ -71,6 +85,7 @@ def test_real_ctrl_v_runs_the_shipped_bridge_against_a_matching_live_container(
             ],
             check=True,
             capture_output=True,
+            env=tmux_env,
         )
         master, slave = pty.openpty()
         client = subprocess.Popen(
@@ -81,33 +96,44 @@ def test_real_ctrl_v_runs_the_shipped_bridge_against_a_matching_live_container(
             env=tmux_env,
         )
         os.close(slave)
+        deadline = time.monotonic() + 3
+        while time.monotonic() < deadline:
+            clients = subprocess.run(
+                ["tmux", "-L", socket, "list-clients", "-t", session],
+                capture_output=True,
+                check=False,
+                env=tmux_env,
+            )
+            if clients.stdout:
+                break
+            time.sleep(0.02)
+        assert clients.stdout
+        time.sleep(0.5)
         os.write(master, b"\x16")
 
         deadline = time.monotonic() + 5
-        observed = ""
         while time.monotonic() < deadline:
             pane_bytes = pane_input.read_text() if pane_input.exists() else ""
-            messages = subprocess.run(
-                ["tmux", "-L", socket, "show-messages", "-t", session],
-                capture_output=True,
-                text=True,
-                check=False,
-                env=tmux_env,
-            ).stdout
             if pane_bytes.startswith("/tmp/panopticon-clipboard-"):
-                observed = "path delivered"
-                break
-            if "Image paste is unavailable" in messages:
-                observed = "failure surfaced"
                 break
             time.sleep(0.05)
-        assert observed in {"path delivered", "failure surfaced"}
+        assert pane_bytes.startswith("/tmp/panopticon-clipboard-")
+        container_path = pane_bytes.strip()
+        staged = subprocess.run(
+            ["docker", "exec", session, "cat", container_path],
+            capture_output=True,
+            check=True,
+        )
+        assert staged.stdout == b"\x89PNG\r\n\x1a\ncontent"
     finally:
         if master >= 0:
-            os.write(master, b"\x02d")
-            os.close(master)
+            with contextlib.suppress(OSError):
+                os.write(master, b"\x02d")
+            with contextlib.suppress(OSError):
+                os.close(master)
         if client is not None:
             client.wait(timeout=3)
         subprocess.run(["tmux", "-L", socket, "kill-server"], capture_output=True, env=tmux_env)
         subprocess.run(["docker", "rm", "--force", session], capture_output=True)
         subprocess.run(["docker", "rmi", "--force", image], capture_output=True)
+        shutil.rmtree(tmux_tmpdir, ignore_errors=True)

@@ -1,4 +1,4 @@
-"""Exact `panopticon-` prefix boundaries and side-effect exclusions for REQ-050.1.2."""
+"""Exact `panopticon-` prefix boundaries and side-effect exclusions for REQ-053.1.2."""
 
 # ruff: noqa: B023
 
@@ -9,7 +9,7 @@ import subprocess
 from panopticon.sessionservice.image_paste import CapturedImage, main
 
 
-# 2119: REQ-050.1.2
+# 2119: REQ-053.1.2
 def test_non_task_prefix_boundaries_forward_as_their_only_action() -> None:
     for session in ("panopticon", "xpanopticon-task", "-panopticon-task", "task"):
         calls: list[list[str]] = []
@@ -29,7 +29,7 @@ def test_non_task_prefix_boundaries_forward_as_their_only_action() -> None:
         assert capture_calls == 0
 
 
-# 2119: REQ-050.1.2
+# 2119: REQ-053.1.2
 def test_task_prefix_without_an_exact_container_match_only_probes_then_forwards() -> None:
     calls: list[list[str]] = []
     capture_calls = 0

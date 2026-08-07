@@ -1,4 +1,4 @@
-"""REQ-050 contract tests for the attached-session image-paste bridge."""
+"""REQ-053 contract tests for the attached-session image-paste bridge."""
 
 # ruff: noqa: B023
 
@@ -24,7 +24,7 @@ def _which(present: set[str]):
     return lambda tool: f"/usr/bin/{tool}" if tool in present else None
 
 
-# 2119: REQ-050.1.1
+# 2119: REQ-053.1.1
 def test_binding_routes_container_task_ctrl_v_to_its_originating_pane() -> None:
     binding = image_paste_binding("python -m panopticon.sessionservice.image_paste")
     assert binding == (
@@ -67,7 +67,7 @@ def test_binding_routes_container_task_ctrl_v_to_its_originating_pane() -> None:
     assert not any(argv[-1:] == ["C-v"] for argv, _ in calls)
 
 
-# 2119: REQ-050.1.1
+# 2119: REQ-053.1.1
 def test_success_never_forwards_ctrl_v_after_invoking_the_bridge() -> None:
     calls: list[list[str]] = []
 
@@ -95,7 +95,7 @@ def test_success_never_forwards_ctrl_v_after_invoking_the_bridge() -> None:
     assert [argv for argv in calls if argv[:2] == ["tmux", "send-keys"]] == []
 
 
-# 2119: REQ-050.1.2
+# 2119: REQ-053.1.2
 def test_binding_forwards_ctrl_v_outside_a_running_task_container() -> None:
     for session in ("dashboard", "service", "panopticon-stopped-task"):
         calls: list[list[str]] = []
@@ -116,7 +116,7 @@ def test_binding_forwards_ctrl_v_outside_a_running_task_container() -> None:
         assert not any(argv[:2] == ["docker", "exec"] for argv in calls)
 
 
-# 2119: REQ-050.2.1
+# 2119: REQ-053.2.1
 def test_darwin_capture_uses_the_native_pasteboard_png_type() -> None:
     calls: list[tuple[str, ...]] = []
 
@@ -137,7 +137,7 @@ def test_darwin_capture_uses_the_native_pasteboard_png_type() -> None:
     assert DARWIN_PNG_SCRIPT == "get the clipboard as «class PNGf»"
 
 
-# 2119: REQ-050.2.2
+# 2119: REQ-053.2.2
 def test_linux_capture_prefers_wayland_png() -> None:
     calls: list[tuple[str, ...]] = []
 
@@ -155,7 +155,7 @@ def test_linux_capture_prefers_wayland_png() -> None:
     assert calls == [("/usr/bin/wl-paste", "--type", "image/png")]
 
 
-# 2119: REQ-050.2.3
+# 2119: REQ-053.2.3
 def test_linux_capture_falls_back_to_x11_png() -> None:
     calls: list[tuple[str, ...]] = []
 
@@ -182,7 +182,7 @@ def test_linux_capture_falls_back_to_x11_png() -> None:
     ]
 
 
-# 2119: REQ-050.2.4
+# 2119: REQ-053.2.4
 def test_empty_and_oversize_images_are_rejected_before_container_io() -> None:
     calls: list[tuple[list[str], bytes | None]] = []
 
@@ -213,9 +213,9 @@ def test_empty_and_oversize_images_are_rejected_before_container_io() -> None:
     assert any(argv[:2] == ["docker", "exec"] for argv, _ in calls)
 
 
-# 2119: REQ-050.3.1
-# 2119: REQ-050.3.2
-# 2119: REQ-050.4.1
+# 2119: REQ-053.3.1
+# 2119: REQ-053.3.2
+# 2119: REQ-053.4.1
 def test_success_stages_unique_private_files_then_exactly_bracket_pastes_the_path() -> None:
     calls: list[tuple[list[str], bytes | None]] = []
 
@@ -289,7 +289,7 @@ def test_success_stages_unique_private_files_then_exactly_bracket_pastes_the_pat
     assert not any("Enter" in argv or "send-keys" in argv for argv, _ in calls)
 
 
-# 2119: REQ-050.3.1
+# 2119: REQ-053.3.1
 def test_default_paths_are_unique_and_staging_script_creates_mode_0600_file(tmp_path) -> None:
     paths = {container_image_path("png") for _ in range(100)}
     assert len(paths) == 100
@@ -308,7 +308,7 @@ def test_default_paths_are_unique_and_staging_script_creates_mode_0600_file(tmp_
     assert destination.stat().st_mode & 0o777 == 0o600
 
 
-# 2119: REQ-050.5.1
+# 2119: REQ-053.5.1
 def test_each_failure_reports_workaround_without_pasting_a_path() -> None:
     for failure in ("capture", "empty", "oversize", "staging", "delivery"):
         calls: list[list[str]] = []

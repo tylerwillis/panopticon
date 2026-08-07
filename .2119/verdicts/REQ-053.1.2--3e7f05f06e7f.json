@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-053.1.2--3e7f05f06e7f",
+  "requirementId": "REQ-053.1.2",
+  "hash": "3e7f05f06e7f",
+  "verdict": "pass",
+  "summary": "Tests reject near-miss prefixes and non-exact/stopped container matches, require exactly one C-v to the originating pane, and prove capture and staging are absent.",
+  "timestamp": "2026-08-07T15:34:10.758Z"
+}

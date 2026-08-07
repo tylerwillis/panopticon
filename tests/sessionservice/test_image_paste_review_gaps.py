@@ -1,9 +1,10 @@
-"""Focused counterexamples required by REQ-050's fresh-context honesty review."""
+"""Focused counterexamples required by REQ-053's fresh-context honesty review."""
 
 # ruff: noqa: B023
 
 from __future__ import annotations
 
+import contextlib
 import os
 import pty
 import shlex
@@ -28,8 +29,8 @@ def _which(present: set[str]):
     return lambda tool: f"/usr/bin/{tool}" if tool in present else None
 
 
-# 2119: REQ-050.1.1
-# 2119: REQ-050.1.2
+# 2119: REQ-053.1.1
+# 2119: REQ-053.1.2
 @pytest.mark.skipif(not shutil.which("tmux"), reason="needs tmux")
 def test_real_tmux_ctrl_v_invokes_loaded_bridge_with_originating_session_and_pane(
     tmp_path: Path,
@@ -94,6 +95,18 @@ def test_real_tmux_ctrl_v_invokes_loaded_bridge_with_originating_session_and_pan
             stderr=slave,
         )
         os.close(slave)
+        deadline = time.monotonic() + 3
+        while time.monotonic() < deadline:
+            clients = subprocess.run(
+                ["tmux", "-L", socket, "list-clients", "-t", session],
+                capture_output=True,
+                check=False,
+            )
+            if clients.stdout:
+                break
+            time.sleep(0.02)
+        assert clients.stdout
+        time.sleep(0.5)
         os.write(master, b"\x16")
         deadline = time.monotonic() + 3
         while not marker.exists() and time.monotonic() < deadline:
@@ -101,14 +114,16 @@ def test_real_tmux_ctrl_v_invokes_loaded_bridge_with_originating_session_and_pan
         assert marker.read_text() == f"{session}|{pane}"
     finally:
         if master >= 0:
-            os.write(master, b"\x02d")
-            os.close(master)
+            with contextlib.suppress(OSError):
+                os.write(master, b"\x02d")
+            with contextlib.suppress(OSError):
+                os.close(master)
         if client is not None:
             client.wait(timeout=3)
         subprocess.run(["tmux", "-L", socket, "kill-server"], capture_output=True)
 
 
-# 2119: REQ-050.2.2
+# 2119: REQ-053.2.2
 def test_wayland_capture_requires_every_antecedent() -> None:
     scenarios = (
         ("darwin", {"WAYLAND_DISPLAY": "wayland-0"}, {"wl-paste", "osascript"}),
@@ -133,7 +148,7 @@ def test_wayland_capture_requires_every_antecedent() -> None:
         assert calls[0][0] != "/usr/bin/wl-paste"
 
 
-# 2119: REQ-050.5.1
+# 2119: REQ-053.5.1
 def test_failure_never_uses_an_alternate_path_delivery_command() -> None:
     for failure in ("capture", "empty", "oversize", "staging", "delivery"):
         calls: list[list[str]] = []
