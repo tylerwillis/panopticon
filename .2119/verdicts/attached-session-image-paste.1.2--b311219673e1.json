@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-session-image-paste.1.2--b311219673e1",
+  "requirementId": "attached-session-image-paste.1.2",
+  "hash": "b311219673e1",
+  "verdict": "pass",
+  "summary": "Tests reject non-prefix and near-name/no-container cases, require one exact C-v to the supplied pane, and detect any capture or staging call.",
+  "timestamp": "2026-08-07T18:18:37.993Z"
+}

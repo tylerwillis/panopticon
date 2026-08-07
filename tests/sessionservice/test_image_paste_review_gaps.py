@@ -78,8 +78,19 @@ def test_real_tmux_ctrl_v_invokes_loaded_bridge_with_originating_session_and_pan
             env=tmux_env,
         )
         assert created.returncode == 0, created.stderr
+        session_id = next(
+            line.split("\t", 1)[0]
+            for line in subprocess.run(
+                ["tmux", "-L", socket, "list-sessions", "-F", "#{session_id}\t#{session_name}"],
+                capture_output=True,
+                text=True,
+                check=True,
+                env=tmux_env,
+            ).stdout.splitlines()
+            if line.split("\t", 1)[1] == session
+        )
         pane = subprocess.run(
-            ["tmux", "-L", socket, "display-message", "-t", session, "-p", "#{pane_id}"],
+            ["tmux", "-L", socket, "display-message", "-t", session_id, "-p", "#{pane_id}"],
             capture_output=True,
             text=True,
             check=True,
@@ -98,7 +109,7 @@ def test_real_tmux_ctrl_v_invokes_loaded_bridge_with_originating_session_and_pan
 
         master, slave = pty.openpty()
         client = subprocess.Popen(
-            ["tmux", "-L", socket, "attach", "-t", session],
+            ["tmux", "-L", socket, "attach", "-t", session_id],
             stdin=slave,
             stdout=slave,
             stderr=slave,
@@ -108,7 +119,7 @@ def test_real_tmux_ctrl_v_invokes_loaded_bridge_with_originating_session_and_pan
         deadline = time.monotonic() + 3
         while time.monotonic() < deadline:
             clients = subprocess.run(
-                ["tmux", "-L", socket, "list-clients", "-t", session],
+                ["tmux", "-L", socket, "list-clients", "-t", session_id],
                 capture_output=True,
                 check=False,
                 env=tmux_env,
