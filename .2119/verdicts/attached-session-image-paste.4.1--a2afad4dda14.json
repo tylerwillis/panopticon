@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-session-image-paste.4.1--a2afad4dda14",
+  "requirementId": "attached-session-image-paste.4.1",
+  "hash": "a2afad4dda14",
+  "verdict": "pass",
+  "summary": "PASS: each success requires one path-only load followed by paste-buffer -p -d to the originating pane, with no Enter or send-keys; the live pane proof additionally requires one bracketed-paste envelope rather than prompt submission.",
+  "timestamp": "2026-08-07T17:47:50.131Z"
+}

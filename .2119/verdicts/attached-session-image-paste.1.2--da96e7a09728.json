@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-session-image-paste.1.2--da96e7a09728",
+  "requirementId": "attached-session-image-paste.1.2",
+  "hash": "da96e7a09728",
+  "verdict": "pass",
+  "summary": "PASS: non-Panopticon prefix boundaries and exact/nonmatching-container cases require exactly one C-v sent to the originating pane and explicitly exclude capture, container staging, tmux buffer loading, and path delivery.",
+  "timestamp": "2026-08-07T17:47:50.131Z"
+}

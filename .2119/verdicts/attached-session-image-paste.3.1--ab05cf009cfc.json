@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-session-image-paste.3.1--ab05cf009cfc",
+  "requirementId": "attached-session-image-paste.3.1",
+  "hash": "ab05cf009cfc",
+  "verdict": "pass",
+  "summary": "PASS: exact docker-exec traces prove byte-identical stdin reaches distinct /tmp targets as user panopticon; real staging-script tests require 0600 content and O_EXCL rejection of existing files, symlinks, and dangling symlinks without altering their targets.",
+  "timestamp": "2026-08-07T17:47:50.131Z"
+}

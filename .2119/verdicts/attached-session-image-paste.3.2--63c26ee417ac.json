@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-session-image-paste.3.2--63c26ee417ac",
+  "requirementId": "attached-session-image-paste.3.2",
+  "hash": "63c26ee417ac",
+  "verdict": "pass",
+  "summary": "PASS: full exact argv/input traces confine image bytes to docker exec stdin, while the only bridge-created tmux buffer receives exactly the container path; adding bytes to any process argument or tmux buffer would fail these assertions.",
+  "timestamp": "2026-08-07T17:47:50.131Z"
+}

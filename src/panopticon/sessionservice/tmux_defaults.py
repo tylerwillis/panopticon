@@ -91,7 +91,7 @@ def server_default_config_text(*, clipboard: str | None) -> str:
         "set-option -g mouse on",
         f"set-option -g history-limit {HISTORY_LIMIT}",
         "set-option -g set-clipboard on",
-        image_paste_binding("python -m panopticon.sessionservice.image_paste"),
+        image_paste_binding("panopticon-image-paste"),
         f"bind-key -T copy-mode MouseDragEnd1Pane {copy}",
         f"bind-key -T copy-mode-vi MouseDragEnd1Pane {copy}",
         f"bind-key -T root DoubleClick1Pane copy-mode -M \\; send-keys -X select-word \\; {copy}",

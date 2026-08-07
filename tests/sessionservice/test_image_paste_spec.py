@@ -6,6 +6,8 @@ from __future__ import annotations
 
 import os
 import subprocess
+import sys
+import tomllib
 from pathlib import Path
 
 import pytest
@@ -30,12 +32,16 @@ def _which(present: set[str]):
 
 # 2119: attached-session-image-paste.1.1
 def test_binding_routes_container_task_ctrl_v_to_its_originating_pane() -> None:
-    binding = image_paste_binding("python -m panopticon.sessionservice.image_paste")
+    binding = image_paste_binding("panopticon-image-paste")
     assert binding == (
-        "bind-key -T root C-v run-shell -b "
-        "'python -m panopticon.sessionservice.image_paste #{q:session_name} #{q:pane_id}'"
+        "bind-key -T root C-v run-shell -b 'panopticon-image-paste #{q:session_name} #{q:pane_id}'"
     )
     assert binding in server_default_config_text(clipboard=None)
+    scripts = tomllib.loads(Path("pyproject.toml").read_text())["project"]["scripts"]
+    assert scripts["panopticon-image-paste"] == "panopticon.sessionservice.image_paste:main"
+    assert "python -m panopticon.sessionservice.image_paste" not in server_default_config_text(
+        clipboard=None
+    )
     assert defaults_argv(None) == []
 
     calls: list[tuple[list[str], bytes | None]] = []
@@ -69,6 +75,25 @@ def test_binding_routes_container_task_ctrl_v_to_its_originating_pane() -> None:
     ]
     assert calls[-1][0][-2:] == ["-t", "%7"]
     assert not any(argv[-1:] == ["C-v"] for argv, _ in calls)
+
+
+# 2119: attached-session-image-paste.1.1
+def test_installed_bridge_entrypoint_ignores_a_different_path_python(tmp_path: Path) -> None:
+    fake_bin = tmp_path / "fake-bin"
+    fake_bin.mkdir()
+    fake_python = fake_bin / "python"
+    fake_python.write_text("#!/bin/sh\nexit 99\n")
+    fake_python.chmod(0o755)
+
+    entrypoint = Path(sys.executable).with_name("panopticon-image-paste")
+    assert entrypoint.is_file()
+    completed = subprocess.run(
+        ["panopticon-image-paste"],
+        capture_output=True,
+        check=False,
+        env={**os.environ, "PATH": f"{fake_bin}:{entrypoint.parent}"},
+    )
+    assert completed.returncode == 2
 
 
 # 2119: attached-session-image-paste.1.1

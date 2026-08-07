@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-session-image-paste.1.1--b18cbd79a156",
+  "requirementId": "attached-session-image-paste.1.1",
+  "hash": "b18cbd79a156",
+  "verdict": "pass",
+  "summary": "PASS: the shipped default is pinned to the packaged panopticon-image-paste console script with exact #{q:session_name}/#{q:pane_id} quoting; a fake python placed first on PATH cannot intercept it (main's argument error 2 is observed, not 99). Raw-Ctrl+V hostile-session and split live-container proofs cover originating session/pane, running-container scope, staging/delivery, and no C-v forwarding.",
+  "timestamp": "2026-08-07T17:47:50.131Z"
+}

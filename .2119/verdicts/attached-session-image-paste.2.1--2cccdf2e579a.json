@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-session-image-paste.2.1--2cccdf2e579a",
+  "requirementId": "attached-session-image-paste.2.1",
+  "hash": "2cccdf2e579a",
+  "verdict": "pass",
+  "summary": "PASS: the Darwin case requires host-resolved osascript, the exact native PNGf pasteboard request, successful decoding, and byte-identical PNG output; nearby wrong-command or wrong-type implementations fail.",
+  "timestamp": "2026-08-07T17:47:50.131Z"
+}

@@ -49,7 +49,7 @@ def test_real_tmux_ctrl_v_invokes_loaded_bridge_with_originating_session_and_pan
         "PANOPTICON_TEST_MARKER": str(injected),
         "TERM": "xterm-256color",
     }
-    default_binding = image_paste_binding("python -m panopticon.sessionservice.image_paste")
+    default_binding = image_paste_binding("panopticon-image-paste")
     test_binding = image_paste_binding(command)
     config = tmp_path / "tmux.conf"
     config.write_text(
