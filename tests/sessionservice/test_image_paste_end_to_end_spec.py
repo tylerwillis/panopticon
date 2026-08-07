@@ -43,6 +43,7 @@ def test_real_ctrl_v_runs_the_shipped_bridge_against_a_matching_live_container(
     tmux_env = {
         **os.environ,
         "TMUX_TMPDIR": str(tmux_tmpdir),
+        "TERM": "xterm-256color",
         "WAYLAND_DISPLAY": "panopticon-test",
         "PATH": f"{fake_bin}{os.pathsep}{os.environ['PATH']}",
     }

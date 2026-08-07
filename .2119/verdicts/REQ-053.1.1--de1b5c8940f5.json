@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-053.1.1--de1b5c8940f5",
+  "requirementId": "REQ-053.1.1",
+  "hash": "de1b5c8940f5",
+  "verdict": "pass",
+  "summary": "Real tmux on the exact socket, with explicit TERM and attached-client readiness polling, sends Ctrl+V through the shipped bridge to the live matching container and proves the originating pane receives only the staged path.",
+  "timestamp": "2026-08-07T15:46:26.185Z"
+}

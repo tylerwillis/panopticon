@@ -43,13 +43,14 @@ def test_real_tmux_ctrl_v_invokes_loaded_bridge_with_originating_session_and_pan
         f"import pathlib, sys\npathlib.Path({str(marker)!r}).write_text('|'.join(sys.argv[1:]))\n"
     )
     command = f"python {shlex.quote(str(helper))}"
+    tmux_env = {**os.environ, "TERM": "xterm-256color"}
     default_binding = image_paste_binding("python -m panopticon.sessionservice.image_paste")
     test_binding = image_paste_binding(command)
     config = tmp_path / "tmux.conf"
     config.write_text(
         server_default_config_text(clipboard=None).replace(default_binding, test_binding)
     )
-    subprocess.run(["tmux", "-L", socket, "kill-server"], capture_output=True)
+    subprocess.run(["tmux", "-L", socket, "kill-server"], capture_output=True, env=tmux_env)
     master = -1
     client: subprocess.Popen[bytes] | None = None
     try:
@@ -69,6 +70,7 @@ def test_real_tmux_ctrl_v_invokes_loaded_bridge_with_originating_session_and_pan
             ],
             capture_output=True,
             check=False,
+            env=tmux_env,
         )
         assert created.returncode == 0, created.stderr
         pane = subprocess.run(
@@ -76,12 +78,14 @@ def test_real_tmux_ctrl_v_invokes_loaded_bridge_with_originating_session_and_pan
             capture_output=True,
             text=True,
             check=True,
+            env=tmux_env,
         ).stdout.strip()
         keys = subprocess.run(
             ["tmux", "-L", socket, "list-keys", "-T", "root"],
             capture_output=True,
             text=True,
             check=True,
+            env=tmux_env,
         ).stdout
         ctrl_v = next(line for line in keys.splitlines() if "C-v" in line)
         assert command in ctrl_v
@@ -93,6 +97,7 @@ def test_real_tmux_ctrl_v_invokes_loaded_bridge_with_originating_session_and_pan
             stdin=slave,
             stdout=slave,
             stderr=slave,
+            env=tmux_env,
         )
         os.close(slave)
         deadline = time.monotonic() + 3
@@ -101,6 +106,7 @@ def test_real_tmux_ctrl_v_invokes_loaded_bridge_with_originating_session_and_pan
                 ["tmux", "-L", socket, "list-clients", "-t", session],
                 capture_output=True,
                 check=False,
+                env=tmux_env,
             )
             if clients.stdout:
                 break
@@ -120,7 +126,7 @@ def test_real_tmux_ctrl_v_invokes_loaded_bridge_with_originating_session_and_pan
                 os.close(master)
         if client is not None:
             client.wait(timeout=3)
-        subprocess.run(["tmux", "-L", socket, "kill-server"], capture_output=True)
+        subprocess.run(["tmux", "-L", socket, "kill-server"], capture_output=True, env=tmux_env)
 
 
 # 2119: REQ-053.2.2
