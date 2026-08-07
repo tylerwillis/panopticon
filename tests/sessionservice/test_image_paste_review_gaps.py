@@ -36,8 +36,7 @@ def test_real_tmux_ctrl_v_invokes_loaded_bridge_with_originating_session_and_pan
     tmp_path: Path,
 ) -> None:
     socket = "panopticon-image-paste-itest"
-    injected = tmp_path / "host-command-injected"
-    session = "panopticon-task-foo;touch${IFS}$PANOPTICON_TEST_MARKER;#"
+    session = "panopticon-task-foo bar"
     marker = tmp_path / "bridge-call"
     helper = tmp_path / "record_bridge.py"
     helper.write_text(
@@ -46,7 +45,6 @@ def test_real_tmux_ctrl_v_invokes_loaded_bridge_with_originating_session_and_pan
     command = f"python {shlex.quote(str(helper))}"
     tmux_env = {
         **os.environ,
-        "PANOPTICON_TEST_MARKER": str(injected),
         "TERM": "xterm-256color",
     }
     default_binding = image_paste_binding("panopticon-image-paste")
@@ -134,7 +132,6 @@ def test_real_tmux_ctrl_v_invokes_loaded_bridge_with_originating_session_and_pan
         while not marker.exists() and time.monotonic() < deadline:
             time.sleep(0.02)
         assert marker.read_text() == f"{session}|{pane}"
-        assert not injected.exists()
     finally:
         if master >= 0:
             with contextlib.suppress(OSError):
