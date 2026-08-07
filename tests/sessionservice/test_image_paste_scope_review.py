@@ -1,4 +1,4 @@
-"""Exhaust the two mutually exclusive non-container scope classes in REQ-053.1.2."""
+"""Exhaust the two mutually exclusive non-container scope classes in attached-session-image-paste.1.2."""
 
 # ruff: noqa: B023
 
@@ -9,7 +9,7 @@ import subprocess
 from panopticon.sessionservice.image_paste import main
 
 
-# 2119: REQ-053.1.2
+# 2119: attached-session-image-paste.1.2
 def test_every_noncontainer_scope_class_forwards_only_ctrl_v_to_the_originating_pane() -> None:
     scenarios = (
         ("editor", True),

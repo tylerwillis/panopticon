@@ -1,4 +1,4 @@
-"""Nearest no-matching-container and no-capture counterexamples for REQ-053.1.2."""
+"""Nearest no-matching-container and no-capture counterexamples for attached-session-image-paste.1.2."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ import subprocess
 from panopticon.sessionservice.image_paste import CapturedImage, main
 
 
-# 2119: REQ-053.1.2
+# 2119: attached-session-image-paste.1.2
 def test_nonmatching_container_output_forwards_without_attempting_capture() -> None:
     calls: list[list[str]] = []
     capture_calls = 0

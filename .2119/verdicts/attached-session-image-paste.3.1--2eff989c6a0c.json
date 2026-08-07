@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-session-image-paste.3.1--2eff989c6a0c",
+  "requirementId": "attached-session-image-paste.3.1",
+  "hash": "2eff989c6a0c",
+  "verdict": "pass",
+  "summary": "Tests verify byte-identical stdin reaches an exact target-container /tmp path, distinct allocations, and a real staging script creates 0600 content.",
+  "timestamp": "2026-08-07T15:51:53.680Z"
+}

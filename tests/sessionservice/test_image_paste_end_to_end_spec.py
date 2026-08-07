@@ -1,4 +1,4 @@
-"""Live host tmux→shipped bridge→running container proof for REQ-053.1.1."""
+"""Live host tmux→shipped bridge→running container proof for attached-session-image-paste.1.1."""
 
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ def _docker_and_tmux_work() -> bool:
     )
 
 
-# 2119: REQ-053.1.1
+# 2119: attached-session-image-paste.1.1
 @pytest.mark.skipif(not _docker_and_tmux_work(), reason="needs a working docker daemon + tmux")
 def test_real_ctrl_v_runs_the_shipped_bridge_against_a_matching_live_container(
     tmp_path: Path,

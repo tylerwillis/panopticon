@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-session-image-paste.1.2--064033730895",
+  "requirementId": "attached-session-image-paste.1.2",
+  "hash": "064033730895",
+  "verdict": "pass",
+  "summary": "Tests reject near-prefix and inexact-container matches, require exactly one C-v to the originating pane, and prove both clipboard capture and container/pane staging side effects are absent.",
+  "timestamp": "2026-08-07T15:50:01.787Z"
+}

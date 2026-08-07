@@ -29,8 +29,8 @@ def _which(present: set[str]):
     return lambda tool: f"/usr/bin/{tool}" if tool in present else None
 
 
-# 2119: REQ-053.1.1
-# 2119: REQ-053.1.2
+# 2119: attached-session-image-paste.1.1
+# 2119: attached-session-image-paste.1.2
 @pytest.mark.skipif(not shutil.which("tmux"), reason="needs tmux")
 def test_real_tmux_ctrl_v_invokes_loaded_bridge_with_originating_session_and_pane(
     tmp_path: Path,
@@ -129,7 +129,7 @@ def test_real_tmux_ctrl_v_invokes_loaded_bridge_with_originating_session_and_pan
         subprocess.run(["tmux", "-L", socket, "kill-server"], capture_output=True, env=tmux_env)
 
 
-# 2119: REQ-053.2.2
+# 2119: attached-session-image-paste.2.2
 def test_wayland_capture_requires_every_antecedent() -> None:
     scenarios = (
         ("darwin", {"WAYLAND_DISPLAY": "wayland-0"}, {"wl-paste", "osascript"}),
@@ -154,9 +154,9 @@ def test_wayland_capture_requires_every_antecedent() -> None:
         assert calls[0][0] != "/usr/bin/wl-paste"
 
 
-# 2119: REQ-053.5.1
+# 2119: attached-session-image-paste.5.1
 def test_failure_never_uses_an_alternate_path_delivery_command() -> None:
-    for failure in ("capture", "empty", "oversize", "staging", "delivery"):
+    for failure in ("capture", "empty", "oversize", "staging", "loading", "delivery"):
         calls: list[list[str]] = []
 
         def capture() -> CapturedImage:
@@ -170,8 +170,10 @@ def test_failure_never_uses_an_alternate_path_delivery_command() -> None:
 
         def run(argv: list[str], **_kwargs: object):
             calls.append(argv)
-            fails = (failure == "staging" and argv[:2] == ["docker", "exec"]) or (
-                failure == "delivery" and "paste-buffer" in argv
+            fails = (
+                (failure == "staging" and argv[:2] == ["docker", "exec"])
+                or (failure == "loading" and "load-buffer" in argv)
+                or (failure == "delivery" and "paste-buffer" in argv)
             )
             return subprocess.CompletedProcess(argv, 1 if fails else 0, stdout=b"", stderr=b"")
 
@@ -188,6 +190,7 @@ def test_failure_never_uses_an_alternate_path_delivery_command() -> None:
                 index
                 for index, argv in enumerate(calls)
                 if (failure == "staging" and argv[:2] == ["docker", "exec"])
+                or (failure == "loading" and "load-buffer" in argv)
                 or (failure == "delivery" and "paste-buffer" in argv)
             ),
             -1,

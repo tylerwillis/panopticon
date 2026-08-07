@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-session-image-paste.5.1--42fb1e739177",
+  "requirementId": "attached-session-image-paste.5.1",
+  "hash": "42fb1e739177",
+  "verdict": "pass",
+  "summary": "All capture, size, staging, load-buffer, and paste failures produce the exact status message and permit no subsequent or alternate path delivery.",
+  "timestamp": "2026-08-07T15:51:54.980Z"
+}

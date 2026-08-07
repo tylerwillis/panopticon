@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-session-image-paste.2.4--c6bd53e5af3e",
+  "requirementId": "attached-session-image-paste.2.4",
+  "hash": "c6bd53e5af3e",
+  "verdict": "pass",
+  "summary": "Rejects both nearest invalid sizes (zero and 20 MiB plus one), verifies no container staging occurs, and accepts the exact 20 MiB boundary.",
+  "timestamp": "2026-08-07T15:50:04.494Z"
+}
