@@ -37,7 +37,7 @@ def test_real_tmux_ctrl_v_invokes_loaded_bridge_with_originating_session_and_pan
 ) -> None:
     socket = "panopticon-image-paste-itest"
     injected = tmp_path / "host-command-injected"
-    session = "panopticon-task-$(touch${IFS}$PANOPTICON_TEST_MARKER)"
+    session = "panopticon-task-foo;touch${IFS}$PANOPTICON_TEST_MARKER;#"
     marker = tmp_path / "bridge-call"
     helper = tmp_path / "record_bridge.py"
     helper.write_text(
@@ -71,7 +71,7 @@ def test_real_tmux_ctrl_v_invokes_loaded_bridge_with_originating_session_and_pan
                 "-s",
                 session,
                 "sleep",
-                "30",
+                "300",
             ],
             capture_output=True,
             check=False,
