@@ -1,8 +1,0 @@
-{
-  "reviewId": "attached-session-image-paste.3.2--3d3b9627c759",
-  "requirementId": "attached-session-image-paste.3.2",
-  "hash": "3d3b9627c759",
-  "verdict": "pass",
-  "summary": "Exact call assertions confine image bytes to container stdin while tmux receives only the path, rejecting bytes in arguments or any bridge-created buffer.",
-  "timestamp": "2026-08-07T15:51:54.314Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "attached-session-image-paste.2.3--0b3004c2342a",
-  "requirementId": "attached-session-image-paste.2.3",
-  "hash": "0b3004c2342a",
-  "verdict": "pass",
-  "summary": "Covers Linux plus nonempty DISPLAY, absent wl-paste, available xclip, and rejects a wrong X11 request by asserting the exact clipboard image/png command.",
-  "timestamp": "2026-08-07T15:50:03.883Z"
-}

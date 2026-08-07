@@ -1,8 +1,0 @@
-{
-  "reviewId": "attached-session-image-paste.1.2--b3dc6bc1a78a",
-  "requirementId": "attached-session-image-paste.1.2",
-  "hash": "b3dc6bc1a78a",
-  "verdict": "pass",
-  "summary": "PASS: both out-of-scope classes reject near-prefix/inexact-container counterexamples, require exactly one originating-pane C-v, and exclude capture/staging; the hostile real-tmux change preserves 1.1 raw-key and quoting evidence.",
-  "timestamp": "2026-08-07T18:06:41.847Z"
-}

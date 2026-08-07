@@ -1,8 +1,0 @@
-{
-  "reviewId": "attached-session-image-paste.1.1--dccac2534e99",
-  "requirementId": "attached-session-image-paste.1.1",
-  "hash": "dccac2534e99",
-  "verdict": "pass",
-  "summary": "Fresh-context PASS: exact default binding plus unit routing and split real-tmux/live-container proofs cover interception, originating session/pane, running-container scope, staging, and no C-v forwarding on success.",
-  "timestamp": "2026-08-07T17:23:01.859Z"
-}

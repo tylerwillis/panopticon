@@ -1,8 +1,0 @@
-{
-  "reviewId": "attached-session-image-paste.5.1--086e21ef03cf",
-  "requirementId": "attached-session-image-paste.5.1",
-  "hash": "086e21ef03cf",
-  "verdict": "pass",
-  "summary": "Fresh-context PASS: capture, empty, oversize, staging, load, and paste failures each produce the exact status text; focused tail assertions rule out every subsequent alternate path-delivery command.",
-  "timestamp": "2026-08-07T17:23:08.056Z"
-}

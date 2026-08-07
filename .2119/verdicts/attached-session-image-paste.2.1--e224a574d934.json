@@ -1,8 +1,0 @@
-{
-  "reviewId": "attached-session-image-paste.2.1--e224a574d934",
-  "requirementId": "attached-session-image-paste.2.1",
-  "hash": "e224a574d934",
-  "verdict": "pass",
-  "summary": "The Darwin test requires the host osascript command, the native PNGf pasteboard request, and decoded PNG bytes, so nearby command, type, or platform-selection violations fail.",
-  "timestamp": "2026-08-07T15:50:02.469Z"
-}

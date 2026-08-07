@@ -1,8 +1,0 @@
-{
-  "reviewId": "attached-session-image-paste.1.2--923918ca22f1",
-  "requirementId": "attached-session-image-paste.1.2",
-  "hash": "923918ca22f1",
-  "verdict": "pass",
-  "summary": "PASS: prefix-boundary and exact/nonmatching-container cases require one originating-pane C-v and explicitly reject capture, staging, buffer loading, and path delivery.",
-  "timestamp": "2026-08-07T17:35:21.000Z"
-}

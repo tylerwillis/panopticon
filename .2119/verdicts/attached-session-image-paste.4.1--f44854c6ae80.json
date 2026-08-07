@@ -1,8 +1,0 @@
-{
-  "reviewId": "attached-session-image-paste.4.1--f44854c6ae80",
-  "requirementId": "attached-session-image-paste.4.1",
-  "hash": "f44854c6ae80",
-  "verdict": "pass",
-  "summary": "Per invocation, exact ordered calls require one load plus one paste-buffer -p to the originating pane with the container path and no Enter/send-keys submission.",
-  "timestamp": "2026-08-07T15:50:12.325Z"
-}

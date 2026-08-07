@@ -1,8 +1,0 @@
-{
-  "reviewId": "attached-session-image-paste.1.1--19de3c830cff",
-  "requirementId": "attached-session-image-paste.1.1",
-  "hash": "19de3c830cff",
-  "verdict": "pass",
-  "summary": "PASS: real-PTY Ctrl+V proves the shipped binding receives the originating session/pane, success-path call assertions reject C-v forwarding, and the attached raw-pane Docker proof requires bracketed path delivery plus byte-identical staging, so the failure branch cannot satisfy it.",
-  "timestamp": "2026-08-07T17:06:16.311Z"
-}

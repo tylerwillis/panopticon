@@ -1,8 +1,0 @@
-{
-  "reviewId": "attached-session-image-paste.1.2--4b69b0210a1b",
-  "requirementId": "attached-session-image-paste.1.2",
-  "hash": "4b69b0210a1b",
-  "verdict": "pass",
-  "summary": "Fresh-context PASS: table-driven non-Panopticon and unmatched-container cases assert exactly one C-v send to the originating pane and no capture/staging path.",
-  "timestamp": "2026-08-07T17:23:02.532Z"
-}

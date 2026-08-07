@@ -1,8 +1,0 @@
-{
-  "reviewId": "attached-session-image-paste.2.2--7b0b9a8dd3da",
-  "requirementId": "attached-session-image-paste.2.2",
-  "hash": "7b0b9a8dd3da",
-  "verdict": "pass",
-  "summary": "Coverage requires Linux, nonempty WAYLAND_DISPLAY, available wl-paste, and the exact image/png request, with negative cases independently removing each antecedent.",
-  "timestamp": "2026-08-07T15:50:03.108Z"
-}

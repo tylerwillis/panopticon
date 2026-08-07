@@ -1,8 +1,0 @@
-{
-  "reviewId": "attached-session-image-paste.2.3--0a472d6dcb53",
-  "requirementId": "attached-session-image-paste.2.3",
-  "hash": "0a472d6dcb53",
-  "verdict": "pass",
-  "summary": "PASS: exact X11 image/png argv is required only with Linux, nonempty DISPLAY, absent wl-paste, and xclip; missing/empty DISPLAY and wl-paste-present counterexamples forbid xclip calls.",
-  "timestamp": "2026-08-07T17:35:21.000Z"
-}

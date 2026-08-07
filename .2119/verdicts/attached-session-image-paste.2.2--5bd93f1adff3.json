@@ -1,8 +1,0 @@
-{
-  "reviewId": "attached-session-image-paste.2.2--5bd93f1adff3",
-  "requirementId": "attached-session-image-paste.2.2",
-  "hash": "5bd93f1adff3",
-  "verdict": "pass",
-  "summary": "Fresh-context PASS: positive test verifies wl-paste --type image/png with nonempty WAYLAND_DISPLAY; focused antecedent cases exclude Darwin and empty/missing Wayland display.",
-  "timestamp": "2026-08-07T17:23:03.823Z"
-}
