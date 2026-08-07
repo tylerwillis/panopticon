@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.1.1--3ba5aeedc29e",
-  "requirementId": "adversarial-review-mutations.1.1",
-  "hash": "3ba5aeedc29e",
-  "verdict": "pass",
-  "summary": "Exact-equality checks across all three workflows reject omission or weakening of every conjunct: both dispatches, machine verification against the final diff, evidence-bearing PR comments, reviewer-chosen mutations, and at least one targeted mutation per reviewer.",
-  "timestamp": "2026-08-04T23:56:53.555Z"
-}

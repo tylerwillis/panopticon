@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.12.1--656402a19931",
-  "requirementId": "REQ-035.12.1",
-  "hash": "656402a19931",
-  "verdict": "pass",
-  "summary": "Tests exhaust the discovered REST surface and representative valid, invalid, tool, resource, GET, POST, and DELETE MCP requests with no credential reference, proving no generic authentication failure preempts validation.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

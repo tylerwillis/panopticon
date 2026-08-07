@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.44.1--270ed520b40b",
+  "requirementId": "REQ-035.44.1",
+  "hash": "270ed520b40b",
+  "verdict": "pass",
+  "summary": "Behavioral tests reject configured read/write tokens in decoded path/query and semantic JSON/raw bodies before dispatch, and verify no database or artifact persistence or successful response.",
+  "timestamp": "2026-08-06T06:08:30.527Z"
+}

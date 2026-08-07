@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.1.9--2da3a1b329b0",
-  "requirementId": "adversarial-review-mutations.1.9",
-  "hash": "2da3a1b329b0",
-  "verdict": "pass",
-  "summary": "Exact section equality rejects zero mutations, author-supplied mutations, exhaustive mutation attempts, mutation-framework introduction, and any per-dispatch targeting omission.",
-  "timestamp": "2026-08-04T23:56:58.335Z"
-}

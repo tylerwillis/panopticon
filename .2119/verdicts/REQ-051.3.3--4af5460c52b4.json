@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-051.3.3--4af5460c52b4",
+  "requirementId": "REQ-051.3.3",
+  "hash": "4af5460c52b4",
+  "verdict": "pass",
+  "summary": "Tests reject altered provider fields, extra providers, incorrect loopback adaptation, resumed launch, and any non-exact --model sparky2-vllm/laguna-s-2.1-nvfp4 argument.",
+  "timestamp": "2026-08-06T09:31:28.394Z"
+}

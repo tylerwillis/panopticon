@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.12.1--196d8a7e653e",
-  "requirementId": "REQ-028.12.1",
-  "hash": "196d8a7e653e",
-  "verdict": "pass",
-  "summary": "Tests enumerate all built-in 2119 skills, reject Codex argv without the bypass flag, require read-only prompts, and reject changed git status after dispatch.",
-  "timestamp": "2026-08-04T23:20:00.077Z"
-}

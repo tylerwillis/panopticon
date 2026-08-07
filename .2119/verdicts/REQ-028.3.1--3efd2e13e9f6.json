@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.3.1--3efd2e13e9f6",
-  "requirementId": "REQ-028.3.1",
-  "hash": "3efd2e13e9f6",
-  "verdict": "pass",
-  "summary": "Same test-local golden text contains \"opens published artifacts from the dashboard with the `a` hotkey\" and the enumerated examples (specification/spec summary, review outputs, triage summary, stage or gate reports) marked non-exhaustive; full-string equality rejects any near-miss.",
-  "timestamp": "2026-08-03T13:46:44.240Z"
-}

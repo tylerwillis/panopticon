@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.1.8--4c045d6a78f7",
-  "requirementId": "adversarial-review-mutations.1.8",
-  "hash": "4c045d6a78f7",
-  "verdict": "pass",
-  "summary": "The exact section-body assertion rejects omission or weakening of “every reviewer attempt,” “final action,” unchanged-tree verification, and the snapshot taken immediately before the review.",
-  "timestamp": "2026-08-05T00:46:16.105Z"
-}

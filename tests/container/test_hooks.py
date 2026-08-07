@@ -207,6 +207,7 @@ def test_hook_returns_success_within_bound_against_a_blackholed_service(
     assert completed.stdout == "" and completed.stderr == ""
 
 
+# 2119: REQ-016.1.1
 # 2119: REQ-016.2.1
 @pytest.mark.parametrize(
     ("argv", "payload", "successful_requests", "expected_stdout"),
@@ -357,6 +358,7 @@ def test_hook_whole_callback_deadline_bounds_cumulative_slow_responses() -> None
     assert completed.stdout == "" and completed.stderr == ""
 
 
+# 2119: REQ-016.1.1
 # 2119: REQ-016.2.1
 @pytest.mark.parametrize(
     ("argv", "malformed_request", "malformed_body", "expected_stdout"),
@@ -408,6 +410,7 @@ def test_hook_fails_open_on_malformed_control_plane_responses(
         PANOPTICON_TASK_ID="t1",
         NO_PROXY="127.0.0.1",
     )
+    started = time.monotonic()
     try:
         completed = subprocess.run(
             [sys.executable, "-m", "panopticon.container.hook", *argv],
@@ -416,13 +419,16 @@ def test_hook_fails_open_on_malformed_control_plane_responses(
             capture_output=True,
             env=env,
             check=False,
+            timeout=3.5,
         )
+        elapsed = time.monotonic() - started
     finally:
         service.shutdown()
         service.server_close()
         service_thread.join(timeout=1)
 
     assert request_count == malformed_request
+    assert elapsed < 3
     assert completed.returncode == 0
     assert completed.stdout == expected_stdout and completed.stderr == ""
 
@@ -588,7 +594,7 @@ def test_every_injected_turn_hook_preserves_its_event_mapping(
             task_id="t1",
         )
     )
-    extension_path = tmp_path / ".pi" / EXTENSION_FILE
+    extension_path = tmp_path / ".pi" / "agent" / EXTENSION_FILE
     assert pi_harness.argv(LaunchContext(home=tmp_path, cwd=Path("/workspace"))) == [
         "pi",
         "--extension",

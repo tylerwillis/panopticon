@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-035.22.1--571d4dd46eba",
+  "requirementId": "REQ-035.22.1",
+  "hash": "571d4dd46eba",
+  "verdict": "pass",
+  "summary": "Real production subprocess rejects query credentials and combined stdout/stderr assertion detects any raw credential-value leak.",
+  "timestamp": "2026-08-06T06:14:54.651Z"
+}

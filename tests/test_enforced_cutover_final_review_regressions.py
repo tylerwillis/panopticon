@@ -116,6 +116,31 @@ def test_validator_requires_single_stage_permissive_rejection_rationale() -> Non
         assert "enforced-mode-cutover-runbook.2.10" in validate_enforced_mode_cutover_runbook(
             weakened
         )
+    contradictory_addition = (
+        text
+        + "\nA permissive-mode restart accepts legacy Bearer liveness and provides a no-drain stage.\n"
+    )
+    assert "enforced-mode-cutover-runbook.2.10" in validate_enforced_mode_cutover_runbook(
+        contradictory_addition
+    )
+    line_wrapped_contradiction = (
+        text + "\nA permissive restart accepts legacy Bearer liveness and provides a no-drain\n"
+        "stage.\n"
+    )
+    assert "enforced-mode-cutover-runbook.2.10" in validate_enforced_mode_cutover_runbook(
+        line_wrapped_contradiction
+    )
+    synonym_contradiction = (
+        text
+        + "\nLegacy Bearer liveness succeeds in permissive mode and enables a zero-downtime stage.\n"
+    )
+    assert "enforced-mode-cutover-runbook.2.10" in validate_enforced_mode_cutover_runbook(
+        synonym_contradiction
+    )
+    truthful_negation = text + "\nA permissive-mode restart does not accept legacy Bearer.\n"
+    assert "enforced-mode-cutover-runbook.2.10" not in validate_enforced_mode_cutover_runbook(
+        truthful_negation
+    )
 
 
 def test_runner_pid_is_exec_bound_and_unknown_callers_fail_closed() -> None:

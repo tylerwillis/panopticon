@@ -181,7 +181,25 @@ def test_production_launcher_does_not_persist_rejected_query_credentials(tmp_pat
                 if time.monotonic() >= deadline:
                     raise
                 time.sleep(0.05)
-        response = httpx.get(f"http://127.0.0.1:{port}/tasks", params={"token": query_token})
+        response = httpx.get(
+            f"http://127.0.0.1:{port}/tasks",
+            params=dict.fromkeys(
+                [
+                    "token",
+                    "access_token",
+                    "access-token",
+                    "accessToken",
+                    "auth_token",
+                    "auth-token",
+                    "authToken",
+                    "api_key",
+                    "api-key",
+                    "apiKey",
+                    "authorization",
+                ],
+                query_token,
+            ),
+        )
         assert response.status_code == 401
     finally:
         process.terminate()
@@ -189,7 +207,7 @@ def test_production_launcher_does_not_persist_rejected_query_credentials(tmp_pat
     assert query_token not in output
 
 
-def test_build_app_warns_for_non_enforced_modes(
+def test_build_app_warns_for_disabled_mode(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
     # 2119: REQ-035.27.1
@@ -200,33 +218,40 @@ def test_build_app_warns_for_non_enforced_modes(
         _home_workflows=tmp_path / "empty-home-workflows",
     )
     assert "task-service authentication mode: disabled" in caplog.text
+
+
+def test_build_app_rejects_permissive_before_reporting_mode(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    # 2119: REQ-035.35.1
+    caplog.set_level(logging.DEBUG)
     secrets = tmp_path / "secrets"
     secrets.mkdir()
     (secrets / "auth.json").write_text(
         json.dumps({"read": ["read-token-long"], "write": ["write-token-long"]})
     )
     (secrets / "auth.json").chmod(0o600)
-    build_app(
-        db="sqlite://",
-        artifacts_root=str(tmp_path / "permissive-artifacts"),
-        _home_workflows=tmp_path / "empty-home-workflows",
-        auth_file="auth.json",
-        auth_mode="permissive",
-        secrets_dir=secrets,
-    )
-    assert "task-service authentication mode: permissive" in caplog.text
+
+    records_before = list(caplog.records)
+    with pytest.raises(ValueError, match="authentication mode must be disabled or enforced"):
+        build_app(
+            db="sqlite://",
+            artifacts_root=str(tmp_path / "artifacts"),
+            _home_workflows=tmp_path / "empty-home-workflows",
+            auth_file="auth.json",
+            auth_mode="permissive",
+            secrets_dir=secrets,
+        )
+
+    assert caplog.records == records_before
 
 
 def test_auth_documentation_presents_enforced_as_steady_state() -> None:
     # 2119: REQ-035.27.1
     documentation = Path("docs/auth.md").read_text()
-    steady_state, migration = documentation.split(
-        "Roll a live fleet out without killing existing containers:", 1
-    )
-    assert "The required steady-state configuration is enforced mode:" in steady_state
-    assert "PANOPTICON_SERVICE_AUTH_MODE=enforced" in steady_state
-    assert "PANOPTICON_SERVICE_AUTH_MODE=permissive" not in steady_state
-    assert "`permissive` mode" in migration
+    assert "The required steady-state configuration is enforced mode:" in documentation
+    assert "PANOPTICON_SERVICE_AUTH_MODE=enforced" in documentation
+    assert "permissive" not in documentation.casefold()
 
 
 def _workflow_source(

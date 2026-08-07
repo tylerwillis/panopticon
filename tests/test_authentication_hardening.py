@@ -535,7 +535,7 @@ def test_docker_runner_mounts_a_stable_snapshot_if_source_is_replaced(
             json.dumps({"task": derive_task_capability("stable-writer-token", "task")}),
         )
     ]
-    assert snapshots and not snapshots[0].exists()
+    assert snapshots and snapshots[0].is_file()
     runner.stop("panopticon-task")
     assert not snapshots[0].exists()
 
@@ -1109,28 +1109,53 @@ def test_production_process_reports_enforced_mode(tmp_path: Path) -> None:
     assert "task-service authentication mode: enforced" in output
 
 
-def test_non_enforced_modes_log_warning_level(
-    tmp_path: Path, caplog: pytest.LogCaptureFixture
-) -> None:
+def test_production_process_warns_for_disabled_mode(tmp_path: Path) -> None:
+    # 2119: REQ-035.27.1
+    with socket.socket() as probe:
+        probe.bind(("127.0.0.1", 0))
+        port = probe.getsockname()[1]
+    process = subprocess.Popen(
+        [
+            sys.executable,
+            "-m",
+            "panopticon.taskservice",
+            "--port",
+            str(port),
+            "--db",
+            f"sqlite:///{tmp_path / 'task.db'}",
+        ],
+        env={
+            **os.environ,
+            "PANOPTICON_CONFIG": str(tmp_path / "config"),
+            "PANOPTICON_DATA": str(tmp_path / "data"),
+        },
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    try:
+        deadline = time.monotonic() + 10
+        while True:
+            try:
+                if httpx.get(f"http://127.0.0.1:{port}/healthz").status_code == 200:
+                    break
+            except httpx.TransportError:
+                if time.monotonic() >= deadline:
+                    raise
+                time.sleep(0.05)
+    finally:
+        process.terminate()
+        output, _ = process.communicate(timeout=10)
+    assert "WARNING" in output
+    assert "task-service authentication mode: disabled" in output
+
+
+def test_disabled_mode_logs_warning_level(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
     # 2119: REQ-035.27.1
     caplog.set_level(logging.DEBUG)
     build_app(
         db="sqlite://",
         artifacts_root=str(tmp_path / "disabled-artifacts"),
-        _home_workflows=tmp_path / "workflows",
-    )
-    secrets = tmp_path / "secrets"
-    secrets.mkdir()
-    (secrets / "auth.json").write_text(
-        json.dumps({"read": ["read-token-long"], "write": ["write-token-long"]})
-    )
-    (secrets / "auth.json").chmod(0o600)
-    build_app(
-        db="sqlite://",
-        artifacts_root=str(tmp_path / "permissive-artifacts"),
-        auth_file="auth.json",
-        auth_mode="permissive",
-        secrets_dir=secrets,
         _home_workflows=tmp_path / "workflows",
     )
     mode_records = [
@@ -1142,5 +1167,4 @@ def test_non_enforced_modes_log_warning_level(
         (record.levelno, record.getMessage().rsplit(" ", 1)[-1]) for record in mode_records
     ] == [
         (logging.WARNING, "disabled"),
-        (logging.WARNING, "permissive"),
     ]

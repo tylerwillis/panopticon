@@ -1,0 +1,8 @@
+{
+  "reviewId": "enforced-mode-cutover-runbook.2.10--622f74214bcf",
+  "requirementId": "enforced-mode-cutover-runbook.2.10",
+  "hash": "622f74214bcf",
+  "verdict": "pass",
+  "summary": "Mutation tests reject acceptance of legacy Bearer container liveness in permissive mode and reject both explicit and synonymous claims that it enables a no-drain stage.",
+  "timestamp": "2026-08-06T06:43:09.052Z"
+}

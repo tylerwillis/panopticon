@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.1.14--1f7bff28b3aa",
-  "requirementId": "adversarial-review-mutations.1.14",
-  "hash": "1f7bff28b3aa",
-  "verdict": "pass",
-  "summary": "The final-gate tests reject missing or malformed Targeted mutation evidence headings and missing, invalid, negated, or out-of-section killed/survived outcomes, while preventing stage completion.",
-  "timestamp": "2026-08-05T01:52:52.410Z"
-}

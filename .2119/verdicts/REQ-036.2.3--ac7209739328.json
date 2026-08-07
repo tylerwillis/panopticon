@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-036.2.3--ac7209739328",
-  "requirementId": "REQ-036.2.3",
-  "hash": "ac7209739328",
-  "verdict": "pass",
-  "summary": "Dispatch tests reject nonzero exits, missing or ambiguous identity, and model mismatches with structured kind/model/detail/remediation errors and zero comment or artifact callbacks.",
-  "timestamp": "2026-08-02T22:23:24.491Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.1.5--216afe0c8239",
-  "requirementId": "adversarial-review-mutations.1.5",
-  "hash": "216afe0c8239",
-  "verdict": "pass",
-  "summary": "The annotated test loads every applicable workflow’s actual review skill and requires the entire mutation section to exactly include “Apply mutation writes only in a throwaway copy outside the working tree, never in the task checkout,” rejecting omission, in-tree copies, or permission to write elsewhere.",
-  "timestamp": "2026-08-05T00:46:14.244Z"
-}

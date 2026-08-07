@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-051.1.3--55deee22556e",
+  "requirementId": "REQ-051.1.3",
+  "hash": "55deee22556e",
+  "verdict": "pass",
+  "summary": "Tests independently cover all four named entries from the exact pi/agent layout and reject missing imports or any mutation of mounted source bytes.",
+  "timestamp": "2026-08-06T09:07:54.123Z"
+}

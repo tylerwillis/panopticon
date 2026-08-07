@@ -428,22 +428,23 @@ class LocalRunner(Runner):
             # An env-file belongs to the repo and must not opt a task into a stale or attacker-
             # controlled control-plane credential when this runner has authentication disabled.
             env["PANOPTICON_SERVICE_AUTH_FILE"] = ""
-        env["PANOPTICON_SERVICE_AUTH_TOKEN"] = ""
-        # Native MCP clients honor the standard proxy variables inherited from the repo env-file.
-        # Pin both spellings after that file so neither Claude nor Codex can send the fleet bearer
-        # through an ambient proxy, while retaining bypasses needed by the repo's other traffic.
-        no_proxy = _service_no_proxy(self._service_url, env_path, env)
-        env["NO_PROXY"] = no_proxy
-        env["no_proxy"] = no_proxy
-        for key, value in env.items():
-            docker_run += ["--env", f"{key}={value}"]
-        docker_run.append(
-            image or self._image
-        )  # composed image if given, else base; its entrypoint runs
-        # Clear any stale tmux session + container first — handles both a prior exited run and a
-        # live force-respawn (dashboard `R` kills and restarts). Both are no-ops when nothing
-        # exists, so spawn is fully idempotent. (`stop()` does the same pair.)
         try:
+            env["PANOPTICON_SERVICE_AUTH_TOKEN"] = ""
+            # Native MCP clients honor the standard proxy variables inherited from the repo
+            # env-file. Pin both spellings after that file so neither Claude nor Codex can send
+            # the fleet bearer through an ambient proxy, while retaining bypasses needed by the
+            # repo's other traffic.
+            no_proxy = _service_no_proxy(self._service_url, env_path, env)
+            env["NO_PROXY"] = no_proxy
+            env["no_proxy"] = no_proxy
+            for key, value in env.items():
+                docker_run += ["--env", f"{key}={value}"]
+            docker_run.append(
+                image or self._image
+            )  # composed image if given, else base; its entrypoint runs
+            # Clear any stale tmux session + container first — handles both a prior exited run and
+            # a live force-respawn (dashboard `R` kills and restarts). Both are no-ops when nothing
+            # exists, so spawn is fully idempotent. (`stop()` does the same pair.)
             tmux_cleanup = self._run(
                 self._tmux(*defaults_argv(self._tmux_socket), "kill-session", "-t", container),
                 check=False,
@@ -461,11 +462,6 @@ class LocalRunner(Runner):
                 )
             _report(LifecyclePhase.STARTING)  # docker run + the tmux session coming up
             self._run(docker_run)
-            # Docker has opened the bind source by the time detached ``docker run`` returns. The
-            # mount retains that inode, so remove the host pathname immediately; this prevents a
-            # one-shot runner process from stranding a fleet credential after it exits.
-            if auth_snapshot is not None:
-                auth_snapshot.unlink(missing_ok=True)
         except BaseException:
             if auth_snapshot is not None:
                 auth_snapshot.unlink(missing_ok=True)

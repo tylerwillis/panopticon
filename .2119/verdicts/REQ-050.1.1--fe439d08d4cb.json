@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-050.1.1--fe439d08d4cb",
+  "requirementId": "REQ-050.1.1",
+  "hash": "fe439d08d4cb",
+  "verdict": "pass",
+  "summary": "Rejects missing/non-regular or unreadable snapshots, wrong or extra task-capability fields, premature removal through successful spawn completion, and retention after explicit task cleanup.",
+  "timestamp": "2026-08-06T06:15:50.891Z"
+}

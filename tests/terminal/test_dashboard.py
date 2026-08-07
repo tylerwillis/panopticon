@@ -808,6 +808,44 @@ async def test_dashboard_mounts_lists_tasks_and_shows_detail() -> None:
         assert "2026-06-22T10:00:00+00:00" not in str(detail.render())
 
 
+# 2119: full-width-dashboard.1.1
+async def test_vertically_overflowing_dashboard_uses_the_full_table_width() -> None:
+    tasks = [
+        {**_TASK, "id": f"overflow-{index:02}", "slug": f"overflow-{index:02}"}
+        for index in range(30)
+    ]
+    app = Dashboard(_FakeClient(tasks), refresh_interval=None)  # type: ignore[arg-type]
+
+    async with app.run_test(size=(80, 12)) as pilot:
+        await pilot.pause()
+        table = app.query_one("#tasks", DataTable)
+
+        assert table.virtual_size.height > table.scrollable_content_region.height
+        assert table.scrollbar_size_vertical == 0
+        assert table.scrollable_content_region.width == table.content_region.width
+
+
+# 2119: full-width-dashboard.1.2
+async def test_zero_width_vertical_scrollbar_preserves_keyboard_task_navigation() -> None:
+    tasks = [
+        {**_TASK, "id": f"overflow-{index:02}", "slug": f"overflow-{index:02}"}
+        for index in range(30)
+    ]
+    app = Dashboard(_FakeClient(tasks), refresh_interval=None)  # type: ignore[arg-type]
+
+    async with app.run_test(size=(80, 12)) as pilot:
+        await pilot.pause()
+        table = app.query_one("#tasks", DataTable)
+        for expected_row in range(table.row_count):
+            if expected_row:
+                await pilot.press("down")
+            assert table.cursor_row == expected_row
+            assert table.window_region.contains_region(table._get_row_region(expected_row))
+
+        assert table.scrollbar_size_vertical == 0
+        assert table.scroll_y > 0
+
+
 async def test_detail_pane_shows_copy_key_hint_without_changing_copyable_detail() -> None:
     # 2119: REQ-007.2.1
     # 2119: REQ-007.3.1

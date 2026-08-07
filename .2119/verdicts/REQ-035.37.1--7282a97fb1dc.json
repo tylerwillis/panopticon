@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.37.1--7282a97fb1dc",
-  "requirementId": "REQ-035.37.1",
-  "hash": "7282a97fb1dc",
-  "verdict": "pass",
-  "summary": "The rendered credential-less artifact command is executed against a permissive service and captured headers prove Authorization is omitted while the request is admitted.",
-  "timestamp": "2026-08-04T06:19:44.324Z"
-}

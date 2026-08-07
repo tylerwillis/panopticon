@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.1.4--827b607f42cd",
-  "requirementId": "adversarial-review-mutations.1.4",
-  "hash": "827b607f42cd",
-  "verdict": "pass",
-  "summary": "The exact-section assertion rejects omission or weakening of the requirement that every targeted mutation break a specific review-claim-dependent property.",
-  "timestamp": "2026-08-04T22:53:13.005Z"
-}

@@ -646,18 +646,26 @@ def test_configured_tokens_are_rejected_before_persistence_or_success(
             "/runners/missing/live?host=" + WRITE_TOKEN.replace("-", "%2D"),
             headers=_bearer(WRITE_TOKEN),
         )
+        encoded_path_token = "".join(f"%{ord(character):02X}" for character in READ_TOKEN)
+        encoded_path_response = client.put(
+            f"/tasks/missing/artifacts/{encoded_path_token}",
+            headers=_bearer(WRITE_TOKEN),
+            content=b"safe",
+        )
         assert task_response.status_code == 400
         assert escaped_response.status_code == 400
         assert headerless_escaped_response.status_code == 400
         assert path_response.status_code == 400
         assert artifact_response.status_code == 400
         assert encoded_query_response.status_code == 400
+        assert encoded_path_response.status_code == 400
         assert task_response.json() == {"detail": "request rejected"}
         assert escaped_response.json() == {"detail": "request rejected"}
         assert headerless_escaped_response.json() == {"detail": "request rejected"}
         assert path_response.json() == {"detail": "request rejected"}
         assert artifact_response.json() == {"detail": "request rejected"}
         assert encoded_query_response.json() == {"detail": "request rejected"}
+        assert encoded_path_response.json() == {"detail": "request rejected"}
         assert dispatched == []
 
     durable = (service_root / "task.db").read_bytes()
@@ -668,21 +676,17 @@ def test_configured_tokens_are_rejected_before_persistence_or_success(
         assert token.encode() not in artifact_bytes
 
 
-@pytest.mark.parametrize("mode", ["enforced", "permissive"])
-def test_authentication_inspection_rejects_oversized_body_before_dispatch(
-    tmp_path: Path, mode: str
-) -> None:
+def test_authentication_inspection_rejects_oversized_body_before_dispatch(tmp_path: Path) -> None:
     # 2119: REQ-035.46.1
-    with _client(tmp_path, mode=mode) as client:
-        headers = _bearer(READ_TOKEN) if mode == "enforced" else {}
+    with _client(tmp_path) as client:
         response = client.request(
-            "GET", "/tasks", headers=headers, content=b"x" * (MAX_AUTH_INSPECTION_BODY_BYTES + 1)
+            "GET",
+            "/tasks",
+            headers=_bearer(READ_TOKEN),
+            content=b"x" * (MAX_AUTH_INSPECTION_BODY_BYTES + 1),
         )
-        health = client.get("/healthz")
     assert response.status_code == 413
     assert response.json() == {"detail": "request too large"}
-    if mode == "permissive":
-        assert health.headers["x-panopticon-permissive-unauthenticated-total"] == "0"
 
 
 def test_authentication_inspection_stops_reading_at_the_limit_and_skips_endpoint(
@@ -1107,6 +1111,19 @@ def test_health_is_the_only_open_readiness_surface(tmp_path: Path) -> None:
         assert response.json() == {"status": "ok"}
 
 
+@pytest.mark.parametrize("mode", ["disabled", "enforced"])
+def test_health_omits_retired_permissive_counter(tmp_path: Path, mode: str) -> None:
+    # 2119: REQ-035.43.1
+    app = (
+        create_app(_service(tmp_path), auth_mode="disabled")
+        if mode == "disabled"
+        else _client(tmp_path).app
+    )
+    with TestClient(app) as client:
+        response = client.get("/healthz")
+    assert "x-panopticon-permissive-unauthenticated-total" not in response.headers
+
+
 def test_source_address_never_exempts_authentication(tmp_path: Path) -> None:
     # 2119: REQ-035.11.1
     outcomes: list[tuple[int, ...]] = []
@@ -1245,203 +1262,15 @@ def test_absent_configuration_preserves_legacy_callers(tmp_path: Path) -> None:
             assert not (response.status_code == 401 and response.json() == GENERIC_FAILURE)
 
 
-def test_permissive_mode_accepts_legacy_and_authenticated_callers(tmp_path: Path) -> None:
+def test_permissive_authentication_mode_is_rejected_before_startup(tmp_path: Path) -> None:
     # 2119: REQ-035.13.1
-    with _client(tmp_path, mode="permissive") as client:
-        for method, path in _rest_operations(client):
-            if path.endswith("/live"):
-                continue
-            legacy = client.request(method, path)
-            authenticated = client.request(method, path, headers=_bearer(WRITE_TOKEN))
-            assert not (legacy.status_code in {401, 403} and legacy.json() == GENERIC_FAILURE)
-            assert not (
-                authenticated.status_code in {401, 403} and authenticated.json() == GENERIC_FAILURE
-            )
-            assert authenticated.status_code == legacy.status_code
-            if not _is_mutating(method, path):
-                reader = client.request(method, path, headers=_bearer(READ_TOKEN))
-                assert not (reader.status_code in {401, 403} and reader.json() == GENERIC_FAILURE)
-        insufficient = client.post(
-            "/tasks",
-            headers=_bearer(READ_TOKEN),
-            json={"repo_id": "r1", "workflow": "spike"},
+    with pytest.raises(ValueError, match="authentication mode must be disabled or enforced"):
+        create_app(
+            _service(tmp_path),
+            auth_file=_credential_file(tmp_path),
+            auth_mode="permissive",
+            secrets_dir=tmp_path / "secrets",
         )
-        assert insufficient.status_code == 401
-        assert insufficient.json() == GENERIC_FAILURE
-        for payload in [
-            {"jsonrpc": "2.0", "id": 0, "method": "initialize", "params": {}},
-            {"jsonrpc": "2.0", "id": 1, "method": "tools/list"},
-            {"jsonrpc": "2.0", "id": 3, "method": "ping"},
-            {"jsonrpc": "2.0", "id": 4, "method": "resources/list"},
-            {"jsonrpc": "2.0", "id": 6, "method": "resources/templates/list"},
-            {
-                "jsonrpc": "2.0",
-                "id": 5,
-                "method": "tools/call",
-                "params": {"name": "get_task", "arguments": {"task_id": "missing"}},
-            },
-            {
-                "jsonrpc": "2.0",
-                "id": 2,
-                "method": "resources/read",
-                "params": {"uri": "panopticon://tasks/missing/artifacts/missing"},
-            },
-        ]:
-            for headers in ({}, _bearer(WRITE_TOKEN)):
-                response = client.post("/mcp", headers=headers, json=payload)
-                assert not (
-                    response.status_code in {401, 403} and response.json() == GENERIC_FAILURE
-                )
-            assert (
-                client.post("/mcp", json=payload).status_code
-                == client.post("/mcp", headers=_bearer(WRITE_TOKEN), json=payload).status_code
-            )
-            # The mounted MCP transport is write-privileged even for protocol discovery; a read
-            # token is therefore insufficient, rather than an upgraded credential REQ-035.13
-            # promises to admit.
-            reader = client.post("/mcp", headers=_bearer(READ_TOKEN), json=payload)
-            assert reader.status_code == 401
-            assert reader.json() == GENERIC_FAILURE
-        for method in ["GET", "DELETE"]:
-            for headers in ({}, _bearer(WRITE_TOKEN)):
-                response = client.request(method, "/mcp", headers=headers)
-                assert not (
-                    response.status_code in {401, 403} and response.json() == GENERIC_FAILURE
-                )
-        for headers in ({}, _bearer(WRITE_TOKEN)):
-            response = client.get(
-                "/tasks/missing/live", params={"container_id": "c"}, headers=headers
-            )
-            assert response.status_code == 404
-        for token in [None, WRITE_TOKEN]:
-            status, _, body = _asgi_status(client.app, "/runners/missing/live", token=token)
-            assert status not in {401, 403}, body
-
-
-# 2119: enforced-mode-cutover-runbook.2.10
-def test_permissive_mode_rejects_legacy_bearer_on_container_liveness(tmp_path: Path) -> None:
-    with _client(tmp_path, mode="permissive") as client:
-        response = client.get(
-            "/tasks/legacy/live",
-            headers=_bearer("pt1.task.legacy.invalid-mac"),
-        )
-
-    assert response.status_code == 401
-    assert response.json() == GENERIC_FAILURE
-
-
-def test_permissive_mode_requires_a_credential_file() -> None:
-    with pytest.raises(ValueError, match="credential file is required in permissive mode"):
-        create_app(object(), auth_mode="permissive")  # type: ignore[arg-type]
-
-
-def test_permissive_mode_reports_headerless_callers(
-    tmp_path: Path, caplog: pytest.LogCaptureFixture
-) -> None:
-    # 2119: REQ-035.35.1
-    # 2119: REQ-035.43.1
-    with _client(tmp_path, mode="permissive") as client:
-
-        def observed_health_total() -> int:
-            health = client.get("/healthz")
-            health_wire = health.text + str(health.headers)
-            assert READ_TOKEN not in health_wire
-            assert WRITE_TOKEN not in health_wire
-            return int(health.headers["x-panopticon-permissive-unauthenticated-total"])
-
-        observed_totals = [observed_health_total()]
-        for index in range(3):
-            assert client.get("/tasks").status_code == 200
-            observed_totals.append(observed_health_total())
-            if index == 0:
-                assert client.get("/tasks", headers=_bearer(WRITE_TOKEN)).status_code == 200
-                observed_totals.append(observed_health_total())
-                assert client.get("/tasks", headers=_bearer(READ_TOKEN)).status_code == 200
-                observed_totals.append(observed_health_total())
-        assert observed_totals == [0, 1, 1, 1, 2, 3]
-
-    with _client(tmp_path / "restarted", mode="permissive") as restarted:
-        restarted_health = restarted.get("/healthz")
-        assert restarted_health.headers["x-panopticon-permissive-unauthenticated-total"] == "0"
-        restarted_wire = restarted_health.text + str(restarted_health.headers)
-        assert READ_TOKEN not in restarted_wire
-        assert WRITE_TOKEN not in restarted_wire
-
-    warnings = [
-        record.getMessage()
-        for record in caplog.records
-        if "permissive authentication accepted headerless request" in record.getMessage()
-    ]
-    assert len(warnings) == 2  # powers-of-two reporting is visible without retry-log flooding
-    assert all(
-        record.levelno == logging.WARNING
-        for record in caplog.records
-        if "permissive authentication accepted headerless request" in record.getMessage()
-    )
-    assert "method=GET route=/tasks client=testclient count=1" in warnings[0]
-    assert "method=GET route=/tasks client=testclient count=2" in warnings[1]
-
-
-def test_permissive_warning_redacts_tokens_and_keeps_a_monotonic_bounded_signal(
-    tmp_path: Path, caplog: pytest.LogCaptureFixture
-) -> None:
-    # 2119: REQ-035.18.1
-    # 2119: REQ-035.35.1
-    # 2119: REQ-035.43.1
-    with _client(tmp_path, mode="permissive") as client:
-        first, _, _ = _asgi_status(
-            client.app, "/legacy-post", method="POST", client_host="legacy-phone"
-        )
-        second, _, _ = _asgi_status(
-            client.app, "/legacy-delete", method="DELETE", client_host="legacy-runner"
-        )
-        assert first == 404
-        assert second == 404
-        assert client.get(f"/tasks/{WRITE_TOKEN}").status_code == 400
-        assert (
-            client.post(
-                "/tasks",
-                headers={"Content-Type": "application/json"},
-                json={"memo": READ_TOKEN},
-            ).status_code
-            == 400
-        )
-        assert (
-            client.get("/healthz").headers["x-panopticon-permissive-unauthenticated-total"] == "2"
-        )
-        for index in range(1022):
-            assert client.get(f"/missing-{index}").status_code == 404
-        health = client.get("/healthz")
-
-    warnings = [
-        record.getMessage()
-        for record in caplog.records
-        if "permissive authentication accepted headerless request" in record.getMessage()
-    ]
-    assert WRITE_TOKEN not in "\n".join(warnings)
-    assert "method=POST route=/legacy-post client=legacy-phone count=1" in warnings[0]
-    assert "method=DELETE route=/legacy-delete client=legacy-runner count=2" in warnings[1]
-    expected_warnings = [
-        "permissive authentication accepted headerless request: "
-        "method=POST route=/legacy-post client=legacy-phone count=1",
-        "permissive authentication accepted headerless request: "
-        "method=DELETE route=/legacy-delete client=legacy-runner count=2",
-        *[
-            "permissive authentication accepted headerless request: "
-            f"method=GET route=/missing-{count - 3} client=testclient count={count}"
-            for count in [4, 8, 16, 32, 64, 128, 256, 512, 1024]
-        ],
-    ]
-    assert warnings == expected_warnings
-    assert all(
-        record.levelno == logging.WARNING
-        for record in caplog.records
-        if "permissive authentication accepted headerless request" in record.getMessage()
-    )
-    assert health.headers["x-panopticon-permissive-unauthenticated-total"] == "1024"
-    health_wire = health.text + str(health.headers)
-    assert READ_TOKEN not in health_wire
-    assert WRITE_TOKEN not in health_wire
 
 
 @pytest.mark.parametrize(
@@ -1550,7 +1379,7 @@ def test_enforced_mode_rejects_short_tokens(
         )
 
 
-@pytest.mark.parametrize("mode", ["enforced", "permissive"])
+@pytest.mark.parametrize("mode", ["disabled", "enforced"])
 @pytest.mark.parametrize("privilege", ["read", "write"])
 @pytest.mark.parametrize("position", ["only", "first", "middle", "last"])
 def test_every_overlap_generation_enforces_minimum_token_length(
@@ -1579,8 +1408,11 @@ def test_every_overlap_generation_enforces_minimum_token_length(
         )
 
 
+@pytest.mark.parametrize("mode", ["disabled", "enforced"])
 @pytest.mark.parametrize("privilege", ["read", "write"])
-def test_enforced_mode_accepts_twelve_character_tokens(tmp_path: Path, privilege: str) -> None:
+def test_supported_modes_accept_twelve_character_tokens(
+    tmp_path: Path, mode: str, privilege: str
+) -> None:
     # 2119: REQ-035.33.1
     secrets = tmp_path / "secrets"
     secrets.mkdir()
@@ -1594,7 +1426,7 @@ def test_enforced_mode_accepts_twelve_character_tokens(tmp_path: Path, privilege
         create_app(
             _service(tmp_path),
             auth_file="boundary.json",
-            auth_mode="enforced",
+            auth_mode=mode,
             secrets_dir=secrets,
         )
     ):
@@ -1865,7 +1697,7 @@ def test_runner_injects_write_token_into_docker_and_shell_tasks_without_command_
     assert json.loads(docker_recorder.mounted_auth or "") == {
         "task": derive_task_capability(WRITE_TOKEN, "t1")
     }
-    assert not mounted_snapshot.exists()
+    assert mounted_snapshot.is_file()
     docker_runner.stop("panopticon-t1")
     assert not mounted_snapshot.exists()
 
@@ -2025,7 +1857,7 @@ set -x
     assert stdin.read_text() == f'header = "Authorization: Bearer {WRITE_TOKEN}"\n'
 
 
-def test_artifact_rest_fallback_omits_empty_authorization_during_grace(tmp_path: Path) -> None:
+def test_artifact_rest_fallback_omits_authorization_in_disabled_mode(tmp_path: Path) -> None:
     # 2119: REQ-035.37.1
     from panopticon.core.artifact_skills import ARTIFACT_SKILL
 
@@ -2035,15 +1867,9 @@ def test_artifact_rest_fallback_omits_empty_authorization_during_grace(tmp_path:
     artifact = tmp_path / "report.md"
     artifact.write_text("proof")
     command = command.replace("<artifact-file>", str(artifact)).replace("<name>", "report.md")
-    reference = _credential_file(tmp_path)
     service = _service(tmp_path / "service")
     task = asyncio.run(service.create_task("r1", "spike"))
-    app = create_app(
-        service,
-        auth_file=reference,
-        auth_mode="permissive",
-        secrets_dir=tmp_path / "secrets",
-    )
+    app = create_app(service, auth_mode="disabled")
     received_headers: list[dict[str, str]] = []
 
     @app.middleware("http")

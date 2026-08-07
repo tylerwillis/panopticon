@@ -45,8 +45,11 @@ On macOS, both OrbStack and Docker Desktop provide the `host.docker.internal` ro
 containers reach the loopback-bound service. Panopticon does not probe which runtime is active;
 the conservative Darwin default is the same for both.
 
-Authentication mode is reported at startup; disabled and permissive modes produce warnings.
-Disabled mode exists only for the staged live-fleet migration below.
+Authentication mode is reported at startup; disabled mode produces a warning. Enforced mode is
+the steady state. Disabled mode is the operator's break-glass recovery path: clear an invalid
+`PANOPTICON_SERVICE_AUTH_FILE` reference and restart the service with
+`PANOPTICON_SERVICE_AUTH_MODE=disabled`, restore or replace the host-local credential file, then
+restart the fleet directly in enforced mode.
 
 Integrated startup creates missing tmux sessions with the invoking process's current authentication
 environment, but deliberately leaves existing service, runner, dashboard, and task sessions alive.
@@ -92,23 +95,12 @@ embedded credentials. The browser sends its fleet read token only as
 `Authorization: Bearer <token>` and uses `GET /tasks`; cookies, URL credentials, alternate auth
 headers, and cross-origin mutations are rejected. The CORS response does not enable credentials.
 
-Roll a live fleet out without killing existing containers:
-
-1. Put the old write token in the credential file and temporarily start the service in
-   `permissive` mode. Do not expose this grace mode to an untrusted interface: a request that omits
-   Authorization has full legacy access. Startup logs both the active mode and rate-limited
-   warnings for methods/routes/callers still making header-less requests. Every permissive
-   `GET /healthz` response also carries
-   `X-Panopticon-Permissive-Unauthenticated-Total`; poll it across a representative fleet interval
-   and do not cut over unless the monotonic total remains unchanged.
-   Restart each runner, dashboard, and CLI host so new containers receive the credential mount;
-   existing unauthenticated containers continue working.
-2. Respawn or naturally replace the in-flight containers until all callers send the token, then
-   restart the service with `PANOPTICON_SERVICE_AUTH_MODE=enforced`.
-3. To rotate, append the next read/write tokens after the old tokens in their arrays; the last
-   token is the active token selected by clients. Restart the service, then restart all hosts and
-   respawn containers so callers select the new last token while both generations work. Remove the
-   old tokens only after the fleet has converged, then restart the service again.
+Deploy authentication by creating the credential file, configuring enforced mode, and restarting
+the full stack so every task container is respawned with its per-task capability. To rotate,
+append the next read/write tokens after the old tokens in their arrays; the last token is the
+active token selected by clients. Restart the service, then restart all hosts and respawn
+containers so callers select the new last token while both generations work. Remove the old
+tokens only after the fleet has converged, then restart the service again.
 
 An enforced service refuses to start when the reference is absent or invalid. Authentication
 failures always return `401`, `WWW-Authenticate: Bearer`, and
@@ -258,9 +250,10 @@ rate limits (not auth) cap concurrent Codex throughput on Plus/Pro.
 ## Pi (earendil-works/pi)
 
 A task created with `harness: "pi"` (or in a repo whose `default_harness` is pi) runs the `pi`
-coding-agent CLI (https://github.com/earendil-works/pi) in its container. Unlike claude/codex, pi
-keeps subscription and API-key credentials in **one shared file**, and resolves a plain
-environment variable itself — so the harness usually renders nothing at all:
+coding-agent CLI (https://github.com/earendil-works/pi) in its container. Its native configuration
+directory is `~/.pi/agent`; Panopticon keeps the persistent volume rooted at `~/.pi` and sets
+`PI_CODING_AGENT_DIR` to that native `agent` subdirectory. Pi resolves provider environment
+variables directly, while OAuth and stored API-key credentials live in `auth.json`.
 
 1. **API key** (any of pi's many providers): add one line to the repo's env-file —
 
@@ -268,43 +261,48 @@ environment variable itself — so the harness usually renders nothing at all:
    ANTHROPIC_API_KEY=sk-ant-...
    ```
 
-   `OPENAI_API_KEY` and `GEMINI_API_KEY` work too (these are the ones panopticon names in its
-   `missing_auth` check); pi supports several dozen more providers straight from their own env
-   vars (see pi's own `docs/providers.md` upstream) — any of those work equally well, just aren't
-   named in the operator-facing error if nothing is configured. Pi reads the variable directly at
-   launch; the harness writes no file for this path.
+   `OPENAI_API_KEY`, `GEMINI_API_KEY`, and Pi's other documented provider variables work too.
+   Pi reads the variable directly at launch; the harness writes no file for this path.
 
-2. **Subscription** (Claude Pro/Max, ChatGPT Plus/Pro, GitHub Copilot, or Radius — rotating
-   tokens, needs the shared credential dir):
+2. **Subscription or OAuth-backed provider** (ChatGPT Plus/Pro, GitHub Copilot, xAI, OpenRouter,
+   or Radius — rotating tokens or an OAuth-minted key, needs the shared credential dir):
 
    ```sh
    # on the host, once per account:
    pi
    /login   # then select a provider
    # /login writes ~/.pi/agent/auth.json — share it with task containers:
-   mkdir -p ~/.config/panopticon/secrets/pi.d
-   cp ~/.pi/agent/auth.json ~/.config/panopticon/secrets/pi.d/
-   chmod 0600 ~/.config/panopticon/secrets/pi.d/auth.json
+   mkdir -p ~/.config/panopticon/secrets/pi.d/pi/agent
+   cp ~/.pi/agent/auth.json ~/.config/panopticon/secrets/pi.d/pi/agent/
+   chmod 0600 ~/.config/panopticon/secrets/pi.d/pi/agent/auth.json
    # then set credential_dir to pi.d in the dashboard's repo form
    ```
 
-   The runner mounts the dir **read-write and shared** into that repo's task containers; the
-   harness symlinks `auth.json` into each task's `PI_CODING_AGENT_DIR`. As with codex, don't copy
-   the same `auth.json` to a second host — log in per host, or use a non-rotating access token
-   where the provider offers one.
+   The runner mounts the directory **read-write and shared** into that repo's task containers; the
+   harness imports `pi/agent/auth.json` into each task's native directory. Pi's provider-generic
+   OAuth and stored API-key entries are supported, including the `openai-codex` entry produced by
+   ChatGPT login. A codex CLI `auth.json` with top-level `OPENAI_API_KEY`, `tokens`, and
+   `last_refresh` fields is a different format and is rejected with an actionable lifecycle
+   failure.
 
 3. **Personal pi config** (custom providers, local models, and other host-managed config): put
-   the pi files in a `pi/` subdirectory of the repo's existing credential directory. For example,
+   the pi files in a `pi/agent/` subdirectory of the repo's existing credential directory. For example,
    if the repo uses `credential_dir: "openai.d"`:
 
    ```sh
-   mkdir -p ~/.config/panopticon/secrets/openai.d/pi
-   cp ~/.pi/agent/models.json ~/.config/panopticon/secrets/openai.d/pi/
+   mkdir -p ~/.config/panopticon/secrets/openai.d/pi/agent
+   cp ~/.pi/agent/models.json ~/.config/panopticon/secrets/openai.d/pi/agent/
    ```
 
-   The pi harness links each entry under `openai.d/pi/` into its `PI_CODING_AGENT_DIR` at
-   bootstrap. Existing files in the persistent pi config volume are never overwritten. This uses
-   the existing credential-directory mount; no additional repo setting is needed.
+   The harness imports each entry under `openai.d/pi/agent/` without changing the mounted source.
+   For `models.json`, only HTTP(S) provider hosts exactly equal to `localhost`, `127.0.0.1`, or
+   `::1` are adapted to `host.docker.internal`, so a model server on the runner host is reachable
+   from the container. LAN and public URLs remain unchanged. Existing files in the persistent Pi
+   volume are never overwritten.
+
+Anthropic API keys are supported and first-class. Anthropic OAuth in pi is not recommended or supported by Panopticon and may risk your Anthropic account. Panopticon does not suggest or
+generate that credential path, but it does not block an operator who explicitly supplies
+`ANTHROPIC_OAUTH_TOKEN` after making an informed choice.
 
 Pick the model per task via `starting_model` (pi's own `--model` syntax, e.g. `sonnet`,
 `sonnet:high`, `openai/gpt-4o`); unset, pi picks its own default.

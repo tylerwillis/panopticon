@@ -727,9 +727,9 @@ def create_app(
     from panopticon.taskservice.mcp import build_mcp_server
 
     mode = auth_mode or ("enforced" if auth_file else "disabled")
-    if mode not in {"disabled", "permissive", "enforced"}:
-        raise ValueError("authentication mode must be disabled, permissive, or enforced")
-    if mode in {"permissive", "enforced"} and auth_file is None:
+    if mode not in {"disabled", "enforced"}:
+        raise ValueError("authentication mode must be disabled or enforced")
+    if mode == "enforced" and auth_file is None:
         raise ValueError(f"authentication credential file is required in {mode} mode")
     tokens = load_tokens(auth_file, secrets_dir=secrets_dir) if auth_file is not None else None
     mcp = build_mcp_server(service)
@@ -777,7 +777,6 @@ def create_app(
             raise ValueError("browser origin configuration is invalid")
 
     generic_auth_failure = {"detail": "authentication required"}
-    permissive_unauthenticated_total = 0
 
     def redact_configured_tokens(value: Any) -> Any:
         if tokens is None:
@@ -888,32 +887,12 @@ def create_app(
     async def authenticate(
         request: Request, call_next: Callable[[Request], Awaitable[Response]]
     ) -> Response:
-        nonlocal permissive_unauthenticated_total
         route_path = get_route_path(request.scope)
         if not route_path.startswith("/"):
             route_path = f"/{route_path}"
         if mode == "disabled" or (request.method in {"GET", "HEAD"} and route_path == "/healthz"):
             return await call_next(request)
         authorization = request.headers.get("authorization")
-        if mode == "permissive" and authorization is None:
-            assert tokens is not None
-            inspection = await request_contains_configured_token(request)
-            if inspection is None:
-                return JSONResponse(status_code=413, content={"detail": "request too large"})
-            if inspection:
-                return JSONResponse(status_code=400, content={"detail": "request rejected"})
-            client = request.client.host if request.client is not None else "unknown"
-            permissive_unauthenticated_total += 1
-            if permissive_unauthenticated_total & (permissive_unauthenticated_total - 1) == 0:
-                _log.warning(
-                    "permissive authentication accepted headerless request: "
-                    "method=%s route=%s client=%s count=%d",
-                    redact_configured_tokens(request.method),
-                    redact_configured_tokens(route_path),
-                    redact_configured_tokens(client),
-                    permissive_unauthenticated_total,
-                )
-            return await call_next(request)
         assert tokens is not None
         presented = ""
         if authorization is not None and authorization.startswith("Bearer "):
@@ -1195,10 +1174,6 @@ def create_app(
 
     def health_response(*, include_body: bool) -> JSONResponse:
         response = JSONResponse({"status": "ok"})
-        if mode == "permissive":
-            response.headers["X-Panopticon-Permissive-Unauthenticated-Total"] = str(
-                permissive_unauthenticated_total
-            )
         if not include_body:
             # HEAD describes the same representation as GET, including its Content-Length, while
             # emitting no representation bytes on the ASGI transport.

@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.1.4--55f27afce21e",
-  "requirementId": "adversarial-review-mutations.1.4",
-  "hash": "55f27afce21e",
-  "verdict": "pass",
-  "summary": "The exact-string fixture permits only the required targeted mutation to break a claim-dependent property, leaving additional mutations unrestricted, so it does not reject the nearest violation where one mutation is targeted but others are not.",
-  "timestamp": "2026-08-04T23:56:55.337Z"
-}

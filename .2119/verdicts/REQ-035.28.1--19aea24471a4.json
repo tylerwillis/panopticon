@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-035.28.1--19aea24471a4",
-  "requirementId": "REQ-035.28.1",
-  "hash": "19aea24471a4",
-  "verdict": "pass",
-  "summary": "The annotated tests cover missing and multiple non-file or invalid credential-reference forms for both Docker and shell runner paths, assert failure before Docker/tmux invocation, and verify missing paths remain absent while existing entries and targets remain unchanged.",
-  "timestamp": "2026-08-04T06:50:49.775Z"
-}

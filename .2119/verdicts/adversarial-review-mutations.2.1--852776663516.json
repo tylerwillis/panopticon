@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.2.1--852776663516",
-  "requirementId": "adversarial-review-mutations.2.1",
-  "hash": "852776663516",
-  "verdict": "pass",
-  "summary": "The test isolates the uniquely headed section and requires exact prose covering both conjuncts: a kill shows only possible test failure under the change, and it does not prove failure for the intended reason.",
-  "timestamp": "2026-08-05T00:46:20.423Z"
-}

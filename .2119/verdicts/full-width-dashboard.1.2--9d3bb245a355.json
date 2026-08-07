@@ -1,0 +1,8 @@
+{
+  "reviewId": "full-width-dashboard.1.2--9d3bb245a355",
+  "requirementId": "full-width-dashboard.1.2",
+  "hash": "9d3bb245a355",
+  "verdict": "pass",
+  "summary": "Behavioral test traverses every overflow row by keyboard, requires each to be fully visible after scrolling, and rejects any nonzero vertical scrollbar width.",
+  "timestamp": "2026-08-06T06:13:24.758Z"
+}

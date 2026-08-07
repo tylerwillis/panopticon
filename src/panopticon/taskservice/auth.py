@@ -16,7 +16,7 @@ from typing import Literal
 
 from panopticon.core.dirs import _secrets_dir
 
-AuthMode = Literal["disabled", "permissive", "enforced"]
+AuthMode = Literal["disabled", "enforced"]
 MIN_TOKEN_LENGTH = 12
 _BEARER_TOKEN = re.compile(r"[A-Za-z0-9._~+/-]+=*\Z")
 # Fixed values emitted by the generic 401 must never themselves be configurable credentials.

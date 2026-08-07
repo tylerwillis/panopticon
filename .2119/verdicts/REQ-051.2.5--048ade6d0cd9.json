@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-051.2.5--048ade6d0cd9",
+  "requirementId": "REQ-051.2.5",
+  "hash": "048ade6d0cd9",
+  "verdict": "pass",
+  "summary": "Tests reject CLAUDE_CODE_OAUTH_TOKEN-only preflight acceptance, auth.json creation, ANTHROPIC_OAUTH_TOKEN remediation, and its mention in the dedicated Pi documentation section.",
+  "timestamp": "2026-08-06T09:09:29.311Z"
+}

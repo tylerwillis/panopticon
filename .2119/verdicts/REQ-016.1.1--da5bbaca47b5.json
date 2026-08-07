@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-016.1.1--da5bbaca47b5",
+  "requirementId": "REQ-016.1.1",
+  "hash": "da5bbaca47b5",
+  "verdict": "pass",
+  "summary": "Tests reject ≥3-second returns across every registered harness hook under success, blackhole, delayed error, cumulative delay, and malformed-response outcomes.",
+  "timestamp": "2026-08-06T08:44:10.982Z"
+}

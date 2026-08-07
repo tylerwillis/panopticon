@@ -1,8 +1,0 @@
-{
-  "reviewId": "enforced-mode-cutover-runbook.2.10--d1e354efe271",
-  "requirementId": "enforced-mode-cutover-runbook.2.10",
-  "hash": "d1e354efe271",
-  "verdict": "pass",
-  "summary": "Genuine coverage: a permissive-mode liveness request with a legacy Bearer is rejected 401, and validator mutation tests reject loss of every rejection and no-drain rationale conjunct.",
-  "timestamp": "2026-08-05T05:01:18.566Z"
-}

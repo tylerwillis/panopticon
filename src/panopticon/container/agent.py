@@ -21,6 +21,7 @@ from __future__ import annotations
 import os
 import signal
 import subprocess
+import sys
 from collections.abc import Callable
 from pathlib import Path
 
@@ -34,14 +35,14 @@ from panopticon.taskservice.auth import environment_token
 
 def _run_agent(
     harness: Harness, ctx: LaunchContext
-) -> None:  # pragma: no cover - real LLM; skipif-gated / live only
+) -> int:  # pragma: no cover - real LLM; skipif-gated / live only
     """Run the harness's CLI (resuming the session if any) in the foreground; return when it
     exits.
 
-    Unlike an ``exec``, this returns control to :func:`main` when the agent exits, so it can stop
-    the container (the task → down → respawn). The CLI inherits this pane's TTY (it's the
+    Unlike an ``exec``, this returns the CLI status to :func:`main` when the agent exits, so Pi can
+    latch an actionable failure before the container stops. The CLI inherits this pane's TTY (the
     interactive surface ``tmux attach`` reaches)."""
-    subprocess.run(harness.argv(ctx), env={**os.environ, **harness.env(ctx)})
+    return subprocess.run(harness.argv(ctx), env={**os.environ, **harness.env(ctx)}).returncode
 
 
 def _stop_container() -> None:  # pragma: no cover - signals the real container's PID 1
@@ -60,15 +61,16 @@ def main(
     *,
     client_factory: Callable[[str], TaskServiceClient] = _default_client,
     home: Path | None = None,
-    launch: Callable[[Harness, LaunchContext], None] = _run_agent,
+    launch: Callable[[Harness, LaunchContext], int | None] = _run_agent,
     on_exit: Callable[[], None] = _stop_container,
 ) -> None:
     """Bootstrap the task's harness from the active workflow (skills + turn-flip hooks), run the
     agent, then stop the container when it exits. The CLI's config dir is a per-task volume
     (``<home>/<harness.config_dirname>``); auth comes from the env/files the runner injects.
 
-    When the agent exits, ``on_exit`` stops the container so the task goes **down** rather
-    than lingering live-but-unconnectable — the operator respawns it with `R` (history resumes)."""
+    When Pi exits, its status is first latched as a failed lifecycle so generic orphan healing
+    cannot turn a per-turn exit or configuration problem into a respawn loop. Other harnesses keep
+    the existing explicit-stop behavior."""
     env = os.environ
     service_url = env["PANOPTICON_SERVICE_URL"]
     if service_token := environment_token():
@@ -83,9 +85,12 @@ def main(
     if detail := harness.missing_auth(env, home=home):
         if runner_id:
             client.report_lifecycle(task_id, runner_id, phase="failed", detail=detail)
+        if harness.name == "pi":
+            print(detail, file=sys.stderr)
         return
-    harness.bootstrap(
-        BootstrapContext(
+    stage = "workflow-surface-fetch"
+    try:
+        bootstrap_context = BootstrapContext(
             home=home,
             cwd=Path.cwd(),
             service_url=service_url,
@@ -95,17 +100,32 @@ def main(
             overview=client.workflow_overview(task_id),
             environ=env,
         )
-    )
-    launch(
-        harness,
-        LaunchContext(
-            home=home,
-            cwd=Path.cwd(),
-            initial_prompt=env.get("PANOPTICON_INITIAL_PROMPT") or None,
-            turn=env.get("PANOPTICON_TASK_TURN") or None,
-            starting_model=env.get("PANOPTICON_STARTING_MODEL") or None,
-        ),
-    )  # the agent runs until it exits...
+        stage = "bootstrap"
+        harness.bootstrap(bootstrap_context)
+        stage = "launcher"
+        status = launch(
+            harness,
+            LaunchContext(
+                home=home,
+                cwd=Path.cwd(),
+                initial_prompt=env.get("PANOPTICON_INITIAL_PROMPT") or None,
+                turn=env.get("PANOPTICON_TASK_TURN") or None,
+                starting_model=env.get("PANOPTICON_STARTING_MODEL") or None,
+            ),
+        )
+    except Exception as exc:
+        if harness.name != "pi":
+            raise
+        detail = f"pi {stage} failure: {exc}"
+        if runner_id:
+            client.report_lifecycle(task_id, runner_id, phase="failed", detail=detail)
+        print(detail, file=sys.stderr)
+        return
+    if harness.name == "pi" and isinstance(status, int):
+        detail = f"pi exited unexpectedly with status {status}"
+        if runner_id:
+            client.report_lifecycle(task_id, runner_id, phase="failed", detail=detail)
+        print(detail, file=sys.stderr)
     on_exit()  # ...then stop the container (task → down → respawn)
 
 

@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.1.9--4b8b779941b6",
-  "requirementId": "adversarial-review-mutations.1.9",
-  "hash": "4b8b779941b6",
-  "verdict": "pass",
-  "summary": "The test rejects removal of reviewer-chosen per-dispatch targeting or permission for exhaustive/framework-based mutation testing.",
-  "timestamp": "2026-08-04T22:57:45.388Z"
-}

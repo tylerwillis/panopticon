@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.1.10--860d7e0182ec",
-  "requirementId": "adversarial-review-mutations.1.10",
-  "hash": "860d7e0182ec",
-  "verdict": "pass",
-  "summary": "The test pins the complete pre-feature description for `tests-judged` across all three workflows, so any addition, deletion, or character-level alteration is rejected.",
-  "timestamp": "2026-08-04T23:56:58.934Z"
-}
