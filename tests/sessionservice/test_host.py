@@ -215,6 +215,42 @@ def test_tick_heals_each_task_in_the_snapshot() -> None:
     assert healed == ["t1", "t2"]
 
 
+@pytest.mark.parametrize("terminal_state", ["COMPLETE", "DROPPED"])
+def test_tick_skips_only_provisioning_for_terminal_tasks(terminal_state: str) -> None:
+    provisioned: list[str] = []
+    cleaned: list[str] = []
+
+    class _Spawner:
+        def mark_healing(self, task: JsonObj) -> None:
+            return None
+
+        def spawn_one(self, task: JsonObj) -> None:
+            return None
+
+        def reconcile(self, task: JsonObj) -> None:
+            return None
+
+        def heal(self, task: JsonObj) -> None:
+            return None
+
+        def cleanup(self, task: JsonObj) -> None:
+            cleaned.append(task["id"])
+
+    class _Provisioner:
+        def provision(self, task: JsonObj) -> None:
+            provisioned.append(task["id"])
+
+    daemon = HostDaemon(_FakeClient([]), _Spawner(), _Provisioner())  # type: ignore[arg-type]
+
+    # 2119-spec: skip-terminal-provisioner
+    # 2119: 1.1
+    # 2119: 1.2
+    daemon.tick([_host_task("terminal", state=terminal_state)])
+
+    assert provisioned == []  # invocation, not error swallowing, is the observable contract
+    assert cleaned == ["terminal"]  # cleanup is why the host pass cannot skip terminal tasks
+
+
 def test_tick_flags_every_orphan_healing_before_any_respawn() -> None:
     # The visibility fix: because respawns are serial (each heal blocks), the pass flags *all*
     # orphans `healing` up front — so t2 reads `healing` while t1's slow respawn is still running,
