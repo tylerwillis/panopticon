@@ -69,7 +69,12 @@ def capture_clipboard_image(
 
     if platform == "linux" and environ.get("WAYLAND_DISPLAY") and (executable := which("wl-paste")):
         command: tuple[str, ...] = (executable, "--type", "image/png")
-    elif platform == "linux" and environ.get("DISPLAY") and (executable := which("xclip")):
+    elif (
+        platform == "linux"
+        and environ.get("DISPLAY")
+        and not which("wl-paste")
+        and (executable := which("xclip"))
+    ):
         command = (
             executable,
             "-selection",
@@ -107,7 +112,7 @@ def staging_script(path: str) -> str:
 
 
 def image_paste_binding(command: str) -> str:
-    return f"bind-key -T root C-v run-shell -b '{command} #{{session_name}} #{{pane_id}}'"
+    return f"bind-key -T root C-v run-shell -b '{command} #{{q:session_name}} #{{q:pane_id}}'"
 
 
 def _failure(pane: str, run: Run) -> PasteResult:

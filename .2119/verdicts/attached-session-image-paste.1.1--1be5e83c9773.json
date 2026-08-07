@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-session-image-paste.1.1--1be5e83c9773",
+  "requirementId": "attached-session-image-paste.1.1",
+  "hash": "1be5e83c9773",
+  "verdict": "pass",
+  "summary": "PASS: exact #{q:...} binding plus raw-Ctrl+V hostile-session proof rejects shell expansion and verifies originating session/pane; split running-container proof and call sequence reject forwarding.",
+  "timestamp": "2026-08-07T17:35:21.000Z"
+}

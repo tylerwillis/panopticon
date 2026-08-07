@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-session-image-paste.2.2--21eff2a5a399",
+  "requirementId": "attached-session-image-paste.2.2",
+  "hash": "21eff2a5a399",
+  "verdict": "pass",
+  "summary": "PASS: the positive Linux case supplies nonempty WAYLAND_DISPLAY and wl-paste, asserts exact image/png argv and bytes, while wrong-platform/tool antecedent probes reject improper Wayland selection.",
+  "timestamp": "2026-08-07T17:35:21.001Z"
+}

@@ -36,14 +36,19 @@ def test_real_tmux_ctrl_v_invokes_loaded_bridge_with_originating_session_and_pan
     tmp_path: Path,
 ) -> None:
     socket = "panopticon-image-paste-itest"
-    session = "panopticon-task-bridge"
+    injected = tmp_path / "host-command-injected"
+    session = "panopticon-task-$(touch${IFS}$PANOPTICON_TEST_MARKER)"
     marker = tmp_path / "bridge-call"
     helper = tmp_path / "record_bridge.py"
     helper.write_text(
         f"import pathlib, sys\npathlib.Path({str(marker)!r}).write_text('|'.join(sys.argv[1:]))\n"
     )
     command = f"python {shlex.quote(str(helper))}"
-    tmux_env = {**os.environ, "TERM": "xterm-256color"}
+    tmux_env = {
+        **os.environ,
+        "PANOPTICON_TEST_MARKER": str(injected),
+        "TERM": "xterm-256color",
+    }
     default_binding = image_paste_binding("python -m panopticon.sessionservice.image_paste")
     test_binding = image_paste_binding(command)
     config = tmp_path / "tmux.conf"
@@ -89,7 +94,7 @@ def test_real_tmux_ctrl_v_invokes_loaded_bridge_with_originating_session_and_pan
         ).stdout
         ctrl_v = next(line for line in keys.splitlines() if "C-v" in line)
         assert command in ctrl_v
-        assert "#{session_name}" in ctrl_v and "#{pane_id}" in ctrl_v
+        assert "#{q:session_name}" in ctrl_v and "#{q:pane_id}" in ctrl_v
 
         master, slave = pty.openpty()
         client = subprocess.Popen(
@@ -118,6 +123,7 @@ def test_real_tmux_ctrl_v_invokes_loaded_bridge_with_originating_session_and_pan
         while not marker.exists() and time.monotonic() < deadline:
             time.sleep(0.02)
         assert marker.read_text() == f"{session}|{pane}"
+        assert not injected.exists()
     finally:
         if master >= 0:
             with contextlib.suppress(OSError):
@@ -133,7 +139,6 @@ def test_real_tmux_ctrl_v_invokes_loaded_bridge_with_originating_session_and_pan
 def test_wayland_capture_requires_every_antecedent() -> None:
     scenarios = (
         ("darwin", {"WAYLAND_DISPLAY": "wayland-0"}, {"wl-paste", "osascript"}),
-        ("linux", {"WAYLAND_DISPLAY": "", "DISPLAY": ":0"}, {"wl-paste", "xclip"}),
         ("linux", {"DISPLAY": ":0"}, {"xclip"}),
     )
     for platform, environ, present in scenarios:

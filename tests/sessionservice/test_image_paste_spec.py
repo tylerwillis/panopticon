@@ -33,7 +33,7 @@ def test_binding_routes_container_task_ctrl_v_to_its_originating_pane() -> None:
     binding = image_paste_binding("python -m panopticon.sessionservice.image_paste")
     assert binding == (
         "bind-key -T root C-v run-shell -b "
-        "'python -m panopticon.sessionservice.image_paste #{session_name} #{pane_id}'"
+        "'python -m panopticon.sessionservice.image_paste #{q:session_name} #{q:pane_id}'"
     )
     assert binding in server_default_config_text(clipboard=None)
     assert defaults_argv(None) == []
@@ -203,6 +203,24 @@ def test_linux_capture_does_not_use_xclip_without_a_display() -> None:
                 run=run,
             )
         assert calls == []
+
+
+# 2119: attached-session-image-paste.2.3
+def test_linux_capture_does_not_use_xclip_when_wl_paste_is_available() -> None:
+    calls: list[tuple[str, ...]] = []
+
+    def run(argv: tuple[str, ...], **_kwargs: object):
+        calls.append(argv)
+        return subprocess.CompletedProcess(argv, 0, stdout=b"png-bytes", stderr=b"")
+
+    with pytest.raises(RuntimeError, match="no supported image clipboard tool"):
+        capture_clipboard_image(
+            platform="linux",
+            environ={"DISPLAY": ":0"},
+            which=_which({"wl-paste", "xclip"}),
+            run=run,
+        )
+    assert calls == []
 
 
 # 2119: attached-session-image-paste.2.4
