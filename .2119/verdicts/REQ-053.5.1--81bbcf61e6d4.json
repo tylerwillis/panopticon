@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-053.5.1--81bbcf61e6d4",
+  "requirementId": "REQ-053.5.1",
+  "hash": "81bbcf61e6d4",
+  "verdict": "fail",
+  "summary": "Upward navigation checks selected text but not cursor highlighting, allowing a direction-specific highlight defect.",
+  "timestamp": "2026-08-07T15:46:51.668Z"
+}

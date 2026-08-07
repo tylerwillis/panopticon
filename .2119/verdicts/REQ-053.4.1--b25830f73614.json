@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-053.4.1--b25830f73614",
+  "requirementId": "REQ-053.4.1",
+  "hash": "b25830f73614",
+  "verdict": "fail",
+  "summary": "The test does not compare the rendered thumb against an indicator-free baseline, so a vertically-overflow-specific thumb mutation could pass.",
+  "timestamp": "2026-08-07T15:49:35.698Z"
+}

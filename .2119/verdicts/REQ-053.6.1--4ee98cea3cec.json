@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-053.6.1--4ee98cea3cec",
+  "requirementId": "REQ-053.6.1",
+  "hash": "4ee98cea3cec",
+  "verdict": "fail",
+  "summary": "The three-row fixture is too narrow and assumes row identity from arithmetic rather than the table's ordered rows; strengthen it across a routine 30-row board and every offset.",
+  "timestamp": "2026-08-07T15:49:37.017Z"
+}

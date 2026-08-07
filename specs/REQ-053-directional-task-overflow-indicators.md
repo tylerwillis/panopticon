@@ -6,10 +6,11 @@ The dashboard deliberately gives task content the full terminal width by hiding 
 right-side vertical scrollbar. Operators still need an unmistakable signal when task rows exist
 outside the viewport, in either vertical direction.
 
-The last visible task-content line is reliably identifiable: Textual exposes the scrollable
-content region together with the current and maximum vertical scroll offsets. The dashboard uses
-those signals to overlay centered `↑ more tasks` and `↓ more tasks` messages on the first and
-last visible task-content lines only while content exists beyond the corresponding edge.
+The first and last visible task-content lines are reliably identifiable: Textual exposes the
+scrollable content region together with the current and maximum vertical scroll offsets. The
+dashboard uses those signals to composite short `↑ more` and `↓ more` markers onto the trailing
+cells of the corresponding task rows only while content exists beyond that edge. The underlying
+row remains rendered, including its leading identity and cursor highlighting.
 
 The existing bottom line is not a general-purpose hint area. It contains Textual's horizontal
 scrollbar thumb when the task columns overflow horizontally, and it disappears when those columns
@@ -22,12 +23,14 @@ overflow.
 ### REQ-053.1: Content below
 
 1. While task content is vertically hidden below the current viewport, the task table MUST replace
-   its last visible task-content line with a centered `↓ more tasks` indicator.
+   trailing cells of its last visible task-content line with a right-aligned `↓ more` indicator
+   without replacing that row's leading content.
 
 ### REQ-053.2: Content above
 
 1. While task content is vertically hidden above the current viewport, the task table MUST replace
-   its first visible task-content line below the header with a centered `↑ more tasks` indicator.
+   trailing cells of its first visible task-content line below the header with a right-aligned
+   `↑ more` indicator without replacing that row's leading content.
 
 ### REQ-053.3: Directional absence
 
@@ -37,12 +40,18 @@ overflow.
 ### REQ-053.4: Full-width and horizontal-scrollbar preservation
 
 1. Indicator rendering MUST preserve equality between the task table's scrollable-content width
-   and content-region width while leaving the horizontal scrollbar line unobscured when it exists.
+   and content-region width together with the existing horizontal scrollbar's visibility, size,
+   and rendered thumb when horizontal overflow exists.
 
 ### REQ-053.5: Navigation
 
-1. With either directional indicator visible, keyboard navigation MUST remain able to reach every
-   real task row.
+1. With either directional indicator visible, keyboard navigation MUST keep the selected task's
+   identifying text and cursor highlighting visible after every step through all real task rows.
+
+### REQ-053.6: Renderability across scroll offsets
+
+1. At every vertical scroll offset, the task table MUST retain identifying text on each real task
+   row that intersects the visible task-content region.
 
 ## Non-goals
 

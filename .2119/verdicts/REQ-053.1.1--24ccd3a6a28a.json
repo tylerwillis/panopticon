@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-053.1.1--24ccd3a6a28a",
+  "requirementId": "REQ-053.1.1",
+  "hash": "24ccd3a6a28a",
+  "verdict": "pass",
+  "summary": "The test creates genuine below-viewport overflow and rejects missing, misplaced, non-right-aligned, wrong-row, or leading-content-overwriting down-marker output.",
+  "timestamp": "2026-08-07T15:48:02.488Z"
+}

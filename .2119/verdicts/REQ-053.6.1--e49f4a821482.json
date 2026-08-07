@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-053.6.1--e49f4a821482",
+  "requirementId": "REQ-053.6.1",
+  "hash": "e49f4a821482",
+  "verdict": "fail",
+  "summary": "A union of IDs anywhere in the table does not prove each ID is rendered on its own intersecting row.",
+  "timestamp": "2026-08-07T15:46:52.272Z"
+}

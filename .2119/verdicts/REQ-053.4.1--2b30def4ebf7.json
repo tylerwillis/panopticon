@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-053.4.1--2b30def4ebf7",
+  "requirementId": "REQ-053.4.1",
+  "hash": "2b30def4ebf7",
+  "verdict": "fail",
+  "summary": "The overflow case must prove indicators are active and compare scrollbar size as well as cells against the indicator-free baseline.",
+  "timestamp": "2026-08-07T15:51:02.984Z"
+}
