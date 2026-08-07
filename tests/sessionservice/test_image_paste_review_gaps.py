@@ -133,7 +133,7 @@ def test_real_tmux_ctrl_v_invokes_loaded_bridge_with_originating_session_and_pan
 def test_wayland_capture_requires_every_antecedent() -> None:
     scenarios = (
         ("darwin", {"WAYLAND_DISPLAY": "wayland-0"}, {"wl-paste", "osascript"}),
-        ("linux", {"WAYLAND_DISPLAY": ""}, {"wl-paste", "xclip"}),
+        ("linux", {"WAYLAND_DISPLAY": "", "DISPLAY": ":0"}, {"wl-paste", "xclip"}),
         ("linux", {"DISPLAY": ":0"}, {"xclip"}),
     )
     for platform, environ, present in scenarios:

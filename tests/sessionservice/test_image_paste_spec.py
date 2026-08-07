@@ -4,7 +4,11 @@
 
 from __future__ import annotations
 
+import os
 import subprocess
+from pathlib import Path
+
+import pytest
 
 from panopticon.sessionservice.image_paste import (
     DARWIN_PNG_SCRIPT,
@@ -182,6 +186,25 @@ def test_linux_capture_falls_back_to_x11_png() -> None:
     ]
 
 
+# 2119: attached-session-image-paste.2.3
+def test_linux_capture_does_not_use_xclip_without_a_display() -> None:
+    for environ in ({}, {"DISPLAY": ""}):
+        calls: list[tuple[str, ...]] = []
+
+        def run(argv: tuple[str, ...], **_kwargs: object):
+            calls.append(argv)
+            return subprocess.CompletedProcess(argv, 0, stdout=b"png-bytes", stderr=b"")
+
+        with pytest.raises(RuntimeError, match="no supported image clipboard tool"):
+            capture_clipboard_image(
+                platform="linux",
+                environ=environ,
+                which=_which({"xclip"}),
+                run=run,
+            )
+        assert calls == []
+
+
 # 2119: attached-session-image-paste.2.4
 def test_empty_and_oversize_images_are_rejected_before_container_io() -> None:
     calls: list[tuple[list[str], bytes | None]] = []
@@ -246,7 +269,7 @@ def test_success_stages_unique_private_files_then_exactly_bracket_pastes_the_pat
             "panopticon-task",
             "sh",
             "-c",
-            f"umask 077; exec dd of=/tmp/panopticon-clipboard-{token}.png status=none",
+            staging_script(f"/tmp/panopticon-clipboard-{token}.png"),
         ]
         for token in ("first", "second")
     ]
@@ -306,6 +329,38 @@ def test_default_paths_are_unique_and_staging_script_creates_mode_0600_file(tmp_
     assert completed.returncode == 0
     assert destination.read_bytes() == b"image bytes"
     assert destination.stat().st_mode & 0o777 == 0o600
+
+
+# 2119: attached-session-image-paste.3.1
+def test_staging_script_rejects_existing_files_and_symlinks(tmp_path: Path) -> None:
+    existing = tmp_path / "existing.png"
+    existing.write_bytes(b"original")
+    existing.chmod(0o644)
+
+    target = tmp_path / "target.png"
+    target.write_bytes(b"target")
+    symlink = tmp_path / "symlink.png"
+    symlink.symlink_to(target)
+
+    dangling_target = tmp_path / "not-created.png"
+    dangling = tmp_path / "dangling.png"
+    dangling.symlink_to(dangling_target)
+
+    for destination in (existing, symlink, dangling):
+        completed = subprocess.run(
+            ["sh", "-c", staging_script(str(destination))],
+            input=b"replacement",
+            capture_output=True,
+            check=False,
+        )
+        assert completed.returncode != 0
+
+    assert existing.read_bytes() == b"original"
+    assert existing.stat().st_mode & 0o777 == 0o644
+    assert target.read_bytes() == b"target"
+    assert not dangling_target.exists()
+    assert os.path.islink(symlink)
+    assert os.path.islink(dangling)
 
 
 # 2119: attached-session-image-paste.5.1

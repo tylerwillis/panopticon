@@ -54,7 +54,9 @@ def test_shipped_bridge_stages_known_png_and_delivers_its_container_path(
     try:
         subprocess.run(
             ["docker", "build", "--tag", image, "-"],
-            input=b'FROM alpine:3.20\nRUN adduser -D -u 1000 panopticon\nCMD ["sleep","30"]\n',
+            input=(
+                b'FROM python:3.13-alpine\nRUN adduser -D -u 1000 panopticon\nCMD ["sleep","30"]\n'
+            ),
             check=True,
             capture_output=True,
             env=tmux_env,

@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-session-image-paste.4.1--cfbffb3d88fd",
+  "requirementId": "attached-session-image-paste.4.1",
+  "hash": "cfbffb3d88fd",
+  "verdict": "pass",
+  "summary": "Fresh-context PASS: exact paste-buffer -p delivery targets the originating pane with path-only buffer, asserts no Enter/send-keys, and live proof checks one bracketed-paste envelope.",
+  "timestamp": "2026-08-07T17:23:07.406Z"
+}

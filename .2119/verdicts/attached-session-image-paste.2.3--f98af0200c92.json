@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-session-image-paste.2.3--f98af0200c92",
+  "requirementId": "attached-session-image-paste.2.3",
+  "hash": "f98af0200c92",
+  "verdict": "pass",
+  "summary": "Fresh-context PASS: positive fallback has Linux, nonempty DISPLAY, absent wl-paste, and available xclip, and asserts the exact image/png target command; negative empty/missing DISPLAY cases make no xclip call.",
+  "timestamp": "2026-08-07T17:23:04.508Z"
+}

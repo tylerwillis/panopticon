@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-session-image-paste.2.4--8377382d0545",
+  "requirementId": "attached-session-image-paste.2.4",
+  "hash": "8377382d0545",
+  "verdict": "pass",
+  "summary": "Fresh-context PASS: empty and 20 MiB+1 payloads are rejected before container I/O, while the exact 20 MiB boundary is accepted.",
+  "timestamp": "2026-08-07T17:23:05.170Z"
+}

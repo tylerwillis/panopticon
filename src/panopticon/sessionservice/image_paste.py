@@ -69,7 +69,7 @@ def capture_clipboard_image(
 
     if platform == "linux" and environ.get("WAYLAND_DISPLAY") and (executable := which("wl-paste")):
         command: tuple[str, ...] = (executable, "--type", "image/png")
-    elif platform == "linux" and (executable := which("xclip")):
+    elif platform == "linux" and environ.get("DISPLAY") and (executable := which("xclip")):
         command = (
             executable,
             "-selection",
@@ -95,7 +95,15 @@ def container_image_path(extension: str, *, token: Callable[[], str] | None = No
 
 
 def staging_script(path: str) -> str:
-    return f"umask 077; exec dd of={shlex.quote(path)} status=none"
+    program = (
+        "import os,shutil,sys;"
+        "fd=os.open(sys.argv[1],os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600);"
+        "os.fchmod(fd,0o600);"
+        "output=os.fdopen(fd,'wb');"
+        "shutil.copyfileobj(sys.stdin.buffer,output);"
+        "output.close()"
+    )
+    return f"exec python -c {shlex.quote(program)} {shlex.quote(path)}"
 
 
 def image_paste_binding(command: str) -> str:

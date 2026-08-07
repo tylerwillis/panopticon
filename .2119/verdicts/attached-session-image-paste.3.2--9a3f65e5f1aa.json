@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-session-image-paste.3.2--9a3f65e5f1aa",
+  "requirementId": "attached-session-image-paste.3.2",
+  "hash": "9a3f65e5f1aa",
+  "verdict": "pass",
+  "summary": "Fresh-context PASS: exact argv/input traces show image bytes only on docker exec stdin, never process arguments or tmux input; tmux buffer content is exactly the staged path.",
+  "timestamp": "2026-08-07T17:23:06.544Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-session-image-paste.2.1--4d7ad7a25c06",
+  "requirementId": "attached-session-image-paste.2.1",
+  "hash": "4d7ad7a25c06",
+  "verdict": "pass",
+  "summary": "Fresh-context PASS: Darwin test verifies osascript invocation, PNGf native-pasteboard request, and decoded PNG bytes.",
+  "timestamp": "2026-08-07T17:23:03.174Z"
+}

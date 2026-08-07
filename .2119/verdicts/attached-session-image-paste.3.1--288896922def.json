@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-session-image-paste.3.1--288896922def",
+  "requirementId": "attached-session-image-paste.3.1",
+  "hash": "288896922def",
+  "verdict": "pass",
+  "summary": "Fresh-context PASS: tests prove byte identity, /tmp uniqueness, actual 0600 creation, O_EXCL collision rejection, and resistance to existing, symlink, and dangling-symlink destinations; Docker staging runs as panopticon.",
+  "timestamp": "2026-08-07T17:23:05.854Z"
+}
