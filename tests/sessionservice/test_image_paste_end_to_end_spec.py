@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import contextlib
 import os
+import pty
 import shlex
 import shutil
 import subprocess
@@ -45,6 +47,8 @@ def test_shipped_bridge_stages_known_png_and_delivers_its_container_path(
     image = "panopticon-image-paste-e2e:latest"
     pane_input = tmp_path / "pane-input"
     pane_ready = tmp_path / "pane-ready"
+    master = -1
+    client: subprocess.Popen[bytes] | None = None
     subprocess.run(["tmux", "-L", socket, "kill-server"], capture_output=True, env=tmux_env)
     subprocess.run(["docker", "rm", "--force", session], capture_output=True)
     try:
@@ -76,7 +80,7 @@ def test_shipped_bridge_stages_known_png_and_delivers_its_container_path(
                 "sh",
                 "-c",
                 (
-                    "printf '\\033[?2004h'; sleep 0.5; "
+                    "stty raw -echo; printf '\\033[?2004h'; sleep 0.5; "
                     f"touch {shlex.quote(str(pane_ready))}; "
                     f"exec cat > {shlex.quote(str(pane_input))}"
                 ),
@@ -118,6 +122,30 @@ def test_shipped_bridge_stages_known_png_and_delivers_its_container_path(
         assert pane_ready.exists()
         assert pane_command == "cat"
 
+        master, slave = pty.openpty()
+        client = subprocess.Popen(
+            ["tmux", "-L", socket, "attach", "-t", session],
+            stdin=slave,
+            stdout=slave,
+            stderr=slave,
+            env=tmux_env,
+        )
+        os.close(slave)
+        deadline = time.monotonic() + 3
+        clients = subprocess.CompletedProcess([], 1, stdout=b"")
+        while time.monotonic() < deadline:
+            clients = subprocess.run(
+                ["tmux", "-L", socket, "list-clients", "-t", session],
+                capture_output=True,
+                check=False,
+                env=tmux_env,
+            )
+            if clients.stdout:
+                break
+            time.sleep(0.02)
+        assert clients.stdout
+        time.sleep(0.5)
+
         def run(
             argv: list[str],
             *,
@@ -157,6 +185,13 @@ def test_shipped_bridge_stages_known_png_and_delivers_its_container_path(
         )
         assert staged.stdout == png
     finally:
+        if master >= 0:
+            with contextlib.suppress(OSError):
+                os.write(master, b"\x02d")
+            with contextlib.suppress(OSError):
+                os.close(master)
+        if client is not None:
+            client.wait(timeout=3)
         subprocess.run(["tmux", "-L", socket, "kill-server"], capture_output=True, env=tmux_env)
         subprocess.run(["docker", "rm", "--force", session], capture_output=True)
         subprocess.run(["docker", "rmi", "--force", image], capture_output=True)
