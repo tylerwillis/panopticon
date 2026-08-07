@@ -215,8 +215,13 @@ def test_tick_heals_each_task_in_the_snapshot() -> None:
     assert healed == ["t1", "t2"]
 
 
-@pytest.mark.parametrize("terminal_state", ["COMPLETE", "DROPPED"])
-def test_tick_skips_only_provisioning_for_terminal_tasks(terminal_state: str) -> None:
+@pytest.mark.parametrize(
+    ("terminal_state", "projected_terminal"),
+    [("COMPLETE", None), ("DROPPED", None), ("CUSTOM_DONE", True)],
+)
+def test_tick_skips_only_provisioning_for_terminal_tasks(
+    terminal_state: str, projected_terminal: bool | None
+) -> None:
     provisioned: list[str] = []
     cleaned: list[str] = []
 
@@ -245,7 +250,10 @@ def test_tick_skips_only_provisioning_for_terminal_tasks(terminal_state: str) ->
     # 2119-spec: skip-terminal-provisioner
     # 2119: 1.1
     # 2119: 1.2
-    daemon.tick([_host_task("terminal", state=terminal_state)])
+    terminal_task = _host_task("terminal", state=terminal_state)
+    if projected_terminal is not None:
+        terminal_task["terminal"] = projected_terminal
+    daemon.tick([terminal_task])
 
     assert provisioned == []  # invocation, not error swallowing, is the observable contract
     assert cleaned == ["terminal"]  # cleanup is why the host pass cannot skip terminal tasks

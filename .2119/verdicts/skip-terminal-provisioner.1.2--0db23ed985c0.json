@@ -1,0 +1,8 @@
+{
+  "reviewId": "skip-terminal-provisioner.1.2--0db23ed985c0",
+  "requirementId": "skip-terminal-provisioner.1.2",
+  "hash": "0db23ed985c0",
+  "verdict": "pass",
+  "summary": "HostDaemon.tick is exercised with COMPLETE, DROPPED, and projected custom terminal tasks; omitting cleanup invocation makes the recorded cleaned-ID assertion fail.",
+  "timestamp": "2026-08-07T16:37:01.682Z"
+}
