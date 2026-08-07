@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-036.2.1--8b39290c4ff5",
-  "requirementId": "REQ-036.2.1",
-  "hash": "8b39290c4ff5",
-  "verdict": "pass",
-  "summary": "Tests pin the exact Claude argv, raw-stdout verification, all four usage-counter matches, unique responding entry, distinct auxiliary tolerance, and exact model-string rejection including case/whitespace near misses.",
-  "timestamp": "2026-08-05T00:44:02.064Z"
-}

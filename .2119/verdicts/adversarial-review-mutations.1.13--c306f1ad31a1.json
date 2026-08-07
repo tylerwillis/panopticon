@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.1.13--c306f1ad31a1",
-  "requirementId": "adversarial-review-mutations.1.13",
-  "hash": "c306f1ad31a1",
-  "verdict": "fail",
-  "summary": "Completeness is under-tested: tests remove only whole lines, so a prompt missing one character or word from Targeted mutation evidence could be accepted without failing the suite; zero-call ordering is covered.",
-  "timestamp": "2026-08-05T01:59:46.022Z"
-}

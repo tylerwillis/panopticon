@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-050.1.1--3e54cfd0f6e7",
-  "requirementId": "REQ-050.1.1",
-  "hash": "3e54cfd0f6e7",
-  "verdict": "pass",
-  "summary": "Tests reject bytes-only changes for every defined packaged source file and a path-only rename with identical bytes while version and Docker assets remain unchanged.",
-  "timestamp": "2026-08-06T06:12:26.387Z"
-}

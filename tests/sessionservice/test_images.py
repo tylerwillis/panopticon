@@ -219,27 +219,6 @@ def test_base_fingerprint_changes_with_any_packaged_source_file(
 
 
 # 2119: REQ-052.1
-def test_base_fingerprint_does_not_stop_after_first_packaged_file(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
-) -> None:
-    source = tmp_path / "installed-panopticon"
-    first = source / "a-first.py"
-    later = source / "z-later.py"
-    source.mkdir()
-    first.write_bytes(b"first remains unchanged\n")
-    later.write_bytes(b"later original\n")
-    _use_packaged_source(monkeypatch, source)
-
-    _clear_source_fingerprint_cache()
-    before = _base_fingerprint()
-    later.write_bytes(b"later revised\n")
-    _clear_source_fingerprint_cache()
-
-    assert first.read_bytes() == b"first remains unchanged\n"
-    assert _base_fingerprint() != before
-
-
-# 2119: REQ-052.1
 def test_base_fingerprint_changes_when_only_packaged_source_path_changes(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -321,6 +300,41 @@ def test_base_fingerprint_changes_when_a_byte_is_appended(
     _clear_source_fingerprint_cache()
 
     assert _base_fingerprint() != before
+
+
+# 2119: REQ-052.1
+def test_base_fingerprint_changes_for_every_file_of_a_multi_file_tree(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Pin the requirement's universal quantifier over a tree holding more than one file.
+
+    Every other REQ-052.1 test builds a source tree containing exactly one file, so a digest
+    that read only the first packaged file — or only the last, as a misplaced accumulator reset
+    would — satisfies all of them while leaving the rest of the package uncovered. Changing any
+    one file of a multi-file tree must move the fingerprint.
+    """
+    source = tmp_path / "installed-panopticon"
+    relatives = ("alpha.py", "nested/beta.py", "nested/deeper/gamma.py", "zeta.py")
+    for relative in relatives:
+        packaged_file = source / relative
+        packaged_file.parent.mkdir(parents=True, exist_ok=True)
+        packaged_file.write_bytes(b"packaged source\n")
+    _use_packaged_source(monkeypatch, source)
+
+    ignored = []
+    for relative in relatives:
+        packaged_file = source / relative
+        _clear_source_fingerprint_cache()
+        before = _base_fingerprint()
+        packaged_file.write_bytes(b"packaged source\x01")
+        _clear_source_fingerprint_cache()
+        if _base_fingerprint() == before:
+            ignored.append(relative)
+        packaged_file.write_bytes(b"packaged source\n")  # restore, so each file is tested alone
+
+    assert not ignored, (
+        f"fingerprint ignored changes to {ignored} of {len(relatives)} packaged source files"
+    )
 
 
 # 2119: REQ-052.2

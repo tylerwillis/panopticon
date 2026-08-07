@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.9.1--4c64a7ee1cb0",
-  "requirementId": "REQ-028.9.1",
-  "hash": "4c64a7ee1cb0",
-  "verdict": "pass",
-  "summary": "Writes real duplicate workflow files into a monkeypatched home dir for each builtin name and asserts the exact error string naming the external file path and \"remove this external workflow file\" remediation, and that even `_skip_duplicates=True` still raises (test_spec_2119_artifacts.py:490; discove",
-  "timestamp": "2026-08-03T13:46:47.297Z"
-}

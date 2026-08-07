@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-052.1.1--59e50a7d1c4c",
+  "requirementId": "REQ-052.1.1",
+  "hash": "59e50a7d1c4c",
+  "verdict": "pass",
+  "summary": "Tests reject identical-byte path renames and byte changes for every packaged path, including multi-file and boundary-byte cases, while version and Docker assets remain untouched.",
+  "timestamp": "2026-08-07T16:19:01.541Z"
+}

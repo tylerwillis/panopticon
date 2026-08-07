@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.1.7--87fb51e72fc5",
-  "requirementId": "adversarial-review-mutations.1.7",
-  "hash": "87fb51e72fc5",
-  "verdict": "pass",
-  "summary": "Exact section-body comparison rejects omission or weakening of the surviving-mutation evidence-defect statement.",
-  "timestamp": "2026-08-04T22:55:43.050Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.4.1--d012f13fd8ec",
-  "requirementId": "REQ-033.4.1",
-  "hash": "d012f13fd8ec",
-  "verdict": "pass",
-  "summary": "Literal substring \"recommendations for the user to react to (endorse, reject, or edit) at the PR approval gate\" (line 347), and the equality at line 329 pins the whole skill so the sentence appears in its affirmative framing context.",
-  "timestamp": "2026-08-03T13:46:51.434Z"
-}

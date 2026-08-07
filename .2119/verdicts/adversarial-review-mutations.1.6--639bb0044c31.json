@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.1.6--639bb0044c31",
-  "requirementId": "adversarial-review-mutations.1.6",
-  "hash": "639bb0044c31",
-  "verdict": "pass",
-  "summary": "The golden-text test verifies every review skill requires affected tests and reports failures or plain survival.",
-  "timestamp": "2026-08-04T22:55:42.398Z"
-}

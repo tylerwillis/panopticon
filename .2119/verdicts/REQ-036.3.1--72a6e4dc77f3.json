@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-036.3.1--72a6e4dc77f3",
-  "requirementId": "REQ-036.3.1",
-  "hash": "72a6e4dc77f3",
-  "verdict": "pass",
-  "summary": "Successful dispatch asserts an exact posted PR comment containing every required evidence field and reviewer body, while mismatched requested/verified/body model labels prove the heading derives solely from the verified responding model.",
-  "timestamp": "2026-08-05T00:44:03.900Z"
-}

@@ -2,7 +2,7 @@
   "reviewId": "REQ-052.2.1--d2489f87e6a2",
   "requirementId": "REQ-052.2.1",
   "hash": "d2489f87e6a2",
-  "verdict": "fail",
-  "summary": "The tests mutate source in-process and explicitly clear the fingerprint cache, so they do not reject failure to rebuild revised packaged source in a genuinely new host process.",
-  "timestamp": "2026-08-06T21:03:26.730Z"
+  "verdict": "pass",
+  "summary": "Mutation-verified: dropping _packaged_source_digest from _base_fingerprint, deleting the Dockerfile's install-packaged-source.sh step, and making the installer leave stale files each turned 2 of the 3 annotated tests red (3/3 green at baseline); the docker-gated test proves the revised source actually executes in the rebuilt image. Caveat: the two non-docker tests run install-packaged-source.sh on the host, so they fail on BSD/macOS userland (rm/cp long options) and only pass on GNU coreutils.",
+  "timestamp": "2026-08-07T15:40:00.375Z"
 }

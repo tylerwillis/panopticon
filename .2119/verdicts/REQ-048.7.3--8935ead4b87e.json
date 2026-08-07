@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.7.3--8935ead4b87e",
-  "requirementId": "REQ-048.7.3",
-  "hash": "8935ead4b87e",
-  "verdict": "pass",
-  "summary": "Governed-child tests reject operations, transitions/state/drop, claims, provisioning, migration, lifecycle, governor changes, and other non-preplanning effects.",
-  "timestamp": "2026-08-04T07:33:27.668Z"
-}

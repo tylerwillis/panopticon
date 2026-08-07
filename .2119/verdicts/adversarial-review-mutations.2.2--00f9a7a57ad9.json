@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.2.2--00f9a7a57ad9",
-  "requirementId": "adversarial-review-mutations.2.2",
-  "hash": "00f9a7a57ad9",
-  "verdict": "pass",
-  "summary": "The exact-section assertion rejects omissions or alterations of all required conjuncts: two dispatches, independent fresh contexts, the same model, author independence, and no cross-model diversity.",
-  "timestamp": "2026-08-05T00:46:21.037Z"
-}

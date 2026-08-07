@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.1.7--df6b7f272247",
-  "requirementId": "adversarial-review-mutations.1.7",
-  "hash": "df6b7f272247",
-  "verdict": "pass",
-  "summary": "The exact-section assertion rejects omission or weakening of “a surviving mutation is a defect in the evidence even when the reviewed code is correct” across all three workflows.",
-  "timestamp": "2026-08-05T00:46:15.517Z"
-}

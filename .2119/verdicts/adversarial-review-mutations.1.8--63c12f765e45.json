@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.1.8--63c12f765e45",
-  "requirementId": "adversarial-review-mutations.1.8",
-  "hash": "63c12f765e45",
-  "verdict": "pass",
-  "summary": "The exact full-section assertion across all three workflows rejects omissions or weakenings of “every attempt,” “final action,” unchanged-tree verification, and the immediately pre-review snapshot.",
-  "timestamp": "2026-08-04T23:56:57.751Z"
-}

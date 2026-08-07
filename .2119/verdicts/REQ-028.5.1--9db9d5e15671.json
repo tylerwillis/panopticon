@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.5.1--9db9d5e15671",
-  "requirementId": "REQ-028.5.1",
-  "hash": "9db9d5e15671",
-  "verdict": "pass",
-  "summary": "Spec half: `spec-2119` instructions equal a test-local literal ending \"Also publish the specification as a task artifact...\"; review half saved from the `_VERIFIED_REVIEW_INSTRUCTIONS` import tautology by an independent literal `endswith(\"Also publish the final review outputs and triage summary as t",
-  "timestamp": "2026-08-03T13:46:45.244Z"
-}

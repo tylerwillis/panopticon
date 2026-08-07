@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.2.2--ff4bec9bafea",
-  "requirementId": "adversarial-review-mutations.2.2",
-  "hash": "ff4bec9bafea",
-  "verdict": "pass",
-  "summary": "The exact-section assertion pins same-model fresh-context independence and rejects any cross-model-diversity claim.",
-  "timestamp": "2026-08-04T22:57:47.254Z"
-}

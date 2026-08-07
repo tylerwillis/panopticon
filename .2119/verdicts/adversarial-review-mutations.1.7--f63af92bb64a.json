@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.1.7--f63af92bb64a",
-  "requirementId": "adversarial-review-mutations.1.7",
-  "hash": "f63af92bb64a",
-  "verdict": "pass",
-  "summary": "The exact-section equality test rejects omission or weakening of the statement that surviving mutations remain evidence defects even when the reviewed code is correct.",
-  "timestamp": "2026-08-04T23:56:57.166Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-036.1.1--3b5d8483e1db",
-  "requirementId": "REQ-036.1.1",
-  "hash": "3b5d8483e1db",
-  "verdict": "pass",
-  "summary": "Behavioral tests reject slot cross-application, non-first-colon parsing, model normalization, invalid pairs reaching dispatch, and incorrect built-in/Sol defaults.",
-  "timestamp": "2026-08-05T01:52:24.771Z"
-}
