@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-053.2.1--939f543c5bb6",
+  "requirementId": "REQ-053.2.1",
+  "hash": "939f543c5bb6",
+  "verdict": "pass",
+  "summary": "At mid-scroll the test verifies the up marker at the right edge of the first task row and preserves its leading state, turn, repo, and identity content.",
+  "timestamp": "2026-08-07T15:48:03.178Z"
+}

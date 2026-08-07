@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-053.4.1--bd78c856a21e",
+  "requirementId": "REQ-053.4.1",
+  "hash": "bd78c856a21e",
+  "verdict": "fail",
+  "summary": "The test needs to establish horizontal overflow and compare the rendered thumb at a nonzero horizontal offset, not only its initial position.",
+  "timestamp": "2026-08-07T15:52:16.186Z"
+}

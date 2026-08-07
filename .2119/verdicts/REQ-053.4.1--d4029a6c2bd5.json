@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-053.4.1--d4029a6c2bd5",
+  "requirementId": "REQ-053.4.1",
+  "hash": "d4029a6c2bd5",
+  "verdict": "fail",
+  "summary": "The test proves a visible thumb but not that every scrollbar cell remains unobscured; clipped or partial overlays elsewhere could survive.",
+  "timestamp": "2026-08-06T21:12:27.572Z"
+}

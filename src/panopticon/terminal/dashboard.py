@@ -80,6 +80,8 @@ from typing import Any, TypeVar
 from urllib.parse import urlsplit
 
 import httpx
+from rich.segment import Segment
+from rich.style import Style
 from rich.text import Text
 from textual import events, work
 from textual.app import App, ComposeResult, SuspendNotSupported
@@ -87,6 +89,7 @@ from textual.binding import Binding
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.css.query import NoMatches
 from textual.screen import ModalScreen
+from textual.strip import Strip
 from textual.suggester import SuggestFromList
 from textual.timer import Timer
 from textual.widget import Widget
@@ -1619,6 +1622,45 @@ class _VimDataTable(DataTable[Any]):
         self._move_skipping(-1)
 
 
+class _TaskDataTable(_VimDataTable):
+    """The dashboard task table, including task-specific overflow affordances."""
+
+    _OVERFLOW_INDICATOR_STYLE = Style(bold=True, reverse=True)
+
+    def _with_overflow_indicator(self, line: Strip, message: str) -> Strip:
+        """Composite the longest marker that fits wholly inside trailing blank cells."""
+        for candidate in (message, message[0]):
+            marker_width = Segment(candidate).cell_length
+            marker_start = line.cell_length - marker_width
+            if marker_start <= 0:
+                continue
+            trailing = line.crop(marker_start)
+            if any(segment.text.strip() for segment in trailing):
+                continue
+            trailing_style = next(
+                (segment.style for segment in trailing if segment.style is not None),
+                self.rich_style,
+            )
+            marker = Strip(
+                [Segment(candidate, trailing_style + self._OVERFLOW_INDICATOR_STYLE)],
+                marker_width,
+            )
+            return Strip.join((line.crop(0, marker_start), marker))
+        return line
+
+    def render_line(self, y: int) -> Strip:
+        """Overlay directional task hints only while rows exist beyond that viewport edge."""
+        line = super().render_line(y)
+        task_content_top = self.header_height if self.show_header else 0
+        task_content_bottom = self.scrollable_content_region.height - 1
+        if task_content_top <= task_content_bottom:
+            if y == task_content_top and self.scroll_y > 0:
+                return self._with_overflow_indicator(line, "↑ more")
+            if y == task_content_bottom and self.scroll_y < self.max_scroll_y:
+                return self._with_overflow_indicator(line, "↓ more")
+        return line
+
+
 class _VimOptionList(OptionList):
     """An :class:`OptionList` with vim-style ``j``/``k`` layered onto the default arrow keys —
     it's a single column, so there's no ``h``/``l`` equivalent."""
@@ -2783,7 +2825,7 @@ class Dashboard(App[None]):
     def compose(self) -> ComposeResult:
         yield Header()
         with Horizontal():
-            yield _VimDataTable(id="tasks")
+            yield _TaskDataTable(id="tasks")
             yield Static(id="detail")
         yield Input(id="search", placeholder="search tasks…")  # hidden until `/` (CSS display:none)
         yield _StatusFooter()

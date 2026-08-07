@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-053.4.1--b781745aa547",
+  "requirementId": "REQ-053.4.1",
+  "hash": "b781745aa547",
+  "verdict": "pass",
+  "summary": "Exact per-cell character and Rich Style equality rejects thumb color, background, attribute, metadata, shape, and position mutations while width, visibility, and size are asserted under horizontal overflow.",
+  "timestamp": "2026-08-07T16:51:46.656Z"
+}

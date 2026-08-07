@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-053.6.1--ee1dcc14cc4e",
+  "requirementId": "REQ-053.6.1",
+  "hash": "ee1dcc14cc4e",
+  "verdict": "fail",
+  "summary": "The exhaustive sweep needs a collapsed ensemble sentinel so synthetic rows cannot hide a defect affecting adjacent real task rows.",
+  "timestamp": "2026-08-07T15:51:03.697Z"
+}

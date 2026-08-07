@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-053.5.1--cdbdd9802272",
+  "requirementId": "REQ-053.5.1",
+  "hash": "cdbdd9802272",
+  "verdict": "fail",
+  "summary": "The test verifies downward traversal only and does not reject navigation failure while only the up indicator is visible.",
+  "timestamp": "2026-08-06T21:09:00.604Z"
+}

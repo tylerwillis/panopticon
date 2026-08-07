@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-053.4.1--5c7a51c76d50",
+  "requirementId": "REQ-053.4.1",
+  "hash": "5c7a51c76d50",
+  "verdict": "fail",
+  "summary": "The test rejects width inequality and full indicator labels on the scrollbar row but not blank, styled, or truncated obstruction of the scrollbar itself.",
+  "timestamp": "2026-08-06T21:08:59.920Z"
+}
