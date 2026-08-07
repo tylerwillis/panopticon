@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-041.3.1--ee3c2e99c4f6",
-  "requirementId": "REQ-041.3.1",
-  "hash": "ee3c2e99c4f6",
-  "verdict": "pass",
-  "summary": "Golden text (delivered via real `service.skills()`) opens \"The system prompt establishes a standing expectation: publish each reviewable document as a task artifact when you produce it...\" and explains both `put_artifact` and the REST fallback; test literal is independent of the implementation const",
-  "timestamp": "2026-08-03T13:46:55.005Z"
-}

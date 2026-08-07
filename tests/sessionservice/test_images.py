@@ -193,7 +193,7 @@ def test_build_base_if_missing_skips_build_when_fingerprint_matches() -> None:
     assert rec.calls[0][1] is False  # check=False so a missing or stale image does not raise
 
 
-# 2119: REQ-050.1
+# 2119: REQ-052.1
 @pytest.mark.parametrize("relative_path", _all_packaged_source_paths())
 def test_base_fingerprint_changes_with_any_packaged_source_file(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path, relative_path: str
@@ -213,7 +213,7 @@ def test_base_fingerprint_changes_with_any_packaged_source_file(
     assert after != before
 
 
-# 2119: REQ-050.1
+# 2119: REQ-052.1
 def test_base_fingerprint_changes_when_only_packaged_source_path_changes(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -234,7 +234,7 @@ def test_base_fingerprint_changes_when_only_packaged_source_path_changes(
     assert after != before
 
 
-# 2119: REQ-050.1
+# 2119: REQ-052.1
 def test_base_fingerprint_ignores_packaged_source_metadata(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -258,7 +258,7 @@ def test_base_fingerprint_ignores_packaged_source_metadata(
     assert after == before
 
 
-# 2119: REQ-050.1
+# 2119: REQ-052.1
 @pytest.mark.parametrize("byte_index", [0, 8, 15])
 def test_base_fingerprint_changes_for_single_binary_byte_at_file_boundaries(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path, byte_index: int
@@ -279,7 +279,7 @@ def test_base_fingerprint_changes_for_single_binary_byte_at_file_boundaries(
     assert _base_fingerprint() != before
 
 
-# 2119: REQ-050.1
+# 2119: REQ-052.1
 def test_base_fingerprint_changes_when_a_byte_is_appended(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -297,7 +297,42 @@ def test_base_fingerprint_changes_when_a_byte_is_appended(
     assert _base_fingerprint() != before
 
 
-# 2119: REQ-050.2
+# 2119: REQ-052.1
+def test_base_fingerprint_changes_for_every_file_of_a_multi_file_tree(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Pin the requirement's universal quantifier over a tree holding more than one file.
+
+    Every other REQ-052.1 test builds a source tree containing exactly one file, so a digest
+    that read only the first packaged file — or only the last, as a misplaced accumulator reset
+    would — satisfies all of them while leaving the rest of the package uncovered. Changing any
+    one file of a multi-file tree must move the fingerprint.
+    """
+    source = tmp_path / "installed-panopticon"
+    relatives = ("alpha.py", "nested/beta.py", "nested/deeper/gamma.py", "zeta.py")
+    for relative in relatives:
+        packaged_file = source / relative
+        packaged_file.parent.mkdir(parents=True, exist_ok=True)
+        packaged_file.write_bytes(b"packaged source\n")
+    _use_packaged_source(monkeypatch, source)
+
+    ignored = []
+    for relative in relatives:
+        packaged_file = source / relative
+        _clear_source_fingerprint_cache()
+        before = _base_fingerprint()
+        packaged_file.write_bytes(b"packaged source\x01")
+        _clear_source_fingerprint_cache()
+        if _base_fingerprint() == before:
+            ignored.append(relative)
+        packaged_file.write_bytes(b"packaged source\n")  # restore, so each file is tested alone
+
+    assert not ignored, (
+        f"fingerprint ignored changes to {ignored} of {len(relatives)} packaged source files"
+    )
+
+
+# 2119: REQ-052.2
 def test_source_change_rebuilds_base_with_unchanged_version_and_docker_assets(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -332,7 +367,7 @@ def test_source_change_rebuilds_base_with_unchanged_version_and_docker_assets(
     assert "pip install" not in dockerfile[dockerfile.index(install_command) + 1 :]
 
 
-# 2119: REQ-050.2
+# 2119: REQ-052.2
 def test_source_installer_replaces_stale_installed_package(tmp_path: Path) -> None:
     source = tmp_path / "staged" / "panopticon"
     installed = tmp_path / "purelib" / "panopticon"
@@ -356,7 +391,7 @@ def test_source_installer_replaces_stale_installed_package(tmp_path: Path) -> No
     assert not (installed / "removed.py").exists()
 
 
-# 2119: REQ-050.2
+# 2119: REQ-052.2
 @pytest.mark.skipif(not _docker_running(), reason="needs a working docker daemon")
 def test_rebuilt_base_image_executes_revised_packaged_source(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
@@ -401,7 +436,7 @@ def test_rebuilt_base_image_executes_revised_packaged_source(
         subprocess.run(["docker", "image", "rm", "--force", image], capture_output=True)
 
 
-# 2119: REQ-050.3
+# 2119: REQ-052.3
 def test_repeated_base_fingerprints_reuse_packaged_source_digest(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:

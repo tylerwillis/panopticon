@@ -1,8 +1,0 @@
-{
-  "reviewId": "full-width-dashboard.1.2--6c3a27e56937",
-  "requirementId": "full-width-dashboard.1.2",
-  "hash": "6c3a27e56937",
-  "verdict": "fail",
-  "summary": "Cursor indices reach every row, but the test only requires scroll_y > 0; broken viewport scrolling that leaves later cursor rows off-screen would pass.",
-  "timestamp": "2026-08-06T06:11:36.181Z"
-}

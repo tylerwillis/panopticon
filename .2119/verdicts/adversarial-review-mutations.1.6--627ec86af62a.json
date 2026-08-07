@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.1.6--627ec86af62a",
-  "requirementId": "adversarial-review-mutations.1.6",
-  "hash": "627ec86af62a",
-  "verdict": "pass",
-  "summary": "The exact section-body assertion rejects omission of running affected tests, reporting both the broken property and failed tests, or plainly stating that the mutation survived.",
-  "timestamp": "2026-08-04T23:56:56.516Z"
-}

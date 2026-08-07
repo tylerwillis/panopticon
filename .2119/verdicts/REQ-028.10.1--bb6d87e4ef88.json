@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.10.1--bb6d87e4ef88",
-  "requirementId": "REQ-028.10.1",
-  "hash": "bb6d87e4ef88",
-  "verdict": "pass",
-  "summary": "Golden text contains \"Artifacts complement the pull request and its dedicated external task URL; they do not replace either one.\" — verified by full-string equality against the test-local literal.",
-  "timestamp": "2026-08-03T13:46:47.823Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-033.6.1--312d7b30ca47",
-  "requirementId": "REQ-033.6.1",
-  "hash": "312d7b30ca47",
-  "verdict": "pass",
-  "summary": "`babysit-merge` instructions must equal test-local `EXPECTED_DEFERRED_ISSUES_MERGE_INSTRUCTIONS` (containing step 2: re-read the \"Suggested placeholder issues\" section and user PR comments before the merge-queue steps) + the untouched base skill — exact prefix equality, not substring (test_spec_2119",
-  "timestamp": "2026-08-03T13:46:52.431Z"
-}

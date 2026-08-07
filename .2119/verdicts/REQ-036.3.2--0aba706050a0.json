@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-036.3.2--0aba706050a0",
-  "requirementId": "REQ-036.3.2",
-  "hash": "0aba706050a0",
-  "verdict": "pass",
-  "summary": "Tests genuinely distinguish case-insensitive nonzero stderr availability failures from verified zero-findings output and require an evidence-bearing review comment.",
-  "timestamp": "2026-08-02T22:23:18.948Z"
-}

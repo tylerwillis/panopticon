@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-048.5.1--0f357a08b52c",
-  "requirementId": "REQ-048.5.1",
-  "hash": "0f357a08b52c",
-  "verdict": "pass",
-  "summary": "All listed self mutations are exercised behaviorally and reloaded from persistent storage, including operations, transitions, responsibility outcomes, scalar setters, booleans, turn, state, and dependencies.",
-  "timestamp": "2026-08-04T07:33:25.068Z"
-}

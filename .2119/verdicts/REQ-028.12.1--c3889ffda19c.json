@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.12.1--c3889ffda19c",
-  "requirementId": "REQ-028.12.1",
-  "hash": "c3889ffda19c",
-  "verdict": "pass",
-  "summary": "Dispatch argv pinned literally to `[\"codex\",\"exec\",\"--dangerously-bypass-approvals-and-sandbox\",\"--model\",\"gpt-5.6-sol\",\"--json\"]` and a changed `git status --porcelain` snapshot raises with nothing posted/published (test_reviewers.py:349, 456-474); `reviewer_prompt()` golden contains \"Do not edit f",
-  "timestamp": "2026-08-03T13:46:48.831Z"
-}

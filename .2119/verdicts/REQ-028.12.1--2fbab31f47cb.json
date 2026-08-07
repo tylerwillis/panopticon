@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-028.12.1--2fbab31f47cb",
-  "requirementId": "REQ-028.12.1",
-  "hash": "2fbab31f47cb",
-  "verdict": "pass",
-  "summary": "Tests reject missing/altered Codex bypass commands, reviewer prompts permitting checkout edits, omitted per-run git-status verification, status mutations during dispatch, and unexamined extra built-in 2119 review skills.",
-  "timestamp": "2026-08-05T00:44:00.840Z"
-}

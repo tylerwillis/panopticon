@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-036.2.3--855d95957a37",
-  "requirementId": "REQ-036.2.3",
-  "hash": "855d95957a37",
-  "verdict": "pass",
-  "summary": "Tests reject nonzero exits for both harnesses and missing, ambiguous, or mismatched identity evidence, while asserting typed kind/model/detail/remediation fields and zero PR-comment or artifact publication.",
-  "timestamp": "2026-08-05T00:44:03.246Z"
-}

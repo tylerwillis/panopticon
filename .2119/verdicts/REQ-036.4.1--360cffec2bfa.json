@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-036.4.1--360cffec2bfa",
-  "requirementId": "REQ-036.4.1",
-  "hash": "360cffec2bfa",
-  "verdict": "pass",
-  "summary": "Gate tests reject non-two, malformed or non-evidence comments, unsupported sources, model mismatches, stale commits, and wrong rounds before either triage or responsibility resolution.",
-  "timestamp": "2026-08-05T01:52:02.209Z"
-}

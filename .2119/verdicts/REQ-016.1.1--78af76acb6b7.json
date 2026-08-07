@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-016.1.1--78af76acb6b7",
-  "requirementId": "REQ-016.1.1",
-  "hash": "78af76acb6b7",
-  "verdict": "pass",
-  "summary": "Tests cover every registered injected hook and reject callbacks reaching the three-second boundary across success, HTTP failure, malformed, cumulative-slow, and blackholed control-plane outcomes.",
-  "timestamp": "2026-08-06T08:33:49.465Z"
-}

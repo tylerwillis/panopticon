@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.1.12--616c3178cae3",
-  "requirementId": "adversarial-review-mutations.1.12",
-  "hash": "616c3178cae3",
-  "verdict": "pass",
-  "summary": "Exact full-prompt assertion rejects checkout-edit permission, missing throwaway-only mutation writes, and any incomplete Targeted mutation evidence instruction.",
-  "timestamp": "2026-08-05T02:01:33.116Z"
-}

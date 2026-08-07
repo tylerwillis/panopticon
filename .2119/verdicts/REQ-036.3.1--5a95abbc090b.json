@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-036.3.1--5a95abbc090b",
-  "requirementId": "REQ-036.3.1",
-  "hash": "5a95abbc090b",
-  "verdict": "pass",
-  "summary": "Tests reject requested/body-derived identity headings, assert all required provenance fields and reviewer body, and reject missing metadata or body separation.",
-  "timestamp": "2026-08-05T01:50:15.805Z"
-}

@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.1.11--72163d8d865c",
-  "requirementId": "adversarial-review-mutations.1.11",
-  "hash": "72163d8d865c",
-  "verdict": "pass",
-  "summary": "The exact-section assertion rejects instructions that omit pre-classification runtime/import-path evidence, fail to cover both killed and survived outcomes, or allow tests to execute working-tree/installed code instead of the throwaway mutation.",
-  "timestamp": "2026-08-04T23:56:59.560Z"
-}

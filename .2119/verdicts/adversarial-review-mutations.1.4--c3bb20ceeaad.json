@@ -1,8 +1,0 @@
-{
-  "reviewId": "adversarial-review-mutations.1.4--c3bb20ceeaad",
-  "requirementId": "adversarial-review-mutations.1.4",
-  "hash": "c3bb20ceeaad",
-  "verdict": "pass",
-  "summary": "The exact section-level assertion rejects omission of “every mutation,” “specific property,” or the property’s dependency on a review claim across all three workflows.",
-  "timestamp": "2026-08-05T00:46:13.573Z"
-}
