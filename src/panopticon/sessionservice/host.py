@@ -36,6 +36,7 @@ import httpx
 from panopticon.client import JsonObj, TaskServiceClient
 from panopticon.core.dirs import CLONE_CACHE_DIR, TASKS_DIR
 from panopticon.core.git import GitClones
+from panopticon.core.state import TERMINAL_LABELS
 from panopticon.sessionservice import docker_daemon
 from panopticon.sessionservice._migration import migrate_session_dirs
 from panopticon.sessionservice.clones import CloneCache
@@ -123,10 +124,11 @@ class HostDaemon:
             try:
                 if task["id"] in spawnable_ids:
                     self._spawner.spawn_one(task)
-                if self._runner_id is None:
-                    self._provisioner.provision(task)
-                else:
-                    self._provisioner.provision(task, runner_id=self._runner_id)
+                if not task.get("terminal", task["state"] in TERMINAL_LABELS):
+                    if self._runner_id is None:
+                        self._provisioner.provision(task)
+                    else:
+                        self._provisioner.provision(task, runner_id=self._runner_id)
                 self._spawner.reconcile(task)
                 self._spawner.heal(task)
                 self._spawner.cleanup(task)
