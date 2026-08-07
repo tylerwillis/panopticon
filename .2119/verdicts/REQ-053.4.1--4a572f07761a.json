@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-053.4.1--4a572f07761a",
+  "requirementId": "REQ-053.4.1",
+  "hash": "4a572f07761a",
+  "verdict": "pass",
+  "summary": "Ruff cleanup removed only an unused local; exact per-cell character and complete Rich Style equality still rejects visual thumb mutations while width, visibility, size, and overflow are asserted.",
+  "timestamp": "2026-08-07T17:01:35.421Z"
+}

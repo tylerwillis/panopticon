@@ -962,11 +962,6 @@ async def test_vertical_task_overflow_indicator_preserves_horizontal_scrollbar_l
                     and segment.style.meta is not None
                     and segment.style.meta.get("@mouse.down") == "grab"
                 ]
-                rendered_table = "\n".join(
-                    "".join(segment.text for segment in strip)
-                    for strip in strips[table.region.y : table.region.bottom]
-                )
-
                 assert scrollbar_cells(scrollbar) == baseline_cells[scroll_x]
                 assert grab_segments
                 assert any(
@@ -1019,7 +1014,8 @@ async def test_narrow_overflow_indicator_never_replaces_visible_row_content() ->
         assert not rendered.endswith("↑ more")
 
     smallest_baseline_app = Dashboard(
-        _FakeClient(tasks[:1]), refresh_interval=None  # type: ignore[arg-type]
+        _FakeClient(tasks[:1]),
+        refresh_interval=None,  # type: ignore[arg-type]
     )
     async with smallest_baseline_app.run_test(size=(6, 12)) as pilot:
         await pilot.pause()

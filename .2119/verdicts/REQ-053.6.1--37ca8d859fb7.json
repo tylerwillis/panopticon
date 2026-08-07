@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-053.6.1--37ca8d859fb7",
+  "requirementId": "REQ-053.6.1",
+  "hash": "37ca8d859fb7",
+  "verdict": "pass",
+  "summary": "The test exhausts every valid vertical offset and visible line, skips only asserted sentinel rows, and rejects a runtime mutant blanking real row overflow-10.",
+  "timestamp": "2026-08-07T17:01:59.415Z"
+}
