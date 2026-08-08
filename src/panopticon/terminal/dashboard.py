@@ -2221,18 +2221,18 @@ class DeleteRepoScreen(ModalScreen[bool]):
 
     def __init__(self, name: str, *, on_submit: Callable[[], str | None] | None = None) -> None:
         super().__init__()
-        self._name = name
+        self._repo_name = name
         self._on_submit = on_submit
 
     def compose(self) -> ComposeResult:
         with Vertical(id="delete-repo-box"):
             yield Label("Repository deletion is irreversible.")
-            yield Label(f"type {self._name!r} exactly and press Enter to delete")
-            yield Input(placeholder=self._name, id="delete-repo-name")
+            yield Label(f"type {self._repo_name!r} exactly and press Enter to delete")
+            yield Input(placeholder=self._repo_name, id="delete-repo-name")
             yield Static("", id="delete-repo-error")
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
-        if event.value != self._name:
+        if event.value != self._repo_name:
             self.query_one("#delete-repo-error", Static).update(
                 "Repository name does not match exactly."
             )
