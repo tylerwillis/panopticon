@@ -435,6 +435,10 @@ class TaskService:
         await self._store.update_repo(updated)
         return updated
 
+    async def delete_repo(self, repo_id: str) -> None:
+        """Delete a repository only when no persisted task references it."""
+        await self._store.delete_repo(repo_id)
+
     async def repo_image_layer(self, repo_id: str) -> str:
         """The repo's Dockerfile layer (ADR 0005's repo tier), read from its referenced file.
 

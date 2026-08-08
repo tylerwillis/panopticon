@@ -1227,6 +1227,7 @@ def test_fleet_administration_route_inventory_is_complete_and_task_denied(tmp_pa
     expected = {
         ("POST", "/repos"),
         ("PATCH", "/repos/{repo_id}"),
+        ("DELETE", "/repos/{repo_id}"),
         ("GET", "/workflow-files"),
         ("PUT", "/tasks/{task_id}/claim"),
         ("DELETE", "/tasks/{task_id}/claim"),

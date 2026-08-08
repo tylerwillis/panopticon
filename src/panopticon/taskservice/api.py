@@ -1249,6 +1249,11 @@ def create_app(
             raise HTTPException(status_code=400, detail=str(exc)) from exc
         return RepoOut.model_validate(repo)
 
+    @app.delete("/repos/{repo_id}", status_code=204)
+    async def delete_repo(repo_id: str) -> Response:
+        await service.delete_repo(repo_id)
+        return Response(status_code=204)
+
     # -- tasks --------------------------------------------------------------------
 
     @app.post("/tasks", status_code=201)

@@ -555,6 +555,7 @@ class CredentialScopePolicy:
         return {
             ("POST", "/repos"),
             ("PATCH", "/repos/{repo_id}"),
+            ("DELETE", "/repos/{repo_id}"),
             ("GET", "/workflow-files"),
             ("PUT", "/tasks/{task_id}/claim"),
             ("DELETE", "/tasks/{task_id}/claim"),

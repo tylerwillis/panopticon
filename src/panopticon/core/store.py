@@ -116,6 +116,11 @@ class Store(ABC):
         (the service reads-modifies-writes); the store just overwrites the row."""
         await self._update_repo(repo)
 
+    async def delete_repo(self, repo_id: str) -> None:
+        """Delete an unreferenced repo. Raises :class:`NotFound` for an unknown id and
+        :class:`IntegrityError` when any persisted task references it."""
+        await self._delete_repo(repo_id)
+
     # -- tasks (public façade; create/save also enforce the integrity rules) ------
 
     async def create_task(self, task: Task) -> None:
@@ -189,6 +194,10 @@ class Store(ABC):
     @abstractmethod
     async def _update_repo(self, repo: Repo) -> None:
         """Overwrite an existing repo's row. Raise :class:`NotFound` if its id is unknown."""
+
+    @abstractmethod
+    async def _delete_repo(self, repo_id: str) -> None:
+        """Delete an unreferenced repo, atomically refusing when tasks reference it."""
 
     @abstractmethod
     async def _create_task(self, task: Task) -> None:
