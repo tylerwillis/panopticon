@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-session-image-paste.2.4--bd6f3142c2cd",
+  "requirementId": "attached-session-image-paste.2.4",
+  "hash": "bd6f3142c2cd",
+  "verdict": "pass",
+  "summary": "PASS: tests reject both nearest invalid sizes (zero and 20 MiB plus one) before container I/O and accept the exact 20 MiB boundary, killing off-by-one and post-staging validation counterexamples.",
+  "timestamp": "2026-08-07T17:47:50.131Z"
+}

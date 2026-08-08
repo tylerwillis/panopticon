@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-session-image-paste.2.3--037c7587620a",
+  "requirementId": "attached-session-image-paste.2.3",
+  "hash": "037c7587620a",
+  "verdict": "pass",
+  "summary": "PASS: X11 capture is required only for Linux with nonempty DISPLAY, absent wl-paste, and available xclip, with the exact image/png target argv. Empty/missing DISPLAY and wl-paste-present counterexamples make no xclip call, preserving the specified clipboard precedence.",
+  "timestamp": "2026-08-07T17:47:50.131Z"
+}

@@ -46,6 +46,8 @@ import tempfile
 from collections.abc import Callable
 from pathlib import Path
 
+from panopticon.sessionservice.image_paste import image_paste_binding
+
 #: Scrollback lines per pane — tmux's stock default (2000) discards most of what REQ-009's inline
 #: (``--no-alt-screen``) rendering puts into scrollback.
 HISTORY_LIMIT = "50000"
@@ -89,6 +91,7 @@ def server_default_config_text(*, clipboard: str | None) -> str:
         "set-option -g mouse on",
         f"set-option -g history-limit {HISTORY_LIMIT}",
         "set-option -g set-clipboard on",
+        image_paste_binding("panopticon-image-paste"),
         f"bind-key -T copy-mode MouseDragEnd1Pane {copy}",
         f"bind-key -T copy-mode-vi MouseDragEnd1Pane {copy}",
         f"bind-key -T root DoubleClick1Pane copy-mode -M \\; send-keys -X select-word \\; {copy}",

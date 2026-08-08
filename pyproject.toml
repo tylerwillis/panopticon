@@ -18,6 +18,7 @@ dependencies = [
 
 [project.scripts]
 panopticon = "panopticon.terminal.__main__:main"
+panopticon-image-paste = "panopticon.sessionservice.image_paste:main"
 
 [dependency-groups]
 dev = [

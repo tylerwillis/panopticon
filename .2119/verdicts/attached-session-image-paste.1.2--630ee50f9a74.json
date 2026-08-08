@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-session-image-paste.1.2--630ee50f9a74",
+  "requirementId": "attached-session-image-paste.1.2",
+  "hash": "630ee50f9a74",
+  "verdict": "pass",
+  "summary": "Both non-panopticon prefix boundaries and panopticon sessions lacking an exact running-container match are tested to issue one literal C-v to the supplied pane, with zero capture calls and no staging commands.",
+  "timestamp": "2026-08-07T18:34:44.131Z"
+}
