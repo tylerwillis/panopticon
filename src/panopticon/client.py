@@ -194,6 +194,10 @@ class TaskServiceClient:
         are preserved."""
         return cast(JsonObj, self._json(self._http.patch(f"/repos/{repo_id}", json=changes)))
 
+    def delete_repo(self, repo_id: str) -> None:
+        """Delete an unreferenced repo; the service refuses repositories used by tasks."""
+        self._http.delete(f"/repos/{repo_id}").raise_for_status()
+
     def create_task(
         self,
         repo_id: str,

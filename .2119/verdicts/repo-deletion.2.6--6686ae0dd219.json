@@ -1,0 +1,8 @@
+{
+  "reviewId": "repo-deletion.2.6--6686ae0dd219",
+  "requirementId": "repo-deletion.2.6",
+  "hash": "6686ae0dd219",
+  "verdict": "pass",
+  "summary": "Successful confirmed deletion must navigate to the repositories page with the deleted row absent and the expected survivor still displayed.",
+  "timestamp": "2026-08-08T09:03:37.464Z"
+}

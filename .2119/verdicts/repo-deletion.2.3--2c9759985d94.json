@@ -1,0 +1,8 @@
+{
+  "reviewId": "repo-deletion.2.3--2c9759985d94",
+  "requirementId": "repo-deletion.2.3",
+  "hash": "2c9759985d94",
+  "verdict": "pass",
+  "summary": "Behavioral UI test rejects the post-open renamed name, trailing-space and case variants, and exact text without Enter, while deleting only for the originally displayed exact name plus Enter.",
+  "timestamp": "2026-08-08T09:00:12.292Z"
+}

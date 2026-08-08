@@ -33,6 +33,7 @@ from sqlalchemy import (
     ForeignKeyConstraint,
     UniqueConstraint,
     case,
+    func,
     select,
     update,
 )
@@ -492,6 +493,20 @@ class SqlAlchemyStore(Store):
             row.honesty_reviewer = repo.honesty_reviewer
             row.reviewer_1 = repo.reviewer_1
             row.reviewer_2 = repo.reviewer_2
+
+    async def _delete_repo(self, repo_id: str) -> None:
+        async with self._session.begin() as s:
+            row = await s.get(_RepoRow, repo_id)
+            if row is None:
+                raise NotFound(f"repo {repo_id!r} does not exist")
+            reference_count = await s.scalar(
+                select(func.count()).select_from(_TaskRow).where(_TaskRow.repo_id == repo_id)
+            )
+            count = int(reference_count or 0)
+            if count:
+                noun = "task" if count == 1 else "tasks"
+                raise IntegrityError(f"repo {repo_id!r} is referenced by {count} {noun}")
+            await s.delete(row)
 
     # -- tasks: reads + persistence primitives (the base's template methods drive these) --
 

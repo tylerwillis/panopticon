@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-048.6.2--08aedb45ce6c",
+  "requirementId": "REQ-048.6.2",
+  "hash": "08aedb45ce6c",
+  "verdict": "pass",
+  "summary": "Valid task-capability requests receive 403 across every registered repo, claim, provisioning, migration, lifecycle, runner, and workflow-file administration route, including migration with a valid operator token.",
+  "timestamp": "2026-08-08T09:09:58.734Z"
+}

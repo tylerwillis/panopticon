@@ -1,0 +1,8 @@
+{
+  "reviewId": "repo-deletion.1.4--c74d173d83ac",
+  "requirementId": "repo-deletion.1.4",
+  "hash": "c74d173d83ac",
+  "verdict": "pass",
+  "summary": "Real API test deletes an absent id and rejects non-404 responses plus any repository, task-list, or full task-history mutation.",
+  "timestamp": "2026-08-08T08:46:25.900Z"
+}

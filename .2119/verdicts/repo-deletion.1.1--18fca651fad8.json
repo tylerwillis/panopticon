@@ -1,0 +1,8 @@
+{
+  "reviewId": "repo-deletion.1.1--18fca651fad8",
+  "requirementId": "repo-deletion.1.1",
+  "hash": "18fca651fad8",
+  "verdict": "pass",
+  "summary": "Real API/store tests prove deletion at zero target references and reject the nearest boundary of one persisted reference, including a terminal task, while preserving the repo and tasks.",
+  "timestamp": "2026-08-08T08:46:19.534Z"
+}

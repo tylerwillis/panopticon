@@ -1971,6 +1971,7 @@ class RepoFormScreen(ModalScreen["dict[str, Any] | None"]):
     #form-hint { color: $text-muted; text-align: center; margin-top: 1; }
     #pane-general EnvFileField #env-file-input { margin-bottom: 0; }
     #pane-general HookFileField #hook-file-input { margin-bottom: 0; }
+    #delete-repo { width: 100%; margin-top: 1; }
     """
     BINDINGS = [
         ("escape", "cancel", "Cancel"),
@@ -1995,6 +1996,7 @@ class RepoFormScreen(ModalScreen["dict[str, Any] | None"]):
         repo: JsonObj | None = None,
         workflows: list[dict[str, Any]] | None = None,
         on_submit: Callable[[dict[str, Any]], str | None] | None = None,
+        on_delete: Callable[[], str | None] | None = None,
     ) -> None:
         super().__init__()
         self._title = title
@@ -2008,6 +2010,7 @@ class RepoFormScreen(ModalScreen["dict[str, Any] | None"]):
         # error message to show inline (form stays open) or None on success (form dismisses). This
         # is what keeps an invalid form open instead of closing it and toasting the error after.
         self._on_submit = on_submit
+        self._on_delete = on_delete
 
     def _initial(self, name: str) -> str:
         """A field's pre-populated value: the repo's stored value, else (create mode only)
@@ -2084,6 +2087,8 @@ class RepoFormScreen(ModalScreen["dict[str, Any] | None"]):
                         yield Static("", id="wf-desc")
                     else:
                         yield Label("no workflows available")
+            if self._editing:
+                yield Button("delete repo", variant="error", id="delete-repo")
             yield Static("", id="form-error")
             yield Static("enter: save   esc: cancel", id="form-hint")
 
@@ -2119,6 +2124,18 @@ class RepoFormScreen(ModalScreen["dict[str, Any] | None"]):
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
         self.action_submit()
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id != "delete-repo":
+            return
+
+        def confirmed(deleted: bool | None) -> None:
+            if deleted:
+                self.dismiss(None)
+
+        self.app.push_screen(
+            DeleteRepoScreen(str(self._repo["name"]), on_submit=self._on_delete), confirmed
+        )
 
     def on_input_changed(self, event: Input.Changed) -> None:
         if event.input.id == "field-default_model":
@@ -2189,6 +2206,45 @@ class RepoFormScreen(ModalScreen["dict[str, Any] | None"]):
 
     def action_cancel(self) -> None:
         self.dismiss(None)
+
+
+class DeleteRepoScreen(ModalScreen[bool]):
+    """Typed-name confirmation for irreversible repository deletion."""
+
+    CSS = """
+    DeleteRepoScreen { align: center middle; }
+    #delete-repo-box { width: 60; height: auto; padding: 1 2; border: round $error; background: $surface; }
+    #delete-repo-error { color: $error; text-align: center; }
+    """
+    BINDINGS = [("escape", "cancel", "Cancel")]
+    AUTO_FOCUS = "#delete-repo-name"
+
+    def __init__(self, name: str, *, on_submit: Callable[[], str | None] | None = None) -> None:
+        super().__init__()
+        self._repo_name = name
+        self._on_submit = on_submit
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="delete-repo-box"):
+            yield Label("Repository deletion is irreversible.")
+            yield Label(f"type {self._repo_name!r} exactly and press Enter to delete")
+            yield Input(placeholder=self._repo_name, id="delete-repo-name")
+            yield Static("", id="delete-repo-error")
+
+    def on_input_submitted(self, event: Input.Submitted) -> None:
+        if event.value != self._repo_name:
+            self.query_one("#delete-repo-error", Static).update(
+                "Repository name does not match exactly."
+            )
+            return
+        error = self._on_submit() if self._on_submit else None
+        if error is not None:
+            self.query_one("#delete-repo-error", Static).update(error)
+            return
+        self.dismiss(True)
+
+    def action_cancel(self) -> None:
+        self.dismiss(False)
 
 
 class NewWorkflowScreen(ModalScreen[str | None]):
@@ -2441,6 +2497,14 @@ class ReposScreen(_TableScreen):
             return
         repo_id = self._current
 
+        def delete() -> str | None:
+            try:
+                self._client.delete_repo(repo_id)
+            except httpx.HTTPStatusError as exc:
+                return f"Can't delete: {_detail(exc)}"
+            self._refresh()
+            return None
+
         # Returns an error to show inline (the form stays open) or None on success.
         def save(values: dict[str, Any]) -> str | None:
             # PATCH the core fields. The privileged toggle is merged onto the repo's existing
@@ -2476,7 +2540,11 @@ class ReposScreen(_TableScreen):
         workflows = self._client.list_workflows()
         self.app.push_screen(
             RepoFormScreen(
-                f"edit {repo_id}", repo=self._repos[repo_id], workflows=workflows, on_submit=save
+                f"edit {repo_id}",
+                repo=self._repos[repo_id],
+                workflows=workflows,
+                on_submit=save,
+                on_delete=delete,
             )
         )
 

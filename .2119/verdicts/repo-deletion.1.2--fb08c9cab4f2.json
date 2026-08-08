@@ -1,0 +1,8 @@
+{
+  "reviewId": "repo-deletion.1.2--fb08c9cab4f2",
+  "requirementId": "repo-deletion.1.2",
+  "hash": "fb08c9cab4f2",
+  "verdict": "pass",
+  "summary": "Parameterized real-API tests reject non-409 responses, off-by-one or ambiguous reference counts for 1/2/3 persisted tasks, and any repository, task, or full-history mutation.",
+  "timestamp": "2026-08-08T08:48:09.647Z"
+}

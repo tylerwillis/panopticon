@@ -1,0 +1,8 @@
+{
+  "reviewId": "repo-deletion.2.4--e6b42d555f11",
+  "requirementId": "repo-deletion.2.4",
+  "hash": "e6b42d555f11",
+  "verdict": "pass",
+  "summary": "Trailing-space and case-only nonmatches are rejected while no deletion occurs, the confirmation stays open, and a mismatch error is shown.",
+  "timestamp": "2026-08-08T08:58:32.066Z"
+}
