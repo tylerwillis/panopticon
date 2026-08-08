@@ -1,0 +1,8 @@
+{
+  "reviewId": "repo-deletion.2.1--a79b3129874c",
+  "requirementId": "repo-deletion.2.1",
+  "hash": "a79b3129874c",
+  "verdict": "pass",
+  "summary": "The UI test rejects both boundary violations: any delete action on the new-repository page and no actionable delete control on the edit page; clicking the edit-only control also proves it is functional rather than keyword theater.",
+  "timestamp": "2026-08-08T08:56:34.832Z"
+}

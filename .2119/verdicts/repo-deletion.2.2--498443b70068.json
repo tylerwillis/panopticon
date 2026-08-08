@@ -1,0 +1,8 @@
+{
+  "reviewId": "repo-deletion.2.2--498443b70068",
+  "requirementId": "repo-deletion.2.2",
+  "hash": "498443b70068",
+  "verdict": "pass",
+  "summary": "UI test clicks the edit-page delete action and rejects missing/altered irreversible warning, static or wrong repository names, and any prompt that does not instruct typing the displayed exact name.",
+  "timestamp": "2026-08-08T09:02:23.862Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "repo-deletion.2.5--d3a9eb8692a0",
+  "requirementId": "repo-deletion.2.5",
+  "hash": "d3a9eb8692a0",
+  "verdict": "pass",
+  "summary": "Refusal tests exercise two service-provided counts, require deletion not to occur, require the delete/edit flow to remain open, and reject a missing or incorrect count in the displayed error.",
+  "timestamp": "2026-08-08T08:56:42.697Z"
+}
