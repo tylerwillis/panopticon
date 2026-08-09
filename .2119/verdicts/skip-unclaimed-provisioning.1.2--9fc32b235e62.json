@@ -1,0 +1,8 @@
+{
+  "reviewId": "skip-unclaimed-provisioning.1.2--9fc32b235e62",
+  "requirementId": "skip-unclaimed-provisioning.1.2",
+  "hash": "9fc32b235e62",
+  "verdict": "fail",
+  "summary": "Requirement mandates the internal Spawner.cleanup call rather than an observable cleanup outcome, so it is implementation-mechanism specification despite genuine interaction coverage.",
+  "timestamp": "2026-08-09T07:27:42.034Z"
+}

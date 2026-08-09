@@ -1,0 +1,8 @@
+{
+  "reviewId": "skip-unclaimed-provisioning.2.2--0e5593b5f49d",
+  "requirementId": "skip-unclaimed-provisioning.2.2",
+  "hash": "0e5593b5f49d",
+  "verdict": "fail",
+  "summary": "Expected docstring omits the explicit current-claim-present conjunct from 2.1, so it does not state the exact truth conditions and the absent-claim counterexample is not rejected.",
+  "timestamp": "2026-08-09T07:30:37.588Z"
+}

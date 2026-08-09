@@ -1,0 +1,8 @@
+{
+  "reviewId": "skip-unclaimed-provisioning.2.1--506ee7666078",
+  "requirementId": "skip-unclaimed-provisioning.2.1",
+  "hash": "506ee7666078",
+  "verdict": "pass",
+  "summary": "Tests cover both ready paths and reject each missing field, each runner mismatch, and a present migration without accepted workspace disposition.",
+  "timestamp": "2026-08-09T07:30:30.955Z"
+}

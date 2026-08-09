@@ -1,0 +1,8 @@
+{
+  "reviewId": "skip-unclaimed-provisioning.1.1--e009d8967bbd",
+  "requirementId": "skip-unclaimed-provisioning.1.1",
+  "hash": "e009d8967bbd",
+  "verdict": "pass",
+  "summary": "Real tick interaction test rejects provisioning an unclaimed task with recorded branch/clone and provisioned=false while still permitting the claimed peer.",
+  "timestamp": "2026-08-09T07:31:58.738Z"
+}

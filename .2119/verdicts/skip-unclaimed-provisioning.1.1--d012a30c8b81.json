@@ -1,0 +1,8 @@
+{
+  "reviewId": "skip-unclaimed-provisioning.1.1--d012a30c8b81",
+  "requirementId": "skip-unclaimed-provisioning.1.1",
+  "hash": "d012a30c8b81",
+  "verdict": "pass",
+  "summary": "HostDaemon.tick is exercised with claimed_by=None, recorded branch and clone, and provisioned=false; any Provisioner.provision call is recorded and fails the test.",
+  "timestamp": "2026-08-09T07:27:32.801Z"
+}

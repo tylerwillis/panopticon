@@ -124,7 +124,12 @@ class HostDaemon:
             try:
                 if task["id"] in spawnable_ids:
                     self._spawner.spawn_one(task)
-                if not task.get("terminal", task["state"] in TERMINAL_LABELS):
+                claimed_by = task.get("claimed_by")
+                if (
+                    claimed_by
+                    and (self._runner_id is None or claimed_by == self._runner_id)
+                    and not task.get("terminal", task["state"] in TERMINAL_LABELS)
+                ):
                     if self._runner_id is None:
                         self._provisioner.provision(task)
                     else:

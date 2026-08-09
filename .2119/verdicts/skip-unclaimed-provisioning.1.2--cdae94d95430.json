@@ -1,0 +1,8 @@
+{
+  "reviewId": "skip-unclaimed-provisioning.1.2--cdae94d95430",
+  "requirementId": "skip-unclaimed-provisioning.1.2",
+  "hash": "cdae94d95430",
+  "verdict": "fail",
+  "summary": "Requirement specifies the internal Provisioner.provision call rather than an observable provisioning outcome; the test verifies that mechanism, so the requirement is implementation-coupled.",
+  "timestamp": "2026-08-09T07:30:28.221Z"
+}

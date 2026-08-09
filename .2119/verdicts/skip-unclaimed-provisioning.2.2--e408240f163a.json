@@ -1,0 +1,8 @@
+{
+  "reviewId": "skip-unclaimed-provisioning.2.2--e408240f163a",
+  "requirementId": "skip-unclaimed-provisioning.2.2",
+  "hash": "e408240f163a",
+  "verdict": "pass",
+  "summary": "Exact docstring equality rejects omission or weakening of every 2.1 condition: branch, clone, present current claim matching both named runners, and migration absent or accepted.",
+  "timestamp": "2026-08-09T07:27:47.575Z"
+}
