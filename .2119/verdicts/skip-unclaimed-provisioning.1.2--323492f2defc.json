@@ -1,0 +1,8 @@
+{
+  "reviewId": "skip-unclaimed-provisioning.1.2--323492f2defc",
+  "requirementId": "skip-unclaimed-provisioning.1.2",
+  "hash": "323492f2defc",
+  "verdict": "pass",
+  "summary": "Real HostDaemon.tick receives unclaimed and current-runner nonterminal tasks together; the exact provisioned ID list rejects selecting either unclaimed candidate or omitting the claimed task, and the runner-id assertion pins current-runner ownership.",
+  "timestamp": "2026-08-09T07:32:00.754Z"
+}

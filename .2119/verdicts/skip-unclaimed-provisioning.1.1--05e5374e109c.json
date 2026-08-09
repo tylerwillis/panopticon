@@ -1,0 +1,8 @@
+{
+  "reviewId": "skip-unclaimed-provisioning.1.1--05e5374e109c",
+  "requirementId": "skip-unclaimed-provisioning.1.1",
+  "hash": "05e5374e109c",
+  "verdict": "fail",
+  "summary": "The unclaimed fixture also has an unfinished dependency, so the test can still pass if the claimed_by ownership gate is removed; it does not reject the nearest violation where claimed_by is absent, branch/clone are recorded, provisioned is false, and no other gate applies.",
+  "timestamp": "2026-08-09T07:30:38.578Z"
+}

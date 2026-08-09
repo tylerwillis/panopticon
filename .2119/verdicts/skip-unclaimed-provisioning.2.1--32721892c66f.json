@@ -1,0 +1,8 @@
+{
+  "reviewId": "skip-unclaimed-provisioning.2.1--32721892c66f",
+  "requirementId": "skip-unclaimed-provisioning.2.1",
+  "hash": "32721892c66f",
+  "verdict": "fail",
+  "summary": "Requirement ambiguously says a migration is accepted despite two disposition fields; the only positive migration test sets both accepted, so it cannot enforce which acceptance boundary governs provisioned.",
+  "timestamp": "2026-08-09T07:28:10.534Z"
+}
