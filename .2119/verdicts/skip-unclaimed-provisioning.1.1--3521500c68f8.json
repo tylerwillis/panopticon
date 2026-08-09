@@ -1,0 +1,8 @@
+{
+  "reviewId": "skip-unclaimed-provisioning.1.1--3521500c68f8",
+  "requirementId": "skip-unclaimed-provisioning.1.1",
+  "hash": "3521500c68f8",
+  "verdict": "pass",
+  "summary": "Real HostDaemon.tick rejects a provision call for claimed_by=None even with branch and clone recorded and provisioned=false; the call recorder would expose the nearest violation.",
+  "timestamp": "2026-08-09T08:10:05.211Z"
+}

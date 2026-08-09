@@ -1,0 +1,8 @@
+{
+  "reviewId": "skip-unclaimed-provisioning.1.2--13cc387cee85",
+  "requirementId": "skip-unclaimed-provisioning.1.2",
+  "hash": "13cc387cee85",
+  "verdict": "pass",
+  "summary": "HostDaemon.tick receives unclaimed, foreign-claimed, and current-runner nonterminal candidates; the exact provisioned-ID assertion requires only the current runner's claimed task.",
+  "timestamp": "2026-08-09T08:09:48.258Z"
+}
