@@ -2,19 +2,30 @@
 
 from __future__ import annotations
 
+import shlex
+import shutil
+import subprocess
 import sys
+from pathlib import Path
+
+import pytest
 
 from panopticon.terminal.attach import attach_command, task_context_label
 
+_HAVE_TMUX = bool(shutil.which("tmux"))
+_RETURN_HINT = "Control+B and then D to get back to the dashboard"
 
-def test_attaches_the_terminal_to_the_session() -> None:
-    assert attach_command("panopticon-t1", socket="panopticon") == [
+
+# 2119: REQ-054.3.2
+@pytest.mark.parametrize("session", ["dashboard", "service", "runner"])
+def test_attaches_the_terminal_to_an_unlabelled_session_without_decoration(session: str) -> None:
+    assert attach_command(session, socket="panopticon") == [
         "tmux",
         "-L",
         "panopticon",
         "attach",
         "-t",
-        "panopticon-t1",
+        session,
     ]
 
 
@@ -73,14 +84,30 @@ def test_task_context_label_truncates_to_100_code_points_with_ellipsis() -> None
     assert len(combined) == 100
     assert combined == "s" * 60 + " [" + "m" * 37 + "…"
 
+    memo_only = task_context_label({"slug": None, "memo": "m" * 101}, "session-id")
+    assert len(memo_only) == 100
+    assert memo_only == "[" + "m" * 98 + "…"
+
+    session_fallback = task_context_label({"slug": None, "memo": None}, "s" * 101)
+    assert len(session_fallback) == 100
+    assert session_fallback == "s" * 99 + "…"
+
 
 # 2119: REQ-025.2.1
 # 2119: REQ-025.3.1
 # 2119: REQ-025.3.3
-def test_decorated_attach_sets_only_target_session_status_left_without_renaming() -> None:
-    assert attach_command(
-        "panopticon-t1", socket="panopticon", label="fix #[fg=red] #S #{session_name} ## #"
-    ) == [
+# 2119: REQ-054.1.1
+# 2119: REQ-054.1.2
+# 2119: REQ-054.1.3
+# 2119: REQ-054.2.1
+# 2119: REQ-054.2.2
+# 2119: REQ-054.3.1
+# 2119: REQ-054.3.3
+def test_decorated_attach_builds_task_focused_status_line_without_renaming() -> None:
+    label = (
+        "task #[fg=red] #S #{session_name} #{?session_name,yes,no} #(printf injected) ## # %H %%"
+    )
+    assert attach_command("panopticon-t1", socket="panopticon", label=label) == [
         "tmux",
         "-L",
         "panopticon",
@@ -88,7 +115,32 @@ def test_decorated_attach_sets_only_target_session_status_left_without_renaming(
         "-t",
         "panopticon-t1",
         "status-left",
-        "fix ##[fg=red] ##S ##{session_name} #### ##",
+        "task ##[fg=red] ##S ##{session_name} ##{?session_name,yes,no} "
+        "##(printf injected) #### ## %%H %%%%",
+        ";",
+        "set-option",
+        "-t",
+        "panopticon-t1",
+        "status-left-length",
+        "100",
+        ";",
+        "set-option",
+        "-t",
+        "panopticon-t1",
+        "status-right",
+        _RETURN_HINT,
+        ";",
+        "set-option",
+        "-t",
+        "panopticon-t1",
+        "status-right-length",
+        "49",
+        ";",
+        "set-option",
+        "-t",
+        "panopticon-t1",
+        "status-format[0]",
+        "#[align=left]#{T:status-left}#[align=right]#{T:status-right}",
         ";",
         "attach",
         "-t",
@@ -97,16 +149,132 @@ def test_decorated_attach_sets_only_target_session_status_left_without_renaming(
 
 
 # 2119: REQ-025.3.2
+# 2119: REQ-054.3.1
 def test_remote_decorated_attach_safely_sets_the_same_context_label() -> None:
     label = "fix login [quote's memo]"
     local = attach_command("panopticon-t1", socket="panopticon", label=label)
     remote = attach_command("panopticon-t1", socket="panopticon", host="box", label=label)
 
     assert local[local.index("status-left") + 1] == label
-    assert remote == [
-        "ssh",
-        "-t",
-        "box",
-        "tmux -L panopticon set-option -t panopticon-t1 status-left "
-        "'fix login [quote'\"'\"'s memo]' ';' attach -t panopticon-t1",
-    ]
+    assert remote[:3] == ["ssh", "-t", "box"]
+    assert shlex.split(remote[3]) == local
+
+
+# 2119: REQ-025.2.1
+# 2119: REQ-054.1.1
+# 2119: REQ-054.1.2
+# 2119: REQ-054.1.3
+# 2119: REQ-054.2.1
+# 2119: REQ-054.2.2
+# 2119: REQ-054.3.1
+# 2119: REQ-054.3.3
+@pytest.mark.skipif(not _HAVE_TMUX, reason="needs tmux")
+def test_real_tmux_renders_only_literal_task_context_and_return_hint(tmp_path: Path) -> None:
+    """Exercise tmux's own format parser, not merely Panopticon's emitted argv.
+
+    The deliberately format-shaped label catches accidental interpretation, while the deliberately
+    program-shaped window name proves the central window list is absent without renaming it.
+    """
+    socket = f"panopticon-status-{tmp_path.name}"
+    session = "task-session"
+    window_name = "python3.12"
+    label = (
+        "task #[fg=red] #S #{session_name} #{?session_name,yes,no} #(printf injected) ## # %H %%"
+    )
+    subprocess.run(["tmux", "-L", socket, "kill-server"], capture_output=True)
+    try:
+        created = subprocess.run(
+            [
+                "tmux",
+                "-L",
+                socket,
+                "new-session",
+                "-d",
+                "-s",
+                session,
+                "-n",
+                window_name,
+                "sleep",
+                "30",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        assert created.returncode == 0, created.stderr
+
+        decorated_attach = attach_command(session, socket=socket, label=label)
+        assert decorated_attach[-4:] == [";", "attach", "-t", session]
+        decorated = subprocess.run(decorated_attach[:-4], capture_output=True, text=True)
+        assert decorated.returncode == 0, decorated.stderr
+
+        def show(option: str) -> str:
+            return subprocess.run(
+                ["tmux", "-L", socket, "show-options", "-v", "-t", session, option],
+                capture_output=True,
+                text=True,
+                check=True,
+            ).stdout.rstrip("\n")
+
+        assert show("status-left-length") == "100"
+        assert show("status-right") == _RETURN_HINT
+        assert show("status-right-length") == "49"
+        assert show("status-format[0]") == (
+            "#[align=left]#{T:status-left}#[align=right]#{T:status-right}"
+        )
+
+        rendered_left = subprocess.run(
+            ["tmux", "-L", socket, "display-message", "-p", "-t", session, "#{T:status-left}"],
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.rstrip("\n")
+        assert rendered_left == label
+
+        rendered_status = subprocess.run(
+            [
+                "tmux",
+                "-L",
+                socket,
+                "display-message",
+                "-p",
+                "-t",
+                session,
+                "#{T:status-format[0]}",
+            ],
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.rstrip("\n")
+        assert rendered_status.startswith(label)
+        assert rendered_status.endswith(_RETURN_HINT)
+        assert window_name not in rendered_status
+
+        assert (
+            subprocess.run(
+                ["tmux", "-L", socket, "display-message", "-p", "-t", session, "#S"],
+                capture_output=True,
+                text=True,
+                check=True,
+            ).stdout.rstrip("\n")
+            == session
+        )
+        assert (
+            subprocess.run(
+                [
+                    "tmux",
+                    "-L",
+                    socket,
+                    "display-message",
+                    "-p",
+                    "-t",
+                    session,
+                    "#{window_name}",
+                ],
+                capture_output=True,
+                text=True,
+                check=True,
+            ).stdout.rstrip("\n")
+            == window_name
+        )
+    finally:
+        subprocess.run(["tmux", "-L", socket, "kill-server"], capture_output=True)

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.2.1--3ee9d92d8c0c",
+  "requirementId": "REQ-025.2.1",
+  "hash": "3ee9d92d8c0c",
+  "verdict": "pass",
+  "summary": "Real-tmux rendering compares an adversarial label exactly, rejecting style, alias, named/conditional format, command-substitution, and escape interpretation.",
+  "timestamp": "2026-08-11T17:00:07.321Z"
+}

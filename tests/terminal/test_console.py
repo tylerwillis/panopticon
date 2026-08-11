@@ -6,6 +6,7 @@ hub-and-spoke loop is tested without a TTY or tmux; `switch_to`'s detach is inje
 
 from __future__ import annotations
 
+import shlex
 from pathlib import Path
 from typing import Any
 
@@ -191,18 +192,15 @@ def test_current_remote_task_context_reaches_the_supervisor_attach_command() -> 
 
     attach_target(target, socket="panopticon", run=run)
 
-    assert calls == [
-        (
-            [
-                "ssh",
-                "-t",
-                "box.example.com",
-                "tmux -L panopticon set-option -t panopticon-t1 status-left "
-                "'fix-login [handle token expiry]' ';' attach -t panopticon-t1",
-            ],
-            False,
-        )
-    ]
+    assert len(calls) == 1
+    command, check = calls[0]
+    assert command[:3] == ["ssh", "-t", "box.example.com"]
+    assert shlex.split(command[3]) == console.attach_command(
+        "panopticon-t1",
+        socket="panopticon",
+        label="fix-login [handle token expiry]",
+    )
+    assert check is False
 
 
 # 2119: REQ-025.1.1

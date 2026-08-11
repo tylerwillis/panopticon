@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.1.1--ecc4bb1df9e8",
+  "requirementId": "REQ-025.1.1",
+  "hash": "ecc4bb1df9e8",
+  "verdict": "pass",
+  "summary": "Exact local attach argv rejects missing/reordered slug, brackets, memo, or wrong status-left placement; unit and dashboard tests preserve both fields end to end.",
+  "timestamp": "2026-08-11T16:57:05.488Z"
+}
