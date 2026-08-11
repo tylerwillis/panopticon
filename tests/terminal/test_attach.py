@@ -368,8 +368,7 @@ def test_real_tmux_renders_only_literal_task_context_and_return_hint(
             .stdout.rstrip("\n")
             .replace("##[", "#[")
         )
-        assert rendered_status.startswith(label)
-        assert rendered_status.endswith(expected_hint)
+        assert rendered_status == f"#[align=left]{label}#[align=right]{expected_hint}"
         assert window_name not in rendered_status
 
         assert (

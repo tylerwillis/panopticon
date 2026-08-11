@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-054.3.3--3a14c2a2bfeb",
-  "requirementId": "REQ-054.3.3",
-  "hash": "3a14c2a2bfeb",
-  "verdict": "pass",
-  "summary": "Tests apply decoration and verify both the target session name and active-window name remain unchanged; exact argv also rejects rename commands.",
-  "timestamp": "2026-08-11T17:33:07.442Z"
-}
