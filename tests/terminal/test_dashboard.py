@@ -2037,6 +2037,23 @@ async def test_pressing_n_creates_a_task_via_repo_workflow_then_memo() -> None:
         assert fake.created == [("r1", "spike", "fix", "fix", None, None)]
 
 
+# 2119: REQ-054.1.1
+async def test_new_task_repo_picker_opens_centered_in_the_modal_screen() -> None:
+    fake = _FakeClient([], repos=["r1", "r2"])
+    app = Dashboard(fake)  # type: ignore[arg-type]
+    async with app.run_test(size=(100, 40)) as pilot:
+        await pilot.pause()
+        await pilot.press("n")
+        await pilot.pause()
+        assert isinstance(app.screen, dashboard.RepoChoiceScreen)
+        box = app.screen.query_one("#choice-box")
+        assert box.region.x == (app.screen.size.width - box.region.width) // 2
+        assert box.region.y == (app.screen.size.height - box.region.height) // 2
+        await pilot.resize_terminal(81, 25)
+        assert box.region.x == (app.screen.size.width - box.region.width) // 2
+        assert box.region.y == (app.screen.size.height - box.region.height) // 2
+
+
 # 2119: REQ-034.1.1
 async def test_new_task_repo_picker_filters_case_insensitive_id_prefix_as_user_types() -> None:
     fake = _FakeClient(
