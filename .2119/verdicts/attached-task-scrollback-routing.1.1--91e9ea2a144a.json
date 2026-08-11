@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-task-scrollback-routing.1.1--91e9ea2a144a",
+  "requirementId": "attached-task-scrollback-routing.1.1",
+  "hash": "91e9ea2a144a",
+  "verdict": "pass",
+  "summary": "Real tmux coverage proves task-pane wheel-up enters and continues copy mode toward older history without foreground delivery.",
+  "timestamp": "2026-08-11T17:55:43.462Z"
+}

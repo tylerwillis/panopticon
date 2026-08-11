@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-054.1.1--e67185b7d96e",
-  "requirementId": "REQ-054.1.1",
-  "hash": "e67185b7d96e",
-  "verdict": "pass",
-  "summary": "Real tmux PTY evidence rejects missing history, prefix-scope errors, failure to enter or continue copy mode, failure to move older, and foreground leakage.",
-  "timestamp": "2026-08-11T17:38:42.993Z"
-}

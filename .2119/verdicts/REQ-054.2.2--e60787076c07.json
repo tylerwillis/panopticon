@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-054.2.2--e60787076c07",
-  "requirementId": "REQ-054.2.2",
-  "hash": "e60787076c07",
-  "verdict": "pass",
-  "summary": "Real tmux PTY evidence injects PageDown from copy mode, proves an exact one-page newer stride, and observes zero foreground input.",
-  "timestamp": "2026-08-11T17:40:48.594Z"
-}

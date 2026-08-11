@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-task-scrollback-routing.1.2--09621fb23a71",
+  "requirementId": "attached-task-scrollback-routing.1.2",
+  "hash": "09621fb23a71",
+  "verdict": "pass",
+  "summary": "Real tmux coverage proves wheel-down in task copy mode moves toward newer content without foreground delivery.",
+  "timestamp": "2026-08-11T17:55:44.172Z"
+}

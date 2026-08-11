@@ -1,4 +1,6 @@
-"""REQ-054 contract tests for input routing in attached Panopticon task panes."""
+"""Contract tests for input routing in attached Panopticon task panes."""
+
+# 2119-spec: attached-task-scrollback-routing
 
 from __future__ import annotations
 
@@ -38,7 +40,7 @@ def _binding(lines: list[str], table: str, key: str) -> str:
     return matches[0]
 
 
-# 2119: REQ-054.1.1
+# 2119: 1.1
 def test_task_wheel_up_enters_scrollback_instead_of_reaching_the_program(
     tmp_path: Path,
 ) -> None:
@@ -52,8 +54,8 @@ def test_task_wheel_up_enters_scrollback_instead_of_reaching_the_program(
     assert "mouse_any_flag" not in binding
 
 
-# 2119: REQ-054.1.2
-# 2119: REQ-054.1.3
+# 2119: 1.2
+# 2119: 1.3
 def test_task_wheel_down_moves_only_an_existing_scrollback_view(
     tmp_path: Path,
 ) -> None:
@@ -68,7 +70,7 @@ def test_task_wheel_down_moves_only_an_existing_scrollback_view(
     assert "select-pane -t =" in task_branch
 
 
-# 2119: REQ-054.2.1
+# 2119: 2.1
 def test_task_page_up_enters_copy_mode_one_page_up(tmp_path: Path) -> None:
     lines = _config_lines(tmp_path)
     binding = _binding(lines, "root", "PageUp")
@@ -80,7 +82,7 @@ def test_task_page_up_enters_copy_mode_one_page_up(tmp_path: Path) -> None:
         assert binding.endswith("send-keys -X page-up")
 
 
-# 2119: REQ-054.2.2
+# 2119: 2.2
 def test_copy_mode_page_down_moves_toward_newer_content(tmp_path: Path) -> None:
     lines = _config_lines(tmp_path)
     for table in ("copy-mode", "copy-mode-vi"):
@@ -88,7 +90,7 @@ def test_copy_mode_page_down_moves_toward_newer_content(tmp_path: Path) -> None:
         assert binding.endswith("send-keys -X page-down")
 
 
-# 2119: REQ-054.2.3
+# 2119: 2.3
 def test_task_page_down_at_live_bottom_is_consumed(tmp_path: Path) -> None:
     binding = _binding(_config_lines(tmp_path), "root", "PageDown")
     assert _TASK_CONDITION in binding
@@ -96,7 +98,7 @@ def test_task_page_down_at_live_bottom_is_consumed(tmp_path: Path) -> None:
     assert binding.endswith("'send-keys PageDown'")
 
 
-# 2119: REQ-054.3.1
+# 2119: 3.1
 def test_non_task_sessions_keep_foreground_scroll_input(tmp_path: Path) -> None:
     lines = _config_lines(tmp_path)
     assert _binding(lines, "root", "WheelUpPane").endswith("'send-keys -M'")
@@ -105,7 +107,7 @@ def test_non_task_sessions_keep_foreground_scroll_input(tmp_path: Path) -> None:
     assert _binding(lines, "root", "PageDown").endswith("'send-keys PageDown'")
 
 
-# 2119: REQ-054.3.2
+# 2119: 3.2
 def test_scrollback_bindings_are_absent_without_the_dedicated_socket() -> None:
     assert defaults_argv(None) == []
 
@@ -142,13 +144,18 @@ def _pane_state(socket: str, target: str) -> tuple[bool, int]:
 
 
 def _attach(
-    socket: str, session: str, *, socket_flag: str = "-L"
+    socket: str | None,
+    session: str,
+    *,
+    socket_flag: str | None = "-L",
+    environ_overrides: dict[str, str] | None = None,
 ) -> tuple[int, subprocess.Popen[bytes]]:
     master, slave = pty.openpty()
     fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 80, 0, 0))
-    environ = {**os.environ, "TERM": "xterm-256color"}
+    environ = {**os.environ, "TERM": "xterm-256color", **(environ_overrides or {})}
+    socket_args = [socket_flag, socket] if socket_flag is not None and socket is not None else []
     process = subprocess.Popen(
-        ["tmux", socket_flag, socket, "attach-session", "-t", session],
+        ["tmux", *socket_args, "attach-session", "-t", session],
         stdin=slave,
         stdout=slave,
         stderr=slave,
@@ -206,7 +213,7 @@ def _captured(path: Path) -> bytes:
     return path.read_bytes() if path.exists() else b""
 
 
-# 2119: REQ-054.3.2
+# 2119: 3.2
 @pytest.mark.skipif(not _HAVE_TMUX, reason="needs tmux")
 def test_real_tmux_without_panopticon_socket_does_not_receive_routing_bindings(
     tmp_path: Path,
@@ -227,13 +234,13 @@ def test_real_tmux_without_panopticon_socket_does_not_receive_routing_bindings(
                 "new-session",
                 "-d",
                 "-s",
-                "operator",
+                "panopticon-test",
                 command,
             ],
             check=True,
         )
         _wait_for(ready.exists)
-        master, client = _attach(str(socket_path), "operator", socket_flag="-S")
+        master, client = _attach(str(socket_path), "panopticon-test", socket_flag="-S")
         events = (b"\x1b[<64;5;5M", b"\x1b[<65;5;5M", b"\x1b[5~", b"\x1b[6~")
         for event in events:
             _send_input(master, event)
@@ -244,13 +251,93 @@ def test_real_tmux_without_panopticon_socket_does_not_receive_routing_bindings(
         subprocess.run(["tmux", "-S", str(socket_path), "kill-server"], capture_output=True)
 
 
-# 2119: REQ-054.1.1
-# 2119: REQ-054.1.2
-# 2119: REQ-054.1.3
-# 2119: REQ-054.2.1
-# 2119: REQ-054.2.2
-# 2119: REQ-054.2.3
-# 2119: REQ-054.3.1
+# 2119: 3.2
+@pytest.mark.skipif(not _HAVE_TMUX, reason="needs tmux")
+def test_real_tmux_default_socket_does_not_receive_routing_bindings(tmp_path: Path) -> None:
+    tmux_tmpdir = tmp_path / "tmux-tmpdir"
+    tmux_tmpdir.mkdir()
+    environ = {**os.environ, "TMUX_TMPDIR": str(tmux_tmpdir), "TMUX": ""}
+    capture, ready, command = _capture_program(tmp_path)
+    master: int | None = None
+    client: subprocess.Popen[bytes] | None = None
+    try:
+        subprocess.run(
+            [
+                "tmux",
+                *defaults_argv(None),
+                "new-session",
+                "-d",
+                "-s",
+                "panopticon-test",
+                command,
+            ],
+            check=True,
+            env=environ,
+        )
+        _wait_for(ready.exists)
+        master, client = _attach(
+            None,
+            "panopticon-test",
+            socket_flag=None,
+            environ_overrides={"TMUX_TMPDIR": str(tmux_tmpdir), "TMUX": ""},
+        )
+        events = (b"\x1b[<64;5;5M", b"\x1b[<65;5;5M", b"\x1b[5~", b"\x1b[6~")
+        for event in events:
+            _send_input(master, event)
+        _wait_for(lambda: all(event in _captured(capture) for event in events))
+    finally:
+        if master is not None and client is not None:
+            _detach(master, client)
+        subprocess.run(["tmux", "kill-server"], capture_output=True, env=environ)
+
+
+# 2119: 3.1
+@pytest.mark.parametrize("session", ["panopticon", "panopticonX"])
+@pytest.mark.skipif(not _HAVE_TMUX, reason="needs tmux")
+def test_real_tmux_near_prefix_sessions_keep_foreground_scroll_input(
+    tmp_path: Path, session: str
+) -> None:
+    socket = f"panopticon-near-prefix-{session}"
+    capture, ready, command = _capture_program(tmp_path)
+    master: int | None = None
+    client: subprocess.Popen[bytes] | None = None
+    try:
+        config = write_default_config(socket, directory=tmp_path, clipboard="cat")
+        subprocess.run(
+            [
+                "tmux",
+                "-L",
+                socket,
+                "-f",
+                str(config),
+                "new-session",
+                "-d",
+                "-s",
+                session,
+                command,
+            ],
+            check=True,
+        )
+        _wait_for(ready.exists)
+        master, client = _attach(socket, session)
+        events = (b"\x1b[<64;5;5M", b"\x1b[<65;5;5M", b"\x1b[5~", b"\x1b[6~")
+        for event in events:
+            _send_input(master, event)
+        _wait_for(lambda: all(event in _captured(capture) for event in events))
+        assert not _pane_state(socket, f"{session}:0.0")[0]
+    finally:
+        if master is not None and client is not None:
+            _detach(master, client)
+        subprocess.run(["tmux", "-L", socket, "kill-server"], capture_output=True)
+
+
+# 2119: 1.1
+# 2119: 1.2
+# 2119: 1.3
+# 2119: 2.1
+# 2119: 2.2
+# 2119: 2.3
+# 2119: 3.1
 @pytest.mark.skipif(not _HAVE_TMUX, reason="needs tmux")
 def test_real_tmux_routes_task_scrolling_to_scrollback_and_other_sessions_to_the_program(
     tmp_path: Path,

@@ -1,6 +1,6 @@
-"""Shipped defaults for panopticon's dedicated ``-L panopticon`` tmux server (REQ-030/REQ-054):
-mouse reporting, deep scrollback, task-pane scroll routing, and mouse-drag/double-click copy wired
-to the system clipboard.
+"""Shipped defaults for panopticon's dedicated ``-L panopticon`` tmux server (REQ-030 and
+attached-task-scrollback-routing): mouse reporting, deep scrollback, task-pane scroll routing, and
+mouse-drag/double-click copy wired to the system clipboard.
 
 The server is never explicitly created; whichever panopticon-owned session-creating call happens
 to be first against a not-yet-running socket implicitly starts it. Separate ``tmux -L socket

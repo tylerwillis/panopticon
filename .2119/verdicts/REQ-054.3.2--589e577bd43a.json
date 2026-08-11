@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-054.3.2--589e577bd43a",
-  "requirementId": "REQ-054.3.2",
-  "hash": "589e577bd43a",
-  "verdict": "pass",
-  "summary": "A non-Panopticon real tmux socket receives all four raw scroll inputs in its foreground program, while defaults_argv(None) injects no config.",
-  "timestamp": "2026-08-11T17:43:36.876Z"
-}

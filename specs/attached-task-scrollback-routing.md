@@ -1,4 +1,4 @@
-# REQ-054: Attached task scrollback routing
+# Attached task scrollback routing
 
 ## Overview
 
@@ -21,7 +21,7 @@ agent harness running in the task pane.
 
 ## Requirements
 
-### REQ-054.1: Task-pane mouse-wheel routing
+### 1: Task-pane mouse-wheel routing
 
 1. In an attached `panopticon-` task pane with older session content available, upward mouse-wheel
    input MUST enter or continue tmux copy mode and move the viewport toward that older content
@@ -35,7 +35,7 @@ agent harness running in the task pane.
    mouse-wheel input MUST be consumed without forwarding the input to the pane's foreground
    program.
 
-### REQ-054.2: Task-pane page-key routing
+### 2: Task-pane page-key routing
 
 1. In an attached `panopticon-` task pane with older session content available, unmodified PageUp
    MUST enter or continue tmux copy mode and move the viewport one page toward that older content
@@ -48,7 +48,7 @@ agent harness running in the task pane.
 3. In an attached `panopticon-` task pane at the live bottom outside tmux copy mode, unmodified
    PageDown MUST be consumed without forwarding the key to the pane's foreground program.
 
-### REQ-054.3: Shared-server input isolation
+### 3: Shared-server input isolation
 
 1. In a session on Panopticon's dedicated tmux server whose name does not begin with
    `panopticon-`, wheel, PageUp, and PageDown input MUST retain foreground-program delivery when
