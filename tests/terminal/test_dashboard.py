@@ -2037,7 +2037,8 @@ async def test_pressing_n_creates_a_task_via_repo_workflow_then_memo() -> None:
         assert fake.created == [("r1", "spike", "fix", "fix", None, None)]
 
 
-# 2119: REQ-054.1.1
+# 2119-spec: centered-repo-picker
+# 2119: 1.1
 async def test_new_task_repo_picker_opens_centered_in_the_modal_screen() -> None:
     fake = _FakeClient([], repos=["r1", "r2"])
     app = Dashboard(fake)  # type: ignore[arg-type]

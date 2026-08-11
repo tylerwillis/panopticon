@@ -1,4 +1,4 @@
-# REQ-054: Centered new-task repository picker
+# Centered new-task repository picker
 
 ## Overview
 
@@ -8,7 +8,7 @@ consistent with the other task-creation dialogs, rather than at the screen origi
 
 ## Requirements
 
-### REQ-054.1: Initial picker placement
+### 1: Initial picker placement
 
 1. When the new-task repository picker is displayed, its choice box MUST be horizontally and
    vertically centered within the modal screen's current dimensions.

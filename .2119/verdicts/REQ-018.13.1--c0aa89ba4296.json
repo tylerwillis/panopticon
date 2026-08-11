@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-018.13.1--c0aa89ba4296",
+  "requirementId": "REQ-018.13.1",
+  "hash": "c0aa89ba4296",
+  "verdict": "pass",
+  "summary": "UI test presses Enter in the memo editor and verifies task creation receives the typed memo verbatim as initial_prompt; no-submit, altered-text, and memo-only violations fail.",
+  "timestamp": "2026-08-11T17:43:35.858Z"
+}
