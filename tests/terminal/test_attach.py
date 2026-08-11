@@ -67,6 +67,8 @@ def test_return_hint_uses_current_prefix_and_direct_detach_binding() -> None:
         "None\nbind-key -T prefix d detach-client",
         "C-a\nbind-key -T prefix d display-message no-detach-binding",
         "C-a\nbind-key -T prefix x run-shell 'tmux detach-client'",
+        "C-a\nbind-key -T prefix d detach-client -a",
+        "C-a\nbind-key -T prefix d detach-client -t another-client",
         "",
     ],
 )

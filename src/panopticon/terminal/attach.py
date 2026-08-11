@@ -85,7 +85,7 @@ def return_hint_from_bindings(output: str) -> str:
             continue
         key = binding[index]
         command_parts = binding[index + 1 :]
-        if table == "prefix" and command_parts[0] == "detach-client":
+        if table == "prefix" and command_parts == ["detach-client"]:
             return (
                 f"{_friendly_tmux_key(prefix)} and then {_friendly_tmux_key(key)} "
                 "to get back to the dashboard"
