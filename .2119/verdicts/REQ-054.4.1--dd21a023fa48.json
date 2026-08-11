@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-054.4.1--dd21a023fa48",
+  "requirementId": "REQ-054.4.1",
+  "hash": "dd21a023fa48",
+  "verdict": "pass",
+  "summary": "Exercises the real loader for both null and empty values, rejecting success and any substituted harness name.",
+  "timestamp": "2026-08-11T17:06:09.787Z"
+}
