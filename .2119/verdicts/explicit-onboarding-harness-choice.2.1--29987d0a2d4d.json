@@ -1,0 +1,8 @@
+{
+  "reviewId": "explicit-onboarding-harness-choice.2.1--29987d0a2d4d",
+  "requirementId": "explicit-onboarding-harness-choice.2.1",
+  "hash": "29987d0a2d4d",
+  "verdict": "pass",
+  "summary": "Formatted tests cover every registered sole-installed unauthenticated harness, verify confirmation and selection, and distinguish zero- and multiple-install boundaries.",
+  "timestamp": "2026-08-11T17:41:01.038Z"
+}

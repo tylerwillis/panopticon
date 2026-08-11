@@ -1,8 +1,0 @@
-{
-  "reviewId": "explicit-onboarding-harness-choice.2.1--33de3c101c5b",
-  "requirementId": "explicit-onboarding-harness-choice.2.1",
-  "hash": "33de3c101c5b",
-  "verdict": "pass",
-  "summary": "Exercises detection and selection for every sole installed harness and distinguishes the zero- and multiple-install boundaries from confirmation.",
-  "timestamp": "2026-08-11T17:30:08.396Z"
-}
