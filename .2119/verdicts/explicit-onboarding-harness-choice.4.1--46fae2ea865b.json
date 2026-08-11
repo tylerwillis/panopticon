@@ -1,0 +1,8 @@
+{
+  "reviewId": "explicit-onboarding-harness-choice.4.1--46fae2ea865b",
+  "requirementId": "explicit-onboarding-harness-choice.4.1",
+  "hash": "46fae2ea865b",
+  "verdict": "pass",
+  "summary": "Parametrized shell test rejects both null and empty defaults, returns failure, and verifies no harness name is substituted.",
+  "timestamp": "2026-08-11T17:31:52.226Z"
+}

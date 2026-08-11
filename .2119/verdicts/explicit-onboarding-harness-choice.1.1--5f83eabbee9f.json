@@ -1,0 +1,8 @@
+{
+  "reviewId": "explicit-onboarding-harness-choice.1.1--5f83eabbee9f",
+  "requirementId": "explicit-onboarding-harness-choice.1.1",
+  "hash": "5f83eabbee9f",
+  "verdict": "pass",
+  "summary": "Exercises every two- and three-harness unauthenticated ordering and rejects both a recommendation value and any rendered recommendation marker.",
+  "timestamp": "2026-08-11T17:30:07.677Z"
+}

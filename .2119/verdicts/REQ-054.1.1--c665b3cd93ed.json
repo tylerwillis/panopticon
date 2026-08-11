@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-054.1.1--c665b3cd93ed",
-  "requirementId": "REQ-054.1.1",
-  "hash": "c665b3cd93ed",
-  "verdict": "pass",
-  "summary": "Exhaustively rejects recommendations for every permutation of two or three installed unauthenticated harnesses.",
-  "timestamp": "2026-08-11T17:08:18.995Z"
-}

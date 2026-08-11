@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-054.4.2--b2a66fcf21dc",
-  "requirementId": "REQ-054.4.2",
-  "hash": "b2a66fcf21dc",
-  "verdict": "pass",
-  "summary": "Null, empty, malformed, and failed repository responses all require a nonzero exit, explicit default-selection guidance, and no authentication dispatch.",
-  "timestamp": "2026-08-11T17:10:02.949Z"
-}

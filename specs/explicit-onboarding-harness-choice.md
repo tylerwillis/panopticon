@@ -1,4 +1,4 @@
-# REQ-054: Explicit onboarding harness choice
+# Explicit onboarding harness choice
 
 ## Overview
 
@@ -14,7 +14,7 @@ to Claude. This keeps the selected credential provider aligned with an explicit 
 
 ## Requirements
 
-### REQ-054.1: Ambiguous installed harnesses
+### 1: Ambiguous installed harnesses
 
 1. When no detected harness is authenticated and more than one harness is installed, quickstart
    MUST produce no recommended harness regardless of registry iteration order.
@@ -23,17 +23,18 @@ to Claude. This keeps the selected credential provider aligned with an explicit 
    MUST show no candidate as recommended and continue prompting after an empty response until the
    operator explicitly selects a valid candidate.
 
-### REQ-054.2: Unambiguous installed harness
+### 2: Unambiguous installed harness
 
 1. When exactly one harness is installed and none is authenticated, quickstart MUST continue to
    offer and select that installed harness after confirmation.
 
-### REQ-054.3: No installed harness
+### 3: No installed harness
 
-1. When no harness is installed, quickstart MUST print installation guidance that names every
-   registered harness and includes each harness's own installation hint.
+1. When no registered harness is detected as installed, the quickstart harness picker MUST print
+   installation guidance that names every registered harness and includes each harness's own
+   installation hint.
 
-### REQ-054.4: Missing repository harness setting
+### 4: Missing repository harness setting
 
 1. Loading setup-repo authentication context from a repository whose `default_harness` is null or
    empty MUST return a failure without substituting a harness name.

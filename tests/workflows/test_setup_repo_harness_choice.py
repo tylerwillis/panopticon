@@ -28,7 +28,8 @@ def _sh(body: str) -> str:
     return result.stdout
 
 
-# 2119: REQ-054.4.1
+# 2119-spec: explicit-onboarding-harness-choice
+# 2119: 4.1
 @pytest.mark.parametrize("raw_default", ["null", '""'])
 def test_load_repo_auth_context_rejects_missing_default_harness(raw_default: str) -> None:
     body = f"""
@@ -51,12 +52,13 @@ fi
     assert _sh(body) == "rejected:\n"
 
 
-# 2119: REQ-054.4.2
+# 2119: 4.2
 @pytest.mark.parametrize(
     "repo_response",
     [
         '{"default_harness":null,"credential_dir":""}',
         '{"default_harness":"","credential_dir":""}',
+        '{"credential_dir":""}',
         "{",
         None,
     ],

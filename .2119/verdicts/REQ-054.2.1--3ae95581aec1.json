@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-054.2.1--3ae95581aec1",
-  "requirementId": "REQ-054.2.1",
-  "hash": "3ae95581aec1",
-  "verdict": "pass",
-  "summary": "Parametrized coverage verifies every sole installed unauthenticated harness is offered for confirmation and returned after that prompt.",
-  "timestamp": "2026-08-11T17:08:19.724Z"
-}
