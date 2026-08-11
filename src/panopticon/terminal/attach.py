@@ -15,8 +15,9 @@ from collections.abc import Mapping
 from typing import Any
 
 CONTEXT_LABEL_LIMIT = 100
-TASK_STATUS_RETURN_HINT = "Control+B and then D to get back to the dashboard"
+FALLBACK_TASK_STATUS_RETURN_HINT = "Detach this tmux client to get back to the dashboard"
 TASK_STATUS_FORMAT = "#[align=left]#{T:status-left}#[align=right]#{T:status-right}"
+_BINDING_FORMAT = "#{key_string}\t#{key_command}"
 
 
 def _one_line(value: object) -> str:
@@ -46,8 +47,67 @@ def _literal_tmux_format(value: str) -> str:
     return value.replace("#", "##").replace("%", "%%")
 
 
+def _friendly_tmux_key(key: str) -> str:
+    """Spell tmux's compact key notation as a short operator-facing chord."""
+    names = {"C": "Control", "M": "Alt", "S": "Shift"}
+    parts = key.split("-")
+    modifiers: list[str] = []
+    while len(parts) > 1 and parts[0] in names:
+        modifiers.append(names[parts.pop(0)])
+    base = "-".join(parts)
+    if len(base) == 1:
+        base = base.upper()
+    return "+".join([*modifiers, base])
+
+
+def return_hint_from_bindings(output: str) -> str:
+    """Build a truthful return hint from one :func:`binding_query_command` result."""
+    lines = output.splitlines()
+    if not lines:
+        return FALLBACK_TASK_STATUS_RETURN_HINT
+    prefix = lines[0].strip()
+    if not prefix or prefix.casefold() == "none":
+        return FALLBACK_TASK_STATUS_RETURN_HINT
+    for line in lines[1:]:
+        key, separator, command = line.partition("\t")
+        command_parts = command.strip().split(maxsplit=1)
+        if separator and command_parts and command_parts[0] == "detach-client":
+            return (
+                f"{_friendly_tmux_key(prefix)} and then {_friendly_tmux_key(key)} "
+                "to get back to the dashboard"
+            )
+    return FALLBACK_TASK_STATUS_RETURN_HINT
+
+
+def binding_query_command(session: str, *, socket: str, host: str | None = None) -> list[str]:
+    """Build the local or remote command that reads the effective detach sequence."""
+    tmux = [
+        "tmux",
+        "-L",
+        socket,
+        "show-options",
+        "-g",
+        "-v",
+        "-t",
+        session,
+        "prefix",
+        ";",
+        "list-keys",
+        "-T",
+        "prefix",
+        "-F",
+        _BINDING_FORMAT,
+    ]
+    return ["ssh", host, shlex.join(tmux)] if host else tmux
+
+
 def attach_command(
-    session: str, *, socket: str, host: str | None = None, label: str | None = None
+    session: str,
+    *,
+    socket: str,
+    host: str | None = None,
+    label: str | None = None,
+    return_hint: str = FALLBACK_TASK_STATUS_RETURN_HINT,
 ) -> list[str]:
     """The argv that attaches the current terminal to ``session`` on the panopticon socket.
 
@@ -75,13 +135,13 @@ def attach_command(
             "-t",
             session,
             "status-right",
-            TASK_STATUS_RETURN_HINT,
+            return_hint,
             ";",
             "set-option",
             "-t",
             session,
             "status-right-length",
-            str(len(TASK_STATUS_RETURN_HINT)),
+            str(len(return_hint)),
             ";",
             "set-option",
             "-t",
