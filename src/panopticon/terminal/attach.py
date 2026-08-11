@@ -15,6 +15,8 @@ from collections.abc import Mapping
 from typing import Any
 
 CONTEXT_LABEL_LIMIT = 100
+TASK_STATUS_RETURN_HINT = "Control+B and then D to get back to the dashboard"
+TASK_STATUS_FORMAT = "#[align=left]#{T:status-left}#[align=right]#{T:status-right}"
 
 
 def _one_line(value: object) -> str:
@@ -40,8 +42,8 @@ def task_context_label(task: Mapping[str, Any], session: str) -> str:
 
 
 def _literal_tmux_format(value: str) -> str:
-    """Escape tmux's ``#`` format introducer so task text is displayed literally."""
-    return value.replace("#", "##")
+    """Escape tmux's format and strftime introducers so task text displays literally."""
+    return value.replace("#", "##").replace("%", "%%")
 
 
 def attach_command(
@@ -49,9 +51,10 @@ def attach_command(
 ) -> list[str]:
     """The argv that attaches the current terminal to ``session`` on the panopticon socket.
 
-    When ``label`` is supplied, the target session's left status area is updated first. ``host``
-    wraps both operations in ``ssh -t <host> …`` so the same supervisor loop reaches a session on
-    another machine.
+    When ``label`` is supplied, the target session receives the task-focused status layout before
+    attachment: literal context on the left, no central window list, and return guidance on the
+    right. ``host`` wraps all operations in ``ssh -t <host> …`` so the same supervisor loop reaches
+    a session on another machine.
     """
     tmux = ["tmux", "-L", socket]
     if label is not None:
@@ -61,6 +64,30 @@ def attach_command(
             session,
             "status-left",
             _literal_tmux_format(label),
+            ";",
+            "set-option",
+            "-t",
+            session,
+            "status-left-length",
+            str(CONTEXT_LABEL_LIMIT),
+            ";",
+            "set-option",
+            "-t",
+            session,
+            "status-right",
+            TASK_STATUS_RETURN_HINT,
+            ";",
+            "set-option",
+            "-t",
+            session,
+            "status-right-length",
+            str(len(TASK_STATUS_RETURN_HINT)),
+            ";",
+            "set-option",
+            "-t",
+            session,
+            "status-format[0]",
+            TASK_STATUS_FORMAT,
             ";",
         ]
     tmux += ["attach", "-t", session]
