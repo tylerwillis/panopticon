@@ -125,21 +125,25 @@ def _wait_for(predicate: Callable[[], bool], *, timeout: float = 5.0) -> None:
 
 
 def _pane_state(socket: str, target: str) -> tuple[bool, int]:
-    result = subprocess.run(
-        [
-            "tmux",
-            "-L",
-            socket,
-            "display-message",
-            "-p",
-            "-t",
-            target,
-            "#{pane_in_mode} #{scroll_position}",
-        ],
-        check=True,
-        capture_output=True,
-        text=True,
-    ).stdout.split()
+    result = (
+        subprocess.run(
+            [
+                "tmux",
+                "-L",
+                socket,
+                "display-message",
+                "-p",
+                "-t",
+                target,
+                "#{pane_in_mode}:#{scroll_position}",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        .stdout.strip()
+        .split(":", 1)
+    )
     return result[0] == "1", int(result[1] or "0")
 
 

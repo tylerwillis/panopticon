@@ -1,8 +1,0 @@
-{
-  "reviewId": "attached-task-scrollback-routing.3.2--1a351cf216e9",
-  "requirementId": "attached-task-scrollback-routing.3.2",
-  "hash": "1a351cf216e9",
-  "verdict": "pass",
-  "summary": "Default and alternate socket tests use task-prefixed sessions to prove routing bindings are not installed outside the dedicated server.",
-  "timestamp": "2026-08-11T17:55:48.344Z"
-}
