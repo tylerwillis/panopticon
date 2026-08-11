@@ -1,0 +1,8 @@
+{
+  "reviewId": "explicit-onboarding-harness-choice.1.2--c0b44401fa83",
+  "requirementId": "explicit-onboarding-harness-choice.1.2",
+  "hash": "c0b44401fa83",
+  "verdict": "pass",
+  "summary": "Covers every multi-candidate count, shows no recommendation, and rejects empty and out-of-range responses before accepting an explicit valid selection.",
+  "timestamp": "2026-08-11T17:29:32.317Z"
+}
