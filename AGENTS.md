@@ -417,6 +417,24 @@ use a lowercase kebab-case filename as their namespace, such as
 section has canonical ID `repo-picker.3.2`. Legacy `REQ-NNN-*` specs and new
 file-scoped specs coexist indefinitely.
 
+**Do not allocate a new `REQ-NNN` number.** Numeric IDs are a global allocator
+with no locking, and a duplicate document ID is not a textual conflict — so
+parallel branches each lint green and the collision appears only after both
+merge. `git merge-tree` shows nothing. That is not hypothetical here: `REQ-050`
+was allocated three times by parallel branches and took a dedicated task to
+repair (#235). The sibling repo hit the same failure at larger scale — three
+IDs each double-allocated, main's gate at 34 violations, and 28 "stale reviews"
+that were a permanent flip-flop no amount of re-review could clear.
+
+You cannot check whether a number is free: the branch you would collide with is
+unmerged and invisible to you. A file-scoped namespace has no allocator, so the
+question never arises.
+
+Rename before recording verdicts, or not at all. Renaming a spec changes its
+canonical IDs and invalidates every verdict recorded against it, so a numeric ID
+caught during drafting costs nothing and one caught after review costs the whole
+review round.
+
 A branch based before this adoption may retain its already assigned legacy ID.
 A branch based on this adoption uses a file-scoped ID.
 
