@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.2.1--05fc228f690d",
+  "requirementId": "REQ-025.2.1",
+  "hash": "05fc228f690d",
+  "verdict": "pass",
+  "summary": "Exact argv and real-tmux rendering tests reject interpretation of format, variable, conditional, command, hash, and percent-shaped user text while preserving the complete label literally.",
+  "timestamp": "2026-08-11T17:29:12.930Z"
+}

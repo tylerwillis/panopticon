@@ -10,10 +10,16 @@ from pathlib import Path
 
 import pytest
 
-from panopticon.terminal.attach import attach_command, task_context_label
+from panopticon.terminal.attach import (
+    attach_command,
+    binding_query_command,
+    return_hint_from_bindings,
+    task_context_label,
+)
 
 _HAVE_TMUX = bool(shutil.which("tmux"))
-_RETURN_HINT = "Control+B and then D to get back to the dashboard"
+_REMAPPED_HINT = "Control+A and then F12 to get back to the dashboard"
+_FALLBACK_HINT = "Detach this tmux client to get back to the dashboard"
 
 
 # 2119: REQ-054.3.2
@@ -37,6 +43,60 @@ def test_remote_host_wraps_the_attach_in_ssh() -> None:
         "box",
         "tmux -L panopticon attach -t panopticon-t1",
     ]
+
+
+# 2119: REQ-054.1.2
+def test_return_hint_uses_current_prefix_and_direct_detach_binding() -> None:
+    bindings = "\n".join(
+        [
+            "C-a",
+            "d\tdisplay-message not-detach",
+            "F12\tdetach-client",
+            "x\trun-shell 'tmux detach-client'",
+        ]
+    )
+
+    assert return_hint_from_bindings(bindings) == _REMAPPED_HINT
+
+
+# 2119: REQ-054.1.4
+@pytest.mark.parametrize(
+    "bindings",
+    [
+        "None\nd\tdetach-client",
+        "C-a\nd\tdisplay-message no-detach-binding",
+        "C-a\nx\trun-shell 'tmux detach-client'",
+        "",
+    ],
+)
+def test_return_hint_falls_back_without_a_usable_prefix_detach_sequence(bindings: str) -> None:
+    assert return_hint_from_bindings(bindings) == _FALLBACK_HINT
+
+
+# 2119: REQ-054.3.1
+def test_binding_query_targets_the_selected_local_or_remote_tmux_server() -> None:
+    local = binding_query_command("panopticon-t1", socket="panopticon")
+    remote = binding_query_command("panopticon-t1", socket="panopticon", host="box.example.com")
+
+    assert local == [
+        "tmux",
+        "-L",
+        "panopticon",
+        "show-options",
+        "-g",
+        "-v",
+        "-t",
+        "panopticon-t1",
+        "prefix",
+        ";",
+        "list-keys",
+        "-T",
+        "prefix",
+        "-F",
+        "#{key_string}\t#{key_command}",
+    ]
+    assert remote[:2] == ["ssh", "box.example.com"]
+    assert shlex.split(remote[2]) == local
 
 
 # 2119: REQ-025.1.1
@@ -107,7 +167,9 @@ def test_decorated_attach_builds_task_focused_status_line_without_renaming() -> 
     label = (
         "task #[fg=red] #S #{session_name} #{?session_name,yes,no} #(printf injected) ## # %H %%"
     )
-    assert attach_command("panopticon-t1", socket="panopticon", label=label) == [
+    assert attach_command(
+        "panopticon-t1", socket="panopticon", label=label, return_hint=_REMAPPED_HINT
+    ) == [
         "tmux",
         "-L",
         "panopticon",
@@ -128,13 +190,13 @@ def test_decorated_attach_builds_task_focused_status_line_without_renaming() -> 
         "-t",
         "panopticon-t1",
         "status-right",
-        _RETURN_HINT,
+        _REMAPPED_HINT,
         ";",
         "set-option",
         "-t",
         "panopticon-t1",
         "status-right-length",
-        "49",
+        str(len(_REMAPPED_HINT)),
         ";",
         "set-option",
         "-t",
@@ -152,8 +214,16 @@ def test_decorated_attach_builds_task_focused_status_line_without_renaming() -> 
 # 2119: REQ-054.3.1
 def test_remote_decorated_attach_safely_sets_the_same_context_label() -> None:
     label = "fix login [quote's memo]"
-    local = attach_command("panopticon-t1", socket="panopticon", label=label)
-    remote = attach_command("panopticon-t1", socket="panopticon", host="box", label=label)
+    local = attach_command(
+        "panopticon-t1", socket="panopticon", label=label, return_hint=_REMAPPED_HINT
+    )
+    remote = attach_command(
+        "panopticon-t1",
+        socket="panopticon",
+        host="box",
+        label=label,
+        return_hint=_REMAPPED_HINT,
+    )
 
     assert local[local.index("status-left") + 1] == label
     assert remote[:3] == ["ssh", "-t", "box"]
@@ -164,12 +234,18 @@ def test_remote_decorated_attach_safely_sets_the_same_context_label() -> None:
 # 2119: REQ-054.1.1
 # 2119: REQ-054.1.2
 # 2119: REQ-054.1.3
+# 2119: REQ-054.1.4
 # 2119: REQ-054.2.1
 # 2119: REQ-054.2.2
 # 2119: REQ-054.3.1
 # 2119: REQ-054.3.3
 @pytest.mark.skipif(not _HAVE_TMUX, reason="needs tmux")
-def test_real_tmux_renders_only_literal_task_context_and_return_hint(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    ("detach_key", "expected_hint"), [("F12", _REMAPPED_HINT), (None, _FALLBACK_HINT)]
+)
+def test_real_tmux_renders_only_literal_task_context_and_return_hint(
+    tmp_path: Path, detach_key: str | None, expected_hint: str
+) -> None:
     """Exercise tmux's own format parser, not merely Panopticon's emitted argv.
 
     The deliberately format-shaped label catches accidental interpretation, while the deliberately
@@ -202,7 +278,48 @@ def test_real_tmux_renders_only_literal_task_context_and_return_hint(tmp_path: P
         )
         assert created.returncode == 0, created.stderr
 
-        decorated_attach = attach_command(session, socket=socket, label=label)
+        remap_command = [
+            "tmux",
+            "-L",
+            socket,
+            "set-option",
+            "-g",
+            "prefix",
+            "C-a",
+            ";",
+            "unbind-key",
+            "-T",
+            "prefix",
+            "d",
+        ]
+        if detach_key is not None:
+            remap_command += [
+                ";",
+                "bind-key",
+                "-T",
+                "prefix",
+                detach_key,
+                "detach-client",
+            ]
+        remapped = subprocess.run(
+            remap_command,
+            capture_output=True,
+            text=True,
+        )
+        assert remapped.returncode == 0, remapped.stderr
+
+        binding_query = subprocess.run(
+            binding_query_command(session, socket=socket),
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return_hint = return_hint_from_bindings(binding_query.stdout)
+        assert return_hint == expected_hint
+
+        decorated_attach = attach_command(
+            session, socket=socket, label=label, return_hint=return_hint
+        )
         assert decorated_attach[-4:] == [";", "attach", "-t", session]
         decorated = subprocess.run(decorated_attach[:-4], capture_output=True, text=True)
         assert decorated.returncode == 0, decorated.stderr
@@ -216,8 +333,8 @@ def test_real_tmux_renders_only_literal_task_context_and_return_hint(tmp_path: P
             ).stdout.rstrip("\n")
 
         assert show("status-left-length") == "100"
-        assert show("status-right") == _RETURN_HINT
-        assert show("status-right-length") == "49"
+        assert show("status-right") == expected_hint
+        assert show("status-right-length") == str(len(expected_hint))
         assert show("status-format[0]") == (
             "#[align=left]#{T:status-left}#[align=right]#{T:status-right}"
         )
@@ -228,25 +345,32 @@ def test_real_tmux_renders_only_literal_task_context_and_return_hint(tmp_path: P
             text=True,
             check=True,
         ).stdout.rstrip("\n")
-        assert rendered_left == label
+        # tmux versions differ on whether display-message's diagnostic expansion consumes the
+        # extra hash which keeps a status-line style introducer literal. The drawn status line
+        # consumes it either way; normalize that one documented escape before comparing text.
+        assert rendered_left.replace("##[", "#[") == label
 
-        rendered_status = subprocess.run(
-            [
-                "tmux",
-                "-L",
-                socket,
-                "display-message",
-                "-p",
-                "-t",
-                session,
-                "#{T:status-format[0]}",
-            ],
-            capture_output=True,
-            text=True,
-            check=True,
-        ).stdout.rstrip("\n")
+        rendered_status = (
+            subprocess.run(
+                [
+                    "tmux",
+                    "-L",
+                    socket,
+                    "display-message",
+                    "-p",
+                    "-t",
+                    session,
+                    "#{T:status-format[0]}",
+                ],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            .stdout.rstrip("\n")
+            .replace("##[", "#[")
+        )
         assert rendered_status.startswith(label)
-        assert rendered_status.endswith(_RETURN_HINT)
+        assert rendered_status.endswith(expected_hint)
         assert window_name not in rendered_status
 
         assert (

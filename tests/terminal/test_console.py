@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import shlex
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -171,6 +172,9 @@ def test_resolve_join_encodes_a_remote_task_with_its_host() -> None:
 # 2119: REQ-025.3.1
 # 2119: REQ-025.3.2
 # 2119: REQ-025.3.3
+# 2119: REQ-054.1.2
+# 2119: REQ-054.2.2
+# 2119: REQ-054.3.1
 def test_current_remote_task_context_reaches_the_supervisor_attach_command() -> None:
     client = _JoinClient(
         tasks=[
@@ -185,28 +189,45 @@ def test_current_remote_task_context_reaches_the_supervisor_attach_command() -> 
     )
     target = resolve_join(client, "t1")  # type: ignore[arg-type]
     assert target is not None
-    calls: list[tuple[list[str], bool]] = []
+    calls: list[tuple[list[str], dict[str, object]]] = []
 
-    def run(command: list[str], *, check: bool) -> None:
-        calls.append((command, check))
+    def run(command: list[str], **kwargs: object) -> object:
+        calls.append((command, kwargs))
+        return SimpleNamespace(stdout="C-a\nF12\tdetach-client\n", returncode=0)
 
     attach_target(target, socket="panopticon", run=run)
 
-    assert len(calls) == 1
-    command, check = calls[0]
+    assert len(calls) == 2
+    query, query_kwargs = calls[0]
+    assert query[:2] == ["ssh", "box.example.com"]
+    assert shlex.split(query[2]) == console.binding_query_command(
+        "panopticon-t1", socket="panopticon"
+    )
+    assert query_kwargs == {"capture_output": True, "text": True, "check": False}
+
+    command, attach_kwargs = calls[1]
     assert command[:3] == ["ssh", "-t", "box.example.com"]
-    assert shlex.split(command[3]) == console.attach_command(
+    remote_tmux = shlex.split(command[3])
+    assert remote_tmux == console.attach_command(
         "panopticon-t1",
         socket="panopticon",
         label="fix-login [handle token expiry]",
+        return_hint="Control+A and then F12 to get back to the dashboard",
     )
-    assert check is False
+    status_left = remote_tmux.index("status-left")
+    assert remote_tmux[status_left - 3 : status_left] == [
+        "set-option",
+        "-t",
+        "panopticon-t1",
+    ]
+    assert attach_kwargs == {"check": False}
 
 
 # 2119: REQ-025.1.1
 # 2119: REQ-025.1.2
 # 2119: REQ-025.1.3
 # 2119: REQ-025.1.4
+# 2119: REQ-054.3.1
 @pytest.mark.parametrize(
     ("slug", "memo", "expected"),
     [
@@ -227,11 +248,19 @@ def test_current_task_context_reaches_local_tmux_status_left(
     assert target is not None
     calls: list[list[str]] = []
 
-    attach_target(target, socket="panopticon", run=lambda command, **_kwargs: calls.append(command))
+    def run(command: list[str], **_kwargs: object) -> object:
+        calls.append(command)
+        return SimpleNamespace(stdout="C-b\nd\tdetach-client\n", returncode=0)
 
-    assert len(calls) == 1
-    command = calls[0]
+    attach_target(target, socket="panopticon", run=run)
+
+    assert len(calls) == 2
+    assert calls[0] == console.binding_query_command("panopticon-t1", socket="panopticon")
+    command = calls[1]
     assert command[command.index("status-left") + 1] == expected
+    assert command[command.index("status-right") + 1] == (
+        "Control+B and then D to get back to the dashboard"
+    )
     assert command[-3:] == ["attach", "-t", "panopticon-t1"]
 
 

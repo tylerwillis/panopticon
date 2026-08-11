@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-054.1.4--8e8d4a2e2b96",
+  "requirementId": "REQ-054.1.4",
+  "hash": "8e8d4a2e2b96",
+  "verdict": "pass",
+  "summary": "Tests reject missing prefix, missing or indirect detach bindings, and verify the generic non-key-sequence instruction renders on the decorated status line.",
+  "timestamp": "2026-08-11T17:34:30.920Z"
+}

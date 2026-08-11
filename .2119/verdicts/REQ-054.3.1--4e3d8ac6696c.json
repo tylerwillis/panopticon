@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-054.3.1--4e3d8ac6696c",
+  "requirementId": "REQ-054.3.1",
+  "hash": "4e3d8ac6696c",
+  "verdict": "pass",
+  "summary": "Local and remote tests require binding detection before attachment and require both decoration and attachment to target the same selected task session.",
+  "timestamp": "2026-08-11T17:34:32.333Z"
+}

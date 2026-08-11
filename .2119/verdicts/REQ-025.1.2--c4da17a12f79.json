@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.1.2--c4da17a12f79",
+  "requirementId": "REQ-025.1.2",
+  "hash": "c4da17a12f79",
+  "verdict": "pass",
+  "summary": "Slug-only local attach is exercised end-to-end to the tmux command boundary: the exact slug must be the status-left value before attaching the intended session.",
+  "timestamp": "2026-08-11T17:28:25.744Z"
+}
