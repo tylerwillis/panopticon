@@ -15,6 +15,8 @@ from collections.abc import Mapping
 from typing import Any
 
 CONTEXT_LABEL_LIMIT = 100
+FALLBACK_TASK_STATUS_RETURN_HINT = "Detach this tmux client to get back to the dashboard"
+TASK_STATUS_FORMAT = "#[align=left]#{T:status-left}#[align=right]#{T:status-right}"
 
 
 def _one_line(value: object) -> str:
@@ -40,18 +42,91 @@ def task_context_label(task: Mapping[str, Any], session: str) -> str:
 
 
 def _literal_tmux_format(value: str) -> str:
-    """Escape tmux's ``#`` format introducer so task text is displayed literally."""
-    return value.replace("#", "##")
+    """Escape tmux's format and strftime introducers so task text displays literally."""
+    return value.replace("#", "##").replace("%", "%%")
+
+
+def _friendly_tmux_key(key: str) -> str:
+    """Spell tmux's compact key notation as a short operator-facing chord."""
+    names = {"C": "Control", "M": "Alt", "S": "Shift"}
+    parts = key.split("-")
+    modifiers: list[str] = []
+    while len(parts) > 1 and parts[0] in names:
+        modifiers.append(names[parts.pop(0)])
+    base = "-".join(parts)
+    if len(base) == 1:
+        base = base.upper()
+    return "+".join([*modifiers, base])
+
+
+def return_hint_from_bindings(output: str) -> str:
+    """Build a truthful return hint from one :func:`binding_query_command` result."""
+    lines = output.splitlines()
+    if not lines:
+        return FALLBACK_TASK_STATUS_RETURN_HINT
+    prefix = lines[0].strip()
+    if not prefix or prefix.casefold() == "none":
+        return FALLBACK_TASK_STATUS_RETURN_HINT
+    for line in lines[1:]:
+        try:
+            binding = shlex.split(line)
+        except ValueError:
+            continue
+        if not binding or binding[0] not in {"bind-key", "bind"}:
+            continue
+        index = 1
+        table: str | None = None
+        while index < len(binding) and binding[index].startswith("-"):
+            option = binding[index]
+            if option == "-T" and index + 1 < len(binding):
+                table = binding[index + 1]
+            index += 2 if option in {"-N", "-T"} else 1
+        if index + 1 >= len(binding):
+            continue
+        key = binding[index]
+        command_parts = binding[index + 1 :]
+        if table == "prefix" and command_parts == ["detach-client"]:
+            return (
+                f"{_friendly_tmux_key(prefix)} and then {_friendly_tmux_key(key)} "
+                "to get back to the dashboard"
+            )
+    return FALLBACK_TASK_STATUS_RETURN_HINT
+
+
+def binding_query_command(session: str, *, socket: str, host: str | None = None) -> list[str]:
+    """Build the local or remote command that reads the effective detach sequence."""
+    tmux = [
+        "tmux",
+        "-L",
+        socket,
+        "show-options",
+        "-g",
+        "-v",
+        "-t",
+        session,
+        "prefix",
+        ";",
+        "list-keys",
+        "-T",
+        "prefix",
+    ]
+    return ["ssh", host, shlex.join(tmux)] if host else tmux
 
 
 def attach_command(
-    session: str, *, socket: str, host: str | None = None, label: str | None = None
+    session: str,
+    *,
+    socket: str,
+    host: str | None = None,
+    label: str | None = None,
+    return_hint: str = FALLBACK_TASK_STATUS_RETURN_HINT,
 ) -> list[str]:
     """The argv that attaches the current terminal to ``session`` on the panopticon socket.
 
-    When ``label`` is supplied, the target session's left status area is updated first. ``host``
-    wraps both operations in ``ssh -t <host> …`` so the same supervisor loop reaches a session on
-    another machine.
+    When ``label`` is supplied, the target session receives the task-focused status layout before
+    attachment: literal context on the left, no central window list, and return guidance on the
+    right. ``host`` wraps all operations in ``ssh -t <host> …`` so the same supervisor loop reaches
+    a session on another machine.
     """
     tmux = ["tmux", "-L", socket]
     if label is not None:
@@ -61,6 +136,30 @@ def attach_command(
             session,
             "status-left",
             _literal_tmux_format(label),
+            ";",
+            "set-option",
+            "-t",
+            session,
+            "status-left-length",
+            str(CONTEXT_LABEL_LIMIT),
+            ";",
+            "set-option",
+            "-t",
+            session,
+            "status-right",
+            return_hint,
+            ";",
+            "set-option",
+            "-t",
+            session,
+            "status-right-length",
+            str(len(return_hint)),
+            ";",
+            "set-option",
+            "-t",
+            session,
+            "status-format[0]",
+            TASK_STATUS_FORMAT,
             ";",
         ]
     tmux += ["attach", "-t", session]

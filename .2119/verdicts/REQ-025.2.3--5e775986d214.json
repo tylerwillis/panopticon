@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.2.3--5e775986d214",
+  "requirementId": "REQ-025.2.3",
+  "hash": "5e775986d214",
+  "verdict": "pass",
+  "summary": "Exact output verifies multiple internal Unicode-whitespace runs in both slug and memo collapse to one ASCII space.",
+  "timestamp": "2026-08-11T17:01:02.191Z"
+}

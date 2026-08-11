@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.3.2--89064c3a4dbd",
+  "requirementId": "REQ-025.3.2",
+  "hash": "89064c3a4dbd",
+  "verdict": "pass",
+  "summary": "Remote attach is SSH-wrapped but its parsed inner command must equal the local attach command, rejecting missing, altered, or misquoted context labels; the supervisor path also verifies the composed label reaches remote attach.",
+  "timestamp": "2026-08-11T17:29:55.050Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.1.1--b750d3f5099e",
+  "requirementId": "REQ-030.1.1",
+  "hash": "b750d3f5099e",
+  "verdict": "pass",
+  "summary": "Tests reject missing or off mouse configuration and verify mouse on against fresh real tmux sockets, including actual task sessions.",
+  "timestamp": "2026-08-11T17:30:51.843Z"
+}

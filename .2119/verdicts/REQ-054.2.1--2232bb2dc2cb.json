@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-054.2.1--2232bb2dc2cb",
+  "requirementId": "REQ-054.2.1",
+  "hash": "2232bb2dc2cb",
+  "verdict": "pass",
+  "summary": "Annotated tests require status-left-length to be set exactly to 100 and confirm the resulting tmux session option, rejecting omission, wrong target, and 99/101 values.",
+  "timestamp": "2026-08-11T17:31:55.223Z"
+}

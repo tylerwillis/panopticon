@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.1.4--e829b86c8ff4",
+  "requirementId": "REQ-025.1.4",
+  "hash": "e829b86c8ff4",
+  "verdict": "pass",
+  "summary": "Null slug and memo produce the exact existing session name in status-left, while the emitted command attaches to that same session; wrong label, area, or target fails.",
+  "timestamp": "2026-08-11T16:57:50.383Z"
+}

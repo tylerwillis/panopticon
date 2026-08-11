@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.2.5--ba9edbf3d005",
+  "requirementId": "REQ-025.2.5",
+  "hash": "ba9edbf3d005",
+  "verdict": "pass",
+  "summary": "Behavioral tests exercise oversized slug, combined, memo-only, and fallback labels, asserting the 100-code-point limit and an exact final U+2026 ellipsis.",
+  "timestamp": "2026-08-11T16:58:10.681Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.3.2--6cc5476d7472",
+  "requirementId": "REQ-025.3.2",
+  "hash": "6cc5476d7472",
+  "verdict": "pass",
+  "summary": "Remote attach is required to preserve the exact local context-label command: tests reject omission, alteration, misquoting, and loss through supervisor routing.",
+  "timestamp": "2026-08-11T17:01:08.920Z"
+}

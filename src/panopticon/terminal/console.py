@@ -9,7 +9,8 @@ loop is::
 
 ``show_dashboard`` attaches the (persistent) dashboard session and returns the task the operator
 picked with `t` (or ``None`` when they quit/detach); ``attach`` hands the terminal to that task's
-session until they detach (``C-b d``), then the loop re-attaches the **same, still-running**
+session until they use its configured detach binding, then the loop re-attaches the **same,
+still-running**
 dashboard — cursor and all.
 
 The dashboard reports a pick by writing it to a **switch-file** and then detaching its client
@@ -34,7 +35,12 @@ import httpx
 from panopticon.client import TaskServiceClient
 from panopticon.sessionservice.local_runner import TMUX_SOCKET
 from panopticon.sessionservice.tmux_defaults import defaults_argv, new_session_argv
-from panopticon.terminal.attach import attach_command, task_context_label
+from panopticon.terminal.attach import (
+    attach_command,
+    binding_query_command,
+    return_hint_from_bindings,
+    task_context_label,
+)
 from panopticon.terminal.session_environment import session_environment_argv
 
 #: tmux session name the dashboard runs in (on the panopticon socket, beside the task sessions).
@@ -95,7 +101,29 @@ def decode_switch_target(line: str) -> tuple[str, str | None, str | None]:
 def attach_target(target: str, *, socket: str, run: CommandExecutor = subprocess.run) -> None:
     """Decorate and attach one supervisor target through its local or remote runner."""
     session, host, label = decode_switch_target(target)
-    run(attach_command(session, socket=socket, host=host, label=label), check=False)
+    if label is None:
+        run(attach_command(session, socket=socket, host=host), check=False)
+        return
+    binding_result = run(
+        binding_query_command(session, socket=socket, host=host),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    binding_output = getattr(binding_result, "stdout", "")
+    return_hint = return_hint_from_bindings(
+        binding_output if isinstance(binding_output, str) else ""
+    )
+    run(
+        attach_command(
+            session,
+            socket=socket,
+            host=host,
+            label=label,
+            return_hint=return_hint,
+        ),
+        check=False,
+    )
 
 
 def switch_to(

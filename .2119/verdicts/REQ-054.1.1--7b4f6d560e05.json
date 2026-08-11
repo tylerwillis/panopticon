@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-054.1.1--7b4f6d560e05",
+  "requirementId": "REQ-054.1.1",
+  "hash": "7b4f6d560e05",
+  "verdict": "pass",
+  "summary": "Unit and real-tmux tests reject a changed context label or any content placed before it in the decorated rendered status line.",
+  "timestamp": "2026-08-11T17:03:31.483Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.3.2--d4317990e2a0",
+  "requirementId": "REQ-030.3.2",
+  "hash": "d4317990e2a0",
+  "verdict": "pass",
+  "summary": "Tests reject a first dedicated-socket command without the startup config, omission of history-limit 50000, and any -f placement after pane-creating new-session across all four entry paths.",
+  "timestamp": "2026-08-11T17:31:20.099Z"
+}

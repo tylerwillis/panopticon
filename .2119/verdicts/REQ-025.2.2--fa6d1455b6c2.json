@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.2.2--fa6d1455b6c2",
+  "requirementId": "REQ-025.2.2",
+  "hash": "fa6d1455b6c2",
+  "verdict": "pass",
+  "summary": "The test rejects leading or trailing Unicode whitespace on both slug and memo by surrounding each with the full Python isspace code-point set and asserting an exact boundary-clean label.",
+  "timestamp": "2026-08-11T17:29:17.442Z"
+}

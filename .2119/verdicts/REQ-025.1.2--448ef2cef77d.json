@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.1.2--448ef2cef77d",
+  "requirementId": "REQ-025.1.2",
+  "hash": "448ef2cef77d",
+  "verdict": "pass",
+  "summary": "Slug-only local attach is exercised end-to-end through command construction and must set tmux status-left exactly to the slug.",
+  "timestamp": "2026-08-11T16:57:01.916Z"
+}
