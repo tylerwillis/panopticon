@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-054.1.2--24c511d5e85a",
+  "requirementId": "REQ-054.1.2",
+  "hash": "24c511d5e85a",
+  "verdict": "pass",
+  "summary": "Real tmux PTY evidence starts in nonzero copy-mode scrollback, injects WheelDown, proves newer movement, and observes zero foreground input.",
+  "timestamp": "2026-08-11T17:38:43.654Z"
+}
