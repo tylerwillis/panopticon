@@ -16,10 +16,11 @@ repo_name="${PANOPTICON_REPO_NAME:-this repo}"
 repo_url="${PANOPTICON_GIT_URL:-}"
 repo_label=$(repo_source_label "$repo_url")
 repo_id=""
-default_harness=claude
+default_harness=""
 credential_dir=""
 if ! load_repo_auth_context; then
-    echo "warning: couldn't read the repo's harness setting; falling back to claude setup" >&2
+    echo "Choose a default harness for this repo before running setup-repo." >&2
+    exit 1
 fi
 credential_path=""
 [ -n "$credential_dir" ] && credential_path="$PANOPTICON_SECRETS_DIR/$credential_dir"
