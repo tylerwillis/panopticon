@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-task-scrollback-routing.2.3--c1cd6ae64fb9",
+  "requirementId": "attached-task-scrollback-routing.2.3",
+  "hash": "c1cd6ae64fb9",
+  "verdict": "pass",
+  "summary": "Real tmux coverage proves PageDown at the live task bottom is consumed without foreground delivery.",
+  "timestamp": "2026-08-11T17:55:46.999Z"
+}
