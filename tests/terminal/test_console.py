@@ -193,7 +193,7 @@ def test_current_remote_task_context_reaches_the_supervisor_attach_command() -> 
 
     def run(command: list[str], **kwargs: object) -> object:
         calls.append((command, kwargs))
-        return SimpleNamespace(stdout="C-a\nF12\tdetach-client\n", returncode=0)
+        return SimpleNamespace(stdout="C-a\nbind-key -T prefix F12 detach-client\n", returncode=0)
 
     attach_target(target, socket="panopticon", run=run)
 
@@ -250,7 +250,7 @@ def test_current_task_context_reaches_local_tmux_status_left(
 
     def run(command: list[str], **_kwargs: object) -> object:
         calls.append(command)
-        return SimpleNamespace(stdout="C-b\nd\tdetach-client\n", returncode=0)
+        return SimpleNamespace(stdout="C-b\nbind-key -T prefix d detach-client\n", returncode=0)
 
     attach_target(target, socket="panopticon", run=run)
 

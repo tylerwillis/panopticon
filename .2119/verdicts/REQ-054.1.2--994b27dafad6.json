@@ -1,8 +1,0 @@
-{
-  "reviewId": "REQ-054.1.2--994b27dafad6",
-  "requirementId": "REQ-054.1.2",
-  "hash": "994b27dafad6",
-  "verdict": "pass",
-  "summary": "Tests reject stale/default prefix and indirect or non-detach bindings, query the selected local/remote tmux server, and verify the derived hint is explicitly right-aligned in the decorated status line.",
-  "timestamp": "2026-08-11T17:31:58.656Z"
-}

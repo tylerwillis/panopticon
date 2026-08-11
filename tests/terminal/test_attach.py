@@ -50,9 +50,10 @@ def test_return_hint_uses_current_prefix_and_direct_detach_binding() -> None:
     bindings = "\n".join(
         [
             "C-a",
-            "d\tdisplay-message not-detach",
-            "F12\tdetach-client",
-            "x\trun-shell 'tmux detach-client'",
+            "bind-key -T prefix d display-message not-detach",
+            "bind-key -T root F11 detach-client",
+            "bind-key -T prefix F12 detach-client",
+            "bind-key -T prefix x run-shell 'tmux detach-client'",
         ]
     )
 
@@ -63,9 +64,9 @@ def test_return_hint_uses_current_prefix_and_direct_detach_binding() -> None:
 @pytest.mark.parametrize(
     "bindings",
     [
-        "None\nd\tdetach-client",
-        "C-a\nd\tdisplay-message no-detach-binding",
-        "C-a\nx\trun-shell 'tmux detach-client'",
+        "None\nbind-key -T prefix d detach-client",
+        "C-a\nbind-key -T prefix d display-message no-detach-binding",
+        "C-a\nbind-key -T prefix x run-shell 'tmux detach-client'",
         "",
     ],
 )
@@ -92,8 +93,6 @@ def test_binding_query_targets_the_selected_local_or_remote_tmux_server() -> Non
         "list-keys",
         "-T",
         "prefix",
-        "-F",
-        "#{key_string}\t#{key_command}",
     ]
     assert remote[:2] == ["ssh", "box.example.com"]
     assert shlex.split(remote[2]) == local

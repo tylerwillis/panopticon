@@ -17,7 +17,6 @@ from typing import Any
 CONTEXT_LABEL_LIMIT = 100
 FALLBACK_TASK_STATUS_RETURN_HINT = "Detach this tmux client to get back to the dashboard"
 TASK_STATUS_FORMAT = "#[align=left]#{T:status-left}#[align=right]#{T:status-right}"
-_BINDING_FORMAT = "#{key_string}\t#{key_command}"
 
 
 def _one_line(value: object) -> str:
@@ -69,9 +68,24 @@ def return_hint_from_bindings(output: str) -> str:
     if not prefix or prefix.casefold() == "none":
         return FALLBACK_TASK_STATUS_RETURN_HINT
     for line in lines[1:]:
-        key, separator, command = line.partition("\t")
-        command_parts = command.strip().split(maxsplit=1)
-        if separator and command_parts and command_parts[0] == "detach-client":
+        try:
+            binding = shlex.split(line)
+        except ValueError:
+            continue
+        if not binding or binding[0] not in {"bind-key", "bind"}:
+            continue
+        index = 1
+        table: str | None = None
+        while index < len(binding) and binding[index].startswith("-"):
+            option = binding[index]
+            if option == "-T" and index + 1 < len(binding):
+                table = binding[index + 1]
+            index += 2 if option in {"-N", "-T"} else 1
+        if index + 1 >= len(binding):
+            continue
+        key = binding[index]
+        command_parts = binding[index + 1 :]
+        if table == "prefix" and command_parts[0] == "detach-client":
             return (
                 f"{_friendly_tmux_key(prefix)} and then {_friendly_tmux_key(key)} "
                 "to get back to the dashboard"
@@ -95,8 +109,6 @@ def binding_query_command(session: str, *, socket: str, host: str | None = None)
         "list-keys",
         "-T",
         "prefix",
-        "-F",
-        _BINDING_FORMAT,
     ]
     return ["ssh", host, shlex.join(tmux)] if host else tmux
 
