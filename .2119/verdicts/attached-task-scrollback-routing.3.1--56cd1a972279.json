@@ -1,0 +1,8 @@
+{
+  "reviewId": "attached-task-scrollback-routing.3.1--56cd1a972279",
+  "requirementId": "attached-task-scrollback-routing.3.1",
+  "hash": "56cd1a972279",
+  "verdict": "pass",
+  "summary": "Dedicated-server controls prove all four inputs reach non-task sessions, including exact near-prefix boundary names.",
+  "timestamp": "2026-08-11T17:55:47.671Z"
+}

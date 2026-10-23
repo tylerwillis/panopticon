@@ -1,5 +1,6 @@
-"""Shipped defaults for panopticon's dedicated ``-L panopticon`` tmux server (REQ-030): mouse
-reporting, deep scrollback, and mouse-drag/double-click copy wired to the system clipboard.
+"""Shipped defaults for panopticon's dedicated ``-L panopticon`` tmux server (REQ-030 and
+attached-task-scrollback-routing): mouse reporting, deep scrollback, task-pane scroll routing, and
+mouse-drag/double-click copy wired to the system clipboard.
 
 The server is never explicitly created; whichever panopticon-owned session-creating call happens
 to be first against a not-yet-running socket implicitly starts it. Separate ``tmux -L socket
@@ -52,6 +53,10 @@ from panopticon.sessionservice.image_paste import image_paste_binding
 #: (``--no-alt-screen``) rendering puts into scrollback.
 HISTORY_LIMIT = "50000"
 
+#: Task panes share the dedicated server with the dashboard, runner, and service sessions. Match
+#: only task session names so those other applications retain their own mouse and page-key input.
+_TASK_SESSION = "#{m/r:^panopticon-,#{session_name}}"
+
 
 def clipboard_tool(
     *, platform: str = sys.platform, which: Callable[[str], str | None] | None = None
@@ -78,10 +83,10 @@ def clipboard_tool(
 
 def server_default_config_text(*, clipboard: str | None) -> str:
     """The tmux config file text (REQ-030.1, REQ-030.2) applying panopticon's shipped server
-    defaults: mouse reporting, :data:`HISTORY_LIMIT` scrollback, ``set-clipboard``, and
-    drag/double-click copy bound to ``clipboard`` (see :func:`clipboard_tool`) when given, else a
-    plain in-tmux copy (the paste buffer, plus OSC 52 via ``set-clipboard``, still reaches a
-    remote/odd setup)."""
+    defaults: mouse reporting, :data:`HISTORY_LIMIT` scrollback, ``set-clipboard``, task-pane
+    scroll routing, and drag/double-click copy bound to ``clipboard`` (see
+    :func:`clipboard_tool`) when given, else a plain in-tmux copy (the paste buffer, plus OSC 52
+    via ``set-clipboard``, still reaches a remote/odd setup)."""
     copy = (
         f'send-keys -X copy-pipe-and-cancel "{clipboard}"'
         if clipboard
@@ -92,6 +97,22 @@ def server_default_config_text(*, clipboard: str | None) -> str:
         f"set-option -g history-limit {HISTORY_LIMIT}",
         "set-option -g set-clipboard on",
         image_paste_binding("panopticon-image-paste"),
+        "bind-key -T root WheelUpPane "
+        f"if-shell -Ft= '{_TASK_SESSION}' "
+        '\'if-shell -Ft= "#{pane_in_mode}" "send-keys -M" '
+        "\"copy-mode -e \\; send-keys -X scroll-up\"' 'send-keys -M'",
+        "bind-key -T root WheelDownPane "
+        f"if-shell -Ft= '{_TASK_SESSION}' "
+        '\'if-shell -Ft= "#{pane_in_mode}" "send-keys -M" '
+        "\"select-pane -t =\"' 'send-keys -M'",
+        f"bind-key -T root PageUp if-shell -Ft= '{_TASK_SESSION}' "
+        "'copy-mode -u' 'send-keys PageUp'",
+        f"bind-key -T root PageDown if-shell -Ft= '{_TASK_SESSION}' "
+        "'copy-mode' 'send-keys PageDown'",
+        "bind-key -T copy-mode PageUp send-keys -X page-up",
+        "bind-key -T copy-mode-vi PageUp send-keys -X page-up",
+        "bind-key -T copy-mode PageDown send-keys -X page-down",
+        "bind-key -T copy-mode-vi PageDown send-keys -X page-down",
         f"bind-key -T copy-mode MouseDragEnd1Pane {copy}",
         f"bind-key -T copy-mode-vi MouseDragEnd1Pane {copy}",
         f"bind-key -T root DoubleClick1Pane copy-mode -M \\; send-keys -X select-word \\; {copy}",
