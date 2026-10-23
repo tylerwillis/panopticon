@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
+import pytest
+
 from panopticon.terminal import doctor
 from panopticon.terminal.doctor import CheckResult
 
@@ -62,7 +64,9 @@ def test_each_required_binary_is_checked() -> None:
         assert doctor.report(results) == 1
 
 
-def test_missing_claude_passes_when_another_harness_cli_is_installed() -> None:
+def test_missing_claude_passes_when_another_harness_cli_is_installed(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
     results = doctor.run_checks(
         which=_which_missing("claude", "pi", "outfitter"),
         run=_run_ok,
@@ -73,6 +77,7 @@ def test_missing_claude_passes_when_another_harness_cli_is_installed() -> None:
     assert _by_name(results)["codex"].ok
     assert _by_name(results)["harness CLI"].ok
     assert doctor.report(results) == 0
+    assert "All prerequisites satisfied." in capsys.readouterr().out
 
 
 def test_no_harness_cli_fails_after_reporting_every_harness() -> None:

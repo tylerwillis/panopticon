@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import subprocess
 from collections.abc import Mapping
+from itertools import permutations
 from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock
@@ -67,6 +68,22 @@ def test_detected_harness_recommendation_prefers_installed_over_claude_fallback(
     assert qs.recommended_harness(detected) == "pi"
 
 
+# 2119-spec: explicit-onboarding-harness-choice
+# 2119: 1.1
+def test_detected_harness_recommendation_is_absent_for_every_ambiguous_registry_order(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    harness_names = ("claude", "codex", "pi")
+
+    for count in (2, 3):
+        for names in permutations(harness_names, count):
+            detected = [qs.HarnessDetection(name, True, False, f"install {name}") for name in names]
+
+            assert qs.recommended_harness(detected) is None, names
+            assert qs.choose_harness(detected, input_fn=lambda _prompt: "1") == names[0]
+            assert "(recommended)" not in capsys.readouterr().out
+
+
 def test_detected_harness_recommendation_falls_back_to_claude_when_none_installed() -> None:
     harnesses = {
         "claude": _Harness("claude", authenticated=False),
@@ -125,6 +142,126 @@ def test_choose_harness_uses_numbered_picker_for_several_candidates(
     assert "1) claude — installed" in output
     assert "2) codex — authed (recommended)" in output
     assert "pi: not installed — install pi" in output
+
+
+# 2119: 1.2
+def test_choose_harness_requires_explicit_choice_when_installed_candidates_are_unauthenticated(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    prompts: list[str] = []
+    registered = list(qs.HARNESSES.values())
+
+    for count in range(2, len(registered) + 1):
+        candidates = registered[:count]
+        detected = [
+            qs.HarnessDetection(harness.name, True, False, harness.install_hint)
+            for harness in candidates
+        ]
+        answers = iter(["", str(count + 1), str(count)])
+
+        choice = qs.choose_harness(
+            detected,
+            input_fn=lambda prompt, responses=answers: (
+                prompts.append(prompt),
+                next(responses),
+            )[1],
+        )
+
+        assert choice == candidates[-1].name
+
+    assert len(prompts) == 3 * (len(registered) - 1)
+    output = capsys.readouterr().out
+    assert "(recommended)" not in output
+    for count in range(2, len(registered) + 1):
+        assert f"Enter a number from 1 to {count}." in output
+
+
+# 2119: 2.1
+@pytest.mark.parametrize("installed_name", list(qs.HARNESSES))
+def test_choose_harness_preserves_each_only_installed_unauthenticated_path(
+    installed_name: str,
+) -> None:
+    harnesses = {name: _Harness(name, authenticated=False) for name in qs.HARNESSES}
+    detected = qs.detect_harnesses(
+        harnesses=harnesses,  # type: ignore[arg-type]
+        environ={},
+        home=Path("/empty-home"),
+        which=_which_present(installed_name),
+    )
+
+    prompts: list[str] = []
+
+    choice = qs.choose_harness(detected, input_fn=lambda prompt: (prompts.append(prompt), "")[1])
+
+    assert choice == installed_name
+    assert len(prompts) == 1
+    assert f"Use {installed_name}" in prompts[0]
+    assert "Press Enter" in prompts[0]
+
+
+# 2119: 2.1
+def test_only_installed_confirmation_is_not_used_at_zero_or_multiple_installs() -> None:
+    harness_names = list(qs.HARNESSES)
+    harnesses = {name: _Harness(name, authenticated=False) for name in harness_names}
+    none_detected = qs.detect_harnesses(
+        harnesses=harnesses,  # type: ignore[arg-type]
+        environ={},
+        home=Path("/empty-home"),
+        which=_which_present(),
+    )
+    none_prompts: list[str] = []
+
+    assert (
+        qs.choose_harness(
+            none_detected,
+            input_fn=lambda prompt: (none_prompts.append(prompt), "")[1],
+        )
+        == qs.DEFAULT_HARNESS
+    )
+    assert none_prompts == []
+
+    several_detected = qs.detect_harnesses(
+        harnesses=harnesses,  # type: ignore[arg-type]
+        environ={},
+        home=Path("/empty-home"),
+        which=_which_present(*harness_names[:2]),
+    )
+    several_prompts: list[str] = []
+
+    assert (
+        qs.choose_harness(
+            several_detected,
+            input_fn=lambda prompt: (several_prompts.append(prompt), "2")[1],
+        )
+        == harness_names[1]
+    )
+    assert len(several_prompts) == 1
+    assert "Use " not in several_prompts[0]
+
+
+# 2119: 3.1
+def test_choose_harness_no_installed_message_names_every_registered_harness(
+    capsys: pytest.CaptureFixture[str], tmp_path: Path
+) -> None:
+    detected = qs.detect_harnesses(
+        harnesses=qs.HARNESSES,
+        environ={},
+        home=tmp_path,
+        which=_which_present(),
+    )
+
+    assert all(not harness.installed for harness in detected)
+
+    qs.choose_harness(detected, input_fn=lambda _prompt: "")
+
+    message = next(
+        line
+        for line in capsys.readouterr().out.splitlines()
+        if line.startswith("No agent harness CLI is installed.")
+    )
+    for harness in detected:
+        assert harness.name in message
+        assert harness.install_hint in message
 
 
 def test_detect_git_url_from_origin(monkeypatch: pytest.MonkeyPatch) -> None:

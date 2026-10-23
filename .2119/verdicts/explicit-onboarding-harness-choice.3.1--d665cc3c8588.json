@@ -1,0 +1,8 @@
+{
+  "reviewId": "explicit-onboarding-harness-choice.3.1--d665cc3c8588",
+  "requirementId": "explicit-onboarding-harness-choice.3.1",
+  "hash": "d665cc3c8588",
+  "verdict": "pass",
+  "summary": "Establishes zero installed registered harnesses, invokes the picker, and rejects omission of any registered name or installation hint from its guidance.",
+  "timestamp": "2026-08-11T17:32:34.237Z"
+}

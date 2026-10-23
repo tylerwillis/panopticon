@@ -170,7 +170,7 @@ load_repo_auth_context() {
         "$PANOPTICON_SERVICE_URL/repos/$repo_id") || return 1
     default_harness=$(printf '%s' "$_rac_repo" | json_field default_harness) || return 1
     credential_dir=$(printf '%s' "$_rac_repo" | json_field credential_dir) || return 1
-    [ -n "$default_harness" ] || default_harness=claude
+    [ -n "$default_harness" ] || return 1
 }
 
 # Update the repo's credential_dir reference after setup creates its host-side directory.

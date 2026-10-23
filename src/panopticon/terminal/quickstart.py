@@ -77,14 +77,16 @@ def detect_harnesses(
     return detected
 
 
-def recommended_harness(detected: list[HarnessDetection]) -> str:
-    """Best runnable choice: authenticated, then installed, then the Claude fallback."""
+def recommended_harness(detected: list[HarnessDetection]) -> str | None:
+    """Best evidenced choice, leaving ambiguous unauthenticated installs undecided."""
     for harness in detected:
         if harness.authenticated:
             return harness.name
-    for harness in detected:
-        if harness.installed:
-            return harness.name
+    installed = [harness.name for harness in detected if harness.installed]
+    if len(installed) == 1:
+        return installed[0]
+    if installed:
+        return None
     return DEFAULT_HARNESS
 
 
@@ -100,9 +102,8 @@ def choose_harness(
         print(f"  {harness.name}: {harness.status}{suffix}")
 
     if not candidates:
-        claude = next((h for h in detected if h.name == DEFAULT_HARNESS), None)
-        hint = claude.install_hint if claude is not None else "Install the Claude Code CLI."
-        print(f"No agent harness CLI is installed. {hint}")
+        guidance = "; ".join(f"{harness.name}: {harness.install_hint}" for harness in detected)
+        print(f"No agent harness CLI is installed. {guidance}")
         return DEFAULT_HARNESS
     if len(candidates) == 1:
         choice = candidates[0].name
@@ -114,10 +115,13 @@ def choose_harness(
     for number, harness in zip(numbered, candidates, strict=True):
         suffix = " (recommended)" if harness.name == recommended else ""
         print(f"  {number}) {harness.name} — {harness.status}{suffix}")
-    default_number = next(number for number, name in numbered.items() if name == recommended)
+    default_number = next(
+        (number for number, name in numbered.items() if name == recommended), None
+    )
+    prompt = f"Harness [{default_number}]: " if default_number is not None else "Harness: "
     while True:
-        answer = input_fn(f"Harness [{default_number}]: ").strip()
-        if not answer:
+        answer = input_fn(prompt).strip()
+        if not answer and recommended is not None:
             return recommended
         if answer in numbered:
             return numbered[answer]
