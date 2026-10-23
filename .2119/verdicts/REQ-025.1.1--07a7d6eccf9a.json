@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.1.1--07a7d6eccf9a",
+  "requirementId": "REQ-025.1.1",
+  "hash": "07a7d6eccf9a",
+  "verdict": "pass",
+  "summary": "Tests reject omitted, reordered, or mislocated slug/memo output by asserting exact 'slug [memo]' propagation into the selected tmux session's status-left before attach.",
+  "timestamp": "2026-08-11T17:34:33.180Z"
+}

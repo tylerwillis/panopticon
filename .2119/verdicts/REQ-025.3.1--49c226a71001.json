@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.3.1--49c226a71001",
+  "requirementId": "REQ-025.3.1",
+  "hash": "49c226a71001",
+  "verdict": "pass",
+  "summary": "Exact attach argv verifies the same task session's status-left is updated before attach, rejecting missing, wrong-target, wrong-area, and post-attach updates.",
+  "timestamp": "2026-08-11T17:01:02.195Z"
+}

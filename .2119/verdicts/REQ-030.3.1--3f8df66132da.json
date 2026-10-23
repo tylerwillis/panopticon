@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.3.1--3f8df66132da",
+  "requirementId": "REQ-030.3.1",
+  "hash": "3f8df66132da",
+  "verdict": "pass",
+  "summary": "All four named session-creation paths load the complete REQ-030.1/.2 config via -f before new-session on the dedicated socket, with fresh-socket tmux integration coverage.",
+  "timestamp": "2026-08-11T17:01:54.574Z"
+}

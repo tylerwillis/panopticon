@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-030.1.1--c43031148073",
+  "requirementId": "REQ-030.1.1",
+  "hash": "c43031148073",
+  "verdict": "pass",
+  "summary": "Tests reject mouse omission/off, verify it is effective on a real created session, and pin every dedicated-socket session creator to load the shipped config before new-session.",
+  "timestamp": "2026-08-11T17:01:41.523Z"
+}

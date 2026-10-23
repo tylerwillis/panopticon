@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-054.3.3--c377827012e0",
+  "requirementId": "REQ-054.3.3",
+  "hash": "c377827012e0",
+  "verdict": "pass",
+  "summary": "Exact argv and real-tmux tests reject decoration that renames either the target session or its active window.",
+  "timestamp": "2026-08-11T17:05:42.851Z"
+}

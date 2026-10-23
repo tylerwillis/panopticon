@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.3.3--24a865a53938",
+  "requirementId": "REQ-025.3.3",
+  "hash": "24a865a53938",
+  "verdict": "pass",
+  "summary": "PASS: the exact decorated attach command retains panopticon-t1 as every tmux target and contains no rename; adding rename-session or attaching/decorating a different name fails the assertion.",
+  "timestamp": "2026-08-11T17:30:05.505Z"
+}

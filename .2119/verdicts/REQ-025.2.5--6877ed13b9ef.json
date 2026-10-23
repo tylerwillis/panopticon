@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.2.5--6877ed13b9ef",
+  "requirementId": "REQ-025.2.5",
+  "hash": "6877ed13b9ef",
+  "verdict": "pass",
+  "summary": "Over-limit labels across all context sources are asserted exactly, so any shortened result not ending in U+2026 is rejected.",
+  "timestamp": "2026-08-11T17:29:56.227Z"
+}

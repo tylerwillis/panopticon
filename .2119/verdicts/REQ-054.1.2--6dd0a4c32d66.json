@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-054.1.2--6dd0a4c32d66",
+  "requirementId": "REQ-054.1.2",
+  "hash": "6dd0a4c32d66",
+  "verdict": "pass",
+  "summary": "Tests reject wrong-command, root-table, and indirect detach near-misses, then verify the selected server's current prefix and direct prefix-table detach key render as the right-aligned status hint.",
+  "timestamp": "2026-08-11T17:53:13.976Z"
+}

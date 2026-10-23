@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.3.3--ebd6f70b002c",
+  "requirementId": "REQ-025.3.3",
+  "hash": "ebd6f70b002c",
+  "verdict": "pass",
+  "summary": "Exact attach argv updates only status options and attaches to the original panopticon-t1 target, so a rename or label-substituted session name is rejected.",
+  "timestamp": "2026-08-11T17:01:32.328Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.1.4--750b2e913c77",
+  "requirementId": "REQ-025.1.4",
+  "hash": "750b2e913c77",
+  "verdict": "pass",
+  "summary": "PASS: the local attach-path test rejects omission, misplacement, or substitution of the resolved tmux session name in status-left when slug and memo are absent.",
+  "timestamp": "2026-08-11T17:34:33.831Z"
+}

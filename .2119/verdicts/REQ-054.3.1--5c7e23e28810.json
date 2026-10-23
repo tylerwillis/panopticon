@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-054.3.1--5c7e23e28810",
+  "requirementId": "REQ-054.3.1",
+  "hash": "5c7e23e28810",
+  "verdict": "pass",
+  "summary": "Tests reject wrong session targeting, non-runner-local remote queries, decoration drift, and query-after-attach ordering across local and remote paths.",
+  "timestamp": "2026-08-11T17:52:14.242Z"
+}

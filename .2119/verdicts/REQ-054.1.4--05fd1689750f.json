@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-054.1.4--05fd1689750f",
+  "requirementId": "REQ-054.1.4",
+  "hash": "05fd1689750f",
+  "verdict": "pass",
+  "summary": "Tests reject specific-key claims when the prefix is missing, the direct detach binding is missing or indirect, and verify the generic fallback on a real decorated tmux status line.",
+  "timestamp": "2026-08-11T17:52:01.423Z"
+}

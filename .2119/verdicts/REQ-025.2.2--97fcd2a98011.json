@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.2.2--97fcd2a98011",
+  "requirementId": "REQ-025.2.2",
+  "hash": "97fcd2a98011",
+  "verdict": "pass",
+  "summary": "Behavioral test covers both slug and memo with every Python-recognized Unicode whitespace character at both edges; retaining any leading or trailing character changes the exact label and fails.",
+  "timestamp": "2026-08-11T16:57:46.069Z"
+}

@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-054.3.2--cf12bc99565d",
+  "requirementId": "REQ-054.3.2",
+  "hash": "cf12bc99565d",
+  "verdict": "pass",
+  "summary": "Direct exact-argv tests cover every unlabelled supervisor target and reject any decoration or change to the legacy tmux attach command.",
+  "timestamp": "2026-08-11T17:33:07.228Z"
+}

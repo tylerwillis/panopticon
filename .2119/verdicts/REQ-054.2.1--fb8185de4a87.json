@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-054.2.1--fb8185de4a87",
+  "requirementId": "REQ-054.2.1",
+  "hash": "fb8185de4a87",
+  "verdict": "pass",
+  "summary": "Exact argv and real-tmux assertions reject omission or status-left-length values 99/101 instead of 100 on decorated sessions.",
+  "timestamp": "2026-08-11T17:05:23.139Z"
+}

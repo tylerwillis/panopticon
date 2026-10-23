@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-025.2.4--651e5d34aa5c",
+  "requirementId": "REQ-025.2.4",
+  "hash": "651e5d34aa5c",
+  "verdict": "pass",
+  "summary": "Tests reject the nearest 101-code-point violation at the 100/101 boundary using Unicode input and cover slug, combined slug/memo, memo-only, and session-fallback labels.",
+  "timestamp": "2026-08-11T16:58:20.800Z"
+}

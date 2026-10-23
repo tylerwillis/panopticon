@@ -1,0 +1,8 @@
+{
+  "reviewId": "REQ-054.3.2--1c50d914b2cd",
+  "requirementId": "REQ-054.3.2",
+  "hash": "1c50d914b2cd",
+  "verdict": "pass",
+  "summary": "Exact argv checks for dashboard, service, and runner reject any decoration or alteration of the legacy unlabelled tmux attach command.",
+  "timestamp": "2026-08-11T17:05:24.859Z"
+}
