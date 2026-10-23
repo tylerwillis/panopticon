@@ -811,6 +811,8 @@ class ChoiceScreen(_OptionListModal[str]):
 class RepoChoiceScreen(ChoiceScreen):
     """The new-task repository picker with a small, prefix-only typeahead filter."""
 
+    CSS = "RepoChoiceScreen { align: center middle; }"
+
     def __init__(self, options: list[str]) -> None:
         super().__init__("repo", options)
         self._query = ""

@@ -1,0 +1,8 @@
+{
+  "reviewId": "centered-repo-picker.1.1--98610b21d652",
+  "requirementId": "centered-repo-picker.1.1",
+  "hash": "98610b21d652",
+  "verdict": "pass",
+  "summary": "Behavioral modal test rejects one-cell horizontal or vertical offsets and stale positioning after terminal resize by asserting exact box coordinates against the screen's current dimensions.",
+  "timestamp": "2026-08-11T17:44:21.608Z"
+}
