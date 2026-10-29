@@ -9,25 +9,49 @@
 # Each check below still stops the procedure on failure — it just reports and
 # returns instead of killing your terminal.
 
-export APP_ROOT=/Users/tylerwillis/experiments/panopticon/repo
-export SERVICE_URL=http://127.0.0.1:8000
-export PANOPTICON_CONFIG=/Users/tylerwillis/.config/panopticon
+export APP_ROOT="${APP_ROOT:-${${(%):-%N}:A:h}}"
+export SERVICE_URL="${SERVICE_URL:-http://127.0.0.1:8000}"
+export PANOPTICON_CONFIG="${PANOPTICON_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/panopticon}"
 export AUTH_FILE_NAME=task-service-auth.json
 export AUTH_PATH="$PANOPTICON_CONFIG/secrets/$AUTH_FILE_NAME"
 export PANOPTICON_SERVICE_AUTH_FILE="$AUTH_FILE_NAME"
-export PWA_ORIGIN=https://mac-studio.tail8740f.ts.net
-export PHONE_BOARD_URL=https://mac-studio.tail8740f.ts.net:8443
-export CANARY_TASK_ID=8afcebb1cacf4dc1bb3d899f9062d152
-export KNOWN_TASK_NAME=notifier-deployment
-export ISSUE_202_COMMIT=a0c4f16930a520a2dad1fea4d2e5b8c66176335b
-export DEPLOY_REV="$(git -C "$APP_ROOT" rev-parse HEAD)"
+export PWA_ORIGIN="${PWA_ORIGIN:-https://phone.example:443}"
+export PHONE_BOARD_URL="${PHONE_BOARD_URL:-https://phone.example:443}"
+export CANARY_TASK_ID="${CANARY_TASK_ID:-replace-with-nonterminal-task-id}"
+export KNOWN_TASK_NAME="${KNOWN_TASK_NAME:-replace-with-task-name-visible-on-phone-board}"
+export ISSUE_202_COMMIT="${ISSUE_202_COMMIT:-replace-with-closing-commit}"
 export OLD_RUNNER_ID=local
+
+_s00_fail() { print -u2 "S00 FAILED: $1"; print -u2 "Fix it, then re-source this file."; return 1; }
+
+# Refuse to run against example values. Supply these exports in the operator's
+# private shell before sourcing this file; do not record live values here.
+if [ "$PWA_ORIGIN" = https://phone.example:443 ]; then
+  _s00_fail "set PWA_ORIGIN before sourcing"
+  return 1
+fi
+if [ "$PHONE_BOARD_URL" = https://phone.example:443 ]; then
+  _s00_fail "set PHONE_BOARD_URL before sourcing"
+  return 1
+fi
+if [ "$ISSUE_202_COMMIT" = replace-with-closing-commit ]; then
+  _s00_fail "set ISSUE_202_COMMIT before sourcing"
+  return 1
+fi
+if [ "$CANARY_TASK_ID" = replace-with-nonterminal-task-id ]; then
+  _s00_fail "set CANARY_TASK_ID before sourcing"
+  return 1
+fi
+if [ "$KNOWN_TASK_NAME" = replace-with-task-name-visible-on-phone-board ]; then
+  _s00_fail "set KNOWN_TASK_NAME before sourcing"
+  return 1
+fi
+
+export DEPLOY_REV="$(git -C "$APP_ROOT" rev-parse HEAD)"
 export NEW_RUNNER_ID="cutover-$(date +%s)"
 export EVIDENCE_DIR="$(mktemp -d)"
 : > "$EVIDENCE_DIR/followups.md"
 : > "$EVIDENCE_DIR/gates.txt"
-
-_s00_fail() { print -u2 "S00 FAILED: $1"; print -u2 "Fix it, then re-source this file."; return 1; }
 
 # The escape fix must be an ancestor of what we are deploying.
 git -C "$APP_ROOT" merge-base --is-ancestor "$ISSUE_202_COMMIT" "$DEPLOY_REV" \
@@ -62,9 +86,6 @@ curl --silent --show-error --fail \
   || _s00_fail "could not fetch runners"
 
 # S00 Check block
-[ "$ISSUE_202_COMMIT" != replace-with-closing-commit ] || _s00_fail "placeholder left in ISSUE_202_COMMIT"
-[ "$CANARY_TASK_ID" != replace-with-nonterminal-task-id ] || _s00_fail "placeholder left in CANARY_TASK_ID"
-[ "$KNOWN_TASK_NAME" != replace-with-task-name-visible-on-phone-board ] || _s00_fail "placeholder left in KNOWN_TASK_NAME"
 [ -d "$EVIDENCE_DIR" ] || _s00_fail "EVIDENCE_DIR missing"
 [ "$NEW_RUNNER_ID" != "$OLD_RUNNER_ID" ] || _s00_fail "runner IDs identical"
 
