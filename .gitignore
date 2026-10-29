@@ -14,6 +14,11 @@ build/
 
 # Node
 node_modules/
+
+# Local agent working state and exported session transcripts
+/.internal/
+agent-session-*.html
+
 # 2119:gitignore-begin
 # Review packets are scratch; verdicts are committed audit history.
 !.2119/
